@@ -364,7 +364,8 @@ export default function LearningBoardPage({
   const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">("video");
   const [practicalCompleted, setPracticalCompleted] = useState(false);
   
-  // Dev preview: fetch generated JSON from backend when enabled
+  // Fetch the imported chapter whenever either viewer needs it. Practical mode
+  // must not depend on read-mode having been opened first.
   const [devPreviewEnabled, setDevPreviewEnabled] = useState(true);
   const [devPreviewLoading, setDevPreviewLoading] = useState(false);
   const [devPreviewError, setDevPreviewError] = useState<string | null>(null);
@@ -454,7 +455,7 @@ export default function LearningBoardPage({
     : null;
 
   useEffect(() => {
-    if (!devPreviewEnabled || !previewCourseId) return;
+    if (!previewCourseId || (!devPreviewEnabled && viewerMode !== "practical")) return;
 
     let cancelled = false;
 
@@ -528,7 +529,7 @@ export default function LearningBoardPage({
     return () => {
       cancelled = true;
     };
-  }, [devPreviewEnabled, previewCourseId, previewModule, previewChapter]);
+  }, [devPreviewEnabled, viewerMode, previewCourseId, previewModule, previewChapter]);
 
   // Keep the exact course/chapter available to the standalone mentor page.
   useEffect(() => {
@@ -665,7 +666,8 @@ export default function LearningBoardPage({
 
   const handleAssessmentSubmitted = async (score: number) => {
     try {
-      // Mark chapter as complete after assessment passes
+      // Persist the grade, but keep the result screen visible so the learner
+      // can retake the assessment or return to the course syllabus.
       const assessmentPassed = score >= 50;
       await persistChapterProgress({
         watched: true,
@@ -674,11 +676,6 @@ export default function LearningBoardPage({
         assessmentPassed: assessmentPassed,
         score,
       });
-      // Auto-return to overview after assessment completion
-      if (assessmentPassed) {
-        setViewerMode("complete");
-        setTimeout(() => onChangePage("overview"), 1500);
-      }
     } catch {
       setNotesStatus("error");
     }
@@ -824,7 +821,9 @@ export default function LearningBoardPage({
   const manifestAssessment = normalizeAssessmentSource(manifestChapter?.assessment);
   const previewAssessment = normalizeAssessmentSource(generatedPreview?.assessment);
   const activePractical = generatedPreview?.practical || null;
-  const activeAssessment = devPreviewEnabled ? (previewAssessment || manifestAssessment) : manifestAssessment;
+  // The database chapter loaded into generatedPreview is the source of truth
+  // after read mode advances to practical mode.
+  const activeAssessment = previewAssessment || manifestAssessment;
   const boardCourseTitle = generatedPreview?.course || courseCatalog?.course ||
     (previewCourseId && previewCourseId !== courseId
       ? previewCourseId.replace(/(^|-)([a-z])/g, (_match, separator, letter) => `${separator}${letter.toUpperCase()}`)
@@ -1138,6 +1137,11 @@ export default function LearningBoardPage({
                   <h2 className="text-lg sm:text-xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-snug">
                     {boardDisplayTitle}
                   </h2>
+                  {!devPreviewEnabled && viewerMode === "practical" && (
+                    <p className="mt-1 text-xs text-immersive-text-secondary">
+                      Hands-On Practice — Complete the practical exercises to reinforce your learning before taking the assessment.
+                    </p>
+                  )}
                 </div>
 
                 {/* View selectors */}
@@ -1233,7 +1237,9 @@ export default function LearningBoardPage({
                           manifest={generatedPreview}
                           onComplete={async () => {
                             await handleChapterWatched();
-                            setShowChapterAssessment(true);
+                            setShowChapterAssessment(false);
+                            setDevPreviewEnabled(false);
+                            setViewerMode("practical");
                           }}
                           onRequestPrevChapter={() => {
                             const currentMod = Number.parseInt(previewModule, 10);
@@ -1333,37 +1339,31 @@ export default function LearningBoardPage({
 
                 {/* 3. ADAPTIVE INTERACTIVE SANDBOX PLAYGROUND */}
                 {!devPreviewEnabled && viewerMode === "practical" && (
-                  <div className="flex flex-col space-y-4">
-                    <div className="bg-immersive-card/40 border border-white/10 rounded-2xl p-4 sm:p-6 space-y-4">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-bold text-immersive-text-primary mb-2">Hands-On Practice</h3>
-                        <p className="text-sm text-immersive-text-secondary">Complete the practical exercises to reinforce your learning before taking the assessment.</p>
-                      </div>
+                  <div className="absolute inset-0 flex min-h-0 flex-col">
+                    <div className="relative min-h-0 flex-1">
+                      <InteractiveSandbox
+                        userProfile={userProfile}
+                        selectedLesson={selectedLesson}
+                        handsOnActivities={activePractical?.tasks?.map((task) => task.instruction) || details.summary.takeaways}
+                        practical={activePractical}
+                        learningContext={{
+                          courseId: activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId,
+                          courseTitle: generatedPreview?.course || courseCatalog?.course || courseTitle,
+                          courseCategory: activePractical?.category || undefined,
+                          module: activePractical?.module ?? generatedPreview?.module,
+                          chapter: activePractical?.chapter ?? generatedPreview?.chapter,
+                          moduleTitle: generatedPreview?.moduleTitle || curriculum[activeMilestoneIndex]?.title,
+                          chapterTitle: generatedPreview?.chapterTitle,
+                          lessonTitle: selectedLesson.title,
+                          lessonContent: courseLessons?.[selectedLesson.id],
+                          page: "learning board",
+                        }}
+                        onComplete={handlePracticalCompleted}
+                      />
                     </div>
-                    <InteractiveSandbox 
-                      userProfile={userProfile}
-                      selectedLesson={selectedLesson}
-                      handsOnActivities={activePractical?.tasks?.map((task) => task.instruction) || details.summary.takeaways}
-                      practical={activePractical}
-                      learningContext={{
-                        courseId: activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId,
-                        courseTitle: generatedPreview?.course || courseCatalog?.course || courseTitle,
-                        courseCategory: activePractical?.category || undefined,
-                        module: activePractical?.module ?? generatedPreview?.module,
-                        chapter: activePractical?.chapter ?? generatedPreview?.chapter,
-                        moduleTitle: generatedPreview?.moduleTitle || curriculum[activeMilestoneIndex]?.title,
-                        chapterTitle: generatedPreview?.chapterTitle,
-                        lessonTitle: selectedLesson.title,
-                        lessonContent: courseLessons?.[selectedLesson.id],
-                        page: "learning board",
-                      }}
-                    />
-                    <button
-                      onClick={handlePracticalCompleted}
-                      className="px-6 py-3 bg-immersive-secondary text-immersive-bg font-bold rounded-xl hover:bg-white transition-all mt-4"
-                    >
-                      Practical Complete → Take Assessment
-                    </button>
+                    <div className="shrink-0 px-6 py-3 text-center text-xs font-bold text-immersive-secondary border-t border-immersive-border/50">
+                      Complete all hands-on checks to unlock the assessment.
+                    </div>
                   </div>
                 )}
 

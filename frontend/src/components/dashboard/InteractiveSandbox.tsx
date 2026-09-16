@@ -17,6 +17,7 @@ interface InteractiveSandboxProps {
   handsOnActivities?: string[];
   learningContext?: ChatLearningContext;
   practical?: LearningBoardPractical | null;
+  onComplete?: () => void | Promise<void>;
 }
 
 export type PracticalWorkbenchMode = "code_lab" | "terminal_lab" | "database_lab" | "simulation_lab" | "non_code_activity" | "research_notebook" | "cloud_portal";
@@ -25,6 +26,15 @@ export function resolvePracticalWorkbenchMode(
   practical: LearningBoardPractical | null | undefined,
   fallbackTrackId: CohortTrackId,
 ): PracticalWorkbenchMode {
+  if (practical?.experienceType === "terminal_coding_lab") {
+    if (practical.labType === "database") return "database_lab";
+    if (practical.labType === "shell" || practical.labType === "network") return "terminal_lab";
+    return "code_lab";
+  }
+  if (practical?.experienceType === "research_evidence_lab") return "research_notebook";
+  if (practical?.experienceType === "cloud_console_lab") return "cloud_portal";
+  if (practical?.experienceType === "scenario_simulator") return "simulation_lab";
+
   // The authored activity category owns the learner experience. Technical
   // labType selects behavior inside that experience, not the workspace itself.
   if (practical?.category === "Research & Analysis") return "research_notebook";
@@ -50,7 +60,7 @@ export function resolvePracticalWorkbenchMode(
   return fallbackTrackId === "analytics" ? "database_lab" : "code_lab";
 }
 
-export default function InteractiveSandbox({ userProfile, selectedLesson, handsOnActivities = [], learningContext, practical }: InteractiveSandboxProps) {
+export default function InteractiveSandbox({ userProfile, selectedLesson, handsOnActivities = [], learningContext, practical, onComplete }: InteractiveSandboxProps) {
   const activeTrackId = (userProfile.track || "frontend") as CohortTrackId;
   const workbenchMode = resolvePracticalWorkbenchMode(practical, activeTrackId);
   const workspaceStorageKey = `cohortia_sandbox_code_${practical?.id || selectedLesson.id}`;
@@ -63,6 +73,15 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
   const [isRunning, setIsRunning] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
+  const completionReportedRef = useRef(false);
+
+  useEffect(() => {
+    if (!practical?.tasks?.length || completionReportedRef.current) return;
+    if (practical.tasks.every((_, index) => checkedItems[index])) {
+      completionReportedRef.current = true;
+      void onComplete?.();
+    }
+  }, [checkedItems, onComplete, practical]);
   const [checkResults, setCheckResults] = useState<Record<string, boolean>>({});
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "mentor"; text: string }>>([
@@ -742,6 +761,7 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
     onTaskSelect={handleTaskSelect}
     narratorGuide={practical?.narratorGuide}
     codeWalkthrough={practical?.codeWalkthrough}
+    teachingPlaylist={practical?.teachingPlaylist}
     isNarrating={isNarrating}
     onPlayNarration={handlePlayNarration}
     mode={workbenchMode}

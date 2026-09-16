@@ -18,7 +18,7 @@ import { existsSync } from 'node:fs';
 import { createClient } from '@libsql/client';
 
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({ url: databaseUrl });
+const client = createClient({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 
 async function resetDatabase() {
   console.log('🔄 Resetting practical database records...');

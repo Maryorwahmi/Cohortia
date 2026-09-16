@@ -3,6 +3,7 @@ import { createClient } from '@libsql/client';
 
 const client = createClient({
   url: process.env.DATABASE_URL || 'file:./cohortia.db',
+  authToken: process.env.DATABASE_AUTH_TOKEN,
 });
 
 const columnsToAdd = [

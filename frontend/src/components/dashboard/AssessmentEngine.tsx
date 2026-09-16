@@ -33,7 +33,7 @@ type AnswerEvaluationState = AssessmentAnswerEvaluation & {
   error?: string;
 };
 
-function requiresAiEvaluation(question: Question) {
+function requiresWrittenEvaluation(question: Question) {
   return question.type === "case-study" || question.type === "code-output" || question.type === "code-challenge";
 }
 
@@ -103,7 +103,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
 
   const handleEvaluateAnswer = async (question: Question) => {
     const studentAnswer = caseStudyInputs[question.id]?.trim() || "";
-    if (!requiresAiEvaluation(question) || !studentAnswer) return;
+    if (!requiresWrittenEvaluation(question) || !studentAnswer) return;
 
     if (!assessmentContext?.courseId) {
       const error = "This assessment is missing its course context. Please return to the overview and reopen it.";
@@ -155,7 +155,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
     } catch (error) {
       const message = error instanceof Error
         ? error.message
-        : "AI evaluation is temporarily unavailable. Please try again.";
+        : "The stored assessment key could not evaluate this answer. Please try again.";
       setAssessmentError(message);
       setAnswerEvaluations((prev) => ({
         ...prev,
@@ -193,7 +193,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
       return (
         <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-[11px] font-semibold leading-relaxed text-red-700">
           <X className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{evaluation.error || "AI evaluation failed. Please try again."}</span>
+          <span>{evaluation.error || "Assessment-key grading failed. Please try again."}</span>
         </div>
       );
     }
@@ -203,7 +203,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
         <div className={`flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-wider ${evaluation.isCorrect ? "text-emerald-700" : "text-orange-700"}`}>
           {evaluation.isCorrect ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
           <Sparkles className="h-3.5 w-3.5" />
-          <span>{evaluation.isCorrect ? "AI evaluation: Correct" : "AI evaluation: Not quite yet"}</span>
+          <span>{evaluation.isCorrect ? "Assessment key: Correct" : "Assessment key: Not quite yet"}</span>
         </div>
         <p className="text-xs font-semibold leading-relaxed text-slate-700">{evaluation.feedback}</p>
         {evaluation.guidance && (
@@ -223,7 +223,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
     );
   };
 
-  const writtenQuestions = questions.filter(requiresAiEvaluation);
+  const writtenQuestions = questions.filter(requiresWrittenEvaluation);
   const allWrittenAnswersEvaluated = writtenQuestions.every(
     (question) => answerEvaluations[question.id]?.status === "evaluated",
   );
@@ -250,7 +250,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
           }
         });
         if (allMatched) correctCount++;
-      } else if (requiresAiEvaluation(q)) {
+      } else if (requiresWrittenEvaluation(q)) {
         if (answerEvaluations[q.id]?.status === "evaluated" && answerEvaluations[q.id].isCorrect) {
           correctCount++;
         }
@@ -336,7 +336,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
               onClick={onMoveToOverview}
               className="py-2.5 rounded-xl text-xs font-bold bg-[#FF4B3E] hover:bg-[#e84236] text-white flex items-center justify-center space-x-2 cursor-pointer transition-all"
             >
-              <span>Move to Overview</span>
+              <span>Back to Course Syllabus</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -424,7 +424,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
                         value={caseStudyInputs[questions[currentQuestionIdx].id] || ""}
                         onChange={(e) => handleWrittenAnswerChange(questions[currentQuestionIdx].id, e.target.value)}
                         disabled={submittedCaseStudies[questions[currentQuestionIdx].id] || answerEvaluations[questions[currentQuestionIdx].id]?.status === "evaluating"}
-                        placeholder="Write your answer for AI evaluation..."
+                        placeholder="Write your answer for assessment-key grading..."
                         className="w-full bg-white border border-slate-300 p-3 rounded-xl text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#FF4B3E]/60 resize-none h-32 leading-relaxed"
                       />
                       {!submittedCaseStudies[questions[currentQuestionIdx].id] ? (
@@ -555,7 +555,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
           )}
           {!allWrittenAnswersEvaluated && !assessmentError && (
             <p className="mt-3 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold leading-relaxed text-indigo-700">
-              Evaluate each written answer with AI before submitting the assessment.
+              Check each written answer against the stored assessment key before submitting the assessment.
             </p>
           )}
 

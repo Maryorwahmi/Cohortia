@@ -5,6 +5,7 @@ import * as schema from './schema.js';
 
 const client = createClient({
   url: process.env.DATABASE_URL || 'file:./cohortia.db',
+  authToken: process.env.DATABASE_AUTH_TOKEN,
 });
 
 export const db = drizzle(client, { schema });

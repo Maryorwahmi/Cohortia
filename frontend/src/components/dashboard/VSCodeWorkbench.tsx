@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CheckCircle, Download, FileCode2, Folder, GitBranch, Lightbulb, MessageSquare, Play, Save, Search, Send, Settings, Terminal, Volume2, Sparkles, Check, List, BookOpen, Pause, RotateCw, ChevronRight, AlertTriangle, Zap, Clock, PlayCircle, Code2 } from "lucide-react";
-import type { LearningBoardPractical, CodeWalkthroughSegment } from "../../services/learningBoardsApi";
+import type { LearningBoardPractical, CodeWalkthroughSegment, PracticalTeachingPlaylistStep } from "../../services/learningBoardsApi";
 import CodeEditor from "./CodeEditor";
 import BinaryConverterWidget from "./BinaryConverterWidget";
 import AlgorithmDesignWidget from "./AlgorithmDesignWidget";
@@ -41,6 +41,7 @@ interface VSCodeWorkbenchProps {
   onTaskSelect?: (index: number) => void;
   narratorGuide?: string | null;
   codeWalkthrough?: CodeWalkthroughSegment[];
+  teachingPlaylist?: PracticalTeachingPlaylistStep[];
   isNarrating?: boolean;
   onPlayNarration?: (text?: string) => void;
   mode?: string;
@@ -86,6 +87,7 @@ export default function VSCodeWorkbench({
   onTaskSelect,
   narratorGuide,
   codeWalkthrough = [],
+  teachingPlaylist = [],
   isNarrating,
   onPlayNarration,
   mode,
@@ -125,7 +127,7 @@ export default function VSCodeWorkbench({
   const isResearchMode = mode === "research_notebook";
   const isCloudMode = mode === "cloud_portal";
   const isNonCode = mode === "non_code_activity" || isSimulationMode || isResearchMode || isCloudMode;
-  const supportsCodeAlong = mode === "code_lab" || mode === "terminal_lab" || mode === "database_lab";
+  const supportsCodeAlong = teachingPlaylist.length > 0 || mode === "code_lab" || mode === "terminal_lab" || mode === "database_lab";
   const languageLabel = language || (fileName.endsWith(".c") ? "C" : fileName.endsWith(".cpp") ? "C++" : fileName.endsWith(".sql") ? "SQL" : "Python");
   const terminalCommand = isNonCode ? "submit" : `${languageLabel.toLowerCase()} ${fileName}`;
   const isPractical = Boolean(practicalStatus || practicalSource);
@@ -140,47 +142,16 @@ export default function VSCodeWorkbench({
 
   if (activeViewMode === "code_along") {
     return (
-      <div className="absolute inset-0 flex flex-col overflow-hidden bg-[#0a0f1d]">
-        <div className="flex h-9 shrink-0 items-center justify-between border-b border-slate-800 bg-[#0f172a] px-3 text-[10px] font-mono">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-blue-400 uppercase tracking-wider">Cohortia Class</span>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-300 font-sans truncate">{selectedLesson.title}</span>
-          </div>
-          <div className="flex items-center gap-1 bg-slate-800/80 p-0.5 rounded-lg border border-slate-700">
-            {supportsCodeAlong && (
-              <button
-                type="button"
-                onClick={() => setActiveViewMode("code_along")}
-                className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded bg-blue-600 text-white shadow-sm cursor-pointer"
-              >
-                <PlayCircle className="h-3 w-3" />
-                <span>📼 Code-Along Class</span>
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setActiveViewMode("sandbox")}
-              className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded text-slate-300 hover:text-white cursor-pointer"
-            >
-              <Terminal className="h-3 w-3" />
-              <span>{supportsCodeAlong ? "💻 Practice in Terminal" : "🧭 Open Workspace"}</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="flex-1 min-h-0">
-          <AnimatedCodeAlongPlayer
-            title={selectedLesson.title}
-            courseId={courseId}
-            category={modeLabel}
-            files={files.length > 0 ? files : [{ path: fileName, content: code }]}
-            walkthroughSegments={codeWalkthrough}
-            narratorGuide={narratorGuide}
-            onSwitchToInteractive={() => setActiveViewMode("sandbox")}
-          />
-        </div>
-      </div>
+      <AnimatedCodeAlongPlayer
+        playlist={teachingPlaylist}
+        files={files}
+        walkthrough={codeWalkthrough}
+        category={mode === "code_lab" || mode === "terminal_lab" || mode === "database_lab" ? "Terminal Coding Lab" : isResearchMode ? "Research & Analysis" : isCloudMode ? "Cloud Console Lab" : "Scenario & Design Exercise"}
+        tasks={tasks}
+        output={output}
+        onRun={onRun}
+        onOpenLab={() => setActiveViewMode("sandbox")}
+      />
     );
   }
 

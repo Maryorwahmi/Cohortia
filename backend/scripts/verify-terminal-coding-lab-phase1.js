@@ -12,7 +12,7 @@ const workspaceRoot = path.basename(path.resolve(process.cwd())).toLowerCase() =
   : path.resolve(process.cwd());
 const pilotManifestPath = path.join(workspaceRoot, 'docs', 'terminal-coding-lab-pilots.json');
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({ url: databaseUrl });
+const client = createClient({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));

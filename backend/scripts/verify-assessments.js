@@ -4,7 +4,7 @@ import * as schema from '../src/db/schema.js';
 import { sql } from 'drizzle-orm';
 
 const dbUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({ url: dbUrl });
+const client = createClient({ url: dbUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 const db = drizzle(client, { schema });
 
 async function verifyImport() {

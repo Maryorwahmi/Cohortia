@@ -2,20 +2,20 @@ import 'dotenv/config';
 
 /**
  * Collect all Gemini API keys from environment variables.
- * Supports GEMINI_API_KEY, GEMINI_API_KEY_1, GEMINI_API_KEY_2, ...
+ * Supports GEMINI_API_KEY and any numbered GEMINI_API_KEY_N variables.
  */
 export function getGeminiKeys() {
-  const keys = [];
-  if (process.env.GEMINI_API_KEY) {
-    keys.push(process.env.GEMINI_API_KEY.trim());
-  }
-  for (let i = 1; i <= 20; i++) {
-    const key = process.env[`GEMINI_API_KEY_${i}`];
-    if (key) {
-      keys.push(key.trim());
-    }
-  }
-  return [...new Set(keys)]; // remove duplicates
+  const entries = Object.entries(process.env)
+    .filter(([name]) => name === 'GEMINI_API_KEY' || /^GEMINI_API_KEY_\d+$/.test(name))
+    .sort(([left], [right]) => {
+      if (left === 'GEMINI_API_KEY') return -1;
+      if (right === 'GEMINI_API_KEY') return 1;
+      return Number(left.slice('GEMINI_API_KEY_'.length)) - Number(right.slice('GEMINI_API_KEY_'.length));
+    });
+
+  return [...new Set(entries
+    .map(([, value]) => value?.trim())
+    .filter((value) => value && !/^replace-with-your-/i.test(value)))];
 }
 
 export function getGeminiModel() {
@@ -210,56 +210,64 @@ export async function callGemini({ systemPrompt, userPrompt, maxTokens = 1500, j
   });
 
   let lastError = null;
+  const requestTimeoutMs = Math.max(Number.parseInt(process.env.GEMINI_REQUEST_TIMEOUT_MS || '15000', 10) || 15000, 1000);
+  const attempts = keys.flatMap((key, keyIndex) => models.map((model) => ({ key, keyIndex, model })));
 
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
+  const runAttempt = async ({ key, keyIndex, model }) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), requestTimeoutMs);
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+    const body = { contents, generationConfig };
 
-    for (const model of models) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-
-      const body = {
-        contents,
-        generationConfig,
-      };
-
-      if (systemPrompt && !continuationText) {
-        body.systemInstruction = {
-          parts: [{ text: systemPrompt }],
-        };
-      }
-
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
-          const errorMessage = data.error?.message || `HTTP ${response.status}`;
-          console.log(`Gemini key ${i + 1} failed for model ${model}: ${errorMessage}`);
-          lastError = errorMessage;
-          continue; // try next model / key
-        }
-
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text && !jsonMode) {
-          console.log(`Gemini key ${i + 1} returned empty text for model ${model}`);
-          lastError = 'Empty response from Gemini';
-          continue;
-        }
-
-        return { success: true, text: text || '', usedKeyIndex: i };
-      } catch (error) {
-        console.log(`Gemini key ${i + 1} error with model ${model}: ${error.message}`);
-        lastError = error.message;
-      }
+    if (systemPrompt && !continuationText) {
+      body.systemInstruction = { parts: [{ text: systemPrompt }] };
     }
-  }
 
-  return { success: false, error: `All Gemini keys failed. Last error: ${lastError}` };
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const errorMessage = data.error?.message || `HTTP ${response.status}`;
+        console.log(`Gemini key ${keyIndex + 1} failed for model ${model}: ${errorMessage}`);
+        throw new Error(errorMessage);
+      }
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text && !jsonMode) {
+        console.log(`Gemini key ${keyIndex + 1} returned empty text for model ${model}`);
+        throw new Error('Empty response from Gemini');
+      }
+
+      return { success: true, text: text || '', usedKeyIndex: keyIndex };
+    } catch (error) {
+      const message = error.name === 'AbortError'
+        ? `Request timed out after ${requestTimeoutMs}ms`
+        : error.message;
+      if (error.name === 'AbortError') {
+        console.log(`Gemini key ${keyIndex + 1} timed out for model ${model} after ${requestTimeoutMs}ms`);
+      } else if (!message?.startsWith('You exceeded') && !message?.startsWith('HTTP ')) {
+        console.log(`Gemini key ${keyIndex + 1} error with model ${model}: ${message}`);
+      }
+      throw new Error(message);
+    } finally {
+      clearTimeout(timeout);
+    }
+  };
+
+  try {
+    return await Promise.any(attempts.map((attempt) => runAttempt(attempt)));
+  } catch (error) {
+    const failures = error instanceof AggregateError ? error.errors : [error];
+    lastError = failures.at(-1)?.message || 'Unknown Gemini error';
+    console.error(`Gemini exhausted ${keys.length} configured key(s) across ${models.length} model(s) after ${attempts.length} attempt(s).`);
+    return { success: false, error: `All Gemini keys failed after ${attempts.length} attempt(s). Last error: ${lastError}` };
+  }
 }
 
 /**

@@ -452,7 +452,9 @@ async function seedCourses() {
 
   async function flushLessons() {
     if (lessonBatch.length === 0) return;
-    await db.insert(lessons).values(lessonBatch);
+    // Some generated source files can describe the same lesson more than once.
+    // Keep the first deterministic version so an import remains retry-safe.
+    await db.insert(lessons).values(lessonBatch).onConflictDoNothing();
     insertedLessons += lessonBatch.length;
     lessonBatch.length = 0;
   }
@@ -645,21 +647,24 @@ async function seedCourses() {
     if (modules.length > 0) {
       const exam = buildCourseExam(title, modules);
       const examId = `${courseId}-exam`;
-      lessonBatch.push({
-        id: examId,
-        trackId: courseId,
-        moduleIndex: modules.length + 1,
-        moduleTitle: 'Final Assessment',
-        title: exam.title,
-        description: 'Comprehensive final exam covering all course modules.',
-        content: exam.content,
-        type: 'exam',
-        duration: '60 min',
-        order: order++,
-        createdAt: now,
-        updatedAt: now,
-      });
-      if (lessonBatch.length >= BATCH_SIZE) await flushLessons();
+      if (!seenLessonIds.has(examId)) {
+        seenLessonIds.add(examId);
+        lessonBatch.push({
+          id: examId,
+          trackId: courseId,
+          moduleIndex: modules.length + 1,
+          moduleTitle: 'Final Assessment',
+          title: exam.title,
+          description: 'Comprehensive final exam covering all course modules.',
+          content: exam.content,
+          type: 'exam',
+          duration: '60 min',
+          order: order++,
+          createdAt: now,
+          updatedAt: now,
+        });
+        if (lessonBatch.length >= BATCH_SIZE) await flushLessons();
+      }
     }
   }
 

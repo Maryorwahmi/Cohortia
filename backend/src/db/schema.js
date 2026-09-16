@@ -335,7 +335,7 @@ export const studyRoomParticipants = sqliteTable('study_room_participants', {
 export const userActivityLog = sqliteTable('user_activity_log', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),
-  activityType: text('activity_type').notNull(), // lesson_started, lesson_completed, project_submitted, mentor_chat, community_post
+  activityType: text('activity_type').notNull(), // lesson_completed, board_chapter_completed, practical_completed, mentor_chat, project_submitted
   entityId: text('entity_id'), // lessonId, projectId, postId, etc.
   metadata: text('metadata'), // JSON: {duration, score, chapter, module}
   createdAt: text('created_at').notNull(),
@@ -655,6 +655,7 @@ export const csAssessmentQuestions = sqliteTable('cs_assessment_questions', {
   questionNumber: integer('question_number').notNull(), // 1, 2, 3... within the chapter
   type: text('type').notNull(), // multiple-choice, code-output, case-study
   question: text('question').notNull(),
+  referenceAnswer: text('reference_answer'),
   explanation: text('explanation'),
   
   // Multiple choice fields

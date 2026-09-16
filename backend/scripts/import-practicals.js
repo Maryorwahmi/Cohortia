@@ -20,7 +20,7 @@ import {
 } from '../src/lib/practicalIdentity.js';
 
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({ url: databaseUrl });
+const client = createClient({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 
 function getPracticalSourceDirectory() {
   const sourceArgIndex = process.argv.indexOf('--source');
@@ -144,6 +144,9 @@ async function importPractical(practicalData) {
       ? version
       : existingPractical?.published_version || null;
     const practicalJson = JSON.stringify(practical);
+    const category = practical.category || practical.sourceCategory || metadata.category || null;
+    const sourcePath = practical.source?.sourcePath || metadata.activitySourcePath || null;
+    const classifierVersion = practical.generator?.classifierVersion || practical.classifierVersion || metadata.classifierVersion || null;
     const environmentJson = jsonText(practical.environment);
     const safetyJson = jsonText(practical.safety);
     const evidenceJson = jsonText(practical.evidence);
@@ -153,9 +156,9 @@ async function importPractical(practicalData) {
       await client.execute({
         sql: `
           UPDATE learning_board_practicals SET
-            mode = ?, language = ?, runtime = ?, title = ?, instructions = ?,
+            mode = ?, language = ?, runtime = ?, title = ?, instructions = ?, category = ?, source_path = ?,
             completion_rule = ?, metadata = ?, source_key = ?,
-            source_hash = COALESCE(?, source_hash), lab_type = ?,
+            source_hash = COALESCE(?, source_hash), lab_type = ?, classifier_version = ?,
             schema_version = ?, generator_version = ?, generation_status = ?,
             generation_error = ?, generated_at = ?, published_version = ?,
             practical_json = ?, environment_json = ?, safety_json = ?,
@@ -168,11 +171,14 @@ async function importPractical(practicalData) {
           practical.runtime || 'unknown',
           practical.title,
           practical.instructions || '',
+          category,
+          sourcePath,
           practical.completionRule || 'all_tests_pass',
           JSON.stringify(metadata),
           sourceKey,
           sourceHash,
           labType,
+          classifierVersion,
           schemaVersion,
           generatorVersion,
           generationStatus,
@@ -193,12 +199,12 @@ async function importPractical(practicalData) {
         sql: `
           INSERT INTO learning_board_practicals (
             id, course_id, module, chapter, mode, language, runtime, title,
-            instructions, completion_rule, metadata, source_key, source_hash,
-            lab_type, schema_version, generator_version, generation_status,
+            instructions, category, source_path, completion_rule, metadata, source_key, source_hash,
+            lab_type, classifier_version, schema_version, generator_version, generation_status,
             generation_error, generated_at, published_version, practical_json,
             environment_json, safety_json, evidence_json, cleanup_json,
             created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         args: [
           practicalId,
@@ -210,11 +216,14 @@ async function importPractical(practicalData) {
           practical.runtime || 'unknown',
           practical.title,
           practical.instructions || '',
+          category,
+          sourcePath,
           practical.completionRule || 'all_tests_pass',
           JSON.stringify(metadata),
           sourceKey,
           sourceHash,
           labType,
+          classifierVersion,
           schemaVersion,
           generatorVersion,
           generationStatus,

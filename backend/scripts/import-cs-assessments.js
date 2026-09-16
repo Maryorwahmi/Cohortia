@@ -8,7 +8,7 @@ import * as schema from '../src/db/schema.js';
 import { parseAssessmentQuestions } from '../src/lib/assessmentParser.js';
 
 const dbUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({ url: dbUrl });
+const client = createClient({ url: dbUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 const db = drizzle(client, { schema });
 
 const courseArg = process.argv.slice(2).find((argument) => argument === '--course' || argument.startsWith('--course='));
@@ -23,6 +23,11 @@ if (courseArg && (!requestedCourseId || requestedCourseId.startsWith('--'))) {
 }
 
 await client.execute('PRAGMA busy_timeout = 30000');
+try {
+  await client.execute('ALTER TABLE cs_assessment_questions ADD COLUMN reference_answer TEXT');
+} catch (error) {
+  if (!error.message?.includes('duplicate column name')) throw error;
+}
 
 const ASSESSMENTS_ROOT = resolve(process.cwd(), '../../CS Assessment');
 
@@ -254,6 +259,9 @@ async function importAssessments() {
             questionNumber: i + 1,
             type: q.type,
             question: q.question,
+            referenceAnswer: q.referenceAnswer || (
+              ['case-study', 'code-challenge'].includes(q.type) ? q.explanation : null
+            ),
             explanation: q.explanation,
             options: q.options ? JSON.stringify(q.options) : null,
             correctOption: q.correctOption !== undefined ? q.correctOption : null,

@@ -1,447 +1,194 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import {
-  Play,
-  Pause,
-  RotateCw,
-  Volume2,
-  VolumeX,
-  FileCode2,
-  Folder,
-  Sparkles,
-  Terminal,
-  Monitor,
-  CheckCircle2,
-  ArrowRight,
-  Code2,
-  Sliders,
-  Maximize2
-} from "lucide-react";
-import type { CodeWalkthroughSegment, LearningBoardPracticalFile } from "../../services/learningBoardsApi";
-import { getAssignedVoiceForCourse, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
-import { estimateSpeechDurationSeconds, SpeechNarrationQueue } from "../../lib/speechNarration";
+import React, { useEffect, useRef, useState } from "react";
+import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { motion } from "motion/react";
+import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep } from "../../services/learningBoardsApi";
 
+const TOTAL_DURATION = 60;
+const SCENE_DURATION = 10;
+
+/** Mirrors the homepage's simulated IDE scene for every practical code-along. */
 interface AnimatedCodeAlongPlayerProps {
-  title: string;
-  courseId?: string;
+  playlist?: PracticalTeachingPlaylistStep[];
+  files?: LearningBoardPracticalFile[];
+  walkthrough?: CodeWalkthroughSegment[];
   category?: string | null;
-  files: LearningBoardPracticalFile[];
-  walkthroughSegments: CodeWalkthroughSegment[];
-  narratorGuide?: string | null;
-  onSwitchToInteractive: () => void;
-  onComplete?: () => void;
+  tasks?: LearningBoardPracticalTask[];
+  output?: string[];
+  onRun?: () => void;
+  onOpenLab?: () => void;
 }
 
-export default function AnimatedCodeAlongPlayer({
-  title,
-  courseId,
-  category,
-  files,
-  walkthroughSegments: rawSegments,
-  narratorGuide,
-  onSwitchToInteractive,
-  onComplete,
-}: AnimatedCodeAlongPlayerProps) {
-  // If rawSegments is empty, build default segments from files or narratorGuide
-  const segments = useMemo<CodeWalkthroughSegment[]>(() => {
-    if (rawSegments && rawSegments.length > 0) {
-      return rawSegments.map((segment) => ({
-        ...segment,
-        durationSeconds: Math.max(
-          segment.durationSeconds || 0,
-          estimateSpeechDurationSeconds(segment.speakerText || ""),
-        ),
-      }));
-    }
-
-    const mainFile = files[0];
-    const codeLines = (mainFile?.content || "").split("\n").filter((l) => l.trim() !== "");
-
-    if (codeLines.length === 0) {
-      return [
-        {
-          stepNumber: 1,
-          speakerText: narratorGuide || `Welcome to ${title}! Let's review the fundamental concepts for this lesson.`,
-          codeLine: `// ${title}\n// Follow along with the instructor`,
-          file: mainFile?.path || "workspace.py",
-          explanation: "Initial program structure",
-          durationSeconds: Math.max(10, estimateSpeechDurationSeconds(narratorGuide || title)),
-        },
-      ];
-    }
-
-    // Chunk code lines into teaching steps
-    const generated: CodeWalkthroughSegment[] = [];
-    const chunkSize = Math.max(1, Math.ceil(codeLines.length / 5));
-    for (let i = 0; i < codeLines.length; i += chunkSize) {
-      const chunk = codeLines.slice(i, i + chunkSize).join("\n");
-      const stepNum = Math.floor(i / chunkSize) + 1;
-      generated.push({
-        stepNumber: stepNum,
-        speakerText: stepNum === 1
-          ? (narratorGuide?.slice(0, 180) || `Welcome to ${title}. Let's build our program line by line.`)
-          : `Step ${stepNum}: Adding ${chunk.slice(0, 40).replace(/\n/g, " ")}...`,
-        codeLine: chunk,
-        file: mainFile?.path || "workspace.py",
-        explanation: `Step ${stepNum}: Implementation block`,
-        durationSeconds: Math.max(
-          6,
-          Math.min(30, Math.floor(chunk.length / 8)),
-          estimateSpeechDurationSeconds(stepNum === 1 ? (narratorGuide || title) : `Step ${stepNum}: Adding ${chunk}`),
-        ),
-      });
-    }
-    return generated;
-  }, [rawSegments, files, narratorGuide, title]);
-
-  const totalDuration = useMemo(() => {
-    return segments.reduce((acc, s) => acc + (s.durationSeconds || 8), 0);
-  }, [segments]);
-
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], walkthrough = [], category, tasks = [], output = [], onRun, onOpenLab }: AnimatedCodeAlongPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
-  const [narrationComplete, setNarrationComplete] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [typedCodeMap, setTypedCodeMap] = useState<Record<string, string>>({});
-  const [activeFile, setActiveFile] = useState<string>(files[0]?.path || "workspace.py");
+  const [activePlaylistIndex, setActivePlaylistIndex] = useState(0);
+  const requestRef = useRef<number | null>(null);
+  const previousTimeRef = useRef<number | null>(null);
+  const spokenLessonRef = useRef<string | null>(null);
 
-  const narratorVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
-  const narrationQueueRef = useRef(new SpeechNarrationQueue());
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const handleSeek = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    setCurrentTime(ratio * activePlaylist.durationSeconds);
+  };
+  const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
+  const sceneProgress = (currentTime % SCENE_DURATION) / SCENE_DURATION;
+  const fallbackPlaylist: PracticalTeachingPlaylistStep[] = [{
+    id: "guided-practical", title: "Guided practical", category: "Practical learning",
+    description: "Build the solution with a warm, teacher-led explanation.", durationSeconds: TOTAL_DURATION,
+    learningGoal: "Understand the practical through guided action.", narratorScript: "Let’s work through this practical together.",
+    workedExample: "Follow the example as it is built.", scenario: "Apply it to a realistic task.",
+    learnerPrompt: "What do you predict will happen next?", commonMistake: "Do not skip checking the result.", recap: "Explain the key idea in your own words.", codeSteps: [1],
+  }];
+  const teachingPlaylist = playlist.length ? playlist : fallbackPlaylist;
+  const activePlaylist = teachingPlaylist[Math.min(activePlaylistIndex, teachingPlaylist.length - 1)];
+  const activeWalkthrough = walkthrough.filter((step) => activePlaylist.codeSteps.includes(step.stepNumber));
+  const displayedCode = activeWalkthrough.length
+    ? activeWalkthrough.map((step) => step.codeLine).join("\n")
+    : files[0]?.content || "// Your practical code will appear here.";
+  const activeFile = activeWalkthrough[0]?.file || files[0]?.path || "workspace";
+  const activeTask = tasks[Math.min(activePlaylistIndex, tasks.length - 1)];
+  const isCodeLab = category === "Terminal Coding Lab";
+  const experienceLabel = category === "Research & Analysis" ? "Evidence lab" : category === "Cloud Console Lab" ? "Cloud mission" : category === "Scenario & Design Exercise" ? "Decision simulator" : "Coding lab";
 
-  // Load course assigned narrator voice
-  useEffect(() => {
-    if (!courseId || typeof window === "undefined" || !window.speechSynthesis) return;
-
-    let cancelled = false;
-    const applyVoice = () => {
-      const browserVoices = window.speechSynthesis.getVoices();
-      getAssignedVoiceForCourse(courseId).then((assigned) => {
-        if (cancelled) return;
-        narratorVoiceRef.current = assigned ? findBrowserVoiceByName(assigned.label, browserVoices) : null;
-      });
-    };
-    applyVoice();
-    window.speechSynthesis.onvoiceschanged = applyVoice;
-    return () => {
-      cancelled = true;
-      window.speechSynthesis.onvoiceschanged = null;
-    };
-  }, [courseId]);
-
-  useEffect(() => {
-    return () => narrationQueueRef.current.cancel();
-  }, []);
-
-  const currentSegment = segments[currentStepIndex] || segments[0];
-
-  // Calculate cumulative code typed up to currentStepIndex
-  useEffect(() => {
-    const fileCodeMap: Record<string, string[]> = {};
-    for (let i = 0; i <= currentStepIndex && i < segments.length; i++) {
-      const seg = segments[i];
-      const filePath = seg.file || files[0]?.path || "workspace.py";
-      if (!fileCodeMap[filePath]) fileCodeMap[filePath] = [];
-      if (seg.codeLine) fileCodeMap[filePath].push(seg.codeLine);
-    }
-
-    const newTyped: Record<string, string> = {};
-    for (const [filePath, lines] of Object.entries(fileCodeMap)) {
-      newTyped[filePath] = lines.join("\n");
-    }
-    setTypedCodeMap(newTyped);
-
-    if (currentSegment?.file) {
-      setActiveFile(currentSegment.file);
-    }
-  }, [currentStepIndex, segments, files]);
-
-  // Speech synthesis for active segment
-  useEffect(() => {
-    const speechAvailable = typeof window !== "undefined" && Boolean(window.speechSynthesis);
-    setNarrationComplete(isMuted || !speechAvailable || !currentSegment?.speakerText);
-
-    if (!isPlaying || isMuted || !currentSegment?.speakerText || typeof window === "undefined" || !window.speechSynthesis) {
-      narrationQueueRef.current.cancel();
-      return;
-    }
-
-    narrationQueueRef.current.play(currentSegment.speakerText, {
-      voice: narratorVoiceRef.current,
-      rate: 0.88,
-      pitch: 1,
-      onComplete: () => setNarrationComplete(true),
-    });
-
-    return () => {
-      narrationQueueRef.current.cancel();
-    };
-  }, [currentStepIndex, isPlaying, isMuted, currentSegment]);
-
-  // Step timer & progression
   useEffect(() => {
     if (!isPlaying) {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      previousTimeRef.current = null;
       return;
     }
-
-    const interval = setInterval(() => {
-      setCurrentTime((prevTime) => {
-        const nextTime = prevTime + 0.5;
-        // Never switch code/explanation segments while the browser is still
-        // speaking the current narration. The timer may reach the planned
-        // duration first when a voice speaks more slowly than estimated.
-        if (nextTime >= totalDuration && !narrationComplete && !isMuted) {
-          return Math.max(prevTime, totalDuration - 0.01);
-        }
-
-        if (nextTime >= totalDuration) {
-          setIsPlaying(false);
-          onComplete?.();
-          return totalDuration;
-        }
-
-        // Determine step index from nextTime
-        let accumulated = 0;
-        for (let i = 0; i < segments.length; i++) {
-          const segDuration = segments[i].durationSeconds || 8;
-          if (nextTime >= accumulated && nextTime < accumulated + segDuration) {
-            if (i !== currentStepIndex) setCurrentStepIndex(i);
-            break;
-          }
-          if (i === currentStepIndex && nextTime >= accumulated + segDuration && !narrationComplete && !isMuted) {
-            return Math.max(prevTime, accumulated + segDuration - 0.01);
-          }
-          accumulated += segDuration;
-        }
-        return nextTime;
-      });
-    }, 500);
-
-    timerRef.current = interval;
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPlaying, totalDuration, currentStepIndex, segments, narrationComplete, isMuted, onComplete]);
-
-  const handleTogglePlay = () => {
-    setIsPlaying((prev) => !prev);
-  };
-
-  const handleReplayStep = () => {
-    let accumulated = 0;
-    for (let i = 0; i < currentStepIndex; i++) {
-      accumulated += segments[i].durationSeconds || 8;
-    }
-    setCurrentTime(accumulated);
-    setIsPlaying(true);
-  };
-
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const targetTime = ratio * totalDuration;
-    setCurrentTime(targetTime);
-
-    let accumulated = 0;
-    for (let i = 0; i < segments.length; i++) {
-      const segDuration = segments[i].durationSeconds || 8;
-      if (targetTime >= accumulated && targetTime < accumulated + segDuration) {
-        setCurrentStepIndex(i);
-        break;
+    const animate = (time: number) => {
+      if (previousTimeRef.current !== null) {
+        const delta = (time - previousTimeRef.current) / 1000;
+        setCurrentTime((previous) => (previous + delta >= activePlaylist.durationSeconds ? 0 : previous + delta));
       }
-      accumulated += segDuration;
-    }
+      previousTimeRef.current = time;
+      requestRef.current = requestAnimationFrame(animate);
+    };
+    requestRef.current = requestAnimationFrame(animate);
+    return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current); };
+  }, [isPlaying, activePlaylist.durationSeconds]);
+
+  const speakActiveLesson = () => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    spokenLessonRef.current = null;
+    const speech = new SpeechSynthesisUtterance(activePlaylist.narratorScript);
+    speech.rate = 0.88;
+    speech.pitch = 1;
+    speech.onend = () => { spokenLessonRef.current = activePlaylist.id; };
+    window.speechSynthesis.speak(speech);
   };
 
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  };
-
-  const currentCodeDisplay = typedCodeMap[activeFile] || "";
-  const codeLinesDisplay = currentCodeDisplay.split("\n");
+  useEffect(() => {
+    if (!isPlaying || isMuted || typeof window === "undefined" || !window.speechSynthesis) return;
+    if (spokenLessonRef.current === activePlaylist.id) return;
+    speakActiveLesson();
+    return () => window.speechSynthesis.cancel();
+  }, [activePlaylist.id, activePlaylist.narratorScript, isMuted, isPlaying]);
 
   return (
-    <div className="relative flex flex-col h-full w-full bg-[#0a0f1d] text-slate-100 font-sans overflow-hidden select-none">
-      {/* Top Header Bar */}
-      <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-800 bg-[#0f172a] px-4 text-xs font-mono">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#ff4b3e] animate-pulse" />
-            <span className="font-bold text-[#ff4b3e] uppercase tracking-wider">Simulated Cohortia IDE v4.2</span>
-          </div>
-          <span className="text-slate-600">|</span>
-          <span className="text-slate-400 font-sans truncate">{title}</span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {category && (
-            <span className="rounded-full bg-blue-500/10 border border-blue-500/30 px-2.5 py-0.5 text-[10px] font-bold text-blue-400 uppercase tracking-widest">
-              {category}
-            </span>
-          )}
-          <button
-            onClick={onSwitchToInteractive}
-            className="flex items-center gap-1.5 rounded-lg bg-[#2563eb] hover:bg-blue-600 text-white px-3 py-1 text-xs font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 cursor-pointer"
-          >
-            <Terminal className="h-3.5 w-3.5" />
-            <span>Practice in Sandbox</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Main Split Area */}
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        {/* Left Workspace File Tree */}
-        <aside className="w-56 shrink-0 border-r border-slate-800/80 bg-[#0f172a]/60 p-3 font-mono text-xs">
-          <div className="mb-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Folder className="h-3.5 w-3.5 text-blue-400" /> Workspace
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-slate-300 font-semibold text-[11px] pl-1 py-1">
-              <Folder className="h-3.5 w-3.5 text-amber-400" /> src
-            </div>
-            {files.map((f) => {
-              const isActive = f.path === activeFile;
-              return (
-                <button
-                  key={f.path}
-                  onClick={() => setActiveFile(f.path)}
-                  className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[11px] transition-all cursor-pointer ${
-                    isActive
-                      ? "bg-blue-600/20 text-blue-400 font-bold border border-blue-500/30"
-                      : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
-                  }`}
-                >
-                  <FileCode2 className={`h-3.5 w-3.5 ${isActive ? "text-blue-400" : "text-slate-500"}`} />
-                  <span className="truncate">{f.path}</span>
-                </button>
-              );
-            })}
-          </div>
-        </aside>
-
-        {/* Center Code Typing Canvas */}
-        <main className="relative flex min-w-0 flex-1 flex-col bg-[#0d1322]">
-          {/* Active File Header */}
-          <div className="flex h-9 shrink-0 items-center justify-between border-b border-slate-800/80 bg-[#0f172a]/40 px-4 text-[11px] font-mono text-slate-400">
-            <span className="flex items-center gap-2 text-slate-200">
-              <FileCode2 className="h-3.5 w-3.5 text-blue-400" />
-              {activeFile}
-            </span>
-            <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-              <Sparkles className="h-3 w-3 animate-pulse" />
-              Instructor Code-Along Active
-            </span>
-          </div>
-
-          {/* Animated Code Typing Screen */}
-          <div className="relative flex-1 overflow-y-auto p-6 font-mono text-xs leading-6">
-            {codeLinesDisplay.map((line, idx) => {
-              const isLastLine = idx === codeLinesDisplay.length - 1;
-              return (
-                <div
-                  key={idx}
-                  className={`flex items-start gap-4 px-2 py-0.5 rounded transition-colors ${
-                    isLastLine ? "bg-blue-500/10 border-l-2 border-blue-500 text-blue-200" : "text-slate-300"
-                  }`}
-                >
-                  <span className="w-6 shrink-0 text-right text-[10px] text-slate-600 select-none">
-                    {idx + 1}
-                  </span>
-                  <pre className="font-mono text-xs whitespace-pre-wrap break-all flex-1">
-                    {line}
-                    {isLastLine && isPlaying && (
-                      <span className="inline-block w-2 h-4 bg-blue-400 ml-1 animate-pulse align-middle" />
-                    )}
-                  </pre>
+    <div className="h-full min-h-0 w-full overflow-hidden bg-immersive-bg">
+      <div className="flex h-full min-h-0 w-full flex-col">
+        <div className="relative min-h-0 w-full flex-1 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/60">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100">
+            <div className="absolute inset-0 flex flex-col p-4 text-left sm:p-6">
+              <div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2">
+                <div className="flex items-center space-x-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-500" /><span className="h-2.5 w-2.5 rounded-full bg-amber-500" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  <span className="pl-2 font-mono text-[10px] font-semibold uppercase text-slate-500">Cohortia IDE v4.2</span>
                 </div>
-              );
-            })}
-
-            {/* Floating Educator Annotation Callout */}
-            {currentSegment?.explanation && (
-              <div className="mt-6 border border-blue-500/30 bg-blue-950/40 rounded-xl p-4 text-xs font-sans text-blue-200 shadow-xl backdrop-blur animate-in fade-in duration-300">
-                <div className="flex items-center gap-2 text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">
-                  <Sparkles className="h-3.5 w-3.5" /> Instructor Callout
-                </div>
-                <p className="leading-relaxed text-slate-200 font-medium">
-                  {currentSegment.explanation}
-                </p>
+                <span className="rounded-full bg-immersive-primary/10 px-2 py-0.5 font-mono text-[9px] font-bold text-immersive-primary">ACTIVE CAPSTONE SPEC</span>
               </div>
-            )}
+              <div className="grid min-h-0 flex-1 grid-cols-12 gap-3">
+                <div className="col-span-3 flex flex-col space-y-1.5 rounded-xl border border-slate-200 bg-white p-2 font-mono text-[9px] text-slate-600">
+                  <span className="mb-1 text-[8px] font-black uppercase text-slate-500">WORKSPACE</span>
+                  <div className="flex items-center space-x-1.5 text-immersive-secondary"><span className="text-xs">📂</span><span>practical</span></div>
+                  {files.length > 0 ? files.map((file) => (
+                    <div key={file.path} className={`flex items-center space-x-1.5 rounded-md p-1 pl-3 ${file.path === activeFile ? "bg-slate-100 text-immersive-primary" : ""}`}><span className="text-xs">📄</span><span className="truncate">{file.path}</span></div>
+                  )) : <div className="pl-3 text-slate-400">Loading practical files…</div>}
+                </div>
+                <div className="relative col-span-9 flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-3">
+                  <div className="flex-1 select-none space-y-1.5 font-mono text-[10px] text-emerald-400">
+                    <p className="text-slate-500">// Lesson {activePlaylistIndex + 1}: {activePlaylist.title}</p>
+                    {isCodeLab ? (
+                      <>
+                        <p className="mb-2 text-[9px] font-bold text-immersive-primary">{activeFile}</p>
+                        <pre className="whitespace-pre-wrap break-words font-mono text-[10px] leading-5 text-slate-700">{displayedCode}</pre>
+                      </>
+                    ) : (
+                      <div className="grid gap-2 font-sans text-left sm:grid-cols-2">
+                        <TeachingCard label="Worked example" text={activePlaylist.workedExample} tone="blue" />
+                        <TeachingCard label="Real scenario" text={activePlaylist.scenario} tone="violet" />
+                        <TeachingCard label="Your decision" text={activePlaylist.learnerPrompt} tone="amber" />
+                        <TeachingCard label="Watch for" text={activePlaylist.commonMistake} tone="rose" />
+                      </div>
+                    )}
+                    {sceneProgress > 0.75 && <div className="absolute bottom-6 right-6 flex items-center space-x-1.5 rounded-xl border border-emerald-400 bg-emerald-500/20 px-3 py-1.5 text-[10px] font-bold text-emerald-600 shadow-lg animate-bounce"><span className="h-1.5 w-1.5 animate-ping rounded-full bg-emerald-400" /><span>Compiler check succeeded! Solution verified. 🎉</span></div>}
+                  </div>
+                  <motion.div animate={{ x: sceneProgress > 0.7 ? [120, 150, 180, 240, 220] : [20, 80, 120, 120], y: sceneProgress > 0.7 ? [100, 120, 140, 140, 130] : [40, 60, 100, 100] }} className="pointer-events-none absolute z-20 text-immersive-primary" style={{ left: "50%", top: "40%" }}>
+                    <svg className="h-5 w-5 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 3V19L9.5 14L14.5 24L17.5 22.5L12.5 12.5H19.5L4.5 3Z" /></svg>
+                  </motion.div>
+                  <div className="absolute bottom-3 left-3 right-3 rounded-lg border border-immersive-primary/20 bg-white/90 p-2.5 shadow-sm backdrop-blur">
+                    <div className="mb-1 flex items-center justify-between gap-2"><span className="font-mono text-[8px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className="font-mono text-[8px] text-slate-500">Pause & predict</span></div>
+                    <p className="line-clamp-2 text-[9px] leading-relaxed text-slate-600">{activePlaylist.narratorScript}</p>
+                    <p className="mt-1 line-clamp-1 text-[8px] font-medium text-amber-700">Think first: {activePlaylist.learnerPrompt}</p>
+                    {activeTask?.teaching?.guidedSteps?.[0] && <p className="mt-1 line-clamp-1 text-[8px] text-emerald-700">Do now: {activeTask.teaching.guidedSteps[0]}</p>}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </main>
-      </div>
-
-      {/* Subtitle / Spoken Narration Banner */}
-      <div className="bg-[#0f172a] border-t border-slate-800 px-6 py-3 min-h-[56px] flex items-center justify-between text-xs font-sans">
-        <div className="flex items-start gap-3 text-slate-200 leading-relaxed max-w-4xl">
-          <span className="shrink-0 font-bold text-blue-400 uppercase tracking-wider text-[10px] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 mt-0.5">
-            Teacher
-          </span>
-          <p className="text-slate-200 font-medium italic">
-            "{currentSegment?.speakerText || narratorGuide || "Listen carefully as we build the solution..."}"
-          </p>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-transparent" />
+          <div className="pointer-events-none absolute left-4 top-4 z-10 flex space-x-2 rounded-full border border-slate-200 bg-white/85 px-3 py-1 font-mono text-[10px] font-bold text-slate-700 shadow-lg"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-500 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" /></span><span>SIMULATED</span></div>
         </div>
-      </div>
-
-      {/* Bottom Media Control & Scrubber Bar (Matching User Screenshot!) */}
-      <div className="shrink-0 border-t border-slate-800 bg-[#070b14] px-6 py-3 flex flex-col gap-2">
-        {/* Scrubber Progress Bar */}
-        <div
-          onClick={handleSeek}
-          className="relative h-2 w-full bg-slate-800 rounded-full cursor-pointer overflow-hidden group"
-        >
-          <div
-            className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-[#ff4b3e] transition-all duration-300"
-            style={{ width: `${totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0}%` }}
-          />
-        </div>
-
-        {/* Player Controls & Indicator */}
-        <div className="flex items-center justify-between text-xs font-mono text-slate-400">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleTogglePlay}
-              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition-colors cursor-pointer"
-              title={isPlaying ? "Pause" : "Play"}
-            >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
-            </button>
-
-            <button
-              onClick={handleReplayStep}
-              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
-              title="Replay Step"
-            >
-              <RotateCw className="h-3.5 w-3.5" />
-            </button>
-
-            <span className="font-mono text-slate-300 font-semibold text-[11px]">
-              {formatTime(currentTime)} / {formatTime(totalDuration)}
-            </span>
+        {teachingPlaylist.length > 1 && (
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            {teachingPlaylist.map((lesson, index) => (
+              <button
+                key={lesson.id}
+                type="button"
+                onClick={() => { setActivePlaylistIndex(index); setCurrentTime(0); setIsPlaying(true); }}
+                className={`min-w-[190px] rounded-xl border p-2 text-left transition-colors ${index === activePlaylistIndex ? "border-immersive-primary/50 bg-immersive-primary/10" : "border-immersive-border bg-immersive-card hover:bg-immersive-card-hover"}`}
+              >
+                <span className="block font-mono text-[9px] font-bold uppercase text-immersive-secondary">Lesson {index + 1} · {lesson.durationSeconds}s</span>
+                <span className="mt-0.5 block truncate text-[11px] font-bold text-immersive-text-primary">{lesson.title}</span>
+              </button>
+            ))}
           </div>
-
-          <div className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-blue-400">
-            <Monitor className="h-3.5 w-3.5 text-blue-400" />
-            <span>INTERACTIVE CORE LEARNING: PRACTICAL LEARNING BOARD</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsMuted((prev) => !prev)}
-              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
-              title={isMuted ? "Unmute Voice" : "Mute Voice"}
-            >
-              {isMuted ? <VolumeX className="h-4 w-4 text-rose-400" /> : <Volume2 className="h-4 w-4 text-emerald-400" />}
-            </button>
+        )}
+        <div className="mt-3.5 flex flex-col space-y-3 rounded-2xl border border-immersive-border/60 bg-immersive-card p-3.5 shadow-md shadow-immersive-shadow backdrop-blur-md">
+          <div onClick={handleSeek} className="relative h-1.5 w-full cursor-pointer overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-gradient-to-r from-immersive-primary to-immersive-secondary transition-all duration-75" style={{ width: `${(currentTime / TOTAL_DURATION) * 100}%` }} /></div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 text-immersive-text-secondary">
+              <button onClick={() => setIsPlaying((playing) => !playing)} className="cursor-pointer rounded-lg p-1.5 transition-all hover:bg-white/5 hover:text-immersive-text-primary" title={isPlaying ? "Pause Tour" : "Play Tour"}>{isPlaying ? <Pause className="h-4.5 w-4.5" /> : <Play className="h-4.5 w-4.5" />}</button>
+              <button onClick={() => { setCurrentTime(0); setIsPlaying(true); }} className="cursor-pointer rounded-lg p-1.5 transition-all hover:bg-white/5 hover:text-immersive-text-primary" title="Reset Timeline"><RotateCcw className="h-4.5 w-4.5" /></button>
+              <span className="select-none font-mono text-[11px] font-bold text-immersive-text-primary/80">{formatTime(currentTime)} <span className="text-slate-600">/</span> {formatTime(TOTAL_DURATION)}</span>
+            </div>
+            <div className="hidden min-w-0 items-center gap-2 sm:flex">
+              <span className="animate-pulse truncate font-mono text-xs font-bold uppercase tracking-wider text-immersive-secondary">🎞️ {activePlaylist.category}: {activePlaylist.title}</span>
+              <span className="shrink-0 rounded-full bg-immersive-primary/10 px-2 py-0.5 font-mono text-[9px] font-bold text-immersive-primary">{activePlaylist.durationSeconds}s</span>
+            </div>
+            <div className="flex items-center gap-1">
+              {isCodeLab && onRun && <button onClick={onRun} className="rounded-lg bg-emerald-600 px-2 py-1 font-mono text-[9px] font-bold text-white hover:bg-emerald-700">Run example</button>}
+              {!isCodeLab && onOpenLab && <button onClick={onOpenLab} className="rounded-lg bg-immersive-primary px-2 py-1 font-mono text-[9px] font-bold text-white hover:brightness-95">Open {experienceLabel}</button>}
+              <button onClick={speakActiveLesson} className="flex items-center gap-1 rounded-lg border border-immersive-primary/30 bg-immersive-primary/10 px-2 py-1 font-mono text-[9px] font-bold text-immersive-primary transition-colors hover:bg-immersive-primary hover:text-white" title="Hear this lesson"><Volume2 className="h-3.5 w-3.5" /> Hear teacher</button>
+              <button onClick={() => setIsMuted((muted) => !muted)} className="cursor-pointer rounded-lg p-1.5 text-immersive-text-secondary transition-all hover:bg-white/5 hover:text-immersive-text-primary" title={isMuted ? "Turn voice back on" : "Mute automatic voice"}>{isMuted ? <VolumeX className="h-4.5 w-4.5" /> : <Volume2 className="h-4.5 w-4.5" />}</button>
+            </div>
           </div>
         </div>
+        {output.length > 0 && isCodeLab && (
+          <div className="mt-2 max-h-20 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 p-2 font-mono text-[9px] leading-4 text-emerald-300">
+            {output.slice(-6).map((line, index) => <p key={`${line}-${index}`}>{line}</p>)}
+          </div>
+        )}
       </div>
     </div>
   );
+}
+
+function TeachingCard({ label, text, tone }: { label: string; text: string; tone: "blue" | "violet" | "amber" | "rose" }) {
+  const toneClass = { blue: "border-blue-200 bg-blue-50 text-blue-900", violet: "border-violet-200 bg-violet-50 text-violet-900", amber: "border-amber-200 bg-amber-50 text-amber-900", rose: "border-rose-200 bg-rose-50 text-rose-900" }[tone];
+  return <div className={`rounded-lg border p-2 ${toneClass}`}><p className="font-mono text-[8px] font-black uppercase tracking-wider">{label}</p><p className="mt-1 line-clamp-3 text-[9px] leading-relaxed">{text}</p></div>;
 }

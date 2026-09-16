@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { createClient } from '@libsql/client';
 
-const client = createClient({ url: process.env.DATABASE_URL || 'file:./cohortia.db' });
+const client = createClient({ url: process.env.DATABASE_URL || 'file:./cohortia.db', authToken: process.env.DATABASE_AUTH_TOKEN });
 
 // First, find the correct course ID for C++
 const courses = await client.execute(`

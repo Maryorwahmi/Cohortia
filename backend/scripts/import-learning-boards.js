@@ -9,7 +9,7 @@ import { practicalVersionIdFor, sourceKeyFor } from '../src/lib/practicalIdentit
 
 const computerScienceRoot = resolve(process.cwd(), '../../docs/computer-science');
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({ url: databaseUrl });
+const client = createClient({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 
 async function findCourseDirectory(root, courseName) {
   const entries = await readdir(root, { withFileTypes: true });
@@ -52,6 +52,9 @@ async function getCourseDirectory() {
 const hasCourseArgument = process.argv.includes('--course')
   || process.argv.slice(2).some((argument) => !argument.startsWith('--'));
 const importAll = process.argv.includes('--all') || !hasCourseArgument;
+// In an all-course import, resuming only missing chapters is the safe default.
+// Pass --refresh to intentionally rewrite every imported chapter and screen.
+const missingOnly = !process.argv.includes('--refresh');
 
 const now = new Date().toISOString();
 
@@ -59,6 +62,32 @@ function jsonText(value) {
   if (value === null || value === undefined) return null;
   if (typeof value === 'string') return value;
   return JSON.stringify(value);
+}
+
+async function isChapterCompleteInDatabase(courseId, manifest) {
+  const expectedScreens = manifest.screens?.length || 0;
+  const chapterResult = await client.execute({
+    sql: `
+      SELECT c.id, c.screens_count, COUNT(s.id) AS stored_screens
+      FROM learning_board_chapters c
+      LEFT JOIN learning_board_screens s
+        ON s.course_id = c.course_id AND s.module = c.module AND s.chapter = c.chapter
+      WHERE c.course_id = ? AND c.module = ? AND c.chapter = ?
+      GROUP BY c.id, c.screens_count
+    `,
+    args: [courseId, manifest.module, manifest.chapter],
+  });
+  const chapter = chapterResult.rows[0];
+  if (!chapter || Number(chapter.screens_count) !== expectedScreens || Number(chapter.stored_screens) !== expectedScreens) {
+    return false;
+  }
+
+  if (!manifest.practical) return true;
+  const practicalResult = await client.execute({
+    sql: 'SELECT COUNT(*) AS count FROM learning_board_practicals WHERE course_id = ? AND module = ? AND chapter = ?',
+    args: [courseId, manifest.module, manifest.chapter],
+  });
+  return Number(practicalResult.rows[0].count) === 1;
 }
 
 function legacyParseAssessmentQuestions(markdown, moduleNumber, chapterNumber) {
@@ -386,7 +415,9 @@ async function importAllAvailableCourses() {
   const failures = [];
   for (const course of courses) {
     console.log(`\n===== ${course.title} (${course.id}) =====`);
-    const result = spawnSync(process.execPath, [process.argv[1], '--course', course.directoryName], {
+    const childArgs = [process.argv[1], '--course', course.directoryName];
+    if (missingOnly) childArgs.push('--missing-only');
+    const result = spawnSync(process.execPath, childArgs, {
       stdio: 'inherit',
       env: process.env,
     });
@@ -439,6 +470,16 @@ try {
   const courseId = firstChapter.courseId || 'cs50s-introduction-to-computer-science';
   const courseName = firstChapter.course || 'CS50\'s Introduction to Computer Science';
   const courseLevel = firstChapter.courseLevel || 'beginner';
+  const pendingChapters = missingOnly
+    ? (await Promise.all(chapters.map(async (chapterData) => ({
+      chapterData,
+      complete: await isChapterCompleteInDatabase(courseId, chapterData.manifest),
+    })))).filter((entry) => !entry.complete).map((entry) => entry.chapterData)
+    : chapters;
+
+  if (missingOnly) {
+    console.log(`Database check: ${chapters.length - pendingChapters.length} complete, ${pendingChapters.length} missing or incomplete`);
+  }
   
   // Insert or update course
   const courseDbId = `course-${courseId}`;
@@ -449,6 +490,12 @@ try {
     sql: 'SELECT id FROM learning_board_courses WHERE course_id = ?',
     args: [courseId],
   });
+
+  if (missingOnly && pendingChapters.length === 0 && existingCourse.rows.length > 0) {
+    console.log('✓ All chapter manifests and screens already exist; nothing to import for this course.');
+    client.close();
+    process.exit(0);
+  }
 
   if (existingCourse.rows.length > 0) {
     // Update
@@ -472,11 +519,11 @@ try {
   }
   
   console.log(`✓ Course "${courseName}" (${courseId}) imported/updated`);
-  
+
   // Import chapters and screens
   let totalScreensImported = 0;
   
-  for (const chapterData of chapters) {
+  for (const chapterData of pendingChapters) {
     const manifest = chapterData.manifest;
     const chapterId = `chapter-${courseId}-m${manifest.module}-c${manifest.chapter}`;
     
@@ -731,7 +778,7 @@ try {
     }
   }
   
-  console.log(`\n✓ Successfully imported ${totalScreensImported} screens across ${chapters.length} chapters`);
+  console.log(`\n✓ Successfully imported ${totalScreensImported} screens across ${pendingChapters.length} chapter(s)`);
   console.log(`✓ Course is ready to view in the learning board!`);
   
 } catch (error) {

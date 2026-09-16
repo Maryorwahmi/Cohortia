@@ -7,7 +7,7 @@ import { createClient } from '@libsql/client';
 import { practicalIdFor, sourceHashFor, sourceKeyFor } from '../src/lib/practicalIdentity.js';
 
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({ url: databaseUrl });
+const client = createClient({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 
 const categories = [
   'Cloud Console Lab',

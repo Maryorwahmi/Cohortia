@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Check, Flame, Trophy, Calendar, Sparkles } from "lucide-react";
 import { UserPreferences } from "../../types";
+import { activityApi } from "../../services/api";
 
 interface HabitLoggerProps {
   userProfile: UserPreferences;
@@ -14,97 +15,42 @@ export default function HabitLogger({ userProfile }: HabitLoggerProps) {
   });
 
   const [streak, setStreak] = useState(0);
-  const [history, setHistory] = useState<Record<string, number>>({}); // dateStr -> number of habits (0-3)
+  const [history, setHistory] = useState<Record<string, number>>({});
 
   const getTodayString = () => {
     const today = new Date();
-    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    return `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, "0")}-${String(today.getUTCDate()).padStart(2, "0")}`;
   };
 
   useEffect(() => {
-    const todayStr = getTodayString();
-    const storedHistory = localStorage.getItem(`cohortia_habit_history_${userProfile.name}`);
-    const storedStreak = localStorage.getItem(`cohortia_habit_streak_${userProfile.name}`);
-    const lastActiveDate = localStorage.getItem(`cohortia_habit_last_date_${userProfile.name}`);
-
-    let parsedHistory: Record<string, number> = {};
-    if (storedHistory) {
+    let cancelled = false;
+    const loadSummary = async () => {
       try {
-        parsedHistory = JSON.parse(storedHistory);
-        setHistory(parsedHistory);
-      } catch (e) {
-        parsedHistory = {};
+        const response = await activityApi.getDailySummary();
+        if (cancelled || !response.data) return;
+        const todayStr = getTodayString();
+        const today = response.data.details[todayStr] || {
+          completedModule: false,
+          practicedCoding: false,
+          reviewedNotes: false,
+        };
+        setHistory(response.data.history);
+        setStreak(response.data.streak);
+        setHabits(today);
+      } catch {
+        // The dashboard remains usable while the activity service is unavailable.
       }
-    }
-
-    let currentStreak = storedStreak ? parseInt(storedStreak, 10) : 0;
-    setStreak(currentStreak);
-
-    // Load today's initial habits from history
-    const todayScore = parsedHistory[todayStr] || 0;
-    setHabits({
-      completedModule: todayScore >= 1,
-      practicedCoding: todayScore >= 2,
-      reviewedNotes: todayScore === 3,
-    });
-
-    // Reset habits if day changed and today is 0
-    if (todayScore === 0) {
-      setHabits({
-        completedModule: false,
-        practicedCoding: false,
-        reviewedNotes: false,
-      });
-    }
-
-    // Check if streak was broken (missed yesterday)
-    if (lastActiveDate && lastActiveDate !== todayStr) {
-      const lastDateObj = new Date(lastActiveDate);
-      const todayObj = new Date(todayStr);
-      const diffTime = Math.abs(todayObj.getTime() - lastDateObj.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays > 1.5) {
-        setStreak(0);
-        localStorage.setItem(`cohortia_habit_streak_${userProfile.name}`, "0");
-      }
-    }
+    };
+    loadSummary();
+    const refresh = () => loadSummary();
+    window.addEventListener("focus", refresh);
+    const interval = window.setInterval(loadSummary, 15000);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", refresh);
+      window.clearInterval(interval);
+    };
   }, [userProfile.name]);
-
-  const toggleHabit = (key: keyof typeof habits) => {
-    const nextHabits = { ...habits, [key]: !habits[key] };
-    setHabits(nextHabits);
-
-    // Calculate score (0-3)
-    let score = 0;
-    if (nextHabits.completedModule) score += 1;
-    if (nextHabits.practicedCoding) score += 1;
-    if (nextHabits.reviewedNotes) score += 1;
-
-    const todayStr = getTodayString();
-    const updatedHistory = { ...history, [todayStr]: score };
-    setHistory(updatedHistory);
-    localStorage.setItem(`cohortia_habit_history_${userProfile.name}`, JSON.stringify(updatedHistory));
-
-    // Calculate streak
-    let updatedStreak = streak;
-    if (score === 3 && streak === 0) {
-      updatedStreak = 1;
-    } else if (score === 3) {
-      const lastActiveDate = localStorage.getItem(`cohortia_habit_last_date_${userProfile.name}`);
-      if (lastActiveDate !== todayStr) {
-        updatedStreak = streak + 1;
-      }
-    } else if (score < 3 && habits.completedModule && habits.practicedCoding && habits.reviewedNotes) {
-      // Reverted from fully completed
-      updatedStreak = Math.max(0, streak - 1);
-    }
-
-    setStreak(updatedStreak);
-    localStorage.setItem(`cohortia_habit_streak_${userProfile.name}`, String(updatedStreak));
-    if (score > 0) {
-      localStorage.setItem(`cohortia_habit_last_date_${userProfile.name}`, todayStr);
-    }
-  };
 
   // Generate 8 weeks (56 days) for heatmap ending today
   const getHeatmapDays = () => {
@@ -166,13 +112,12 @@ export default function HabitLogger({ userProfile }: HabitLoggerProps) {
       </div>
 
       <p className="text-xs text-immersive-text-secondary leading-relaxed font-medium mb-4">
-        Build a daily rhythm! Check off actions to increase today's heatmap intensity. Complete all 3 to secure your streak!
+        Your progress updates automatically from completed learning activity. Complete all 3 to secure your streak!
       </p>
 
       {/* Habits Checklist */}
       <div className="space-y-2 mb-5">
-        <button
-          onClick={() => toggleHabit("completedModule")}
+        <div
           className={`w-full p-3.5 rounded-2xl border text-left flex items-center space-x-3.5 transition-all duration-300 cursor-pointer ${
             habits.completedModule
               ? "bg-amber-500/5 border-amber-500/35 text-immersive-text-secondary/80 line-through"
@@ -185,10 +130,9 @@ export default function HabitLogger({ userProfile }: HabitLoggerProps) {
             <Check className="w-4 h-4 stroke-[3px]" />
           </div>
           <span className="text-xs font-bold leading-tight flex-1">Completed Module</span>
-        </button>
+        </div>
 
-        <button
-          onClick={() => toggleHabit("practicedCoding")}
+        <div
           className={`w-full p-3.5 rounded-2xl border text-left flex items-center space-x-3.5 transition-all duration-300 cursor-pointer ${
             habits.practicedCoding
               ? "bg-orange-500/5 border-orange-500/35 text-immersive-text-secondary/80 line-through"
@@ -201,10 +145,9 @@ export default function HabitLogger({ userProfile }: HabitLoggerProps) {
             <Check className="w-4 h-4 stroke-[3px]" />
           </div>
           <span className="text-xs font-bold leading-tight flex-1">Practiced Coding / Active Lab</span>
-        </button>
+        </div>
 
-        <button
-          onClick={() => toggleHabit("reviewedNotes")}
+        <div
           className={`w-full p-3.5 rounded-2xl border text-left flex items-center space-x-3.5 transition-all duration-300 cursor-pointer ${
             habits.reviewedNotes
               ? "bg-[#FF4B3E]/5 border-[#FF4B3E]/35 text-immersive-text-secondary/80 line-through"
@@ -217,7 +160,7 @@ export default function HabitLogger({ userProfile }: HabitLoggerProps) {
             <Check className="w-4 h-4 stroke-[3px]" />
           </div>
           <span className="text-xs font-bold leading-tight flex-1">Reviewed Study Notes / Chat Advisor</span>
-        </button>
+        </div>
       </div>
 
       {/* Progress Bar */}
@@ -248,7 +191,7 @@ export default function HabitLogger({ userProfile }: HabitLoggerProps) {
           {heatmapDays.map((day, idx) => (
             <div
               key={idx}
-              className={`w-4 h-4 rounded-sm transition-all cursor-pointer ${getCellColorClass(day.score)}`}
+              className={`w-4 h-4 rounded-sm transition-all ${getCellColorClass(day.score)}`}
               title={`${day.dateStr}: ${day.score} actions completed`}
             />
           ))}

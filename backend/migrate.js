@@ -12,7 +12,7 @@ const dbUrl = process.env.DATABASE_URL || `file:${path.join(__dirname, 'cohortia
 console.log('Connecting to database...');
 
 try {
-  const client = createClient({ url: dbUrl });
+  const client = createClient({ url: dbUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
   
   // Check if column already exists
   const tableInfo = await client.execute("PRAGMA table_info(learning_board_progress)");

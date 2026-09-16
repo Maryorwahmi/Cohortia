@@ -161,6 +161,16 @@ export const userApi = {
   getEnrollments: () => fetchApi<EnrollmentsResponse>('/users/enrollments'),
 };
 
+export interface DailyActivitySummary {
+  success: boolean;
+  data?: {
+    history: Record<string, number>;
+    details: Record<string, { completedModule: boolean; practicedCoding: boolean; reviewedNotes: boolean }>;
+    streak: number;
+  };
+  error?: string;
+}
+
 // Careers
 export interface Career {
   id: string;
@@ -582,4 +592,6 @@ export const notificationsApi = {
 export const activityApi = {
   getRecent: () => fetchApi<{ success: boolean; data?: { activity: Array<Record<string, unknown>> }; error?: string }>('/activity'),
   getStats: () => fetchApi<{ success: boolean; data?: { stats: Record<string, number> }; error?: string }>('/activity/stats'),
+  getDailySummary: (days = 56) =>
+    fetchApi<DailyActivitySummary>(`/activity/daily-summary?days=${days}`),
 };

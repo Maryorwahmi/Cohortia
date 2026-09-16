@@ -21,7 +21,7 @@ const pilotManifestPath = path.join(docsRoot, 'terminal-coding-lab-pilots.json')
 const baselinePath = path.join(docsRoot, 'terminal-coding-lab-phase-0-baseline.json');
 const schemaPath = path.join(docsRoot, 'schemas', 'learning-board-practical-v1.schema.json');
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({ url: databaseUrl });
+const client = createClient({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));

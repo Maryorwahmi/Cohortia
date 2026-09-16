@@ -152,20 +152,38 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
   
   const completionPercentage = Math.round((completedCount / totalLessons) * 100);
 
+  const getMilestoneAssessmentState = (milestone: DashboardMilestone) => {
+    const chapters = chaptersByModule.get(milestone.number) || [];
+    if (chapters.length === 0) return { handsOnComplete: false, assessmentComplete: false };
+    const progress = chapters.map((chapter) => chapterProgress[`${chapter.module}-${chapter.chapter}`]);
+    return {
+      handsOnComplete: progress.every((item) => Boolean(item?.practicalsComplete)),
+      assessmentComplete: progress.every((item) => Boolean(item?.assessmentPassed)),
+    };
+  };
+
   // Determine milestone states (0: completed, 1: active, 2: locked)
   const getMilestoneState = (milestoneIndex: number) => {
     if (milestoneIndex === 0) {
-      const allDone = curriculum[0].lessons.every(l => completedLessons.includes(l.id));
+      const assessmentState = getMilestoneAssessmentState(curriculum[0]);
+      const allDone = courseChapters.length > 0
+        ? assessmentState.assessmentComplete
+        : curriculum[0].lessons.every(l => completedLessons.includes(l.id));
       return allDone ? "completed" : "active";
     }
     
     // Check if previous is completed
     const prevMilestone = curriculum[milestoneIndex - 1];
-    const prevDone = prevMilestone.lessons.every(l => completedLessons.includes(l.id));
+    const prevDone = courseChapters.length > 0
+      ? getMilestoneAssessmentState(prevMilestone).assessmentComplete
+      : prevMilestone.lessons.every(l => completedLessons.includes(l.id));
     
     if (!prevDone) return "locked";
     
-    const allDone = curriculum[milestoneIndex].lessons.every(l => completedLessons.includes(l.id));
+    const assessmentState = getMilestoneAssessmentState(curriculum[milestoneIndex]);
+    const allDone = courseChapters.length > 0
+      ? assessmentState.assessmentComplete
+      : curriculum[milestoneIndex].lessons.every(l => completedLessons.includes(l.id));
     return allDone ? "completed" : "active";
   };
 
@@ -436,33 +454,6 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
                             </div>
                           );
                         })}
-                      </div>
-
-                      {/* Milestone Project Stage */}
-                      <div className={`p-4 rounded-2xl border flex items-start space-x-4 ${
-                        isLocked
-                          ? "bg-immersive-bg/20 border-immersive-border/20"
-                          : isCompleted
-                          ? "bg-emerald-500/5 border-emerald-500/25"
-                          : "bg-immersive-primary/5 border-[#FF4B3E]/20"
-                      }`}>
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
-                          isCompleted
-                            ? "bg-emerald-500/15 border-emerald-500/25 text-emerald-400"
-                            : "bg-immersive-bg border-immersive-border text-immersive-secondary"
-                        }`}>
-                          <BookOpen className="w-5 h-5" />
-                        </div>
-                        <div className="space-y-1 text-left">
-                          <span className="text-xs font-bold text-immersive-text-primary block">
-                            Milestone Project: {milestone.projectTitle}
-                          </span>
-                          <p className="text-[11px] text-immersive-text-secondary/90 font-semibold leading-relaxed">
-                            {isCompleted 
-                              ? "Completed! Good job executing this client brief."
-                              : `Finish all milestone 0${milestone.number} modules to unlock and complete this project on the 'Projects' tab.`}
-                          </p>
-                        </div>
                       </div>
 
                     </div>

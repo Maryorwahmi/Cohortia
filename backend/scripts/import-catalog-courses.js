@@ -6,7 +6,7 @@ import { createClient } from '@libsql/client';
 const inputPath = process.argv[2] || '../../docs/computer-science/catalog-courses-by-subcategory.json';
 const catalogPath = resolve(process.cwd(), inputPath);
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-const client = createClient({url: databaseUrl});
+const client = createClient({url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN});
 
 const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
 const now = new Date().toISOString();

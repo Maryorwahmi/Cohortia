@@ -9,7 +9,7 @@ const router = new Hono();
 // Helper to get DB instance
 function getDb() {
   const dbUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
-  const client = createClient({ url: dbUrl });
+  const client = createClient({ url: dbUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
   return drizzle(client, { schema });
 }
 

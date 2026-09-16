@@ -138,6 +138,8 @@ export interface AssessmentAnswerEvaluation {
   feedback: string;
   guidance: string;
   keyPointsMissed: string[];
+  evaluationSource?: 'assessment-key' | string;
+  confidence?: 'high' | 'review-needed' | string;
 }
 
 export interface LearningBoardPracticalFile {
@@ -165,6 +167,22 @@ export interface CodeWalkthroughSegment {
   checkQuestion?: string;
   pauseForLearner?: boolean;
   durationSeconds?: number;
+}
+
+export interface PracticalTeachingPlaylistStep {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  durationSeconds: number;
+  learningGoal: string;
+  narratorScript: string;
+  workedExample: string;
+  scenario: string;
+  learnerPrompt: string;
+  commonMistake: string;
+  recap: string;
+  codeSteps: number[];
 }
 
 export interface PracticalTeacherContext {
@@ -211,6 +229,17 @@ export interface LearningBoardPractical {
   module?: number;
   chapter?: number;
   category?: string | null;
+  sourceCategory?: string | null;
+  experienceType?: 'terminal_coding_lab' | 'scenario_simulator' | 'research_evidence_lab' | 'cloud_console_lab' | string | null;
+  categoryDecision?: {
+    status?: 'accepted' | 'reclassified' | 'needs_review' | 'rejected' | string;
+    sourceCategory?: string | null;
+    finalCategory?: string | null;
+    experienceType?: string | null;
+    confidence?: number;
+    reason?: string;
+    signals?: string[];
+  } | null;
   categoryProfile?: {
     experience?: string;
     workspaceFamily?: string;
@@ -242,6 +271,7 @@ export interface LearningBoardPractical {
   narratorGuide?: string | null;
   teacher?: PracticalTeacherContext | null;
   codeWalkthrough?: CodeWalkthroughSegment[];
+  teachingPlaylist?: PracticalTeachingPlaylistStep[];
   completionRule: string;
   checks?: Record<string, unknown>[];
   hints?: Record<string, unknown>[];
