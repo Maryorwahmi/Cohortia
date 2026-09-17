@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, primaryKey, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, primaryKey, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 // Users table
 export const users = sqliteTable('users', {
@@ -144,7 +144,9 @@ export const lessons = sqliteTable('lessons', {
   metadata: text('metadata'), // JSON: quiz questions, section parsing, project criteria, etc.
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
-});
+}, (table) => ({
+  trackOrderIdx: index('lessons_track_order_idx').on(table.trackId, table.order),
+}));
 
 // Community Posts table
 export const communityPosts = sqliteTable('community_posts', {
@@ -462,7 +464,9 @@ export const learningBoardChapters = sqliteTable('learning_board_chapters', {
   assessmentData: text('assessment_data'), // JSON: chapter assessment questions and answers
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
-});
+}, (table) => ({
+  courseChapterIdx: index('learning_board_chapters_course_chapter_idx').on(table.courseId, table.module, table.chapter),
+}));
 
 // Learning Board Screens — individual screens within chapters
 export const learningBoardScreens = sqliteTable('learning_board_screens', {
@@ -544,6 +548,7 @@ export const learningBoardPracticals = sqliteTable('learning_board_practicals', 
   updatedAt: text('updated_at').notNull(),
 }, (table) => ({
   sourceKeyUnique: uniqueIndex('learning_board_practicals_source_key_unique').on(table.sourceKey),
+  courseModuleIdx: index('learning_board_practicals_course_module_idx').on(table.courseId, table.module),
 }));
 
 export const learningBoardPracticalVersions = sqliteTable('learning_board_practical_versions', {

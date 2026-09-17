@@ -69,23 +69,25 @@ function evaluateWritten({ question, studentAnswer, referenceAnswer, explanation
   const exact = Boolean(answer && reference && answer.length >= 24 && (answer === reference || reference.includes(answer)));
   const minimumConcepts = type === 'code-challenge' ? 2 : 3;
   const conceptGate = Math.min(minimumConcepts, referenceTokens.size);
+  const hasRequiredConcepts = Math.max(matchedConcepts.length, matchedReferenceTokens) >= conceptGate;
+  const hasSupportingDetail = matchedReferenceTokens >= Math.min(3, referenceTokens.size);
   const isCorrect = Boolean(answer) && (exact || (
     referenceTokens.size >= 4
-    && referenceCoverage >= 0.55
-    && Math.max(matchedConcepts.length, matchedReferenceTokens) >= conceptGate
+    && hasRequiredConcepts
+    && hasSupportingDetail
   ));
 
   return {
     isCorrect,
     feedback: isCorrect
-      ? 'Your answer covers the required concepts from the trusted assessment key.'
-      : 'Your answer does not yet cover enough of the trusted assessment key to receive credit.',
+      ? 'Your answer explains the essential ideas needed for this question.'
+      : 'Your answer is on the right topic, but it is missing some important details needed for full credit.',
     guidance: isCorrect
       ? 'Your response has been recorded. Continue to the next question.'
       : 'Revise the answer using the key concepts from the question and explain why they support your conclusion.',
     keyPointsMissed: isCorrect ? [] : missing,
     evaluationSource: 'assessment-key',
-    confidence: exact || referenceCoverage >= 0.8 ? 'high' : 'review-needed',
+    confidence: exact || (referenceCoverage >= 0.8 && hasRequiredConcepts) ? 'high' : 'review-needed',
   };
 }
 

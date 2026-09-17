@@ -16,6 +16,10 @@ const learning = new Hono();
 
 const MAX_SOURCE_BYTES = 128 * 1024;
 const MAX_OUTPUT_BYTES = 64 * 1024;
+const BOARD_CACHE_TTL_MS = 60_000;
+let boardsCache = null;
+let boardsCacheExpiresAt = 0;
+let boardsLoadPromise = null;
 
 function runProcess(command, args, options = {}) {
   const { cwd, input = '', timeoutMs = 15000 } = options;
@@ -389,29 +393,51 @@ learning.post('/assessment/evaluate', authMiddleware, async (c) => {
 
 // Get all learning board courses
 learning.get('/boards', async (c) => {
-  const [courseRows, practicalRows] = await Promise.all([
-    db.select().from(learningBoardCourses),
-    db.select().from(learningBoardPracticals),
-  ]);
-  const coursesById = new Map(courseRows.map((course) => [course.courseId, course]));
-  const practicalsByCourse = new Map();
-
-  for (const practical of practicalRows) {
-    const rows = practicalsByCourse.get(practical.courseId) || [];
-    rows.push(practical);
-    practicalsByCourse.set(practical.courseId, rows);
+  if (boardsCache && boardsCacheExpiresAt > Date.now()) {
+    return c.json({ success: true, data: { courses: boardsCache } });
   }
 
-  for (const [courseId, rows] of practicalsByCourse) {
-    const existingCourse = coursesById.get(courseId);
-    if (existingCourse) {
-      existingCourse.totalModules = Math.max(existingCourse.totalModules, ...rows.map((row) => row.module));
-    } else {
-      coursesById.set(courseId, courseFromPracticalRows(courseId, rows));
-    }
+  if (!boardsLoadPromise) {
+    boardsLoadPromise = (async () => {
+      const [courseRows, practicalRows] = await Promise.all([
+        db.select().from(learningBoardCourses),
+        db.select({
+          courseId: learningBoardPracticals.courseId,
+          module: learningBoardPracticals.module,
+          title: learningBoardPracticals.title,
+          metadata: learningBoardPracticals.metadata,
+          createdAt: learningBoardPracticals.createdAt,
+          updatedAt: learningBoardPracticals.updatedAt,
+        }).from(learningBoardPracticals),
+      ]);
+      const coursesById = new Map(courseRows.map((course) => [course.courseId, course]));
+      const practicalsByCourse = new Map();
+
+      for (const practical of practicalRows) {
+        const rows = practicalsByCourse.get(practical.courseId) || [];
+        rows.push(practical);
+        practicalsByCourse.set(practical.courseId, rows);
+      }
+
+      for (const [courseId, rows] of practicalsByCourse) {
+        const existingCourse = coursesById.get(courseId);
+        if (existingCourse) {
+          existingCourse.totalModules = Math.max(existingCourse.totalModules, ...rows.map((row) => row.module));
+        } else {
+          coursesById.set(courseId, courseFromPracticalRows(courseId, rows));
+        }
+      }
+
+      const courses = Array.from(coursesById.values()).sort((left, right) => left.course.localeCompare(right.course));
+      boardsCache = courses;
+      boardsCacheExpiresAt = Date.now() + BOARD_CACHE_TTL_MS;
+      return courses;
+    })().finally(() => {
+      boardsLoadPromise = null;
+    });
   }
 
-  const courses = Array.from(coursesById.values()).sort((left, right) => left.course.localeCompare(right.course));
+  const courses = await boardsLoadPromise;
   return c.json({ success: true, data: { courses } });
 });
 

@@ -26,6 +26,26 @@ const conciseWritten = evaluate(
 );
 assert.equal(conciseWritten.isCorrect, true);
 
+const conciseMemoryAnswer = evaluate(
+  {
+    type: 'case-study',
+    question: "What is the difference between a computer's memory (RAM) and its storage (hard drive), and why does a program need both?",
+    referenceAnswer: 'Memory (RAM) is the temporary workspace where the computer stores data while a program is running. It is fast but volatile — data disappears when the power is turned off. Storage (hard drive/SSD) is the permanent filing cabinet where programs and files are kept. It is slower but retains data without power. A program needs both because the program itself is stored on the hard drive permanently, but when you run it, the CPU loads the program and its data into RAM temporarily for fast execution. The results may then be saved back to storage.',
+  },
+  'RAM helps the computer run programs quickly while the hard drive stores the data permanently. The program needs RAM to work and storage to keep the data.',
+);
+assert.equal(conciseMemoryAnswer.isCorrect, true);
+
+const screenshotMemoryAnswer = evaluate(
+  {
+    type: 'case-study',
+    question: "What is the difference between a computer's memory (RAM) and its storage (hard drive), and why does a program need both?",
+    referenceAnswer: 'Memory (RAM) is the temporary workspace where the computer stores data while a program is running. It is fast but volatile — data disappears when the power is turned off. Storage (hard drive/SSD) is the permanent filing cabinet where programs and files are kept. It is slower but retains data without power. A program needs both because the program itself is stored on the hard drive permanently, but when you run it, the CPU loads the program and its data into RAM temporarily for fast execution. The results may then be saved back to storage.',
+  },
+  'RAM helps the computer run programs quickly while the hard drive stores the data permanently. The program needs RAM to work and storage to keep the data.',
+);
+assert.equal(screenshotMemoryAnswer.isCorrect, true);
+
 const incorrectWritten = evaluate(
   {
     type: 'case-study',

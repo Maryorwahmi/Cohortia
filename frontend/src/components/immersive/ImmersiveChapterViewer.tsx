@@ -88,6 +88,16 @@ const RUNTIME_CSS = `*,*::before,*::after{box-sizing:border-box}html,body{width:
 
 function narrationOf(screen: ImmersiveScreen) { return String(screen.narration?.text || screen.narratorSegment || "").trim(); }
 function durationOf(screen: ImmersiveScreen) { return Math.max(12, Math.min(90, Number(screen.narration?.durationSeconds || screen.durationSeconds || 20))); }
+async function generatedAudioUrl(manifest: ImmersiveChapterManifest, screen: ImmersiveScreen, narration: string) {
+  if (!narration || !window.crypto?.subtle) return null;
+  const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(narration));
+  const hash = Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("").slice(0, 12);
+  const courseId = encodeURIComponent(manifest.courseId);
+  const moduleId = String(manifest.module).padStart(2, "0");
+  const chapterId = String(manifest.chapter).padStart(2, "0");
+  const screenId = String(screen.screen).padStart(2, "0");
+  return `/audio/narration/${courseId}/module-${moduleId}/chapter-${chapterId}/screen-${screenId}-${hash}.mp3`;
+}
 function normalizeManifest(manifest: ImmersiveChapterManifest) {
   return { ...manifest, course: manifest.course || manifest.course_title || "Course", courseId: manifest.courseId || manifest.course_id || "course", unitTitle: manifest.unitTitle || manifest.chapter_title || "Learning board" };
 }
@@ -122,6 +132,9 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
   const [durationDone, setDurationDone] = useState(false);
   const [screenReady, setScreenReady] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioChecked, setAudioChecked] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const playbackRunRef = useRef(0);
   const screen = screens[index];
   const narration = screen ? narrationOf(screen) : "";
@@ -132,6 +145,28 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
   useEffect(() => {
     setScreenReady(false);
   }, [index]);
+  useEffect(() => {
+    let cancelled = false;
+    setAudioUrl(null);
+    setAudioChecked(false);
+    if (!screen || !narration) return;
+    generatedAudioUrl(manifest, screen, narration).then(async (url) => {
+      if (!url) {
+        if (!cancelled) setAudioChecked(true);
+        return;
+      }
+      try {
+        const response = await fetch(url, { method: "HEAD" });
+        const contentType = response.headers.get("content-type") || "";
+        if (!cancelled && response.ok && contentType.toLowerCase().includes("audio/")) setAudioUrl(url);
+      } catch {
+        // Browser narration remains available when generated audio is absent.
+      } finally {
+        if (!cancelled) setAudioChecked(true);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [manifest, narration, screen]);
   useEffect(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     const load = async () => {
@@ -161,8 +196,9 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     return () => window.speechSynthesis.removeEventListener("voiceschanged", load);
   }, [manifest.courseId]);
   useEffect(() => {
-    if ((hasHtmlScreen && !screenReady) || !playing || muted || !narration || typeof window === "undefined" || !window.speechSynthesis) {
+    if (!audioChecked || audioUrl || (hasHtmlScreen && !screenReady) || !playing || muted || !narration || typeof window === "undefined" || !window.speechSynthesis) {
       setSpeechDone(true);
+      if (typeof window !== "undefined" && window.speechSynthesis && audioUrl) window.speechSynthesis.cancel();
       return;
     }
 
@@ -188,7 +224,38 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     window.speechSynthesis.resume();
     window.speechSynthesis.speak(utterance);
     return () => window.speechSynthesis.cancel();
-  }, [duration, hasHtmlScreen, index, narration, muted, playing, screenReady, voiceName, voices]);
+  }, [audioChecked, audioUrl, duration, hasHtmlScreen, index, narration, muted, playing, screenReady, voiceName, voices]);
+  useEffect(() => {
+    if (!audioChecked || !audioUrl || (hasHtmlScreen && !screenReady) || typeof window === "undefined") return;
+    const audio = audioRef.current || new Audio();
+    audioRef.current = audio;
+    audio.src = audioUrl;
+    audio.load();
+    audio.muted = muted;
+    const handleTimeUpdate = () => setProgress(audio.currentTime);
+    const handleEnded = () => {
+      setProgress(duration);
+      setDurationDone(true);
+      setSpeechDone(true);
+    };
+    const handleError = () => {
+      setAudioUrl(null);
+      setAudioChecked(true);
+      setSpeechDone(false);
+    };
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("error", handleError);
+    if (playing && !muted) {
+      audio.play().catch(() => setSpeechDone(true));
+    }
+    return () => {
+      audio.pause();
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("error", handleError);
+    };
+  }, [audioChecked, audioUrl, duration, hasHtmlScreen, index, muted, playing, screenReady]);
   useEffect(() => {
     if ((hasHtmlScreen && !screenReady) || !playing || !screens.length || durationDone || isSeeking) return;
     const timer = window.setInterval(() => setProgress((value) => {
@@ -220,6 +287,7 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
   const jump = (next: number) => { setIndex(Math.max(0, Math.min(screens.length - 1, next))); setProgress(0); setSpeechDone(false); setDurationDone(false); setIsSeeking(false); };
   const handleSeekStart = () => {
     setIsSeeking(true);
+    audioRef.current?.pause();
     if (typeof window !== "undefined" && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
@@ -229,10 +297,12 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
   const handleSeekChange = (value: number) => {
     const next = Math.max(0, Math.min(duration, value));
     setProgress(next);
+    if (audioRef.current && audioUrl) audioRef.current.currentTime = next;
     setDurationDone(next >= duration - 0.05);
   };
   const handleSeekEnd = () => {
     setIsSeeking(false);
+    if (audioRef.current && audioUrl && playing && !muted) audioRef.current.play().catch(() => undefined);
     if (progress >= duration - 0.05) {
       setDurationDone(true);
       setSpeechDone(true);

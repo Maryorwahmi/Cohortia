@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware } from '../middleware/auth.js';
 
 const tracksRoute = new Hono();
+const LESSONS_CACHE_TTL_MS = 300_000;
+const lessonsCache = new Map();
 
 // Get all tracks
 tracksRoute.get('/', async (c) => {
@@ -48,11 +50,18 @@ tracksRoute.get('/:id/lessons', async (c) => {
     return c.json({ success: false, error: 'Track not found' }, 404);
   }
 
-  const trackLessons = await db
-    .select()
-    .from(lessons)
-    .where(eq(lessons.trackId, id))
-    .orderBy(lessons.order);
+  const cached = lessonsCache.get(id);
+  const trackLessons = cached && cached.expiresAt > Date.now()
+    ? cached.lessons
+    : await db
+      .select()
+      .from(lessons)
+      .where(eq(lessons.trackId, id))
+      .orderBy(lessons.order);
+
+  if (!cached || cached.expiresAt <= Date.now()) {
+    lessonsCache.set(id, { lessons: trackLessons, expiresAt: Date.now() + LESSONS_CACHE_TTL_MS });
+  }
 
   return c.json({
     success: true,

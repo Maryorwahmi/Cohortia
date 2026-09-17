@@ -203,7 +203,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
         <div className={`flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-wider ${evaluation.isCorrect ? "text-emerald-700" : "text-orange-700"}`}>
           {evaluation.isCorrect ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
           <Sparkles className="h-3.5 w-3.5" />
-          <span>{evaluation.isCorrect ? "Assessment key: Correct" : "Assessment key: Not quite yet"}</span>
+          <span>{evaluation.isCorrect ? "Answer accepted" : "Needs a little more detail"}</span>
         </div>
         <p className="text-xs font-semibold leading-relaxed text-slate-700">{evaluation.feedback}</p>
         {evaluation.guidance && (
@@ -555,7 +555,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
           )}
           {!allWrittenAnswersEvaluated && !assessmentError && (
             <p className="mt-3 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold leading-relaxed text-indigo-700">
-              Check each written answer against the stored assessment key before submitting the assessment.
+              Review the feedback for each written answer before submitting the assessment.
             </p>
           )}
 
