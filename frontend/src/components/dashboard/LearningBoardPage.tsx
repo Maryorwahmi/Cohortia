@@ -10,6 +10,7 @@ import { UserPreferences, CohortTrackId } from "../../types";
 import { TRACK_CURRICULA, DashboardMilestone, DashboardLesson } from "../../data/dashboardData";
 import { CPP_LESSONS_DETAILS } from "../../data/cppLessonsData";
 import InteractiveSandbox from "./InteractiveSandbox";
+import SimulatedEditor from "./SimulatedEditor";
 import AssessmentEngine from "./AssessmentEngine";
 import { chatApi } from "../../services/api";
 import LessonScenePlayer from "./LessonScenePlayer";
@@ -363,6 +364,7 @@ export default function LearningBoardPage({
   // Active visual layout mode: "video" | "practical" | "assessment" | "complete"
   const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">("video");
   const [practicalCompleted, setPracticalCompleted] = useState(false);
+  const [showPracticalSimulation, setShowPracticalSimulation] = useState(true);
   
   // Fetch the imported chapter whenever either viewer needs it. Practical mode
   // must not depend on read-mode having been opened first.
@@ -1337,30 +1339,68 @@ export default function LearningBoardPage({
                   )
                 )}
 
-                {/* 3. ADAPTIVE INTERACTIVE SANDBOX PLAYGROUND */}
+                {/* 3. ADAPTIVE INTERACTIVE SANDBOX PLAYGROUND (Split View) */}
                 {!devPreviewEnabled && viewerMode === "practical" && (
                   <div className="absolute inset-0 flex min-h-0 flex-col">
-                    <div className="relative min-h-0 flex-1">
-                      <InteractiveSandbox
-                        userProfile={userProfile}
-                        selectedLesson={selectedLesson}
-                        handsOnActivities={activePractical?.tasks?.map((task) => task.instruction) || details.summary.takeaways}
-                        practical={activePractical}
-                        learningContext={{
-                          courseId: activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId,
-                          courseTitle: generatedPreview?.course || courseCatalog?.course || courseTitle,
-                          courseCategory: activePractical?.category || undefined,
-                          module: activePractical?.module ?? generatedPreview?.module,
-                          chapter: activePractical?.chapter ?? generatedPreview?.chapter,
-                          moduleTitle: generatedPreview?.moduleTitle || curriculum[activeMilestoneIndex]?.title,
-                          chapterTitle: generatedPreview?.chapterTitle,
-                          lessonTitle: selectedLesson.title,
-                          lessonContent: courseLessons?.[selectedLesson.id],
-                          page: "learning board",
-                        }}
-                        onComplete={handlePracticalCompleted}
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-0 h-full">
+                      <div className="md:col-span-1 p-4 overflow-auto bg-immersive-bg/20 border-r border-immersive-border">
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <h3 className="text-sm font-bold text-immersive-text-primary">Practical Tasks</h3>
+                          <span className="text-[10px] font-mono text-immersive-secondary uppercase">Watch first</span>
+                        </div>
+                        <ul className="space-y-2 text-sm text-immersive-text-secondary">
+                          {(activePractical?.tasks?.length ? activePractical.tasks : details.summary.takeaways.map((t: string) => ({ instruction: t }))).map((task: any, idx: number) => (
+                            <li key={idx} className="flex items-start space-x-2">
+                              <div className="w-3 h-3 mt-1 rounded-full bg-emerald-400/20 border border-emerald-400/30 flex-shrink-0" />
+                              <div className="flex-1">
+                                <div className="text-sm font-medium text-immersive-text-primary">{task.instruction || task}</div>
+                                {task.checklist && <div className="text-[11px] text-immersive-text-secondary mt-1">{task.checklist.length} checks</div>}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-4 space-y-2">
+                          <button
+                            onClick={() => setShowPracticalSimulation((visible) => !visible)}
+                            className="w-full py-2 px-3 bg-immersive-card border border-immersive-border hover:border-immersive-secondary/50 text-immersive-text-primary rounded-xl font-bold text-xs transition-colors"
+                          >
+                            {showPracticalSimulation ? "Use interactive sandbox" : "Watch guided simulation"}
+                          </button>
+                          <button onClick={handlePracticalCompleted} className="w-full py-2 px-3 bg-[#FF4B3E] text-white rounded-xl font-bold">Mark Practical Complete</button>
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2 relative min-h-0 flex-1">
+                        {showPracticalSimulation ? (
+                          <SimulatedEditor
+                            taskTitle={activePractical?.title || generatedPreview?.handsOn?.title || selectedLesson.title}
+                            taskInstructions={activePractical?.tasks?.map((task) => task.instruction) || details.summary.takeaways}
+                            onComplete={() => undefined}
+                          />
+                        ) : (
+                          <InteractiveSandbox
+                            userProfile={userProfile}
+                            selectedLesson={selectedLesson}
+                            handsOnActivities={activePractical?.tasks?.map((task) => task.instruction) || details.summary.takeaways}
+                            practical={activePractical}
+                            learningContext={{
+                              courseId: activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId,
+                              courseTitle: generatedPreview?.course || courseCatalog?.course || courseTitle,
+                              courseCategory: activePractical?.category || undefined,
+                              module: activePractical?.module ?? generatedPreview?.module,
+                              chapter: activePractical?.chapter ?? generatedPreview?.chapter,
+                              moduleTitle: generatedPreview?.moduleTitle || curriculum[activeMilestoneIndex]?.title,
+                              chapterTitle: generatedPreview?.chapterTitle,
+                              lessonTitle: selectedLesson.title,
+                              lessonContent: courseLessons?.[selectedLesson.id],
+                              page: "learning board",
+                            }}
+                            onComplete={handlePracticalCompleted}
+                          />
+                        )}
+                      </div>
                     </div>
+
                     <div className="shrink-0 px-6 py-3 text-center text-xs font-bold text-immersive-secondary border-t border-immersive-border/50">
                       Complete all hands-on checks to unlock the assessment.
                     </div>

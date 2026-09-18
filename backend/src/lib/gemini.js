@@ -179,7 +179,92 @@ const ROADMAP_RESPONSE_SCHEMA = {
  * Call Gemini API with automatic key rotation.
  * Returns { success: true, text: string, usedKeyIndex: number } or { success: false, error: string }.
  */
+function getConfiguredProvider() {
+  return (process.env.AI_PROVIDER || 'gemini').toLowerCase();
+}
+
+function getAzureConfig() {
+  const endpoint = (process.env.AZURE_OPENAI_ENDPOINT || '').trim();
+  const key = (process.env.AZURE_OPENAI_API_KEY || '').trim();
+  const deployment = (process.env.AZURE_OPENAI_DEPLOYMENT || '').trim();
+  const apiVersion = (process.env.AZURE_OPENAI_API_VERSION || '2024-02-01').trim();
+
+  return { endpoint, key, deployment, apiVersion };
+}
+
+async function callAzureOpenAI({ systemPrompt, userPrompt, maxTokens = 1500, jsonMode = false, continuationText = null, responseSchema = null }) {
+  const { endpoint, key, deployment, apiVersion } = getAzureConfig();
+
+  if (!endpoint || !key || !deployment) {
+    return {
+      success: false,
+      error: 'Azure OpenAI is not configured. Set AI_PROVIDER=azure, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT.',
+    };
+  }
+
+  const normalizedEndpoint = endpoint.replace(/\/+$/, '');
+  const url = `${normalizedEndpoint}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
+
+  const messages = [];
+  if (systemPrompt) {
+    messages.push({ role: 'system', content: systemPrompt });
+  }
+
+  if (continuationText) {
+    messages.push({ role: 'user', content: `Continue the previous JSON and finish it without markdown fences. Keep the exact structure and append only the missing text.\n\n${continuationText}` });
+  } else {
+    messages.push({ role: 'user', content: userPrompt });
+  }
+
+  const body = {
+    messages,
+    temperature: 1,
+    max_completion_tokens: maxTokens,
+  };
+
+  if (jsonMode) {
+    body.response_format = { type: 'json_object' };
+    if (responseSchema) {
+      body.response_format = { type: 'json_object' };
+    }
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': key,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const errorMessage = data.error?.message || `HTTP ${response.status}`;
+      console.log(`Azure OpenAI request failed: ${errorMessage}`);
+      return { success: false, error: errorMessage };
+    }
+
+    const text = data.choices?.[0]?.message?.content;
+    if (!text && !jsonMode) {
+      return { success: false, error: 'Empty response from Azure OpenAI' };
+    }
+
+    return { success: true, text: text || '', usedKeyIndex: 0 };
+  } catch (error) {
+    const message = error?.message || 'Unknown Azure OpenAI error';
+    console.log(`Azure OpenAI error: ${message}`);
+    return { success: false, error: message };
+  }
+}
+
 export async function callGemini({ systemPrompt, userPrompt, maxTokens = 1500, jsonMode = false, continuationText = null, responseSchema = null }) {
+  if (getConfiguredProvider() === 'azure') {
+    return callAzureOpenAI({ systemPrompt, userPrompt, maxTokens, jsonMode, continuationText, responseSchema });
+  }
+
   const keys = getGeminiKeys();
   const models = getGeminiModelCandidates();
 
