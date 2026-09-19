@@ -1,6 +1,4 @@
 import 'dotenv/config';
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
@@ -110,51 +108,12 @@ app.route('/api/v1/activity', activityRoutes);
 app.use('/api/v1/notifications/*', authMiddleware);
 app.route('/api/v1/notifications', notificationsRoutes);
 
-// In production, serve the built Vite app from the same origin as the API.
-// Development still uses Vite's own server and proxy.
-const frontendDist = path.resolve(process.cwd(), '..', 'frontend', 'dist');
-const contentTypes = {
-  '.html': 'text/html; charset=UTF-8',
-  '.js': 'application/javascript; charset=UTF-8',
-  '.css': 'text/css; charset=UTF-8',
-  '.json': 'application/json; charset=UTF-8',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-};
-
 app.get('*', async (c) => {
-  if (c.req.path.startsWith('/api/')) {
-    return c.json({ success: false, error: 'Not Found' }, 404);
-  }
-
-  const requestedPath = decodeURIComponent(c.req.path).replace(/^\/+/, '');
-  const candidate = path.resolve(frontendDist, requestedPath || 'index.html');
-  if (!candidate.startsWith(frontendDist)) return c.text('Forbidden', 403);
-
-  const readFileResponse = async (filePath) => {
-    const body = await fs.readFile(filePath);
-    const type = contentTypes[path.extname(filePath).toLowerCase()] || 'application/octet-stream';
-    return new Response(body, { headers: { 'Content-Type': type } });
-  };
-
-  try {
-    const stat = await fs.stat(candidate);
-    if (stat.isFile()) return readFileResponse(candidate);
-  } catch {
-    // Fall through to the SPA entry point for client-side routes.
-  }
-
-  try {
-    return readFileResponse(path.join(frontendDist, 'index.html'));
-  } catch {
-    return c.json({ success: false, error: 'Frontend build not found' }, 404);
-  }
+  return c.json({
+    success: false,
+    error: c.req.path.startsWith('/api/') ? 'Not Found' : 'API service only',
+    message: 'Use the Cloudflare frontend or an /api/v1 endpoint.',
+  }, 404);
 });
 
 // Global error handler
