@@ -3,7 +3,8 @@
  * Handles fetching learning board courses, chapters, and screens from the backend
  */
 
-const API_BASE = '/api/v1/learning-boards';
+const API_ROOT = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/+$/, '');
+const API_BASE = `${API_ROOT}/learning-boards`;
 
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem('cohortia_token');
@@ -329,7 +330,7 @@ class LearningBoardsApiService {
   }
 
   async getProgress(courseId: string, module: number, chapter: number): Promise<LearningBoardProgress | null> {
-    const response = await fetch(`/api/v1/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
+    const response = await fetch(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error(`Failed to fetch chapter progress: ${response.statusText}`);
@@ -343,7 +344,7 @@ class LearningBoardsApiService {
     chapter: number,
     update: Partial<Pick<LearningBoardProgress, 'lessonId' | 'explicitComplete' | 'watched' | 'practicalsComplete' | 'assessmentPassed' | 'score' | 'studySeconds' | 'notes'>>,
   ): Promise<{ progress: LearningBoardProgress; completed: boolean }> {
-    const response = await fetch(`/api/v1/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
+    const response = await fetch(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify(update),
@@ -360,7 +361,7 @@ class LearningBoardsApiService {
     questionId: number,
     studentAnswer: string,
   ): Promise<AssessmentAnswerEvaluation> {
-    const response = await fetch('/api/v1/learning/assessment/evaluate', {
+    const response = await fetch(`${API_ROOT}/learning/assessment/evaluate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({ courseId, module, chapter, questionId, studentAnswer }),
@@ -381,7 +382,7 @@ class LearningBoardsApiService {
     status: "started" | "in_progress" | "passed" | "failed",
     output: string
   ): Promise<{ id: string; status: string }> {
-    const response = await fetch("/api/v1/learning/practical-attempts", {
+    const response = await fetch(`${API_ROOT}/learning/practical-attempts`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ practicalId, files, status, output }),
@@ -407,7 +408,7 @@ class LearningBoardsApiService {
     compilerUnavailable?: boolean;
     error?: string;
   }> {
-    const response = await fetch('/api/v1/learning/practical-execute', {
+    const response = await fetch(`${API_ROOT}/learning/practical-execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({ files, activeFilePath, language, stdin }),
@@ -429,7 +430,7 @@ class LearningBoardsApiService {
     taskId: string,
     status: "not_started" | "in_progress" | "completed" = "completed"
   ): Promise<{ practicalId: string; taskId: string; status: string }> {
-    const response = await fetch("/api/v1/learning/practical-task-progress", {
+    const response = await fetch(`${API_ROOT}/learning/practical-task-progress`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ practicalId, taskId, status }),
@@ -445,7 +446,7 @@ class LearningBoardsApiService {
    * Retrieve learner's attempts and task completions for a practical
    */
   async getPracticalProgress(practicalId: string): Promise<{ attempts: any[]; taskProgress: any[] }> {
-    const response = await fetch(`/api/v1/learning/practical-progress/${encodeURIComponent(practicalId)}`, {
+    const response = await fetch(`${API_ROOT}/learning/practical-progress/${encodeURIComponent(practicalId)}`, {
       headers: authHeaders(),
     });
     const data = await response.json().catch(() => ({}));

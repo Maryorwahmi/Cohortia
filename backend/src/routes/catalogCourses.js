@@ -8,7 +8,11 @@ import {eq, inArray} from 'drizzle-orm';
 const catalogCoursesRoute = new Hono();
 
 async function findSyllabusFile(courseId) {
-  const root = path.resolve(process.cwd(), '..', '..', 'docs');
+  const roots = [
+    path.resolve(import.meta.dirname, '..', '..', '..', 'docs'),
+    path.resolve(process.cwd(), '..', 'docs'),
+    path.resolve(process.cwd(), '..', '..', 'docs'),
+  ];
   const visit = async (directory) => {
     let entries;
     try {
@@ -27,7 +31,11 @@ async function findSyllabusFile(courseId) {
     }
     return null;
   };
-  return visit(root);
+  for (const root of roots) {
+    const match = await visit(root);
+    if (match) return match;
+  }
+  return null;
 }
 
 function extractCourseDetails(markdown) {
