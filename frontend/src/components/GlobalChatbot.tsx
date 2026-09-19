@@ -244,7 +244,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
             transition={{ type: "spring", damping: 25, stiffness: 350 }}
-            className="absolute bottom-20 right-0 w-96 max-w-[calc(100vw-2rem)] h-[550px] max-h-[calc(100vh-8rem)] rounded-2xl bg-immersive-card border border-immersive-border shadow-2xl shadow-immersive-shadow flex flex-col overflow-hidden z-50"
+            className="absolute bottom-20 right-0 w-[420px] max-w-[calc(100vw-2rem)] h-[780px] max-h-[calc(100vh-6rem)] rounded-2xl bg-immersive-card border border-immersive-border shadow-2xl shadow-immersive-shadow flex flex-col overflow-hidden z-50"
           >
             {/* Header */}
             <div className="p-4 bg-gradient-to-r from-immersive-bg to-immersive-card border-b border-immersive-border flex items-center justify-between">
@@ -279,7 +279,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
                   className="p-1.5 rounded-lg text-immersive-text-secondary hover:text-immersive-text-primary hover:bg-[#FF4B3E]/10 hover:text-[#FF4B3E] transition-all cursor-pointer"
                   title="Close chat"
                 >
-                  <X className="w-4.5 h-4.5" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -391,7 +391,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-14 h-14 rounded-full bg-immersive-primary text-immersive-text-primary flex items-center justify-center shadow-[0_0_25px_rgba(255,75,62,0.4)] cursor-pointer hover:brightness-110 transition-all"
+        className="relative w-16 h-16 rounded-full bg-immersive-primary text-immersive-text-primary flex items-center justify-center shadow-[0_0_25px_rgba(255,75,62,0.4)] cursor-pointer hover:brightness-110 transition-all"
         aria-label="Chat with AI Career Advisor"
         title="Chat with AI Advisor"
       >
@@ -404,7 +404,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
               exit={{ rotate: 90, opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              <X className="w-6.5 h-6.5 stroke-[2.5]" />
+              <X className="w-7 h-7 stroke-[2.5]" />
             </motion.div>
           ) : (
             <motion.div
@@ -415,7 +415,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
               transition={{ duration: 0.15 }}
               className="relative flex items-center justify-center"
             >
-              <MessageSquare className="w-6 h-6" />
+              <MessageSquare className="w-7 h-7" />
               <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500" />

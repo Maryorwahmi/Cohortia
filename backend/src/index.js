@@ -32,6 +32,7 @@ import studyRoomsRoutes from './routes/studyRooms.js';
 import generatedRoutes from './routes/generated.js';
 import catalogCoursesRoutes from './routes/catalogCourses.js';
 import assessmentsRoutes from './routes/assessments.js';
+import automationRoutes from './routes/automation.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 
@@ -59,6 +60,7 @@ app.route('/api/v1/auth', authRoutes);
 app.route('/api/v1/careers', careerRoutes);
 app.route('/api/v1/catalog-courses', catalogCoursesRoutes);
 app.route('/api/v1/assessments', assessmentsRoutes);
+app.route('/api/v1/automation', automationRoutes);
 app.route('/api/v1/contact', contactRoutes);
 app.route('/api/v1/chat', chatRoutes);
 app.route('/api/v1/events', eventsRoutes);

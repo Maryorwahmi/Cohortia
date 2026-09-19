@@ -13,6 +13,7 @@ import Auth from './pages/Auth';
 import CourseDetails from './pages/CourseDetails';
 import CourseAssessmentDetail from './pages/CourseAssessmentDetail';
 import ChapterAssessmentDetail from './pages/ChapterAssessmentDetail';
+import AutomationPage from './pages/AutomationPage';
 
 import Overview from './pages/dashboard/Overview';
 import LearningBoard from './pages/dashboard/LearningBoard';
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/assessments/:courseId/:module/:chapter" element={<ChapterAssessmentDetail />} />
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<Auth />} />
+        <Route path="/automation" element={<AutomationPage />} />
       </Route>
 
       <Route
