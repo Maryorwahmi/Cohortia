@@ -2,7 +2,7 @@ import {Hono} from 'hono';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {db} from '../db/index.js';
-import {catalogCourses, catalogCourseSubcategories, catalogCourseCareers} from '../db/schema.js';
+import {catalogCourses, catalogCourseSubcategories, catalogCourseCareers, tracks, lessons} from '../db/schema.js';
 import {eq, inArray} from 'drizzle-orm';
 
 const catalogCoursesRoute = new Hono();
@@ -80,10 +80,64 @@ function extractCourseDetails(markdown) {
   return {overview, outcomes, syllabus, keyConcepts, skills};
 }
 
+function parseTrackSyllabus(value) {
+  return String(value || '').split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line, index) => ({module: String(index + 1), theme: cleanText(line.replace(/^\|?\s*\d+[.)]?\s*\|?\s*/, '')), chapters: ''}));
+}
+
+function cleanText(value) {
+  return String(value || '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+async function getTrackDetails(courseId) {
+  const track = await db.select().from(tracks).where(eq(tracks.id, courseId)).limit(1);
+  if (track.length === 0) return null;
+
+  const lessonRows = await db.select({metadata: lessons.metadata})
+    .from(lessons)
+    .where(eq(lessons.trackId, courseId));
+  const keyConcepts = [];
+  const outcomes = [];
+  for (const lesson of lessonRows) {
+    try {
+      const metadata = JSON.parse(lesson.metadata || '{}');
+      for (const value of [metadata.keyConcepts, metadata.learningObjectives]) {
+        const items = Array.isArray(value) ? value : value ? [value] : [];
+        for (const item of items) {
+          const text = cleanText(item);
+          if (text && !keyConcepts.includes(text)) keyConcepts.push(text);
+        }
+      }
+    } catch {
+      // Ignore malformed legacy lesson metadata.
+    }
+  }
+
+  return {
+    overview: track[0].overview || '',
+    outcomes,
+    syllabus: parseTrackSyllabus(track[0].syllabus),
+    keyConcepts: keyConcepts.slice(0, 12),
+    skills: JSON.parse(track[0].skills || '[]'),
+  };
+}
+
 catalogCoursesRoute.get('/:id/details', async (c) => {
   const courseId = c.req.param('id');
   const course = await db.select().from(catalogCourses).where(eq(catalogCourses.id, courseId)).limit(1);
   if (course.length === 0) return c.json({success: false, error: 'Course not found'}, 404);
+
+  const trackDetails = await getTrackDetails(courseId);
+  if (trackDetails) {
+    return c.json({success: true, data: {course: course[0], details: trackDetails}});
+  }
 
   const syllabusFile = await findSyllabusFile(courseId);
   if (syllabusFile) {
