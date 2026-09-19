@@ -63,7 +63,7 @@ function extractCourseDetails(markdown) {
     .map((line) => cleanText(line.replace(/^\s*(?:[*-]|\d+[.)])\s+/, '')))
     .filter(Boolean);
   const overview = overviewBlock.split(/\n\s*\n/).map(cleanText).find(Boolean) || '';
-  const outcomesBlock = overviewBlock.match(/Upon (?:successful )?completion of this course, you will be able to:\s*\n([\s\S]*?)(?=\n\s*\n|$)/i)?.[1] || '';
+  const outcomesBlock = overviewBlock.match(/Upon (?:successful )?completion of this [^,\n]+, you will be able to:\s*\n([\s\S]*?)(?=\n\s*\n|$)/i)?.[1] || '';
   const outcomes = listItems(outcomesBlock);
   const syllabusBlock = markdown.match(/## Syllabus Structure\s*\n([\s\S]*?)(?=\n---|\n##\s|$)/i)?.[1] || '';
   const syllabus = syllabusBlock.split(/\r?\n/).filter((line) => /^\|\s*\d+\s*\|/.test(line)).map((line) => {
