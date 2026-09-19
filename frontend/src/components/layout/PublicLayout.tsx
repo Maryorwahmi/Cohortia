@@ -13,7 +13,7 @@ export default function PublicLayout() {
   const userProfile = user ? backendUserToPreferences(user) : null;
 
   return (
-    <div className={`flex min-h-screen bg-immersive-bg text-immersive-text-primary selection:bg-immersive-secondary selection:text-immersive-bg relative transition-colors duration-300 ${location.pathname === '/' ? 'homepage-theme' : ''}`}>
+    <div className={`public-site-scale flex min-h-screen bg-immersive-bg text-immersive-text-primary selection:bg-immersive-secondary selection:text-immersive-bg relative transition-colors duration-300 ${location.pathname === '/' ? 'homepage-theme' : ''}`}>
       <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
         <Header onOpenWizard={() => navigate('/signup')} />
 
