@@ -107,8 +107,24 @@ function cleanText(value) {
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/__([^_]+)__/g, '$1')
     .replace(/`([^`]+)`/g, '$1')
+    .replace(/(^|\s)\*(?=\s|$)/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function formatOverview(value) {
+  const source = String(value || '').replace(/\r/g, '').trim();
+  const withoutOutcomes = source.split(/\s+Upon (?:successful )?completion of this [^,]+, you will be able to:/i)[0].trim();
+  const normalized = cleanText(withoutOutcomes);
+  const sentences = normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((sentence) => sentence.trim()).filter(Boolean) || [];
+  if (sentences.length <= 3) return normalized;
+
+  const paragraphs = [];
+  const paragraphSize = Math.ceil(sentences.length / 3);
+  for (let index = 0; index < sentences.length; index += paragraphSize) {
+    paragraphs.push(sentences.slice(index, index + paragraphSize).join(' '));
+  }
+  return paragraphs.slice(0, 3).join('\n\n');
 }
 
 async function getTrackDetails(courseId) {
@@ -137,7 +153,7 @@ async function getTrackDetails(courseId) {
   }
 
   return {
-    overview: track[0].overview || '',
+    overview: formatOverview(track[0].overview),
     outcomes: parseOutcomes(track[0].overview),
     syllabus: parseTrackSyllabus(track[0].syllabus),
     keyConcepts: keyConcepts.slice(0, 12),

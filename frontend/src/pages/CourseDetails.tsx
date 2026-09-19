@@ -76,7 +76,7 @@ export default function CourseDetails() {
           <section className="grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
             <div className="rounded-2xl border border-immersive-border bg-immersive-card p-6 sm:p-8">
               <div className="mb-4 flex items-center gap-3"><BookOpen className="h-5 w-5 text-immersive-primary" /><h2 className="text-xl font-extrabold text-immersive-text-primary">What you will learn</h2></div>
-              <p className="text-sm leading-7 text-immersive-text-secondary">{details?.overview || course.description || 'Explore this structured course and build practical skills step by step.'}</p>
+              <p className="whitespace-pre-line text-sm leading-7 text-immersive-text-secondary">{details?.overview || course.description || 'Explore this structured course and build practical skills step by step.'}</p>
             </div>
             <div className="rounded-2xl border border-immersive-border bg-immersive-card p-6 sm:p-8"><div className="mb-4 flex items-center gap-3"><Layers3 className="h-5 w-5 text-immersive-secondary" /><h2 className="text-xl font-extrabold text-immersive-text-primary">Skills</h2></div><div className="flex flex-wrap gap-2">{skills.length ? skills.map((skill) => <span key={skill} className="rounded-lg border border-immersive-border bg-immersive-bg px-3 py-2 text-xs font-semibold text-immersive-text-secondary">{skill}</span>) : <span className="text-sm text-immersive-text-secondary">Skills are mapped throughout the course.</span>}</div></div>
           </section>
