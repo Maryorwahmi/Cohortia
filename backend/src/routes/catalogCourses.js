@@ -62,7 +62,7 @@ function extractCourseDetails(markdown) {
   const listItems = (value) => String(value || '').split(/\r?\n/)
     .map((line) => cleanText(line.replace(/^\s*(?:[*-]|\d+[.)])\s+/, '')))
     .filter(Boolean);
-  const overview = overviewBlock.split(/\n\s*\n/).map(cleanText).find(Boolean) || '';
+  const overview = formatOverview(overviewBlock.split(/\n\s*\n/).map(cleanText).find(Boolean) || '');
   const outcomesBlock = overviewBlock.match(/Upon (?:successful )?completion of this [^,\n]+, you will be able to:\s*\n([\s\S]*?)(?=\n\s*\n|$)/i)?.[1] || '';
   const outcomes = listItems(outcomesBlock);
   const syllabusBlock = markdown.match(/## Syllabus Structure\s*\n([\s\S]*?)(?=\n---|\n##\s|$)/i)?.[1] || '';
@@ -117,14 +117,14 @@ function formatOverview(value) {
   const withoutOutcomes = source.split(/\s+Upon (?:successful )?completion of this [^,]+, you will be able to:/i)[0].trim();
   const normalized = cleanText(withoutOutcomes);
   const sentences = normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((sentence) => sentence.trim()).filter(Boolean) || [];
-  if (sentences.length <= 3) return normalized;
+  if (sentences.length <= 1) return normalized;
 
   const paragraphs = [];
-  const paragraphSize = Math.ceil(sentences.length / 3);
+  const paragraphSize = Math.ceil(sentences.length / 2);
   for (let index = 0; index < sentences.length; index += paragraphSize) {
     paragraphs.push(sentences.slice(index, index + paragraphSize).join(' '));
   }
-  return paragraphs.slice(0, 3).join('\n\n');
+  return paragraphs.slice(0, 2).join('\n\n');
 }
 
 async function getTrackDetails(courseId) {
