@@ -9,6 +9,7 @@ const catalogCoursesRoute = new Hono();
 
 async function findSyllabusFile(courseId) {
   const roots = [
+    path.resolve(import.meta.dirname, '..', '..', '..', '..', 'docs'),
     path.resolve(import.meta.dirname, '..', '..', '..', 'docs'),
     path.resolve(process.cwd(), '..', 'docs'),
     path.resolve(process.cwd(), '..', '..', 'docs'),
