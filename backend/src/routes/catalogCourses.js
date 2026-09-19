@@ -6,6 +6,18 @@ import {catalogCourses, catalogCourseSubcategories, catalogCourseCareers} from '
 import {eq, inArray} from 'drizzle-orm';
 
 const catalogCoursesRoute = new Hono();
+const bundledCourseDetailsPath = path.resolve(import.meta.dirname, '..', 'data', 'course-details.json');
+let bundledCourseDetails;
+
+async function loadBundledCourseDetails() {
+  if (bundledCourseDetails !== undefined) return bundledCourseDetails;
+  try {
+    bundledCourseDetails = JSON.parse(await fs.readFile(bundledCourseDetailsPath, 'utf8'));
+  } catch {
+    bundledCourseDetails = {};
+  }
+  return bundledCourseDetails;
+}
 
 async function findSyllabusFile(courseId) {
   const roots = [
@@ -74,8 +86,19 @@ catalogCoursesRoute.get('/:id/details', async (c) => {
   if (course.length === 0) return c.json({success: false, error: 'Course not found'}, 404);
 
   const syllabusFile = await findSyllabusFile(courseId);
-  const markdown = syllabusFile ? await fs.readFile(syllabusFile, 'utf8') : '';
-  return c.json({success: true, data: {course: course[0], details: extractCourseDetails(markdown)}});
+  if (syllabusFile) {
+    const markdown = await fs.readFile(syllabusFile, 'utf8');
+    return c.json({success: true, data: {course: course[0], details: extractCourseDetails(markdown)}});
+  }
+
+  const details = (await loadBundledCourseDetails())[courseId] || {
+    overview: '',
+    outcomes: [],
+    syllabus: [],
+    keyConcepts: [],
+    skills: [],
+  };
+  return c.json({success: true, data: {course: course[0], details}});
 });
 
 catalogCoursesRoute.get('/', async (c) => {
