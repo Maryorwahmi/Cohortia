@@ -83,8 +83,23 @@ function extractCourseDetails(markdown) {
 function parseTrackSyllabus(value) {
   return String(value || '').split(/\r?\n/)
     .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line, index) => ({module: String(index + 1), theme: cleanText(line.replace(/^\|?\s*\d+[.)]?\s*\|?\s*/, '')), chapters: ''}));
+    .filter((line) => /^\|\s*\d+\s*\|/.test(line))
+    .map((line) => {
+      const cells = line.split('|').map((cell) => cell.trim());
+      return {
+        module: cleanText(cells[1]),
+        theme: cleanText(cells[2]),
+        chapters: cleanText(cells[3]),
+      };
+    });
+}
+
+function parseOutcomes(value) {
+  const match = String(value || '').match(/Upon (?:successful )?completion of this [^,]+, you will be able to:\s*([\s\S]*)$/i);
+  if (!match) return [];
+  return match[1].split(/\s*\*\s+/)
+    .map(cleanText)
+    .filter(Boolean);
 }
 
 function cleanText(value) {
@@ -108,10 +123,11 @@ async function getTrackDetails(courseId) {
   for (const lesson of lessonRows) {
     try {
       const metadata = JSON.parse(lesson.metadata || '{}');
-      for (const value of [metadata.keyConcepts, metadata.learningObjectives]) {
-        const items = Array.isArray(value) ? value : value ? [value] : [];
+      const values = Array.isArray(metadata.keyConcepts) ? metadata.keyConcepts : metadata.keyConcepts ? [metadata.keyConcepts] : [];
+      for (const value of values) {
+        const items = String(value).split(/\r?\n/);
         for (const item of items) {
-          const text = cleanText(item);
+          const text = cleanText(item.replace(/^\s*(?:[*-]|\d+[.)])\s+/, ''));
           if (text && !keyConcepts.includes(text)) keyConcepts.push(text);
         }
       }
@@ -122,10 +138,12 @@ async function getTrackDetails(courseId) {
 
   return {
     overview: track[0].overview || '',
-    outcomes,
+    outcomes: parseOutcomes(track[0].overview),
     syllabus: parseTrackSyllabus(track[0].syllabus),
     keyConcepts: keyConcepts.slice(0, 12),
-    skills: JSON.parse(track[0].skills || '[]'),
+    skills: (() => {
+      try { return JSON.parse(track[0].skills || '[]'); } catch { return []; }
+    })(),
   };
 }
 
