@@ -122,8 +122,7 @@ function generationNeedsImport(stdout = '') {
 
 async function runGenerationForCourse({ category, courseId, module = null, subcategory = null, overwrite = false, onOutput }) {
   const repoRoot = path.resolve(import.meta.dirname, '..', '..', '..', '..');
-  const appBackendRoot = path.join(repoRoot, 'app', 'backend');
-  const generatorScript = path.join(appBackendRoot, 'scripts', 'generate-learning-boards-batch.js');
+  const generatorScript = path.join(repoRoot, 'scripts', 'generate-learning-boards-batch.js');
   const args = [
     generatorScript,
     '--category',
@@ -170,9 +169,9 @@ async function runGenerationForCourse({ category, courseId, module = null, subca
     };
   }
 
-  const importScript = path.join(appBackendRoot, 'scripts', 'import-learning-boards.js');
+  const importScript = path.join(repoRoot, 'app', 'backend', 'scripts', 'import-learning-boards.js');
   const importResult = await runProcess(process.execPath, [importScript, '--course', courseId], {
-    cwd: appBackendRoot,
+    cwd: path.join(repoRoot, 'app', 'backend'),
     timeoutMs: 600000,
     onOutput,
   });

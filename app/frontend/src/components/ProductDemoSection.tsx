@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Shield, Code, Sparkles, Map, Users } from "lucide-react";
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Shield, Code, Sparkles, Map, Users, Briefcase, Paintbrush, Heart, Award } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "../context/ThemeContext";
 
@@ -20,6 +20,22 @@ const SCENES: Scene[] = [
     icon: Code,
     description: "Learn with structured chapters, detailed lesson content, and integrated narration transcripts with audio-to-text playback.",
     category: "Interactive Core Learning"
+  },
+  {
+    id: 2,
+    title: "Real-Life Work Projects",
+    duration: 10,
+    icon: Briefcase,
+    description: "Work on authentic corporate client briefs, model financial ledgers, draft legal briefs, and solve real work challenges.",
+    category: "Industry Case Studies"
+  },
+  {
+    id: 3,
+    title: "12 Categories & 6k+ Courses",
+    duration: 10,
+    icon: Paintbrush,
+    description: "Choose from 12 diverse categories including Humanities, Sciences, Finance, Fine Arts, and over 6,000 non-tech courses.",
+    category: "Universal Curriculum"
   },
   {
     id: 4,
@@ -47,7 +63,7 @@ const SCENES: Scene[] = [
   }
 ];
 
-const TOTAL_DURATION = SCENES.reduce((acc, s) => acc + s.duration, 0); // recomputed after removals
+const TOTAL_DURATION = SCENES.reduce((acc, s) => acc + s.duration, 0); // 60 seconds (exactly 1 minute!)
 
 export default function ProductDemoSection() {
   const { theme } = useTheme();
@@ -55,6 +71,7 @@ export default function ProductDemoSection() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0); // in seconds
   const [isMuted, setIsMuted] = useState(false);
+  const [hoveredScene, setHoveredScene] = useState<number | null>(null);
 
   const requestRef = useRef<number | null>(null);
   const previousTimeRef = useRef<number | null>(null);
@@ -130,8 +147,8 @@ export default function ProductDemoSection() {
   };
 
   const playerShellClass = isDark
-    ? "relative aspect-video w-full max-w-[980px] mx-auto rounded-3xl bg-[#090a0f] border border-immersive-border/60 shadow-2xl shadow-immersive-shadow overflow-hidden group"
-    : "relative aspect-video w-full max-w-[980px] mx-auto rounded-3xl bg-white border border-slate-200 shadow-2xl shadow-slate-200/60 overflow-hidden group";
+    ? "relative aspect-video w-full rounded-3xl bg-[#090a0f] border border-immersive-border/60 shadow-2xl shadow-immersive-shadow overflow-hidden group"
+    : "relative aspect-video w-full rounded-3xl bg-white border border-slate-200 shadow-2xl shadow-slate-200/60 overflow-hidden group";
 
   const panelClass = isDark ? "bg-white/[0.02] border-white/5" : "bg-white border-slate-200";
   const panelSoftClass = isDark ? "bg-white/[0.03] border-white/5" : "bg-slate-50 border-slate-200";
@@ -164,9 +181,8 @@ export default function ProductDemoSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          {/* Full-width Interactive Screen (The Mock Video Player) */}
-          <div className="lg:col-span-12 flex flex-col">
-            <div className="w-full max-w-[980px] mx-auto">
+          {/* Left Column: Interactive Screen (The Mock Video Player) */}
+          <div className="lg:col-span-8 flex flex-col">
             <div className={playerShellClass}>
               
               {/* Actual Scene Sandbox Screens inside the player */}
@@ -685,10 +701,83 @@ export default function ProductDemoSection() {
                 </button>
               </div>
             </div>
-            </div>
           </div>
 
-          {/* Playlist removed per request; leaving only the animated screen */}
+          {/* Right Column: Walkthrough Scenes List Selector */}
+          <div className="lg:col-span-4 flex flex-col space-y-4">
+            
+            <p className="text-[11px] font-mono font-bold text-immersive-secondary uppercase tracking-widest text-left pl-1">
+              PLAYLIST STEPS (60s TOTAL)
+            </p>
+
+            <div className="flex flex-col space-y-3.5">
+              {SCENES.map((scene, index) => {
+                const isSelected = activeSceneIndex === index;
+                const Icon = scene.icon;
+                
+                return (
+                  <button
+                    key={scene.id}
+                    onClick={() => selectScene(index)}
+                    onMouseEnter={() => setHoveredScene(index)}
+                    onMouseLeave={() => setHoveredScene(null)}
+                    className={`flex items-start space-x-3.5 w-full p-4 rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
+                      isSelected 
+                        ? "bg-immersive-primary/10 border-immersive-primary/40 shadow-md shadow-immersive-shadow" 
+                        : "bg-immersive-card border-immersive-border/40 hover:border-immersive-secondary/30 hover:bg-immersive-card-hover"
+                    }`}
+                  >
+                    {/* Scene Icon badge */}
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 ${
+                      isSelected 
+                        ? "bg-immersive-primary border-immersive-primary/30 text-white" 
+                        : "bg-immersive-bg border-immersive-border text-immersive-text-secondary"
+                    }`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs font-black transition-colors ${isSelected ? "text-immersive-primary" : "text-immersive-text-primary"}`}>
+                          {scene.title}
+                        </span>
+                        <span className="text-[9px] font-mono text-slate-500 font-bold">
+                          {scene.duration}s
+                        </span>
+                      </div>
+                      
+                      <span className="text-[9px] font-mono text-immersive-secondary font-bold uppercase tracking-wider block mt-0.5">
+                        {scene.category}
+                      </span>
+
+                      <p className="text-[11px] text-immersive-text-secondary leading-normal mt-1 font-medium">
+                        {scene.description}
+                      </p>
+
+                      {/* Mini running scene percentage bar inside */}
+                      {isSelected && (
+                        <div className={`w-full h-1 rounded-full mt-2.5 overflow-hidden ${isDark ? "bg-slate-800" : "bg-slate-200"}`}>
+                          <div 
+                            className="h-full bg-immersive-secondary" 
+                            style={{ width: `${activeSceneProgress * 100}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Platform Credential Security Tag */}
+            <div className="bg-immersive-card/50 border border-immersive-border/30 rounded-2xl p-3.5 flex items-center space-x-3 text-left">
+              <Shield className="w-5 h-5 text-emerald-400 shrink-0" />
+              <span className="text-[10px] font-mono text-immersive-text-secondary font-semibold uppercase leading-tight">
+                Secure Simulation Engine: Powered by verified industry standard workspaces and real-world tools.
+              </span>
+            </div>
+
+          </div>
         </div>
       </div>
     </section>

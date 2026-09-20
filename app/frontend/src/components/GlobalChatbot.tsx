@@ -19,7 +19,7 @@ const SUGGESTIONS = [
   "What is a Cohort Experiential Lab?",
   "Tell me about Frontend Engineering track.",
   "How do peer project collaborations work?",
-  "Can Coach Johnson help me build my career?"
+  "Can Coach Chinedu help me build my career?"
 ];
 
 export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
@@ -42,7 +42,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
       {
         id: "welcome",
         sender: "advisor",
-        text: `Hey there! 👋 I am Coach Johnson, your AI Advisor. Ready to map out your high-impact career journey at Cohortia? Let's talk about experiential labs, matching, or professional portfolio tracks!`,
+        text: `Hey there! 👋 I am Coach Chinedu, your AI Advisor. Ready to map out your high-impact career journey at Cohortia? Let's talk about experiential labs, matching, or professional portfolio tracks!`,
         timestamp: new Date()
       }
     ];
@@ -120,7 +120,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
   };
 
   const handleReset = () => {
-    if (window.confirm("Do you want to reset your conversation with Coach Johnson?")) {
+    if (window.confirm("Do you want to reset your conversation with Coach Chinedu?")) {
       const defaultMsg: Message = {
         id: "welcome-reset",
         sender: "advisor",
@@ -257,7 +257,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="text-sm font-bold text-immersive-text-primary flex items-center">
-                    Coach Johnson
+                    Coach Chinedu
                     <Sparkles className="w-3.5 h-3.5 text-immersive-secondary ml-1.5" />
                   </span>
                   <span className="text-[10px] text-immersive-text-secondary font-mono tracking-wide uppercase font-semibold">
@@ -331,7 +331,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
                     <Bot className="w-4 h-4 animate-spin" />
                   </div>
                   <div className="bg-immersive-bg/75 border border-immersive-border/50 p-3 rounded-2xl rounded-tl-sm text-xs text-immersive-text-secondary flex items-center space-x-2">
-                    <span className="font-semibold text-[10px]">Johnson is thinking</span>
+                    <span className="font-semibold text-[10px]">Chinedu is thinking</span>
                     <div className="flex space-x-1">
                       <div className="w-1 h-1 bg-[#FF4B3E] rounded-full animate-bounce duration-300" style={{ animationDelay: "0ms" }} />
                       <div className="w-1 h-1 bg-immersive-secondary rounded-full animate-bounce duration-300" style={{ animationDelay: "150ms" }} />
@@ -370,7 +370,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage(inputText)}
-                placeholder="Ask Coach Johnson anything..."
+                placeholder="Ask Coach Chinedu anything..."
                 disabled={isLoading}
                 className="flex-1 bg-immersive-card border border-immersive-border/80 focus:border-[#FF4B3E] focus:outline-none rounded-xl px-3.5 py-2 text-xs text-immersive-text-primary placeholder-immersive-text-secondary/60 transition-all font-sans disabled:opacity-50"
               />
