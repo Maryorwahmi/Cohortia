@@ -678,3 +678,26 @@ export const csAssessmentQuestions = sqliteTable('cs_assessment_questions', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+// Durable background jobs for the administrator learning-board generation pipeline.
+export const automationJobs = sqliteTable('automation_jobs', {
+  id: text('id').primaryKey(),
+  requestedByUserId: text('requested_by_user_id').notNull(),
+  category: text('category').notNull(),
+  subcategory: text('subcategory'),
+  courseId: text('course_id').notNull(),
+  module: integer('module'),
+  overwrite: integer('overwrite', { mode: 'boolean' }).notNull().default(false),
+  status: text('status').notNull().default('queued'), // queued, running, completed, failed
+  logs: text('logs').notNull().default(''),
+  result: text('result'),
+  error: text('error'),
+  attempts: integer('attempts').notNull().default(0),
+  startedAt: text('started_at'),
+  completedAt: text('completed_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  statusCreatedIdx: index('automation_jobs_status_created_idx').on(table.status, table.createdAt),
+  requesterCreatedIdx: index('automation_jobs_requester_created_idx').on(table.requestedByUserId, table.createdAt),
+}));

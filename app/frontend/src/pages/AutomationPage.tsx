@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 interface CourseOption {
   id: string;
@@ -17,6 +18,7 @@ const API_ROOT = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/+$/, '')
 const ALL_SUBCATEGORY_OPTION = 'all-subcategory';
 
 export default function AutomationPage() {
+  const { user, loading: authLoading } = useAuth();
   const [category, setCategory] = useState('computer-science');
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
@@ -31,9 +33,15 @@ export default function AutomationPage() {
   const [liveLogs, setLiveLogs] = useState<string[]>([]);
   const pollTimerRef = useRef<number | null>(null);
 
+  const authHeaders = () => {
+    const token = localStorage.getItem('cohortia_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   useEffect(() => {
+    if (authLoading || user?.role !== 'admin') return;
     void loadCourses();
-  }, [category]);
+  }, [authLoading, category, user?.role]);
 
   useEffect(() => {
     if (!subcategories.length) return;
@@ -47,7 +55,9 @@ export default function AutomationPage() {
 
     const pollStatus = async () => {
       try {
-        const response = await fetch(`${API_ROOT}/automation/jobs/${encodeURIComponent(jobId)}`);
+        const response = await fetch(`${API_ROOT}/automation/jobs/${encodeURIComponent(jobId)}`, {
+          headers: authHeaders(),
+        });
         const payload = await response.json();
         if (!response.ok || !payload?.success) {
           throw new Error(payload?.error || 'Failed to fetch generation status.');
@@ -91,7 +101,9 @@ export default function AutomationPage() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_ROOT}/automation/courses?category=${encodeURIComponent(category)}`);
+      const response = await fetch(`${API_ROOT}/automation/courses?category=${encodeURIComponent(category)}`, {
+        headers: authHeaders(),
+      });
       const payload = await response.json();
       if (!response.ok || !payload?.success) {
         throw new Error(payload?.error || 'Failed to load courses.');
@@ -137,7 +149,7 @@ export default function AutomationPage() {
       const courseId = selectedCourse === ALL_SUBCATEGORY_OPTION ? 'all' : selectedCourse;
       const response = await fetch(`${API_ROOT}/automation/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({
           category,
           courseId,
@@ -167,6 +179,20 @@ export default function AutomationPage() {
 
   const selectedCourseInfo = courses.find((course) => course.id === selectedCourse);
   const visibleLogs = liveLogs.flatMap((line) => line.split(/\r?\n/)).filter((line) => line.trim().length > 0).slice(-40);
+
+  if (authLoading) {
+    return <div className="mx-auto w-full max-w-6xl px-6 py-12 text-slate-600">Checking administrator access…</div>;
+  }
+
+  if (user?.role !== 'admin') {
+    return (
+      <div className="mx-auto w-full max-w-2xl px-6 py-12">
+        <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-8 text-rose-800">
+          This page is restricted to administrators.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-12 text-slate-900">

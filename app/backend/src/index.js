@@ -33,6 +33,7 @@ import generatedRoutes from './routes/generated.js';
 import catalogCoursesRoutes from './routes/catalogCourses.js';
 import assessmentsRoutes from './routes/assessments.js';
 import automationRoutes from './routes/automation.js';
+import { startAutomationWorker } from './lib/automationJobs.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 
@@ -133,6 +134,10 @@ app.notFound((c) => {
 const PORT = process.env.PORT || 3000;
 
 console.log(`🚀 Cohortia API starting on port ${PORT}...`);
+
+startAutomationWorker().catch((error) => {
+  console.error('Unable to start the automation worker:', error);
+});
 
 serve({
   fetch: app.fetch,
