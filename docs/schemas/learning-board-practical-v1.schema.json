@@ -1,0 +1,549 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cohortia.local/schemas/learning-board-practical-v1.json",
+  "title": "Cohortia Learning Board Practical v1",
+  "description": "Normalized practical contract shared by generation, persistence, API responses, and the learning-board workbench.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "practicalId",
+    "source",
+    "category",
+    "title",
+    "labType",
+    "environment",
+    "files",
+    "tasks",
+    "checks",
+    "safety",
+    "cleanup",
+    "completionRules",
+    "generator"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "practicalId": {
+      "type": "string",
+      "pattern": "^practical-[a-z0-9][a-z0-9-]*$"
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Cloud Console Lab",
+        "Scenario & Design Exercise",
+        "Terminal Coding Lab",
+        "Research & Analysis"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ]
+    },
+    "labType": {
+      "type": "string",
+      "enum": [
+        "code",
+        "shell",
+        "database",
+        "cloud",
+        "network",
+        "security",
+        "data",
+        "simulation"
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "code_lab",
+        "terminal_lab",
+        "database_lab",
+        "simulation_lab",
+        "non_code_activity"
+      ]
+    },
+    "language": {
+      "type": "string"
+    },
+    "runtime": {
+      "type": "string"
+    },
+    "sourceActivity": {
+      "type": "string"
+    },
+    "objectives": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "learningObjectives": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "prerequisites": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "instructions": {
+      "type": "string"
+    },
+    "narratorGuide": {
+      "type": "string"
+    },
+    "completionRule": {
+      "type": "string",
+      "enum": [
+        "all_tests_pass",
+        "any_test_pass",
+        "learner_submission"
+      ]
+    },
+    "environment": {
+      "$ref": "#/$defs/environment"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/file"
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/task"
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/check"
+      }
+    },
+    "hints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hint"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "safety": {
+      "$ref": "#/$defs/safety"
+    },
+    "cleanup": {
+      "$ref": "#/$defs/cleanup"
+    },
+    "completionRules": {
+      "$ref": "#/$defs/completionRules"
+    },
+    "generator": {
+      "$ref": "#/$defs/generator"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceKey",
+        "category",
+        "sourcePath",
+        "sourceHash"
+      ],
+      "properties": {
+        "sourceKey": {
+          "type": "string",
+          "pattern": "^[^/]+/[0-9]+/[0-9]+$"
+        },
+        "category": {
+          "type": "string"
+        },
+        "sourcePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-fA-F0-9]{64}$"
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapter",
+        "workingDirectory",
+        "network",
+        "resourceLimits",
+        "resetStrategy"
+      ],
+      "properties": {
+        "adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runtime": {
+          "type": "string"
+        },
+        "workingDirectory": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiredTools": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "network": {
+          "type": "string",
+          "enum": [
+            "disabled",
+            "fixture-only",
+            "allowlisted"
+          ]
+        },
+        "resourceLimits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "timeoutSeconds",
+            "memoryMb",
+            "outputKb"
+          ],
+          "properties": {
+            "timeoutSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            },
+            "memoryMb": {
+              "type": "integer",
+              "minimum": 16,
+              "maximum": 4096
+            },
+            "outputKb": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1024
+            }
+          }
+        },
+        "resetStrategy": {
+          "type": "string",
+          "enum": [
+            "fresh-workspace",
+            "discard-workspace",
+            "reset-service",
+            "manual"
+          ]
+        }
+      }
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "content"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "editable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "instruction",
+        "required",
+        "checkIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instruction": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "requiredConcepts": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "hints": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "checkIds": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "adapter",
+        "timeoutSeconds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "command",
+            "file",
+            "output",
+            "sql",
+            "http",
+            "manual",
+            "simulation"
+          ]
+        },
+        "adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string"
+        },
+        "workingDirectory": {
+          "type": "string"
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "learner",
+            "reviewer",
+            "hidden"
+          ]
+        },
+        "passCondition": {
+          "type": "object"
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0
+        },
+        "explanation": {
+          "type": "string"
+        }
+      }
+    },
+    "hint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "unlockAfterAttempt": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "label",
+        "required",
+        "redactSecrets"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "redactSecrets": {
+          "type": "boolean"
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "networkAccess",
+        "hostAccess",
+        "requiresManualReview",
+        "prohibitedOperations",
+        "learnerWarning"
+      ],
+      "properties": {
+        "profile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "networkAccess": {
+          "type": "string",
+          "enum": [
+            "disabled",
+            "fixture-only",
+            "allowlisted",
+            "manual-review"
+          ]
+        },
+        "hostAccess": {
+          "type": "string",
+          "enum": [
+            "none",
+            "isolated"
+          ]
+        },
+        "requiresManualReview": {
+          "type": "boolean"
+        },
+        "prohibitedOperations": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "learnerWarning": {
+          "type": "string"
+        }
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy",
+        "instructions"
+      ],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "discard-workspace",
+            "fresh-workspace",
+            "reset-service",
+            "manual"
+          ]
+        },
+        "instructions": {
+          "type": "string"
+        }
+      }
+    },
+    "completionRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requiredChecks",
+        "minimumScore",
+        "requiresEvidence",
+        "manualReview"
+      ],
+      "properties": {
+        "requiredChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "minimumScore": {
+          "type": "number",
+          "minimum": 0
+        },
+        "requiresEvidence": {
+          "type": "boolean"
+        },
+        "manualReview": {
+          "type": "boolean"
+        }
+      }
+    },
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generatorVersion",
+        "classifierVersion"
+      ],
+      "properties": {
+        "generatorVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "classifierVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
