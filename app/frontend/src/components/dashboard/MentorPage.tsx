@@ -384,7 +384,7 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch h-auto lg:h-[calc(100vh-180px)] min-h-[420px] lg:min-h-[600px]">
+        <div className="mentor-workspace grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch h-auto lg:h-[calc(100vh-180px)] min-h-[420px] lg:min-h-[600px]">
           
           {/* Left Panel: Tuning & Mode Controls - 4 columns */}
           <div className="lg:col-span-4 flex flex-col space-y-6 overflow-y-auto pr-2 scrollbar-thin pb-4">

@@ -74,8 +74,8 @@ export default function NotificationToast({ userProfile }: NotificationToastProp
       {
         type: "mentor" as const,
         title: "Code Review Tip",
-        content: "Coach Chinedu: 'Clean separation of concerns counts. Keep your types modular and styles reusable!'",
-        sender: "Coach Chinedu"
+        content: "Coach Johnson: 'Clean separation of concerns counts. Keep your types modular and styles reusable!'",
+        sender: "Coach Johnson"
       },
       {
         type: "system" as const,
@@ -86,8 +86,8 @@ export default function NotificationToast({ userProfile }: NotificationToastProp
       {
         type: "mentor" as const,
         title: "Sprint Objective Update",
-        content: "Coach Chinedu: 'Just checked your layout telemetry. Stellar work on responsive borders!'",
-        sender: "Coach Chinedu"
+        content: "Coach Johnson: 'Just checked your layout telemetry. Stellar work on responsive borders!'",
+        sender: "Coach Johnson"
       }
     ];
 

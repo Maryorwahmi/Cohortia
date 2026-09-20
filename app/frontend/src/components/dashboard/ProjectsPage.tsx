@@ -1040,7 +1040,7 @@ Keep your feedback professional, realistic, and warm.`;
               </div>
               <div className="border-t border-immersive-border/30 pt-3 flex items-center justify-between text-xs font-mono">
                 <span className="text-zinc-500 font-bold">ADVISOR ASSIGNED</span>
-                <span className="text-immersive-text-primary font-bold">Coach Chinedu</span>
+                <span className="text-immersive-text-primary font-bold">Coach Johnson</span>
               </div>
               <button 
                 onClick={() => alert("Your Capstone Blueprint is unlocked. Click 'Submit Deliverable' to review project details.")}

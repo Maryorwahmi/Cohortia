@@ -33,7 +33,7 @@ export default function FeatureCards({ userProfile, onOpenWizard }: FeatureCards
 
   // Mentorship Chat Widget States
   const [messages, setMessages] = useState<AdvisorMessage[]>([
-    { sender: "advisor", text: "Hello! I am Coach Chinedu, your Career Guide. Ask me anything about choosing a track, structuring your client project portfolio, or finding engineering opportunities!", timestamp: "10:45 AM" }
+    { sender: "advisor", text: "Hello! I am Coach Johnson, your Career Guide. Ask me anything about choosing a track, structuring your client project portfolio, or finding engineering opportunities!", timestamp: "10:45 AM" }
   ]);
   const [inputVal, setInputVal] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -216,7 +216,7 @@ export default function FeatureCards({ userProfile, onOpenWizard }: FeatureCards
                   <h4 className="text-sm font-semibold text-immersive-secondary mt-1">A guide in your corner.</h4>
                 </div>
                 <p className="text-sm text-immersive-text-secondary leading-relaxed">
-                  Stuck on a concept? Need direction? Speak with Coach Chinedu, our Gemini-powered counselor. Ask real career questions right here.
+                  Stuck on a concept? Need direction? Speak with Coach Johnson, our Gemini-powered counselor. Ask real career questions right here.
                 </p>
               </div>
 
@@ -224,7 +224,7 @@ export default function FeatureCards({ userProfile, onOpenWizard }: FeatureCards
               <div className="bg-immersive-bg border border-immersive-border rounded-2xl p-4 flex flex-col flex-grow min-h-[220px] max-h-[300px] shadow-inner mt-4 overflow-hidden relative">
                 <div className="flex items-center space-x-2 border-b border-immersive-border pb-2 mb-2">
                   <div className="w-2 h-2 bg-immersive-secondary rounded-full" />
-                  <span className="text-[10px] font-mono font-bold uppercase text-immersive-text-secondary">Coach Chinedu (Gemini 3.5)</span>
+                  <span className="text-[10px] font-mono font-bold uppercase text-immersive-text-secondary">Coach Johnson (Gemini 3.5)</span>
                 </div>
 
                 {/* Messages Panel */}

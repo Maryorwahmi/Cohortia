@@ -81,7 +81,7 @@ The student dashboard provides a suite of deeply integrated workspace panels:
     *   Features a custom, built-in **Markdown Parsing Engine** that renders bold (`**text**`), italics (`*text*`), underlines (`__text__`), bullet lists (`*` or `-` using elegant color accents), numbered lists (`1.`), and inline code ticks (`` `code` ``) cleanly into React node structures. No more ugly, raw unparsed strings!
 
 4.  **Global AI Chatbot (`GlobalChatbot.tsx`)**:
-    *   Floating chatbot widget featuring Coach Chinedu.
+    *   Floating chatbot widget featuring Coach Johnson.
     *   Includes automatic conversation persistence, conversation resets, and our custom Markdown formatting parser.
 
 5.  **Capstone Projects Workspace & Academic Evaluation Board (`ProjectsPage.tsx` & `InteractiveSandbox.tsx`)**:
@@ -90,7 +90,7 @@ The student dashboard provides a suite of deeply integrated workspace panels:
     *   **Interactive Submission Evaluator**: Integrates folder drag-and-drop or manual upload, triggering a live progress audit scoring bar evaluated via Google Gemini.
     *   **Academic Graduation & Evaluation Board**:
         *   **Diagnostic Assessment Hub**: Real-time evaluation monitoring of quizzes and simulation benchmarks.
-        *   **Final Capstone Project**: The ultimate simulated production challenge with direct advisor (Coach Chinedu) assessment.
+        *   **Final Capstone Project**: The ultimate simulated production challenge with direct advisor (Coach Johnson) assessment.
         *   **Final Proctored Examination**: A comprehensive 180-minute certification test covering all 12 modules.
         *   **Course Conclusion & Graduation**: Crypto-authenticated PDF diploma setup and career-readiness review.
         *   **Where to Go Next (Alumni Hub)**: Direct employment pipeline matching, resume tailoring workshops, and corporate placements.

@@ -859,7 +859,7 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
                 <textarea
                   value={crisisPlaybook}
                   onChange={(e) => setCrisisPlaybook(e.target.value)}
-                  placeholder="Outline your strategic market entry playbook, metrics model, or mitigation plan for Coach Chinedu..."
+                  placeholder="Outline your strategic market entry playbook, metrics model, or mitigation plan for Coach Johnson..."
                   className="flex-1 w-full bg-white border border-immersive-border p-2.5 rounded-md text-xs font-mono text-immersive-text-primary focus:outline-none focus:border-immersive-primary resize-none leading-relaxed"
                 />
               </div>
