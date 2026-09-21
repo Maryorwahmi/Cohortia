@@ -136,6 +136,15 @@ function runCommand(command, args, cwd) {
   });
 }
 
+async function listModuleNumbers(syllabusPath) {
+  const source = await fs.readFile(syllabusPath, 'utf8');
+  const modules = new Set();
+  for (const match of source.matchAll(/^##\s+Module\s+(\d+)\b/gim)) {
+    modules.add(Number(match[1]));
+  }
+  return [...modules].filter(Number.isInteger).sort((a, b) => a - b);
+}
+
 async function generateCourse(category, course, options) {
   const syllabusPath = await locateSyllabusForCourse(category, course);
 
@@ -144,29 +153,39 @@ async function generateCourse(category, course, options) {
     return { skipped: true, courseId: course.id, title: course.title, syllabusPath: null };
   }
 
-  const args = [
-    generatorScript,
-    '--syllabus',
-    syllabusPath,
-    '--course-id',
-    course.id,
-    '--course-title',
-    course.title,
-    '--output',
-    'generated/learning-boards-html',
-  ];
+  const modules = options.module ? [Number(options.module)] : await listModuleNumbers(syllabusPath);
+  if (!modules.length) {
+    console.log(`no modules found for ${course.id} (${course.title})`);
+    return { skipped: true, courseId: course.id, title: course.title, syllabusPath };
+  }
 
-  if (options.module) args.push('--module', String(options.module));
-  if (options.overwrite) args.push('--overwrite');
-
-  const result = await runCommand(process.execPath, args, repoRoot);
+  let code = 0;
+  for (const moduleNumber of modules) {
+    console.log(`Generating ${course.id}, module ${moduleNumber}.`);
+    const args = [
+      generatorScript,
+      '--syllabus',
+      syllabusPath,
+      '--course-id',
+      course.id,
+      '--course-title',
+      course.title,
+      '--output',
+      'generated/learning-boards-html',
+      '--module',
+      String(moduleNumber),
+    ];
+    if (options.overwrite) args.push('--overwrite');
+    const result = await runCommand(process.execPath, args, repoRoot);
+    if (result.code !== 0) code = result.code;
+  }
 
   return {
     skipped: false,
     courseId: course.id,
     title: course.title,
     syllabusPath,
-    code: result.code,
+    code,
   };
 }
 
