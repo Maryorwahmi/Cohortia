@@ -16,6 +16,7 @@ interface SubcategoryOption {
 
 const API_ROOT = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/+$/, '');
 const ALL_SUBCATEGORY_OPTION = 'all-subcategory';
+const ACTIVE_JOB_STORAGE_KEY = 'cohortia_automation_active_job';
 
 export default function AutomationPage() {
   const { user, loading: authLoading } = useAuth();
@@ -30,7 +31,7 @@ export default function AutomationPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(() => localStorage.getItem(ACTIVE_JOB_STORAGE_KEY));
   const [liveLogs, setLiveLogs] = useState<string[]>([]);
   const pollTimerRef = useRef<number | null>(null);
 
@@ -68,6 +69,7 @@ export default function AutomationPage() {
 
   useEffect(() => {
     if (!jobId) return;
+    setBusy(true);
 
     const pollStatus = async () => {
       try {
@@ -81,6 +83,7 @@ export default function AutomationPage() {
 
         const nextLogs = payload?.data?.logs || [];
         setLiveLogs(nextLogs);
+        setError(null);
 
         const status = payload?.data?.status;
         if (status === 'completed' || status === 'failed') {
@@ -91,15 +94,17 @@ export default function AutomationPage() {
           if (status === 'failed') {
             setError(payload?.data?.result?.error || payload?.data?.result?.message || 'The generation job failed.');
           }
+          localStorage.removeItem(ACTIVE_JOB_STORAGE_KEY);
           setJobId(null);
           return;
         }
 
         pollTimerRef.current = window.setTimeout(pollStatus, 1500);
       } catch (err) {
-        setBusy(false);
+        // Keep the persisted job ID so a temporary network issue or a page refresh
+        // can reconnect to the same durable Turso-backed job.
         setError(err instanceof Error ? err.message : 'Unexpected error while polling generation status');
-        setJobId(null);
+        pollTimerRef.current = window.setTimeout(pollStatus, 5000);
       }
     };
 
@@ -178,6 +183,7 @@ export default function AutomationPage() {
       }
 
       setJobId(nextJobId);
+      localStorage.setItem(ACTIVE_JOB_STORAGE_KEY, nextJobId);
       setMessage('Generation started. Watching live chapter progress…');
     } catch (err) {
       setBusy(false);
