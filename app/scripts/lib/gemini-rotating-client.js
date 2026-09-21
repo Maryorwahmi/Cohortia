@@ -230,6 +230,9 @@ async function callAzureOpenAIForJson(prompt, responseSchema, maxTokens, tempera
   }
 
   const normalizedEndpoint = endpoint.replace(/\/+$/, '');
+  if (!/^https:\/\//i.test(normalizedEndpoint)) {
+    return { success: false, error: 'AZURE_OPENAI_ENDPOINT must start with https:// and must not include a deployment path.' };
+  }
   const url = `${normalizedEndpoint}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
 
   const body = {
@@ -270,7 +273,11 @@ async function callAzureOpenAIForJson(prompt, responseSchema, maxTokens, tempera
 
     return { success: false, error: 'Could not parse valid JSON from Azure OpenAI response', raw: text };
   } catch (error) {
-    return { success: false, error: error?.message || 'Unknown Azure OpenAI error' };
+    const cause = error?.cause?.message || error?.cause?.code;
+    return {
+      success: false,
+      error: `Azure OpenAI request failed for ${new URL(normalizedEndpoint).host}: ${error?.message || 'Unknown error'}${cause ? ` (${cause})` : ''}`,
+    };
   }
 }
 

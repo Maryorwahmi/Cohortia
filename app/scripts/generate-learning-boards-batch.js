@@ -136,13 +136,21 @@ function runCommand(command, args, cwd) {
   });
 }
 
-async function listModuleNumbers(syllabusPath) {
+async function listChapterSelectors(syllabusPath, requestedModule = null) {
   const source = await fs.readFile(syllabusPath, 'utf8');
-  const modules = new Set();
-  for (const match of source.matchAll(/^##\s+Module\s+(\d+)\b/gim)) {
-    modules.add(Number(match[1]));
+  const chapters = [];
+  const seen = new Set();
+  for (const match of source.matchAll(/^#{2,4}\s*Chapter\s+(\d+)\.(\d+)\b/gim)) {
+    const moduleNumber = Number(match[1]);
+    const chapterNumber = Number(match[2]);
+    const key = `${moduleNumber}.${chapterNumber}`;
+    if (!Number.isInteger(moduleNumber) || !Number.isInteger(chapterNumber) || seen.has(key)) continue;
+    seen.add(key);
+    if (requestedModule == null || moduleNumber === Number(requestedModule)) {
+      chapters.push({ moduleNumber, chapterNumber });
+    }
   }
-  return [...modules].filter(Number.isInteger).sort((a, b) => a - b);
+  return chapters.sort((a, b) => a.moduleNumber - b.moduleNumber || a.chapterNumber - b.chapterNumber);
 }
 
 async function generateCourse(category, course, options) {
@@ -153,15 +161,15 @@ async function generateCourse(category, course, options) {
     return { skipped: true, courseId: course.id, title: course.title, syllabusPath: null };
   }
 
-  const modules = options.module ? [Number(options.module)] : await listModuleNumbers(syllabusPath);
-  if (!modules.length) {
-    console.log(`no modules found for ${course.id} (${course.title})`);
+  const chapters = await listChapterSelectors(syllabusPath, options.module);
+  if (!chapters.length) {
+    console.log(`no chapters found for ${course.id} (${course.title})`);
     return { skipped: true, courseId: course.id, title: course.title, syllabusPath };
   }
 
   let code = 0;
-  for (const moduleNumber of modules) {
-    console.log(`Generating ${course.id}, module ${moduleNumber}.`);
+  for (const { moduleNumber, chapterNumber } of chapters) {
+    console.log(`Generating ${course.id}, chapter ${moduleNumber}.${chapterNumber}.`);
     const args = [
       generatorScript,
       '--syllabus',
@@ -174,6 +182,8 @@ async function generateCourse(category, course, options) {
       'generated/learning-boards-html',
       '--module',
       String(moduleNumber),
+      '--chapter',
+      String(chapterNumber),
     ];
     if (options.overwrite) args.push('--overwrite');
     const result = await runCommand(process.execPath, args, repoRoot);
