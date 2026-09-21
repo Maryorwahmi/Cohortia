@@ -250,35 +250,45 @@ async function callAzureOpenAIForJson(prompt, responseSchema, maxTokens, tempera
     body.temperature = temperature;
   }
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': key,
-      },
-      body: JSON.stringify(body),
-    });
+  const maxNetworkAttempts = Number(process.env.AZURE_OPENAI_NETWORK_RETRIES || 4);
+  let lastError = null;
 
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      return { success: false, error: data.error?.message || `HTTP ${response.status}` };
+  for (let attempt = 1; attempt <= maxNetworkAttempts; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': key,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        return { success: false, error: data.error?.message || `HTTP ${response.status}` };
+      }
+
+      const text = data.choices?.[0]?.message?.content || '';
+      const parsed = extractJson(text);
+      if (parsed) return { success: true, data: parsed, raw: text };
+      return { success: false, error: 'Could not parse valid JSON from Azure OpenAI response', raw: text };
+    } catch (error) {
+      lastError = error;
+      const causeCode = error?.cause?.code;
+      const retryable = causeCode === 'EAI_AGAIN' || causeCode === 'ENOTFOUND' || causeCode === 'ECONNRESET' || causeCode === 'ETIMEDOUT';
+      if (!retryable || attempt === maxNetworkAttempts) break;
+      const delayMs = 1000 * (2 ** (attempt - 1));
+      console.warn(`  Azure network lookup failed (attempt ${attempt}/${maxNetworkAttempts}); retrying in ${delayMs / 1000}s...`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
-
-    const text = data.choices?.[0]?.message?.content || '';
-    const parsed = extractJson(text);
-    if (parsed) {
-      return { success: true, data: parsed, raw: text };
-    }
-
-    return { success: false, error: 'Could not parse valid JSON from Azure OpenAI response', raw: text };
-  } catch (error) {
-    const cause = error?.cause?.message || error?.cause?.code;
-    return {
-      success: false,
-      error: `Azure OpenAI request failed for ${new URL(normalizedEndpoint).host}: ${error?.message || 'Unknown error'}${cause ? ` (${cause})` : ''}`,
-    };
   }
+
+  const cause = lastError?.cause?.message || lastError?.cause?.code;
+  return {
+    success: false,
+    error: `Azure OpenAI request failed for ${new URL(normalizedEndpoint).host}: ${lastError?.message || 'Unknown error'}${cause ? ` (${cause})` : ''}`,
+  };
 }
 
 export function logUsageStats() {
