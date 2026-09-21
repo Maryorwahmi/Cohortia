@@ -36,7 +36,6 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
-import { exportLearningBoard } from "./export-learning-board-html.js";
 import { normalizeBoardNarration } from "./speech-text.js";
 import { loadRepositoryEnv } from "./lib/repository-paths.js";
 
