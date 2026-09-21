@@ -22,6 +22,7 @@ export default function AutomationPage() {
   const [category, setCategory] = useState('computer-science');
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  const [catalogCourses, setCatalogCourses] = useState<CourseOption[]>([]);
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [overwrite, setOverwrite] = useState(false);
@@ -49,6 +50,21 @@ export default function AutomationPage() {
       setSelectedSubcategory(subcategories[0].name);
     }
   }, [subcategories, selectedSubcategory]);
+
+  useEffect(() => {
+    if (!selectedSubcategory) {
+      setCourses([]);
+      setSelectedCourse('');
+      return;
+    }
+
+    const matchingCourses = catalogCourses.filter((course) => course.subcategory === selectedSubcategory);
+    setCourses([
+      { id: ALL_SUBCATEGORY_OPTION, title: 'Select all courses in subcategory', level: '', subcategory: selectedSubcategory },
+      ...matchingCourses,
+    ]);
+    setSelectedCourse(ALL_SUBCATEGORY_OPTION);
+  }, [catalogCourses, selectedSubcategory]);
 
   useEffect(() => {
     if (!jobId) return;
@@ -117,19 +133,11 @@ export default function AutomationPage() {
         : (nextSubcategories[0]?.name || '');
       setSelectedSubcategory(nextSelected);
 
-      const items = (payload?.data?.courses || []).filter((course) => {
-        if (!nextSelected) return true;
-        return course.subcategory === nextSelected;
-      });
-
-      setCourses([
-        { id: ALL_SUBCATEGORY_OPTION, title: 'Select all courses in subcategory', level: '', subcategory: nextSelected },
-        ...items,
-      ]);
-      setSelectedCourse(ALL_SUBCATEGORY_OPTION);
+      setCatalogCourses(payload?.data?.courses || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unexpected error');
       setCourses([]);
+      setCatalogCourses([]);
       setSubcategories([]);
       setSelectedSubcategory('');
       setSelectedCourse('');
