@@ -1,0 +1,85 @@
+name: Cohortia automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: Automation job ID
+        required: true
+        type: string
+      category:
+        required: true
+        type: string
+      subcategory:
+        required: false
+        type: string
+      course_id:
+        required: true
+        type: string
+      module:
+        required: false
+        type: string
+      overwrite:
+        required: true
+        type: string
+
+concurrency:
+  group: cohortia-automation
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      contents: write
+    env:
+      AUTOMATION_JOB_ID: ${{ inputs.job_id }}
+      AUTOMATION_API_URL: ${{ secrets.AUTOMATION_API_URL }}
+      AUTOMATION_WORKER_TOKEN: ${{ secrets.AUTOMATION_WORKER_TOKEN }}
+      AUTOMATION_CATEGORY: ${{ inputs.category }}
+      AUTOMATION_SUBCATEGORY: ${{ inputs.subcategory }}
+      AUTOMATION_COURSE_ID: ${{ inputs.course_id }}
+      AUTOMATION_MODULE: ${{ inputs.module }}
+      AUTOMATION_OVERWRITE: ${{ inputs.overwrite }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+      AI_PROVIDER: ${{ secrets.AI_PROVIDER }}
+      AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+      AZURE_OPENAI_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
+      AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AUTOMATION_GIT_TOKEN || github.token }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and import chapters
+        run: node scripts/run-github-automation.js
+
+      - name: Publish generated artifacts
+        working-directory: .
+        run: |
+          git config user.name "Cohortia Automation"
+          git config user.email "automation@cohortia.app"
+          git add -- app/generated/learning-boards-html app/docs
+          if git diff --cached --quiet; then
+            echo "No generated-file changes to publish."
+          else
+            git commit -m "chore(learning-boards): publish automation output"
+            git push
+          fi

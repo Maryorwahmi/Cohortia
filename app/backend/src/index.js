@@ -135,13 +135,19 @@ const PORT = process.env.PORT || 3000;
 
 console.log(`🚀 Cohortia API starting on port ${PORT}...`);
 
-const automationWorkerEnabled = process.env.AUTOMATION_WORKER_ENABLED !== 'false';
+const automationWorkerEnabled = process.env.AUTOMATION_WORKER_ENABLED !== 'false'
+  && !['github', 'azure'].includes(process.env.AUTOMATION_EXECUTION)
+  && process.env.AUTOMATION_WORKER_ROLE !== 'background';
 if (automationWorkerEnabled) {
   startAutomationWorker().catch((error) => {
     console.error('Unable to start the automation worker:', error);
   });
 } else {
-  console.log('Automation worker disabled via AUTOMATION_WORKER_ENABLED=false');
+  console.log(process.env.AUTOMATION_EXECUTION === 'github'
+    ? 'Automation worker delegated to GitHub Actions.'
+    : process.env.AUTOMATION_EXECUTION === 'azure'
+      ? 'Automation worker delegated to Azure Container Apps.'
+    : 'Automation worker disabled via AUTOMATION_WORKER_ENABLED=false');
 }
 
 serve({

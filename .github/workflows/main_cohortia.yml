@@ -38,13 +38,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
       
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C9F9807C1ED1415BB2CA095EFC35F022 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3E5DEADFE2174EB8B18E014FE55D93FF }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5B61CEE9C4294FF6A4E0DE99F9A8074C }}
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -52,4 +62,4 @@ jobs:
           app-name: 'Cohortia'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_40A40328B3FB4CBBAF511945F53C3463 }}
+          

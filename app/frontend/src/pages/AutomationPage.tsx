@@ -18,30 +18,16 @@ const API_ROOT = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/+$/, '')
 const ALL_SUBCATEGORY_OPTION = 'all-subcategory';
 const ACTIVE_JOB_STORAGE_KEY = 'cohortia_automation_active_job';
 
-interface ApiPayload {
-  success?: boolean;
-  error?: string;
-  message?: string;
-  data?: {
-    jobId?: string;
-    status?: string;
-    logs?: string[];
-    result?: { error?: string; message?: string } | null;
-    subcategories?: SubcategoryOption[];
-    courses?: CourseOption[];
-  };
-}
-
 async function readApiResponse(response: Response) {
   const text = await response.text();
-  let payload: ApiPayload | null = null;
+  let payload: { success?: boolean; error?: string; message?: string; details?: string; data?: any } | null = null;
   try {
     payload = text ? JSON.parse(text) : null;
   } catch {
     throw new Error(`Automation service returned an invalid response (${response.status}).`);
   }
   if (!response.ok || !payload?.success) {
-    throw new Error(payload?.error || payload?.message || `Automation request failed (${response.status}).`);
+    throw new Error(payload?.details || payload?.error || payload?.message || `Automation request failed (${response.status}).`);
   }
   return payload;
 }
@@ -63,6 +49,7 @@ export default function AutomationPage() {
   const [liveLogs, setLiveLogs] = useState<string[]>([]);
   const pollFailuresRef = useRef(0);
   const pollTimerRef = useRef<number | null>(null);
+  const pollAbortRef = useRef<AbortController | null>(null);
 
   const authHeaders = () => {
     const token = localStorage.getItem('cohortia_token');
@@ -99,26 +86,36 @@ export default function AutomationPage() {
   useEffect(() => {
     if (!jobId) return;
     setBusy(true);
+    let active = true;
 
     const pollStatus = async () => {
       try {
+        if (!active) return;
+        pollAbortRef.current?.abort();
+        const controller = new AbortController();
+        pollAbortRef.current = controller;
         const response = await fetch(`${API_ROOT}/automation/jobs/${encodeURIComponent(jobId)}`, {
           headers: authHeaders(),
+          signal: controller.signal,
         });
+        if (!active) return;
         const payload = await readApiResponse(response);
 
         const nextLogs = payload?.data?.logs || [];
-        setLiveLogs(nextLogs);
+        setLiveLogs((currentLogs) => {
+          if (!currentLogs.length || nextLogs.length >= currentLogs.length) return nextLogs;
+          return currentLogs;
+        });
         setError(null);
         pollFailuresRef.current = 0;
 
         const status = payload?.data?.status;
-        if (status === 'completed' || status === 'failed' || status === 'cancel_requested' || status === 'cancelled') {
+        if (status === 'completed' || status === 'failed' || status === 'cancelled') {
           setBusy(false);
           setMessage(status === 'completed'
             ? 'Generation and import completed successfully.'
-            : status === 'cancelled' || status === 'cancel_requested'
-              ? 'Generation cancelled.'
+            : status === 'cancelled'
+              ? 'Generation was cancelled.'
               : 'Generation finished with errors.');
           if (status === 'failed') {
             setError(payload?.data?.result?.error || payload?.data?.result?.message || 'The generation job failed.');
@@ -128,27 +125,30 @@ export default function AutomationPage() {
           return;
         }
 
-        pollTimerRef.current = window.setTimeout(pollStatus, 1500);
+        if (active) pollTimerRef.current = window.setTimeout(pollStatus, 1500);
       } catch (err) {
-        const nextFailures = pollFailuresRef.current + 1;
-        pollFailuresRef.current = nextFailures;
+        if (!active || (err instanceof DOMException && err.name === 'AbortError')) return;
+        pollFailuresRef.current += 1;
         setError(err instanceof Error ? err.message : 'Unexpected error while polling generation status');
-        if (nextFailures >= 3) {
+        if (pollFailuresRef.current >= 3) {
           setBusy(false);
           setMessage('Generation status is unavailable. Use Emergency stop before restarting.');
           localStorage.removeItem(ACTIVE_JOB_STORAGE_KEY);
           setJobId(null);
           return;
         }
-        pollTimerRef.current = window.setTimeout(pollStatus, 5000);
+        if (active) pollTimerRef.current = window.setTimeout(pollStatus, 5000);
       }
     };
 
     pollStatus();
 
     return () => {
+      active = false;
+      pollAbortRef.current?.abort();
       if (pollTimerRef.current) {
         window.clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = null;
       }
     };
   }, [jobId]);
@@ -161,7 +161,10 @@ export default function AutomationPage() {
       const response = await fetch(`${API_ROOT}/automation/courses?category=${encodeURIComponent(category)}`, {
         headers: authHeaders(),
       });
-      const payload = await readApiResponse(response);
+      const payload = await response.json();
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.error || 'Failed to load courses.');
+      }
 
       const nextSubcategories = payload?.data?.subcategories || [];
       setSubcategories(nextSubcategories);
@@ -221,28 +224,13 @@ export default function AutomationPage() {
     }
   }
 
-  async function handleCancel() {
-    if (!jobId) return;
-    setError(null);
-    pollAbortRef.current?.abort();
-    try {
-      const response = await fetch(`${API_ROOT}/automation/jobs/${encodeURIComponent(jobId)}/cancel`, {
-        method: 'POST',
-        headers: authHeaders(),
-      });
-      const payload = await readApiResponse(response);
-      setBusy(false);
-      setMessage('Cancellation requested. Stopping the current process…');
-      localStorage.removeItem(ACTIVE_JOB_STORAGE_KEY);
-      setJobId(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unexpected error while stopping generation');
-    }
-  }
-
   async function handleEmergencyStop() {
     setError(null);
     pollAbortRef.current?.abort();
+    if (pollTimerRef.current) {
+      window.clearTimeout(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
     try {
       const response = await fetch(`${API_ROOT}/automation/jobs/stop-all`, {
         method: 'POST',
@@ -361,15 +349,6 @@ export default function AutomationPage() {
             >
               {busy ? 'Generating and importing…' : 'Generate and publish'}
             </button>
-            {jobId && (
-              <button
-                type="button"
-                onClick={() => void handleCancel()}
-                className="inline-flex w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3.5 text-base font-semibold text-rose-700 transition hover:bg-rose-100"
-              >
-                Stop generation
-              </button>
-            )}
             {(busy || jobId) && (
               <button
                 type="button"

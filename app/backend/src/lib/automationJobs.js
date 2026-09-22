@@ -12,16 +12,150 @@ const COMMAND_TIMEOUT_MS = Number(process.env.AUTOMATION_COMMAND_TIMEOUT_MS || 2
 let workerTimer = null;
 let workerIsRunning = false;
 const activeProcesses = new Map();
-
-class AutomationCancelledError extends Error {
-  constructor() {
-    super('Automation was cancelled.');
-    this.name = 'AutomationCancelledError';
-  }
-}
+const logWrites = new Map();
 
 function now() {
   return new Date().toISOString();
+}
+
+export async function cancelAllAutomationJobs() {
+  const updatedAt = now();
+  const jobs = await db.select({ id: automationJobs.id })
+    .from(automationJobs)
+    .where(inArray(automationJobs.status, ['queued', 'running']));
+  for (const job of jobs) activeProcesses.get(job.id)?.kill();
+  if (jobs.length) {
+    await db.update(automationJobs).set({
+      status: 'cancelled',
+      error: 'Cancelled by emergency stop.',
+      completedAt: updatedAt,
+      updatedAt,
+    }).where(inArray(automationJobs.id, jobs.map((job) => job.id)));
+  }
+  return jobs.length;
+}
+
+function externalAutomationEnabled() {
+  return ['github', 'azure'].includes(process.env.AUTOMATION_EXECUTION);
+}
+
+async function updateJob(jobId, values) {
+  const updatedAt = values.updatedAt || now();
+  await db.update(automationJobs).set({ ...values, updatedAt }).where(eq(automationJobs.id, jobId));
+}
+
+export async function recordAutomationWorkerEvent(jobId, event) {
+  const job = await getAutomationJob(jobId);
+  if (!job) throw new Error('Automation job not found.');
+  if (job.status === 'cancelled') return job;
+  if (event.type === 'log') {
+    await appendJobLog(job, event.message);
+    return getAutomationJob(jobId);
+  }
+  if (event.type === 'started') {
+    await updateJob(jobId, {
+      status: 'running',
+      startedAt: job.startedAt || now(),
+      attempts: job.status === 'running' ? job.attempts : (job.attempts || 0) + 1,
+    });
+    return getAutomationJob(jobId);
+  }
+  if (event.type === 'completed') {
+    await db.update(automationJobs).set({
+      status: 'completed',
+      result: event.result ? JSON.stringify(event.result) : null,
+      error: null,
+      completedAt: now(),
+      updatedAt: now(),
+    }).where(and(eq(automationJobs.id, jobId), inArray(automationJobs.status, ['queued', 'running'])));
+    return getAutomationJob(jobId);
+  }
+  if (event.type === 'failed') {
+    await db.update(automationJobs).set({
+      status: 'failed',
+      error: String(event.error || 'GitHub Actions automation failed.'),
+      completedAt: now(),
+      updatedAt: now(),
+    }).where(and(eq(automationJobs.id, jobId), inArray(automationJobs.status, ['queued', 'running'])));
+    return getAutomationJob(jobId);
+  }
+  throw new Error(`Unsupported automation worker event: ${event.type}`);
+}
+
+export async function dispatchAutomationJob(job) {
+  if (process.env.AUTOMATION_EXECUTION === 'azure') {
+    await dispatchAzureAutomationJob();
+    return;
+  }
+  const token = process.env.AUTOMATION_GITHUB_TOKEN;
+  const repository = process.env.AUTOMATION_GITHUB_REPOSITORY;
+  const workflow = process.env.AUTOMATION_GITHUB_WORKFLOW || 'automation.yml';
+  const ref = process.env.AUTOMATION_GITHUB_REF || 'main';
+  if (!token || !repository) {
+    throw new Error('GitHub Actions execution requires AUTOMATION_GITHUB_TOKEN and AUTOMATION_GITHUB_REPOSITORY.');
+  }
+
+  async function getAzureManagementToken() {
+    const tenantId = process.env.AZURE_TENANT_ID;
+    const clientId = process.env.AZURE_CLIENT_ID;
+    const clientSecret = process.env.AZURE_CLIENT_SECRET;
+    if (!tenantId || !clientId || !clientSecret) {
+      throw new Error('Azure execution requires AZURE_TENANT_ID, AZURE_CLIENT_ID, and AZURE_CLIENT_SECRET.');
+    }
+    const response = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope: 'https://management.azure.com/.default',
+        grant_type: 'client_credentials',
+      }),
+    });
+    if (!response.ok) throw new Error(`Azure authentication failed (${response.status}).`);
+    return (await response.json()).access_token;
+  }
+
+  async function dispatchAzureAutomationJob() {
+    const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
+    const resourceGroup = process.env.AZURE_RESOURCE_GROUP;
+    const jobName = process.env.AZURE_CONTAINER_APP_JOB_NAME;
+    if (!subscriptionId || !resourceGroup || !jobName) {
+      throw new Error('Azure execution requires AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, and AZURE_CONTAINER_APP_JOB_NAME.');
+    }
+    const token = await getAzureManagementToken();
+    const url = `https://management.azure.com/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroup)}/providers/Microsoft.App/jobs/${encodeURIComponent(jobName)}/start?api-version=2024-03-01`;
+    const response = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+    if (!response.ok) {
+      const details = await response.text();
+      throw new Error(`Azure Container Apps Job start failed (${response.status}): ${details.slice(0, 500)}`);
+    }
+  }
+  const response = await fetch(`https://api.github.com/repos/${repository}/actions/workflows/${encodeURIComponent(workflow)}/dispatches`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+      'User-Agent': 'Cohortia-Automation',
+    },
+    body: JSON.stringify({
+      ref,
+      inputs: {
+        job_id: job.id,
+        category: job.category,
+        subcategory: job.subcategory || '',
+        course_id: job.courseId,
+        module: job.module == null ? '' : String(job.module),
+        overwrite: job.overwrite ? 'true' : 'false',
+      },
+    }),
+  });
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`GitHub Actions dispatch failed (${response.status}): ${details.slice(0, 500)}`);
+  }
 }
 
 function getApplicationRoot() {
@@ -90,7 +224,7 @@ function runProcess(command, args, options = {}) {
     };
     const timer = setTimeout(() => {
       child.kill();
-      finish({ ok: false, timedOut: true, cancelled: false, exitCode: null, stdout, stderr: `${stderr}\nProcess timed out.`.trim() });
+      finish({ ok: false, timedOut: true, exitCode: null, stdout, stderr: `${stderr}\nProcess timed out.`.trim() });
     }, timeoutMs);
     const append = (chunk, isError = false) => {
       const text = String(chunk);
@@ -101,22 +235,26 @@ function runProcess(command, args, options = {}) {
     child.stdout.on('data', (chunk) => append(chunk));
     child.stderr.on('data', (chunk) => append(chunk, true));
     child.on('error', (error) => finish({ ok: false, exitCode: null, stdout, stderr: error.message }));
-    child.on('close', (exitCode) => finish({
-      ok: exitCode === 0, cancelled: child.killed, exitCode, stdout, stderr,
-    }));
+    child.on('close', (exitCode) => finish({ ok: exitCode === 0, exitCode, stdout, stderr }));
   });
 }
 
 async function appendJobLog(job, chunk) {
   const clean = String(chunk || '').replace(/\r/g, '').trim();
   if (!clean) return;
-  job.logs = `${job.logs || ''}${job.logs ? '\n' : ''}${clean}`.slice(-MAX_LOG_LENGTH);
-  job.updatedAt = now();
-  try {
-    await db.update(automationJobs).set({ logs: job.logs, updatedAt: job.updatedAt }).where(eq(automationJobs.id, job.id));
-  } catch (error) {
-    console.error(`[automation] Unable to persist log for ${job.id}; continuing generation:`, error);
-  }
+  const previous = logWrites.get(job.id) || Promise.resolve();
+  const next = previous.then(async () => {
+    job.logs = `${job.logs || ''}${job.logs ? '\n' : ''}${clean}`.slice(-MAX_LOG_LENGTH);
+    job.updatedAt = now();
+    try {
+      await db.update(automationJobs).set({ logs: job.logs, updatedAt: job.updatedAt }).where(eq(automationJobs.id, job.id));
+    } catch (error) {
+      console.error(`[automation] Unable to persist log for ${job.id}; continuing:`, error);
+    }
+  });
+  logWrites.set(job.id, next);
+  await next;
+  if (logWrites.get(job.id) === next) logWrites.delete(job.id);
 }
 
 function generationNeedsImport(stdout = '') {
@@ -140,22 +278,10 @@ async function generateAndImportCourse(job, course) {
   if (job.overwrite) args.push('--overwrite');
   const onOutput = (chunk) => appendJobLog(job, chunk);
   const generation = await runProcess(process.execPath, args, { cwd: appRoot, onOutput, jobId: job.id });
-  if (generation.cancelled) throw new AutomationCancelledError();
   if (!generation.ok) {
     return { ok: false, courseId: course.id, error: generation.timedOut ? 'Generation timed out.' : 'Generation failed.' };
   }
-  if (!generationNeedsImport(generation.stdout)) {
-    return { ok: true, courseId: course.id, importSkipped: true };
-  }
-  const importScript = path.join(appRoot, 'backend', 'scripts', 'import-learning-boards.js');
-  const imported = await runProcess(process.execPath, [importScript, '--course', course.id], {
-    cwd: path.join(appRoot, 'backend'),
-    onOutput, jobId: job.id,
-  });
-  if (imported.cancelled) throw new AutomationCancelledError();
-  return imported.ok
-    ? { ok: true, courseId: course.id, importSkipped: false }
-    : { ok: false, courseId: course.id, error: imported.timedOut ? 'Import timed out.' : 'Validated manifests could not be imported into Turso.' };
+  return { ok: true, courseId: course.id, importAfterEachChapter: true };
 }
 
 async function syncGeneratedFilesToGit(job) {
@@ -174,18 +300,14 @@ async function syncGeneratedFilesToGit(job) {
   const docsPath = `${applicationPath}/docs`;
   const output = (chunk) => appendJobLog(job, chunk);
   const git = async (args) => {
-    const result = await runProcess('git', args, {
-      cwd: repositoryRoot, onOutput: output, timeoutMs: 120000, jobId: job.id,
-    });
+    const result = await runProcess('git', args, { cwd: repositoryRoot, onOutput: output, timeoutMs: 120000 });
     if (!result.ok) throw new Error(`Git command failed: git ${args[0]}`);
     return result;
   };
   await git(['config', 'user.name', process.env.AUTOMATION_GIT_AUTHOR_NAME || 'Cohortia Automation']);
   await git(['config', 'user.email', process.env.AUTOMATION_GIT_AUTHOR_EMAIL || 'automation@cohortia.app']);
   await git(['add', '--', generatedPath, docsPath]);
-  const staged = await runProcess('git', ['diff', '--cached', '--quiet'], {
-    cwd: repositoryRoot, timeoutMs: 120000, jobId: job.id,
-  });
+  const staged = await runProcess('git', ['diff', '--cached', '--quiet'], { cwd: repositoryRoot, timeoutMs: 120000 });
   if (staged.exitCode === 0) {
     await appendJobLog(job, 'No generated-file changes required a Git commit.');
     return { skipped: true };
@@ -207,10 +329,6 @@ async function runJob(job) {
   await appendJobLog(job, `Generating ${selectedCourses.length} course(s) from app/docs/${job.category}.`);
   const results = [];
   for (const course of selectedCourses) {
-    const currentJob = await getAutomationJob(job.id);
-    if (currentJob && ['cancel_requested', 'cancelled'].includes(currentJob.status)) {
-      throw new AutomationCancelledError();
-    }
     await appendJobLog(job, `Starting ${course.id}.`);
     results.push(await generateAndImportCourse(job, course));
   }
@@ -221,7 +339,6 @@ async function runJob(job) {
 }
 
 async function claimNextJob() {
-  console.log('automationWorker: claimNextJob starting');
   const jobs = await db.select().from(automationJobs)
     .where(eq(automationJobs.status, 'queued'))
     .orderBy(asc(automationJobs.createdAt)).limit(1);
@@ -237,48 +354,32 @@ async function claimNextJob() {
   return claimed[0] || null;
 }
 
+export async function claimAutomationJob() {
+  return claimNextJob();
+}
+
 async function runWorkerTick() {
   if (workerIsRunning) return;
   workerIsRunning = true;
-  console.log('[automation] runWorkerTick: start');
   try {
     const job = await claimNextJob();
-    if (!job) {
-      console.log('[automation] runWorkerTick: no queued jobs');
-      return;
-    }
-    console.log('[automation] runWorkerTick: claimed job', job.id);
+    if (!job) return;
     try {
       const result = await runJob(job);
       const completedAt = now();
-      console.log('[automation] runWorkerTick: job completed', job.id);
       await db.update(automationJobs).set({
         status: 'completed', result: JSON.stringify(result), error: null, completedAt, updatedAt: completedAt,
-      }).where(and(eq(automationJobs.id, job.id), eq(automationJobs.status, 'running')));
+      }).where(eq(automationJobs.id, job.id));
     } catch (error) {
       const completedAt = now();
       const message = String(error?.message || error);
-      console.log('[automation] runWorkerTick: job error', job.id, message);
-      if (error instanceof AutomationCancelledError) {
-        await appendJobLog(job, 'CANCELLED: Automation stopped by the administrator.');
-        await db.update(automationJobs).set({
-          status: 'cancelled', error: null, completedAt, updatedAt: completedAt,
-        }).where(and(
-          eq(automationJobs.id, job.id),
-          inArray(automationJobs.status, ['running', 'cancel_requested', 'cancelled']),
-        ));
-        return;
-      }
       await appendJobLog(job, `FAILED: ${message}`);
       await db.update(automationJobs).set({
         status: 'failed', error: message, completedAt, updatedAt: completedAt,
       }).where(eq(automationJobs.id, job.id));
     }
-  } catch (error) {
-    console.error('[automation] Worker tick failed:', error);
   } finally {
     workerIsRunning = false;
-    console.log('[automation] runWorkerTick: end');
   }
 }
 
@@ -290,9 +391,16 @@ export async function createAutomationJob({ requestedByUserId, category, subcate
     attempts: 0, createdAt: timestamp, updatedAt: timestamp,
   };
   await db.insert(automationJobs).values(job);
-  void runWorkerTick().catch((error) => {
-    console.error(`[automation] Unable to start job ${job.id}:`, error);
-  });
+  if (externalAutomationEnabled()) {
+    try {
+      await dispatchAutomationJob(job);
+    } catch (error) {
+      await updateJob(job.id, { status: 'failed', error: String(error?.message || error), completedAt: now() });
+      throw error;
+    }
+  } else {
+    void runWorkerTick();
+  }
   return job;
 }
 
@@ -301,71 +409,13 @@ export async function getAutomationJob(jobId) {
   return rows[0] || null;
 }
 
-export async function cancelAutomationJob(jobId, requestedByUserId) {
-  const rows = await db.select().from(automationJobs)
-    .where(and(eq(automationJobs.id, jobId), eq(automationJobs.requestedByUserId, requestedByUserId)))
-    .limit(1);
-  const job = rows[0];
-  if (!job) return null;
-  if (!['queued', 'running'].includes(job.status)) return job;
-
-  const updatedAt = now();
-  const nextStatus = job.status === 'queued' ? 'cancelled' : 'cancel_requested';
-  await db.update(automationJobs).set({
-    status: nextStatus,
-    completedAt: nextStatus === 'cancelled' ? updatedAt : null,
-    updatedAt,
-  }).where(and(
-    eq(automationJobs.id, jobId),
-    inArray(automationJobs.status, ['queued', 'running']),
-  ));
-  const child = activeProcesses.get(jobId);
-  if (child) child.kill();
-  return { ...job, status: nextStatus, updatedAt };
-}
-
-export async function cancelAllAutomationJobs() {
-  const updatedAt = now();
-  const jobs = await db.select({ id: automationJobs.id })
-    .from(automationJobs)
-    .where(inArray(automationJobs.status, ['queued', 'running', 'cancel_requested']));
-  for (const job of jobs) {
-    const child = activeProcesses.get(job.id);
-    if (child) child.kill();
-  }
-  if (jobs.length) {
-    await db.update(automationJobs).set({
-      status: 'cancelled',
-      error: 'Cancelled by emergency stop.',
-      completedAt: updatedAt,
-      updatedAt,
-    }).where(inArray(automationJobs.id, jobs.map((job) => job.id)));
-  }
-  return { cancelledCount: jobs.length, updatedAt };
-}
-
 export async function startAutomationWorker() {
-  if (workerTimer) return;
-  workerTimer = setInterval(() => {
-    void runWorkerTick().catch((error) => {
-      console.error('[automation] Scheduled worker tick failed:', error);
-    });
-  }, WORKER_INTERVAL_MS);
   const recoveredAt = now();
-  try {
-    await db.update(automationJobs).set({
-      status: 'cancelled',
-      completedAt: recoveredAt,
-      updatedAt: recoveredAt,
-    }).where(eq(automationJobs.status, 'cancel_requested'));
-    await db.update(automationJobs).set({
-      status: 'queued',
-      startedAt: null,
-      updatedAt: recoveredAt,
-    }).where(eq(automationJobs.status, 'running'));
-    await runWorkerTick();
-  } catch (error) {
-    console.error('[automation] Worker startup recovery failed:', error);
-  }
-  console.log(`[automation] Worker enabled; polling every ${WORKER_INTERVAL_MS}ms.`);
+  await db.update(automationJobs).set({
+    status: 'queued',
+    startedAt: null,
+    updatedAt: recoveredAt,
+  }).where(eq(automationJobs.status, 'running'));
+  void runWorkerTick();
+  if (!workerTimer) workerTimer = setInterval(() => void runWorkerTick(), WORKER_INTERVAL_MS);
 }

@@ -2,18 +2,60 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth.js';
 import {
   createAutomationJob,
-  cancelAutomationJob,
   cancelAllAutomationJobs,
   getAutomationJob,
   listAutomationCourses,
   listAutomationSubcategories,
+  recordAutomationWorkerEvent,
+  claimAutomationJob,
 } from '../lib/automationJobs.js';
 
 const automation = new Hono();
 const allowedCategories = ['computer-science', 'artificial-intelligence'];
 
-automation.use('*', authMiddleware);
+automation.use('/internal/*', async (c, next) => {
+  const expected = process.env.AUTOMATION_WORKER_TOKEN;
+  const received = c.req.header('X-Automation-Worker-Token');
+  if (!expected || !received || received !== expected) {
+    return c.json({ success: false, error: 'Unauthorized worker request.' }, 401);
+  }
+  await next();
+});
+
+automation.post('/internal/jobs/:jobId/events', async (c) => {
+  try {
+    const event = await c.req.json();
+    const job = await recordAutomationWorkerEvent(c.req.param('jobId'), event);
+    return c.json({ success: true, data: { status: job?.status || null } });
+  } catch (error) {
+    return c.json({ success: false, error: String(error?.message || error) }, 400);
+  }
+});
+
+automation.post('/internal/jobs/claim', async (c) => {
+  const job = await claimAutomationJob();
+  return c.json({ success: true, data: job ? {
+    jobId: job.id,
+    category: job.category,
+    subcategory: job.subcategory,
+    courseId: job.courseId,
+    module: job.module,
+    overwrite: job.overwrite,
+  } : null });
+});
+
+automation.get('/internal/jobs/:jobId', async (c) => {
+  const job = await getAutomationJob(c.req.param('jobId'));
+  if (!job) return c.json({ success: false, error: 'Job not found.' }, 404);
+  return c.json({ success: true, data: { status: job.status } });
+});
+
 automation.use('*', async (c, next) => {
+  if (c.req.path.includes('/internal/')) return next();
+  return authMiddleware(c, next);
+});
+automation.use('*', async (c, next) => {
+  if (c.req.path.includes('/internal/')) return next();
   if (c.get('user')?.role !== 'admin') {
     return c.json({ success: false, error: 'Forbidden', message: 'Administrator access is required.' }, 403);
   }
@@ -84,24 +126,12 @@ automation.get('/jobs/:jobId', async (c) => {
   });
 });
 
-automation.post('/jobs/:jobId/cancel', async (c) => {
-  const job = await cancelAutomationJob(c.req.param('jobId'), c.get('userId'));
-  if (!job) return c.json({ success: false, error: 'Job not found.' }, 404);
-  return c.json({
-    success: true,
-    message: ['queued', 'running', 'cancel_requested'].includes(job.status)
-      ? 'Cancellation requested.'
-      : `Job is already ${job.status}.`,
-    data: { jobId: job.id, status: job.status },
-  });
-});
-
 automation.post('/jobs/stop-all', async (c) => {
-  const result = await cancelAllAutomationJobs();
+  const cancelledCount = await cancelAllAutomationJobs();
   return c.json({
     success: true,
-    message: `Emergency stop completed. ${result.cancelledCount} job(s) cancelled.`,
-    data: result,
+    message: `Emergency stop completed. ${cancelledCount} job(s) cancelled.`,
+    data: { cancelledCount },
   });
 });
 

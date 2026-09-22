@@ -188,6 +188,18 @@ async function generateCourse(category, course, options) {
     if (options.overwrite) args.push('--overwrite');
     const result = await runCommand(process.execPath, args, repoRoot);
     if (result.code !== 0) code = result.code;
+    if (result.code === 0) {
+      const importScript = path.join(repoRoot, 'backend', 'scripts', 'import-learning-boards.js');
+      console.log(`Importing ${course.id}, chapter ${moduleNumber}.${chapterNumber} into Turso.`);
+      const imported = await runCommand(process.execPath, [
+        importScript,
+        '--course', course.id,
+        '--module', String(moduleNumber),
+        '--chapter', String(chapterNumber),
+        '--refresh',
+      ], path.join(repoRoot, 'backend'));
+      if (imported.code !== 0) code = imported.code;
+    }
   }
 
   return {
