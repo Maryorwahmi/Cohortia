@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { parseAssessmentQuestions } from '../src/lib/assessmentParser.js';
 import { practicalVersionIdFor, sourceKeyFor } from '../src/lib/practicalIdentity.js';
 
-const computerScienceRoot = resolve(process.cwd(), '../../docs/computer-science');
+const computerScienceRoot = resolve(import.meta.dirname, '../../docs/computer-science');
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
 const client = createClient({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN });
 
@@ -52,6 +52,10 @@ async function getCourseDirectory() {
 const hasCourseArgument = process.argv.includes('--course')
   || process.argv.slice(2).some((argument) => !argument.startsWith('--'));
 const importAll = process.argv.includes('--all') || !hasCourseArgument;
+const moduleArgIndex = process.argv.indexOf('--module');
+const chapterArgIndex = process.argv.indexOf('--chapter');
+const moduleFilter = moduleArgIndex >= 0 ? Number(process.argv[moduleArgIndex + 1]) : null;
+const chapterFilter = chapterArgIndex >= 0 ? Number(process.argv[chapterArgIndex + 1]) : null;
 // In an all-course import, resuming only missing chapters is the safe default.
 // Pass --refresh to intentionally rewrite every imported chapter and screen.
 const missingOnly = !process.argv.includes('--refresh');
@@ -455,7 +459,10 @@ try {
   // Check if the path exists and is a directory
   const courseDir = courseFolder;
   console.log(`Course selected: ${courseDir}`);
-  const chapters = await findCourses(courseDir);
+  const chapters = (await findCourses(courseDir)).filter((chapter) => (
+    (moduleFilter == null || Number(chapter.manifest?.module) === moduleFilter)
+    && (chapterFilter == null || Number(chapter.manifest?.chapter) === chapterFilter)
+  ));
   
   if (chapters.length === 0) {
     console.log('No chapters found to import.');

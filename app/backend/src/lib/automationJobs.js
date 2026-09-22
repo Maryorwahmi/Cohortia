@@ -12,6 +12,7 @@ const COMMAND_TIMEOUT_MS = Number(process.env.AUTOMATION_COMMAND_TIMEOUT_MS || 2
 let workerTimer = null;
 let workerIsRunning = false;
 const activeProcesses = new Map();
+const logWrites = new Map();
 
 function now() {
   return new Date().toISOString();
@@ -120,13 +121,19 @@ function runProcess(command, args, options = {}) {
 async function appendJobLog(job, chunk) {
   const clean = String(chunk || '').replace(/\r/g, '').trim();
   if (!clean) return;
-  job.logs = `${job.logs || ''}${job.logs ? '\n' : ''}${clean}`.slice(-MAX_LOG_LENGTH);
-  job.updatedAt = now();
-  try {
-    await db.update(automationJobs).set({ logs: job.logs, updatedAt: job.updatedAt }).where(eq(automationJobs.id, job.id));
-  } catch (error) {
-    console.error(`[automation] Unable to persist log for ${job.id}; continuing:`, error);
-  }
+  const previous = logWrites.get(job.id) || Promise.resolve();
+  const next = previous.then(async () => {
+    job.logs = `${job.logs || ''}${job.logs ? '\n' : ''}${clean}`.slice(-MAX_LOG_LENGTH);
+    job.updatedAt = now();
+    try {
+      await db.update(automationJobs).set({ logs: job.logs, updatedAt: job.updatedAt }).where(eq(automationJobs.id, job.id));
+    } catch (error) {
+      console.error(`[automation] Unable to persist log for ${job.id}; continuing:`, error);
+    }
+  });
+  logWrites.set(job.id, next);
+  await next;
+  if (logWrites.get(job.id) === next) logWrites.delete(job.id);
 }
 
 function generationNeedsImport(stdout = '') {
@@ -153,17 +160,7 @@ async function generateAndImportCourse(job, course) {
   if (!generation.ok) {
     return { ok: false, courseId: course.id, error: generation.timedOut ? 'Generation timed out.' : 'Generation failed.' };
   }
-  if (!generationNeedsImport(generation.stdout)) {
-    return { ok: true, courseId: course.id, importSkipped: true };
-  }
-  const importScript = path.join(appRoot, 'backend', 'scripts', 'import-learning-boards.js');
-  const imported = await runProcess(process.execPath, [importScript, '--course', course.id], {
-    cwd: path.join(appRoot, 'backend'),
-    onOutput, jobId: job.id,
-  });
-  return imported.ok
-    ? { ok: true, courseId: course.id, importSkipped: false }
-    : { ok: false, courseId: course.id, error: imported.timedOut ? 'Import timed out.' : 'Validated manifests could not be imported into Turso.' };
+  return { ok: true, courseId: course.id, importAfterEachChapter: true };
 }
 
 async function syncGeneratedFilesToGit(job) {

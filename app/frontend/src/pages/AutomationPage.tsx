@@ -49,6 +49,7 @@ export default function AutomationPage() {
   const [liveLogs, setLiveLogs] = useState<string[]>([]);
   const pollFailuresRef = useRef(0);
   const pollTimerRef = useRef<number | null>(null);
+  const pollAbortRef = useRef<AbortController | null>(null);
 
   const authHeaders = () => {
     const token = localStorage.getItem('cohortia_token');
@@ -85,16 +86,26 @@ export default function AutomationPage() {
   useEffect(() => {
     if (!jobId) return;
     setBusy(true);
+    let active = true;
 
     const pollStatus = async () => {
       try {
+        if (!active) return;
+        pollAbortRef.current?.abort();
+        const controller = new AbortController();
+        pollAbortRef.current = controller;
         const response = await fetch(`${API_ROOT}/automation/jobs/${encodeURIComponent(jobId)}`, {
           headers: authHeaders(),
+          signal: controller.signal,
         });
+        if (!active) return;
         const payload = await readApiResponse(response);
 
         const nextLogs = payload?.data?.logs || [];
-        setLiveLogs(nextLogs);
+        setLiveLogs((currentLogs) => {
+          if (!currentLogs.length || nextLogs.length >= currentLogs.length) return nextLogs;
+          return currentLogs;
+        });
         setError(null);
         pollFailuresRef.current = 0;
 
@@ -112,8 +123,9 @@ export default function AutomationPage() {
           return;
         }
 
-        pollTimerRef.current = window.setTimeout(pollStatus, 1500);
+        if (active) pollTimerRef.current = window.setTimeout(pollStatus, 1500);
       } catch (err) {
+        if (!active || (err instanceof DOMException && err.name === 'AbortError')) return;
         pollFailuresRef.current += 1;
         setError(err instanceof Error ? err.message : 'Unexpected error while polling generation status');
         if (pollFailuresRef.current >= 3) {
@@ -123,15 +135,18 @@ export default function AutomationPage() {
           setJobId(null);
           return;
         }
-        pollTimerRef.current = window.setTimeout(pollStatus, 5000);
+        if (active) pollTimerRef.current = window.setTimeout(pollStatus, 5000);
       }
     };
 
     pollStatus();
 
     return () => {
+      active = false;
+      pollAbortRef.current?.abort();
       if (pollTimerRef.current) {
         window.clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = null;
       }
     };
   }, [jobId]);
@@ -209,6 +224,11 @@ export default function AutomationPage() {
 
   async function handleEmergencyStop() {
     setError(null);
+    pollAbortRef.current?.abort();
+    if (pollTimerRef.current) {
+      window.clearTimeout(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
     try {
       const response = await fetch(`${API_ROOT}/automation/jobs/stop-all`, {
         method: 'POST',
