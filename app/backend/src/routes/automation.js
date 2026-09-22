@@ -2,6 +2,8 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth.js';
 import {
   createAutomationJob,
+  cancelAutomationJob,
+  cancelAllAutomationJobs,
   getAutomationJob,
   listAutomationCourses,
   listAutomationSubcategories,
@@ -79,6 +81,27 @@ automation.get('/jobs/:jobId', async (c) => {
       startedAt: job.startedAt, updatedAt: job.updatedAt, completedAt: job.completedAt,
       logs: job.logs ? job.logs.split('\n') : [], result: job.result ? JSON.parse(job.result) : null, error: job.error,
     },
+  });
+});
+
+automation.post('/jobs/:jobId/cancel', async (c) => {
+  const job = await cancelAutomationJob(c.req.param('jobId'), c.get('userId'));
+  if (!job) return c.json({ success: false, error: 'Job not found.' }, 404);
+  return c.json({
+    success: true,
+    message: ['queued', 'running', 'cancel_requested'].includes(job.status)
+      ? 'Cancellation requested.'
+      : `Job is already ${job.status}.`,
+    data: { jobId: job.id, status: job.status },
+  });
+});
+
+automation.post('/jobs/stop-all', async (c) => {
+  const result = await cancelAllAutomationJobs();
+  return c.json({
+    success: true,
+    message: `Emergency stop completed. ${result.cancelledCount} job(s) cancelled.`,
+    data: result,
   });
 });
 

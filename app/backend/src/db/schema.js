@@ -688,7 +688,7 @@ export const automationJobs = sqliteTable('automation_jobs', {
   courseId: text('course_id').notNull(),
   module: integer('module'),
   overwrite: integer('overwrite', { mode: 'boolean' }).notNull().default(false),
-  status: text('status').notNull().default('queued'), // queued, running, completed, failed
+  status: text('status').notNull().default('queued'), // queued, running, cancel_requested, cancelled, completed, failed
   logs: text('logs').notNull().default(''),
   result: text('result'),
   error: text('error'),

@@ -247,7 +247,9 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("error", handleError);
     if (playing && !muted) {
-      audio.play().catch(() => setSpeechDone(true));
+      void audio.play().catch((error) => {
+        if (error?.name !== "AbortError") setSpeechDone(true);
+      });
     }
     return () => {
       audio.pause();
