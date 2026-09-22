@@ -44,13 +44,14 @@ jobs:
       AUTOMATION_OVERWRITE: ${{ inputs.overwrite }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      GEMINI_API_KEYS: ${{ secrets.GEMINI_API_KEYS }}
       AI_PROVIDER: ${{ secrets.AI_PROVIDER }}
       AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
       AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
       AZURE_OPENAI_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
       AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+    defaults:
+      run:
+        working-directory: app
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -62,6 +63,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: app/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -70,10 +72,11 @@ jobs:
         run: node scripts/run-github-automation.js
 
       - name: Publish generated artifacts
+        working-directory: .
         run: |
           git config user.name "Cohortia Automation"
           git config user.email "automation@cohortia.app"
-          git add -- generated/learning-boards-html docs
+          git add -- app/generated/learning-boards-html app/docs
           if git diff --cached --quiet; then
             echo "No generated-file changes to publish."
           else
