@@ -7,16 +7,29 @@ import { fileURLToPath } from 'node:url';
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const apiUrl = String(process.env.AUTOMATION_API_URL || '').replace(/\/+$/, '');
 const workerToken = process.env.AUTOMATION_WORKER_TOKEN;
+const REQUEST_TIMEOUT_MS = 30000;
 
 if (!apiUrl || !workerToken) {
   throw new Error('AUTOMATION_API_URL and AUTOMATION_WORKER_TOKEN are required.');
 }
 
+console.log(`[azure-worker] Starting; API: ${apiUrl}`);
+
 async function request(pathname, options = {}) {
-  const response = await fetch(`${apiUrl}/api/v1/automation/internal${pathname}`, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', 'X-Automation-Worker-Token': workerToken, ...(options.headers || {}) },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let response;
+  try {
+    response = await fetch(`${apiUrl}/api/v1/automation/internal${pathname}`, {
+      ...options,
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', 'X-Automation-Worker-Token': workerToken, ...(options.headers || {}) },
+    });
+  } catch (error) {
+    throw new Error(`Automation API request failed for ${pathname}: ${error.name === 'AbortError' ? 'timed out' : error.message}`);
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!response.ok) throw new Error(`Automation API request failed (${response.status}): ${(await response.text()).slice(0, 300)}`);
   return response.json();
 }
@@ -72,14 +85,17 @@ function runGenerator(job) {
 
 let idleChecks = 0;
 while (idleChecks < 3) {
+  console.log(`[azure-worker] Claiming queued job (check ${idleChecks + 1}/3).`);
   const payload = await request('/jobs/claim', { method: 'POST', body: '{}' });
   const job = payload?.data;
   if (!job) {
+    console.log('[azure-worker] No queued job found.');
     idleChecks += 1;
     await new Promise((resolve) => setTimeout(resolve, 5000));
     continue;
   }
   idleChecks = 0;
+  console.log(`[azure-worker] Claimed ${job.jobId}; generating ${job.courseId}.`);
   await sendEvent(job.jobId, { type: 'started' });
   const result = await runGenerator(job);
   if (result.cancelled) continue;
@@ -89,3 +105,5 @@ while (idleChecks < 3) {
   }
   await sendEvent(job.jobId, { type: 'completed', result: { execution: 'azure-container-apps' } });
 }
+
+console.log('[azure-worker] Queue is idle; exiting successfully.');
