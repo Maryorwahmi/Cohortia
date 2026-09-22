@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import AssessmentsList from '../components/assessments/AssessmentsList';
 import AssessmentFilters from '../components/assessments/AssessmentFilters';
 import AssessmentStats from '../components/assessments/AssessmentStats';
+import { API_BASE_URL } from '../config/api';
 
 interface Assessment {
   courseId: string;
@@ -39,9 +40,9 @@ export default function Assessments() {
       try {
         setLoading(true);
         const [statsRes, categoriesRes, levelsRes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_URL}/api/v1/assessments/stats/overview`),
-          fetch(`${import.meta.env.VITE_API_URL}/api/v1/assessments/filter/categories`),
-          fetch(`${import.meta.env.VITE_API_URL}/api/v1/assessments/filter/levels`),
+          fetch(`${API_BASE_URL}/assessments/stats/overview`),
+          fetch(`${API_BASE_URL}/assessments/filter/categories`),
+          fetch(`${API_BASE_URL}/assessments/filter/levels`),
         ]);
 
         const statsData = await statsRes.json();
@@ -67,14 +68,14 @@ export default function Assessments() {
     const fetchAssessments = async () => {
       try {
         setLoading(true);
-        let url = `${import.meta.env.VITE_API_URL}/api/v1/assessments`;
+        let url = `${API_BASE_URL}/assessments`;
 
         // Build query parameters
         const params = new URLSearchParams();
         if (selectedLevel) params.append('level', selectedLevel);
         if (selectedCategory) params.append('category', selectedCategory);
         if (params.toString()) {
-          url = `${import.meta.env.VITE_API_URL}/api/v1/assessments/filter/by-level-category?${params}`;
+          url = `${API_BASE_URL}/assessments/filter/by-level-category?${params}`;
         }
 
         const res = await fetch(url);

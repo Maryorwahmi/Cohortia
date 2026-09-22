@@ -3,7 +3,7 @@
  * Handles fetching learning board courses, chapters, and screens from the backend
  */
 
-const API_ROOT = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/+$/, '');
+import { API_BASE_URL as API_ROOT } from '../config/api';
 const API_BASE = `${API_ROOT}/learning-boards`;
 
 function authHeaders(): HeadersInit {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api';
 
 interface Chapter {
   id: string;
@@ -39,7 +40,7 @@ export default function CourseAssessmentDetail() {
       try {
         setLoading(true);
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/v1/assessments/${courseId}`
+          `${API_BASE_URL}/assessments/${courseId}`
         );
         const data = await res.json();
 

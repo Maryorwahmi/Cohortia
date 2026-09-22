@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL as API_ROOT } from '../config/api';
 
 interface CourseOption {
   id: string;
@@ -14,7 +15,6 @@ interface SubcategoryOption {
   courseCount: number;
 }
 
-const API_ROOT = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/+$/, '');
 const ALL_SUBCATEGORY_OPTION = 'all-subcategory';
 const ACTIVE_JOB_STORAGE_KEY = 'cohortia_automation_active_job';
 

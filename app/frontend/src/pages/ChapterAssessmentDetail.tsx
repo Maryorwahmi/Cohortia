@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import QuestionDisplay from '../components/assessments/QuestionDisplay';
+import { API_BASE_URL } from '../config/api';
 
 interface Question {
   id: string;
@@ -49,7 +50,7 @@ export default function ChapterAssessmentDetail() {
       try {
         setLoading(true);
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/v1/assessments/${courseId}/${module}/${chapter}`
+          `${API_BASE_URL}/assessments/${courseId}/${module}/${chapter}`
         );
         const data = await res.json();
 

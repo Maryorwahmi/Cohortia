@@ -42,7 +42,11 @@ const app = new Hono();
 // Global middleware
 app.use('*', logger());
 app.use('*', cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: (process.env.CORS_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .concat(['https://cohortia.study', 'https://www.cohortia.study']),
   credentials: true,
 }));
 app.use('*', prettyJSON());
