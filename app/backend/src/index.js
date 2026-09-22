@@ -143,7 +143,9 @@ if (automationWorkerEnabled) {
     console.error('Unable to start the automation worker:', error);
   });
 } else {
-  console.log('Automation worker disabled via AUTOMATION_WORKER_ENABLED=false');
+  console.log(process.env.AUTOMATION_EXECUTION === 'github'
+    ? 'Automation worker delegated to GitHub Actions.'
+    : 'Automation worker disabled via AUTOMATION_WORKER_ENABLED=false');
 }
 
 serve({
