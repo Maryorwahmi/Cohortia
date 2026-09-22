@@ -20,14 +20,14 @@ const ACTIVE_JOB_STORAGE_KEY = 'cohortia_automation_active_job';
 
 async function readApiResponse(response: Response) {
   const text = await response.text();
-  let payload: { success?: boolean; error?: string; message?: string; data?: any } | null = null;
+  let payload: { success?: boolean; error?: string; message?: string; details?: string; data?: any } | null = null;
   try {
     payload = text ? JSON.parse(text) : null;
   } catch {
     throw new Error(`Automation service returned an invalid response (${response.status}).`);
   }
   if (!response.ok || !payload?.success) {
-    throw new Error(payload?.error || payload?.message || `Automation request failed (${response.status}).`);
+    throw new Error(payload?.details || payload?.error || payload?.message || `Automation request failed (${response.status}).`);
   }
   return payload;
 }
