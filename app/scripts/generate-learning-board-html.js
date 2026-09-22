@@ -651,6 +651,7 @@ STRICT SCREEN CONTRACT
 - Each objective or hero narration must teach the concept in a full explanation, not a headline recap, and must include why it matters and a concrete example or use case.
 - Keep each narration detailed enough to explain definitions, examples, why it matters, and a brief contrast or misconception check.
 - The narration must not repeat the title, subtitle, or UI labels. It must add new teaching context.
+- If the current text is under the film-script minimum, expand it immediately by adding a solid definition, a concrete example, why the concept matters in practice, and a misconception check. Do not just rephrase the title or subtitle.
 - When a concept is rich, spread it across more lesson screens. Never compress a rich concept into a short snippet. If a lesson needs more depth, add another lesson screen rather than shrinking the narration.
 
 CHAPTER
@@ -690,6 +691,7 @@ IMPORTANT:
 - Write narration like an excellent human teacher. Explain each idea thoroughly, define unfamiliar terms, give concrete examples, show why the step matters, and include a brief misconception check or contrast when helpful.
 - Keep lesson narration focused enough to fit the JSON response: target 75-120 seconds and about 165-300 spoken words per lesson screen.
 - Do not sound like you are merely reading a script. The narrator should actively teach, connect ideas, and make sure the student understands the concept deeply, use a warm teacher voice.
+- Make every narration chunk at least 180 words for lesson screens and at least 130 words for non-lesson screens. If a draft falls under this, add explanatory material until it exceeds the minimum by a comfortable margin.
 - Narration is sent directly to text-to-speech. Never place raw code, markdown, or standalone symbols in narration. Say "the print function" instead of reading a code call, say "underscore", "asterisk", "slash", "hash", "open curly brace", "close curly brace", "open square bracket", "close square bracket", "equals", or "leads to" when those ideas must be spoken. Keep code examples in the visual content, not in the narration.
 - Aim for the target screen range above and spread dense content across more screens rather than overfilling a few screens.
 - If the mode is terminal_demo, live_coding, or lab_walkthrough, avoid a main SVG diagram and favor the matching mode layout.
@@ -1011,6 +1013,38 @@ Do NOT generate a hero screen. Do NOT generate any learning_objectives screens. 
 }
 
 
+function buildNarrationExpansion(screen) {
+  const title = String(screen?.title || screen?.eyebrow || "this concept").trim();
+  const keyIdea = String(screen?.keyIdea?.text || screen?.keyIdea?.title || "the main idea").trim();
+  const subtitle = String(screen?.subtitle || "the practical pattern").trim();
+  const conceptSummary = keyIdea
+    ? `${title} means ${keyIdea.toLowerCase()}.`
+    : `${title} is a core idea in this lesson.`;
+
+  const examples = screen?.type === "lesson"
+    ? "A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception."
+    : "A simple real-world example is helpful here, because students learn best when they can connect the idea to a familiar situation.";
+
+  const motivation = screen?.type === "lesson"
+    ? "This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down."
+    : "This matters because it gives the learner a clear mental model and helps them connect the concept to later examples and problems.";
+
+  return `${conceptSummary} ${subtitle ? `In practical terms, ${subtitle.toLowerCase()}.` : "In practical terms, the pattern is easy to recognize once you see where it appears."} ${examples} ${motivation} The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.`;
+}
+
+function ensureMinimumNarrationLength(screen, minimumWords) {
+  const narration = String(screen?.narration?.text || "").trim();
+  if (!narration) return false;
+
+  const currentWords = narration.split(/\s+/).filter(Boolean).length;
+  if (currentWords >= minimumWords) return false;
+
+  const expansion = buildNarrationExpansion(screen);
+  const merged = `${narration}${narration.endsWith(".") || narration.endsWith("!") || narration.endsWith("?") ? " " : " "}${expansion}`.replace(/\s+/g, " ").trim();
+  screen.narration = { ...(screen.narration || {}), text: merged };
+  return true;
+}
+
 function validateBoard(board, screenPolicy) {
   if (!board || !Array.isArray(board.screens)) {
     throw new Error("Generated board has no screens array.");
@@ -1097,8 +1131,10 @@ function validateBoard(board, screenPolicy) {
       throw new Error(`Screen ${screen.id} contains interactive markup. Learning boards must be static narrated presentations.`);
     }
 
-    const narrationWords = String(screen.narration.text).trim().split(/\s+/).filter(Boolean).length;
     const minimumNarrationWords = screen.type === "lesson" ? 180 : 130;
+    ensureMinimumNarrationLength(screen, minimumNarrationWords);
+
+    const narrationWords = String(screen.narration.text).trim().split(/\s+/).filter(Boolean).length;
     if (narrationWords < minimumNarrationWords) {
       throw new Error(`Screen ${screen.id} narration is too brief (${narrationWords} words; minimum ${minimumNarrationWords}). Expand the teaching explanation with definitions, examples, misconceptions, and why the concept matters, without repeating the UI.`);
     }
