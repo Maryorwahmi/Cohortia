@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { and, asc, eq } from 'drizzle-orm';
+import { and, asc, eq, inArray } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { automationJobs } from '../db/schema.js';
 
@@ -11,9 +11,29 @@ const MAX_LOG_LENGTH = 180000;
 const COMMAND_TIMEOUT_MS = Number(process.env.AUTOMATION_COMMAND_TIMEOUT_MS || 2700000);
 let workerTimer = null;
 let workerIsRunning = false;
+const activeProcesses = new Map();
 
 function now() {
   return new Date().toISOString();
+}
+
+export async function cancelAllAutomationJobs() {
+  const updatedAt = now();
+  const jobs = await db.select({ id: automationJobs.id })
+    .from(automationJobs)
+    .where(inArray(automationJobs.status, ['queued', 'running']));
+  for (const job of jobs) {
+    activeProcesses.get(job.id)?.kill();
+  }
+  if (jobs.length) {
+    await db.update(automationJobs).set({
+      status: 'cancelled',
+      error: 'Cancelled by emergency stop.',
+      completedAt: updatedAt,
+      updatedAt,
+    }).where(inArray(automationJobs.id, jobs.map((job) => job.id)));
+  }
+  return jobs.length;
 }
 
 function getApplicationRoot() {
@@ -61,7 +81,7 @@ export async function listAutomationCourses(category, subcategory = null) {
 }
 
 function runProcess(command, args, options = {}) {
-  const { cwd, timeoutMs = COMMAND_TIMEOUT_MS, onOutput, env } = options;
+  const { cwd, timeoutMs = COMMAND_TIMEOUT_MS, onOutput, env, jobId } = options;
   return new Promise((resolve) => {
     const child = spawn(command, args, {
       cwd,
@@ -69,6 +89,7 @@ function runProcess(command, args, options = {}) {
       shell: false,
       windowsHide: true,
     });
+    if (jobId) activeProcesses.set(jobId, child);
     let stdout = '';
     let stderr = '';
     let settled = false;
@@ -76,6 +97,7 @@ function runProcess(command, args, options = {}) {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      if (jobId && activeProcesses.get(jobId) === child) activeProcesses.delete(jobId);
       resolve(result);
     };
     const timer = setTimeout(() => {
@@ -100,7 +122,11 @@ async function appendJobLog(job, chunk) {
   if (!clean) return;
   job.logs = `${job.logs || ''}${job.logs ? '\n' : ''}${clean}`.slice(-MAX_LOG_LENGTH);
   job.updatedAt = now();
-  await db.update(automationJobs).set({ logs: job.logs, updatedAt: job.updatedAt }).where(eq(automationJobs.id, job.id));
+  try {
+    await db.update(automationJobs).set({ logs: job.logs, updatedAt: job.updatedAt }).where(eq(automationJobs.id, job.id));
+  } catch (error) {
+    console.error(`[automation] Unable to persist log for ${job.id}; continuing:`, error);
+  }
 }
 
 function generationNeedsImport(stdout = '') {
@@ -123,7 +149,7 @@ async function generateAndImportCourse(job, course) {
   if (job.module != null) args.push('--module', String(job.module));
   if (job.overwrite) args.push('--overwrite');
   const onOutput = (chunk) => appendJobLog(job, chunk);
-  const generation = await runProcess(process.execPath, args, { cwd: appRoot, onOutput });
+  const generation = await runProcess(process.execPath, args, { cwd: appRoot, onOutput, jobId: job.id });
   if (!generation.ok) {
     return { ok: false, courseId: course.id, error: generation.timedOut ? 'Generation timed out.' : 'Generation failed.' };
   }
@@ -133,7 +159,7 @@ async function generateAndImportCourse(job, course) {
   const importScript = path.join(appRoot, 'backend', 'scripts', 'import-learning-boards.js');
   const imported = await runProcess(process.execPath, [importScript, '--course', course.id], {
     cwd: path.join(appRoot, 'backend'),
-    onOutput,
+    onOutput, jobId: job.id,
   });
   return imported.ok
     ? { ok: true, courseId: course.id, importSkipped: false }

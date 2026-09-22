@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth.js';
 import {
   createAutomationJob,
+  cancelAllAutomationJobs,
   getAutomationJob,
   listAutomationCourses,
   listAutomationSubcategories,
@@ -79,6 +80,15 @@ automation.get('/jobs/:jobId', async (c) => {
       startedAt: job.startedAt, updatedAt: job.updatedAt, completedAt: job.completedAt,
       logs: job.logs ? job.logs.split('\n') : [], result: job.result ? JSON.parse(job.result) : null, error: job.error,
     },
+  });
+});
+
+automation.post('/jobs/stop-all', async (c) => {
+  const cancelledCount = await cancelAllAutomationJobs();
+  return c.json({
+    success: true,
+    message: `Emergency stop completed. ${cancelledCount} job(s) cancelled.`,
+    data: { cancelledCount },
   });
 });
 

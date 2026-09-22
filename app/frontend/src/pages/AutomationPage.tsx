@@ -18,6 +18,20 @@ const API_ROOT = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/+$/, '')
 const ALL_SUBCATEGORY_OPTION = 'all-subcategory';
 const ACTIVE_JOB_STORAGE_KEY = 'cohortia_automation_active_job';
 
+async function readApiResponse(response: Response) {
+  const text = await response.text();
+  let payload: { success?: boolean; error?: string; message?: string; data?: any } | null = null;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch {
+    throw new Error(`Automation service returned an invalid response (${response.status}).`);
+  }
+  if (!response.ok || !payload?.success) {
+    throw new Error(payload?.error || payload?.message || `Automation request failed (${response.status}).`);
+  }
+  return payload;
+}
+
 export default function AutomationPage() {
   const { user, loading: authLoading } = useAuth();
   const [category, setCategory] = useState('computer-science');
@@ -33,6 +47,7 @@ export default function AutomationPage() {
   const [error, setError] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(() => localStorage.getItem(ACTIVE_JOB_STORAGE_KEY));
   const [liveLogs, setLiveLogs] = useState<string[]>([]);
+  const pollFailuresRef = useRef(0);
   const pollTimerRef = useRef<number | null>(null);
 
   const authHeaders = () => {
@@ -76,14 +91,12 @@ export default function AutomationPage() {
         const response = await fetch(`${API_ROOT}/automation/jobs/${encodeURIComponent(jobId)}`, {
           headers: authHeaders(),
         });
-        const payload = await response.json();
-        if (!response.ok || !payload?.success) {
-          throw new Error(payload?.error || 'Failed to fetch generation status.');
-        }
+        const payload = await readApiResponse(response);
 
         const nextLogs = payload?.data?.logs || [];
         setLiveLogs(nextLogs);
         setError(null);
+        pollFailuresRef.current = 0;
 
         const status = payload?.data?.status;
         if (status === 'completed' || status === 'failed') {
@@ -101,9 +114,15 @@ export default function AutomationPage() {
 
         pollTimerRef.current = window.setTimeout(pollStatus, 1500);
       } catch (err) {
-        // Keep the persisted job ID so a temporary network issue or a page refresh
-        // can reconnect to the same durable Turso-backed job.
+        pollFailuresRef.current += 1;
         setError(err instanceof Error ? err.message : 'Unexpected error while polling generation status');
+        if (pollFailuresRef.current >= 3) {
+          setBusy(false);
+          setMessage('Generation status is unavailable. Use Emergency stop before restarting.');
+          localStorage.removeItem(ACTIVE_JOB_STORAGE_KEY);
+          setJobId(null);
+          return;
+        }
         pollTimerRef.current = window.setTimeout(pollStatus, 5000);
       }
     };
@@ -172,10 +191,7 @@ export default function AutomationPage() {
         }),
       });
 
-      const payload = await response.json();
-      if (!response.ok || !payload?.success) {
-        throw new Error(payload?.error || payload?.message || 'Generation failed.');
-      }
+      const payload = await readApiResponse(response);
 
       const nextJobId = payload?.data?.jobId;
       if (!nextJobId) {
@@ -188,6 +204,24 @@ export default function AutomationPage() {
     } catch (err) {
       setBusy(false);
       setError(err instanceof Error ? err.message : 'Unexpected error while generating');
+    }
+  }
+
+  async function handleEmergencyStop() {
+    setError(null);
+    try {
+      const response = await fetch(`${API_ROOT}/automation/jobs/stop-all`, {
+        method: 'POST',
+        headers: authHeaders(),
+      });
+      const payload = await readApiResponse(response);
+      setBusy(false);
+      setMessage(payload.message || 'All automation jobs were cancelled.');
+      localStorage.removeItem(ACTIVE_JOB_STORAGE_KEY);
+      setJobId(null);
+      setLiveLogs([]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Emergency stop failed');
     }
   }
 
@@ -293,6 +327,15 @@ export default function AutomationPage() {
             >
               {busy ? 'Generating and importing…' : 'Generate and publish'}
             </button>
+            {(busy || jobId) && (
+              <button
+                type="button"
+                onClick={() => void handleEmergencyStop()}
+                className="inline-flex w-full items-center justify-center rounded-2xl border border-red-300 bg-red-600 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-red-700"
+              >
+                Emergency stop and clear queue
+              </button>
+            )}
 
             {message && (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
