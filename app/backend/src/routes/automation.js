@@ -7,6 +7,7 @@ import {
   listAutomationCourses,
   listAutomationSubcategories,
   recordAutomationWorkerEvent,
+  claimAutomationJob,
 } from '../lib/automationJobs.js';
 
 const automation = new Hono();
@@ -29,6 +30,18 @@ automation.post('/internal/jobs/:jobId/events', async (c) => {
   } catch (error) {
     return c.json({ success: false, error: String(error?.message || error) }, 400);
   }
+});
+
+automation.post('/internal/jobs/claim', async (c) => {
+  const job = await claimAutomationJob();
+  return c.json({ success: true, data: job ? {
+    jobId: job.id,
+    category: job.category,
+    subcategory: job.subcategory,
+    courseId: job.courseId,
+    module: job.module,
+    overwrite: job.overwrite,
+  } : null });
 });
 
 automation.get('/internal/jobs/:jobId', async (c) => {

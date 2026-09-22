@@ -35,8 +35,8 @@ export async function cancelAllAutomationJobs() {
   return jobs.length;
 }
 
-function githubAutomationEnabled() {
-  return process.env.AUTOMATION_EXECUTION === 'github';
+function externalAutomationEnabled() {
+  return ['github', 'azure'].includes(process.env.AUTOMATION_EXECUTION);
 }
 
 async function updateJob(jobId, values) {
@@ -52,7 +52,11 @@ export async function recordAutomationWorkerEvent(jobId, event) {
     return getAutomationJob(jobId);
   }
   if (event.type === 'started') {
-    await updateJob(jobId, { status: 'running', startedAt: job.startedAt || now(), attempts: (job.attempts || 0) + 1 });
+    await updateJob(jobId, {
+      status: 'running',
+      startedAt: job.startedAt || now(),
+      attempts: job.status === 'running' ? job.attempts : (job.attempts || 0) + 1,
+    });
     return getAutomationJob(jobId);
   }
   if (event.type === 'completed') {
@@ -71,12 +75,53 @@ export async function recordAutomationWorkerEvent(jobId, event) {
 }
 
 export async function dispatchAutomationJob(job) {
+  if (process.env.AUTOMATION_EXECUTION === 'azure') {
+    await dispatchAzureAutomationJob();
+    return;
+  }
   const token = process.env.AUTOMATION_GITHUB_TOKEN;
   const repository = process.env.AUTOMATION_GITHUB_REPOSITORY;
   const workflow = process.env.AUTOMATION_GITHUB_WORKFLOW || 'automation.yml';
   const ref = process.env.AUTOMATION_GITHUB_REF || 'main';
   if (!token || !repository) {
     throw new Error('GitHub Actions execution requires AUTOMATION_GITHUB_TOKEN and AUTOMATION_GITHUB_REPOSITORY.');
+  }
+
+  async function getAzureManagementToken() {
+    const tenantId = process.env.AZURE_TENANT_ID;
+    const clientId = process.env.AZURE_CLIENT_ID;
+    const clientSecret = process.env.AZURE_CLIENT_SECRET;
+    if (!tenantId || !clientId || !clientSecret) {
+      throw new Error('Azure execution requires AZURE_TENANT_ID, AZURE_CLIENT_ID, and AZURE_CLIENT_SECRET.');
+    }
+    const response = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope: 'https://management.azure.com/.default',
+        grant_type: 'client_credentials',
+      }),
+    });
+    if (!response.ok) throw new Error(`Azure authentication failed (${response.status}).`);
+    return (await response.json()).access_token;
+  }
+
+  async function dispatchAzureAutomationJob() {
+    const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
+    const resourceGroup = process.env.AZURE_RESOURCE_GROUP;
+    const jobName = process.env.AZURE_CONTAINER_APP_JOB_NAME;
+    if (!subscriptionId || !resourceGroup || !jobName) {
+      throw new Error('Azure execution requires AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, and AZURE_CONTAINER_APP_JOB_NAME.');
+    }
+    const token = await getAzureManagementToken();
+    const url = `https://management.azure.com/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroup)}/providers/Microsoft.App/jobs/${encodeURIComponent(jobName)}/start?api-version=2024-03-01`;
+    const response = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+    if (!response.ok) {
+      const details = await response.text();
+      throw new Error(`Azure Container Apps Job start failed (${response.status}): ${details.slice(0, 500)}`);
+    }
   }
   const response = await fetch(`https://api.github.com/repos/${repository}/actions/workflows/${encodeURIComponent(workflow)}/dispatches`, {
     method: 'POST',
@@ -302,6 +347,10 @@ async function claimNextJob() {
   return claimed[0]?.status === 'running' ? claimed[0] : null;
 }
 
+export async function claimAutomationJob() {
+  return claimNextJob();
+}
+
 async function runWorkerTick() {
   if (workerIsRunning) return;
   workerIsRunning = true;
@@ -335,7 +384,7 @@ export async function createAutomationJob({ requestedByUserId, category, subcate
     attempts: 0, createdAt: timestamp, updatedAt: timestamp,
   };
   await db.insert(automationJobs).values(job);
-  if (githubAutomationEnabled()) {
+  if (externalAutomationEnabled()) {
     try {
       await dispatchAutomationJob(job);
     } catch (error) {
