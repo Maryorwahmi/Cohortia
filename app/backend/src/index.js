@@ -135,7 +135,9 @@ const PORT = process.env.PORT || 3000;
 
 console.log(`🚀 Cohortia API starting on port ${PORT}...`);
 
-const automationWorkerEnabled = process.env.AUTOMATION_WORKER_ENABLED !== 'false';
+const automationWorkerEnabled = process.env.AUTOMATION_WORKER_ENABLED !== 'false'
+  && process.env.AUTOMATION_EXECUTION !== 'github'
+  && process.env.AUTOMATION_WORKER_ROLE !== 'background';
 if (automationWorkerEnabled) {
   startAutomationWorker().catch((error) => {
     console.error('Unable to start the automation worker:', error);

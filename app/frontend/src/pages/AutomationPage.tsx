@@ -110,11 +110,13 @@ export default function AutomationPage() {
         pollFailuresRef.current = 0;
 
         const status = payload?.data?.status;
-        if (status === 'completed' || status === 'failed') {
+        if (status === 'completed' || status === 'failed' || status === 'cancelled') {
           setBusy(false);
           setMessage(status === 'completed'
             ? 'Generation and import completed successfully.'
-            : 'Generation finished with errors.');
+            : status === 'cancelled'
+              ? 'Generation was cancelled.'
+              : 'Generation finished with errors.');
           if (status === 'failed') {
             setError(payload?.data?.result?.error || payload?.data?.result?.message || 'The generation job failed.');
           }

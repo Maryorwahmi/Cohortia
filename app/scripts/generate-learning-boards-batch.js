@@ -196,6 +196,7 @@ async function generateCourse(category, course, options) {
         '--course', course.id,
         '--module', String(moduleNumber),
         '--chapter', String(chapterNumber),
+        '--refresh',
       ], path.join(repoRoot, 'backend'));
       if (imported.code !== 0) code = imported.code;
     }

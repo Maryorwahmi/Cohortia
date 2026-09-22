@@ -23,9 +23,7 @@ export async function cancelAllAutomationJobs() {
   const jobs = await db.select({ id: automationJobs.id })
     .from(automationJobs)
     .where(inArray(automationJobs.status, ['queued', 'running']));
-  for (const job of jobs) {
-    activeProcesses.get(job.id)?.kill();
-  }
+  for (const job of jobs) activeProcesses.get(job.id)?.kill();
   if (jobs.length) {
     await db.update(automationJobs).set({
       status: 'cancelled',
@@ -35,6 +33,76 @@ export async function cancelAllAutomationJobs() {
     }).where(inArray(automationJobs.id, jobs.map((job) => job.id)));
   }
   return jobs.length;
+}
+
+function githubAutomationEnabled() {
+  return process.env.AUTOMATION_EXECUTION === 'github';
+}
+
+async function updateJob(jobId, values) {
+  const updatedAt = values.updatedAt || now();
+  await db.update(automationJobs).set({ ...values, updatedAt }).where(eq(automationJobs.id, jobId));
+}
+
+export async function recordAutomationWorkerEvent(jobId, event) {
+  const job = await getAutomationJob(jobId);
+  if (!job) throw new Error('Automation job not found.');
+  if (event.type === 'log') {
+    await appendJobLog(job, event.message);
+    return getAutomationJob(jobId);
+  }
+  if (event.type === 'started') {
+    await updateJob(jobId, { status: 'running', startedAt: job.startedAt || now(), attempts: (job.attempts || 0) + 1 });
+    return getAutomationJob(jobId);
+  }
+  if (event.type === 'completed') {
+    await updateJob(jobId, { status: 'completed', result: event.result ? JSON.stringify(event.result) : null, error: null, completedAt: now() });
+    return getAutomationJob(jobId);
+  }
+  if (event.type === 'failed') {
+    await updateJob(jobId, {
+      status: 'failed',
+      error: String(event.error || 'GitHub Actions automation failed.'),
+      completedAt: now(),
+    });
+    return getAutomationJob(jobId);
+  }
+  throw new Error(`Unsupported automation worker event: ${event.type}`);
+}
+
+export async function dispatchAutomationJob(job) {
+  const token = process.env.AUTOMATION_GITHUB_TOKEN;
+  const repository = process.env.AUTOMATION_GITHUB_REPOSITORY;
+  const workflow = process.env.AUTOMATION_GITHUB_WORKFLOW || 'automation.yml';
+  const ref = process.env.AUTOMATION_GITHUB_REF || 'main';
+  if (!token || !repository) {
+    throw new Error('GitHub Actions execution requires AUTOMATION_GITHUB_TOKEN and AUTOMATION_GITHUB_REPOSITORY.');
+  }
+  const response = await fetch(`https://api.github.com/repos/${repository}/actions/workflows/${encodeURIComponent(workflow)}/dispatches`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+      'User-Agent': 'Cohortia-Automation',
+    },
+    body: JSON.stringify({
+      ref,
+      inputs: {
+        job_id: job.id,
+        category: job.category,
+        subcategory: job.subcategory || '',
+        course_id: job.courseId,
+        module: job.module == null ? '' : String(job.module),
+        overwrite: job.overwrite ? 'true' : 'false',
+      },
+    }),
+  });
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`GitHub Actions dispatch failed (${response.status}): ${details.slice(0, 500)}`);
+  }
 }
 
 function getApplicationRoot() {
@@ -267,7 +335,16 @@ export async function createAutomationJob({ requestedByUserId, category, subcate
     attempts: 0, createdAt: timestamp, updatedAt: timestamp,
   };
   await db.insert(automationJobs).values(job);
-  void runWorkerTick();
+  if (githubAutomationEnabled()) {
+    try {
+      await dispatchAutomationJob(job);
+    } catch (error) {
+      await updateJob(job.id, { status: 'failed', error: String(error?.message || error), completedAt: now() });
+      throw error;
+    }
+  } else {
+    void runWorkerTick();
+  }
   return job;
 }
 

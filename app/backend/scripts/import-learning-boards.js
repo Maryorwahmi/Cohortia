@@ -533,6 +533,13 @@ try {
   for (const chapterData of pendingChapters) {
     const manifest = chapterData.manifest;
     const chapterId = `chapter-${courseId}-m${manifest.module}-c${manifest.chapter}`;
+
+    // A regenerated chapter is authoritative. Remove old screens first so
+    // screens deleted or renumbered in the new manifest cannot remain stored.
+    await client.execute({
+      sql: 'DELETE FROM learning_board_screens WHERE course_id = ? AND module = ? AND chapter = ?',
+      args: [courseId, manifest.module, manifest.chapter],
+    });
     
     // Check if chapter exists
     const existingChapter = await client.execute({
@@ -718,6 +725,21 @@ try {
         }
       }
       console.log(`  ✓ Practical lab imported: ${practical.title}`);
+    } else {
+      const existingPractical = await client.execute({
+        sql: 'SELECT id FROM learning_board_practicals WHERE course_id = ? AND module = ? AND chapter = ?',
+        args: [courseId, manifest.module, manifest.chapter],
+      });
+      for (const row of existingPractical.rows) {
+        await client.execute({ sql: 'DELETE FROM learning_board_practical_files WHERE practical_id = ?', args: [row.id] });
+        await client.execute({
+          sql: 'DELETE FROM learning_board_practical_tests WHERE task_id IN (SELECT id FROM learning_board_practical_tasks WHERE practical_id = ?)',
+          args: [row.id],
+        });
+        await client.execute({ sql: 'DELETE FROM learning_board_practical_tasks WHERE practical_id = ?', args: [row.id] });
+        await client.execute({ sql: 'DELETE FROM learning_board_practical_versions WHERE practical_id = ?', args: [row.id] });
+        await client.execute({ sql: 'DELETE FROM learning_board_practicals WHERE id = ?', args: [row.id] });
+      }
     }
 
     

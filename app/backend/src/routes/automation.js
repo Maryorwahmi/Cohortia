@@ -6,13 +6,43 @@ import {
   getAutomationJob,
   listAutomationCourses,
   listAutomationSubcategories,
+  recordAutomationWorkerEvent,
 } from '../lib/automationJobs.js';
 
 const automation = new Hono();
 const allowedCategories = ['computer-science', 'artificial-intelligence'];
 
-automation.use('*', authMiddleware);
+automation.use('/internal/*', async (c, next) => {
+  const expected = process.env.AUTOMATION_WORKER_TOKEN;
+  const received = c.req.header('X-Automation-Worker-Token');
+  if (!expected || !received || received !== expected) {
+    return c.json({ success: false, error: 'Unauthorized worker request.' }, 401);
+  }
+  await next();
+});
+
+automation.post('/internal/jobs/:jobId/events', async (c) => {
+  try {
+    const event = await c.req.json();
+    const job = await recordAutomationWorkerEvent(c.req.param('jobId'), event);
+    return c.json({ success: true, data: { status: job?.status || null } });
+  } catch (error) {
+    return c.json({ success: false, error: String(error?.message || error) }, 400);
+  }
+});
+
+automation.get('/internal/jobs/:jobId', async (c) => {
+  const job = await getAutomationJob(c.req.param('jobId'));
+  if (!job) return c.json({ success: false, error: 'Job not found.' }, 404);
+  return c.json({ success: true, data: { status: job.status } });
+});
+
 automation.use('*', async (c, next) => {
+  if (c.req.path.includes('/internal/')) return next();
+  return authMiddleware(c, next);
+});
+automation.use('*', async (c, next) => {
+  if (c.req.path.includes('/internal/')) return next();
   if (c.get('user')?.role !== 'admin') {
     return c.json({ success: false, error: 'Forbidden', message: 'Administrator access is required.' }, 403);
   }
