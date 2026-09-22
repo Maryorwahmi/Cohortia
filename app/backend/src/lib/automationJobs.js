@@ -228,14 +228,13 @@ async function claimNextJob() {
   const job = jobs[0];
   if (!job) return null;
   const startedAt = now();
-  await db.update(automationJobs).set({
+  const claimed = await db.update(automationJobs).set({
     status: 'running',
     attempts: (job.attempts || 0) + 1,
     startedAt,
     updatedAt: startedAt,
-  }).where(and(eq(automationJobs.id, job.id), eq(automationJobs.status, 'queued')));
-  const claimed = await db.select().from(automationJobs).where(eq(automationJobs.id, job.id)).limit(1);
-  return claimed[0]?.status === 'running' ? claimed[0] : null;
+  }).where(and(eq(automationJobs.id, job.id), eq(automationJobs.status, 'queued'))).returning();
+  return claimed[0] || null;
 }
 
 async function runWorkerTick() {
