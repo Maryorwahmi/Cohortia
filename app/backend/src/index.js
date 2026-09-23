@@ -33,7 +33,7 @@ import generatedRoutes from './routes/generated.js';
 import catalogCoursesRoutes from './routes/catalogCourses.js';
 import assessmentsRoutes from './routes/assessments.js';
 import automationRoutes from './routes/automation.js';
-import { startAutomationWorker } from './lib/automationJobs.js';
+import { automationExecutionMode, startAutomationWorker } from './lib/automationJobs.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 
@@ -139,17 +139,22 @@ const PORT = process.env.PORT || 3000;
 
 console.log(`🚀 Cohortia API starting on port ${PORT}...`);
 
+const executionMode = automationExecutionMode();
 const automationWorkerEnabled = process.env.AUTOMATION_WORKER_ENABLED === 'true'
-  && !['github', 'azure'].includes(process.env.AUTOMATION_EXECUTION)
+  && !['github', 'azure'].includes(executionMode)
   && process.env.AUTOMATION_WORKER_ROLE !== 'background';
+console.log(`[automation] execution mode: ${executionMode}; Azure management configuration: ${
+  ['AZURE_TENANT_ID', 'AZURE_CLIENT_ID', 'AZURE_CLIENT_SECRET', 'AZURE_SUBSCRIPTION_ID', 'AZURE_RESOURCE_GROUP', 'AZURE_CONTAINER_APP_JOB_NAME']
+    .every((name) => Boolean(process.env[name])) ? 'complete' : 'incomplete'
+}`);
 if (automationWorkerEnabled) {
   startAutomationWorker().catch((error) => {
     console.error('Unable to start the automation worker:', error);
   });
 } else {
-  console.log(process.env.AUTOMATION_EXECUTION === 'github'
+  console.log(executionMode === 'github'
     ? 'Automation worker delegated to GitHub Actions.'
-    : process.env.AUTOMATION_EXECUTION === 'azure'
+    : executionMode === 'azure'
       ? 'Automation worker delegated to Azure Container Apps.'
     : 'Automation worker disabled; set AUTOMATION_WORKER_ENABLED=true for local generation.');
 }

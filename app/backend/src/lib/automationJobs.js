@@ -14,6 +14,20 @@ let workerIsRunning = false;
 const activeProcesses = new Map();
 const logWrites = new Map();
 
+export function automationExecutionMode() {
+  const configured = String(process.env.AUTOMATION_EXECUTION || '').trim().toLowerCase();
+  if (configured) return configured;
+  if (
+    process.env.AZURE_TENANT_ID
+    && process.env.AZURE_CLIENT_ID
+    && process.env.AZURE_CLIENT_SECRET
+    && process.env.AZURE_SUBSCRIPTION_ID
+    && process.env.AZURE_RESOURCE_GROUP
+    && process.env.AZURE_CONTAINER_APP_JOB_NAME
+  ) return 'azure';
+  return 'local';
+}
+
 function now() {
   return new Date().toISOString();
 }
@@ -36,7 +50,7 @@ export async function cancelAllAutomationJobs() {
 }
 
 function externalAutomationEnabled() {
-  return ['github', 'azure'].includes(process.env.AUTOMATION_EXECUTION);
+  return ['github', 'azure'].includes(automationExecutionMode());
 }
 
 function localAutomationEnabled() {
@@ -88,7 +102,7 @@ export async function recordAutomationWorkerEvent(jobId, event) {
 }
 
 export async function dispatchAutomationJob(job) {
-  if (process.env.AUTOMATION_EXECUTION === 'azure') {
+  if (automationExecutionMode() === 'azure') {
     await dispatchAzureAutomationJob();
     return;
   }
