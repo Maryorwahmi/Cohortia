@@ -9,11 +9,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
 const generatorScript = path.join(__dirname, 'generate-learning-board-html.js');
-const DEFAULT_CHAPTER_RETRIES = 2;
 
 function printUsage() {
   console.log(`Usage:
-  node scripts/generate-learning-boards-batch.js --category <category> --course-id <course-id> [--module <module>] [--subcategory <name>] [--overwrite] [--chapter-retries <count>] [--list-only]
+  node scripts/generate-learning-boards-batch.js --category <category> --course-id <course-id> [--module <module>] [--subcategory <name>] [--overwrite] [--list-only]
 
 Examples:
   node scripts/generate-learning-boards-batch.js --category computer-science --course-id ai-for-everyone --list-only
@@ -38,28 +37,9 @@ function parseArgs(argv) {
     courseId: args['course-id'] || args.course || null,
     module: args.module || null,
     overwrite: Boolean(args.overwrite),
-    chapterRetries: Number.isInteger(Number(args['chapter-retries']))
-      ? Math.max(0, Number(args['chapter-retries']))
-      : DEFAULT_CHAPTER_RETRIES,
     listOnly: Boolean(args['list-only'] || args['dry-run']),
     help: Boolean(args.help || args.h),
   };
-}
-
-async function generateChapter(args, course, moduleNumber, chapterNumber, options) {
-  const maxAttempts = options.chapterRetries + 1;
-  let result;
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    if (attempt > 1) {
-      console.log(`Retrying ${course.id}, chapter ${moduleNumber}.${chapterNumber} (attempt ${attempt}/${maxAttempts}).`);
-    }
-    result = await runCommand(process.execPath, args, repoRoot);
-    if (result.code === 0) return result;
-    if (attempt < maxAttempts) {
-      console.log(`Chapter ${moduleNumber}.${chapterNumber} failed; retrying.`);
-    }
-  }
-  return result;
 }
 
 function slugify(value = '') {
@@ -206,7 +186,7 @@ async function generateCourse(category, course, options) {
       String(chapterNumber),
     ];
     if (options.overwrite) args.push('--overwrite');
-    const result = await generateChapter(args, course, moduleNumber, chapterNumber, options);
+    const result = await runCommand(process.execPath, args, repoRoot);
     if (result.code !== 0) code = result.code;
     if (result.code === 0) {
       const importScript = path.join(repoRoot, 'backend', 'scripts', 'import-learning-boards.js');
