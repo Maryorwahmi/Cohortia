@@ -48,6 +48,9 @@ async function isCancelled(jobId) {
   return payload?.data?.status === 'cancelled';
 }
 
+const ready = await request('/worker/ready', { method: 'POST', body: '{}' });
+console.log(`[azure-worker] Ready handshake acknowledged${ready?.data?.jobId ? ` for ${ready.data.jobId}` : ''}.`);
+
 function runGenerator(job) {
   const args = [
     'scripts/generate-learning-boards-batch.js',

@@ -8,6 +8,7 @@ import {
   listAutomationSubcategories,
   recordAutomationWorkerEvent,
   claimAutomationJob,
+  markAutomationWorkerReady,
 } from '../lib/automationJobs.js';
 
 const automation = new Hono();
@@ -42,6 +43,11 @@ automation.post('/internal/jobs/claim', async (c) => {
     module: job.module,
     overwrite: job.overwrite,
   } : null });
+});
+
+automation.post('/internal/worker/ready', async (c) => {
+  const job = await markAutomationWorkerReady();
+  return c.json({ success: true, data: job ? { jobId: job.id, status: job.status } : null });
 });
 
 automation.get('/internal/jobs/:jobId', async (c) => {
