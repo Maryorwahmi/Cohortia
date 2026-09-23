@@ -33,4 +33,16 @@ npm run frontend
 npm run backend
 ```
 
+The local backend does not process automation jobs by default. This prevents a
+development process from claiming production jobs from the shared Turso queue
+and writing generated files to the local machine. To intentionally run the
+embedded worker for local-only testing, set:
+
+```bash
+AUTOMATION_WORKER_ENABLED=true
+```
+
+Production automation is delegated to Azure Container Apps when
+`AUTOMATION_EXECUTION=azure`.
+
 Repo-level course sources, generated learning boards, and practical generator scripts intentionally remain outside `app/`. The application paths are configured to read those shared assets without duplicating them.

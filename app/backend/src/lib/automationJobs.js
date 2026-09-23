@@ -39,6 +39,11 @@ function externalAutomationEnabled() {
   return ['github', 'azure'].includes(process.env.AUTOMATION_EXECUTION);
 }
 
+function localAutomationEnabled() {
+  return process.env.AUTOMATION_WORKER_ENABLED === 'true'
+    && process.env.AUTOMATION_WORKER_ROLE !== 'background';
+}
+
 async function updateJob(jobId, values) {
   const updatedAt = values.updatedAt || now();
   await db.update(automationJobs).set({ ...values, updatedAt }).where(eq(automationJobs.id, jobId));
@@ -398,7 +403,7 @@ export async function createAutomationJob({ requestedByUserId, category, subcate
       await updateJob(job.id, { status: 'failed', error: String(error?.message || error), completedAt: now() });
       throw error;
     }
-  } else {
+  } else if (localAutomationEnabled()) {
     void runWorkerTick();
   }
   return job;

@@ -8,6 +8,8 @@ const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const apiUrl = String(process.env.AUTOMATION_API_URL || '').replace(/\/+$/, '');
 const workerToken = process.env.AUTOMATION_WORKER_TOKEN;
 const REQUEST_TIMEOUT_MS = 30000;
+const MAX_IDLE_CHECKS = Number(process.env.AUTOMATION_WORKER_MAX_IDLE_CHECKS || 60);
+const IDLE_CHECK_INTERVAL_MS = Number(process.env.AUTOMATION_WORKER_IDLE_CHECK_INTERVAL_MS || 5000);
 
 if (!apiUrl || !workerToken) {
   throw new Error('AUTOMATION_API_URL and AUTOMATION_WORKER_TOKEN are required.');
@@ -84,14 +86,14 @@ function runGenerator(job) {
 }
 
 let idleChecks = 0;
-while (idleChecks < 3) {
-  console.log(`[azure-worker] Claiming queued job (check ${idleChecks + 1}/3).`);
+while (idleChecks < MAX_IDLE_CHECKS) {
+  console.log(`[azure-worker] Claiming queued job (check ${idleChecks + 1}/${MAX_IDLE_CHECKS}).`);
   const payload = await request('/jobs/claim', { method: 'POST', body: '{}' });
   const job = payload?.data;
   if (!job) {
     console.log('[azure-worker] No queued job found.');
     idleChecks += 1;
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, IDLE_CHECK_INTERVAL_MS));
     continue;
   }
   idleChecks = 0;
@@ -106,4 +108,4 @@ while (idleChecks < 3) {
   await sendEvent(job.jobId, { type: 'completed', result: { execution: 'azure-container-apps' } });
 }
 
-console.log('[azure-worker] Queue is idle; exiting successfully.');
+console.log(`[azure-worker] Queue is idle after ${MAX_IDLE_CHECKS} checks; exiting successfully.`);
