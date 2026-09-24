@@ -1366,6 +1366,7 @@ export default function LearningBoardPage({
                             category={activePractical?.category}
                             tasks={activePractical?.tasks || []}
                             narratorGuide={activePractical?.narratorGuide}
+                            checks={activePractical?.checks || []}
                             onOpenLab={() => setShowPracticalSimulation(false)}
                           />
                         ) : (

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
-import { motion } from "motion/react";
 import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep } from "../../services/learningBoardsApi";
 
 const TOTAL_DURATION = 60;
@@ -14,12 +13,13 @@ interface AnimatedCodeAlongPlayerProps {
   category?: string | null;
   tasks?: LearningBoardPracticalTask[];
   narratorGuide?: string | null;
+  checks?: Array<{ id: string; type?: string; expected?: unknown }>;
   output?: string[];
   onRun?: () => void;
   onOpenLab?: () => void;
 }
 
-export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], walkthrough = [], category, tasks = [], narratorGuide, output = [], onRun, onOpenLab }: AnimatedCodeAlongPlayerProps) {
+export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], walkthrough = [], category, tasks = [], narratorGuide, checks = [], output = [], onRun, onOpenLab }: AnimatedCodeAlongPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -72,6 +72,8 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
     : files[0]?.content || "// Your practical code will appear here.";
   const activeFile = activeWalkthrough[0]?.file || files[0]?.path || "workspace";
   const activeTask = tasks.length ? tasks[Math.min(activePlaylistIndex, tasks.length - 1)] : undefined;
+  const activeCheckIds = activeTask?.checkIds || [];
+  const activeChecks = checks.filter((check) => activeCheckIds.includes(check.id));
   const isCodeLab = category === "Terminal Coding Lab";
   const experienceLabel = category === "Research & Analysis" ? "Evidence lab" : category === "Cloud Console Lab" ? "Cloud mission" : category === "Scenario & Design Exercise" ? "Decision simulator" : "Coding lab";
 
@@ -129,9 +131,9 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
               <div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2">
                 <div className="flex items-center space-x-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-rose-500" /><span className="h-2.5 w-2.5 rounded-full bg-amber-500" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  <span className="pl-2 font-mono text-[10px] font-semibold uppercase text-slate-500">Cohortia IDE v4.2</span>
+                  <span className="pl-2 font-mono text-[10px] font-semibold uppercase text-slate-500">Imported practical workspace</span>
                 </div>
-                <span className="rounded-full bg-immersive-primary/10 px-2 py-0.5 font-mono text-[9px] font-bold text-immersive-primary">ACTIVE CAPSTONE SPEC</span>
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-700">GENERATED CONTENT</span>
               </div>
               <div className="grid min-h-0 flex-1 grid-cols-12 gap-3">
                 <div className="col-span-3 flex flex-col space-y-1.5 rounded-xl border border-slate-200 bg-white p-2 font-mono text-[9px] text-slate-600">
@@ -157,11 +159,13 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
                         <TeachingCard label="Watch for" text={activePlaylist.commonMistake} tone="rose" />
                       </div>
                     )}
-                    {sceneProgress > 0.75 && <div className="absolute bottom-6 right-6 flex items-center space-x-1.5 rounded-xl border border-emerald-400 bg-emerald-500/20 px-3 py-1.5 text-[10px] font-bold text-emerald-600 shadow-lg animate-bounce"><span className="h-1.5 w-1.5 animate-ping rounded-full bg-emerald-400" /><span>Compiler check succeeded! Solution verified. 🎉</span></div>}
+                    {activeChecks.length > 0 && (
+                      <div className="absolute right-4 top-4 rounded-lg border border-slate-200 bg-white/95 px-2.5 py-2 text-[9px] text-slate-600 shadow-sm">
+                        <p className="font-mono font-bold uppercase text-immersive-primary">Checks for this step</p>
+                        <p className="mt-1">{activeChecks.length} imported check{activeChecks.length === 1 ? "" : "s"}</p>
+                      </div>
+                    )}
                   </div>
-                  <motion.div animate={{ x: sceneProgress > 0.7 ? [120, 150, 180, 240, 220] : [20, 80, 120, 120], y: sceneProgress > 0.7 ? [100, 120, 140, 140, 130] : [40, 60, 100, 100] }} className="pointer-events-none absolute z-20 text-immersive-primary" style={{ left: "50%", top: "40%" }}>
-                    <svg className="h-5 w-5 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 3V19L9.5 14L14.5 24L17.5 22.5L12.5 12.5H19.5L4.5 3Z" /></svg>
-                  </motion.div>
                   <div className="absolute bottom-3 left-3 right-3 rounded-lg border border-immersive-primary/20 bg-white/90 p-2.5 shadow-sm backdrop-blur">
                     <div className="mb-1 flex items-center justify-between gap-2"><span className="font-mono text-[8px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className="font-mono text-[8px] text-slate-500">Pause & predict</span></div>
                     <p className="line-clamp-2 text-[9px] leading-relaxed text-slate-600">{activePlaylist.narratorScript}</p>
@@ -173,7 +177,7 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
             </div>
           </div>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-transparent" />
-          <div className="pointer-events-none absolute left-4 top-4 z-10 flex space-x-2 rounded-full border border-slate-200 bg-white/85 px-3 py-1 font-mono text-[10px] font-bold text-slate-700 shadow-lg"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-500 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" /></span><span>SIMULATED</span></div>
+          <div className="pointer-events-none absolute left-4 top-4 z-10 flex space-x-2 rounded-full border border-emerald-200 bg-white/90 px-3 py-1 font-mono text-[10px] font-bold text-emerald-700 shadow-lg"><span className="h-2 w-2 rounded-full bg-emerald-500" /><span>IMPORTED PRACTICAL</span></div>
         </div>
         {teachingPlaylist.length > 1 && (
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
