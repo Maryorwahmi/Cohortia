@@ -55,13 +55,19 @@ async function main() {
   const recordByKey = new Map(records.map((record) => [`${record.module}.${record.chapter}`, record]));
   const outputRoot = optionValue(args, "--output", path.join(REPOSITORY_ROOT, "generated", "learning-board-practicals"));
   const provider = optionValue(args, "--provider");
-  const selected = pilot.activities.map((item) => {
-    const record = recordByKey.get(`${item.module}.${item.chapter}`);
-    if (!record) throw new Error(`Pilot activity ${item.module}.${item.chapter} was not found in the normalized source.`);
-    return record;
-  });
+  const pilotOnly = args.includes("--pilot-only");
+  const selected = pilotOnly
+    ? pilot.activities.map((item) => {
+        const record = recordByKey.get(`${item.module}.${item.chapter}`);
+        if (!record) throw new Error(`Pilot activity ${item.module}.${item.chapter} was not found in the normalized source.`);
+        return record;
+      })
+    : records;
 
-  console.log(`CS50 practical pilot: ${selected.length} activities`);
+  console.log(`${pilotOnly ? "CS50 practical pilot" : "CS50 practical generator"}: ${selected.length} activities`);
+  if (!selected.length) {
+    throw new Error(`No hands-on activities were found under ${sourceRoot}.`);
+  }
   for (const record of selected) {
     console.log(`- ${record.module}.${record.chapter}: ${record.title} [${record.category}]`);
   }

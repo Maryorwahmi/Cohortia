@@ -778,6 +778,16 @@ function normalizeEvidence(rawEvidence) {
   }];
 }
 
+function fallbackNarratorGuide(title, instructions, sourceContext) {
+  const activity = sourceContext.activityTitle || title;
+  return `Welcome to ${title}. I am your teacher for this practical, and we will work through ${activity} together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: ${instructions}. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.`;
+}
+
+function fallbackTaskNarrator(task, index, practicalTitle) {
+  const phase = ["observe", "modify", "experiment", "verify"][index] || "practice";
+  return `In this ${phase} step, focus on ${task.title || `task ${index + 1}`} in ${practicalTitle}. Read the instruction aloud, make a prediction, and then work carefully through one change at a time. Notice the evidence produced by your program or design. Ask yourself why the result makes sense, what assumption you tested, and what you would change next. If you get stuck, compare the result with the core concept rather than copying a solution. When the check passes, explain the reason in your own words before continuing.`;
+}
+
 function normalizePractical(raw, sourceContext, metadata) {
   if (!raw || typeof raw !== "object") throw new Error("Generated practical must be an object.");
 
@@ -869,6 +879,12 @@ function normalizePractical(raw, sourceContext, metadata) {
 
   const safety = normalizeSafety(raw.safety, labType, sourceContext);
   const evidence = normalizeEvidence(raw.evidence);
+  const practicalTitle = title;
+  const narratorGuide = asStringText(raw.narratorGuide) || fallbackNarratorGuide(practicalTitle, instructions, sourceContext);
+  tasks = tasks.map((task, index) => ({
+    ...task,
+    narratorGuide: task.narratorGuide || fallbackTaskNarrator(task, index, practicalTitle),
+  }));
   const completionRules = {
     requiredChecks: checks.map((check) => check.id),
     minimumScore: typeof raw.completionRules?.minimumScore === "number" && raw.completionRules.minimumScore >= 0
@@ -900,7 +916,16 @@ function normalizePractical(raw, sourceContext, metadata) {
       : asStringArray(raw.objectives),
     prerequisites: asStringArray(raw.prerequisites),
     instructions,
-    narratorGuide: asStringText(raw.narratorGuide),
+    narratorGuide,
+    teacher: {
+      role: "supportive computer science teacher",
+      opening: narratorGuide,
+      coachingPrompts: [
+        "What do you predict will happen before you run it?",
+        "What evidence shows that your change worked?",
+        "Can you explain the result in your own words?",
+      ],
+    },
     codeWalkthrough: (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
       stepNumber: Number.isInteger(Number(seg.stepNumber)) ? Number(seg.stepNumber) : idx + 1,
       speakerText: asStringText(seg.speakerText || seg.text || seg.narration || seg.explanation),
@@ -1043,6 +1068,9 @@ function validatePractical(practical) {
     if (practical?.[field] === undefined || practical?.[field] === null) errors.push(`missing ${field}`);
   }
   if (practical?.schemaVersion !== 1) errors.push("schemaVersion must be 1");
+  if (typeof practical?.narratorGuide !== "string" || practical.narratorGuide.trim().length < 80) {
+    errors.push("narratorGuide must contain a meaningful teacher guide");
+  }
   if (typeof practical?.practicalId !== "string" || !/^practical-[a-z0-9][a-z0-9-]*$/.test(practical.practicalId)) errors.push("invalid practicalId");
   if (!SOURCE_CATEGORIES.includes(practical?.category)) errors.push("invalid category");
   if (!LAB_TYPES.includes(practical?.labType)) errors.push("invalid labType");
@@ -1090,6 +1118,7 @@ function validatePractical(practical) {
     const taskIds = new Set();
     for (const task of practical.tasks) {
       if (!task.id || !task.title || !task.instruction || !Array.isArray(task.checkIds)) errors.push(`task ${task.id || "unknown"} is incomplete`);
+      if (typeof task.narratorGuide !== "string" || task.narratorGuide.trim().length < 40) errors.push(`task ${task.id || "unknown"} is missing teacher narration`);
       if (taskIds.has(task.id)) errors.push(`duplicate task id ${task.id}`);
       taskIds.add(task.id);
       for (const checkId of task.checkIds || []) if (!checkIds.has(checkId)) errors.push(`task ${task.id} references missing check ${checkId}`);

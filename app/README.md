@@ -43,27 +43,38 @@ node scripts/normalize-hands-on-activities.js \
   --output generated/normalized-cs50-activities.json
 ```
 
-List the six-activity CS50 practical pilot:
+List every chapter with a normalized hands-on activity:
 
 ```bash
 node scripts/generate-cs50-practical-pilot.js --list-only
 ```
 
-Generate the pilot practicals with the existing validated practical generator
-once Azure OpenAI is configured:
+Generate all discovered CS50 practicals with the existing validated practical
+generator once Azure OpenAI is configured:
 
 ```bash
 node scripts/generate-cs50-practical-pilot.js --provider azure
 ```
 
-By default, the pilot imports each generated chapter into the configured
+The original six-activity set can still be generated explicitly with
+`--pilot-only`. Every generated practical includes a teacher/narrator guide,
+task-level narration, and coaching prompts; missing model narration is filled
+with a validated teaching fallback rather than publishing an empty voice guide.
+
+The generator imports each generated chapter into the configured
 Turso/libSQL database immediately after writing its `practical.json`. This
-means Chapter 1.1 is generated and imported before Chapter 1.2 starts. To
+means each chapter is generated and imported before the next chapter starts. To
 generate files without database writes, use `--skip-import` (or
 `--dry-run` for prompt inspection):
 
 ```bash
 node scripts/generate-cs50-practical-pilot.js --provider azure --skip-import
+```
+
+To generate only the original six-activity pilot:
+
+```bash
+node scripts/generate-cs50-practical-pilot.js --provider azure --pilot-only
 ```
 
 The importer can also upsert one existing practical directly:
