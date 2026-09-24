@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">CEI Pattern</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-4" style="border-color:rgba(226,232,240,0.9); box-shadow:0 6px 18px rgba(15,23,42,0.04);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <h3 class="text-xl font-bold text-slate-900">Checks → Effects → Interactions</h3>
+      <p class="mt-3 text-sm text-slate-700">A simple ordering discipline that makes state predictable before any external calls.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-blue-50">
+          <div class="font-semibold text-slate-800">Checks</div>
+          <div class="text-sm text-slate-700 mt-1">Validate balances, approvals, and paused state with require statements.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-violet-50">
+          <div class="font-semibold text-slate-800">Effects</div>
+          <div class="text-sm text-slate-700 mt-1">Update mappings and pools so the contract's state reflects the action.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="font-semibold text-slate-800">Interactions</div>
+          <div class="text-sm text-slate-700 mt-1">Perform transfers or call external contracts only after state changes are recorded.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Applying CEI reduces reentrancy risk by ensuring callbacks see updated state and cannot repeat effects on stale data.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-4 overflow-hidden" style="border-color:rgba(226,232,240,0.9); box-shadow:0 6px 18px rgba(15,23,42,0.04);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Example code excerpt</div>
+      <div class="rounded-lg bg-slate-900 text-white p-3" style="font-family:Inter, ui-sans-serif, system-ui;">
+        <pre class="text-sm">// Checks
+require(balances[msg.sender] &gt;= amount);
+// Effects
+balances[msg.sender] -= amount;
+// Interactions
+(bool ok, ) = payable(msg.sender).call{value: amount}("");
+require(ok);
+</pre>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+        <div class="font-semibold text-slate-800">Misuse to watch for</div>
+        <div class="text-sm text-slate-600 mt-1">Updating state in multiple scattered places or calling external hooks before all state changes are applied.</div>
+      </div>
+    </div>
+  </div>
+</div>

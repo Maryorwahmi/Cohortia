@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">NOT NULL and UNIQUE</span>
+    </div>
+
+    <div class="flex gap-5 h-[calc(100%-56px)]">
+      <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Rule details</div>
+        <h3 class="text-2xl font-bold text-slate-800 mt-2">NOT NULL</h3>
+        <p class="text-sm text-slate-600 mt-3">Use when a column must always have a value. The database rejects inserts or updates that set this column to NULL.</p>
+        <div class="mt-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Example</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded text-sm text-slate-700">
+CREATE TABLE employees (
+  employee_id NUMBER(6),
+  first_name VARCHAR2(20) NOT NULL,
+  last_name VARCHAR2(25) NOT NULL
+);
+        </pre>
+
+        <div class="mt-4">
+          <h4 class="text-sm font-semibold text-slate-800">Common mistake</h4>
+          <p class="text-sm text-slate-600 mt-1">Assuming NOT NULL is unnecessary because application code validates inputs. Always enforce critical presence rules in the schema too.</p>
+        </div>
+      </div>
+
+      <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Rule details</div>
+        <h3 class="text-2xl font-bold text-slate-800 mt-2">UNIQUE</h3>
+        <p class="text-sm text-slate-600 mt-3">Prevents duplicate non-null values. For optional fields, remember UNIQUE still allows multiple NULLs unless NOT NULL is added.</p>
+        <div class="mt-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Example</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded text-sm text-slate-700">
+CREATE TABLE employees (
+  employee_id NUMBER(6),
+  email VARCHAR2(25) UNIQUE
+);
+
+-- Multi-column UNIQUE
+CREATE TABLE products (
+  product_id NUMBER(6),
+  product_name VARCHAR2(100),
+  category_id NUMBER(4),
+  CONSTRAINT un_product_category UNIQUE (product_name, category_id)
+);
+        </pre>
+
+        <div class="mt-4">
+          <h4 class="text-sm font-semibold text-slate-800">Pro tip</h4>
+          <p class="text-sm text-slate-600 mt-1">Use multi-column UNIQUE to enforce uniqueness within a context, such as a name within a category.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

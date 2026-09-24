@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:#fff}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter: Constraints</span>
+    <span>›</span>
+    <span class="text-slate-700">ALTER TABLE: Adding constraints</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-3/5 card rounded-xl p-4">
+      <div class="text-lg font-bold text-slate-800">Step-by-step: safe workflow</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-2">
+        <li>Query for existing violations (duplicates, nulls, invalid ranges).</li>
+        <li>Fix or archive offending rows or prepare a data-clean script.</li>
+        <li>TEST the ALTER TABLE on a staging copy to measure validation time.</li>
+        <li>Run ALTER TABLE ADD CONSTRAINT ... during a maintenance window.</li>
+        <li>If necessary, add constraint DISABLED, then CLEAN, then ENABLE.</li>
+      </ol>
+
+      <div class="mt-4 mono bg-slate-50 p-3 rounded text-sm">
+-- Add a primary key to employees
+ALTER TABLE employees
+ADD CONSTRAINT pk_employees PRIMARY KEY (employee_id);
+
+-- Add a check constraint
+ALTER TABLE products
+ADD CONSTRAINT ck_stock_level CHECK (stock_level >= 0);
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg border p-3 bg-white">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Misconception</div>
+          <div class="text-sm text-slate-700">You can simply add constraints without preparation; in practice, this often fails due to existing violations.</div>
+        </div>
+        <div class="rounded-lg border p-3 bg-white">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Pro tip</div>
+          <div class="text-sm text-slate-700">Use SELECT COUNT(*) ... WHERE <violation condition> to quickly estimate the size of cleanup required.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-2/5 card rounded-xl p-4">
+      <div class="text-sm font-bold text-slate-800">Validation behavior</div>
+      <div class="text-sm text-slate-600 mt-2">When adding UNIQUE or PRIMARY KEY, Oracle scans for duplicates. When adding FOREIGN KEY, it ensures child values match a parent. If violations occur, the ALTER fails.</div>
+
+      <div class="mt-4 text-sm">
+        <div class="font-semibold">Staged approach</div>
+        <div class="text-slate-600 mt-1">You can add a constraint WITH NOVALIDATE or DISABLE it to defer full checking, then remediate data and enable it later.</div>
+      </div>
+
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+          <p class="text-xs font-medium text-slate-800">Before adding a constraint, run a specific violation query and save the results so you can revert or correct rows if needed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

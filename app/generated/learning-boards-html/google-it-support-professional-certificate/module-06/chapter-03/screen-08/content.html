@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Disk Encryption Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Terminal-style conceptual steps</div>
+      <pre class="mt-4 p-3 bg-slate-900 text-slate-100 rounded-md text-sm overflow-auto"># Create a 100MB file to act as a virtual disk
+dd if=/dev/zero of=my_encrypted_disk.img bs=1M count=100
+
+# Initialize LUKS on the file (destructive):
+sudo cryptsetup luksFormat my_encrypted_disk.img
+
+# Open the LUKS volume:
+sudo cryptsetup open my_encrypted_disk.img my_secure_volume
+
+# Format the mapped device and mount it:
+sudo mkfs.ext4 /dev/mapper/my_secure_volume
+mkdir -p ~/secure_data
+sudo mount /dev/mapper/my_secure_volume ~/secure_data
+
+# When done, unmount and close:
+sudo umount ~/secure_data
+sudo cryptsetup close my_secure_volume</pre>
+      <div class="mt-3 text-xs text-slate-500">Note: Commands are shown for conceptual understanding. Running them affects real data if used on production disks.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation & tips</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Create a file to avoid touching actual disks; this makes a safe lab environment.</li>
+        <li>LUKS stores metadata and requires a passphrase; losing the passphrase can make data unrecoverable.</li>
+        <li>Mapped device /dev/mapper/name becomes the decrypted interface you can format and mount.</li>
+        <li>Always back up sensitive data before encrypting or modifying disks in production.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-xs font-medium text-slate-800">Encryption alone does not replace backups. Encrypted backups must also be managed and recoverable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

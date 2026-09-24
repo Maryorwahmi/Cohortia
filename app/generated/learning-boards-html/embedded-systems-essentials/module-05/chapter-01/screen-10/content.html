@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.cohortia-bg{background:#fbfbff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> 
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Circular buffer implementation</span>
+  </div>
+  <div class="flex gap-6 h-full"> 
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border"> 
+      <div class="text-lg font-bold text-slate-800">Ring buffer code</div>
+      <pre class="mt-4 bg-slate-900 text-slate-100 p-3 rounded-md overflow-auto text-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">#define BUFFER_SIZE 64
+
+uint32_t buffer[BUFFER_SIZE];
+uint32_t head = 0;
+uint32_t tail = 0;
+
+void bufferWrite(uint32_t value) {
+    buffer[head] = value;
+    head = (head + 1) % BUFFER_SIZE;
+    if (head == tail) {
+        tail = (tail + 1) % BUFFER_SIZE; // overwrite oldest
+    }
+}
+
+uint32_t bufferRead(void) {
+    if (tail == head) {
+        return 0; // buffer empty
+    }
+    uint32_t value = buffer[tail];
+    tail = (tail + 1) % BUFFER_SIZE;
+    return value;
+}
+</pre>
+      <div class="mt-4 text-sm text-slate-600">This implementation uses modulo to wrap indexes and advances tail to preserve the most recent BUFFER_SIZE items when writes overtake reads.</div>
+    </div>
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col"> 
+      <div class="text-sm font-bold text-slate-700">Concurrency considerations</div>
+      <ul class="mt-3 list-disc list-inside text-sm text-slate-600 space-y-2"> 
+        <li>Single producer and single consumer may be safe with volatile indexing and careful ordering.</li>
+        <li>Multiple writers or readers require atomic operations or disabling interrupts briefly during index updates.</li>
+        <li>Document whether reads return a special empty code or block until data arrives.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use modulo for wrap, advance tail on overwrite, and protect concurrent access according to your system's needs.</p>
+      </div>
+    </div>
+  </div>
+</div>

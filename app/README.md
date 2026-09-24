@@ -95,7 +95,33 @@ embedded worker for local-only testing, set:
 AUTOMATION_WORKER_ENABLED=true
 ```
 
-Production automation is delegated to Azure Container Apps when
-`AUTOMATION_EXECUTION=azure`.
+### Recovering after a Turso network failure
+
+Chapter generation writes the local manifest before the Turso import. If the
+import loses network connectivity, the batch script retries the chapter import
+three times with backoff and records the chapter as `import-pending` when all
+attempts fail. Re-run the same command after the network is available; the
+existing local manifest is reused, the chapter is imported with `--refresh`,
+and it is marked complete only after the import exits successfully.
+
+For example, to retry FPGA Design chapter 1.2:
+
+```bash
+node scripts/generate-learning-boards-batch.js \
+  --category computer-science \
+  --course-id fpga-design-for-embedded-systems \
+  --module 1 \
+  --import-retries 5
+```
+
+Do not use `--overwrite` for a recovery retry unless you intentionally want to
+regenerate the chapter. The default behavior preserves the generated chapter
+and only retries its database import.
+
+Production automation is delegated to Jenkins when
+`AUTOMATION_EXECUTION=jenkins`. Configure `JENKINS_JOB_URL`, `JENKINS_USER`,
+and `JENKINS_API_TOKEN` on the backend. The repository includes a
+`Jenkinsfile`; create a Jenkins Pipeline job from that file and add the
+`cohortia-automation-worker-token` secret credential used by the pipeline.
 
 Repo-level course sources, generated learning boards, and practical generator scripts intentionally remain outside `app/`. The application paths are configured to read those shared assets without duplicating them.
