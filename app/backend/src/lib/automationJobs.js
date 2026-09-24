@@ -37,6 +37,7 @@ export async function markAutomationWorkerReady() {
     .limit(1);
   const job = jobs[0];
   if (!job) return null;
+  console.log(`[automation] Azure worker handshake received for job ${job.id}.`);
   await appendJobLog(job, 'Azure worker connected. Generation queued.');
   await updateJob(job.id, { status: 'queued' });
   return getAutomationJob(job.id);
@@ -167,6 +168,7 @@ export async function dispatchAutomationJob(job) {
     if (!subscriptionId || !resourceGroup || !jobName) {
       throw new Error('Azure execution requires AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, and AZURE_CONTAINER_APP_JOB_NAME.');
     }
+    console.log(`[automation] Starting Azure Container Apps Job ${jobName} for automation job ${job.id}.`);
     const token = await getAzureManagementToken();
     const url = `https://management.azure.com/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroup)}/providers/Microsoft.App/jobs/${encodeURIComponent(jobName)}/start?api-version=2024-03-01`;
     const response = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
@@ -174,6 +176,7 @@ export async function dispatchAutomationJob(job) {
       const details = await response.text();
       throw new Error(`Azure Container Apps Job start failed (${response.status}): ${details.slice(0, 500)}`);
     }
+    console.log(`[automation] Azure accepted the start request for job ${job.id}. Waiting for worker handshake.`);
   }
   const response = await fetch(`https://api.github.com/repos/${repository}/actions/workflows/${encodeURIComponent(workflow)}/dispatches`, {
     method: 'POST',
@@ -441,11 +444,14 @@ export async function createAutomationJob({ requestedByUserId, category, subcate
   if (external) {
     try {
       await dispatchAutomationJob(job);
-      if (!(await waitForAutomationHandshake(job.id))) {
+      const workerConnected = await waitForAutomationHandshake(job.id);
+      if (!workerConnected) {
+        console.error(`[automation] Azure worker did not connect within ${AUTOMATION_HANDSHAKE_TIMEOUT_MS / 1000} seconds for job ${job.id}.`);
         const message = 'Azure worker did not connect within 90 seconds. The generation was not queued.';
         await updateJob(job.id, { status: 'failed', error: message, completedAt: now() });
         throw new Error(message);
       }
+      console.log(`[automation] Azure worker connected for job ${job.id}; generation is queued.`);
     } catch (error) {
       await updateJob(job.id, { status: 'failed', error: String(error?.message || error), completedAt: now() });
       throw error;
