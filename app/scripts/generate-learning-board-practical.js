@@ -497,6 +497,9 @@ function normalizeId(value, fallback) {
 }
 
 function inferLabType(raw, sourceContext) {
+  const sourceText = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
+  const sourceIsC = /\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program|hello,\s*world)\b/.test(sourceText);
+  if (sourceIsC) return "code";
   if (LAB_TYPES.includes(raw.labType)) return raw.labType;
   if (["Scenario & Design Exercise", "Research & Analysis"].includes(sourceContext.source.category)) {
     return "simulation";
@@ -505,23 +508,22 @@ function inferLabType(raw, sourceContext) {
   if (/^(bash|shell|sh|zsh|powershell)$/.test(language)) return "shell";
   if (/^(sql|postgresql|mysql|sqlite)$/.test(language)) return "database";
   if (/^(c|c\+\+|csharp|c#|go|java|javascript|typescript|kotlin|php|python|ruby|rust)$/.test(language)) return "code";
-  const text = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
-  if (/\b(postgres|mysql|sqlite|sql|schema|table|query|database)\b/.test(text)) return "database";
-  if (/\b(cloud|aws|azure|gcp|kubectl|terraform|bucket|iam)\b/.test(text)) return "cloud";
-  if (/\b(dns|packet|firewall|port|tcp|udp|network interface)\b/.test(text)) return "network";
-  if (/\b(selinux|mfa|authentication|authorization|credential|secret|hardening)\b/.test(text)) return "security";
-  if (/\b(bash|shell|terminal|linux|rhel|sudo|chmod|systemctl|vmstat|strace)\b/.test(text)) return "shell";
-  if (/\b(pandas|matplotlib|csv|dataframe|dataset|statistics)\b/.test(text)) return "data";
+  if (/\b(postgres|mysql|sqlite|sql|schema|table|query|database)\b/.test(sourceText)) return "database";
+  if (/\b(cloud|aws|azure|gcp|kubectl|terraform|bucket|iam)\b/.test(sourceText)) return "cloud";
+  if (/\b(dns|packet|firewall|port|tcp|udp|network interface)\b/.test(sourceText)) return "network";
+  if (/\b(selinux|mfa|authentication|authorization|credential|secret|hardening)\b/.test(sourceText)) return "security";
+  if (/\b(bash|shell|terminal|linux|rhel|sudo|chmod|systemctl|vmstat|strace)\b/.test(sourceText)) return "shell";
+  if (/\b(pandas|matplotlib|csv|dataframe|dataset|statistics)\b/.test(sourceText)) return "data";
   return sourceContext.source.category === "Terminal Coding Lab" ? "code" : "simulation";
 }
 
 function inferLanguage(raw, sourceContext, labType) {
+  const text = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
+  if (/\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program|hello,\s*world)\b/.test(text)) return "c";
   const requested = String(raw.language || "").trim().toLowerCase();
   if (requested) return requested === "c++" ? "cpp" : requested;
-  const text = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
   if (labType === "database") return "sqlite";
   if (labType === "shell") return "bash";
-  if (/\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program)\b/.test(text)) return "c";
   if (/\b(python|\.py\b|def\s+\w+\s*\()\b/.test(text)) return "python";
   if (/\b(javascript|node\.js|\.js\b)\b/.test(text)) return "javascript";
   return labType === "code" ? "text" : undefined;
