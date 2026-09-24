@@ -10,7 +10,7 @@ import { UserPreferences, CohortTrackId } from "../../types";
 import { TRACK_CURRICULA, DashboardMilestone, DashboardLesson } from "../../data/dashboardData";
 import { CPP_LESSONS_DETAILS } from "../../data/cppLessonsData";
 import InteractiveSandbox from "./InteractiveSandbox";
-import SimulatedEditor from "./SimulatedEditor";
+import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
 import AssessmentEngine from "./AssessmentEngine";
 import { chatApi } from "../../services/api";
 import LessonScenePlayer from "./LessonScenePlayer";
@@ -1359,10 +1359,14 @@ export default function LearningBoardPage({
 
                       <div className="relative min-h-0 min-w-0 flex-1">
                         {showPracticalSimulation ? (
-                          <SimulatedEditor
-                            taskTitle={activePractical?.title || generatedPreview?.handsOn?.title || selectedLesson.title}
-                            taskInstructions={activePractical?.tasks?.map((task) => task.instruction) || details.summary.takeaways}
-                            onComplete={() => undefined}
+                          <AnimatedCodeAlongPlayer
+                            playlist={activePractical?.teachingPlaylist || []}
+                            files={activePractical?.files || []}
+                            walkthrough={activePractical?.codeWalkthrough || []}
+                            category={activePractical?.category}
+                            tasks={activePractical?.tasks || []}
+                            narratorGuide={activePractical?.narratorGuide}
+                            onOpenLab={() => setShowPracticalSimulation(false)}
                           />
                         ) : (
                           <InteractiveSandbox

@@ -13,12 +13,13 @@ interface AnimatedCodeAlongPlayerProps {
   walkthrough?: CodeWalkthroughSegment[];
   category?: string | null;
   tasks?: LearningBoardPracticalTask[];
+  narratorGuide?: string | null;
   output?: string[];
   onRun?: () => void;
   onOpenLab?: () => void;
 }
 
-export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], walkthrough = [], category, tasks = [], output = [], onRun, onOpenLab }: AnimatedCodeAlongPlayerProps) {
+export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], walkthrough = [], category, tasks = [], narratorGuide, output = [], onRun, onOpenLab }: AnimatedCodeAlongPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -34,13 +35,35 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
   };
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
   const sceneProgress = (currentTime % SCENE_DURATION) / SCENE_DURATION;
-  const fallbackPlaylist: PracticalTeachingPlaylistStep[] = [{
-    id: "guided-practical", title: "Guided practical", category: "Practical learning",
-    description: "Build the solution with a warm, teacher-led explanation.", durationSeconds: TOTAL_DURATION,
-    learningGoal: "Understand the practical through guided action.", narratorScript: "Let’s work through this practical together.",
-    workedExample: "Follow the example as it is built.", scenario: "Apply it to a realistic task.",
-    learnerPrompt: "What do you predict will happen next?", commonMistake: "Do not skip checking the result.", recap: "Explain the key idea in your own words.", codeSteps: [1],
-  }];
+  const fallbackPlaylist: PracticalTeachingPlaylistStep[] = tasks.length
+    ? tasks.map((task, index) => ({
+        id: `generated-task-${task.id}`,
+        title: task.title || `Practical step ${index + 1}`,
+        category: category || "Practical learning",
+        description: task.instruction,
+        durationSeconds: Math.max(45, Math.min(120, Math.ceil((task.narratorGuide || narratorGuide || task.instruction).length / 11))),
+        learningGoal: task.requiredConcepts?.join(", ") || "Understand and apply the practical concept.",
+        narratorScript: task.narratorGuide || narratorGuide || task.instruction,
+        workedExample: task.instruction,
+        scenario: task.requiredConcepts?.join(", ") || "Apply the idea to the current practical.",
+        learnerPrompt: task.hints?.[0] || "What do you predict will happen next?",
+        commonMistake: task.hints?.[1] || "Do not skip checking the result.",
+        recap: task.narratorGuide || task.instruction,
+        codeSteps: [index + 1],
+      }))
+    : [{
+        id: "guided-practical", title: "Guided practical", category: "Practical learning",
+        description: "Build the solution with a warm, teacher-led explanation.",
+        durationSeconds: Math.max(60, Math.ceil((narratorGuide || "").length / 11)),
+        learningGoal: "Understand the practical through guided action.",
+        narratorScript: narratorGuide || "Let’s work through this practical together.",
+        workedExample: "Follow the generated starter file and observe the result.",
+        scenario: "Apply the generated practical to a realistic task.",
+        learnerPrompt: "What do you predict will happen next?",
+        commonMistake: "Do not skip checking the result.",
+        recap: "Explain the key idea in your own words.",
+        codeSteps: [1],
+      }];
   const teachingPlaylist = playlist.length ? playlist : fallbackPlaylist;
   const activePlaylist = teachingPlaylist[Math.min(activePlaylistIndex, teachingPlaylist.length - 1)];
   const activeWalkthrough = walkthrough.filter((step) => activePlaylist.codeSteps.includes(step.stepNumber));
@@ -48,7 +71,7 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
     ? activeWalkthrough.map((step) => step.codeLine).join("\n")
     : files[0]?.content || "// Your practical code will appear here.";
   const activeFile = activeWalkthrough[0]?.file || files[0]?.path || "workspace";
-  const activeTask = tasks[Math.min(activePlaylistIndex, tasks.length - 1)];
+  const activeTask = tasks.length ? tasks[Math.min(activePlaylistIndex, tasks.length - 1)] : undefined;
   const isCodeLab = category === "Terminal Coding Lab";
   const experienceLabel = category === "Research & Analysis" ? "Evidence lab" : category === "Cloud Console Lab" ? "Cloud mission" : category === "Scenario & Design Exercise" ? "Decision simulator" : "Coding lab";
 
@@ -61,21 +84,30 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
     const animate = (time: number) => {
       if (previousTimeRef.current !== null) {
         const delta = (time - previousTimeRef.current) / 1000;
-        setCurrentTime((previous) => (previous + delta >= activePlaylist.durationSeconds ? 0 : previous + delta));
+        setCurrentTime((previous) => {
+          const nextTime = previous + delta;
+          if (nextTime < activePlaylist.durationSeconds) return nextTime;
+          if (activePlaylistIndex < teachingPlaylist.length - 1) {
+            setActivePlaylistIndex((index) => index + 1);
+            return 0;
+          }
+          setIsPlaying(false);
+          return activePlaylist.durationSeconds;
+        });
       }
       previousTimeRef.current = time;
       requestRef.current = requestAnimationFrame(animate);
     };
     requestRef.current = requestAnimationFrame(animate);
     return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current); };
-  }, [isPlaying, activePlaylist.durationSeconds]);
+  }, [isPlaying, activePlaylist.durationSeconds, activePlaylistIndex, teachingPlaylist.length]);
 
   const speakActiveLesson = () => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     spokenLessonRef.current = null;
     const speech = new SpeechSynthesisUtterance(activePlaylist.narratorScript);
-    speech.rate = 0.88;
+    speech.rate = 0.78;
     speech.pitch = 1;
     speech.onend = () => { spokenLessonRef.current = activePlaylist.id; };
     window.speechSynthesis.speak(speech);
