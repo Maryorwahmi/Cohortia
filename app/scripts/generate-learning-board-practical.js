@@ -841,6 +841,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       title: task.title || `Task ${index + 1}`,
       instruction: task.instruction || task.instructions || instructions,
       narratorGuide: asStringText(task.narratorGuide) || undefined,
+      teaching: task.teaching && typeof task.teaching === "object" ? task.teaching : undefined,
       required: task.required !== false,
       stepType: ["observe", "modify", "experiment", "verify"].includes(task.stepType) ? task.stepType : undefined,
       requiredConcepts: asStringArray(task.requiredConcepts),
@@ -886,7 +887,46 @@ function normalizePractical(raw, sourceContext, metadata) {
   tasks = tasks.map((task, index) => ({
     ...task,
     narratorGuide: task.narratorGuide || fallbackTaskNarrator(task, index, practicalTitle),
+    teaching: task.teaching && typeof task.teaching === "object"
+      ? task.teaching
+      : {
+          learningGoal: task.requiredConcepts?.join(", ") || `Understand ${task.title || "this step"}.`,
+          teacherTalk: task.narratorGuide || fallbackTaskNarrator(task, index, practicalTitle),
+          realWorldExample: task.realWorldExample || `Connect ${task.title || "this step"} to a small real-world program or system.`,
+          guidedSteps: [task.instruction],
+          questions: [task.structuredHints?.nudge || "What do you predict will happen before you run it?"],
+          expectedObservations: [task.expectedObservation || "Compare the result with your prediction."],
+          feedback: {
+            success: "Good observation. Explain why the result makes sense before continuing.",
+            misconception: "That result is useful evidence. Let us compare it with the underlying concept.",
+            retry: "Try one small change and observe the result again.",
+          },
+          recap: task.narratorGuide || task.instruction,
+          waitForLearner: true,
+        },
   }));
+  const teachingPlaylist = (Array.isArray(raw.teachingPlaylist) && raw.teachingPlaylist.length
+    ? raw.teachingPlaylist
+    : tasks.map((task, index) => ({
+        id: `path-${task.id}`,
+        title: task.title || `Learning path ${index + 1}`,
+        category: sourceContext.source.category,
+        description: task.instruction,
+        durationSeconds: Math.max(60, Math.min(180, Math.ceil((task.narratorGuide || instructions).length / 10))),
+        learningGoal: task.teaching?.learningGoal || `Understand ${task.title || "this step"}.`,
+        narratorScript: task.narratorGuide,
+        workedExample: task.teaching?.guidedSteps?.[0] || task.instruction,
+        scenario: task.teaching?.realWorldExample || `Apply ${task.title || "the idea"} in a real program.`,
+        learnerPrompt: task.teaching?.questions?.[0] || "What do you predict will happen next?",
+        commonMistake: task.teaching?.feedback?.misconception || "Do not skip checking the result.",
+        recap: task.teaching?.recap || task.instruction,
+        codeSteps: [index + 1],
+      }))).map((step, index) => ({
+        ...step,
+        id: normalizeId(step.id, `path-${index + 1}`),
+        durationSeconds: clampInteger(step.durationSeconds, 90, 45, 240),
+        codeSteps: Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : [index + 1],
+      }));
   const completionRules = {
     requiredChecks: checks.map((check) => check.id),
     minimumScore: typeof raw.completionRules?.minimumScore === "number" && raw.completionRules.minimumScore >= 0
@@ -928,6 +968,7 @@ function normalizePractical(raw, sourceContext, metadata) {
         "Can you explain the result in your own words?",
       ],
     },
+    teachingPlaylist,
     codeWalkthrough: (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
       stepNumber: Number.isInteger(Number(seg.stepNumber)) ? Number(seg.stepNumber) : idx + 1,
       speakerText: asStringText(seg.speakerText || seg.text || seg.narration || seg.explanation),
@@ -1311,6 +1352,13 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
        "timeIntoScene": 3000  // ms: when to run in scene
      }]
 
+2A. TEACHER-LED LEARNING PATH:
+   Teach the supplied HANDS-ON ACTIVITY itself, not a generic substitute.
+   Break it into CONNECT, OBSERVE, CHANGE, TEST, EXPLAIN, and EXTEND paths.
+   Each task must include a worked example, a different real-world example,
+   one warm teacher question, an expected observation, and an explicit pause
+   before the learner continues. Use the exact starter file and commands.
+
 3. SCAFFOLDED COMPLEXITY:
    - Task 1: Pre-written code, learner OBSERVES output
    - Task 2: 1-2 lines to modify, learner MODIFIES starter code
@@ -1325,10 +1373,10 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
    - walkthrough: "Here's the code structure: [pseudocode]"
 
 5. NARRATOR VOICE (~100 wpm, 250-350 words total per practical):
-   - Greet warmly by name if possible
-   - Explain WHY each step matters conceptually
-   - Preview what's coming: "Next, we'll modify X to observe Y"
-   - Use encouraging language: "Great! You've just discovered..."
+   - Sound like a patient, warm, interactive teacher, never a generic system message.
+   - Explain WHY each step matters and refer to the exact activity.
+   - Ask the learner to predict, pause, observe, and explain in their own words.
+   - Preview the next change and use encouraging feedback such as "Good observation."
 
 6. TERMINAL VERIFICATION:
    For each task, include at least ONE test that shows observable proof of learning:
@@ -1358,7 +1406,10 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
 
 9. ACCURATE JSON:
    - Return valid JSON matching the schema.
-   - Include all standard fields PLUS animation/timing extensions.`;
+   -    Include all standard fields PLUS animation/timing extensions.
+   Also return teachingPlaylist with one entry per task containing:
+   title, description, learningGoal, narratorScript, workedExample,
+   scenario, learnerPrompt, commonMistake, recap, durationSeconds, and codeSteps.`;
     }
 
     const metadata = {
