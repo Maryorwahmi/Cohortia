@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <div class="text-xl font-bold text-slate-900 mb-3">LoadAssetAsync & AsyncOperationHandle</div>
+      <div class="rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)] text-sm text-slate-700">
+        <pre class="text-sm">// Pattern: load, await, check, use, release
+AsyncOperationHandle&lt;GameObject&gt; handle = Addressables.LoadAssetAsync&lt;GameObject&gt;(address);
+await handle.Task;
+if (handle.Status == AsyncOperationStatus.Succeeded) {
+  GameObject go = Instantiate(handle.Result);
+  // decide whether to keep or release handle
+}
+Addressables.Release(handle);</pre>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+        <div class="text-sm font-bold">Concrete example</div>
+        <div class="text-sm text-slate-700">Load a player prefab by AssetReference, wait for the task, instantiate it at spawn, and release the handle if you won't spawn more players from it.</div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+        <div class="text-sm font-bold">Misconception</div>
+        <div class="text-sm text-slate-700">Instantiating a prefab does not remove the need to manage the original asset handle; they are separate lifetimes.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use the AsyncOperationHandle lifecycle to reliably load and release assets; treat instantiated objects and asset handles as independent ownerships.</p>
+      </div>
+    </div>
+  </div>
+</div>

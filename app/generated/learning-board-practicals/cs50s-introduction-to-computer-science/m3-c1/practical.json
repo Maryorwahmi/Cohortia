@@ -51,14 +51,14 @@
     "tasks": [
       {
         "id": "scene-1-observe-understand",
-        "title": "Scene 1 — Observe & Understand: Run the baseline program",
-        "instruction": "Compile and run the provided main.c. Read the output and observe the two results: one target that exists and one that does not. Notice the exact messages printed and which indices are returned.",
-        "narratorGuide": "Hello — run this working program first so you get a concrete sense of what 'linear search for strings' prints and returns. Watching the program output maps the abstract idea (compare each element to the target) to real, observable behavior: you’ll see a found index for \"Charlie\" and a not-found message for \"Frank\". Next we'll make a tiny source edit so you can feel how a small change affects output.",
+        "title": "Scene 1 — Observe & Understand: Run a baseline linear search for strings",
+        "instruction": "**Activity: Analyze and Implement Linear Search for Strings**\n\nYour task is to adapt the provided C `linear_search` function to work with an array of strings (char arrays) instead of integers. Then, analyze its best, worst, and average-case time complexity using Big O notation, specifically considering the string comparison operations.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <string.h> // For strcmp function\n\n// TODO: Modify this function to search for a string in an array of strings\n// It should return the index if found, -1 otherwise.\nint linear_search_strings(char *arr[], int size, char *target) {\n    // Your implementation here\n    for (int i = 0; i < size; i++) {\n        if (strcmp(arr[i], target) == 0) { // strcmp returns 0 if strings are equal\n            return i;\n        }\n    }\n    return -1;\n}\n\nint main() {\n    char *names[] = {\"Alice\", \"Bob\", \"Charlie\", \"David\", \"Eve\"};\n    int size = sizeof(names) / sizeof(names[0]);\n\n    char *target1 = \"Charlie\";\n    char *target2 = \"Frank\";\n\n    int result1 = linear_search_strings(names, size, target1);\n    if (result1 != -1) {\n        printf(\"Target \\\"%s\\\" found at index %d.\\n\", target1, result1);\n    } else {\n        printf(\"Target \\\"%s\\\" not found.\\n\", target1);\n    }\n\n    int result2 = linear_search_strings(names, size, target2);\n    if (result2 != -1) {\n        printf(\"Target \\\"%s\\\" not found.\\n\", target2);\n    } else {\n        printf(\"Target \\\"%s\\\" found at index %d.\\n\", target2, result2); // Corrected print statement for not found\n    }\n\n    return 0;\n}\n```\n\n**Analysis Questions:**\n1.  What is the best-case time complexity for `linear_search_strings`?\n2.  What is the worst-case time complexity for `linear_search_strings`?\n3.  How does the length of the strings themselves affect the overall complexity, considering `strcmp`?",
+        "narratorGuide": "Hello! First we'll run a baseline program that searches a small array of names for two targets: one that exists (\"Charlie\") and one that doesn't (\"Frank\"). Focus on where strcmp is called — that's the comparison that determines equality of two C strings. Running the program shows concrete output you can verify. Understanding this working baseline helps when we later change only one or two lines to alter behavior (for example, making comparisons case-insensitive). Observing the current output also sets measurable expectations for later verification steps.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
         "checkIds": [
-          "check-1-run-baseline"
+          "t1-check-1"
         ],
         "animationTimeline": [],
         "totalDurationMs": 180000,
@@ -66,14 +66,14 @@
       },
       {
         "id": "scene-2-modify-experiment",
-        "title": "Scene 2 — Modify & Experiment: Change a target (1-2 line edit)",
-        "instruction": "Edit main.c: change the line assigning target2 to search for an existing name (one-line change). Recompile and run. Observe the new output and confirm the index printed matches the element's position.",
-        "narratorGuide": "Now you'll make a tiny source edit — just change the target string for the second search. This shows that the algorithm's control flow is driven directly by input: if the target exists, the function returns its index; otherwise it returns -1. After you change the target and recompile, compare the printed index with the element's position in the array to validate your understanding.",
+        "title": "Scene 2 — Modify & Experiment: Make comparisons case-insensitive (1-2 line change)",
+        "instruction": "**Activity: Analyze and Implement Linear Search for Strings**\n\nYour task is to adapt the provided C `linear_search` function to work with an array of strings (char arrays) instead of integers. Then, analyze its best, worst, and average-case time complexity using Big O notation, specifically considering the string comparison operations.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <string.h> // For strcmp function\n\n// TODO: Modify this function to search for a string in an array of strings\n// It should return the index if found, -1 otherwise.\nint linear_search_strings(char *arr[], int size, char *target) {\n    // Your implementation here\n    for (int i = 0; i < size; i++) {\n        if (strcmp(arr[i], target) == 0) { // strcmp returns 0 if strings are equal\n            return i;\n        }\n    }\n    return -1;\n}\n\nint main() {\n    char *names[] = {\"Alice\", \"Bob\", \"Charlie\", \"David\", \"Eve\"};\n    int size = sizeof(names) / sizeof(names[0]);\n\n    char *target1 = \"Charlie\";\n    char *target2 = \"Frank\";\n\n    int result1 = linear_search_strings(names, size, target1);\n    if (result1 != -1) {\n        printf(\"Target \\\"%s\\\" found at index %d.\\n\", target1, result1);\n    } else {\n        printf(\"Target \\\"%s\\\" not found.\\n\", target1);\n    }\n\n    int result2 = linear_search_strings(names, size, target2);\n    if (result2 != -1) {\n        printf(\"Target \\\"%s\\\" not found.\\n\", target2);\n    } else {\n        printf(\"Target \\\"%s\\\" found at index %d.\\n\", target2, result2); // Corrected print statement for not found\n    }\n\n    return 0;\n}\n```\n\n**Analysis Questions:**\n1.  What is the best-case time complexity for `linear_search_strings`?\n2.  What is the worst-case time complexity for `linear_search_strings`?\n3.  How does the length of the strings themselves affect the overall complexity, considering `strcmp`?",
+        "narratorGuide": "Great — in this scene you'll change the comparison to be case-insensitive. This is a small, safe change with big consequences: it broadens matching for user input. Replace strcmp with strcasecmp (or implement equivalent tolower-based logic if strcasecmp isn't available). Then compile and run. Observe that \"charlie\" now matches \"Charlie\". This exercise shows how tiny changes at the comparison point affect program behavior and user experience.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
         "checkIds": [
-          "check-2-modify-target"
+          "t2-check-1"
         ],
         "animationTimeline": [],
         "totalDurationMs": 180000,
@@ -81,14 +81,14 @@
       },
       {
         "id": "scene-3-build-integrate",
-        "title": "Scene 3 — Build & Integrate: Case-insensitive search (add/verify)",
-        "instruction": "We included a working case-insensitive search implementation (linear_search_strings_ci and ci_compare). Run the program with the 'ci' argument to exercise it. Confirm the program prints a found message for a lower-case target.",
-        "narratorGuide": "Case sensitivity matters: user input may not match the exact letter case stored in data. The ci_compare helper demonstrates a common solution: normalize characters before comparing. Run the program in 'ci' mode to confirm that 'charlie' (lowercase) resolves to the same index as 'Charlie'. This scene teaches you how small modular functions let you adapt an algorithm's behavior without rewriting core logic.",
+        "title": "Scene 3 — Build & Integrate: Report all matches and count comparisons (instrumentation)",
+        "instruction": "**Activity: Analyze and Implement Linear Search for Strings**\n\nYour task is to adapt the provided C `linear_search` function to work with an array of strings (char arrays) instead of integers. Then, analyze its best, worst, and average-case time complexity using Big O notation, specifically considering the string comparison operations.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <string.h> // For strcmp function\n\n// TODO: Modify this function to search for a string in an array of strings\n// It should return the index if found, -1 otherwise.\nint linear_search_strings(char *arr[], int size, char *target) {\n    // Your implementation here\n    for (int i = 0; i < size; i++) {\n        if (strcmp(arr[i], target) == 0) { // strcmp returns 0 if strings are equal\n            return i;\n        }\n    }\n    return -1;\n}\n\nint main() {\n    char *names[] = {\"Alice\", \"Bob\", \"Charlie\", \"David\", \"Eve\"};\n    int size = sizeof(names) / sizeof(names[0]);\n\n    char *target1 = \"Charlie\";\n    char *target2 = \"Frank\";\n\n    int result1 = linear_search_strings(names, size, target1);\n    if (result1 != -1) {\n        printf(\"Target \\\"%s\\\" found at index %d.\\n\", target1, result1);\n    } else {\n        printf(\"Target \\\"%s\\\" not found.\\n\", target1);\n    }\n\n    int result2 = linear_search_strings(names, size, target2);\n    if (result2 != -1) {\n        printf(\"Target \\\"%s\\\" not found.\\n\", target2);\n    } else {\n        printf(\"Target \\\"%s\\\" found at index %d.\\n\", target2, result2); // Corrected print statement for not found\n    }\n\n    return 0;\n}\n```\n\n**Analysis Questions:**\n1.  What is the best-case time complexity for `linear_search_strings`?\n2.  What is the worst-case time complexity for `linear_search_strings`?\n3.  How does the length of the strings themselves affect the overall complexity, considering `strcmp`?",
+        "narratorGuide": "Now instrument the search. Instead of stopping at the first match, collect every matching index into an array and count how many strcmp calls you perform. This teaches an important point: even if you find a match early, if your algorithm must find all matches you'll still inspect remaining elements. Run the program to see three cases: duplicates, first-element match, and not-found. Record the comparisons printed — these are direct empirical measures of cost and map to Big O reasoning.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
         "checkIds": [
-          "check-3-ci-mode"
+          "t3-check-1"
         ],
         "animationTimeline": [],
         "totalDurationMs": 180000,
@@ -96,14 +96,14 @@
       },
       {
         "id": "scene-4-verify-extend",
-        "title": "Scene 4 — Verify & Extend: Instrument comparisons and explore string-length impact",
-        "instruction": "Run the compiled program with the 'verbose' argument: ./main verbose. Read the three lines printed; they show index, element_comparisons, and char_comparisons for 'Alice', 'Charlie', and 'Frank'. Use these concrete counts to answer the Big O analysis questions.",
-        "narratorGuide": "Instrumenting the algorithm bridges theory and practice. The verbose mode prints counts you can map to Big O ideas: the element comparisons correspond to n in the worst case, while char comparisons reveal how string length influences total work. For example, comparing equal strings requires examining each character; this multiplies the cost. After observing the numbers, answer the two analysis questions: best-case and worst-case complexities, and explain how string length factors in via strcmp.",
+        "title": "Scene 4 — Verify & Extend: Edge cases and prefix matching (extension)",
+        "instruction": "**Activity: Analyze and Implement Linear Search for Strings**\n\nYour task is to adapt the provided C `linear_search` function to work with an array of strings (char arrays) instead of integers. Then, analyze its best, worst, and average-case time complexity using Big O notation, specifically considering the string comparison operations.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <string.h> // For strcmp function\n\n// TODO: Modify this function to search for a string in an array of strings\n// It should return the index if found, -1 otherwise.\nint linear_search_strings(char *arr[], int size, char *target) {\n    // Your implementation here\n    for (int i = 0; i < size; i++) {\n        if (strcmp(arr[i], target) == 0) { // strcmp returns 0 if strings are equal\n            return i;\n        }\n    }\n    return -1;\n}\n\nint main() {\n    char *names[] = {\"Alice\", \"Bob\", \"Charlie\", \"David\", \"Eve\"};\n    int size = sizeof(names) / sizeof(names[0]);\n\n    char *target1 = \"Charlie\";\n    char *target2 = \"Frank\";\n\n    int result1 = linear_search_strings(names, size, target1);\n    if (result1 != -1) {\n        printf(\"Target \\\"%s\\\" found at index %d.\\n\", target1, result1);\n    } else {\n        printf(\"Target \\\"%s\\\" not found.\\n\", target1);\n    }\n\n    int result2 = linear_search_strings(names, size, target2);\n    if (result2 != -1) {\n        printf(\"Target \\\"%s\\\" not found.\\n\", target2);\n    } else {\n        printf(\"Target \\\"%s\\\" found at index %d.\\n\", target2, result2); // Corrected print statement for not found\n    }\n\n    return 0;\n}\n```\n\n**Analysis Questions:**\n1.  What is the best-case time complexity for `linear_search_strings`?\n2.  What is the worst-case time complexity for `linear_search_strings`?\n3.  How does the length of the strings themselves affect the overall complexity, considering `strcmp`?",
+        "narratorGuide": "In this final scene we verify edge cases and extend the search to prefix matching using strncmp. This demonstrates how small API changes let you support new requirements (e.g., searching by prefix). Also run the long-string test: although we only check a short prefix, in general longer strings increase per-compare cost. Finally, reflect on the three analysis questions: best-case, worst-case, and how string length affects complexity.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
         "checkIds": [
-          "check-4-verbose-counters"
+          "t4-check-1"
         ],
         "animationTimeline": [],
         "totalDurationMs": 180000,
@@ -112,7 +112,7 @@
     ],
     "checks": [
       {
-        "id": "check-1-run-baseline",
+        "id": "t1-check-1",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -120,7 +120,7 @@
         "explanation": ""
       },
       {
-        "id": "check-2-modify-target",
+        "id": "t2-check-1",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -128,7 +128,7 @@
         "explanation": ""
       },
       {
-        "id": "check-3-ci-mode",
+        "id": "t3-check-1",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -136,15 +136,7 @@
         "explanation": ""
       },
       {
-        "id": "check-4-verbose-counters",
-        "type": "manual",
-        "adapter": "code-sandbox",
-        "timeoutSeconds": 30,
-        "visibility": "learner",
-        "explanation": ""
-      },
-      {
-        "id": "check-5-analysis-answers",
+        "id": "t4-check-1",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -181,11 +173,10 @@
     },
     "completionRules": {
       "requiredChecks": [
-        "check-1-run-baseline",
-        "check-2-modify-target",
-        "check-3-ci-mode",
-        "check-4-verbose-counters",
-        "check-5-analysis-answers"
+        "t1-check-1",
+        "t2-check-1",
+        "t3-check-1",
+        "t4-check-1"
       ],
       "minimumScore": 1,
       "requiresEvidence": true,
@@ -200,7 +191,7 @@
       "moduleNumber": 3,
       "chapterNumber": 1,
       "model": "gemini-2.5-flash",
-      "generatedAt": "2026-09-24T14:00:06.519Z",
+      "generatedAt": "2026-09-24T15:36:24.892Z",
       "activitySourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "lessonSourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "activitySourceHash": "sha256:6462bfaa8c94d4e663ba5f497fa5820d6fd15664ec21b66f87e76678008dc5be",

@@ -1,0 +1,41 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" style="background:#f8fafc;">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre.sql{background:#0b1220;color:#dbeafe;padding:12px;border-radius:10px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Clause Order</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card h-full flex flex-col">
+    <h4 class="text-2xl font-bold text-slate-900">Clause order matters</h4>
+    <p class="text-sm text-slate-700 mt-2">Keep clauses in the expected sequence to ensure correct SQL parsing and semantics.</p>
+
+    <div class="mt-4">
+      <pre class="sql">SELECT employee_id, first_name
+FROM employees
+WHERE department_id = 10
+ORDER BY salary DESC
+OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY;</pre>
+      <div class="text-sm text-slate-700 mt-2">This returns the 6th–10th highest-paid employees in department 10 in a predictable manner.</div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg p-3 bg-white border card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Syntax trap</div>
+        <div class="text-sm text-slate-700 mt-1">Placing OFFSET before ORDER BY is invalid for pagination semantics and will typically cause errors or wrong behavior.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white border card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Style tip</div>
+        <div class="text-sm text-slate-700 mt-1">Use FETCH FIRST N for top-N wording or FETCH NEXT N for paging; keep usage consistent in your codebase.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-sm font-medium text-slate-800">Adhere to clause order to avoid syntax errors and ensure predictable query behavior across environments.</p>
+    </div>
+  </div>
+</div>

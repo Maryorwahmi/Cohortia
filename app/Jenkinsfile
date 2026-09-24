@@ -1,0 +1,40 @@
+pipeline {
+  agent any
+
+  environment {
+    AUTOMATION_API_URL = 'https://cohortia.onrender.com'
+    AUTOMATION_WORKER_TOKEN = credentials('cohortia-automation-worker-token')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Install dependencies') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh 'npm ci --include-workspace-root'
+          } else {
+            bat 'npm ci --include-workspace-root'
+          }
+        }
+      }
+    }
+
+    stage('Process automation queue') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh 'node scripts/run-jenkins-automation.js'
+          } else {
+            bat 'node scripts/run-jenkins-automation.js'
+          }
+        }
+      }
+    }
+  }
+}

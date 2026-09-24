@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Reentrancy</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-6 flex flex-col gap-4 h-full">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Definition</div>
+        <div class="text-lg font-bold text-slate-800">Reentrancy explained</div>
+        <div class="text-sm text-slate-600 mt-2">A reentrancy vulnerability allows an external contract to call back into a function before the original call finishes updating state, enabling repeated execution.</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>Cause: external call occurs before all state updates.</li>
+          <li>Effect: repeated execution bypasses balance changes.</li>
+          <li>Misconception: transfer is always safe — it is not when control is transferred to untrusted code.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-1/2 flex flex-col justify-between">
+        <div>
+          <div class="text-sm font-bold text-slate-800">Analogy</div>
+          <div class="text-sm text-slate-600 mt-2">Imagine an ATM that sends cash before updating your account balance. A clever user can repeatedly request cash before the balance shows the withdrawal.</div>
+        </div>
+
+        <div class="mt-3">
+          <div class="rounded-md border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Always update internal state before making external calls. If you must call out, minimize exposed state and consider pull patterns.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 flex flex-col gap-4 h-full">
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Code example (vulnerable pattern)</div>
+        <pre class="code"><code>// Vulnerable withdraw pattern
+function withdraw(uint _amount) public {
+    require(balances[msg.sender] >= _amount, "Insufficient balance");
+    (bool success, ) = msg.sender.call{value: _amount}("");
+    require(success, "Transfer failed");
+    balances[msg.sender] -= _amount;
+}</code></pre>
+        <div class="text-sm text-slate-600 mt-2">This shows the external call occurring before the balance is updated, the exact trigger for reentrancy.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border shadow-sm h-1/2 flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Check your understanding</div>
+        <div class="text-sm text-slate-600 mt-2">Can a malicious recipient call withdraw again during the external call? Yes — until balances[msg.sender] is decremented. The fix is to reorder operations.</div>
+        <div class="mt-3 text-xs text-slate-500">Common mistake: believing require checks before the external call prevent re-entry if state isn't updated.</div>
+      </div>
+    </div>
+  </div>
+</div>

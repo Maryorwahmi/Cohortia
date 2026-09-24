@@ -1,0 +1,54 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.code{font-family:monospace;background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;overflow:auto}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">For Loops & Gas</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Pattern</div>
+        <div class="text-lg font-bold text-slate-800">Bounded iteration</div>
+        <div class="text-sm text-slate-600 mt-2">Use for loops for small fixed-size collections or batch processing with explicit limits to control gas usage.</div>
+
+        <div class="mt-4 space-y-2">
+          <div class="p-3 rounded-lg bg-emerald-50 text-emerald-800">Example: constructor populates a small array with five numbers using a for loop.</div>
+          <div class="p-3 rounded-lg bg-rose-50 text-rose-700">Warning: iterating over a dynamic, growing array in one transaction risks hitting the block gas limit.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Real-world connection</div>
+        <p class="text-sm text-slate-800">When writing payouts or mass updates, design for users to pull funds or employ paginated batches to avoid failures as collections grow.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl p-4 bg-white card shadow-sm h-full flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Code Example</div>
+        <pre class="code">uint256[] public numbers;
+
+constructor() {
+    for (uint256 i = 0; i &lt; 5; i++) {
+        numbers.push(i + 1); // numbers will be [1,2,3,4,5]
+    }
+}
+
+function sumNumbers() public view returns (uint256 total) {
+    total = 0;
+    for (uint256 i = 0; i &lt; numbers.length; i++) {
+        total += numbers[i];
+    }
+}</pre>
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <div class="p-2 rounded-lg bg-blue-50 text-blue-700">Pro tip: cap lengths or require limits for on-chain loops.</div>
+          <div class="p-2 rounded-lg bg-slate-50 text-slate-700">Alternative: use events to record items and process them off-chain.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

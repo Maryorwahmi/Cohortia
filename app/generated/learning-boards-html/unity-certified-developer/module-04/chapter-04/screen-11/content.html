@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> <style> .card{border-radius:12px;background:white;border:1px solid rgba(226,232,240,0.9);} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;} .note{font-size:12px;color:#475569;} </style> <div> <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span> <span>›</span> <span>Chapter 4.4</span> <span>›</span> <span class="text-slate-700">UIManager Walkthrough</span> </div> </div> <div class="card p-4 h-full"> <div class="text-sm font-bold text-slate-800">Visual code panel</div> <pre class="mt-3">using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class GameUIController : MonoBehaviour
+{
+    public TextMeshProUGUI scoreText;
+    public Image healthBarFill;
+    public Button attackButton;
+
+    private int currentScore = 0;
+    private float currentHealth = 1.0f;
+
+    void Start()
+    {
+        UpdateScoreUI();
+        UpdateHealthUI();
+
+        if (attackButton != null)
+            attackButton.onClick.AddListener(OnAttackButtonClick);
+    }
+
+    void OnAttackButtonClick()
+    {
+        currentScore += 10;
+        currentHealth = Mathf.Max(0, currentHealth - 0.1f);
+        UpdateScoreUI();
+        UpdateHealthUI();
+    }
+
+    void UpdateScoreUI() { if (scoreText != null) scoreText.text = "Score: " + currentScore.ToString(); }
+    void UpdateHealthUI() { if (healthBarFill != null) healthBarFill.fillAmount = currentHealth; }
+}
+</pre> <div class="mt-3 note">Visual snippet: assign scoreText, healthBarFill, and attackButton in the Inspector after attaching this script to a UIManager GameObject. Avoid forgetting the namespace imports for UI and TMPro.</div> </div> </div>

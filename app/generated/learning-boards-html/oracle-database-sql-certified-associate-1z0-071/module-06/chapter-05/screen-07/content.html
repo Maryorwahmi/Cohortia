@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Column-level vs Table-level</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[calc(100%-56px)]">
+      <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Column-level</div>
+        <p class="text-sm text-slate-600 mt-2">Define a constraint directly in a column declaration when it applies only to that column.</p>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-700">CREATE TABLE employees (
+  employee_id NUMBER(6) PRIMARY KEY,
+  email VARCHAR2(25) UNIQUE,
+  first_name VARCHAR2(20) NOT NULL
+);
+</pre>
+        <div class="mt-3 text-sm text-slate-600">Benefits: concise, close to the column, quick to read. Limitations: not suitable for composite constraints and unnamed constraints are harder to manage.</div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Table-level</div>
+        <p class="text-sm text-slate-600 mt-2">Use when the rule involves multiple columns or when you want a named constraint for administration.</p>
+        <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-700">CREATE TABLE products (
+  product_id NUMBER(6),
+  product_name VARCHAR2(100),
+  category_id NUMBER(4),
+  CONSTRAINT pk_products PRIMARY KEY (product_id),
+  CONSTRAINT un_product_category UNIQUE (product_name, category_id)
+);
+</pre>
+        <div class="mt-3 text-sm text-slate-600">Benefits: explicit names, clear for composite rules, easier to ALTER by name.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl p-3 bg-white card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+      <p class="text-sm text-slate-600 mt-2">Leaving constraints unnamed makes maintenance awkward. Always name table-level constraints if you plan to alter or reference them later.</p>
+    </div>
+  </div>
+</div>

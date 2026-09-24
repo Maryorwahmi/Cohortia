@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Minimal ESP8266 web server example</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 flex-1 rounded-2xl bg-white p-5 card-border shadow-sm">
+    <div class="col-span-7 flex flex-col gap-3">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <div class="text-2xl font-bold text-slate-800">ESP8266 web server skeleton</div>
+      <div class="text-sm text-slate-600 mt-2">Key areas: libraries, credentials, connection loop, handler registration, server loop.</div>
+
+      <div class="mt-4 rounded-lg bg-slate-50 p-3 border card-border overflow-auto">
+        <pre class="text-sm text-slate-800">#include &lt;ESP8266WiFi.h&gt;
+#include &lt;WiFiClient.h&gt;
+#include &lt;ESP8266WebServer.h&gt;
+
+const char* ssid = "YourNetwork";
+const char* password = "YourPassword";
+ESP8266WebServer server(80);
+
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+  server.on("/", handleRoot);
+  server.begin();
+}
+
+void loop() {
+  server.handleClient();
+}
+</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-amber-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Practical note</div>
+          <div class="text-sm text-slate-700 mt-2">This sketch demonstrates the bare essentials. Expand the root handler to include on/off controls that write to the LED pin when links or buttons are clicked.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete scenario</div>
+        <div class="text-sm text-slate-700 mt-2">After connecting to Wi‑Fi, browse to the board's IP and click an on/off link that your handler maps to digital writes for the LED.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-rose-50 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Security reminder</div>
+        <div class="text-sm text-slate-700 mt-2">Hard‑coded credentials are fine for experiments; avoid publishing such sketches for deployed devices and consider authentication if opening endpoints.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">The ESP8266 can host a simple web server with a few library calls, making browser‑based control straightforward for prototyping.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

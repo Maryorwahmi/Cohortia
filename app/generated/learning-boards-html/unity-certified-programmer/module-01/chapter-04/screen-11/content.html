@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel{background:white;border:1px solid rgba(226,232,240,0.9);border-radius:14px;padding:14px;} .code{background:#071029;color:#dbeafe;padding:12px;border-radius:10px;} </style>
+  <div class="flex h-full gap-6">
+    <div class="w-7/12 panel">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Activity</div>
+      <h3 class="text-xl font-extrabold text-slate-800">Implement PlayerHealth & DamageDealer</h3>
+      <div class="mt-3 code">
+        <pre>public class PlayerHealth : MonoBehaviour
+{
+    public int currentHealth = 100;
+    public int maxHealth = 100;
+
+    public void TakeDamage(int amount)
+    {
+        currentHealth -= amount;
+        if (currentHealth &lt; 0) currentHealth = 0;
+        Debug.Log("Player took " + amount + " damage. Current Health: " + currentHealth);
+        if (currentHealth == 0) Die();
+    }
+
+    private void Die() { Debug.Log("Player has been defeated!"); gameObject.SetActive(false); }
+}
+
+public class DamageDealer : MonoBehaviour
+{
+    public int damageAmount = 25;
+    void OnTriggerEnter(Collider other)
+    {
+        PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+        if (playerHealth != null) playerHealth.TakeDamage(damageAmount);
+    }
+}
+</pre>
+      </div>
+    </div>
+    <div class="w-5/12 panel flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Testing checklist</div>
+      <ul class="mt-2 text-sm text-slate-700 space-y-2">
+        <li>Add PlayerHealth to a player GameObject.</li>
+        <li>Create DamageZone with BoxCollider (Is Trigger) and Rigidbody (Is Kinematic).</li>
+        <li>Attach DamageDealer and set damageAmount, then run and observe Debug.Log messages.</li>
+      </ul>
+      <div class="mt-auto">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Do not use new PlayerHealth(); it creates an unattached instance instead of the component on the GameObject.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

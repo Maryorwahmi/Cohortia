@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .step{border-color:rgba(226,232,240,0.9);} </style>
+  <div class="bg-white rounded-xl border p-4 mb-4" style="border-color:rgba(226,232,240,0.9);">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Activity</div>
+    <div class="text-sm font-bold text-slate-800 mt-2">ControlledVault Deployment & Tests</div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl border p-4 step" style="border-color:rgba(226,232,240,0.9);">
+      <ol class="list-decimal pl-5 text-sm text-slate-700">
+        <li>Deploy ControlledVault from Account A.</li>
+        <li>Assert owner() == Account A.</li>
+        <li>From Account B call deposit with value and check balances.</li>
+        <li>From Account B call withdraw and expect revert "Ownable: caller is not the owner".</li>
+        <li>From Account A call withdraw and confirm transfer works.</li>
+        <li>Call transferOwnership to Account C and repeat withdrawal checks.</li>
+      </ol>
+    </div>
+    <div class="bg-white rounded-xl border p-4 step" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-bold text-slate-700 mb-2">Quick Test Snippet (pseudocode)</div>
+      <pre class="bg-slate-50 p-3 rounded-lg text-sm">// Deploy ControlledVault as A
+assert(vault.owner() == A)
+// B deposits
+vault.deposit({ from: B, value: 1 ether })
+assert(vault.balances(B) == 1 ether)
+// B withdraw -> expect revert
+expectRevert(vault.withdraw(1 ether, { from: B }), "Ownable: caller is not the owner")
+// A withdraw -> success
+vault.withdraw(1 ether, { from: A })
+assert(vault.getContractBalance() == 0)</pre>
+    </div>
+  </div>
+</div>

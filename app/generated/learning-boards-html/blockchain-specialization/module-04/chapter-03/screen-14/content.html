@@ -1,0 +1,77 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.code{font-family:monospace;background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;overflow:auto}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">VotingContract Lab</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 card shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Activity Objective</div>
+        <div class="text-lg font-bold text-slate-800">Build and test a voting contract</div>
+        <div class="text-sm text-slate-600 mt-2">Implement require checks, use custom errors for owner-only actions, and test small-loop totals in Remix using several accounts.</div>
+
+        <div class="mt-4 space-y-2">
+          <div class="p-3 rounded-lg bg-emerald-50 text-emerald-800">Guided steps: create file, paste code, compile, deploy with a small list of candidates, test both success and revert paths.</div>
+          <div class="p-3 rounded-lg bg-slate-50 text-slate-700">Observation: note revert messages vs custom errors in the console during failed transactions.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+        <p class="text-sm text-slate-800">As an exercise, add a require to the addCandidate function to cap maximum candidates and observe how that prevents unbounded loops.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2">
+      <div class="rounded-xl p-4 bg-white card shadow-sm h-full overflow-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Starter code (paste into Remix)</div>
+        <pre class="text-sm code" style="font-family:monospace;background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VotingContract {
+    address public owner;
+    string[] public candidateNames;
+    mapping(uint256 =&gt; uint256) public votes; // candidateId =&gt; voteCount
+    mapping(address =&gt; bool) public hasVoted;
+
+    error NotOwner();
+    error AlreadyVoted();
+    error InvalidCandidateId();
+
+    constructor(string[] memory _candidateNames) {
+        owner = msg.sender;
+        require(_candidateNames.length &gt; 0, "Must provide at least one candidate.");
+        candidateNames = _candidateNames;
+    }
+
+    function addCandidate(string memory _name) public {
+        if (msg.sender != owner) revert NotOwner();
+        candidateNames.push(_name);
+    }
+
+    function vote(uint256 _candidateId) public {
+        require(!hasVoted[msg.sender], "You have already voted.");
+        require(_candidateId &lt; candidateNames.length, "Invalid candidate ID.");
+
+        votes[_candidateId]++;
+        hasVoted[msg.sender] = true;
+    }
+
+    function getTotalVotes() public view returns (uint256) {
+        uint256 total = 0;
+        for (uint256 i = 0; i &lt; candidateNames.length; i++) {
+            total += votes[i];
+        }
+        return total;
+    }
+}</pre>
+        <div class="mt-3 p-2 rounded-lg bg-slate-50 text-slate-700">Note: Deploy with a small candidate array like ["Alice","Bob","Charlie"] to keep loops safe during testing.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -18,13 +18,10 @@ export function automationExecutionMode() {
   const configured = String(process.env.AUTOMATION_EXECUTION || '').trim().toLowerCase();
   if (configured) return configured;
   if (
-    process.env.AZURE_TENANT_ID
-    && process.env.AZURE_CLIENT_ID
-    && process.env.AZURE_CLIENT_SECRET
-    && process.env.AZURE_SUBSCRIPTION_ID
-    && process.env.AZURE_RESOURCE_GROUP
-    && process.env.AZURE_CONTAINER_APP_JOB_NAME
-  ) return 'azure';
+    process.env.JENKINS_JOB_URL
+    && process.env.JENKINS_USER
+    && process.env.JENKINS_API_TOKEN
+  ) return 'jenkins';
   return 'local';
 }
 
@@ -35,8 +32,8 @@ export async function markAutomationWorkerReady() {
     .limit(1);
   const job = jobs[0];
   if (!job) return null;
-  console.log(`[automation] Azure worker handshake received for job ${job.id}.`);
-  await appendJobLog(job, 'Azure worker connected. Generation queue available.');
+  console.log(`[automation] Jenkins worker handshake received for job ${job.id}.`);
+  await appendJobLog(job, 'Jenkins worker connected. Generation queue available.');
   if (job.status === 'starting') await updateJob(job.id, { status: 'queued' });
   return getAutomationJob(job.id);
 }
@@ -63,7 +60,7 @@ export async function cancelAllAutomationJobs() {
 }
 
 function externalAutomationEnabled() {
-  return ['github', 'azure'].includes(automationExecutionMode());
+  return ['github', 'jenkins'].includes(automationExecutionMode());
 }
 
 function localAutomationEnabled() {
@@ -115,9 +112,12 @@ export async function recordAutomationWorkerEvent(jobId, event) {
 }
 
 export async function dispatchAutomationJob(job) {
-  if (automationExecutionMode() === 'azure') {
-    await dispatchAzureAutomationJob();
+  if (automationExecutionMode() === 'jenkins') {
+    await dispatchJenkinsAutomationJob();
     return;
+  }
+  if (automationExecutionMode() === 'azure') {
+    throw new Error('Azure Container Apps automation is no longer supported. Set AUTOMATION_EXECUTION=jenkins.');
   }
   const token = process.env.AUTOMATION_GITHUB_TOKEN;
   const repository = process.env.AUTOMATION_GITHUB_REPOSITORY;
@@ -127,43 +127,23 @@ export async function dispatchAutomationJob(job) {
     throw new Error('GitHub Actions execution requires AUTOMATION_GITHUB_TOKEN and AUTOMATION_GITHUB_REPOSITORY.');
   }
 
-  async function getAzureManagementToken() {
-    const tenantId = process.env.AZURE_TENANT_ID;
-    const clientId = process.env.AZURE_CLIENT_ID;
-    const clientSecret = process.env.AZURE_CLIENT_SECRET;
-    if (!tenantId || !clientId || !clientSecret) {
-      throw new Error('Azure execution requires AZURE_TENANT_ID, AZURE_CLIENT_ID, and AZURE_CLIENT_SECRET.');
+  async function dispatchJenkinsAutomationJob() {
+    const jobUrl = String(process.env.JENKINS_JOB_URL || '').replace(/\/+$/, '');
+    const user = process.env.JENKINS_USER;
+    const apiToken = process.env.JENKINS_API_TOKEN;
+    if (!jobUrl || !user || !apiToken) {
+      throw new Error('Jenkins execution requires JENKINS_JOB_URL, JENKINS_USER, and JENKINS_API_TOKEN.');
     }
-    const response = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
+    console.log(`[automation] Starting Jenkins job for automation job ${job.id}.`);
+    const response = await fetch(`${jobUrl}/build`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: clientId,
-        client_secret: clientSecret,
-        scope: 'https://management.azure.com/.default',
-        grant_type: 'client_credentials',
-      }),
+      headers: { Authorization: `Basic ${Buffer.from(`${user}:${apiToken}`).toString('base64')}` },
     });
-    if (!response.ok) throw new Error(`Azure authentication failed (${response.status}).`);
-    return (await response.json()).access_token;
-  }
-
-  async function dispatchAzureAutomationJob() {
-    const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
-    const resourceGroup = process.env.AZURE_RESOURCE_GROUP;
-    const jobName = process.env.AZURE_CONTAINER_APP_JOB_NAME;
-    if (!subscriptionId || !resourceGroup || !jobName) {
-      throw new Error('Azure execution requires AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, and AZURE_CONTAINER_APP_JOB_NAME.');
-    }
-    console.log(`[automation] Starting Azure Container Apps Job ${jobName} for automation job ${job.id}.`);
-    const token = await getAzureManagementToken();
-    const url = `https://management.azure.com/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroup)}/providers/Microsoft.App/jobs/${encodeURIComponent(jobName)}/start?api-version=2024-03-01`;
-    const response = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
-    if (!response.ok) {
+    if (![200, 201, 202].includes(response.status)) {
       const details = await response.text();
-      throw new Error(`Azure Container Apps Job start failed (${response.status}): ${details.slice(0, 500)}`);
+      throw new Error(`Jenkins job start failed (${response.status}): ${details.slice(0, 500)}`);
     }
-    console.log(`[automation] Azure accepted the start request for job ${job.id}. Waiting for worker handshake.`);
+    console.log(`[automation] Jenkins accepted the request for job ${job.id}. Waiting for worker handshake.`);
   }
   const response = await fetch(`https://api.github.com/repos/${repository}/actions/workflows/${encodeURIComponent(workflow)}/dispatches`, {
     method: 'POST',

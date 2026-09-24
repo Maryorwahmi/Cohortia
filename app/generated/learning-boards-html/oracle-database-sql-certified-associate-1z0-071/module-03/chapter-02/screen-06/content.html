@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">OR and Precedence</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-6/12 rounded-2xl bg-white p-5 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">OR — one or more conditions</h3>
+      <p class="text-sm text-slate-700 mt-2">OR returns rows when any of the conditions is true. Carefully group expressions with parentheses when mixing with AND.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="text-sm font-semibold text-amber-700">Grouping matters</div>
+          <div class="text-xs text-slate-700 mt-1">A AND B OR C = (A AND B) OR C, not A AND (B OR C).</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="text-sm font-semibold text-rose-700">NULL interaction</div>
+          <div class="text-xs text-slate-700 mt-1">OR can still be true even if one branch is NULL, provided another branch is true.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">When mixing OR and AND, parenthesize your intent and test results to confirm expected behavior.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-4 shadow-sm border border-[rgba(226,232,240,0.9)]">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concrete example</div>
+      <div class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 font-mono text-sm">
+        <pre class="whitespace-pre-wrap">-- Employees in department 90 OR 60
+SELECT employee_id, first_name, department_id
+FROM employees
+WHERE department_id = 90 OR department_id = 60;
+
+-- Mixed example where parentheses matter
+WHERE (job_id IN ('IT_PROG') AND hire_date &gt; TO_DATE('01-JAN-2006','DD-MON-YYYY')) OR department_id = 60;</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-lg">
+          <div class="text-xs font-bold text-slate-700">Check</div>
+          <div class="text-sm text-slate-800 mt-1">Run each branch separately, then the combined expression to ensure grouping matches intent.</div>
+        </div>
+        <div class="p-3 bg-white border border-[rgba(226,232,240,0.9)] rounded-lg">
+          <div class="text-xs font-bold text-slate-700">Misconception</div>
+          <div class="text-sm text-slate-800 mt-1">Assuming parentheses are optional leads to subtle errors in results.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

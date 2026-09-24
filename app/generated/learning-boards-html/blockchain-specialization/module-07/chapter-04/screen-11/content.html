@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .editor{background:#0b1220;color:#e6eef8;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;border-radius:.5rem;padding:1rem;border:1px solid rgba(226,232,240,0.9);} .card{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="grid grid-cols-2 gap-6 h-full"> 
+    <div class="flex flex-col"> 
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">Code Walkthrough</div>
+      <div class="text-2xl font-extrabold text-slate-900">Mock AMM on Hardhat</div>
+      <div class="text-sm text-slate-600 mt-2">Sequence: deploy tokens → factory → router → add liquidity → swap.</div>
+      <div class="mt-6 rounded-xl bg-white p-4 card"> 
+        <div class="text-sm font-semibold text-slate-800">Key steps</div>
+        <ol class="mt-3 text-sm text-slate-600 list-decimal ml-5"> 
+          <li>Deploy MockERC20 tokens and note their addresses.</li>
+          <li>Deploy MockUniswapV2Factory and create a pair for the tokens.</li>
+          <li>Deploy MockUniswapV2Router, approve the router to spend tokens, and add liquidity.</li>
+          <li>Swap tokens to observe reserve changes and balances.</li>
+        </ol>
+      </div>
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 card"> 
+        <div class="text-xs font-bold uppercase text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-2">Forgetting to approve the router or using expired deadlines will make transactions revert on the local node.</div>
+      </div>
+    </div>
+    <div class="flex flex-col"> 
+      <div class="rounded-2xl bg-white p-4 card h-full"> 
+        <div class="text-sm font-semibold text-slate-800">Example: ethers.js approval (visual)</div>
+        <div class="editor mt-3">// Visual snippet: approve router to spend tokens
+const tx = await tokenA.approve(router.address, ethers.constants.MaxUint256);</div>
+        <div class="text-sm text-slate-600 mt-3">This visual shows the approve step: grant the router permission to transfer tokens from your account so addLiquidity and swap calls can succeed.</div>
+        <div class="mt-5"> 
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"> 
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Local testnets let you validate interaction order, allowances, and resulting balances before moving to mainnet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fbfdff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Multiple-row Subqueries</span>
+    </div>
+    <div class="flex gap-4 h-[72%]">
+      <div class="w-1/2 bg-white rounded-xl card-border p-4 shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Operators</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li><strong>IN:</strong> membership in a returned list.</li>
+          <li><strong>ANY:</strong> true if comparison holds for at least one returned value.</li>
+          <li><strong>ALL:</strong> true only if comparison holds for all returned values.</li>
+        </ul>
+        <div class="mt-4 text-sm text-slate-600">Example use: WHERE department_id IN (SELECT department_id FROM departments WHERE location_id = ...)</div>
+      </div>
+      <div class="flex-1 bg-white rounded-xl card-border p-4 shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example & caution</div>
+        <div class="bg-slate-900 text-slate-50 rounded-lg p-3 font-mono text-sm" style="line-height:1.3;">
+          <div>-- Departments in Seattle, then employees in those departments</div>
+          <div>SELECT employee_id, first_name, last_name FROM employees</div>
+          <div>WHERE department_id IN (SELECT department_id FROM departments WHERE location_id = (SELECT location_id FROM locations WHERE city = 'Seattle'));</div>
+        </div>
+        <div class="mt-3 text-sm text-slate-700">Caution: if the inner select that finds location_id could return multiple rows, the single-row placement would error. Consider using IN if multiple locations are possible.</div>
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common error</div>
+            <p class="text-xs font-medium text-slate-800">ORA-01427 occurs when a single-row operator is used but the inner query produces multiple rows. Prevent by matching operator to result shape.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

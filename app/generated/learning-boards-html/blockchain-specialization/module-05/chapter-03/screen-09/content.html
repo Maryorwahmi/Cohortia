@@ -1,0 +1,33 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 overflow-hidden cohortia-bg bg-white">
+  <div class="mb-4">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Core Concept</div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-2">Listening for Events</h3>
+    <p class="text-sm text-slate-600 mt-1">Attach listeners to react to contract-emitted events for a responsive UI.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-[72%]">
+    <div class="p-4 rounded-xl bg-white border border-[rgba(226,232,240,0.9)] shadow-soft">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Example handler</div>
+      <pre class="code text-sm p-3 rounded-md bg-slate-50 border border-[rgba(226,232,240,0.9)] overflow-auto">contract.on('NewGreeting', (setter, newText, event) =&gt; {
+  setStatusMessage(`New greeting "${newText}" set by ${setter}`);
+  setCurrentGreeting(newText);
+});
+// cleanup: contract.off('NewGreeting')</pre>
+      <div class="text-sm text-slate-700 mt-2">Update the UI immediately when the event arrives and clean up the listener when the component unmounts.</div>
+    </div>
+
+    <div class="p-4 rounded-xl bg-white border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-700 mb-2">Practical notes</div>
+      <ul class="list-disc ml-4 text-sm text-slate-700 space-y-2">
+        <li>Use events to avoid frequent polling.</li>
+        <li>Always off-load listeners on cleanup to prevent duplicates.</li>
+        <li>Design handlers to be idempotent in case of replays or duplicate events.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete example</div>
+        <div class="text-sm text-slate-800 mt-1">When NewGreeting fires, update the displayed greeting and show a status message indicating who set it. The event gives the setter address and the newText argument.</div>
+      </div>
+    </div>
+  </div>
+</div>

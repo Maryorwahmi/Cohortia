@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:1rem;border:1px solid rgba(226,232,240,0.9);} .code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:.75rem;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white card p-4 shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900">Call, convert, validate</h3>
+      <p class="text-sm text-slate-600 mt-2">Read raw counts with analogRead, convert to voltage using the ADC formula, and print both to confirm behavior.</p>
+
+      <div class="mt-3">
+        <div class="code">
+          <div class="text-xs text-amber-200">// In setup</div>
+          <div class="text-sm text-white">Serial.begin(9600);</div>
+          <div class="mt-2 text-xs text-amber-200">// In loop</div>
+          <div class="text-sm text-white">int raw = analogRead(A0);</div>
+          <div class="text-sm text-white">float voltage = (raw / 1023.0) * 5.0;</div>
+          <div class="text-sm text-white">Serial.print(raw); Serial.print(" \t"); Serial.println(voltage);</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Validation steps</div>
+        <ul class="text-sm text-slate-700 mt-2 space-y-1">
+          <li>Print raw and voltage to verify wiring and expected range.</li>
+          <li>Turn the potentiometer: the raw value should sweep from near 0 to near 1023.</li>
+          <li>If stuck at extremes, check power, ground, and the pins used.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bg-white card p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete scenario</div>
+      <p class="text-sm text-slate-600 mt-2">Wire a potentiometer between 5V and ground, middle pin to A0. Upload the code, open Serial Monitor, and turn the knob. You should see numbers climb smoothly from low counts to high counts and corresponding voltages from near 0 to near 5 volts.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common misconception</div>
+        <p class="text-sm text-slate-600 mt-2">Don't assume a stable analogRead means a correct scale. Always inspect converted voltage too; a raw value alone doesn't reveal reference or wiring errors.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-2">
+          <p class="text-xs font-medium text-slate-800">Use analogRead then convert and validate with Serial printing. This simple loop saves time and clarifies sensor behavior.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

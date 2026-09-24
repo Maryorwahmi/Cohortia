@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.log{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Helvetica Neue", monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> 
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Service Logs</span>
+  </div>
+
+  <div class="flex gap-4 h-full"> 
+    <div class="w-3/5 rounded-2xl bg-white p-5 card-border shadow-sm"> 
+      <div class="text-lg font-bold text-slate-800">Read journal entries for services</div>
+      <div class="text-sm text-slate-600 mt-1">Logs reveal startup errors that are often missed when only restarting the service.</div>
+
+      <div class="mt-4 log"> 
+-- Logs begin at ...
+Apr 10 10:12:34 pi systemd[1]: myproject.service: Main process exited, code=exited, status=1/FAILURE
+Apr 10 10:12:34 pi myproject[1234]: Traceback (most recent call last):
+  File "run.py", line 10, in <module>
+    import missinglib
+ModuleNotFoundError: No module named 'missinglib'
+      </div>
+
+      <div class="mt-3 grid gap-2"> 
+        <div class="rounded-lg p-3 bg-white card-border"> 
+          <div class="font-semibold text-slate-800">Concrete guidance</div>
+          <div class="text-sm text-slate-600 mt-2">Use the journal output to identify missing modules, permission errors, or failing calls, then fix the configuration or install dependencies and restart the service to confirm.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border"> 
+          <div class="font-semibold text-slate-800">Avoid this mistake</div>
+          <div class="text-sm text-slate-600 mt-2">Restarting repeatedly without checking the logs wastes time. Always read the journal for the actual error message first.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-2/5 rounded-2xl bg-white p-5 card-border shadow-sm"> 
+      <div class="font-semibold text-slate-800">Quick checklist</div>
+      <ul class="text-sm text-slate-600 mt-3 list-disc ml-5"> 
+        <li>Run the journal command for your service after a failed boot.</li>
+        <li>Identify error lines and timestamps that match the failure.</li>
+        <li>Apply the fix, then check the journal again to confirm success.</li>
+      </ul>
+    </div>
+  </div>
+</div>

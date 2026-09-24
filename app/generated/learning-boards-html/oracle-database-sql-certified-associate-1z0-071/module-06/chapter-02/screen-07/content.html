@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px;} pre{background:#f8fafc;padding:10px;border-radius:8px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Subqueries</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[68vh]">
+      <div class="card p-4 flex flex-col">
+        <div class="text-sm font-bold">What a subquery does</div>
+        <div class="text-sm text-slate-700 mt-2">It provides a value computed by a SELECT that the UPDATE uses to assign a column. The SELECT must return one value per update or one scalar value used for all targeted rows.</div>
+
+        <div class="mt-4 text-sm font-bold">Important checks</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Run the subquery by itself to confirm it produces a single value.</li>
+          <li>If correlated, understand it executes per row and may be slow on large sets.</li>
+          <li>Ensure VALUES returned respect data types and constraints.</li>
+        </ul>
+      </div>
+
+      <div class="card p-4 flex flex-col">
+        <div class="text-sm font-bold">Example</div>
+        <div class="text-sm text-slate-700 mt-2">Copy a location_id from one department to others managed by a given manager:</div>
+        <pre class="mt-2">UPDATE departments
+SET location_id = (
+  SELECT location_id FROM departments WHERE department_id = 50
+)
+WHERE manager_id = 100;</pre>
+
+        <div class="mt-4 text-sm text-slate-700">If the inner SELECT can return multiple rows, refine it with an additional WHERE or use aggregation to return a single value.</div>
+      </div>
+    </div>
+  </div>
+</div>

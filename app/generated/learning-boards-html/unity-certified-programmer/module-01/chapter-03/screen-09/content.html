@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Spawning with for</div>
+      <div class="text-sm text-slate-600 mt-1">Instantiate a known number of enemies safely and predictably.</div>
+      <div class="mt-4 rounded-xl bg-white p-4 card-border">
+        <div class="text-sm font-semibold text-slate-800">Spawner checklist</div>
+        <ul class="mt-2 text-sm text-slate-700 pl-5 list-disc space-y-1">
+          <li>Validate enemyPrefab is assigned before looping.</li>
+          <li>Use i &lt; count for zero-based arrays to avoid off-by-one.</li>
+          <li>Keep expensive calculations outside the loop if possible.</li>
+        </ul>
+      </div>
+      <div class="mt-3 rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Analogy</div>
+        <div class="text-sm text-slate-700 mt-1">Think of a for loop as a conveyor belt that runs a fixed number of items through the same steps.</div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border h-full">
+        <div class="text-sm font-semibold text-slate-800">Example: EnemySpawner</div>
+        <pre class="mono bg-slate-50 rounded p-3 text-xs text-slate-800 mt-3">public GameObject enemyPrefab;
+public int numberOfEnemiesToSpawn = 5;
+public float spawnRadius = 10f;
+
+void Start() {
+    if (enemyPrefab == null) {
+        Debug.LogError("Enemy Prefab is not assigned to EnemySpawner!");
+        return;
+    }
+
+    for (int i = 0; i &lt; numberOfEnemiesToSpawn; i++) {
+        Vector3 randomPos = transform.position + Random.insideUnitSphere * spawnRadius;
+        randomPos.y = transform.position.y;
+        Instantiate(enemyPrefab, randomPos, Quaternion.identity);
+        Debug.Log("Spawned enemy #" + (i + 1) + " at " + randomPos);
+    }
+}</pre>
+        <div class="mt-3 text-sm text-slate-700">This pattern is clear and bounded. Replace Instantiate with pool retrieval for heavy spawn scenarios to avoid allocation spikes.</div>
+      </div>
+    </div>
+  </div>
+</div>

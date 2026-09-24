@@ -1,0 +1,81 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Lab steps</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Create a Cube named Player and a Ground Plane. Add Rigidbody to Player and tag Ground as Ground.</li>
+        <li>Create PlayerControls Input Actions asset. Add Gameplay map and Actions: Move (Vector2), Jump (Button).</li>
+        <li>Add WASD composite and gamepad left stick to Move. Add Space and gamepad A to Jump.</li>
+        <li>Attach PlayerInput to Player, assign asset, set Behavior to Invoke Unity Events.</li>
+        <li>Create NewPlayerMovement script with OnMove and OnJump callbacks. Link events in PlayerInput inspector.</li>
+        <li>Apply stored movement in FixedUpdate via rb.MovePosition and test the scene with keyboard and gamepad.</li>
+      </ol>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter code template</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-slate-100 rounded-md code text-sm overflow-auto">using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class NewPlayerMovement : MonoBehaviour
+{
+    public float moveSpeed = 5f;
+    public float jumpForce = 10f;
+
+    private Rigidbody rb;
+    private Vector2 currentMovementInput;
+    private bool isGrounded;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError("Rigidbody missing!");
+            enabled = false;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        Vector3 moveDirection = new Vector3(currentMovementInput.x, 0, currentMovementInput.y);
+        if (moveDirection.magnitude > 0)
+        {
+            rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime);
+        }
+    }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        currentMovementInput = context.ReadValue<Vector2>();
+        Debug.Log("Move input: " + currentMovementInput);
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed && isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            isGrounded = false;
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground")) isGrounded = true;
+    }
+}
+</pre>
+    </div>
+  </div>
+</div>

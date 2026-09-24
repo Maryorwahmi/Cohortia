@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">RPC Patterns</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Pattern</div>
+      <h2 class="text-xl font-bold text-slate-800 mt-2">Request → Validate → Notify</h2>
+      <p class="text-sm text-slate-600 mt-3">Client calls ServerRpc to request an action. Server validates, updates NetworkVariables or despawns/ spawns NetworkObjects, then calls ClientRpc to notify clients.</p>
+
+      <div class="mt-4 rounded-lg bg-white p-3 border card-border">
+        <div class="text-sm font-bold text-slate-800">Example flow</div>
+        <p class="text-sm text-slate-700 mt-2">Client requests pickup via ServerRpc. Server checks availability, despawns the power-up, updates a NetworkVariable on the player, and calls a ClientRpc to play pickup effects.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Best practices</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-700 space-y-2">
+        <li>Validate all client requests on the server.</li>
+        <li>Keep RPC payloads minimal: use IDs and small structs.</li>
+        <li>Use targeted ClientRpcs to limit bandwidth when possible.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-xl bg-rose-50 p-3 card-border">
+      <div class="text-xs uppercase tracking-wider text-rose-700">Warning</div>
+      <p class="text-sm text-slate-700 mt-1">Never trust unvalidated client input for important game logic; always validate on server side.</p>
+    </div>
+    <div class="rounded-xl bg-blue-50 p-3 card-border">
+      <div class="text-xs uppercase tracking-wider text-blue-700">Optimization</div>
+      <p class="text-sm text-slate-700 mt-1">Batch frequent events and reduce frequency for non-essential updates to save bandwidth.</p>
+    </div>
+    <div class="rounded-xl bg-emerald-50 p-3 card-border">
+      <div class="text-xs uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+      <p class="text-sm text-slate-800 mt-1">Use RPCs for discrete actions and notifications; keep server authoritative and payloads small.</p>
+    </div>
+  </div>
+</div>

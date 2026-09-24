@@ -141,12 +141,9 @@ console.log(`🚀 Cohortia API starting on port ${PORT}...`);
 
 const executionMode = automationExecutionMode();
 const automationWorkerEnabled = process.env.AUTOMATION_WORKER_ENABLED === 'true'
-  && !['github', 'azure'].includes(executionMode)
+  && !['github', 'jenkins', 'azure'].includes(executionMode)
   && process.env.AUTOMATION_WORKER_ROLE !== 'background';
-console.log(`[automation] execution mode: ${executionMode}; Azure management configuration: ${
-  ['AZURE_TENANT_ID', 'AZURE_CLIENT_ID', 'AZURE_CLIENT_SECRET', 'AZURE_SUBSCRIPTION_ID', 'AZURE_RESOURCE_GROUP', 'AZURE_CONTAINER_APP_JOB_NAME']
-    .every((name) => Boolean(process.env[name])) ? 'complete' : 'incomplete'
-}`);
+console.log(`[automation] execution mode: ${executionMode}`);
 if (automationWorkerEnabled) {
   startAutomationWorker().catch((error) => {
     console.error('Unable to start the automation worker:', error);
@@ -154,8 +151,8 @@ if (automationWorkerEnabled) {
 } else {
   console.log(executionMode === 'github'
     ? 'Automation worker delegated to GitHub Actions.'
-    : executionMode === 'azure'
-      ? 'Automation worker delegated to Azure Container Apps.'
+    : executionMode === 'jenkins'
+      ? 'Automation worker delegated to Jenkins.'
     : 'Automation worker disabled; set AUTOMATION_WORKER_ENABLED=true for local generation.');
 }
 

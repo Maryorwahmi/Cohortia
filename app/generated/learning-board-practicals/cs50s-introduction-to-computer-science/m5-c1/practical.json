@@ -12,7 +12,7 @@
       "sourceHash": "sha256:515b3717953bad4708082698f559468273a0d3abcb7d6c562ce5c5eb6f396f10"
     },
     "category": "Terminal Coding Lab",
-    "title": "Designing and Populating a `courses` Table (SQL, SQLite)",
+    "title": "Designing and Populating a `courses` Table (Module 5.1)",
     "summary": "",
     "level": "Beginner",
     "labType": "database",
@@ -41,29 +41,8 @@
     },
     "files": [
       {
-        "path": "workspace-1.txt",
-        "content": "-- starter.sql\nPRAGMA foreign_keys = ON;\n\nCREATE TABLE students (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n  name TEXT NOT NULL,\n  major TEXT\n);\n\nINSERT INTO students (name, major) VALUES ('Alice Smith', 'Computer Science');\nINSERT INTO students (name, major) VALUES ('Bob Johnson', 'Mathematics');\n\n-- Note: courses table will be created as part of the lab exercises.\n",
-        "language": "sqlite",
-        "description": "",
-        "editable": true
-      },
-      {
-        "path": "workspace-2.txt",
-        "content": "-- create_courses_skeleton.sql\n-- This file creates the courses table. In Scene 2 you'll adjust the CHECK constraint.\nCREATE TABLE IF NOT EXISTS courses (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n  title TEXT NOT NULL,\n  department TEXT NOT NULL,\n  -- Current constraint: allows credits >= 1 (no upper bound). Modify this to enforce 1..6.\n  credits INTEGER NOT NULL CHECK (credits >= 1)\n);\n",
-        "language": "sqlite",
-        "description": "",
-        "editable": true
-      },
-      {
-        "path": "workspace-3.txt",
-        "content": "-- add_courses_example.sql\n-- Example INSERTs to add three courses into courses table.\nINSERT INTO courses (title, department, credits) VALUES ('Introduction to Databases', 'Computer Science', 3);\nINSERT INTO courses (title, department, credits) VALUES ('Calculus I', 'Mathematics', 4);\nINSERT INTO courses (title, department, credits) VALUES ('Art History 101', 'Fine Arts', 3);\n",
-        "language": "sqlite",
-        "description": "",
-        "editable": true
-      },
-      {
-        "path": "workspace-4.txt",
-        "content": "-- create_enrollments.sql\n-- Create an enrollments table that links students and courses with foreign keys.\nCREATE TABLE IF NOT EXISTS enrollments (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n  student_id INTEGER NOT NULL,\n  course_id INTEGER NOT NULL,\n  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,\n  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE\n);\n\n-- Example enrollment (Alice -> first course)\nINSERT INTO enrollments (student_id, course_id) VALUES (1, 1);\n",
+        "path": "courses_starter.sql",
+        "content": "-- Starter SQL: creates 'courses' table and inserts three sample rows\nPRAGMA foreign_keys = ON;\n\nCREATE TABLE IF NOT EXISTS courses (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    title TEXT NOT NULL,\n    department TEXT NOT NULL,\n    credits INTEGER NOT NULL CHECK(credits >= 1 AND credits <= 6)\n);\n\nINSERT INTO courses (title, department, credits) VALUES ('Introduction to Databases', 'Computer Science', 3);\nINSERT INTO courses (title, department, credits) VALUES ('Calculus I', 'Mathematics', 4);\nINSERT INTO courses (title, department, credits) VALUES ('Art History 101', 'Fine Arts', 3);\n",
         "language": "sqlite",
         "description": "",
         "editable": true
@@ -71,14 +50,60 @@
     ],
     "tasks": [
       {
-        "id": "task-1",
-        "title": "Designing and Populating a `courses` Table (SQL, SQLite)",
+        "id": "task-1-observe",
+        "title": "Scene 1 — Observe & Understand: Run the starter script and inspect rows",
         "instruction": "**Activity: Designing and Populating a `Courses` Table**\n\nYour task is to design a new table called `courses` to store information about the courses offered. Each course should have a unique ID, a title, a department, and the number of credits it's worth. Then, insert at least three sample courses into this table.\n\n```sql\n-- Step 1: Write the CREATE TABLE statement for 'courses'\n-- Make sure to include:\n--   - An 'id' column (INTEGER, PRIMARY KEY, AUTOINCREMENT)\n--   - A 'title' column (TEXT, NOT NULL)\n--   - A 'department' column (TEXT, NOT NULL)\n--   - A 'credits' column (INTEGER, NOT NULL, with a CHECK constraint to ensure credits are between 1 and 6)\n\n-- Your CREATE TABLE statement here:\n-- CREATE TABLE courses (\n--     ...\n-- );\n\n-- Step 2: Write INSERT statements to add at least three courses\n-- Example: 'Introduction to Databases', 'Computer Science', 3 credits\n-- Example: 'Calculus I', 'Mathematics', 4 credits\n-- Example: 'Art History 101', 'Fine Arts', 3 credits\n\n-- Your INSERT statements here:\n-- INSERT INTO courses (...) VALUES (...);\n-- INSERT INTO courses (...) VALUES (...);\n-- INSERT INTO courses (...) VALUES (...);\n```",
+        "narratorGuide": "In this scene you'll run a ready-made SQL script that defines the courses table and inserts three sample courses. This helps you see the relationship between the CREATE TABLE (DDL) and the subsequent INSERT (DML) statements. Notice the data types and the CHECK constraint on credits — these protect the data. After running the script you'll run a SELECT to list every course row. This observation step builds a mental model of how table structure and data look when combined.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
         "checkIds": [
-          "starter-sql-present"
+          "check-1-observe-rows"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "task-2-modify",
+        "title": "Scene 2 — Modify & Experiment: Attempt an insert that violates the credits CHECK",
+        "instruction": "**Activity: Designing and Populating a `Courses` Table**\n\nYour task is to design a new table called `courses` to store information about the courses offered. Each course should have a unique ID, a title, a department, and the number of credits it's worth. Then, insert at least three sample courses into this table.\n\n```sql\n-- Step 1: Write the CREATE TABLE statement for 'courses'\n-- Make sure to include:\n--   - An 'id' column (INTEGER, PRIMARY KEY, AUTOINCREMENT)\n--   - A 'title' column (TEXT, NOT NULL)\n--   - A 'department' column (TEXT, NOT NULL)\n--   - A 'credits' column (INTEGER, NOT NULL, with a CHECK constraint to ensure credits are between 1 and 6)\n\n-- Your CREATE TABLE statement here:\n-- CREATE TABLE courses (\n--     ...\n-- );\n\n-- Step 2: Write INSERT statements to add at least three courses\n-- Example: 'Introduction to Databases', 'Computer Science', 3 credits\n-- Example: 'Calculus I', 'Mathematics', 4 credits\n-- Example: 'Art History 101', 'Fine Arts', 3 credits\n\n-- Your INSERT statements here:\n-- INSERT INTO courses (...) VALUES (...);\n-- INSERT INTO courses (...) VALUES (...);\n-- INSERT INTO courses (...) VALUES (...);\n```",
+        "narratorGuide": "Now we'll experiment by intentionally violating the CHECK constraint on credits. Change or run a new INSERT that supplies an invalid credits value (for example, 0). When you run that INSERT, SQLite will refuse to add the row and will produce an error message. This step is important: constraints are active guards that stop bad data, and observing the exact error helps you debug schema mismatches in the real world. After seeing the failure, revert or remove the failing INSERT so you can proceed.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-2-schema-columns"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "task-3-build",
+        "title": "Scene 3 — Build & Integrate: Add a course code column and enforce uniqueness",
+        "instruction": "**Activity: Designing and Populating a `Courses` Table**\n\nYour task is to design a new table called `courses` to store information about the courses offered. Each course should have a unique ID, a title, a department, and the number of credits it's worth. Then, insert at least three sample courses into this table.\n\n```sql\n-- Step 1: Write the CREATE TABLE statement for 'courses'\n-- Make sure to include:\n--   - An 'id' column (INTEGER, PRIMARY KEY, AUTOINCREMENT)\n--   - A 'title' column (TEXT, NOT NULL)\n--   - A 'department' column (TEXT, NOT NULL)\n--   - A 'credits' column (INTEGER, NOT NULL, with a CHECK constraint to ensure credits are between 1 and 6)\n\n-- Your CREATE TABLE statement here:\n-- CREATE TABLE courses (\n--     ...\n-- );\n\n-- Step 2: Write INSERT statements to add at least three courses\n-- Example: 'Introduction to Databases', 'Computer Science', 3 credits\n-- Example: 'Calculus I', 'Mathematics', 4 credits\n-- Example: 'Art History 101', 'Fine Arts', 3 credits\n\n-- Your INSERT statements here:\n-- INSERT INTO courses (...) VALUES (...);\n-- INSERT INTO courses (...) VALUES (...);\n-- INSERT INTO courses (...) VALUES (...);\n```",
+        "narratorGuide": "In real applications you often need to evolve the schema. Here you'll add a 'code' column to hold a short course code (like 'CS101'), populate it for existing rows, and then enforce uniqueness so duplicate codes are prevented. SQLite lets you ALTER TABLE to add a column, then you update existing rows. To enforce uniqueness after the fact, create a UNIQUE index. This shows how to safely extend a table without losing data. Finally, query the table to confirm the codes exist and are unique.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-3-check-constraint"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "task-4-verify",
+        "title": "Scene 4 — Verify & Extend: Create prerequisites table and test joins and constraints",
+        "instruction": "**Activity: Designing and Populating a `Courses` Table**\n\nYour task is to design a new table called `courses` to store information about the courses offered. Each course should have a unique ID, a title, a department, and the number of credits it's worth. Then, insert at least three sample courses into this table.\n\n```sql\n-- Step 1: Write the CREATE TABLE statement for 'courses'\n-- Make sure to include:\n--   - An 'id' column (INTEGER, PRIMARY KEY, AUTOINCREMENT)\n--   - A 'title' column (TEXT, NOT NULL)\n--   - A 'department' column (TEXT, NOT NULL)\n--   - A 'credits' column (INTEGER, NOT NULL, with a CHECK constraint to ensure credits are between 1 and 6)\n\n-- Your CREATE TABLE statement here:\n-- CREATE TABLE courses (\n--     ...\n-- );\n\n-- Step 2: Write INSERT statements to add at least three courses\n-- Example: 'Introduction to Databases', 'Computer Science', 3 credits\n-- Example: 'Calculus I', 'Mathematics', 4 credits\n-- Example: 'Art History 101', 'Fine Arts', 3 credits\n\n-- Your INSERT statements here:\n-- INSERT INTO courses (...) VALUES (...);\n-- INSERT INTO courses (...) VALUES (...);\n-- INSERT INTO courses (...) VALUES (...);\n```",
+        "narratorGuide": "Finally, we'll verify relationships and constraints. Create a small prerequisites table with two foreign keys referencing courses.id. Insert a sample row to show that one course requires another. Run a JOIN to display the human-readable relationship. Then, as a constraint check, attempt to insert a duplicate course code and observe the error from the UNIQUE index. These checks confirm both relational links and uniqueness enforcement. Closing with these verifications gives you confidence that the schema both models relationships and prevents invalid duplicates.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-4-unique-code"
         ],
         "animationTimeline": [],
         "totalDurationMs": 180000,
@@ -87,25 +112,49 @@
     ],
     "checks": [
       {
-        "id": "starter-sql-present",
-        "type": "file",
-        "adapter": "database-sandbox",
-        "timeoutSeconds": 30,
-        "visibility": "learner",
-        "explanation": "The learner has a SQL starter script in the workspace."
-      },
-      {
-        "id": "database-schema-and-data",
+        "id": "check-1-observe-rows",
         "type": "sql",
         "adapter": "database-sandbox",
         "timeoutSeconds": 30,
         "visibility": "learner",
-        "explanation": "The courses table contains at least the three starter rows.",
-        "command": "SELECT COUNT(*) FROM courses;",
-        "passCondition": {
-          "expected": "3"
-        },
-        "matchMode": "contains"
+        "explanation": "",
+        "command": "sqlite3 courses.db \"SELECT COUNT(*) FROM courses;\""
+      },
+      {
+        "id": "check-2-schema-columns",
+        "type": "sql",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "sqlite3 courses.db \"PRAGMA table_info('courses');\""
+      },
+      {
+        "id": "check-3-check-constraint",
+        "type": "sql",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "sqlite3 courses.db \"INSERT INTO courses (title, department, credits) VALUES ('Impossible Course','Philosophy',0);\""
+      },
+      {
+        "id": "check-4-unique-code",
+        "type": "sql",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "sqlite3 courses.db \"SELECT id || '|' || code FROM courses ORDER BY id;\""
+      },
+      {
+        "id": "check-5-join-prerequisite",
+        "type": "sql",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "sqlite3 courses.db \"SELECT c.title || ' requires ' || p.title FROM prerequisites JOIN courses c ON prerequisites.course_id = c.id JOIN courses p ON prerequisites.prereq_id = p.id;\""
       }
     ],
     "hints": [],
@@ -137,8 +186,11 @@
     },
     "completionRules": {
       "requiredChecks": [
-        "starter-sql-present",
-        "database-schema-and-data"
+        "check-1-observe-rows",
+        "check-2-schema-columns",
+        "check-3-check-constraint",
+        "check-4-unique-code",
+        "check-5-join-prerequisite"
       ],
       "minimumScore": 1,
       "requiresEvidence": true,
@@ -153,7 +205,7 @@
       "moduleNumber": 5,
       "chapterNumber": 1,
       "model": "gemini-2.5-flash",
-      "generatedAt": "2026-09-24T14:01:18.371Z",
+      "generatedAt": "2026-09-24T15:37:30.977Z",
       "activitySourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "lessonSourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "activitySourceHash": "sha256:515b3717953bad4708082698f559468273a0d3abcb7d6c562ce5c5eb6f396f10",
@@ -163,7 +215,7 @@
       "type": "interactive-code-reveal",
       "narrator": "educator",
       "synchronizedPlayback": true,
-      "totalLessonDurationMs": 180000
+      "totalLessonDurationMs": 720000
     }
   }
 }

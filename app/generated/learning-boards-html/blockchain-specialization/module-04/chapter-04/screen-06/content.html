@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Structs — modeling complex entities</span>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-[66vh] grid grid-cols-2 gap-6">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Struct example</div>
+        <h3 class="text-xl font-semibold text-slate-800 mt-2">Product struct pattern</h3>
+
+        <div class="mt-4 mono bg-white card-border rounded-lg p-3 text-sm">
+<pre>struct Product {
+    uint256 id;
+    string name;
+    uint256 price;
+    address seller;
+    bool available;
+}
+
+mapping(uint256 =&gt; Product) public products;
+uint256 public nextProductId = 0;
+
+function addProduct(string memory _name, uint256 _price) public {
+    Product storage newProduct = products[nextProductId];
+    newProduct.id = nextProductId;
+    newProduct.name = _name;
+    newProduct.price = _price;
+    newProduct.seller = msg.sender;
+    newProduct.available = true;
+    nextProductId++;
+}
+</pre>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl p-3 bg-emerald-50 card-border">
+            <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Example</div>
+            <p class="text-sm text-slate-700 mt-1">Create a Product record and store it in a mapping so you can find product metadata by ID quickly.</p>
+          </div>
+
+          <div class="rounded-xl p-3 bg-rose-50 card-border mt-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Misconception</div>
+            <p class="text-sm text-slate-700 mt-1">Assigning one storage struct to another creates a reference, not a deep copy. Use explicit copying to avoid accidental state changes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Patterns & tips</div>
+          <ul class="text-sm text-slate-600 mt-3 list-disc ml-5">
+            <li>Use storage for in-place updates to structs from mappings.</li>
+            <li>Use memory when you only need a temporary snapshot for calculations.</li>
+            <li>Keep a separate ID array when you must iterate over products.</li>
+          </ul>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Structs model complex entities. Be deliberate about storage vs memory to control when state changes occur.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

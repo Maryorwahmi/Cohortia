@@ -1,0 +1,46 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Interfaces (IERC20)</span>
+  </div>
+
+  <div class='rounded-2xl bg-white border p-5 shadow-sm border-[rgba(226,232,240,0.9)] h-full grid grid-cols-2 gap-4'>
+    <div class='col-span-1 bg-slate-50 rounded-lg p-4'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2'>Architecture</div>
+      <h3 class='text-2xl font-bold text-slate-900 mb-2'>Calling external contracts</h3>
+      <div class='text-sm text-slate-700 mb-3'>Cast a deployed contract address to an interface type so you can call its external functions by signature without access to its code.</div>
+      <pre class='text-sm text-slate-800'><code>interface IERC20 {
+  function totalSupply() external view returns (uint256);
+  function balanceOf(address account) external view returns (uint256);
+  function transfer(address recipient, uint256 amount) external returns (bool);
+}
+
+contract MyTokenConsumer {
+  IERC20 public token;
+  constructor(address _tokenAddress) { token = IERC20(_tokenAddress); }
+  function getTokenBalance(address _user) public view returns (uint256) { return token.balanceOf(_user); }
+  function sendTokens(address _recipient, uint256 _amount) public returns (bool) { return token.transfer(_recipient, _amount); }
+}</code></pre>
+    </div>
+
+    <div class='col-span-1 flex flex-col gap-3'>
+      <div class='rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Why use interfaces</div>
+        <div class='text-sm text-slate-800'>They allow interaction with deployed contracts that follow a standard API, fostering interoperability without sharing implementation details.</div>
+      </div>
+
+      <div class='rounded-xl p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]'>
+        <div class='text-xs font-bold uppercase tracking-wider text-amber-800 mb-2'>Misconception</div>
+        <div class='text-sm text-slate-800'>Do not attempt to declare state variables or constructors in an interface; interfaces are signatures only.</div>
+      </div>
+
+      <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+        <p class='text-sm text-slate-800'>Use interfaces when you need to call external contracts by agreed-upon function signatures; prefer abstract contracts when shared state or helper code is required.</p>
+      </div>
+    </div>
+  </div>
+</div>

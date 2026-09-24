@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{background:#0f172a;color:#e6eef8}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+      <span>›</span>
+      <span>Chapter 5.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Manual Timing</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 flex-1">
+    <div class="col-span-7 rounded-2xl bg-white p-5 shadow-sm h-full">
+      <div class="text-sm font-bold text-slate-800">Manual timing pattern</div>
+      <pre class="mt-3 rounded-lg overflow-hidden code p-4 text-sm"><code>import RPi.GPIO as GPIO
+import time
+
+TRIG = 23
+ECHO = 24
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
+
+try:
+    while True:
+        GPIO.output(TRIG, False)
+        time.sleep(0.05)
+        GPIO.output(TRIG, True)
+        time.sleep(0.00001)  # 10 microseconds
+        GPIO.output(TRIG, False)
+
+        while GPIO.input(ECHO) == 0:
+            pulse_start = time.time()
+        while GPIO.input(ECHO) == 1:
+            pulse_end = time.time()
+
+        pulse_duration = pulse_end - pulse_start
+        distance = pulse_duration * 17150
+        print(f"Distance: {distance:.1f} cm")
+        time.sleep(1)
+except KeyboardInterrupt:
+    GPIO.cleanup()
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">The numeric factor 17150 comes from converting the speed of sound to centimeters and dividing by two for the round trip. Use this pattern to log raw durations for diagnostics.</div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 shadow-sm h-full">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Practical notes</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5">
+        <li>Include maximum wait thresholds on the while loops to avoid blocking.</li>
+        <li>Use time.time for seconds; if you need higher resolution, consider time.perf_counter.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-rose-50 text-rose-700">
+        <div class="text-xs font-bold uppercase">Gotcha</div>
+        <div class="text-sm mt-2 text-rose-700">Missing a timeout will cause your script to hang if the sensor never sets Echo, so always plan for hardware failure modes.</div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50 text-emerald-700">
+        <div class="text-xs font-bold uppercase">Key Takeaway</div>
+        <div class="text-sm mt-2 text-slate-800">Manual timing exposes the pulse durations you need to debug and tune sensor responses; treat timeouts as essential safeguards.</div>
+      </div>
+    </div>
+  </div>
+</div>

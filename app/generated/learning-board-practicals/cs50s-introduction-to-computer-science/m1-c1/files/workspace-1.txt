@@ -1,44 +1,36 @@
-# Binary Conversion Lab - main.py
+TEST_BINARY = '11010'
+TEST_DECIMAL = 27
+PADDING_BITS = 8
 
-def binary_to_decimal(bin_str):
-    # validate
-    if not all(c in '01' for c in bin_str):
-        raise ValueError("Input must be a binary string containing only 0 and 1")
-    return sum(int(bit) * (2 ** idx) for idx, bit in enumerate(reversed(bin_str)))
+
+def binary_to_decimal(b):
+    """Convert a binary string to its decimal integer."""
+    return int(b, 2)
 
 
 def decimal_to_binary(n):
-    if n < 0:
-        raise ValueError("Only non-negative integers supported")
-    if n == 0:
-        return '0'
-    bits = []
-    while n:
-        bits.append(str(n % 2))
-        n //= 2
-    return ''.join(reversed(bits))
+    """Convert a non-negative integer to an unpadded binary string."""
+    return bin(n)[2:]
 
 
-def unique_values(bits):
-    if bits < 0:
-        raise ValueError("bits must be non-negative")
-    return 2 ** bits
+def decimal_to_padded_binary(n, bits):
+    """Return the binary representation of n padded with leading zeros to 'bits' length."""
+    return format(n, f'0{bits}b')
 
 
-def max_color_component(bits_per_component=8):
-    return unique_values(bits_per_component) - 1
+def values_for_bits(n):
+    """Number of unique values representable with n bits (2^n)."""
+    return 2 ** n
 
 
-def padded_binary(n, bits=8):
-    b = decimal_to_binary(n)
-    if len(b) > bits:
-        raise ValueError(f"Number {n} cannot fit in {bits} bits")
-    return b.rjust(bits, '0')
+def main():
+    print("Baseline conversions:")
+    print(f"1) Binary {TEST_BINARY} -> {binary_to_decimal(TEST_BINARY)}")
+    print(f"2) Decimal {TEST_DECIMAL} -> {decimal_to_binary(TEST_DECIMAL)}")
+    print(f"3) 6 bits can represent {values_for_bits(6)} unique values")
+    print(f"4) 24-bit color max per component -> {values_for_bits(8)-1}")
+    print(f"Bonus: {TEST_DECIMAL} as {PADDING_BITS}-bit binary -> {decimal_to_padded_binary(TEST_DECIMAL, PADDING_BITS)}")
 
 
-if __name__ == "__main__":
-    # Baseline conversions for the lab activity
-    print("Binary 11010 -> decimal:", binary_to_decimal('11010'))  # expected 26
-    print("Decimal 27 -> binary:", decimal_to_binary(27))          # expected 11011
-    print("Unique values with 6 bits:", unique_values(6))         # expected 64
-    print("Max color component for 8 bits:", max_color_component(8))  # expected 255
+if __name__ == '__main__':
+    main()

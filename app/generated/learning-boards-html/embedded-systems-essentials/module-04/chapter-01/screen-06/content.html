@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Memory-Mapped I/O and Registers</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl border border-slate-100 bg-white p-4 flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Key GPIO registers (Port F addresses)</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li><span class="font-semibold">SYSCTL_RCGCGPIO (0x400FE608)</span> — enables port clocks; set bit 5 for Port F.</li>
+        <li><span class="font-semibold">GPIO_PORTF_DIR_R (0x40025400)</span> — direction: 0=input, 1=output per bit.</li>
+        <li><span class="font-semibold">GPIO_PORTF_DEN_R (0x4002551C)</span> — digital enable for pins used as digital I/O.</li>
+        <li><span class="font-semibold">GPIO_PORTF_DATA_R (0x400253FC)</span> — read inputs and write outputs; mask-based addressing exists.</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-slate-700">Register values are manipulated with bitwise operations. Use OR to set bits and AND with complement to clear bits so that you don't accidentally change other pins on the same port.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl border border-slate-100 bg-white p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Sequence reminder</div>
+      <div class="text-sm text-slate-700 mt-2">Enable clock → wait for it to stabilize → configure direction → enable digital function → access data.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-sm font-medium text-slate-800">Skipping the clock enable results in code that appears to run but has no effect on pins. The symptom is that LEDs won't change state even though your code sets the bits.</p>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="font-semibold">Check your understanding</div>
+        <div class="mt-1">Why must you wait after setting the RCGCGPIO bit? Because the peripheral clock needs time to stabilize before registers respond predictably.</div>
+      </div>
+    </div>
+  </div>
+</div>

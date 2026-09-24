@@ -1,0 +1,38 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl p-4 bg-white card border shadow-sm">
+      <div class="text-xs font-bold text-slate-700 mb-2">Sample coroutine outline</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3">IEnumerator AnimatePanel(Vector2 from, Vector2 to, float duration)
+{
+  float t = 0f;
+  while (t &lt; duration)
+  {
+    t += Time.deltaTime;
+    float p = Mathf.Clamp01(t / duration);
+    float eased = 1f - Mathf.Pow(1f - p, 2);
+    rect.anchoredPosition = Vector2.Lerp(from, to, eased);
+    canvasGroup.alpha = Mathf.Lerp(0f, 1f, p);
+    yield return null;
+  }
+  rect.anchoredPosition = to;
+  canvasGroup.alpha = 1f;
+}
+</pre>
+      <div class="text-sm text-slate-600 mt-2">Ensure you set interactable and blocksRaycasts on the CanvasGroup when fully visible or hidden to control input.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl p-4 bg-[#f8fafc] card">
+      <div class="text-sm font-bold text-slate-800 mb-2">Practical notes</div>
+      <ul class="text-sm text-slate-600 space-y-2">
+        <li>Use a duration of 0.5–0.75s for panel slides to balance clarity and responsiveness.</li>
+        <li>Apply easing to position, and linear interpolation for alpha to avoid visible lag.</li>
+        <li>Stop existing coroutines before starting new ones to avoid conflicting motion.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Combine position and alpha in a coroutine, finalize values, and manage interaction via CanvasGroup for smooth panel transitions.</p>
+      </div>
+    </div>
+  </div>
+</div>

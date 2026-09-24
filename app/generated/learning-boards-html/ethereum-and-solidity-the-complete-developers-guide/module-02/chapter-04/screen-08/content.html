@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Lab Walkthrough</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">Withdraw guards</div>
+      <pre class="mono bg-slate-50 p-3 rounded-lg text-sm overflow-auto card-border mt-3"><code>function withdraw(uint _amount) public {
+    require(msg.sender == owner, "Withdrawal: Only owner allowed.");
+    require(address(this).balance &gt;= _amount, "Withdrawal: Insufficient contract balance.");
+    require(_amount &gt; 0, "Withdrawal: Amount must be greater than zero.");
+
+    payable(msg.sender).transfer(_amount);
+}</code></pre>
+      <div class="mt-3 rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Explanation</div>
+        <div class="text-sm text-slate-600 mt-1">Each require validates a precondition; failure undoes state changes and returns unused gas to the caller.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Common Mistakes</div>
+      <ul class="text-sm text-slate-600 ml-4 mt-2 list-disc">
+        <li>Using assert for permission checks.</li>
+        <li>Omitting positive-amount validation.</li>
+        <li>Failing to include clear revert messages.</li>
+      </ul>
+      <div class="rounded-lg p-3 bg-amber-50 card-border mt-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-800 mt-1">Test revert messages in Remix to confirm the exact failure reason and ensure your guards are hit when expected.</div>
+      </div>
+      <div class="mt-auto rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Clear require guards make your contract predictable and easier to debug.</div>
+      </div>
+    </div>
+  </div>
+</div>

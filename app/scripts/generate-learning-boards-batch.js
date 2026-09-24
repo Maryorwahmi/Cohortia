@@ -13,7 +13,7 @@ const generatedRoot = path.join(repoRoot, 'generated', 'learning-boards-html');
 
 function printUsage() {
   console.log(`Usage:
-  node scripts/generate-learning-boards-batch.js --category <category> --course-id <course-id> [--module <module>] [--subcategory <name>] [--overwrite] [--list-only]
+  node scripts/generate-learning-boards-batch.js --category <category> --course-id <course-id> [--module <module>] [--subcategory <name>] [--overwrite] [--import-retries <count>] [--list-only]
 
 Examples:
   node scripts/generate-learning-boards-batch.js --category computer-science --course-id ai-for-everyone --list-only
@@ -38,6 +38,9 @@ function parseArgs(argv) {
     courseId: args['course-id'] || args.course || null,
     module: args.module || null,
     overwrite: Boolean(args.overwrite),
+    importRetries: Number.isFinite(Number(args['import-retries']))
+      ? Math.max(1, Number(args['import-retries']))
+      : 3,
     listOnly: Boolean(args['list-only'] || args['dry-run']),
     help: Boolean(args.help || args.h),
   };
@@ -168,31 +171,30 @@ async function readCourseRecord(courseId) {
   }
 }
 
-async function findGeneratedChapterKeys(courseId) {
-  const courseRoot = path.join(generatedRoot, courseId);
-  const chapterKeys = [];
+function chapterManifestPath(courseId, moduleNumber, chapterNumber) {
+  return path.join(
+    generatedRoot,
+    courseId,
+    `module-${String(moduleNumber).padStart(2, '0')}`,
+    `chapter-${String(chapterNumber).padStart(2, '0')}`,
+    'manifest.json',
+  );
+}
 
+async function chapterManifestExists(courseId, moduleNumber, chapterNumber) {
   try {
-    await walkDir(courseRoot, async (filePath) => {
-      if (path.basename(filePath) !== 'manifest.json') return;
-      const chapterPath = path.dirname(filePath);
-      const moduleMatch = path.basename(path.dirname(chapterPath)).match(/^module-(\d+)$/i);
-      const chapterMatch = path.basename(chapterPath).match(/^chapter-(\d+)$/i);
-      if (!moduleMatch || !chapterMatch) return;
-
-      try {
-        const manifest = JSON.parse(await fs.readFile(filePath, 'utf8'));
-        if (manifest && Number.isInteger(Number(manifest.module)) && Number.isInteger(Number(manifest.chapter))) {
-          chapterKeys.push(`${Number(moduleMatch[1])}.${Number(chapterMatch[1])}`);
-        }
-      } catch {
-      }
-    });
+    const manifest = JSON.parse(await fs.readFile(chapterManifestPath(courseId, moduleNumber, chapterNumber), 'utf8'));
+    return manifest && Number(manifest.module) === moduleNumber && Number(manifest.chapter) === chapterNumber;
   } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
+    if (error.code !== 'ENOENT') console.warn(`Unable to inspect local chapter manifest: ${error.message}`);
+    return false;
   }
+}
 
-  return [...new Set(chapterKeys)];
+async function waitBeforeImportRetry(attempt) {
+  const delayMs = Math.min(30000, 2000 * (2 ** (attempt - 1)));
+  console.log(`Waiting ${delayMs / 1000}s before Turso import retry.`);
+  await new Promise((resolve) => setTimeout(resolve, delayMs));
 }
 
 async function writeCourseRecord(course, syllabusPath, record) {
@@ -227,30 +229,14 @@ async function generateCourse(category, course, options) {
 
   const record = await readCourseRecord(course.id);
   const completedChapters = record.completedChapters || {};
-  const generatedChapterKeys = await findGeneratedChapterKeys(course.id);
-  let recordChanged = false;
-  for (const chapterKey of generatedChapterKeys) {
-    if (completedChapters[chapterKey]?.status === 'completed') continue;
-    const [moduleNumber, chapterNumber] = chapterKey.split('.').map(Number);
-    completedChapters[chapterKey] = {
-      status: 'completed',
-      module: moduleNumber,
-      chapter: chapterNumber,
-      completedAt: new Date().toISOString(),
-      backfilled: true,
-    };
-    recordChanged = true;
-  }
-  if (recordChanged && !options.overwrite) {
-    await writeCourseRecord(course, syllabusPath, { completedChapters });
-    console.log(`Backfilled ${course.id} record.json from generated chapter manifests.`);
-  }
   let code = 0;
   let generatedOrImported = 0;
   let skippedChapters = 0;
   for (const { moduleNumber, chapterNumber } of chapters) {
     const chapterKey = `${moduleNumber}.${chapterNumber}`;
-    if (!options.overwrite && completedChapters[chapterKey]?.status === 'completed') {
+    if (!options.overwrite
+      && completedChapters[chapterKey]?.status === 'completed'
+      && !completedChapters[chapterKey]?.backfilled) {
       console.log(`Skipping ${course.id}, chapter ${chapterKey}; record.json marks it complete.`);
       skippedChapters += 1;
       continue;
@@ -259,35 +245,55 @@ async function generateCourse(category, course, options) {
       console.log(`Resuming ${course.id} at chapter ${chapterKey}.`);
     }
     generatedOrImported += 1;
-    console.log(`Generating ${course.id}, chapter ${moduleNumber}.${chapterNumber}.`);
-    const args = [
-      generatorScript,
-      '--syllabus',
-      syllabusPath,
-      '--course-id',
-      course.id,
-      '--course-title',
-      course.title,
-      '--output',
-      'generated/learning-boards-html',
-      '--module',
-      String(moduleNumber),
-      '--chapter',
-      String(chapterNumber),
-    ];
-    if (options.overwrite) args.push('--overwrite');
-    const result = await runCommand(process.execPath, args, repoRoot);
-    if (result.code !== 0) code = result.code;
+    const hasLocalManifest = !options.overwrite && await chapterManifestExists(course.id, moduleNumber, chapterNumber);
+    let result = { code: 0 };
+    if (hasLocalManifest) {
+      console.log(`Reusing existing local manifest for ${course.id}, chapter ${chapterKey}; Turso import is pending.`);
+    } else {
+      console.log(`Generating ${course.id}, chapter ${moduleNumber}.${chapterNumber}.`);
+      const args = [
+        generatorScript,
+        '--syllabus',
+        syllabusPath,
+        '--course-id',
+        course.id,
+        '--course-title',
+        course.title,
+        '--output',
+        'generated/learning-boards-html',
+        '--module',
+        String(moduleNumber),
+        '--chapter',
+        String(chapterNumber),
+      ];
+      if (options.overwrite) args.push('--overwrite');
+      result = await runCommand(process.execPath, args, repoRoot);
+    }
+    if (result.code !== 0) {
+      code = result.code;
+      completedChapters[chapterKey] = {
+        status: 'generation-failed',
+        module: moduleNumber,
+        chapter: chapterNumber,
+        updatedAt: new Date().toISOString(),
+      };
+      await writeCourseRecord(course, syllabusPath, { completedChapters });
+    }
     if (result.code === 0) {
       const importScript = path.join(repoRoot, 'backend', 'scripts', 'import-learning-boards.js');
-      console.log(`Importing ${course.id}, chapter ${moduleNumber}.${chapterNumber} into Turso.`);
-      const imported = await runCommand(process.execPath, [
-        importScript,
-        '--course', course.id,
-        '--module', String(moduleNumber),
-        '--chapter', String(chapterNumber),
-        '--refresh',
-      ], path.join(repoRoot, 'backend'));
+      let imported = { code: 1 };
+      for (let attempt = 1; attempt <= options.importRetries; attempt += 1) {
+        console.log(`Importing ${course.id}, chapter ${moduleNumber}.${chapterNumber} into Turso (attempt ${attempt}/${options.importRetries}).`);
+        imported = await runCommand(process.execPath, [
+          importScript,
+          '--course', course.id,
+          '--module', String(moduleNumber),
+          '--chapter', String(chapterNumber),
+          '--refresh',
+        ], path.join(repoRoot, 'backend'));
+        if (imported.code === 0) break;
+        if (attempt < options.importRetries) await waitBeforeImportRetry(attempt);
+      }
       if (imported.code !== 0) code = imported.code;
       if (imported.code === 0) {
         completedChapters[chapterKey] = {
@@ -298,6 +304,15 @@ async function generateCourse(category, course, options) {
         };
         await writeCourseRecord(course, syllabusPath, { completedChapters });
         console.log(`Recorded ${course.id}, chapter ${chapterKey} as complete.`);
+      } else {
+        completedChapters[chapterKey] = {
+          status: 'import-pending',
+          module: moduleNumber,
+          chapter: chapterNumber,
+          updatedAt: new Date().toISOString(),
+        };
+        await writeCourseRecord(course, syllabusPath, { completedChapters });
+        console.error(`Turso import did not complete for ${course.id}, chapter ${chapterKey}. Re-run the same command to retry without regenerating.`);
       }
     }
   }

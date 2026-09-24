@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Initialize UART0</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-500">Process Flow</div>
+      <h3 class="text-lg font-bold text-slate-800 mt-2">Initialization steps</h3>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-600 space-y-3">
+        <li><span class="font-semibold">Enable clock:</span> SYSCTL_RCGCUART_R |= 0x01; SYSCTL_RCGCGPIO_R |= 0x01; then wait for stability.</li>
+        <li><span class="font-semibold">Pin setup:</span> GPIO_PORTA_AFSEL_R |= 0x03; GPIO_PORTA_DEN_R |= 0x03; make PA0/PA1 UART pins.</li>
+        <li><span class="font-semibold">Disable UART:</span> clear UART0_CTL_R while changing settings.</li>
+        <li><span class="font-semibold">Baud rate:</span> program UART0_IBRD_R and UART0_FBRD_R for the desired baud.</li>
+        <li><span class="font-semibold">Line control:</span> set UART0_LCRH_R for 8N1 and enable FIFOs (0x70 in the example).</li>
+        <li><span class="font-semibold">Enable UART:</span> set UART0_CTL_R |= 0x01 to allow TX and RX.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Why each step matters</div>
+      <ul class="text-sm text-slate-600 mt-3 space-y-2">
+        <li>Clock: register writes have no effect without a running peripheral clock.</li>
+        <li>Pin AF: pins default to GPIO and must be switched to the UART function to carry serial data.</li>
+        <li>Baud divisors: wrong numbers produce unreadable or garbled output at the PC.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-1">With a 16 MHz system clock, setting IBRD=8 and FBRD=44 yields 115200 baud as shown in the provided code. Verify by printing a fixed string and watching the terminal.</p>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Follow the enable-config-enable pattern and verify each step by printing a known string.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

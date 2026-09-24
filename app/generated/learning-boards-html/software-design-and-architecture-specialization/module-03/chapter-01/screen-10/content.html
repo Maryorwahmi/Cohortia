@@ -1,0 +1,19 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span><span>›</span><span>Chapter 3.1</span><span>›</span><span class="text-slate-700">Thread-Safe Singleton</span></div><div class="flex gap-6 h-full"><div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col overflow-hidden"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Thread-Safe Code</div><div class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 h-full overflow-auto"><pre class="text-sm"><code>import threading
+
+class ThreadSafeConfigurationManager:
+    _instance = None
+    _lock = threading.Lock()
+    _initialized = False
+
+    def __new__(cls):
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super(ThreadSafeConfigurationManager, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        with ThreadSafeConfigurationManager._lock:
+            if not ThreadSafeConfigurationManager._initialized:
+                self.settings = {}
+                self.settings['log_level'] = 'INFO'
+                ThreadSafeConfigurationManager._initialized = True</code></pre></div></div><div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col"><div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Explanation</div><div class="mt-3 grid gap-3"><div class="rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]"><div class="text-sm font-bold text-slate-800">What changed</div><p class="text-sm text-slate-700 mt-1">A class-level lock ensures only one thread may create or initialize the instance at once.</p></div><div class="rounded-lg bg-white p-3 border border-[rgba(226,232,240,0.9)]"><div class="text-sm font-bold text-slate-800">Testing tip</div><p class="text-sm text-slate-700 mt-1">Spawn multiple threads that obtain the manager and print instance ids. They should all match, and settings should reflect updates consistently.</p></div><div class="rounded-lg bg-amber-50 p-3 border border-[rgba(245,166,35,0.08)]"><div class="text-sm font-bold text-slate-800">Misconception</div><p class="text-sm text-slate-700 mt-1">Do not rely on interpreter-specific locking semantics; explicit locks make your intent clear and portable.</p></div></div><div class="mt-auto"><div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div><p class="text-xs font-medium text-slate-800">Protect both creation and initialization with locks to avoid duplicate instances and inconsistent state under concurrency.</p></div></div></div></div></div>

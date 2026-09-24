@@ -1344,35 +1344,60 @@ export default function LearningBoardPage({
                 {/* 3. ADAPTIVE INTERACTIVE SANDBOX PLAYGROUND (Split View) */}
                 {!devPreviewEnabled && viewerMode === "practical" && (
                   <div className="absolute inset-0 flex min-h-0 flex-col">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-0 h-full">
-                      <div className="md:col-span-1 p-4 overflow-auto bg-immersive-bg/20 border-r border-immersive-border">
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <h3 className="text-sm font-bold text-immersive-text-primary">Practical Tasks</h3>
-                          <span className="text-[10px] font-mono text-immersive-secondary uppercase">Watch first</span>
+                    <div className="grid min-h-0 h-full grid-cols-1 gap-0 lg:grid-cols-[270px_minmax(0,1fr)]">
+                      <aside className="flex min-h-0 flex-col border-b border-immersive-border bg-immersive-bg/50 lg:border-b-0 lg:border-r">
+                        <div className="border-b border-immersive-border/70 px-4 py-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-immersive-secondary">Practical</p>
+                              <h3 className="mt-1 text-sm font-bold text-immersive-text-primary">Your tasks</h3>
+                            </div>
+                            <span className="rounded-full border border-immersive-border bg-immersive-card px-2 py-1 text-[10px] font-bold text-immersive-secondary">
+                              {activePractical?.tasks?.length || details.summary.takeaways.length} steps
+                            </span>
+                          </div>
+                          <p className="mt-2 text-[11px] leading-relaxed text-immersive-text-secondary">
+                            Work through each step in order. The workspace opens on the right.
+                          </p>
                         </div>
-                        <ul className="space-y-2 text-sm text-immersive-text-secondary">
+
+                        <ol className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
                           {(activePractical?.tasks?.length ? activePractical.tasks : details.summary.takeaways.map((t: string) => ({ instruction: t }))).map((task: any, idx: number) => (
-                            <li key={idx} className="flex items-start space-x-2">
-                              <div className="w-3 h-3 mt-1 rounded-full bg-emerald-400/20 border border-emerald-400/30 flex-shrink-0" />
-                              <div className="flex-1">
-                                <div className="text-sm font-medium text-immersive-text-primary">{task.instruction || task}</div>
-                                {task.checklist && <div className="text-[11px] text-immersive-text-secondary mt-1">{task.checklist.length} checks</div>}
+                            <li key={idx} className="rounded-xl border border-immersive-border/70 bg-immersive-card/60 p-3 transition-colors hover:border-immersive-secondary/50">
+                              <div className="flex items-start gap-3">
+                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-immersive-primary/15 text-[11px] font-bold text-immersive-primary">
+                                  {idx + 1}
+                                </span>
+                                <div className="min-w-0">
+                                  <p className="line-clamp-3 text-xs font-semibold leading-relaxed text-immersive-text-primary">
+                                    {task.title || task.instruction || task}
+                                  </p>
+                                  {task.title && task.instruction && (
+                                    <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-immersive-text-secondary">
+                                      {task.instruction}
+                                    </p>
+                                  )}
+                                  {task.checklist && <p className="mt-2 text-[10px] font-medium text-immersive-secondary">{task.checklist.length} checks</p>}
+                                </div>
                               </div>
                             </li>
                           ))}
-                        </ul>
-                        <div className="mt-4 space-y-2">
+                        </ol>
+
+                        <div className="space-y-2 border-t border-immersive-border/70 p-3">
                           <button
                             onClick={() => setShowPracticalSimulation((visible) => !visible)}
-                            className="w-full py-2 px-3 bg-immersive-card border border-immersive-border hover:border-immersive-secondary/50 text-immersive-text-primary rounded-xl font-bold text-xs transition-colors"
+                            className="w-full rounded-xl border border-immersive-border bg-immersive-card px-3 py-2.5 text-xs font-bold text-immersive-text-primary transition-colors hover:border-immersive-secondary/50"
                           >
-                            {showPracticalSimulation ? "Use interactive sandbox" : "Watch guided simulation"}
+                            {showPracticalSimulation ? "Open interactive sandbox" : "Watch guided simulation"}
                           </button>
-                          <button onClick={handlePracticalCompleted} className="w-full py-2 px-3 bg-[#FF4B3E] text-white rounded-xl font-bold">Mark Practical Complete</button>
+                          <button onClick={handlePracticalCompleted} className="w-full rounded-xl bg-[#FF4B3E] px-3 py-2.5 text-xs font-bold text-white transition-colors hover:bg-[#e33d32]">
+                            Finish practical
+                          </button>
                         </div>
-                      </div>
+                      </aside>
 
-                      <div className="md:col-span-2 relative min-h-0 flex-1">
+                      <div className="relative min-h-0 min-w-0">
                         {showPracticalSimulation ? (
                           <SimulatedEditor
                             taskTitle={activePractical?.title || generatedPreview?.handsOn?.title || selectedLesson.title}
