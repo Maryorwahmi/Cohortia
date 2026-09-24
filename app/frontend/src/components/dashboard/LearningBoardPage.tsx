@@ -364,7 +364,9 @@ export default function LearningBoardPage({
   // Active visual layout mode: "video" | "practical" | "assessment" | "complete"
   const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">("video");
   const [practicalCompleted, setPracticalCompleted] = useState(false);
-  const [showPracticalSimulation, setShowPracticalSimulation] = useState(true);
+  // Start practical mode in the manifest-backed workspace. Learners can still
+  // switch to the guided simulation when they want a walkthrough first.
+  const [showPracticalSimulation, setShowPracticalSimulation] = useState(false);
   
   // Fetch the imported chapter whenever either viewer needs it. Practical mode
   // must not depend on read-mode having been opened first.
