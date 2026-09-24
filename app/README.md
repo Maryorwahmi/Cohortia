@@ -56,6 +56,23 @@ once Azure OpenAI is configured:
 node scripts/generate-cs50-practical-pilot.js --provider azure
 ```
 
+By default, the pilot imports each generated chapter into the configured
+Turso/libSQL database immediately after writing its `practical.json`. This
+means Chapter 1.1 is generated and imported before Chapter 1.2 starts. To
+generate files without database writes, use `--skip-import` (or
+`--dry-run` for prompt inspection):
+
+```bash
+node scripts/generate-cs50-practical-pilot.js --provider azure --skip-import
+```
+
+The importer can also upsert one existing practical directly:
+
+```bash
+node backend/scripts/import-practicals.js \
+  --practical generated/learning-board-practicals/cs50s-introduction-to-computer-science/m1-c1/practical.json
+```
+
 The generator reads `AI_PROVIDER`, `AZURE_OPENAI_ENDPOINT`,
 `AZURE_OPENAI_API_KEY` (or `AZURE_OPENAI_KEY`), `AZURE_OPENAI_DEPLOYMENT`, and optional
 `AZURE_OPENAI_API_VERSION` from the environment or `backend/.env`. If all
