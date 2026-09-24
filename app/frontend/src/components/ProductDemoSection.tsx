@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Shield, Code, Sparkles, Map, Users, Briefcase, Paintbrush, Heart, Award } from "lucide-react";
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Shield, Code, Sparkles, Users } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "../context/ThemeContext";
 
@@ -23,30 +23,6 @@ const SCENES: Scene[] = [
   },
   {
     id: 2,
-    title: "Real-Life Work Projects",
-    duration: 10,
-    icon: Briefcase,
-    description: "Work on authentic corporate client briefs, model financial ledgers, draft legal briefs, and solve real work challenges.",
-    category: "Industry Case Studies"
-  },
-  {
-    id: 3,
-    title: "12 Categories & 6k+ Courses",
-    duration: 10,
-    icon: Paintbrush,
-    description: "Choose from 12 diverse categories including Humanities, Sciences, Finance, Fine Arts, and over 6,000 non-tech courses.",
-    category: "Universal Curriculum"
-  },
-  {
-    id: 4,
-    title: "The Experience Track",
-    duration: 10,
-    icon: Map,
-    description: "Navigate high-resolution visual roadmaps. Complete challenges to earn Experience Points (XP) and level up.",
-    category: "Gamified Progress Hub"
-  },
-  {
-    id: 5,
     title: "Personal Mentorship Sync",
     duration: 10,
     icon: Sparkles,
@@ -54,7 +30,7 @@ const SCENES: Scene[] = [
     category: "Coaching & Mentorship"
   },
   {
-    id: 6,
+    id: 3,
     title: "Collaborative Community Hub",
     duration: 10,
     icon: Users,
@@ -707,7 +683,7 @@ export default function ProductDemoSection() {
           <div className="lg:col-span-4 flex flex-col space-y-4">
             
             <p className="text-[11px] font-mono font-bold text-immersive-secondary uppercase tracking-widest text-left pl-1">
-              PLAYLIST STEPS (60s TOTAL)
+              PLAYLIST STEPS ({TOTAL_DURATION}s TOTAL)
             </p>
 
             <div className="flex flex-col space-y-3.5">

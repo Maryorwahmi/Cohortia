@@ -19,7 +19,7 @@ const SUGGESTIONS = [
   "What is a Cohort Experiential Lab?",
   "Tell me about Frontend Engineering track.",
   "How do peer project collaborations work?",
-  "Can Coach Johnson help me build my career?"
+  "What courses are available?"
 ];
 
 export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
@@ -42,7 +42,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
       {
         id: "welcome",
         sender: "advisor",
-        text: `Hey there! 👋 I am Coach Johnson, your AI Advisor. Ready to map out your high-impact career journey at Cohortia? Let's talk about experiential labs, matching, or professional portfolio tracks!`,
+        text: `Hey there! 👋 I’m HortBot. I can help you explore Cohortia, understand our public pages, compare courses, and find the right learning path.`,
         timestamp: new Date()
       }
     ];
@@ -87,10 +87,10 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
       const res = await chatApi.sendMessage(
         userMsg.text,
         recentMessages,
-        "coach",
+        "public",
         "text",
-        userProfile?.track || null,
-        { page: "global advisor" }
+        null,
+        { assistant: "public", page: "public assistant", path: window.location.pathname }
       );
 
       const reply = res.success && res.data?.reply
@@ -106,11 +106,11 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
 
       setMessages((prev) => [...prev, advisorMsg]);
     } catch (err) {
-      console.error("AI Advisor error:", err);
+      console.error("HortBot error:", err);
       const errorMsg: Message = {
         id: Math.random().toString(36).substr(2, 9),
         sender: "advisor",
-        text: "I am experiencing brief connectivity issues with the Cohortia cloud portal. Please try again in a moment, or ensure your API keys are fully loaded!",
+        text: "I’m having a brief connection issue. Please try again in a moment.",
         timestamp: new Date()
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -120,11 +120,11 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
   };
 
   const handleReset = () => {
-    if (window.confirm("Do you want to reset your conversation with Coach Johnson?")) {
+    if (window.confirm("Do you want to reset your HortBot conversation?")) {
       const defaultMsg: Message = {
         id: "welcome-reset",
         sender: "advisor",
-        text: `Conversation restarted! Hello again${userProfile?.name ? `, ${userProfile.name}` : ""}. What goals or tech-tracks should we build out today?`,
+        text: `Conversation restarted${userProfile?.name ? `, ${userProfile.name}` : ""}. What would you like to explore on Cohortia?`,
         timestamp: new Date()
       };
       setMessages([defaultMsg]);
@@ -257,11 +257,11 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="text-sm font-bold text-immersive-text-primary flex items-center">
-                    Coach Johnson
+                    HortBot
                     <Sparkles className="w-3.5 h-3.5 text-immersive-secondary ml-1.5" />
                   </span>
                   <span className="text-[10px] text-immersive-text-secondary font-mono tracking-wide uppercase font-semibold">
-                    Cohortia AI Advisor • Online
+                    Public Cohortia Assistant • Online
                   </span>
                 </div>
               </div>
@@ -331,7 +331,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
                     <Bot className="w-4 h-4 animate-spin" />
                   </div>
                   <div className="bg-immersive-bg/75 border border-immersive-border/50 p-3 rounded-2xl rounded-tl-sm text-xs text-immersive-text-secondary flex items-center space-x-2">
-                    <span className="font-semibold text-[10px]">Chinedu is thinking</span>
+                    <span className="font-semibold text-[10px]">HortBot is thinking</span>
                     <div className="flex space-x-1">
                       <div className="w-1 h-1 bg-[#FF4B3E] rounded-full animate-bounce duration-300" style={{ animationDelay: "0ms" }} />
                       <div className="w-1 h-1 bg-immersive-secondary rounded-full animate-bounce duration-300" style={{ animationDelay: "150ms" }} />
@@ -370,7 +370,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage(inputText)}
-                placeholder="Ask Coach Johnson anything..."
+                placeholder="Ask HortBot anything..."
                 disabled={isLoading}
                 className="flex-1 bg-immersive-card border border-immersive-border/80 focus:border-[#FF4B3E] focus:outline-none rounded-xl px-3.5 py-2 text-xs text-immersive-text-primary placeholder-immersive-text-secondary/60 transition-all font-sans disabled:opacity-50"
               />
@@ -392,8 +392,8 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className="relative w-16 h-16 rounded-full bg-immersive-primary text-immersive-text-primary flex items-center justify-center shadow-[0_0_25px_rgba(255,75,62,0.4)] cursor-pointer hover:brightness-110 transition-all"
-        aria-label="Chat with AI Career Advisor"
-        title="Chat with AI Advisor"
+        aria-label="Chat with HortBot"
+        title="Chat with HortBot"
       >
         <AnimatePresence mode="wait">
           {isOpen ? (

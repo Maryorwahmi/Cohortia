@@ -9,6 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
 const generatorScript = path.join(__dirname, 'generate-learning-board-html.js');
+const generatedRoot = path.join(repoRoot, 'generated', 'learning-boards-html');
 
 function printUsage() {
   console.log(`Usage:
@@ -153,6 +154,63 @@ async function listChapterSelectors(syllabusPath, requestedModule = null) {
   return chapters.sort((a, b) => a.moduleNumber - b.moduleNumber || a.chapterNumber - b.chapterNumber);
 }
 
+function recordPath(courseId) {
+  return path.join(generatedRoot, courseId, 'record.json');
+}
+
+async function readCourseRecord(courseId) {
+  try {
+    const record = JSON.parse(await fs.readFile(recordPath(courseId), 'utf8'));
+    return record && typeof record === 'object' ? record : {};
+  } catch (error) {
+    if (error.code !== 'ENOENT') console.warn(`Unable to read ${recordPath(courseId)}: ${error.message}`);
+    return {};
+  }
+}
+
+async function findGeneratedChapterKeys(courseId) {
+  const courseRoot = path.join(generatedRoot, courseId);
+  const chapterKeys = [];
+
+  try {
+    await walkDir(courseRoot, async (filePath) => {
+      if (path.basename(filePath) !== 'manifest.json') return;
+      const chapterPath = path.dirname(filePath);
+      const moduleMatch = path.basename(path.dirname(chapterPath)).match(/^module-(\d+)$/i);
+      const chapterMatch = path.basename(chapterPath).match(/^chapter-(\d+)$/i);
+      if (!moduleMatch || !chapterMatch) return;
+
+      try {
+        const manifest = JSON.parse(await fs.readFile(filePath, 'utf8'));
+        if (manifest && Number.isInteger(Number(manifest.module)) && Number.isInteger(Number(manifest.chapter))) {
+          chapterKeys.push(`${Number(moduleMatch[1])}.${Number(chapterMatch[1])}`);
+        }
+      } catch {
+      }
+    });
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+
+  return [...new Set(chapterKeys)];
+}
+
+async function writeCourseRecord(course, syllabusPath, record) {
+  const target = recordPath(course.id);
+  await fs.mkdir(path.dirname(target), { recursive: true });
+  const temporary = `${target}.tmp`;
+  const nextRecord = {
+    version: 1,
+    courseId: course.id,
+    courseTitle: course.title,
+    syllabusPath: path.relative(repoRoot, syllabusPath).replace(/\\/g, '/'),
+    updatedAt: new Date().toISOString(),
+    completedChapters: record.completedChapters || {},
+  };
+  await fs.writeFile(temporary, `${JSON.stringify(nextRecord, null, 2)}\n`, 'utf8');
+  await fs.rename(temporary, target);
+}
+
 async function generateCourse(category, course, options) {
   const syllabusPath = await locateSyllabusForCourse(category, course);
 
@@ -167,8 +225,40 @@ async function generateCourse(category, course, options) {
     return { skipped: true, courseId: course.id, title: course.title, syllabusPath };
   }
 
+  const record = await readCourseRecord(course.id);
+  const completedChapters = record.completedChapters || {};
+  const generatedChapterKeys = await findGeneratedChapterKeys(course.id);
+  let recordChanged = false;
+  for (const chapterKey of generatedChapterKeys) {
+    if (completedChapters[chapterKey]?.status === 'completed') continue;
+    const [moduleNumber, chapterNumber] = chapterKey.split('.').map(Number);
+    completedChapters[chapterKey] = {
+      status: 'completed',
+      module: moduleNumber,
+      chapter: chapterNumber,
+      completedAt: new Date().toISOString(),
+      backfilled: true,
+    };
+    recordChanged = true;
+  }
+  if (recordChanged && !options.overwrite) {
+    await writeCourseRecord(course, syllabusPath, { completedChapters });
+    console.log(`Backfilled ${course.id} record.json from generated chapter manifests.`);
+  }
   let code = 0;
+  let generatedOrImported = 0;
+  let skippedChapters = 0;
   for (const { moduleNumber, chapterNumber } of chapters) {
+    const chapterKey = `${moduleNumber}.${chapterNumber}`;
+    if (!options.overwrite && completedChapters[chapterKey]?.status === 'completed') {
+      console.log(`Skipping ${course.id}, chapter ${chapterKey}; record.json marks it complete.`);
+      skippedChapters += 1;
+      continue;
+    }
+    if (!generatedOrImported) {
+      console.log(`Resuming ${course.id} at chapter ${chapterKey}.`);
+    }
+    generatedOrImported += 1;
     console.log(`Generating ${course.id}, chapter ${moduleNumber}.${chapterNumber}.`);
     const args = [
       generatorScript,
@@ -199,15 +289,26 @@ async function generateCourse(category, course, options) {
         '--refresh',
       ], path.join(repoRoot, 'backend'));
       if (imported.code !== 0) code = imported.code;
+      if (imported.code === 0) {
+        completedChapters[chapterKey] = {
+          status: 'completed',
+          module: moduleNumber,
+          chapter: chapterNumber,
+          completedAt: new Date().toISOString(),
+        };
+        await writeCourseRecord(course, syllabusPath, { completedChapters });
+        console.log(`Recorded ${course.id}, chapter ${chapterKey} as complete.`);
+      }
     }
   }
 
   return {
-    skipped: false,
+    skipped: generatedOrImported === 0,
     courseId: course.id,
     title: course.title,
     syllabusPath,
     code,
+    skippedChapters,
   };
 }
 
@@ -251,6 +352,7 @@ async function main() {
     for (const course of selectedCourses) {
       const result = await generateCourse(options.category, course, options);
       if (result.skipped) {
+        console.log(`Skipping course ${course.id}; all ${result.skippedChapters} chapters are complete in record.json.`);
         skipped += 1;
         continue;
       }

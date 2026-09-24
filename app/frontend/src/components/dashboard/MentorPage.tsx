@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Sparkles, Send, Paperclip, Check, ArrowRight, User, Compass, HelpCircle, BookOpen, Mic } from "lucide-react";
+import { Sparkles, Send, Paperclip, Check, User, Mic } from "lucide-react";
 import { UserPreferences } from "../../types";
 import { chatApi } from "../../services/api";
 
@@ -87,28 +87,11 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
 
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [behavior, setBehavior] = useState<"Mentor" | "Coach" | "Tutor" | "Interviewer">("Mentor");
-  const [format, setFormat] = useState<"Text" | "Slides" | "Document" | "Voice" | "Video">("Text");
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
-
-  const formatLabels = {
-    Text: "Standard Conversational Text",
-    Slides: "Formatted Presentation Slides",
-    Document: "Structured Technical Report",
-    Voice: "Spoken Response Transcript",
-    Video: "Screencast Script Outline"
-  };
-
-  const behaviors = [
-    { id: "Mentor", label: "Mentor", desc: "Guide, support, and challenge you to grow." },
-    { id: "Coach", label: "Coach", desc: "Push you to take action and stay accountable." },
-    { id: "Tutor", label: "Tutor", desc: "Explain concepts step-by-step with examples." },
-    { id: "Interviewer", label: "Interviewer", desc: "Ask questions and help you think critically." }
-  ];
 
   const quickActions = [
     "Explain the core concept simply",
@@ -161,12 +144,11 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
         text: m.text
       }));
 
-      const mode = behavior === 'Interviewer' ? 'interview' : behavior.toLowerCase();
       const response = await chatApi.sendMessage(
         userMsg.text,
         history,
-        mode,
-        format.toLowerCase(),
+        "mentor",
+        "text",
         userProfile.track,
         {
           page: "mentor page",
@@ -389,67 +371,6 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
           {/* Left Panel: Tuning & Mode Controls - 4 columns */}
           <div className="lg:col-span-4 flex flex-col space-y-6 overflow-y-auto pr-2 scrollbar-thin pb-4">
             
-            {/* Preferred format selection */}
-            <div className="bg-immersive-card border border-immersive-border rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl shadow-immersive-shadow">
-              <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest block">
-                Preferred output format
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {(["Text", "Slides", "Document", "Voice", "Video"] as const).map((fmt) => (
-                  <button
-                    key={fmt}
-                    onClick={() => setFormat(fmt)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      format === fmt
-                        ? "bg-[#FF4B3E]/15 border border-[#FF4B3E] text-immersive-text-primary"
-                        : "bg-immersive-bg border border-immersive-border text-immersive-text-secondary hover:text-immersive-text-primary"
-                    }`}
-                  >
-                    {fmt}
-                  </button>
-                ))}
-              </div>
-              <p className="text-[10px] text-immersive-text-secondary/70 italic font-semibold pl-1">
-                Active format: {formatLabels[format]}
-              </p>
-            </div>
-
-            {/* Behaviors */}
-            <div className="bg-immersive-card border border-immersive-border rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl shadow-immersive-shadow">
-              <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest block">
-                1. How should I behave?
-              </span>
-              <div className="space-y-2.5">
-                {behaviors.map((beh) => (
-                  <button
-                    key={beh.id}
-                    onClick={() => setBehavior(beh.id as any)}
-                    className={`w-full p-3.5 rounded-2xl border text-left flex items-start space-x-3 transition-all cursor-pointer ${
-                      behavior === beh.id
-                        ? "bg-immersive-primary/10 border-immersive-secondary/50"
-                        : "bg-immersive-bg border-immersive-border hover:border-immersive-border/80"
-                    }`}
-                  >
-                    <div className="pt-0.5">
-                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        behavior === beh.id ? "border-immersive-secondary bg-immersive-secondary" : "border-immersive-border"
-                      }`}>
-                        {behavior === beh.id && <div className="w-1.5 h-1.5 bg-immersive-bg rounded-full" />}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-immersive-text-primary block">
-                        {beh.label}
-                      </span>
-                      <span className="text-[10px] text-immersive-text-secondary/80 font-medium">
-                        {beh.desc}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Mentor Memory Card */}
             <div className="bg-immersive-card border border-immersive-border rounded-3xl p-5 sm:p-6 text-left space-y-3.5 shadow-xl shadow-immersive-shadow">
               <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest block">
@@ -586,8 +507,8 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
                   </span>
                 </div>
               </div>
-              <span className="text-[10px] font-mono text-immersive-text-secondary/60 font-semibold uppercase">
-                Active Mode: {behavior}
+              <span className="text-[10px] font-mono text-emerald-400/80 font-semibold uppercase">
+                Mentor guidance
               </span>
             </div>
 
@@ -668,7 +589,7 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleSendMessage(inputMessage);
                   }}
-                  placeholder={`Ask your ${behavior} anything in ${format} format...`}
+                  placeholder="Ask your mentor anything..."
                   className="flex-1 bg-transparent px-2 py-3 text-sm text-immersive-text-primary placeholder:text-immersive-text-secondary/50 focus:outline-none text-left"
                 />
                 <button
