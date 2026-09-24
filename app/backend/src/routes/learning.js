@@ -550,12 +550,14 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
         .orderBy(learningBoardPracticalTests.testOrder)
       : [];
     const metadata = asObject(parseJson(practicalRecord.metadata, {}));
-    const generator = asObject(metadata.generator);
-    const metadataFiles = Array.isArray(metadata.files)
-      ? metadata.files.filter((file) => file && typeof file === 'object')
+    const storedPractical = asObject(parseJson(practicalRecord.practicalJson, {}));
+    const practicalPayload = { ...storedPractical, ...metadata };
+    const generator = asObject(practicalPayload.generator);
+    const metadataFiles = Array.isArray(practicalPayload.files)
+      ? practicalPayload.files.filter((file) => file && typeof file === 'object')
       : [];
-    const metadataTasks = Array.isArray(metadata.tasks)
-      ? metadata.tasks.filter((task) => task && typeof task === 'object')
+    const metadataTasks = Array.isArray(practicalPayload.tasks)
+      ? practicalPayload.tasks.filter((task) => task && typeof task === 'object')
       : [];
     const hasStructuredData = fileRows.length > 0 || taskRows.length > 0 || metadataFiles.length > 0 || metadataTasks.length > 0;
     const testsByTaskId = new Map();
@@ -592,6 +594,9 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
             requiredConcepts: Array.isArray(requiredConcepts) ? requiredConcepts : [],
             hints: Array.isArray(hints) ? hints : [],
             tests: testsByTaskId.get(task.id) || (Array.isArray(metadataTask.tests) ? metadataTask.tests : []),
+            checkIds: Array.isArray(metadataTask.checkIds)
+              ? metadataTask.checkIds
+              : (testsByTaskId.get(task.id) || []).map((test) => test.id),
           };
         })
       : metadataTasks.map((task, index) => ({
@@ -603,6 +608,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
           requiredConcepts: Array.isArray(task.requiredConcepts) ? task.requiredConcepts : [],
           hints: Array.isArray(task.hints) ? task.hints : [],
           tests: Array.isArray(task.tests) ? task.tests : [],
+          checkIds: Array.isArray(task.checkIds) ? task.checkIds : [],
         }));
 
     databasePractical = {
@@ -614,38 +620,53 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
       categoryProfile: metadata.categoryProfile && typeof metadata.categoryProfile === 'object' ? metadata.categoryProfile : null,
       sourcePath: practicalRecord.sourcePath,
       sourceContent: practicalRecord.sourceContent,
-      sourceKey: practicalRecord.sourceKey || metadata.sourceKey || null,
-      sourceHash: practicalRecord.sourceHash || metadata.sourceHash || null,
-      metadata,
+      sourceKey: practicalRecord.sourceKey || practicalPayload.sourceKey || null,
+      sourceHash: practicalRecord.sourceHash || practicalPayload.sourceHash || null,
+      metadata: practicalPayload,
       origin: hasStructuredData ? 'generated' : 'source',
       publicationStatus: hasStructuredData ? 'published' : 'source_only',
       source: 'database',
       status: hasStructuredData ? (practicalRecord.generationStatus || 'published') : 'source_only',
       version: practicalRecord.publishedVersion ?? metadata.version ?? metadata.practicalVersion ?? null,
       schemaVersion: practicalRecord.schemaVersion ?? metadata.schemaVersion ?? null,
-      generatorVersion: practicalRecord.generatorVersion || metadata.generatorVersion || generator.generatorVersion || null,
-      classifierVersion: practicalRecord.classifierVersion || metadata.classifierVersion || generator.classifierVersion || null,
-      labType: practicalRecord.labType || metadata.labType || null,
-      sourceActivity: metadata.sourceActivity || null,
+      generatorVersion: practicalRecord.generatorVersion || practicalPayload.generatorVersion || generator.generatorVersion || null,
+      classifierVersion: practicalRecord.classifierVersion || practicalPayload.classifierVersion || generator.classifierVersion || null,
+      labType: practicalRecord.labType || practicalPayload.labType || null,
+      sourceActivity: practicalPayload.sourceActivity || null,
       mode: practicalRecord.mode,
-      language: practicalRecord.language || metadata.language || null,
-      runtime: practicalRecord.runtime || metadata.runtime || null,
+      language: practicalRecord.language || practicalPayload.language || null,
+      runtime: practicalRecord.runtime || practicalPayload.runtime || null,
       title: practicalRecord.title,
-      objectives: Array.isArray(metadata.objectives) ? metadata.objectives : [],
-      instructions: practicalRecord.instructions || metadata.instructions || null,
-      narratorGuide: metadata.narratorGuide || null,
-      teacher: metadata.teacher && typeof metadata.teacher === 'object' ? metadata.teacher : null,
-      codeWalkthrough: Array.isArray(metadata.codeWalkthrough) ? metadata.codeWalkthrough : [],
-      teachingPlaylist: Array.isArray(metadata.teachingPlaylist) ? metadata.teachingPlaylist : [],
-      completionRule: practicalRecord.completionRule || metadata.completionRule || 'all_tests_pass',
-      checks: Array.isArray(metadata.checks) ? metadata.checks : [],
-      hints: Array.isArray(metadata.hints) ? metadata.hints : [],
-      evidence: Array.isArray(metadata.evidence) ? metadata.evidence : [],
-      environment: parseJson(practicalRecord.environmentJson, metadata.environment || null),
-      safety: parseJson(practicalRecord.safetyJson, metadata.safety || null),
-      cleanup: parseJson(practicalRecord.cleanupJson, metadata.cleanup || null),
-      completionRules: metadata.completionRules || null,
-      generator: metadata.generator || null,
+      objectives: Array.isArray(practicalPayload.objectives) ? practicalPayload.objectives : [],
+      instructions: practicalRecord.instructions || practicalPayload.instructions || null,
+      narratorGuide: practicalPayload.narratorGuide || null,
+      teacher: practicalPayload.teacher && typeof practicalPayload.teacher === 'object' ? practicalPayload.teacher : null,
+      codeWalkthrough: Array.isArray(practicalPayload.codeWalkthrough) ? practicalPayload.codeWalkthrough : [],
+      teachingPlaylist: Array.isArray(practicalPayload.teachingPlaylist) ? practicalPayload.teachingPlaylist : [],
+      completionRule: practicalRecord.completionRule || practicalPayload.completionRule || 'all_tests_pass',
+      checks: Array.isArray(practicalPayload.checks) && practicalPayload.checks.length > 0
+        ? practicalPayload.checks
+        : testRows.map((test) => {
+          const testData = asObject(parseJson(test.testData, {}));
+          return {
+            id: test.id,
+            type: test.testType,
+            adapter: testData.adapter || null,
+            command: testData.command,
+            expected: test.expected ?? testData.expected,
+            passCondition: testData.passCondition,
+            matchMode: testData.matchMode,
+            explanation: testData.explanation || '',
+            testData,
+          };
+        }),
+      hints: Array.isArray(practicalPayload.hints) ? practicalPayload.hints : [],
+      evidence: Array.isArray(practicalPayload.evidence) ? practicalPayload.evidence : [],
+      environment: parseJson(practicalRecord.environmentJson, practicalPayload.environment || null),
+      safety: parseJson(practicalRecord.safetyJson, practicalPayload.safety || null),
+      cleanup: parseJson(practicalRecord.cleanupJson, practicalPayload.cleanup || null),
+      completionRules: practicalPayload.completionRules || null,
+      generator: practicalPayload.generator || null,
       files,
       tasks,
     };
