@@ -1045,6 +1045,23 @@ function ensureMinimumNarrationLength(screen, minimumWords) {
   return true;
 }
 
+function normalizeGeneratedHtml(html) {
+  let normalized = String(html || '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, '  ');
+
+  if (/<\s*(pre|code)\b|class\s*=\s*["'][^"']*\b(code|editor|snippet|source)[^"']*["']/i.test(normalized)) {
+    const codeStyle = '<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style>';
+    const closingRoot = normalized.lastIndexOf('</div>');
+    normalized = closingRoot >= 0
+      ? `${normalized.slice(0, closingRoot)}${codeStyle}${normalized.slice(closingRoot)}`
+      : `${normalized}${codeStyle}`;
+  }
+
+  return normalized;
+}
+
 function validateBoard(board, screenPolicy) {
   if (!board || !Array.isArray(board.screens)) {
     throw new Error("Generated board has no screens array.");
@@ -1126,7 +1143,8 @@ function validateBoard(board, screenPolicy) {
       throw new Error(`Screen ${screen.id} must have a non-empty content.html string.`);
     }
 
-    const html = screen.content.html;
+      screen.content.html = normalizeGeneratedHtml(screen.content.html);
+      const html = screen.content.html;
     if (/<\s*(button|a\b|input\b|select\b|textarea\b|form\b)/i.test(html) || /\bonclick\s*=/i.test(html)) {
       throw new Error(`Screen ${screen.id} contains interactive markup. Learning boards must be static narrated presentations.`);
     }
