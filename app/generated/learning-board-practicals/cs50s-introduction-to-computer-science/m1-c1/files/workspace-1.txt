@@ -1,0 +1,44 @@
+# Binary Conversion Lab - main.py
+
+def binary_to_decimal(bin_str):
+    # validate
+    if not all(c in '01' for c in bin_str):
+        raise ValueError("Input must be a binary string containing only 0 and 1")
+    return sum(int(bit) * (2 ** idx) for idx, bit in enumerate(reversed(bin_str)))
+
+
+def decimal_to_binary(n):
+    if n < 0:
+        raise ValueError("Only non-negative integers supported")
+    if n == 0:
+        return '0'
+    bits = []
+    while n:
+        bits.append(str(n % 2))
+        n //= 2
+    return ''.join(reversed(bits))
+
+
+def unique_values(bits):
+    if bits < 0:
+        raise ValueError("bits must be non-negative")
+    return 2 ** bits
+
+
+def max_color_component(bits_per_component=8):
+    return unique_values(bits_per_component) - 1
+
+
+def padded_binary(n, bits=8):
+    b = decimal_to_binary(n)
+    if len(b) > bits:
+        raise ValueError(f"Number {n} cannot fit in {bits} bits")
+    return b.rjust(bits, '0')
+
+
+if __name__ == "__main__":
+    # Baseline conversions for the lab activity
+    print("Binary 11010 -> decimal:", binary_to_decimal('11010'))  # expected 26
+    print("Decimal 27 -> binary:", decimal_to_binary(27))          # expected 11011
+    print("Unique values with 6 bits:", unique_values(6))         # expected 64
+    print("Max color component for 8 bits:", max_color_component(8))  # expected 255
