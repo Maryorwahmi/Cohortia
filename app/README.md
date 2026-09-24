@@ -135,4 +135,17 @@ and `JENKINS_API_TOKEN` on the backend. The repository includes a
 `Jenkinsfile`; create a Jenkins Pipeline job from that file and add the
 `cohortia-automation-worker-token` secret credential used by the pipeline.
 
+The Jenkins controller image must include Node.js and npm. Build the included
+image before starting the container:
+
+```powershell
+docker build -f Dockerfile.jenkins -t cohortia-jenkins:latest .
+docker stop cohortia-jenkins
+docker rm cohortia-jenkins
+docker run -d --name cohortia-jenkins -p 8080:8080 -p 50000:50000 `
+  -v jenkins_home:/var/jenkins_home cohortia-jenkins:latest
+```
+
+This preserves the Jenkins home volume, jobs, credentials, and configuration.
+
 Repo-level course sources, generated learning boards, and practical generator scripts intentionally remain outside `app/`. The application paths are configured to read those shared assets without duplicating them.
