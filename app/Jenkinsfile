@@ -1,6 +1,11 @@
 pipeline {
   agent any
 
+  options {
+    skipDefaultCheckout(true)
+    timeout(time: 45, unit: 'MINUTES')
+  }
+
   environment {
     AUTOMATION_API_URL = 'https://cohortia.onrender.com'
     AUTOMATION_WORKER_TOKEN = credentials('cohortia-automation-worker-token')
@@ -9,17 +14,26 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        checkout scm
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: '*/main']],
+          userRemoteConfigs: [[url: 'https://github.com/Maryorwahmi/Cohortia.git']],
+          extensions: [
+            [$class: 'CloneOption', depth: 1, noTags: true, shallow: true, timeout: 20],
+          ],
+        ])
       }
     }
 
     stage('Install dependencies') {
       steps {
-        script {
-          if (isUnix()) {
-            sh 'npm ci --include-workspace-root'
-          } else {
-            bat 'npm ci --include-workspace-root'
+        dir('app') {
+          script {
+            if (isUnix()) {
+              sh 'node --version && npm --version && npm ci --include-workspace-root'
+            } else {
+              bat 'node --version && npm --version && npm ci --include-workspace-root'
+            }
           }
         }
       }
@@ -27,11 +41,13 @@ pipeline {
 
     stage('Process automation queue') {
       steps {
-        script {
-          if (isUnix()) {
-            sh 'node scripts/run-jenkins-automation.js'
-          } else {
-            bat 'node scripts/run-jenkins-automation.js'
+        dir('app') {
+          script {
+            if (isUnix()) {
+              sh 'node scripts/run-jenkins-automation.js'
+            } else {
+              bat 'node scripts/run-jenkins-automation.js'
+            }
           }
         }
       }
