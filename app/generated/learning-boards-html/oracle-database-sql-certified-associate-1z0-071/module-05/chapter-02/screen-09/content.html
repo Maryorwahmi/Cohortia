@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9)} pre{font-family:ui-monospace,Menlo,monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 05</span>
+      <span>›</span>
+      <span>Chapter 5.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Example: Employees Above Average Salary</span>
+    </div>
+    <div class="flex gap-6 h-[72%]">
+      <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Goal</div>
+        <h4 class="text-xl font-bold text-slate-800 mt-2">Find employees earning above the company average</h4>
+        <div class="mt-3 bg-slate-50 p-3 rounded-md overflow-hidden">
+          <pre class="text-sm text-slate-800">-- Step 1: Test the inner query independently
+SELECT AVG(salary) FROM employees;
+
+-- Step 2: Use it in the outer query
+SELECT employee_id, first_name, last_name, salary
+FROM employees
+WHERE salary &gt; (
+  SELECT AVG(salary) FROM employees
+);
+</pre>
+        </div>
+        <div class="mt-3 text-sm text-slate-600">
+          <div>Practical tip: run the inner query first to confirm it returns one numeric value. If it does, embed it and run the full query.</div>
+        </div>
+      </div>
+      <div class="w-1/2 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Explanation</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-2">
+          <li>The inner AVG computes a single scalar value representing the company average salary.</li>
+          <li>The outer WHERE compares each row's salary to that scalar and returns matching rows.</li>
+          <li>If the inner query returned multiple values, you would get ORA-01427; always test first.</li>
+        </ul>
+        <div class="mt-4 bg-emerald-50 p-3 rounded-md">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Independent single-row subqueries are evaluated once and supply a reliable comparison value.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

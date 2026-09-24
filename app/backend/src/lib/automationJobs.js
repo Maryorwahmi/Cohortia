@@ -9,8 +9,6 @@ import { automationJobs } from '../db/schema.js';
 const WORKER_INTERVAL_MS = Number(process.env.AUTOMATION_WORKER_INTERVAL_MS || 5000);
 const MAX_LOG_LENGTH = 180000;
 const COMMAND_TIMEOUT_MS = Number(process.env.AUTOMATION_COMMAND_TIMEOUT_MS || 2700000);
-const AUTOMATION_HANDSHAKE_TIMEOUT_MS = Number(process.env.AUTOMATION_HANDSHAKE_TIMEOUT_MS || 300000);
-const AUTOMATION_HANDSHAKE_POLL_MS = 1000;
 let workerTimer = null;
 let workerIsRunning = false;
 const activeProcesses = new Map();
@@ -32,14 +30,14 @@ export function automationExecutionMode() {
 
 export async function markAutomationWorkerReady() {
   const jobs = await db.select().from(automationJobs)
-    .where(eq(automationJobs.status, 'starting'))
+    .where(inArray(automationJobs.status, ['starting', 'queued']))
     .orderBy(asc(automationJobs.createdAt))
     .limit(1);
   const job = jobs[0];
   if (!job) return null;
   console.log(`[automation] Azure worker handshake received for job ${job.id}.`);
-  await appendJobLog(job, 'Azure worker connected. Generation queued.');
-  await updateJob(job.id, { status: 'queued' });
+  await appendJobLog(job, 'Azure worker connected. Generation queue available.');
+  if (job.status === 'starting') await updateJob(job.id, { status: 'queued' });
   return getAutomationJob(job.id);
 }
 
@@ -76,21 +74,6 @@ function localAutomationEnabled() {
 async function updateJob(jobId, values) {
   const updatedAt = values.updatedAt || now();
   await db.update(automationJobs).set({ ...values, updatedAt }).where(eq(automationJobs.id, jobId));
-}
-
-async function monitorAutomationHandshake(jobId) {
-  const deadline = Date.now() + AUTOMATION_HANDSHAKE_TIMEOUT_MS;
-  while (Date.now() < deadline) {
-    const job = await getAutomationJob(jobId);
-    if (!job || job.status === 'cancelled' || job.status === 'queued' || job.status === 'running') return;
-    await new Promise((resolve) => setTimeout(resolve, AUTOMATION_HANDSHAKE_POLL_MS));
-  }
-  const job = await getAutomationJob(jobId);
-  if (job?.status === 'starting') {
-    const message = `Azure worker did not connect within ${AUTOMATION_HANDSHAKE_TIMEOUT_MS / 1000} seconds. The generation was not queued.`;
-    console.error(`[automation] ${message} Job: ${jobId}.`);
-    await updateJob(jobId, { status: 'failed', error: message, completedAt: now() });
-  }
 }
 
 export async function recordAutomationWorkerEvent(jobId, event) {
@@ -440,18 +423,15 @@ export async function createAutomationJob({ requestedByUserId, category, subcate
   const job = {
     id: randomUUID(), requestedByUserId, category, subcategory: subcategory || null, courseId,
     module: module ?? null, overwrite: Boolean(overwrite),
-    status: external ? 'starting' : 'queued',
-    logs: external ? 'Starting background worker handshake.' : 'Queued for background generation.',
+    status: 'queued',
+    logs: external ? 'Queued; waiting for Azure worker to start.' : 'Queued for background generation.',
     attempts: 0, createdAt: timestamp, updatedAt: timestamp,
   };
   await db.insert(automationJobs).values(job);
   if (external) {
     try {
       await dispatchAutomationJob(job);
-      void monitorAutomationHandshake(job.id).catch((error) => {
-        console.error(`[automation] Azure handshake monitor failed for job ${job.id}:`, error);
-      });
-      console.log(`[automation] Azure start accepted for job ${job.id}; waiting asynchronously for worker handshake.`);
+      console.log(`[automation] Azure start accepted for job ${job.id}; queued for worker claim.`);
     } catch (error) {
       await updateJob(job.id, { status: 'failed', error: String(error?.message || error), completedAt: now() });
       throw error;
