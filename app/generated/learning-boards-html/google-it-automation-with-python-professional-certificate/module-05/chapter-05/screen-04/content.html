@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+    <span class="text-slate-700">google-cloud-python: compute_v1</span>
+  </div>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">What compute_v1 provides</div>
+      <ul class="mt-4 space-y-3 text-sm text-slate-700">
+        <li>Client classes such as InstancesClient and ImagesClient that wrap API calls.</li>
+        <li>Typed resource objects: Instance, AttachedDisk, NetworkInterface, Metadata items.</li>
+        <li>Operation objects for long-running tasks that support wait and error inspection.</li>
+      </ul>
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Analogy</div>
+        <div class="text-sm text-slate-800 mt-1">Think of compute_v1 as a toolkit of Lego pieces that represent disks, networks, and instances, which you assemble in code to build a VM.</div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <pre class="mt-3 bg-slate-100 p-3 rounded text-sm text-slate-800 overflow-auto"># create an AttachedDisk and Instance objects
+from google.cloud import compute_v1
+
+image = image_client.get_from_family(project="debian-cloud", family="debian-11")
+disk = compute_v1.AttachedDisk(initialize_params=compute_v1.AttachedDiskInitializeParams(source_image=image.self_link))
+instance = compute_v1.Instance(name="my-vm", machine_type=f"zones/{zone}/machineTypes/e2-medium", disks=[disk])
+# then call InstancesClient().insert(request=...)</pre>
+      <div class="mt-3 text-sm text-slate-700">Using typed objects keeps code readable and reduces mistakes compared with hand-building JSON payloads.</div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Prefer compute_v1 client objects for clarity and safer API usage; they make automation code easier to review and reuse.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

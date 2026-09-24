@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    :root{--violet:#7b42e8;--border:rgba(226,232,240,0.9)}
+    pre {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:0.85rem}
+  </style>
+  <div class="safe-area h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+        <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Code Walkthrough</span>
+        <span class="text-slate-700">Flask online inference</span>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 shadow-sm h-full" style="border:1px solid var(--border)">
+        <div class="text-sm font-semibold text-slate-800">Illustrative snippet</div>
+        <pre class="mt-3 p-3 rounded-lg bg-slate-50" style="border:1px solid var(--border)"># app.py - simplified inference service
+from flask import Flask, request, jsonify
+import joblib
+import numpy as np
+
+# load model at startup
+# model = joblib.load('model.pkl')
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    # expects JSON {"features": [num,...]}
+    # validate, convert to numpy, call model.predict, return JSON
+    pass
+
+# production: run under a WSGI server like Gunicorn</pre>
+
+        <div class="mt-4 text-sm text-slate-600">This snippet shows the pattern: load model, validate input, predict, and return structured JSON. In production replace the placeholder with robust validation and error handling.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg p-3 bg-white" style="border:1px solid var(--border)">
+            <div class="font-semibold text-slate-800">Operational notes</div>
+            <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+              <li>Run with a WSGI server inside a container for reliability.</li>
+              <li>Instrument latency, error rates, and request payload distributions.</li>
+              <li>Authenticate endpoints and use TLS for production traffic.</li>
+            </ul>
+          </div>
+
+          <div class="rounded-lg p-3 bg-slate-50" style="border:1px solid var(--border)">
+            <div class="font-semibold text-slate-800">Try this (terminal demo)</div>
+            <div class="text-sm text-slate-600 mt-2">Use a curl request to POST a small features list and validate the JSON response from the /predict endpoint once deployed.</div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">A simple web service demonstrates serving patterns; production deployment requires container orchestration, CI/CD, security, and monitoring.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col gap-4">
+      <div class="rounded-xl bg-white p-4 shadow-sm" style="border:1px solid var(--border)">
+        <div class="text-sm font-semibold text-slate-800">Terminal demo</div>
+        <pre class="mt-3 p-3 rounded-lg bg-black text-white">$ curl -X POST /predict -d '{"features": [1.0, 0.5, 3.2]}'
+{"prediction": [0]}
+
+# Replace with real endpoint and payload when testing</pre>
+      </div>
+
+      <div class="rounded-xl bg-slate-50 p-4" style="border:1px solid var(--border)">
+        <div class="text-sm font-semibold text-slate-800">Misconception</div>
+        <div class="text-sm text-slate-600 mt-2">A working endpoint doesn't imply correctness. Add unit tests, schema checks, and model quality gates to the pipeline.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl p-3 bg-white" style="border:1px solid var(--border)">
+          <div class="text-sm font-semibold text-slate-800">Try this</div>
+          <div class="text-xs text-slate-600 mt-2">List three production checks you would add to this service before permitting traffic: authentication, schema validation, and latency monitoring.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

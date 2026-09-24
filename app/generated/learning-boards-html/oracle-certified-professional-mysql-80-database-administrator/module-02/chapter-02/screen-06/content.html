@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+      <span>›</span>
+      <span>Chapter 2.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Atomicity and the Undo Log</span>
+    </div>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">What the Undo Log stores</div>
+      <div class="text-sm text-slate-600">Previous versions of modified rows and the information needed to reverse operations for rollback.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-md bg-white p-3 card-border">
+          <div class="text-xs font-bold text-slate-700">Rollback support</div>
+          <div class="text-sm text-slate-600">If a transaction fails, InnoDB replays Undo records to restore prior values.</div>
+        </div>
+        <div class="rounded-md bg-white p-3 card-border">
+          <div class="text-xs font-bold text-slate-700">MVCC snapshots</div>
+          <div class="text-sm text-slate-600">Older row versions are reconstructed from Undo records for consistent reads.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Concrete scenario</div>
+      <div class="text-sm text-slate-600">Transaction A updates a row and then an error triggers a rollback. The Undo Log contains the row image before A's update, allowing InnoDB to restore that image exactly and leave the database consistent.</div>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">Misconception</div>
+      <div class="text-sm text-slate-600 mt-1">Undo is not only for rollbacks. Its data is consulted to serve consistent reads to other transactions under MVCC.</div>
+
+      <div class="mt-auto pt-3">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Watch for</div>
+          <p class="text-xs font-medium text-slate-800">Long-running transactions keep old Undo records alive. That delays purge and can increase disk usage and overhead.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

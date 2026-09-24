@@ -1,0 +1,225 @@
+{
+  "courseId": "cs50s-introduction-to-computer-science",
+  "moduleNumber": 3,
+  "chapterNumber": 2,
+  "practical": {
+    "schemaVersion": 1,
+    "practicalId": "practical-cs50s-introduction-to-computer-science-m3-c2",
+    "source": {
+      "sourceKey": "cs50s-introduction-to-computer-science/3/2",
+      "category": "Terminal Coding Lab",
+      "sourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "sourceHash": "sha256:2b8b31c2f382c3de1f15c31b5ecd61173f271670761339c59d98bddbc6c37926"
+    },
+    "category": "Terminal Coding Lab",
+    "title": "INTENSIVE Lab — Implement & Compare Bubble / Selection / Insertion Sort (C)",
+    "summary": "Implement three classic in-place O(n^2) sorts in one C program, run them on separate copies of the same array, trace their step-by-step behavior (optional), and compare counts for comparisons and swaps to gain intuition about practical performance.",
+    "level": "Beginner",
+    "labType": "code",
+    "mode": "terminal_lab",
+    "language": "text",
+    "sourceActivity": "Implement and Compare Sorting Algorithms",
+    "objectives": [],
+    "learningObjectives": [],
+    "prerequisites": [],
+    "instructions": "**Activity: Implement and Compare Sorting Algorithms**\n\nYour task is to implement all three sorting algorithms (Bubble Sort, Selection Sort, Insertion Sort) in C within a single program. Then, create a `main` function that:\n1.  Declares three identical unsorted integer arrays.\n2.  Calls each sorting function on a *separate copy* of the array.\n3.  Prints the original array and the sorted array after each sort.\n4.  (Optional challenge): Add a counter to each sort function to count the number of swaps and comparisons, and print these counts for each algorithm. This will give you a concrete feel for their efficiency differences.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <stdbool.h> // For boolean type in bubble sort optimization\n#include <string.h>  // For memcpy\n\n// Function to print an array\nvoid print_array(int arr[], int size) {\n    for (int i = 0; i < size; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n}\n\n// Bubble Sort implementation (copy from lesson)\nvoid bubble_sort(int arr[], int n) {\n    int i, j;\n    bool swapped;\n    for (i = 0; i < n - 1; i++) {\n        swapped = false;\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n                swapped = true;\n            }\n        }\n        if (swapped == false)\n            break;\n    }\n}\n\n// Selection Sort implementation (copy from lesson)\nvoid selection_sort(int arr[], int n) {\n    int i, j, min_idx;\n    for (i = 0; i < n - 1; i++) {\n        min_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        }\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\n// Insertion Sort implementation (copy from lesson)\nvoid insertion_sort(int arr[], int n) {\n    int i, key, j;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j+1] = arr[j];\n            j = j - 1;\n        }\n        arr[j+1] = key;\n    }\n}\n\nint main() {\n    int original_arr[] = {5, 1, 4, 2, 8, 0, 9, 3, 7, 6};\n    int n = sizeof(original_arr) / sizeof(original_arr[0]);\n\n    // Create copies for each sort\n    int arr_bubble[n];\n    int arr_selection[n];\n    int arr_insertion[n];\n\n    memcpy(arr_bubble, original_arr, sizeof(original_arr));\n    memcpy(arr_selection, original_arr, sizeof(original_arr));\n    memcpy(arr_insertion, original_arr, sizeof(original_arr));\n\n    printf(\"Original array: \");\n    print_array(original_arr, n);\n    printf(\"\\n\");\n\n    // Test Bubble Sort\n    printf(\"--- Bubble Sort ---\\n\");\n    bubble_sort(arr_bubble, n);\n    printf(\"Sorted array: \");\n    print_array(arr_bubble, n);\n    printf(\"\\n\");\n\n    // Test Selection Sort\n    printf(\"--- Selection Sort ---\\n\");\n    selection_sort(arr_selection, n);\n    printf(\"Sorted array: \");\n    print_array(arr_selection, n);\n    printf(\"\\n\");\n\n    // Test Insertion Sort\n    printf(\"--- Insertion Sort ---\\n\");\n    insertion_sort(arr_insertion, n);\n    printf(\"Sorted array: \");\n    print_array(arr_insertion, n);\n    printf(\"\\n\");\n\n    return 0;\n}\n```",
+    "narratorGuide": "Welcome to INTENSIVE Lab — Implement & Compare Bubble / Selection / Insertion Sort (C). I am your teacher for this practical, and we will work through Implement and Compare Sorting Algorithms together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: **Activity: Implement and Compare Sorting Algorithms**\n\nYour task is to implement all three sorting algorithms (Bubble Sort, Selection Sort, Insertion Sort) in C within a single program. Then, create a `main` function that:\n1.  Declares three identical unsorted integer arrays.\n2.  Calls each sorting function on a *separate copy* of the array.\n3.  Prints the original array and the sorted array after each sort.\n4.  (Optional challenge): Add a counter to each sort function to count the number of swaps and comparisons, and print these counts for each algorithm. This will give you a concrete feel for their efficiency differences.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <stdbool.h> // For boolean type in bubble sort optimization\n#include <string.h>  // For memcpy\n\n// Function to print an array\nvoid print_array(int arr[], int size) {\n    for (int i = 0; i < size; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n}\n\n// Bubble Sort implementation (copy from lesson)\nvoid bubble_sort(int arr[], int n) {\n    int i, j;\n    bool swapped;\n    for (i = 0; i < n - 1; i++) {\n        swapped = false;\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n                swapped = true;\n            }\n        }\n        if (swapped == false)\n            break;\n    }\n}\n\n// Selection Sort implementation (copy from lesson)\nvoid selection_sort(int arr[], int n) {\n    int i, j, min_idx;\n    for (i = 0; i < n - 1; i++) {\n        min_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        }\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\n// Insertion Sort implementation (copy from lesson)\nvoid insertion_sort(int arr[], int n) {\n    int i, key, j;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j+1] = arr[j];\n            j = j - 1;\n        }\n        arr[j+1] = key;\n    }\n}\n\nint main() {\n    int original_arr[] = {5, 1, 4, 2, 8, 0, 9, 3, 7, 6};\n    int n = sizeof(original_arr) / sizeof(original_arr[0]);\n\n    // Create copies for each sort\n    int arr_bubble[n];\n    int arr_selection[n];\n    int arr_insertion[n];\n\n    memcpy(arr_bubble, original_arr, sizeof(original_arr));\n    memcpy(arr_selection, original_arr, sizeof(original_arr));\n    memcpy(arr_insertion, original_arr, sizeof(original_arr));\n\n    printf(\"Original array: \");\n    print_array(original_arr, n);\n    printf(\"\\n\");\n\n    // Test Bubble Sort\n    printf(\"--- Bubble Sort ---\\n\");\n    bubble_sort(arr_bubble, n);\n    printf(\"Sorted array: \");\n    print_array(arr_bubble, n);\n    printf(\"\\n\");\n\n    // Test Selection Sort\n    printf(\"--- Selection Sort ---\\n\");\n    selection_sort(arr_selection, n);\n    printf(\"Sorted array: \");\n    print_array(arr_selection, n);\n    printf(\"\\n\");\n\n    // Test Insertion Sort\n    printf(\"--- Insertion Sort ---\\n\");\n    insertion_sort(arr_insertion, n);\n    printf(\"Sorted array: \");\n    print_array(arr_insertion, n);\n    printf(\"\\n\");\n\n    return 0;\n}\n```. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.",
+    "teacher": {
+      "role": "supportive computer science teacher",
+      "opening": "Welcome to INTENSIVE Lab — Implement & Compare Bubble / Selection / Insertion Sort (C). I am your teacher for this practical, and we will work through Implement and Compare Sorting Algorithms together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: **Activity: Implement and Compare Sorting Algorithms**\n\nYour task is to implement all three sorting algorithms (Bubble Sort, Selection Sort, Insertion Sort) in C within a single program. Then, create a `main` function that:\n1.  Declares three identical unsorted integer arrays.\n2.  Calls each sorting function on a *separate copy* of the array.\n3.  Prints the original array and the sorted array after each sort.\n4.  (Optional challenge): Add a counter to each sort function to count the number of swaps and comparisons, and print these counts for each algorithm. This will give you a concrete feel for their efficiency differences.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <stdbool.h> // For boolean type in bubble sort optimization\n#include <string.h>  // For memcpy\n\n// Function to print an array\nvoid print_array(int arr[], int size) {\n    for (int i = 0; i < size; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n}\n\n// Bubble Sort implementation (copy from lesson)\nvoid bubble_sort(int arr[], int n) {\n    int i, j;\n    bool swapped;\n    for (i = 0; i < n - 1; i++) {\n        swapped = false;\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n                swapped = true;\n            }\n        }\n        if (swapped == false)\n            break;\n    }\n}\n\n// Selection Sort implementation (copy from lesson)\nvoid selection_sort(int arr[], int n) {\n    int i, j, min_idx;\n    for (i = 0; i < n - 1; i++) {\n        min_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        }\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\n// Insertion Sort implementation (copy from lesson)\nvoid insertion_sort(int arr[], int n) {\n    int i, key, j;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j+1] = arr[j];\n            j = j - 1;\n        }\n        arr[j+1] = key;\n    }\n}\n\nint main() {\n    int original_arr[] = {5, 1, 4, 2, 8, 0, 9, 3, 7, 6};\n    int n = sizeof(original_arr) / sizeof(original_arr[0]);\n\n    // Create copies for each sort\n    int arr_bubble[n];\n    int arr_selection[n];\n    int arr_insertion[n];\n\n    memcpy(arr_bubble, original_arr, sizeof(original_arr));\n    memcpy(arr_selection, original_arr, sizeof(original_arr));\n    memcpy(arr_insertion, original_arr, sizeof(original_arr));\n\n    printf(\"Original array: \");\n    print_array(original_arr, n);\n    printf(\"\\n\");\n\n    // Test Bubble Sort\n    printf(\"--- Bubble Sort ---\\n\");\n    bubble_sort(arr_bubble, n);\n    printf(\"Sorted array: \");\n    print_array(arr_bubble, n);\n    printf(\"\\n\");\n\n    // Test Selection Sort\n    printf(\"--- Selection Sort ---\\n\");\n    selection_sort(arr_selection, n);\n    printf(\"Sorted array: \");\n    print_array(arr_selection, n);\n    printf(\"\\n\");\n\n    // Test Insertion Sort\n    printf(\"--- Insertion Sort ---\\n\");\n    insertion_sort(arr_insertion, n);\n    printf(\"Sorted array: \");\n    print_array(arr_insertion, n);\n    printf(\"\\n\");\n\n    return 0;\n}\n```. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.",
+      "coachingPrompts": [
+        "What do you predict will happen before you run it?",
+        "What evidence shows that your change worked?",
+        "Can you explain the result in your own words?"
+      ]
+    },
+    "codeWalkthrough": [],
+    "completionRule": "all_tests_pass",
+    "environment": {
+      "adapter": "code-sandbox",
+      "runtime": "unspecified",
+      "workingDirectory": "/workspace",
+      "requiredTools": [],
+      "network": "disabled",
+      "resourceLimits": {
+        "timeoutSeconds": 60,
+        "memoryMb": 256,
+        "outputKb": 64
+      },
+      "resetStrategy": "fresh-workspace"
+    },
+    "files": [
+      {
+        "path": "main.c",
+        "content": "#include <stdio.h>\n#include <stdbool.h> // For boolean type in bubble sort optimization\n#include <string.h>  // For memcpy\n\n// Function to print an array\nvoid print_array(int arr[], int size) {\n    for (int i = 0; i < size; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n}\n\n// Bubble Sort implementation (copy from lesson)\nvoid bubble_sort(int arr[], int n) {\n    int i, j;\n    bool swapped;\n    for (i = 0; i < n - 1; i++) {\n        swapped = false;\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n                swapped = true;\n            }\n        }\n        if (swapped == false)\n            break;\n    }\n}\n\n// Selection Sort implementation (copy from lesson)\nvoid selection_sort(int arr[], int n) {\n    int i, j, min_idx;\n    for (i = 0; i < n - 1; i++) {\n        min_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        }\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\n// Insertion Sort implementation (copy from lesson)\nvoid insertion_sort(int arr[], int n) {\n    int i, key, j;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j+1] = arr[j];\n            j = j - 1;\n        }\n        arr[j+1] = key;\n    }\n}\n\nint main() {\n    int original_arr[] = {5, 1, 4, 2, 8, 0, 9, 3, 7, 6};\n    int n = sizeof(original_arr) / sizeof(original_arr[0]);\n\n    // Create copies for each sort\n    int arr_bubble[n];\n    int arr_selection[n];\n    int arr_insertion[n];\n\n    memcpy(arr_bubble, original_arr, sizeof(original_arr));\n    memcpy(arr_selection, original_arr, sizeof(original_arr));\n    memcpy(arr_insertion, original_arr, sizeof(original_arr));\n\n    printf(\"Original array: \");\n    print_array(original_arr, n);\n    printf(\"\\n\");\n\n    // Test Bubble Sort\n    printf(\"--- Bubble Sort ---\\n\");\n    bubble_sort(arr_bubble, n);\n    printf(\"Sorted array: \");\n    print_array(arr_bubble, n);\n    printf(\"\\n\");\n\n    // Test Selection Sort\n    printf(\"--- Selection Sort ---\\n\");\n    selection_sort(arr_selection, n);\n    printf(\"Sorted array: \");\n    print_array(arr_selection, n);\n    printf(\"\\n\");\n\n    // Test Insertion Sort\n    printf(\"--- Insertion Sort ---\\n\");\n    insertion_sort(arr_insertion, n);\n    printf(\"Sorted array: \");\n    print_array(arr_insertion, n);\n    printf(\"\\n\");\n\n    return 0;\n}",
+        "language": "c",
+        "description": "Runnable C starter file for the practical.",
+        "editable": true
+      }
+    ],
+    "tasks": [
+      {
+        "id": "scene-1-observe",
+        "title": "Scene 1 — Observe & Understand (Run the baseline)",
+        "instruction": "**Activity: Implement and Compare Sorting Algorithms**\n\nYour task is to implement all three sorting algorithms (Bubble Sort, Selection Sort, Insertion Sort) in C within a single program. Then, create a `main` function that:\n1.  Declares three identical unsorted integer arrays.\n2.  Calls each sorting function on a *separate copy* of the array.\n3.  Prints the original array and the sorted array after each sort.\n4.  (Optional challenge): Add a counter to each sort function to count the number of swaps and comparisons, and print these counts for each algorithm. This will give you a concrete feel for their efficiency differences.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <stdbool.h> // For boolean type in bubble sort optimization\n#include <string.h>  // For memcpy\n\n// Function to print an array\nvoid print_array(int arr[], int size) {\n    for (int i = 0; i < size; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n}\n\n// Bubble Sort implementation (copy from lesson)\nvoid bubble_sort(int arr[], int n) {\n    int i, j;\n    bool swapped;\n    for (i = 0; i < n - 1; i++) {\n        swapped = false;\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n                swapped = true;\n            }\n        }\n        if (swapped == false)\n            break;\n    }\n}\n\n// Selection Sort implementation (copy from lesson)\nvoid selection_sort(int arr[], int n) {\n    int i, j, min_idx;\n    for (i = 0; i < n - 1; i++) {\n        min_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        }\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\n// Insertion Sort implementation (copy from lesson)\nvoid insertion_sort(int arr[], int n) {\n    int i, key, j;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j+1] = arr[j];\n            j = j - 1;\n        }\n        arr[j+1] = key;\n    }\n}\n\nint main() {\n    int original_arr[] = {5, 1, 4, 2, 8, 0, 9, 3, 7, 6};\n    int n = sizeof(original_arr) / sizeof(original_arr[0]);\n\n    // Create copies for each sort\n    int arr_bubble[n];\n    int arr_selection[n];\n    int arr_insertion[n];\n\n    memcpy(arr_bubble, original_arr, sizeof(original_arr));\n    memcpy(arr_selection, original_arr, sizeof(original_arr));\n    memcpy(arr_insertion, original_arr, sizeof(original_arr));\n\n    printf(\"Original array: \");\n    print_array(original_arr, n);\n    printf(\"\\n\");\n\n    // Test Bubble Sort\n    printf(\"--- Bubble Sort ---\\n\");\n    bubble_sort(arr_bubble, n);\n    printf(\"Sorted array: \");\n    print_array(arr_bubble, n);\n    printf(\"\\n\");\n\n    // Test Selection Sort\n    printf(\"--- Selection Sort ---\\n\");\n    selection_sort(arr_selection, n);\n    printf(\"Sorted array: \");\n    print_array(arr_selection, n);\n    printf(\"\\n\");\n\n    // Test Insertion Sort\n    printf(\"--- Insertion Sort ---\\n\");\n    insertion_sort(arr_insertion, n);\n    printf(\"Sorted array: \");\n    print_array(arr_insertion, n);\n    printf(\"\\n\");\n\n    return 0;\n}\n```",
+        "narratorGuide": "Hello — let's observe a baseline run. We'll compile and run the provided C program without edits. It prints the original array, runs Bubble, Selection, and Insertion on separate copies, and prints both the sorted results and counts of comparisons and swaps for each algorithm. Watching these numeric counts helps you move from abstract Big-O language to concrete work performed on this small input. Next we'll modify the input and then enable trace mode to step through operations.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-1-baseline"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-2-modify",
+        "title": "Scene 2 — Modify & Experiment (Change input; see cause-and-effect)",
+        "instruction": "**Activity: Implement and Compare Sorting Algorithms**\n\nYour task is to implement all three sorting algorithms (Bubble Sort, Selection Sort, Insertion Sort) in C within a single program. Then, create a `main` function that:\n1.  Declares three identical unsorted integer arrays.\n2.  Calls each sorting function on a *separate copy* of the array.\n3.  Prints the original array and the sorted array after each sort.\n4.  (Optional challenge): Add a counter to each sort function to count the number of swaps and comparisons, and print these counts for each algorithm. This will give you a concrete feel for their efficiency differences.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <stdbool.h> // For boolean type in bubble sort optimization\n#include <string.h>  // For memcpy\n\n// Function to print an array\nvoid print_array(int arr[], int size) {\n    for (int i = 0; i < size; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n}\n\n// Bubble Sort implementation (copy from lesson)\nvoid bubble_sort(int arr[], int n) {\n    int i, j;\n    bool swapped;\n    for (i = 0; i < n - 1; i++) {\n        swapped = false;\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n                swapped = true;\n            }\n        }\n        if (swapped == false)\n            break;\n    }\n}\n\n// Selection Sort implementation (copy from lesson)\nvoid selection_sort(int arr[], int n) {\n    int i, j, min_idx;\n    for (i = 0; i < n - 1; i++) {\n        min_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        }\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\n// Insertion Sort implementation (copy from lesson)\nvoid insertion_sort(int arr[], int n) {\n    int i, key, j;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j+1] = arr[j];\n            j = j - 1;\n        }\n        arr[j+1] = key;\n    }\n}\n\nint main() {\n    int original_arr[] = {5, 1, 4, 2, 8, 0, 9, 3, 7, 6};\n    int n = sizeof(original_arr) / sizeof(original_arr[0]);\n\n    // Create copies for each sort\n    int arr_bubble[n];\n    int arr_selection[n];\n    int arr_insertion[n];\n\n    memcpy(arr_bubble, original_arr, sizeof(original_arr));\n    memcpy(arr_selection, original_arr, sizeof(original_arr));\n    memcpy(arr_insertion, original_arr, sizeof(original_arr));\n\n    printf(\"Original array: \");\n    print_array(original_arr, n);\n    printf(\"\\n\");\n\n    // Test Bubble Sort\n    printf(\"--- Bubble Sort ---\\n\");\n    bubble_sort(arr_bubble, n);\n    printf(\"Sorted array: \");\n    print_array(arr_bubble, n);\n    printf(\"\\n\");\n\n    // Test Selection Sort\n    printf(\"--- Selection Sort ---\\n\");\n    selection_sort(arr_selection, n);\n    printf(\"Sorted array: \");\n    print_array(arr_selection, n);\n    printf(\"\\n\");\n\n    // Test Insertion Sort\n    printf(\"--- Insertion Sort ---\\n\");\n    insertion_sort(arr_insertion, n);\n    printf(\"Sorted array: \");\n    print_array(arr_insertion, n);\n    printf(\"\\n\");\n\n    return 0;\n}\n```",
+        "narratorGuide": "Great — next, change the input to a nearly-sorted case or use the provided 'sorted' preset. You only need a small edit (or pass an argument) to flip scenarios: nearly-sorted arrays favor Insertion Sort's O(n) best case. Run the program with the 'sorted' preset (./sort_demo sorted) to see counts drop for Insertion (and Bubble with the early-exit optimization) while Selection's comparisons remain the same. Observe and note why Selection doesn't improve.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-2-sorted-best-case"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-3-build",
+        "title": "Scene 3 — Build & Integrate (Enable tracing; step through operations)",
+        "instruction": "**Activity: Implement and Compare Sorting Algorithms**\n\nYour task is to implement all three sorting algorithms (Bubble Sort, Selection Sort, Insertion Sort) in C within a single program. Then, create a `main` function that:\n1.  Declares three identical unsorted integer arrays.\n2.  Calls each sorting function on a *separate copy* of the array.\n3.  Prints the original array and the sorted array after each sort.\n4.  (Optional challenge): Add a counter to each sort function to count the number of swaps and comparisons, and print these counts for each algorithm. This will give you a concrete feel for their efficiency differences.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <stdbool.h> // For boolean type in bubble sort optimization\n#include <string.h>  // For memcpy\n\n// Function to print an array\nvoid print_array(int arr[], int size) {\n    for (int i = 0; i < size; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n}\n\n// Bubble Sort implementation (copy from lesson)\nvoid bubble_sort(int arr[], int n) {\n    int i, j;\n    bool swapped;\n    for (i = 0; i < n - 1; i++) {\n        swapped = false;\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n                swapped = true;\n            }\n        }\n        if (swapped == false)\n            break;\n    }\n}\n\n// Selection Sort implementation (copy from lesson)\nvoid selection_sort(int arr[], int n) {\n    int i, j, min_idx;\n    for (i = 0; i < n - 1; i++) {\n        min_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        }\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\n// Insertion Sort implementation (copy from lesson)\nvoid insertion_sort(int arr[], int n) {\n    int i, key, j;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j+1] = arr[j];\n            j = j - 1;\n        }\n        arr[j+1] = key;\n    }\n}\n\nint main() {\n    int original_arr[] = {5, 1, 4, 2, 8, 0, 9, 3, 7, 6};\n    int n = sizeof(original_arr) / sizeof(original_arr[0]);\n\n    // Create copies for each sort\n    int arr_bubble[n];\n    int arr_selection[n];\n    int arr_insertion[n];\n\n    memcpy(arr_bubble, original_arr, sizeof(original_arr));\n    memcpy(arr_selection, original_arr, sizeof(original_arr));\n    memcpy(arr_insertion, original_arr, sizeof(original_arr));\n\n    printf(\"Original array: \");\n    print_array(original_arr, n);\n    printf(\"\\n\");\n\n    // Test Bubble Sort\n    printf(\"--- Bubble Sort ---\\n\");\n    bubble_sort(arr_bubble, n);\n    printf(\"Sorted array: \");\n    print_array(arr_bubble, n);\n    printf(\"\\n\");\n\n    // Test Selection Sort\n    printf(\"--- Selection Sort ---\\n\");\n    selection_sort(arr_selection, n);\n    printf(\"Sorted array: \");\n    print_array(arr_selection, n);\n    printf(\"\\n\");\n\n    // Test Insertion Sort\n    printf(\"--- Insertion Sort ---\\n\");\n    insertion_sort(arr_insertion, n);\n    printf(\"Sorted array: \");\n    print_array(arr_insertion, n);\n    printf(\"\\n\");\n\n    return 0;\n}\n```",
+        "narratorGuide": "Excellent — now let's step through the algorithms. Re-run the program with the 'trace' flag (./sort_demo trace) to see line-by-line messages describing each compare and swap. Watch how Bubble repeatedly compares neighbors, Selection scans for a min and performs occasional swaps, and Insertion shifts elements into place. Use this trace to predict the next few operations before they appear; that active prediction is a powerful learning technique.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-3-trace"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-4-verify-extend",
+        "title": "Scene 4 — Verify & Extend (Edge cases and final reflection)",
+        "instruction": "**Activity: Implement and Compare Sorting Algorithms**\n\nYour task is to implement all three sorting algorithms (Bubble Sort, Selection Sort, Insertion Sort) in C within a single program. Then, create a `main` function that:\n1.  Declares three identical unsorted integer arrays.\n2.  Calls each sorting function on a *separate copy* of the array.\n3.  Prints the original array and the sorted array after each sort.\n4.  (Optional challenge): Add a counter to each sort function to count the number of swaps and comparisons, and print these counts for each algorithm. This will give you a concrete feel for their efficiency differences.\n\n**Starter Code (C):**\n```c\n#include <stdio.h>\n#include <stdbool.h> // For boolean type in bubble sort optimization\n#include <string.h>  // For memcpy\n\n// Function to print an array\nvoid print_array(int arr[], int size) {\n    for (int i = 0; i < size; i++) {\n        printf(\"%d \", arr[i]);\n    }\n    printf(\"\\n\");\n}\n\n// Bubble Sort implementation (copy from lesson)\nvoid bubble_sort(int arr[], int n) {\n    int i, j;\n    bool swapped;\n    for (i = 0; i < n - 1; i++) {\n        swapped = false;\n        for (j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n                swapped = true;\n            }\n        }\n        if (swapped == false)\n            break;\n    }\n}\n\n// Selection Sort implementation (copy from lesson)\nvoid selection_sort(int arr[], int n) {\n    int i, j, min_idx;\n    for (i = 0; i < n - 1; i++) {\n        min_idx = i;\n        for (j = i + 1; j < n; j++) {\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        }\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}\n\n// Insertion Sort implementation (copy from lesson)\nvoid insertion_sort(int arr[], int n) {\n    int i, key, j;\n    for (i = 1; i < n; i++) {\n        key = arr[i];\n        j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j+1] = arr[j];\n            j = j - 1;\n        }\n        arr[j+1] = key;\n    }\n}\n\nint main() {\n    int original_arr[] = {5, 1, 4, 2, 8, 0, 9, 3, 7, 6};\n    int n = sizeof(original_arr) / sizeof(original_arr[0]);\n\n    // Create copies for each sort\n    int arr_bubble[n];\n    int arr_selection[n];\n    int arr_insertion[n];\n\n    memcpy(arr_bubble, original_arr, sizeof(original_arr));\n    memcpy(arr_selection, original_arr, sizeof(original_arr));\n    memcpy(arr_insertion, original_arr, sizeof(original_arr));\n\n    printf(\"Original array: \");\n    print_array(original_arr, n);\n    printf(\"\\n\");\n\n    // Test Bubble Sort\n    printf(\"--- Bubble Sort ---\\n\");\n    bubble_sort(arr_bubble, n);\n    printf(\"Sorted array: \");\n    print_array(arr_bubble, n);\n    printf(\"\\n\");\n\n    // Test Selection Sort\n    printf(\"--- Selection Sort ---\\n\");\n    selection_sort(arr_selection, n);\n    printf(\"Sorted array: \");\n    print_array(arr_selection, n);\n    printf(\"\\n\");\n\n    // Test Insertion Sort\n    printf(\"--- Insertion Sort ---\\n\");\n    insertion_sort(arr_insertion, n);\n    printf(\"Sorted array: \");\n    print_array(arr_insertion, n);\n    printf(\"\\n\");\n\n    return 0;\n}\n```",
+        "narratorGuide": "You're almost done — run reverse and duplicate presets to verify worst- and duplicate-handling behavior. For reverse-sorted data you'll see the greatest work (many swaps and comparisons) for Bubble and Insertion, while Selection's comparisons remain constant. For duplicates, notice that Bubble and Insertion remain stable (relative order preserved), while Selection might not. As an extension, try modifying the program to sort doubles or strings — that will require changing the array type and comparator logic.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-4-reverse-worst"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      }
+    ],
+    "checks": [
+      {
+        "id": "check-1-baseline",
+        "type": "manual",
+        "adapter": "code-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-2-sorted-best-case",
+        "type": "manual",
+        "adapter": "code-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-3-trace",
+        "type": "manual",
+        "adapter": "code-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-4-reverse-worst",
+        "type": "manual",
+        "adapter": "code-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-5-duplicates",
+        "type": "manual",
+        "adapter": "code-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      }
+    ],
+    "hints": [],
+    "evidence": [
+      {
+        "id": "practical-result",
+        "type": "artifact",
+        "label": "Practical result",
+        "required": true,
+        "redactSecrets": true
+      }
+    ],
+    "safety": {
+      "profile": "code-isolated",
+      "networkAccess": "disabled",
+      "hostAccess": "none",
+      "requiresManualReview": false,
+      "prohibitedOperations": [
+        "accessing the host filesystem",
+        "reading credentials or secrets",
+        "privileged operations",
+        "network access outside declared fixtures"
+      ],
+      "learnerWarning": "This practical runs in an isolated workspace. Do not use real credentials or production resources."
+    },
+    "cleanup": {
+      "strategy": "discard-workspace",
+      "instructions": "Discard the isolated workspace after completion."
+    },
+    "completionRules": {
+      "requiredChecks": [
+        "check-1-baseline",
+        "check-2-sorted-best-case",
+        "check-3-trace",
+        "check-4-reverse-worst",
+        "check-5-duplicates"
+      ],
+      "minimumScore": 1,
+      "requiresEvidence": true,
+      "manualReview": false
+    },
+    "generator": {
+      "generatorVersion": "phase4.2",
+      "classifierVersion": "phase3.1"
+    },
+    "metadata": {
+      "courseId": "cs50s-introduction-to-computer-science",
+      "moduleNumber": 3,
+      "chapterNumber": 2,
+      "model": "gemini-2.5-flash",
+      "generatedAt": "2026-09-24T20:36:25.985Z",
+      "activitySourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "lessonSourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "activitySourceHash": "sha256:2b8b31c2f382c3de1f15c31b5ecd61173f271670761339c59d98bddbc6c37926",
+      "lessonSourceHash": "sha256:3d06a30bf934a1976deb739f3e00e855fdb3dd5fab759e225433dc41ecb785f8"
+    },
+    "animationMetadata": {
+      "type": "interactive-code-reveal",
+      "narrator": "educator",
+      "synchronizedPlayback": true,
+      "totalLessonDurationMs": 720000
+    }
+  }
+}

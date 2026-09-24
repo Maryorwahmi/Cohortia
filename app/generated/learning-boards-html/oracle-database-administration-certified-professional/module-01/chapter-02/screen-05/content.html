@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--rose:#ef6675} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Shared Pool</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="flex-1 bg-white rounded-2xl p-4 border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">What the Shared Pool holds</div>
+      <p class="mt-2 text-sm text-slate-600">It contains the library cache for parsed SQL and the data dictionary cache for object metadata. These caches reduce CPU and repeated lookups.</p>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-700">Library Cache</div>
+          <div class="text-sm text-slate-600 mt-1">Reuses parsed statements and execution plans to avoid hard parsing.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-700">Data Dictionary Cache</div>
+          <div class="text-sm text-slate-600 mt-1">Caches metadata about objects and privileges used during parsing and execution.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Diagnostic signs</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+          <li>High hard parses per second or library cache misses.</li>
+          <li>Shared pool fragmentation or latch contention when small.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-96 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+        <p class="text-sm text-slate-700 mt-1">Multiple sessions run the same query with different literal values. If literals are not bound, Oracle hard-parses each statement, increasing CPU and filling the shared pool with many similar entries.</p>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Prefer bind variables, analyze parsing metrics, and size the Shared Pool based on measured demand.</p>
+      </div>
+
+      <div class="rounded-xl p-3 bg-rose-50 border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <p class="text-sm text-rose-700 mt-1">Increasing the shared pool without addressing application parsing patterns only delays the problem.</p>
+      </div>
+    </div>
+  </div>
+</div>

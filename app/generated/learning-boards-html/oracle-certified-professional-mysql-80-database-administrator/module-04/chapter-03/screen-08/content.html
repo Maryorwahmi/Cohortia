@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">xtrabackup --backup</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-6 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-900">Starter commands (example)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto"># Create directory
+mkdir -p /data/backups/full_backup_$(date +%Y%m%d_%H%M%S)
+
+# Perform the backup
+xtrabackup --backup --target-dir=/data/backups/full_backup_20220101_120000 \
+  --user=backup_user --password=StrongPassword123! --datadir=/var/lib/mysql</pre>
+      <div class="mt-3 text-sm text-slate-600">Watch for progress, LSN values, and the creation of xtrabackup_binlog_info in the target directory.</div>
+    </div>
+    <div class="bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">What to check after backup</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>xtrabackup_binlog_info exists and contains binlog coordinates.</li>
+        <li>Backup finished without errors and reported final LSN.</li>
+        <li>Target directory has expected files and sufficient free space remained.</li>
+      </ul>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Danger</div>
+          <p class="text-sm text-slate-800">Do not attempt to restore from these raw files until you run xtrabackup --prepare.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

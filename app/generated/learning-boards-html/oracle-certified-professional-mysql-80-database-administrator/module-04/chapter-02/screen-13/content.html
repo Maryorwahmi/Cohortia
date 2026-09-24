@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: cohortia_app</span>
+  </div>
+  <div class="rounded-2xl bg-white card-border p-6 shadow-sm h-full flex flex-col">
+    <div class="text-sm font-bold">Starter commands and hints</div>
+    <div class="mt-3 grid grid-cols-2 gap-4 flex-1">
+      <div class="bg-slate-900 text-white rounded-lg p-4 overflow-auto">
+        <pre class="text-sm"># Create sample DB and objects (run in mysql client)
+CREATE DATABASE IF NOT EXISTS cohortia_app;
+-- create tables, insert sample data, create procedure and trigger
+
+# Dump with routines and master-data
+mysqldump -u root -p --single-transaction --master-data=2 --routines --triggers cohortia_app &gt; cohortia_app_full_backup.sql
+
+# Simulate loss
+# DROP TABLE orders; DROP PROCEDURE get_user_orders;
+
+# Restore
+mysql -u root -p cohortia_app &lt; cohortia_app_full_backup.sql</pre>
+      </div>
+      <div class="rounded-lg p-3 bg-white card-border text-sm">
+        <div class="font-bold">Verification hints</div>
+        <ul class="mt-2 list-disc pl-5 text-slate-700">
+          <li>SHOW TABLES; expect users, products, orders.</li>
+          <li>SELECT * FROM orders; check sample rows and timestamps.</li>
+          <li>SHOW PROCEDURE STATUS to confirm get_user_orders exists.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Follow the dump, simulate failure, restore, and verify both data and programmatic objects to ensure a complete recovery.</p>
+    </div>
+  </div>
+</div>

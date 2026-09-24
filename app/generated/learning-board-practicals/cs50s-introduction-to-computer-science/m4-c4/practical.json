@@ -1,0 +1,227 @@
+{
+  "courseId": "cs50s-introduction-to-computer-science",
+  "moduleNumber": 4,
+  "chapterNumber": 4,
+  "practical": {
+    "schemaVersion": 1,
+    "practicalId": "practical-cs50s-introduction-to-computer-science-m4-c4",
+    "source": {
+      "sourceKey": "cs50s-introduction-to-computer-science/4/4",
+      "category": "Terminal Coding Lab",
+      "sourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "sourceHash": "sha256:0c77dacddb90959d62924838aad284991b2808c8ed420908fac486416afbc3ff"
+    },
+    "category": "Terminal Coding Lab",
+    "title": "File I/O and Exception Handling — Interactive Lab: Log Generator & Analyzer",
+    "summary": "",
+    "level": "Beginner",
+    "labType": "database",
+    "mode": "database_lab",
+    "language": "sqlite",
+    "sourceActivity": "Simple Log File Generator and Analyzer",
+    "objectives": [],
+    "learningObjectives": [],
+    "prerequisites": [],
+    "instructions": "**Activity: Simple Log File Generator and Analyzer**\n\nCreate a Python script that first generates a simple log file, then reads it, processes its content, and handles potential errors.\n\n**Part 1: Generate Log File**\nWrite a function `generate_log(filename, num_entries)` that creates a file named `filename`. Inside this file, write `num_entries` lines. Each line should simulate a log entry, e.g., \"Log entry X: Operation successful.\" or \"Log entry Y: Warning - Low disk space.\" (randomly choose between success/warning). Use the `'w'` mode.\n\n**Part 2: Analyze Log File**\nWrite a function `analyze_log(filename)` that attempts to open and read the log file.\n*   If the file is not found, print \"Error: Log file not found.\"\n*   If the file is found, read its content line by line.\n*   Count how many \"successful\" operations and how many \"warning\" operations are recorded.\n*   Print the counts.\n*   Ensure the file is properly closed, even if other errors occur during processing (e.g., if a line is malformed, though for this exercise, assume lines are well-formed).\n\n**Starter Code:**\n```python\nimport random\n\ndef generate_log(filename, num_entries):\n    \"\"\"Generates a log file with random success/warning entries.\"\"\"\n    with open(filename, \"w\") as f:\n        for i in range(num_entries):\n            if random.random() < 0.7: # 70% chance of success\n                f.write(f\"Log entry {i+1}: Operation successful.\\n\")\n            else:\n                f.write(f\"Log entry {i+1}: Warning - Low disk space.\\n\")\n    print(f\"Generated {num_entries} log entries in '{filename}'.\")\n\ndef analyze_log(filename):\n    \"\"\"Analyzes a log file for success and warning entries.\"\"\"\n    success_count = 0\n    warning_count = 0\n    try:\n        with open(filename, \"r\") as f:\n            for line in f:\n                if \"successful\" in line:\n                    success_count += 1\n                elif \"Warning\" in line:\n                    warning_count += 1\n        print(f\"Analysis of '{filename}':\")\n        print(f\"  Successful operations: {success_count}\")\n        print(f\"  Warning operations: {warning_count}\")\n    except FileNotFoundError:\n        print(f\"Error: Log file '{filename}' not found.\")\n    except Exception as e:\n        print(f\"An unexpected error occurred during analysis: {e}\")\n\n# --- Main execution ---\nif __name__ == \"__main__\":\n    log_file_name = \"application.log\"\n    num_entries_to_generate = 10\n\n    # Part 1: Generate the log file\n    generate_log(log_file_name, num_entries_to_generate)\n\n    # Part 2: Analyze the log file\n    analyze_log(log_file_name)\n\n    # Test case for FileNotFoundError:\n    # print(\"\\nTesting non-existent file:\")\n    # analyze_log(\"non_existent_log.txt\")\n```",
+    "narratorGuide": "Welcome to File I/O and Exception Handling — Interactive Lab: Log Generator & Analyzer. I am your teacher for this practical, and we will work through Simple Log File Generator and Analyzer together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: **Activity: Simple Log File Generator and Analyzer**\n\nCreate a Python script that first generates a simple log file, then reads it, processes its content, and handles potential errors.\n\n**Part 1: Generate Log File**\nWrite a function `generate_log(filename, num_entries)` that creates a file named `filename`. Inside this file, write `num_entries` lines. Each line should simulate a log entry, e.g., \"Log entry X: Operation successful.\" or \"Log entry Y: Warning - Low disk space.\" (randomly choose between success/warning). Use the `'w'` mode.\n\n**Part 2: Analyze Log File**\nWrite a function `analyze_log(filename)` that attempts to open and read the log file.\n*   If the file is not found, print \"Error: Log file not found.\"\n*   If the file is found, read its content line by line.\n*   Count how many \"successful\" operations and how many \"warning\" operations are recorded.\n*   Print the counts.\n*   Ensure the file is properly closed, even if other errors occur during processing (e.g., if a line is malformed, though for this exercise, assume lines are well-formed).\n\n**Starter Code:**\n```python\nimport random\n\ndef generate_log(filename, num_entries):\n    \"\"\"Generates a log file with random success/warning entries.\"\"\"\n    with open(filename, \"w\") as f:\n        for i in range(num_entries):\n            if random.random() < 0.7: # 70% chance of success\n                f.write(f\"Log entry {i+1}: Operation successful.\\n\")\n            else:\n                f.write(f\"Log entry {i+1}: Warning - Low disk space.\\n\")\n    print(f\"Generated {num_entries} log entries in '{filename}'.\")\n\ndef analyze_log(filename):\n    \"\"\"Analyzes a log file for success and warning entries.\"\"\"\n    success_count = 0\n    warning_count = 0\n    try:\n        with open(filename, \"r\") as f:\n            for line in f:\n                if \"successful\" in line:\n                    success_count += 1\n                elif \"Warning\" in line:\n                    warning_count += 1\n        print(f\"Analysis of '{filename}':\")\n        print(f\"  Successful operations: {success_count}\")\n        print(f\"  Warning operations: {warning_count}\")\n    except FileNotFoundError:\n        print(f\"Error: Log file '{filename}' not found.\")\n    except Exception as e:\n        print(f\"An unexpected error occurred during analysis: {e}\")\n\n# --- Main execution ---\nif __name__ == \"__main__\":\n    log_file_name = \"application.log\"\n    num_entries_to_generate = 10\n\n    # Part 1: Generate the log file\n    generate_log(log_file_name, num_entries_to_generate)\n\n    # Part 2: Analyze the log file\n    analyze_log(log_file_name)\n\n    # Test case for FileNotFoundError:\n    # print(\"\\nTesting non-existent file:\")\n    # analyze_log(\"non_existent_log.txt\")\n```. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.",
+    "teacher": {
+      "role": "supportive computer science teacher",
+      "opening": "Welcome to File I/O and Exception Handling — Interactive Lab: Log Generator & Analyzer. I am your teacher for this practical, and we will work through Simple Log File Generator and Analyzer together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: **Activity: Simple Log File Generator and Analyzer**\n\nCreate a Python script that first generates a simple log file, then reads it, processes its content, and handles potential errors.\n\n**Part 1: Generate Log File**\nWrite a function `generate_log(filename, num_entries)` that creates a file named `filename`. Inside this file, write `num_entries` lines. Each line should simulate a log entry, e.g., \"Log entry X: Operation successful.\" or \"Log entry Y: Warning - Low disk space.\" (randomly choose between success/warning). Use the `'w'` mode.\n\n**Part 2: Analyze Log File**\nWrite a function `analyze_log(filename)` that attempts to open and read the log file.\n*   If the file is not found, print \"Error: Log file not found.\"\n*   If the file is found, read its content line by line.\n*   Count how many \"successful\" operations and how many \"warning\" operations are recorded.\n*   Print the counts.\n*   Ensure the file is properly closed, even if other errors occur during processing (e.g., if a line is malformed, though for this exercise, assume lines are well-formed).\n\n**Starter Code:**\n```python\nimport random\n\ndef generate_log(filename, num_entries):\n    \"\"\"Generates a log file with random success/warning entries.\"\"\"\n    with open(filename, \"w\") as f:\n        for i in range(num_entries):\n            if random.random() < 0.7: # 70% chance of success\n                f.write(f\"Log entry {i+1}: Operation successful.\\n\")\n            else:\n                f.write(f\"Log entry {i+1}: Warning - Low disk space.\\n\")\n    print(f\"Generated {num_entries} log entries in '{filename}'.\")\n\ndef analyze_log(filename):\n    \"\"\"Analyzes a log file for success and warning entries.\"\"\"\n    success_count = 0\n    warning_count = 0\n    try:\n        with open(filename, \"r\") as f:\n            for line in f:\n                if \"successful\" in line:\n                    success_count += 1\n                elif \"Warning\" in line:\n                    warning_count += 1\n        print(f\"Analysis of '{filename}':\")\n        print(f\"  Successful operations: {success_count}\")\n        print(f\"  Warning operations: {warning_count}\")\n    except FileNotFoundError:\n        print(f\"Error: Log file '{filename}' not found.\")\n    except Exception as e:\n        print(f\"An unexpected error occurred during analysis: {e}\")\n\n# --- Main execution ---\nif __name__ == \"__main__\":\n    log_file_name = \"application.log\"\n    num_entries_to_generate = 10\n\n    # Part 1: Generate the log file\n    generate_log(log_file_name, num_entries_to_generate)\n\n    # Part 2: Analyze the log file\n    analyze_log(log_file_name)\n\n    # Test case for FileNotFoundError:\n    # print(\"\\nTesting non-existent file:\")\n    # analyze_log(\"non_existent_log.txt\")\n```. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.",
+      "coachingPrompts": [
+        "What do you predict will happen before you run it?",
+        "What evidence shows that your change worked?",
+        "Can you explain the result in your own words?"
+      ]
+    },
+    "codeWalkthrough": [],
+    "completionRule": "all_tests_pass",
+    "environment": {
+      "adapter": "database-sandbox",
+      "runtime": "unspecified",
+      "workingDirectory": "/workspace",
+      "requiredTools": [],
+      "network": "disabled",
+      "resourceLimits": {
+        "timeoutSeconds": 60,
+        "memoryMb": 256,
+        "outputKb": 64
+      },
+      "resetStrategy": "fresh-workspace"
+    },
+    "files": [
+      {
+        "path": "main.py",
+        "content": "import random\n\n# Seed for reproducibility in this lab (so the outputs are deterministic for verification)\nrandom.seed(0)\n\ndef generate_log(filename, num_entries):\n    \"\"\"Generates a log file with random success/warning entries.\"\"\"\n    with open(filename, \"w\") as f:\n        for i in range(num_entries):\n            if random.random() < 0.7: # 70% chance of success\n                f.write(f\"Log entry {i+1}: Operation successful.\\n\")\n            else:\n                f.write(f\"Log entry {i+1}: Warning - Low disk space.\\n\")\n    print(f\"Generated {num_entries} log entries in '{filename}'.\")\n\n\ndef analyze_log(filename):\n    \"\"\"Analyzes a log file for success and warning entries.\"\"\"\n    success_count = 0\n    warning_count = 0\n    try:\n        with open(filename, \"r\") as f:\n            for line in f:\n                if \"successful\" in line:\n                    success_count += 1\n                elif \"Warning\" in line:\n                    warning_count += 1\n        print(f\"Analysis of '{filename}':\")\n        print(f\"  Successful operations: {success_count}\")\n        print(f\"  Warning operations: {warning_count}\")\n    except FileNotFoundError:\n        print(f\"Error: Log file '{filename}' not found.\")\n    except Exception as e:\n        print(f\"An unexpected error occurred during analysis: {e}\")\n\n\n# --- Main execution (runnable starter) ---\nif __name__ == \"__main__\":\n    log_file_name = \"application.log\"\n    # To experiment in Scene 2 change the next line to 20 (or another number)\n    num_entries_to_generate = 10\n\n    # Part 1: Generate the log file\n    generate_log(log_file_name, num_entries_to_generate)\n\n    # Part 2: Analyze the log file\n    analyze_log(log_file_name)\n\n    # Sample test calls you can run separately (import main in python -c to call analyze_log):\n    # analyze_log(\"non_existent_log.txt\")\n",
+        "language": "sqlite",
+        "description": "",
+        "editable": true
+      }
+    ],
+    "tasks": [
+      {
+        "id": "scene-1-observe-understand",
+        "title": "Scene 1 — Observe & Understand (2-4 min)",
+        "instruction": "**Activity: Simple Log File Generator and Analyzer**\n\nCreate a Python script that first generates a simple log file, then reads it, processes its content, and handles potential errors.\n\n**Part 1: Generate Log File**\nWrite a function `generate_log(filename, num_entries)` that creates a file named `filename`. Inside this file, write `num_entries` lines. Each line should simulate a log entry, e.g., \"Log entry X: Operation successful.\" or \"Log entry Y: Warning - Low disk space.\" (randomly choose between success/warning). Use the `'w'` mode.\n\n**Part 2: Analyze Log File**\nWrite a function `analyze_log(filename)` that attempts to open and read the log file.\n*   If the file is not found, print \"Error: Log file not found.\"\n*   If the file is found, read its content line by line.\n*   Count how many \"successful\" operations and how many \"warning\" operations are recorded.\n*   Print the counts.\n*   Ensure the file is properly closed, even if other errors occur during processing (e.g., if a line is malformed, though for this exercise, assume lines are well-formed).\n\n**Starter Code:**\n```python\nimport random\n\ndef generate_log(filename, num_entries):\n    \"\"\"Generates a log file with random success/warning entries.\"\"\"\n    with open(filename, \"w\") as f:\n        for i in range(num_entries):\n            if random.random() < 0.7: # 70% chance of success\n                f.write(f\"Log entry {i+1}: Operation successful.\\n\")\n            else:\n                f.write(f\"Log entry {i+1}: Warning - Low disk space.\\n\")\n    print(f\"Generated {num_entries} log entries in '{filename}'.\")\n\ndef analyze_log(filename):\n    \"\"\"Analyzes a log file for success and warning entries.\"\"\"\n    success_count = 0\n    warning_count = 0\n    try:\n        with open(filename, \"r\") as f:\n            for line in f:\n                if \"successful\" in line:\n                    success_count += 1\n                elif \"Warning\" in line:\n                    warning_count += 1\n        print(f\"Analysis of '{filename}':\")\n        print(f\"  Successful operations: {success_count}\")\n        print(f\"  Warning operations: {warning_count}\")\n    except FileNotFoundError:\n        print(f\"Error: Log file '{filename}' not found.\")\n    except Exception as e:\n        print(f\"An unexpected error occurred during analysis: {e}\")\n\n# --- Main execution ---\nif __name__ == \"__main__\":\n    log_file_name = \"application.log\"\n    num_entries_to_generate = 10\n\n    # Part 1: Generate the log file\n    generate_log(log_file_name, num_entries_to_generate)\n\n    # Part 2: Analyze the log file\n    analyze_log(log_file_name)\n\n    # Test case for FileNotFoundError:\n    # print(\"\\nTesting non-existent file:\")\n    # analyze_log(\"non_existent_log.txt\")\n```",
+        "narratorGuide": "Run the starter program as-is to observe its behavior. You'll see a message that the log was generated, then an analysis that prints counts of successful operations and warnings. Because we seeded the RNG, the numbers you see will be consistent with the lab's checks. Notice the use of 'with open(..., \"w\")' for writing and 'with open(..., \"r\")' for reading — both safely manage resources. The analyze_log function demonstrates targeted exception handling for FileNotFoundError and a generic fallback for unexpected errors. Next, we'll make a tiny change to see cause and effect.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-1-run-default"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-2-modify-experiment",
+        "title": "Scene 2 — Modify & Experiment (4-6 min)",
+        "instruction": "**Activity: Simple Log File Generator and Analyzer**\n\nCreate a Python script that first generates a simple log file, then reads it, processes its content, and handles potential errors.\n\n**Part 1: Generate Log File**\nWrite a function `generate_log(filename, num_entries)` that creates a file named `filename`. Inside this file, write `num_entries` lines. Each line should simulate a log entry, e.g., \"Log entry X: Operation successful.\" or \"Log entry Y: Warning - Low disk space.\" (randomly choose between success/warning). Use the `'w'` mode.\n\n**Part 2: Analyze Log File**\nWrite a function `analyze_log(filename)` that attempts to open and read the log file.\n*   If the file is not found, print \"Error: Log file not found.\"\n*   If the file is found, read its content line by line.\n*   Count how many \"successful\" operations and how many \"warning\" operations are recorded.\n*   Print the counts.\n*   Ensure the file is properly closed, even if other errors occur during processing (e.g., if a line is malformed, though for this exercise, assume lines are well-formed).\n\n**Starter Code:**\n```python\nimport random\n\ndef generate_log(filename, num_entries):\n    \"\"\"Generates a log file with random success/warning entries.\"\"\"\n    with open(filename, \"w\") as f:\n        for i in range(num_entries):\n            if random.random() < 0.7: # 70% chance of success\n                f.write(f\"Log entry {i+1}: Operation successful.\\n\")\n            else:\n                f.write(f\"Log entry {i+1}: Warning - Low disk space.\\n\")\n    print(f\"Generated {num_entries} log entries in '{filename}'.\")\n\ndef analyze_log(filename):\n    \"\"\"Analyzes a log file for success and warning entries.\"\"\"\n    success_count = 0\n    warning_count = 0\n    try:\n        with open(filename, \"r\") as f:\n            for line in f:\n                if \"successful\" in line:\n                    success_count += 1\n                elif \"Warning\" in line:\n                    warning_count += 1\n        print(f\"Analysis of '{filename}':\")\n        print(f\"  Successful operations: {success_count}\")\n        print(f\"  Warning operations: {warning_count}\")\n    except FileNotFoundError:\n        print(f\"Error: Log file '{filename}' not found.\")\n    except Exception as e:\n        print(f\"An unexpected error occurred during analysis: {e}\")\n\n# --- Main execution ---\nif __name__ == \"__main__\":\n    log_file_name = \"application.log\"\n    num_entries_to_generate = 10\n\n    # Part 1: Generate the log file\n    generate_log(log_file_name, num_entries_to_generate)\n\n    # Part 2: Analyze the log file\n    analyze_log(log_file_name)\n\n    # Test case for FileNotFoundError:\n    # print(\"\\nTesting non-existent file:\")\n    # analyze_log(\"non_existent_log.txt\")\n```",
+        "narratorGuide": "Make a minimal edit: change num_entries_to_generate from 10 to 20 and save main.py. Re-run python main.py and observe the output and the created file. This simple change teaches how program parameters control file size and content. Instead of relying on printed counts, we'll verify the actual file length to be robust against content randomness. Great — seeing the file grow proves you changed program behavior.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-2-change-count"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-3-build-integrate",
+        "title": "Scene 3 — Build & Integrate (4-8 min)",
+        "instruction": "**Activity: Simple Log File Generator and Analyzer**\n\nCreate a Python script that first generates a simple log file, then reads it, processes its content, and handles potential errors.\n\n**Part 1: Generate Log File**\nWrite a function `generate_log(filename, num_entries)` that creates a file named `filename`. Inside this file, write `num_entries` lines. Each line should simulate a log entry, e.g., \"Log entry X: Operation successful.\" or \"Log entry Y: Warning - Low disk space.\" (randomly choose between success/warning). Use the `'w'` mode.\n\n**Part 2: Analyze Log File**\nWrite a function `analyze_log(filename)` that attempts to open and read the log file.\n*   If the file is not found, print \"Error: Log file not found.\"\n*   If the file is found, read its content line by line.\n*   Count how many \"successful\" operations and how many \"warning\" operations are recorded.\n*   Print the counts.\n*   Ensure the file is properly closed, even if other errors occur during processing (e.g., if a line is malformed, though for this exercise, assume lines are well-formed).\n\n**Starter Code:**\n```python\nimport random\n\ndef generate_log(filename, num_entries):\n    \"\"\"Generates a log file with random success/warning entries.\"\"\"\n    with open(filename, \"w\") as f:\n        for i in range(num_entries):\n            if random.random() < 0.7: # 70% chance of success\n                f.write(f\"Log entry {i+1}: Operation successful.\\n\")\n            else:\n                f.write(f\"Log entry {i+1}: Warning - Low disk space.\\n\")\n    print(f\"Generated {num_entries} log entries in '{filename}'.\")\n\ndef analyze_log(filename):\n    \"\"\"Analyzes a log file for success and warning entries.\"\"\"\n    success_count = 0\n    warning_count = 0\n    try:\n        with open(filename, \"r\") as f:\n            for line in f:\n                if \"successful\" in line:\n                    success_count += 1\n                elif \"Warning\" in line:\n                    warning_count += 1\n        print(f\"Analysis of '{filename}':\")\n        print(f\"  Successful operations: {success_count}\")\n        print(f\"  Warning operations: {warning_count}\")\n    except FileNotFoundError:\n        print(f\"Error: Log file '{filename}' not found.\")\n    except Exception as e:\n        print(f\"An unexpected error occurred during analysis: {e}\")\n\n# --- Main execution ---\nif __name__ == \"__main__\":\n    log_file_name = \"application.log\"\n    num_entries_to_generate = 10\n\n    # Part 1: Generate the log file\n    generate_log(log_file_name, num_entries_to_generate)\n\n    # Part 2: Analyze the log file\n    analyze_log(log_file_name)\n\n    # Test case for FileNotFoundError:\n    # print(\"\\nTesting non-existent file:\")\n    # analyze_log(\"non_existent_log.txt\")\n```",
+        "narratorGuide": "Add a function called save_summary(summary_filename, success_count, warning_count) that opens summary_filename and writes two lines containing the counts. Then call this function from analyze_log after the counting loop (inside the try block, after counting). Use 'w' for this exercise so the file is overwritten with each run. After implementing, re-run the script and verify the file summary.txt exists. This step demonstrates integrating new output flows safely using the same with-statement idiom.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-3-summary-file-created"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-4-verify-extend",
+        "title": "Scene 4 — Verify & Extend (3-5 min)",
+        "instruction": "**Activity: Simple Log File Generator and Analyzer**\n\nCreate a Python script that first generates a simple log file, then reads it, processes its content, and handles potential errors.\n\n**Part 1: Generate Log File**\nWrite a function `generate_log(filename, num_entries)` that creates a file named `filename`. Inside this file, write `num_entries` lines. Each line should simulate a log entry, e.g., \"Log entry X: Operation successful.\" or \"Log entry Y: Warning - Low disk space.\" (randomly choose between success/warning). Use the `'w'` mode.\n\n**Part 2: Analyze Log File**\nWrite a function `analyze_log(filename)` that attempts to open and read the log file.\n*   If the file is not found, print \"Error: Log file not found.\"\n*   If the file is found, read its content line by line.\n*   Count how many \"successful\" operations and how many \"warning\" operations are recorded.\n*   Print the counts.\n*   Ensure the file is properly closed, even if other errors occur during processing (e.g., if a line is malformed, though for this exercise, assume lines are well-formed).\n\n**Starter Code:**\n```python\nimport random\n\ndef generate_log(filename, num_entries):\n    \"\"\"Generates a log file with random success/warning entries.\"\"\"\n    with open(filename, \"w\") as f:\n        for i in range(num_entries):\n            if random.random() < 0.7: # 70% chance of success\n                f.write(f\"Log entry {i+1}: Operation successful.\\n\")\n            else:\n                f.write(f\"Log entry {i+1}: Warning - Low disk space.\\n\")\n    print(f\"Generated {num_entries} log entries in '{filename}'.\")\n\ndef analyze_log(filename):\n    \"\"\"Analyzes a log file for success and warning entries.\"\"\"\n    success_count = 0\n    warning_count = 0\n    try:\n        with open(filename, \"r\") as f:\n            for line in f:\n                if \"successful\" in line:\n                    success_count += 1\n                elif \"Warning\" in line:\n                    warning_count += 1\n        print(f\"Analysis of '{filename}':\")\n        print(f\"  Successful operations: {success_count}\")\n        print(f\"  Warning operations: {warning_count}\")\n    except FileNotFoundError:\n        print(f\"Error: Log file '{filename}' not found.\")\n    except Exception as e:\n        print(f\"An unexpected error occurred during analysis: {e}\")\n\n# --- Main execution ---\nif __name__ == \"__main__\":\n    log_file_name = \"application.log\"\n    num_entries_to_generate = 10\n\n    # Part 1: Generate the log file\n    generate_log(log_file_name, num_entries_to_generate)\n\n    # Part 2: Analyze the log file\n    analyze_log(log_file_name)\n\n    # Test case for FileNotFoundError:\n    # print(\"\\nTesting non-existent file:\")\n    # analyze_log(\"non_existent_log.txt\")\n```",
+        "narratorGuide": "Now verify edge-case behavior. First, call analyze_log on a filename that doesn't exist (e.g., 'non_existent_log.txt') and confirm the function prints the FileNotFoundError message. Second, try to open an existing file with mode 'x' to see a FileExistsError — catch it and print a confirmation. These small experiments confirm your program handles predictable runtime problems gracefully. As an extension, consider logging exceptions to a file instead of printing for production systems.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-4-handle-missing-file"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      }
+    ],
+    "checks": [
+      {
+        "id": "check-1-run-default",
+        "type": "manual",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-2-change-count",
+        "type": "manual",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-3-summary-file-created",
+        "type": "manual",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-4-handle-missing-file",
+        "type": "manual",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-5-exclusive-create-error",
+        "type": "manual",
+        "adapter": "database-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      }
+    ],
+    "hints": [],
+    "evidence": [
+      {
+        "id": "practical-result",
+        "type": "artifact",
+        "label": "Practical result",
+        "required": true,
+        "redactSecrets": true
+      }
+    ],
+    "safety": {
+      "profile": "database-isolated",
+      "networkAccess": "disabled",
+      "hostAccess": "none",
+      "requiresManualReview": true,
+      "prohibitedOperations": [
+        "accessing the host filesystem",
+        "reading credentials or secrets",
+        "privileged operations",
+        "network access outside declared fixtures"
+      ],
+      "learnerWarning": "This practical runs in an isolated workspace. Do not use real credentials or production resources."
+    },
+    "cleanup": {
+      "strategy": "discard-workspace",
+      "instructions": "Discard the isolated workspace after completion."
+    },
+    "completionRules": {
+      "requiredChecks": [
+        "check-1-run-default",
+        "check-2-change-count",
+        "check-3-summary-file-created",
+        "check-4-handle-missing-file",
+        "check-5-exclusive-create-error"
+      ],
+      "minimumScore": 1,
+      "requiresEvidence": true,
+      "manualReview": true
+    },
+    "generator": {
+      "generatorVersion": "phase4.2",
+      "classifierVersion": "phase3.1"
+    },
+    "metadata": {
+      "courseId": "cs50s-introduction-to-computer-science",
+      "moduleNumber": 4,
+      "chapterNumber": 4,
+      "category": "Terminal Coding Lab",
+      "sourceKey": "cs50s-introduction-to-computer-science/4/4",
+      "model": "gemini-2.5-flash",
+      "generatedAt": "2026-09-24T20:44:42.760Z",
+      "activitySourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "lessonSourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "activitySourceHash": "sha256:0c77dacddb90959d62924838aad284991b2808c8ed420908fac486416afbc3ff",
+      "lessonSourceHash": "sha256:3d06a30bf934a1976deb739f3e00e855fdb3dd5fab759e225433dc41ecb785f8"
+    },
+    "animationMetadata": {
+      "type": "interactive-code-reveal",
+      "narrator": "educator",
+      "synchronizedPlayback": true,
+      "totalLessonDurationMs": 720000
+    }
+  }
+}

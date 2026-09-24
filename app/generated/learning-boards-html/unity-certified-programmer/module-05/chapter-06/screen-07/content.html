@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Snapshots & TransitionToSnapshot</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Code Example</div>
+      <pre class="mt-3 text-sm">using UnityEngine;
+using UnityEngine.Audio;
+
+public class AudioStateController : MonoBehaviour
+{
+    public AudioMixer mainMixer;
+    public AudioMixerSnapshot normalSnapshot;
+    public AudioMixerSnapshot underwaterSnapshot;
+    public float transitionTime = 1.0f;
+
+    void Start()
+    {
+        if (normalSnapshot != null) normalSnapshot.TransitionTo(0.01f);
+    }
+
+    public void EnterUnderwater()
+    {
+        if (underwaterSnapshot != null) underwaterSnapshot.TransitionTo(transitionTime);
+    }
+
+    public void ExitUnderwater()
+    {
+        if (normalSnapshot != null) normalSnapshot.TransitionTo(transitionTime);
+    }
+}
+</pre>
+      <div class="text-sm text-slate-600 mt-3">This pattern centralizes state transitions and keeps runtime calls simple and declarative.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Example Usage</div>
+      <div class="text-sm text-slate-700 mt-3">Assign snapshots in the Inspector, place trigger volumes, and call EnterUnderwater from OnTriggerEnter. The entire mix transitions smoothly without modifying individual sources.</div>
+
+      <div class="mt-4">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Pro-tip</div>
+          <div class="text-sm text-slate-700 mt-1">Use short transition times for UI changes and longer times for environmental shifts to maintain immersion.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Snapshots let you change the whole audio mix atomically, which is efficient and consistent for gameplay-driven transitions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

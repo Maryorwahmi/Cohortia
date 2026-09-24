@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;}.code-panel{background:#0f172a;color:#e6eef8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;border-radius:12px;padding:12px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">Code Walkthrough</span>
+    </div>
+    <div class="flex h-[64vh] gap-6">
+      <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+        <div class="text-lg font-bold text-slate-900">Node and composite patterns</div>
+        <div class="mt-3 text-sm text-slate-600">Implement NodeState enum and an abstract Node with Evaluate. Sequence and Selector iterate children and update nodeState accordingly.</div>
+        <div class="mt-4 flex-1">
+          <div class="code-panel h-full overflow-auto text-sm">
+            <pre style="margin:0;color:#e6eef8">// NodeState { Running, Success, Failure }
+public abstract class Node { protected NodeState nodeState; public abstract NodeState Evaluate(); }
+
+public class Sequence : Node {
+  private List<Node> children;
+  public Sequence(List<Node> children){ this.children = children; }
+  public override NodeState Evaluate(){ bool anyRunning=false; foreach(var node in children){ switch(node.Evaluate()){ case NodeState.Running: anyRunning=true; break; case NodeState.Success: continue; case NodeState.Failure: nodeState=NodeState.Failure; return nodeState; } } nodeState = anyRunning? NodeState.Running : NodeState.Success; return nodeState; }
+}
+
+public class Selector : Node { /* similar pattern: return Success on first Success */ }
+</pre>
+          </div>
+        </div>
+      </div>
+      <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Supporting bullets</div>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li>Keep Evaluate side-effect free except at leaf nodes.</li>
+          <li>Store minimal state in composites to resume Running children.</li>
+          <li>Use Debug.Log in leaves to trace behavior flow during play.</li>
+        </ul>
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <p class="mt-1 text-sm text-slate-700">Not setting nodeState before return. Always set nodeState so debugging output matches runtime behavior.</p>
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-sm font-medium text-slate-800">Follow the Evaluate contract strictly and log leaf execution to verify flow in Unity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

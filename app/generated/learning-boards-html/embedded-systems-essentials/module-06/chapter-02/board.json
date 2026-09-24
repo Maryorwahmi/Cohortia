@@ -1,0 +1,342 @@
+{
+  "course_id": "embedded-systems-essentials",
+  "course_title": "Embedded Systems Essentials",
+  "module_id": "module-7",
+  "module_title": "Module 6",
+  "chapter_id": "traffic-light-vending-machine-and-line-tracking-robot-fsms",
+  "chapter_title": "Traffic Light, Vending Machine, and Line-Tracking Robot FSMs",
+  "chapter_summary": "Real-world embedded systems often use FSMs to manage complex behavior. In this chapter, we will implement three practical FSM examples: a traffic light controller, a vending machine, and a line-tracking robot.\n\n**Traffic Light Controller:** A real traffic light at a four-way intersection has more complexity than a simple three-state system. It must handle pedestrian buttons, emergency vehicle sensors, and timing based on time of day. For our implementation, we will add a pedestrian button that, when pressed, causes the light to transition to Yellow and then Red, regardless of the normal timing. The pedestrian button is an input that overrides the timer.\n\nHere is the enhanced traffic light FSM:\n\n```c\ntypedef enum { GREEN, YELLOW, RED, WALK } TrafficLightState;\n\nTrafficLightState state = GREEN;\nuint32_t greenTimer = 0;\nuint32_t yellowTimer = 0;\nuint32_t redTimer = 0;\n\nvoid trafficLightFSM(uint8_t pedestrianButton, uint8_t timerExpired) {\n    switch (state) {\n        case GREEN:\n            setGreenLED();\n            clearWalkLED();\n            if (pedestrianButton || timerExpired) {\n                state = YELLOW;\n                greenTimer = 0;\n            }\n            break;\n        case YELLOW:\n            setYellowLED();\n            clearWalkLED();\n            if (timerExpired) {\n                state = RED;\n                yellowTimer = 0;\n            }\n            break;\n        case RED:\n            setRedLED();\n            if (timerExpired) {\n                state = WALK;\n                redTimer = 0;\n            }\n            break;\n        case WALK:\n            setWalkLED();\n            if (timerExpired) {\n                state = GREEN;\n            }\n            break;\n        default:\n            state = GREEN;\n            break;\n    }\n}\n```\n\n**Vending Machine:** A vending machine FSM is a classic example of a system with multiple inputs and outputs. The states are Idle, AcceptingCoins, SelectionMade, Dispensing, and ReturningChange. The inputs are CoinInserted, ButtonPressed, CancelPressed, and ItemDispensed. The outputs are DisplayMessage, OpenDispenser, and ReturnCoins.\n\nThe key insight is that the FSM separates the state logic from the output logic. The state logic decides what to do next based on the current state and input. The output logic decides what to display or activate based on the current state. This separation makes the code easier to maintain and test.\n\n**Line-Tracking Robot:** A line-tracking robot uses two infrared sensors to detect a black line on a white surface. The robot has three states: MovingForward, TurningLeft, and TurningRight. If both sensors see white, the robot moves forward. If the left sensor sees black, the robot turns left. If the right sensor sees black, the robot turns right. This is a reactive FSM where the state transitions are based on sensor inputs.\n\nDebugging an FSM can be challenging because you cannot easily see the internal state. A useful technique is to add trace output to the UART that prints the current state and input every time the FSM runs:\n\n```c\nvoid traceFSM(uint32_t state, uint32_t input) {\n    UART0_SendString(\"State: \");\n    UART0_SendNumber(state);\n    UART0_SendString(\", Input: \");\n    UART0_SendNumber(input);\n    UART0_SendString(\"\\r\\n\");\n}\n```\n\nThis trace output lets you verify that the FSM transitions correctly for each input sequence. You can also use a logic analyzer or oscilloscope to observe the timing of state changes relative to inputs and outputs.",
+  "screens": [
+    {
+      "id": "screen-01",
+      "order": 1,
+      "type": "hero",
+      "template": "hero",
+      "eyebrow": "Module 7 › Chapter 6.2",
+      "title": "Traffic Light, Vending Machine, and Line-Tracking Robot FSMs",
+      "subtitle": "Practical finite state machines for embedded controllers with UART tracing and hardware mapping",
+      "narration": {
+        "text": "In this chapter we build three practical finite state machines you can run on a microcontroller: a traffic light with a pedestrian override, a vending machine handling coins and selections, and a line-tracking robot driven by two infrared sensors. You will learn not only how to model states and transitions, but also a useful pattern: separate the decision logic that chooses the next state from the output logic that drives LEDs, motors, or displays. That separation makes code easier to read and to unit test. We'll also add simple UART trace output so you can observe state changes in real time and debug unexpected behavior. As you follow the examples, notice how inputs such as buttons or sensors override timers, and how missing transitions create stuck states. By the end you will be ready to implement these FSMs on a LaunchPad, add trace logging, and try a design challenge to extend a traffic light with a late-night blink mode. Think about where you would place timers, where interrupts might help, and what you would log to the UART to make debugging straightforward.",
+        "durationSeconds": 78
+      },
+      "keyIdea": {
+        "title": "What you'll learn",
+        "text": "Model reactive embedded behavior with FSMs, separate state and output logic, and use UART traces to verify transitions."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>\n    .cohortia-bg{background: #f8fafc}\n    .card-border{border:1px solid rgba(226,232,240,0.9)}\n    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}\n  </style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Overview</span>\n  </div>\n  <div class=\"flex gap-6 h-full\">\n    <div class=\"flex-1 flex flex-col justify-between\">\n      <div>\n        <div class=\"text-3xl font-bold text-slate-800\">Traffic Light, Vending Machine, and Line-Tracking Robot FSMs</div>\n        <div class=\"text-sm text-slate-600 mt-2\">Practical FSM patterns, UART tracing, and hardware mapping for embedded labs.</div>\n        <div class=\"mt-4 text-sm text-slate-700\">This lesson walks through three demos that illustrate how inputs, timers, and sensors drive state change. You will see C-style FSM code, a vending state diagram, and a reactive robot controller, plus advice for adding UART traces on the target board.</div>\n      </div>\n      <div class=\"mt-6 grid grid-cols-3 gap-3\">\n        <div class=\"rounded-xl bg-white p-3 card-border shadow-sm\">\n          <div class=\"text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-1\">Traffic Light</div>\n          <div class=\"text-sm text-slate-700\">Pedestrian override, timers, and a Walk phase that interrupts normal cycle.</div>\n        </div>\n        <div class=\"rounded-xl bg-white p-3 card-border shadow-sm\">\n          <div class=\"text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1\">Vending Machine</div>\n          <div class=\"text-sm text-slate-700\">Multiple states for coin handling, selection, dispensing, and change return.</div>\n        </div>\n        <div class=\"rounded-xl bg-white p-3 card-border shadow-sm\">\n          <div class=\"text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1\">Line Robot</div>\n          <div class=\"text-sm text-slate-700\">Two sensors, three movement states, and immediate reaction to sensor inputs.</div>\n        </div>\n      </div>\n    </div>\n    <div class=\"w-96 bg-white rounded-2xl p-4 card-border shadow-sm\">\n      <div class=\"text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3\">Interactive 16:9 Masterclass</div>\n      <div class=\"rounded-xl p-3 bg-gradient-to-br from-blue-50 to-white\">\n        <div class=\"flex items-center gap-3\">\n          <svg width=\"36\" height=\"36\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"text-blue-600\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M12 8v4l3 3\"></path></svg>\n          <div>\n            <div class=\"text-sm font-bold text-slate-800\">Lab Demos</div>\n            <div class=\"text-xs text-slate-600 mt-1\">LaunchPad wiring, vending simulation, and robot behaviors with UART log preview.</div>\n          </div>\n        </div>\n        <div class=\"mt-3 text-xs text-slate-700 mono card-border p-2 rounded\">UART trace preview: State: 1, Input: 0x02  \\r\\nState: 2, Input: 0x00 \\r\\nState: 3, Input: 0x01</div>\n      </div>\n      <div class=\"mt-4 text-xs text-slate-600\">Coming up: timed states, input overrides, sensor-driven reactions, and a debugging workflow using UART traces.</div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-02",
+      "order": 2,
+      "type": "learning_objectives",
+      "template": "learning_objectives",
+      "eyebrow": "Module 7 › Chapter 6.2",
+      "title": "Learning Objectives",
+      "subtitle": "Competencies you'll build in this chapter",
+      "narration": {
+        "text": "By the end of these sections you will be able to model and implement finite state machines for real embedded problems, map inputs and outputs to hardware, and use trace output for debugging. First, you'll implement a traffic light FSM that uses timers and an external button so that a pedestrian request immediately forces the sequence toward a safe stop. Second, you'll design a vending machine FSM that accepts coins, allows selection, dispenses items, and returns change while keeping state transitions explicit. Third, you'll apply FSM thinking to a line-tracking robot that reads two infrared sensors and reacts instantly to keep a vehicle on a path. Finally, you will add UART trace output so you can see the current state and inputs at runtime, which is essential for debugging asynchronous events. Each objective pairs a practical skill with a simple verification milestone so you can confirm competency on hardware or in simulation.",
+        "durationSeconds": 76
+      },
+      "keyIdea": {
+        "title": "Verified milestones",
+        "text": "Implement, map to hardware, and verify each FSM with UART trace output."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Learning Objectives</span>\n  </div>\n  <div class=\"grid grid-cols-2 gap-4 h-full\">\n    <div class=\"rounded-2xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"flex items-start gap-3\">\n        <div class=\"w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center\">01</div>\n        <div>\n          <div class=\"text-sm font-bold text-slate-800\">Implement traffic light FSM</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Model timed states and a pedestrian override to force transitions for safety.</div>\n          <div class=\"text-xs text-slate-500 mt-2\">VERIFIED COMPETENCY MILESTONE</div>\n        </div>\n      </div>\n    </div>\n    <div class=\"rounded-2xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"flex items-start gap-3\">\n        <div class=\"w-10 h-10 rounded-lg bg-violet-50 text-violet-700 flex items-center justify-center\">02</div>\n        <div>\n          <div class=\"text-sm font-bold text-slate-800\">Design vending machine FSM</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Define states for coins, selection, dispensing and change return with clear inputs.</div>\n          <div class=\"text-xs text-slate-500 mt-2\">VERIFIED COMPETENCY MILESTONE</div>\n        </div>\n      </div>\n    </div>\n    <div class=\"rounded-2xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"flex items-start gap-3\">\n        <div class=\"w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center\">03</div>\n        <div>\n          <div class=\"text-sm font-bold text-slate-800\">Use FSMs for line-tracking robot</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Map two sensors into three movement states and implement reactive transitions.</div>\n          <div class=\"text-xs text-slate-500 mt-2\">VERIFIED COMPETENCY MILESTONE</div>\n        </div>\n      </div>\n    </div>\n    <div class=\"rounded-2xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"flex items-start gap-3\">\n        <div class=\"w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center\">04</div>\n        <div>\n          <div class=\"text-sm font-bold text-slate-800\">Debug with UART trace</div>\n          <div class=\"text-sm text-slate-600 mt-1\">Add printouts of state and input each FSM cycle to observe behavior during tests.</div>\n          <div class=\"text-xs text-slate-500 mt-2\">VERIFIED COMPETENCY MILESTONE</div>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-03",
+      "order": 3,
+      "type": "learning_objectives",
+      "template": "learning_objectives",
+      "eyebrow": "Module 7 › Chapter 6.2",
+      "title": "Bloom Competencies",
+      "subtitle": "Learn → Understand → Apply → Master",
+      "narration": {
+        "text": "These activities follow a Bloom-like progression. First you will learn the core vocabulary and simple three-state patterns by reading code and watching the traffic light demo. Next you will understand how inputs such as a pedestrian button or sensors override timers and how that affects safety and responsiveness. Then you will apply the pattern by implementing a vending machine FSM that cleanly separates state transitions from output actions. Finally you will master the debugging workflow by adding UART trace output and using that log to find missing transitions or timing issues. Each step is practical: for example, applying means mapping LEDs and a push button on a LaunchPad and verifying that pressing the button triggers the walk phase. Mastery means you can explain a failing test using only the trace log and then fix the state logic. This structure keeps practice focused and verifiable.",
+        "durationSeconds": 74
+      },
+      "keyIdea": {
+        "title": "Progression",
+        "text": "Move from reading examples to implementing hardware mappings and verifying behavior with traces."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Bloom Competencies</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"flex-1 grid grid-rows-4 gap-3\">\n      <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n        <div class=\"text-[10px] font-bold uppercase tracking-wider text-blue-700\">Learn</div>\n        <div class=\"text-sm text-slate-700 mt-2\">Familiarize with FSM terms, simple state enums, and timing basics.</div>\n      </div>\n      <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n        <div class=\"text-[10px] font-bold uppercase tracking-wider text-violet-700\">Understand</div>\n        <div class=\"text-sm text-slate-700 mt-2\">See how inputs override timers and how safety transitions are prioritized.</div>\n      </div>\n      <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n        <div class=\"text-[10px] font-bold uppercase tracking-wider text-amber-700\">Apply</div>\n        <div class=\"text-sm text-slate-700 mt-2\">Implement FSMs on hardware with mapped pins and verify behavior.</div>\n      </div>\n      <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n        <div class=\"text-[10px] font-bold uppercase tracking-wider text-emerald-700\">Master</div>\n        <div class=\"text-sm text-slate-700 mt-2\">Debug using UART traces and reasoning about missing transitions or race conditions.</div>\n      </div>\n    </div>\n    <div class=\"w-96 bg-white rounded-2xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Verification tips</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5\">\n        <li>Log state and input each cycle to the UART.</li>\n        <li>Simulate button presses and sensor values to exercise transitions.</li>\n        <li>Check outputs separately from state selection to isolate bugs.</li>\n      </ul>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-04",
+      "order": 4,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "definition",
+      "eyebrow": "Core Concept",
+      "title": "Traffic Light Controller — real requirements",
+      "subtitle": "Why a real intersection needs more than three states",
+      "narration": {
+        "text": "A traffic light controller for a four-way intersection must do more than cycle green, yellow, and red. It must handle asynchronous inputs like a pedestrian button and emergency sensors, adjust timing for time of day, and ensure safety when inputs arrive during a transition. In this lesson we define the concrete requirements that drive our FSM design. The key states we will use are green, yellow, red, and a dedicated walk phase. The pedestrian button acts as an input that overrides a normal timer: when pressed it should cause the system to move towards yellow immediately so pedestrians can safely cross. Timers still matter: each state has a timeout that triggers the next state when time expires. A common misconception is to bake output actions directly into transition conditions; instead, separate the decision of the next state from the actions that drive LEDs. This separation prevents side-effects from making transitions hard to test. A practical verification is to press the pedestrian button during green and confirm that the UART trace shows a transition to yellow, then red, then walk. What input sequences could still lead to unsafe behavior if timers are too short?",
+        "durationSeconds": 96
+      },
+      "keyIdea": {
+        "title": "Define requirements first",
+        "text": "List states, inputs, timers, and safety overrides before writing transition code."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Traffic Light Requirements</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"w-1/2 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-800\">Essential elements</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5 flex-1\">\n        <li>States: GREEN, YELLOW, RED, WALK with independent timers.</li>\n        <li>Inputs: pedestrian button, timer expiration, optional emergency sensor.</li>\n        <li>Behavior: pedestrian press forces transition toward YELLOW, then RED, then WALK.</li>\n        <li>Verification: UART prints state and input each cycle for debugging.</li>\n      </ul>\n      <div class=\"mt-3\">\n        <div class=\"rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3\">\n          <div class=\"text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1\">Key Takeaway</div>\n          <p class=\"text-xs font-medium text-slate-800\">Safety and clear input priorities drive the FSM structure; define them before coding.</p>\n        </div>\n      </div>\n    </div>\n    <div class=\"w-1/2 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Concrete example</div>\n      <div class=\"mt-2 text-sm text-slate-700\">If the system is GREEN and the pedestrian button is pressed, set the next state to YELLOW and reset the green timer. Even if the timer was not yet expired, the override ensures pedestrians are served promptly.</div>\n      <div class=\"mt-3 text-sm text-slate-600\">\n        <div class=\"text-[10px] font-bold uppercase tracking-wider text-rose-600\">Common mistake</div>\n        <div class=\"mt-2\">Putting LED control into transition checks can hide side effects; centralize outputs so tests can simulate states without hardware toggles.</div>\n      </div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-05",
+      "order": 5,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "code_walkthrough",
+      "eyebrow": "Definition & Code",
+      "title": "Traffic Light FSM — code walkthrough",
+      "subtitle": "Read the state enum, timers, and switch-based dispatcher",
+      "narration": {
+        "text": "Let's walk through a compact C-style FSM that implements the traffic light with a pedestrian override. The state enum lists GREEN, YELLOW, RED, and WALK, and a single trafficLightFSM function runs each cycle. Inside that function a switch on the current state sets outputs and checks two kinds of inputs: a pedestrian button and a timerExpired flag for that state. Notice the pattern: the output actions — setting LEDs or clearing the walk LED — are visible in each case, but the actual state transition is only driven by simple conditions: either the pedestrian button or a timer expiration. A concrete example: when in GREEN, if the pedestrian button is true, we immediately set state to YELLOW and reset the green timer. A common misconception is expecting the timer variables to be the sole driver; in embedded systems, asynchronous inputs can and should override timers for safety. For testing add a trace function that prints the numeric state and a packed input mask to the UART every time the FSM runs. With that trace you can replay sequences and check that button presses cause the expected transition order.",
+        "durationSeconds": 96
+      },
+      "keyIdea": {
+        "title": "Switch-based FSM pattern",
+        "text": "Use an enum and a single dispatcher that reads inputs, decides next state, and keeps outputs separate for easier testing."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Traffic Light Code</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"w-1/2 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-800\">Core snippet</div>\n      <pre class=\"mono bg-slate-50 p-3 rounded mt-3 text-sm overflow-auto card-border\">typedef enum { GREEN, YELLOW, RED, WALK } TrafficLightState;\n\nTrafficLightState state = GREEN;\n\nvoid trafficLightFSM(uint8_t pedestrianButton, uint8_t timerExpired) {\n    switch (state) {\n        case GREEN:\n            setGreenLED(); clearWalkLED();\n            if (pedestrianButton || timerExpired) { state = YELLOW; }\n            break;\n        case YELLOW:\n            setYellowLED(); clearWalkLED();\n            if (timerExpired) { state = RED; }\n            break;\n        case RED:\n            setRedLED();\n            if (timerExpired) { state = WALK; }\n            break;\n        case WALK:\n            setWalkLED();\n            if (timerExpired) { state = GREEN; }\n            break;\n        default:\n            state = GREEN; break;\n    }\n}\n</pre>\n      <div class=\"mt-3 text-sm text-slate-600\">Example: press the pedestrian button while GREEN; the state sequence becomes YELLOW → RED → WALK regardless of green timer remaining.</div>\n    </div>\n    <div class=\"w-1/2 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-800\">Explanation bullets</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5 flex-1\">\n        <li>The enum gives readable state names for clarity and debugging.</li>\n        <li>The FSM runs repeatedly, checking inputs and timers each cycle.</li>\n        <li>Reset timers when you change state so durations are consistent.</li>\n        <li>Separate state selection from output side-effects to ease simulation.</li>\n      </ul>\n      <div class=\"mt-3 text-xs text-rose-600\">Misconception: Timers alone are not sufficient; external inputs must be allowed to pre-empt timers for safety.</div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-06",
+      "order": 6,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Process Flow",
+      "title": "Pedestrian Override & Timers",
+      "subtitle": "How inputs interrupt timed cycles and how to reset timers safely",
+      "narration": {
+        "text": "Timers and asynchronous inputs must work together cleanly. The usual pattern is to maintain per-state timers and, on a state change, reset the timer for the new state. When an external event like a pedestrian button is detected we treat it as a higher-priority input that forces the next state regardless of the remaining time in the current state. Concretely, when in GREEN and the pedestrian button is pressed, set the state to YELLOW and set the green timer to zero so the next cycles treat the yellow timer as the active countdown. This avoids ambiguous timer ownership across states. A clear example is a late press during YELLOW: if your code ignores the button there, pedestrians may never get a WALK phase; instead, have your priority rules documented. For robustness, consider debouncing the button and, if needed, use interrupts to signal the event and set a flag read by the FSM loop. A common mistake is to let the timer update and then trigger transitions in multiple places; keep timer logic local and explicit so it is easy to reason about safety and to write tests that simulate time advancing.",
+        "durationSeconds": 95
+      },
+      "keyIdea": {
+        "title": "Timer best practice",
+        "text": "Reset per-state timers on entry and make external inputs higher-priority to ensure predictable safety transitions."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Pedestrian Override</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"w-2/3 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col\">\n      <div class=\"text-sm font-bold text-slate-800\">Step-by-step flow</div>\n      <div class=\"mt-3 grid grid-cols-3 gap-3\">\n        <div class=\"p-3 rounded-lg bg-blue-50\">\n          <div class=\"text-xs font-bold uppercase tracking-wider text-blue-700\">1. Detect</div>\n          <div class=\"text-sm text-slate-700 mt-1\">Read button or interrupt flag and debounce to avoid false triggers.</div>\n        </div>\n        <div class=\"p-3 rounded-lg bg-amber-50\">\n          <div class=\"text-xs font-bold uppercase tracking-wider text-amber-700\">2. Prioritize</div>\n          <div class=\"text-sm text-slate-700 mt-1\">Treat the event as higher priority than the normal timer if safety requires it.</div>\n        </div>\n        <div class=\"p-3 rounded-lg bg-emerald-50\">\n          <div class=\"text-xs font-bold uppercase tracking-wider text-emerald-700\">3. Transition</div>\n          <div class=\"text-sm text-slate-700 mt-1\">Set next state and reset the appropriate timer on entry.</div>\n        </div>\n      </div>\n      <div class=\"mt-4 text-sm text-slate-600\">Example: A pedestrian press during GREEN sets state to YELLOW and resets greenTimer. That ensures yellowTimer governs the duration until RED and WALK.</div>\n    </div>\n    <div class=\"w-1/3 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Checks</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5\">\n        <li>Debounce physical switches to avoid multiple transitions.</li>\n        <li>Document priority rules so that multiple inputs do not conflict.</li>\n        <li>Simulate late inputs to verify WALK still occurs.</li>\n      </ul>\n      <div class=\"mt-4\">\n        <div class=\"rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3\">\n          <div class=\"text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1\">Common mistake</div>\n          <p class=\"text-xs font-medium text-slate-800\">Failing to reset timers on state entry can create unexpected short or long phases.</p>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-07",
+      "order": 7,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "definition",
+      "eyebrow": "Definition",
+      "title": "Vending Machine FSM — states and inputs",
+      "subtitle": "Map the classic vending-machine states to clear inputs and outputs",
+      "narration": {
+        "text": "A vending machine is a canonical FSM example because it combines multiple inputs and outputs across several states. The states we use are Idle, AcceptingCoins, SelectionMade, Dispensing, and ReturningChange. Inputs include CoinInserted, ButtonPressed for selection, CancelPressed, and ItemDispensed from the dispenser sensor. Outputs are DisplayMessage, OpenDispenser, and ReturnCoins. The important conceptual separation is that the state logic decides the next state based on inputs, while the output logic decides what must be shown or activated in the current state. For example, in AcceptingCoins the machine accumulates credit until a ButtonPressed input produces SelectionMade if enough credit exists. A concrete test case: insert coins totaling the exact price, press the selection button, and verify the dispenser opens and the machine transitions to Dispensing then to Idle after ItemDispensed. A common misconception is to mix monetary accounting and hardware outputs into transition code; instead keep a simple state machine that updates a credit variable and a separate output handler that drives the display and actuator. This approach simplifies debugging and lets you simulate state transitions in software without hardware. Vending Machine FSM — states and inputs means list distinct states and map each to inputs and outputs; keep accounting separate from output actions.. In practical terms, map the classic vending-machine states to clear inputs and outputs. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 95
+      },
+      "keyIdea": {
+        "title": "Clear state mapping",
+        "text": "List distinct states and map each to inputs and outputs; keep accounting separate from output actions."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Vending Machine FSM</span>\n  </div>\n  <div class=\"grid grid-cols-2 gap-4 h-full\">\n    <div class=\"bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">States</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5\">\n        <li>Idle — waiting for coins</li>\n        <li>AcceptingCoins — accumulate credit</li>\n        <li>SelectionMade — validate and prepare dispense</li>\n        <li>Dispensing — open dispenser until ItemDispensed</li>\n        <li>ReturningChange — issue coins when needed</li>\n      </ul>\n    </div>\n    <div class=\"bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Inputs & Outputs</div>\n      <div class=\"mt-3 text-sm text-slate-600\">\n        <div><strong>Inputs:</strong> CoinInserted, ButtonPressed, CancelPressed, ItemDispensed.</div>\n        <div class=\"mt-2\"><strong>Outputs:</strong> DisplayMessage, OpenDispenser, ReturnCoins.</div>\n      </div>\n      <div class=\"mt-4 text-xs text-slate-500\">Verification: run a simulated coin sequence and confirm the trace shows expected state transitions and output actions.</div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-08",
+      "order": 8,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "comparison",
+      "eyebrow": "Comparison",
+      "title": "State Logic vs Output Logic",
+      "subtitle": "Why separate state transitions from the outputs they trigger",
+      "narration": {
+        "text": "Separating state decision logic from output logic is a design pattern that reduces coupling and makes both simulation and testing easier. State logic answers the question: given the current state and inputs, what is the next state? Output logic answers: given the current state, what hardware signals or display messages should be active? Consider a vending machine: a transition from AcceptingCoins to SelectionMade depends on sufficient credit and a selection input. The output logic then decides whether to show \"Please wait\", open the dispenser, or animate a change-return. If you mix outputs into transition checks, a unit test that simulates a transition might inadvertently attempt to toggle hardware. By separating them, you can test the state machine in isolation and then run a small output renderer to map states to hardware. A misconception is thinking this separation adds overhead; in practice, it simplifies reasoning and lets you add trace prints for state and inputs without spurious side effects. Example: test selection logic in software, then verify output mapping only when hardware is connected. State Logic vs Output Logic means keep state decision logic independent from output side-effects to simplify testing and reduce errors.. In practical terms, why separate state transitions from the outputs they trigger. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 96
+      },
+      "keyIdea": {
+        "title": "Separation of concerns",
+        "text": "Keep state decision logic independent from output side-effects to simplify testing and reduce errors."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">State vs Output</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"w-1/2 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">State Logic</div>\n      <div class=\"mt-3 text-sm text-slate-600\">Decides next state using current state and inputs. No hardware toggles. Example: if credit >= price and ButtonPressed, nextState = DISPENSING.</div>\n      <div class=\"mt-4 text-xs text-slate-500\">Tests: run sequences of input events in software and assert expected state sequence.</div>\n    </div>\n    <div class=\"w-1/2 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Output Logic</div>\n      <div class=\"mt-3 text-sm text-slate-600\">Maps the current state to outputs that drive LEDs, motors, or displays. Example: if state == DISPENSING then OpenDispenser = true.</div>\n      <div class=\"mt-4 text-xs text-slate-500\">Benefit: you can run output logic only when hardware is attached, keeping the FSM portable.</div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-09",
+      "order": 9,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Assessment Idea",
+      "title": "Vending Machine Assessment — find the missing transition",
+      "subtitle": "How to identify and fix a broken state diagram",
+      "narration": {
+        "text": "A common assessment is to present a vending machine state diagram that is almost complete but missing a single arrow. Your task is to identify the missing transition and explain the runtime consequence. For example, if there is no transition from Dispensing back to Idle when an ItemDispensed input arrives, the machine could remain stuck in Dispensing and never accept new coins. To approach this systematically, list each state and enumerate all inputs that can realistically occur while the machine is in that state. Ask: for each input, where should the machine go? If an input is not handled, simulate a trace that shows the FSM encountering that input and remaining in the same state; this reveals a stuck or unsafe condition. A concrete fix is to add a transition from Dispensing to Idle on ItemDispensed and ensure outputs are updated in the output logic. This exercise trains you to think in terms of exhaustively handling inputs per state and to use UART trace logs to confirm the missing transition in a live test. Vending Machine Assessment — find the missing transition means for each state, list all possible inputs and ensure the fsm defines a safe destination for each one.. In practical terms, how to identify and fix a broken state diagram. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 95
+      },
+      "keyIdea": {
+        "title": "Exhaustive input handling",
+        "text": "For each state, list all possible inputs and ensure the FSM defines a safe destination for each one."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Find the Missing Arrow</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"w-1/2 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Diagnostic steps</div>\n      <ol class=\"mt-3 text-sm text-slate-600 list-decimal ml-5\">\n        <li>List every input possible in the current state.</li>\n        <li>For each input, define the intended next state.</li>\n        <li>Simulate sequences and watch traces for unhandled inputs.</li>\n        <li>Add transitions and test again on hardware or in simulation.</li>\n      </ol>\n    </div>\n    <div class=\"w-1/2 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Example fix</div>\n      <div class=\"mt-3 text-sm text-slate-600\">Add: if (state == DISPENSING && ItemDispensed) state = IDLE; Also ensure the output logic closes the dispenser and updates the display.</div>\n      <div class=\"mt-4 text-xs text-slate-500\">Use the UART trace to confirm the ItemDispensed event and the subsequent state change in real tests.</div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-10",
+      "order": 10,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "definition",
+      "eyebrow": "Core Concept",
+      "title": "Line-Tracking Robot FSM",
+      "subtitle": "Three states driven by two infrared sensors",
+      "narration": {
+        "text": "A line-tracking robot is a straightforward example of a reactive FSM. The robot uses two infrared sensors, left and right, to detect a dark line on a lighter surface. We define three states: MovingForward, TurningLeft, and TurningRight. The state transitions are simple: if both sensors read white, the robot moves forward; if the left sensor sees black it should turn left, and if the right sensor sees black it should turn right. This reactive pattern emphasizes immediate response to sensor inputs, not timed phases. A concrete example: while moving forward, when the left sensor detects black the FSM sets state to TurningLeft and output logic drives the left motor slower or reverses so the robot turns. A misconception is to add long timers to these transitions; instead transitions should be immediate and tuned for responsiveness. For testing, simulate sensor inputs and log the FSM state to the UART each cycle to verify that sensor sequences produce the expected turning behavior and that the robot returns to MovingForward once sensors realign. Line-Tracking Robot FSM means make sensor-driven state changes immediate and test using traces of sensor values and state.. In practical terms, three states driven by two infrared sensors. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 96
+      },
+      "keyIdea": {
+        "title": "Reactive transitions",
+        "text": "Make sensor-driven state changes immediate and test using traces of sensor values and state."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Line-Tracking Robot</span>\n  </div>\n  <div class=\"grid grid-cols-2 gap-4 h-full\">\n    <div class=\"bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Sensor mapping</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5\">\n        <li>Both white → MovingForward</li>\n        <li>Left black → TurningLeft</li>\n        <li>Right black → TurningRight</li>\n      </ul>\n      <div class=\"mt-4 text-sm text-slate-700\">Example scenario: drifting right causes left sensor to see the line; the FSM immediately enters TurningLeft until the line recenters.</div>\n    </div>\n    <div class=\"bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Implementation note</div>\n      <div class=\"mt-3 text-sm text-slate-600\">Make transitions immediate and keep motor control in the output mapper. Use trace logs to confirm sensor readings and the resulting state each cycle.</div>\n      <div class=\"mt-4 text-xs text-rose-600\">Misconception: Adding long delays between turns makes the robot less responsive; prefer short, frequent FSM cycles.</div>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-11",
+      "order": 11,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "architecture",
+      "eyebrow": "Hardware Mapping",
+      "title": "Implementing on the LaunchPad",
+      "subtitle": "Map LEDs, button, sensors, and UART to board pins",
+      "narration": {
+        "text": "When implementing these FSMs on a LaunchPad, carefully map each logical input and output to a physical pin and document that mapping in your code. For the traffic light demo use the RGB LED: map green, red, and yellow (yellow can be red+green) to the three LED channels and connect a single external switch as the pedestrian button. Implement timers using a hardware timer or a tick-driven software counter and ensure that your main FSM loop runs at a frequency suitable for your sensors and buttons. For the line-tracking robot map the two infrared sensors to analog or digital inputs depending on your sensor type, and wire motor control pins to PWM outputs. For UART traces use the onboard UART pins to stream the state and input values to a terminal so you can observe them while testing. A practical example: print a line like \"State: 1, Input: 0x02\" each cycle. A common mistake is not labeling pins in code comments; label them and add a small wiring diagram in your lab notes so you can reproduce the setup reliably.",
+        "durationSeconds": 96
+      },
+      "keyIdea": {
+        "title": "Pin mapping",
+        "text": "Document pin assignments and use UART to observe behavior while testing hardware mappings."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">LaunchPad Mapping</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"flex-1 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Example pin mapping</div>\n      <pre class=\"mono bg-slate-50 p-3 rounded mt-3 text-sm card-border\">// LEDs\nGREEN_LED_PIN = P1_0;\nRED_LED_PIN   = P1_1;\nYELLOW = RED + GREEN;\n// Pedestrian button\nPED_BUTTON_PIN = P2_0;\n// UART\nUART_TX = P3_1; UART_RX = P3_0;\n// IR sensors\nLEFT_IR  = A0; RIGHT_IR = A1;</pre>\n      <div class=\"mt-3 text-sm text-slate-600\">Label pins in code comments and keep a matching breadboard diagram for reproducibility.</div>\n    </div>\n    <div class=\"w-80 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Test checklist</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5\">\n        <li>Confirm UART prints at each FSM cycle.</li>\n        <li>Verify button is debounced and sensor thresholds are tuned.</li>\n        <li>Check LED behavior matches state machine outputs.</li>\n      </ul>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-12",
+      "order": 12,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "code_walkthrough",
+      "eyebrow": "Debugging",
+      "title": "UART Trace — observe state and input",
+      "subtitle": "Add simple trace output to verify transitions in real time",
+      "narration": {
+        "text": "Debugging an FSM on hardware requires being able to observe internal state. A practical and minimal solution is to add a trace function that prints the current state and a compact representation of the inputs to the UART every time the FSM runs. For example, a trace function can print a line like State: 2, Input: 0x03. This line gives you a step-by-step record of what the FSM saw and what it chose. When you press the pedestrian button, the trace will show the input change in the very next cycle and the following state transition. A common misconception is that traces slow the system too much; print sparsely or at a lower baud rate for long-term use, and use traces primarily during debugging. Another tip: include timestamps or cycle counters to correlate trace lines with physical events or a logic analyzer. Example code shows how to format the state and an input mask, and it is helpful to include human-readable state names in debug builds. End every debugging session by removing or gating traces to avoid filling flash or slowing critical loops.",
+        "durationSeconds": 97
+      },
+      "keyIdea": {
+        "title": "Trace output",
+        "text": "Print state and inputs each cycle to the UART; use timestamps or cycle counters to correlate with external events."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">UART Trace</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"flex-1 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Trace snippet</div>\n      <pre class=\"mono bg-slate-50 p-3 rounded mt-3 text-sm card-border\">void traceFSM(uint32_t state, uint32_t input) {\n    UART0_SendString(\"State: \");\n    UART0_SendNumber(state);\n    UART0_SendString(\", Input: \");\n    UART0_SendNumber(input);\n    UART0_SendString(\"\\r\\n\");\n}</pre>\n      <div class=\"mt-3 text-sm text-slate-600\">Run this each FSM cycle. Read the terminal while pressing buttons or forcing sensors; the log shows the exact sequence of inputs and state changes.</div>\n    </div>\n    <div class=\"w-80 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Debug tips</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5\">\n        <li>Include a cycle counter to timestamp traces.</li>\n        <li>Gate traces by debug flag to avoid performance hits in release builds.</li>\n        <li>Compare traces with expected state sequences during tests.</li>\n      </ul>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-13",
+      "order": 13,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Design Challenge",
+      "title": "Add a 'Yellow Blink' Late-Night Mode",
+      "subtitle": "Extend the traffic light FSM with a new state and test it with traces",
+      "narration": {
+        "text": "As a design challenge, add a new YellowBlink state to support late-night operation. The idea is that during low-traffic hours the light should blink yellow instead of cycling normally. To implement this, add a new enum value YELLOW_BLINK and a condition in your state-selection logic that enters this state when a time-of-day flag is set. Output logic in YELLOW_BLINK should toggle the yellow output on and off at a chosen blink interval. A concrete example: if timeOfDay == NIGHT and no pedestrians are requesting crossing, transition from GREEN to YELLOW_BLINK when the current cycle completes. Important considerations: ensure a pedestrian button still forces a safe transition out of blinking to the normal stop-and-walk sequence; in other words, the override rule should still apply. Use UART traces to validate behavior: log when you enter YELLOW_BLINK, log blink toggles, and log any pedestrian press that causes an immediate transition back to standard operation. This challenge reinforces extending FSMs safely while preserving priority rules and testability. Add a 'Yellow Blink' Late-Night Mode means add new states carefully, preserve overrides for safety, and validate with trace logs under real event sequences.. In practical terms, extend the traffic light fsm with a new state and test it with traces. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 97
+      },
+      "keyIdea": {
+        "title": "Safe extension",
+        "text": "Add new states carefully, preserve overrides for safety, and validate with trace logs under real event sequences."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Yellow Blink Challenge</span>\n  </div>\n  <div class=\"flex gap-4 h-full\">\n    <div class=\"flex-1 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Implementation plan</div>\n      <ol class=\"mt-3 text-sm text-slate-600 list-decimal ml-5\">\n        <li>Add enum value YELLOW_BLINK and a blinkTimer.</li>\n        <li>Use a nightMode flag to enter YELLOW_BLINK when appropriate.</li>\n        <li>Ensure pedestrian presses force exit from blink to YELLOW → RED → WALK.</li>\n        <li>Log blink toggles and transitions to UART for verification.</li>\n      </ol>\n    </div>\n    <div class=\"w-80 bg-white rounded-xl p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Test cases</div>\n      <ul class=\"mt-3 text-sm text-slate-600 list-disc ml-5\">\n        <li>Night mode active, no button presses: LED blinks yellow.</li>\n        <li>Button press during blink: immediate transition to safe walk sequence.</li>\n        <li>Return to blink after the walk and no pedestrian requests.</li>\n      </ul>\n    </div>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-14",
+      "order": 14,
+      "type": "key_concepts",
+      "template": "key_concepts",
+      "eyebrow": "What to Remember",
+      "title": "Key Concepts",
+      "subtitle": "Compact reminders of core ideas",
+      "narration": {
+        "text": "Remember three practical FSM patterns from this chapter. First, a traffic light FSM must include safety overrides: a pedestrian button should pre-empt normal timers so that pedestrians receive a WALK phase in a timely way. Second, a vending machine separates state logic and output logic so monetary accounting and hardware activation remain testable and clear. Third, a line-tracking robot is a reactive FSM where immediate sensor-driven transitions keep the vehicle on track. Also, always add UART traces when debugging embedded state machines; printing state and input lets you replay sequences and find missing transitions. These small practices — prioritize safety, separate concerns, and instrument your code — dramatically reduce debugging time and make your FSMs reliable on real hardware. Key Concepts means prioritize safety, separate state and output logic, and instrument with uart traces.. In practical terms, compact reminders of core ideas. A simple real-world example is helpful here, because students learn best when they can connect the idea to a familiar situation. This matters because it gives the learner a clear mental model and helps them connect the concept to later examples and problems. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 78
+      },
+      "keyIdea": {
+        "title": "Three takeaways",
+        "text": "Prioritize safety, separate state and output logic, and instrument with UART traces."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Key Concepts</span>\n  </div>\n  <div class=\"grid grid-cols-3 gap-4\">\n    <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"flex items-center gap-2\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"text-blue-600\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M12 8v4l3 3\"></path></svg><div class=\"text-sm font-bold text-slate-800\">Traffic light override</div></div>\n      <div class=\"mt-2 text-sm text-slate-600\">Pedestrian button should pre-empt timers to ensure safety.</div>\n    </div>\n    <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"flex items-center gap-2\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"text-violet-600\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"></rect><path d=\"M8 9h8M8 13h6\"/></svg><div class=\"text-sm font-bold text-slate-800\">Vending FSM design</div></div>\n      <div class=\"mt-2 text-sm text-slate-600\">Define states and handle all inputs per state to avoid stuck conditions.</div>\n    </div>\n    <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"flex items-center gap-2\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"text-amber-600\"><path d=\"M3 12h18\"/><path d=\"M12 3v18\"/></svg><div class=\"text-sm font-bold text-slate-800\">Line-tracking robot</div></div>\n      <div class=\"mt-2 text-sm text-slate-600\">React immediately to sensor inputs with short FSM cycles.</div>\n    </div>\n  </div>\n  <div class=\"mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3\">\n    <div class=\"text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1\">Summary</div>\n    <p class=\"text-xs font-medium text-slate-800\">Instrument your FSMs, document pin mappings, and prefer separation of state and output logic for testability.</p>\n  </div>\n</div>",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-15",
+      "order": 15,
+      "type": "key_concepts",
+      "template": "key_concepts",
+      "eyebrow": "What to Remember",
+      "title": "What to Remember",
+      "subtitle": "Quick reference of debugging and design tips",
+      "narration": {
+        "text": "A few final practical tips: always print state and input to the UART when debugging an FSM so you can follow the sequence of events; document pin assignments and wiring so your hardware setup is reproducible; and, when extending the machine with new states like a yellow-blink mode, preserve the original safety overrides so pedestrian requests are never ignored. For assessments, look for missing transitions by enumerating inputs per state and simulating those inputs. These practices help you move from demonstration code to robust embedded behavior on an actual LaunchPad or a simulated environment. What to Remember means trace internal state, label hardware mappings, and preserve priority rules when extending fsms.. In practical terms, quick reference of debugging and design tips. A simple real-world example is helpful here, because students learn best when they can connect the idea to a familiar situation. This matters because it gives the learner a clear mental model and helps them connect the concept to later examples and problems. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 74
+      },
+      "keyIdea": {
+        "title": "Debug & Document",
+        "text": "Trace internal state, label hardware mappings, and preserve priority rules when extending FSMs."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">\n  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>\n  <div class=\"flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4\">\n    <span class=\"px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100\">Module 7</span>\n    <span>›</span>\n    <span>Chapter 6.2</span>\n    <span>›</span>\n    <span class=\"text-slate-700\">Reference Tips</span>\n  </div>\n  <div class=\"grid grid-cols-3 gap-4\">\n    <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">UART Traces</div>\n      <div class=\"mt-2 text-sm text-slate-600\">Print state and input each cycle; include cycle counters for correlation.</div>\n    </div>\n    <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Pin Documentation</div>\n      <div class=\"mt-2 text-sm text-slate-600\">Label every pin in code comments and keep a breadboard snapshot for repeatability.</div>\n    </div>\n    <div class=\"rounded-xl bg-white p-4 card-border shadow-sm\">\n      <div class=\"text-sm font-bold text-slate-800\">Extend Safely</div>\n      <div class=\"mt-2 text-sm text-slate-600\">When adding states, preserve input priorities and verify with traces and tests.</div>\n    </div>\n  </div>\n  <div class=\"mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3\">\n    <div class=\"text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1\">Final takeaway</div>\n    <p class=\"text-xs font-medium text-slate-800\">Design FSMs with safety, testability, and observability in mind — those three features make embedded systems reliable.</p>\n  </div>\n</div>",
+        "css": ""
+      }
+    }
+  ],
+  "module_number": 6,
+  "chapter_number": 2,
+  "presentation_mode": "terminal_demo",
+  "main_diagram_requested": false,
+  "ai_generation_note": "Create a 12-minute lesson with three demos. First, show the traffic light FSM with the LaunchPad and a breadboard. Second, show a vending machine simulation on the screen with a state diagram that highlights the current state. Third, show a line-tracking robot video (or animation). Include UART trace output scrolling on the terminal. End with a design challenge: \"Add a 'Yellow Blink' state to the traffic light for late-night operation.\"\n\n---",
+  "course_level": "beginner"
+}

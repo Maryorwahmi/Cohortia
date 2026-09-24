@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Handling chainChanged</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white card p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">chainChanged</div>
+      <div class="text-sm text-slate-600 mt-3">When the wallet switches networks, re-evaluate chain id and reinitialize blockchain connections to avoid inconsistent calls or failed transactions.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg p-3 bg-white card">
+          <div class="text-sm font-semibold text-slate-800">Check network</div>
+          <div class="text-sm text-slate-600 mt-1">Use provider.getNetwork() or eth_chainId and compare to your expected chain id, e.g. Sepolia's 0xaa36a7 in hex.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card">
+          <div class="text-sm font-semibold text-slate-800">Request switch</div>
+          <div class="text-sm text-slate-600 mt-1">Call wallet_switchEthereumChain with the target chain id and handle errors like 4902 or user rejection 4001.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-rose-50 border card">
+          <div class="text-sm font-semibold text-rose-600">Misconception</div>
+          <div class="text-sm text-slate-600 mt-1">Don't assume network never changes. Users may switch networks for testing or privacy; your app must handle it gracefully.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why it matters</div>
+        <p class="text-sm text-slate-800">Contracts and RPC endpoints are chain-specific. A network mismatch can produce incorrect data or failed transactions; detecting and resolving it preserves correctness.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example flow</div>
+      <div class="rounded-lg bg-slate-900 text-slate-100 p-4 mono h-full">
+        <pre class="text-sm">window.ethereum.on('chainChanged', async (chainId) =&gt; {
+  console.log('Network changed:', chainId);
+  // Option: reload or reinitialize provider and contracts
+  // Compare chainId to target (e.g. '0xaa36a7' for Sepolia) and call wallet_switchEthereumChain if needed
+});</pre>
+      </div>
+    </div>
+  </div>
+</div>

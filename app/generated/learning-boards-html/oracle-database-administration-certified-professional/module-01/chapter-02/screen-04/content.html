@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--violet:#7b42e8;--emerald:#10b981} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">SGA</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-2/5 bg-white rounded-2xl p-4 border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-700">Definition</div>
+      <p class="mt-2 text-sm text-slate-600">SGA is the shared memory pool used by the instance to cache data, parsed SQL, and control information for performance and recovery.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Key areas</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc pl-5">
+          <li>Shared Pool: parsed SQL, data dictionary cache.</li>
+          <li>Database Buffer Cache: data blocks for reads and writes.</li>
+          <li>Redo Log Buffer: change records for recovery.</li>
+          <li>Optional pools: Large Pool, Java Pool, Streams Pool.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="mt-2 text-sm text-rose-700">Treating SGA as one setting and resizing randomly can cause fragmentation or swapping.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-2xl p-4 border shadow-sm flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Illustration: SGA as caches</div>
+      <div class="mt-3 grid grid-rows-3 gap-3 flex-1">
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-700">Shared Pool</div>
+          <div class="text-sm text-slate-600 mt-1">Stores library cache and dictionary cache to avoid reparsing and repeated object lookups.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-700">Database Buffer Cache</div>
+          <div class="text-sm text-slate-600 mt-1">Holds data blocks read from data files; cache hits speed queries and reduce disk I/O.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-700">Redo Log Buffer</div>
+          <div class="text-sm text-slate-600 mt-1">A circular buffer of redo entries that LGWR flushes to the online redo logs for durability.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex gap-3">
+        <div class="flex-1 rounded-xl p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example</div>
+          <p class="text-sm text-slate-700">A SELECT finds a block in the buffer cache and returns results without disk I/O. A DML marks a block dirty and LGWR writes redo before commit.</p>
+        </div>
+
+        <div class="w-48">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Measure SGA components before tuning; each area serves a distinct purpose.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Vulnerable EtherStore</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 shadow-sm card flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Code</div>
+      <pre class="flex-1">pragma solidity ^0.8.0;
+
+contract VulnerableEtherStore {
+    mapping(address =&gt; uint256) public balances;
+
+    function deposit() public payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    function withdraw() public {
+        uint256 amount = balances[msg.sender];
+        require(amount &gt; 0, "No funds to withdraw");
+
+        // Vulnerable point: external call before state update
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+
+        balances[msg.sender] = 0; // State update happens after external call
+    }
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+}</pre>
+    </div>
+
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 shadow-sm card flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Explainer</div>
+      <ul class="list-disc ml-4 text-sm text-slate-700">
+        <li>Read amount from storage and check it is positive.</li>
+        <li>External call to msg.sender happens before writing balances[msg.sender] = 0.</li>
+        <li>An attacker can reenter during that external call and withdraw repeatedly.</li>
+      </ul>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700 text-sm">Common-mistake: assuming external transfers are safe because they look simple. Control can switch to attacker code.</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-700 text-sm">Pro-tip: unit test with an attacker fallback that calls withdraw again to confirm vulnerability.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">If your function calls external code and then changes important state, the function is a reentrancy risk.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

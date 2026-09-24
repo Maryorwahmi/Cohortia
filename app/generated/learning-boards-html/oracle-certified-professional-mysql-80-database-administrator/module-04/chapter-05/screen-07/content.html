@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Create an LVM Snapshot</div>
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-xl bg-white border">
+          <div class="font-semibold text-slate-800">Step A — Confirm LV location</div>
+          <div class="text-sm text-slate-600 mt-1">Ensure /var/lib/mysql resides on an LV like /dev/vg_mysql/lv_mysql_data.</div>
+        </div>
+        <div class="p-3 rounded-xl bg-white border">
+          <div class="font-semibold text-slate-800">Step B — Acquire FLUSH TABLES WITH READ LOCK</div>
+          <div class="text-sm text-slate-600 mt-1">Keep this session open until snapshot creation completes.</div>
+        </div>
+        <div class="p-3 rounded-xl bg-white border">
+          <div class="font-semibold text-slate-800">Step C — Create snapshot</div>
+          <div class="text-sm text-slate-600 mt-1">Use lvcreate -s with a snapshot name and size sized for write volume.</div>
+        </div>
+        <div class="p-3 rounded-xl bg-white border">
+          <div class="font-semibold text-slate-800">Step D — Release lock and copy snapshot data</div>
+          <div class="text-sm text-slate-600 mt-1">Mount the snapshot and copy to your backup target, then remove the snapshot.</div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col justify-between">
+      <div class="bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm h-3/4">
+        <div class="text-sm font-semibold text-slate-800">Sizing guideline</div>
+        <p class="mt-2 text-sm text-slate-600">Start with roughly 10–20% of origin volume size as a snapshot allocation and adjust based on observed write activity during retention.</p>
+        <div class="mt-4 text-sm font-semibold text-slate-800">Operational tip</div>
+        <p class="mt-2 text-sm text-slate-600">Automate cleanup and monitoring so snapshots do not accumulate or let the copy-on-write area fill, which would lead to failed snapshots or performance impact.</p>
+      </div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Concrete example</div>
+        <p class="text-sm font-medium text-slate-800">Create a 10G snapshot of /dev/vg_mysql/lv_mysql_data, mount it to /mnt/mysql_snapshot, copy files to your backup store, then unmount and lvremove the snapshot.</p>
+      </div>
+    </div>
+  </div>
+</div>

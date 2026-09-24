@@ -1,0 +1,29 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class='flex h-full gap-4'>
+    <div class='w-1/2 rounded-xl bg-white p-4 border' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Process Flow</div>
+      <div class='text-lg font-bold text-slate-900 mb-2'>Restart and verify</div>
+      <div class='text-sm text-slate-700 mb-3'>Use the correct restart command, then check logs and run a controlled test to confirm behavior.</div>
+      <div class='rounded-lg p-3 bg-slate-50'>
+        <pre class='text-sm text-slate-700'># RPM systems
+sudo systemctl restart mysqld
+# DEB systems
+sudo systemctl restart mysql
+
+# Controlled test
+mysql -u root -p -e "SELECT SLEEP(3);"
+# Inspect slow log
+sudo tail -n 50 /var/log/mysql/mysql-slow.log</pre>
+      </div>
+    </div>
+    <div class='w-1/2 rounded-xl bg-white p-4 border' style='border-color: rgba(226,232,240,0.9)'>
+      <div class='text-sm font-semibold text-slate-800 mb-2'>Troubleshooting tips</div>
+      <ul class='text-sm text-slate-700 list-disc pl-5 space-y-1'>
+        <li>Check ownership and permissions of log files if nothing is written.</li>
+        <li>Keep a second session open while restarting to avoid lockouts.</li>
+        <li>Disable general log immediately after finishing debugging.</li>
+      </ul>
+    </div>
+  </div>
+</div>

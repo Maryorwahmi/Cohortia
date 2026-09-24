@@ -185,6 +185,13 @@ Allowed lesson sub-templates:
 - **timeline:** horizontal timeline with milestones.
 - **diagram:** generic concept diagram with labeled cards and arrows.
 
+### Code formatting (strict)
+- Render every multi-line code example as a real `<pre><code>...</code></pre>` block whenever possible.
+- Use actual line breaks and indentation inside code blocks. Never write the two literal characters `\n` or `\t` as visible code separators.
+- Add `white-space: pre-wrap` and `tab-size: 2` when a code example is placed in a `div` or another custom code panel.
+- Keep code in a readable monospace font with left alignment, comfortable padding, and enough height for every line to remain visible.
+- Escape HTML-sensitive code characters such as `<`, `>`, and `&` when they appear as code text.
+
 ### key_concepts
 - Title: "Key Concepts" or "What to Remember".
 - Exactly 3 compact concept cards in a row or grid.

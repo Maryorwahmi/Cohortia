@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Configuring MySQL</span>
+  </div>
+
+  <div class="flex gap-6 h-full min-h-0">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">my.cnf example</div>
+      <pre class="overflow-auto">[mysqld]
+ssl_ca=/etc/mysql/ssl/ca.pem
+ssl_cert=/etc/mysql/ssl/server-cert.pem
+ssl_key=/etc/mysql/ssl/server-key.pem
+# Optional but recommended in production
+require_secure_transport = ON</pre>
+      <div class="mt-3 text-sm text-slate-600">After saving changes, restart the MySQL service and verify that the server reports have_ssl = YES and that Ssl_cipher is populated when a client connects with TLS.</div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <p class="text-xs font-medium text-slate-800">Placing key files with incorrect ownership or forgetting to restart the server are frequent causes of SSL not being enabled.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="bg-white rounded-xl p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Verify commands</div>
+        <div class="text-sm text-slate-700 mt-2">Connect to MySQL as root and run:</div>
+        <pre class="mt-3">SHOW VARIABLES LIKE 'have_ssl';
+SHOW STATUS LIKE 'Ssl_cipher';</pre>
+        <div class="text-sm text-slate-600 mt-2">have_ssl should be YES and Ssl_cipher should list the negotiated cipher after a TLS client session.</div>
+      </div>
+
+      <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Operational checklist</div>
+        <ul class="text-sm text-slate-600 mt-2 ml-5 list-disc">
+          <li>Place certs in /etc/mysql/ssl or an accessible directory.</li>
+          <li>Set server-key.pem permissions to 0400 or 0600 owned by mysql user.</li>
+          <li>Restart MySQL and confirm SSL variables and status.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

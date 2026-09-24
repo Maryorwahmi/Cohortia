@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{background:#fff;border-radius:12px;border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo,monospace;} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+      <span>›</span>
+      <span>Chapter 6.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Practical example</span>
+    </div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-bold text-slate-800">Problematic query</div>
+      <div class="mono bg-slate-50 p-3 rounded mt-3">SELECT * FROM products WHERE category_id = 5 ORDER BY price DESC;</div>
+      <div class="mt-3 text-sm text-slate-600">EXPLAIN shows type: ALL and Extra: Using filesort, indicating a full scan and sort. This is the classic sign to consider a composite index.</div>
+    </div>
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Index to add</div>
+        <div class="text-sm text-slate-600 mt-2 mono">CREATE INDEX idx_category_price ON products (category_id, price DESC);</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Expected EXPLAIN after</div>
+        <div class="text-sm text-slate-600 mt-2">type becomes ref or range, key shows idx_category_price, and Extra no longer shows Using filesort — possibly Using index if the index covers selected columns.</div>
+      </div>
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Note</div>
+        <div class="text-sm text-slate-600 mt-2">If SELECT * is used, the index may not be fully covering; consider selecting only needed columns or extending the index if queries rely on additional columns.</div>
+      </div>
+    </div>
+  </div>
+</div>

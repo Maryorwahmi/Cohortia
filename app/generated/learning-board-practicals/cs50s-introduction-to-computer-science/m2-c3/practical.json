@@ -1,0 +1,281 @@
+{
+  "courseId": "cs50s-introduction-to-computer-science",
+  "moduleNumber": 2,
+  "chapterNumber": 3,
+  "practical": {
+    "schemaVersion": 1,
+    "practicalId": "practical-cs50s-introduction-to-computer-science-m2-c3",
+    "source": {
+      "sourceKey": "cs50s-introduction-to-computer-science/2/3",
+      "category": "Terminal Coding Lab",
+      "sourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "sourceHash": "sha256:bf2eaf40746e448b486cefb85c8b5e2bdb2545a7a333eee4d19b7e2cc5126b8c"
+    },
+    "category": "Terminal Coding Lab",
+    "title": "File I/O and Command-Line Arguments — Intensive Practical Lab",
+    "summary": "An intensive, multi-scene lab that guides learners through observing, modifying, extending, and verifying a C file-copy utility that uses command-line arguments and character-by-character file I/O.",
+    "level": "Beginner",
+    "labType": "shell",
+    "mode": "terminal_lab",
+    "language": "bash",
+    "sourceActivity": "File I/O and Command-Line Arguments — Intensive Practical Lab",
+    "objectives": [],
+    "learningObjectives": [],
+    "prerequisites": [],
+    "instructions": "Write a C program that takes two command-line arguments: an input filename and an output filename. The program should read the content of the input file character by character and write it to the output file, effectively creating a copy of the input file. Ensure you handle potential errors like files not being found or failing to open.\n\n```c\n#include <stdio.h>\n#include <stdlib.h> // For exit()\n\nint main(int argc, char *argv[])\n{\n    // 1. Check for correct number of command-line arguments\n    if (argc != 3)\n    {\n        printf(\"Usage: %s <input_filename> <output_filename>\\n\", argv[0]);\n        return 1; // Indicate error\n    }\n\n    char *input_filename = argv[1];\n    char *output_filename = argv[2];\n\n    FILE *input_file = NULL;\n    FILE *output_file = NULL;\n    int c; // To hold characters read from file, must be int for EOF\n\n    // 2. Open the input file for reading\n    input_file = fopen(input_filename, \"r\");\n    if (input_file == NULL)\n    {\n        printf(\"Error: Could not open input file '%s'.\\n\", input_filename);\n        return 1;\n    }\n\n    // 3. Open the output file for writing\n    output_file = fopen(output_filename, \"w\");\n    if (output_file == NULL)\n    {\n        printf(\"Error: Could not open output file '%s'.\\n\", output_filename);\n        fclose(input_file); // Close input file before exiting\n        return 1;\n    }\n\n    // 4. Read character by character from input and write to output\n    while ((c = fgetc(input_file)) != EOF)\n    {\n        fputc(c, output_file);\n    }\n\n    // 5. Close both files\n    fclose(input_file);\n    fclose(output_file);\n\n    printf(\"File '%s' successfully copied to '%s'.\\n\", input_filename, output_filename);\n\n    return 0;\n}\n```\nTo test this, first create a `source.txt` file with some content:\n```\nHello Cohortia!\nThis is a test file.\n```\nThen compile and run:\n`gcc copy_file.c -o copy_file`\n`./copy_file source.txt destination.txt`\nYou should then find a `destination.txt` file with the same content as `source.txt`.",
+    "narratorGuide": "Welcome to File I/O and Command-Line Arguments — Intensive Practical Lab. I am your teacher for this practical, and we will work through File I/O and Command-Line Arguments — Intensive Practical Lab together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: Write a C program that takes two command-line arguments: an input filename and an output filename. The program should read the content of the input file character by character and write it to the output file, effectively creating a copy of the input file. Ensure you handle potential errors like files not being found or failing to open.\n\n```c\n#include <stdio.h>\n#include <stdlib.h> // For exit()\n\nint main(int argc, char *argv[])\n{\n    // 1. Check for correct number of command-line arguments\n    if (argc != 3)\n    {\n        printf(\"Usage: %s <input_filename> <output_filename>\\n\", argv[0]);\n        return 1; // Indicate error\n    }\n\n    char *input_filename = argv[1];\n    char *output_filename = argv[2];\n\n    FILE *input_file = NULL;\n    FILE *output_file = NULL;\n    int c; // To hold characters read from file, must be int for EOF\n\n    // 2. Open the input file for reading\n    input_file = fopen(input_filename, \"r\");\n    if (input_file == NULL)\n    {\n        printf(\"Error: Could not open input file '%s'.\\n\", input_filename);\n        return 1;\n    }\n\n    // 3. Open the output file for writing\n    output_file = fopen(output_filename, \"w\");\n    if (output_file == NULL)\n    {\n        printf(\"Error: Could not open output file '%s'.\\n\", output_filename);\n        fclose(input_file); // Close input file before exiting\n        return 1;\n    }\n\n    // 4. Read character by character from input and write to output\n    while ((c = fgetc(input_file)) != EOF)\n    {\n        fputc(c, output_file);\n    }\n\n    // 5. Close both files\n    fclose(input_file);\n    fclose(output_file);\n\n    printf(\"File '%s' successfully copied to '%s'.\\n\", input_filename, output_filename);\n\n    return 0;\n}\n```\nTo test this, first create a `source.txt` file with some content:\n```\nHello Cohortia!\nThis is a test file.\n```\nThen compile and run:\n`gcc copy_file.c -o copy_file`\n`./copy_file source.txt destination.txt`\nYou should then find a `destination.txt` file with the same content as `source.txt`.. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.",
+    "teacher": {
+      "role": "supportive computer science teacher",
+      "opening": "Welcome to File I/O and Command-Line Arguments — Intensive Practical Lab. I am your teacher for this practical, and we will work through File I/O and Command-Line Arguments — Intensive Practical Lab together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: Write a C program that takes two command-line arguments: an input filename and an output filename. The program should read the content of the input file character by character and write it to the output file, effectively creating a copy of the input file. Ensure you handle potential errors like files not being found or failing to open.\n\n```c\n#include <stdio.h>\n#include <stdlib.h> // For exit()\n\nint main(int argc, char *argv[])\n{\n    // 1. Check for correct number of command-line arguments\n    if (argc != 3)\n    {\n        printf(\"Usage: %s <input_filename> <output_filename>\\n\", argv[0]);\n        return 1; // Indicate error\n    }\n\n    char *input_filename = argv[1];\n    char *output_filename = argv[2];\n\n    FILE *input_file = NULL;\n    FILE *output_file = NULL;\n    int c; // To hold characters read from file, must be int for EOF\n\n    // 2. Open the input file for reading\n    input_file = fopen(input_filename, \"r\");\n    if (input_file == NULL)\n    {\n        printf(\"Error: Could not open input file '%s'.\\n\", input_filename);\n        return 1;\n    }\n\n    // 3. Open the output file for writing\n    output_file = fopen(output_filename, \"w\");\n    if (output_file == NULL)\n    {\n        printf(\"Error: Could not open output file '%s'.\\n\", output_filename);\n        fclose(input_file); // Close input file before exiting\n        return 1;\n    }\n\n    // 4. Read character by character from input and write to output\n    while ((c = fgetc(input_file)) != EOF)\n    {\n        fputc(c, output_file);\n    }\n\n    // 5. Close both files\n    fclose(input_file);\n    fclose(output_file);\n\n    printf(\"File '%s' successfully copied to '%s'.\\n\", input_filename, output_filename);\n\n    return 0;\n}\n```\nTo test this, first create a `source.txt` file with some content:\n```\nHello Cohortia!\nThis is a test file.\n```\nThen compile and run:\n`gcc copy_file.c -o copy_file`\n`./copy_file source.txt destination.txt`\nYou should then find a `destination.txt` file with the same content as `source.txt`.. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.",
+      "coachingPrompts": [
+        "What do you predict will happen before you run it?",
+        "What evidence shows that your change worked?",
+        "Can you explain the result in your own words?"
+      ]
+    },
+    "codeWalkthrough": [],
+    "completionRule": "all_tests_pass",
+    "environment": {
+      "adapter": "shell-sandbox",
+      "runtime": "unspecified",
+      "workingDirectory": "/workspace",
+      "requiredTools": [],
+      "network": "disabled",
+      "resourceLimits": {
+        "timeoutSeconds": 60,
+        "memoryMb": 256,
+        "outputKb": 64
+      },
+      "resetStrategy": "fresh-workspace"
+    },
+    "files": [
+      {
+        "path": "copy_file.c",
+        "content": "#include <stdio.h>\n#include <stdlib.h> // For exit()\n\nint main(int argc, char *argv[])\n{\n    // 1. Check for correct number of command-line arguments\n    if (argc != 3)\n    {\n        printf(\"Usage: %s <input_filename> <output_filename>\\n\", argv[0]);\n        return 1; // Indicate error\n    }\n\n    char *input_filename = argv[1];\n    char *output_filename = argv[2];\n\n    FILE *input_file = NULL;\n    FILE *output_file = NULL;\n    int c; // To hold characters read from file, must be int for EOF\n\n    // 2. Open the input file for reading\n    input_file = fopen(input_filename, \"r\");\n    if (input_file == NULL)\n    {\n        printf(\"Error: Could not open input file '%s'.\\n\", input_filename);\n        return 1;\n    }\n\n    // 3. Open the output file for writing\n    output_file = fopen(output_filename, \"w\");\n    if (output_file == NULL)\n    {\n        printf(\"Error: Could not open output file '%s'.\\n\", output_filename);\n        fclose(input_file); // Close input file before exiting\n        return 1;\n    }\n\n    // 4. Read character by character from input and write to output\n    while ((c = fgetc(input_file)) != EOF)\n    {\n        fputc(c, output_file);\n    }\n\n    // 5. Close both files\n    fclose(input_file);\n    fclose(output_file);\n\n    printf(\"File '%s' successfully copied to '%s'.\\n\", input_filename, output_filename);\n\n    return 0;\n}\n",
+        "language": "c",
+        "description": "",
+        "editable": true
+      },
+      {
+        "path": "source.txt",
+        "content": "Hello Cohortia!\nThis is a test file.\n",
+        "language": "text",
+        "description": "",
+        "editable": true
+      }
+    ],
+    "tasks": [
+      {
+        "id": "scene-1-observe",
+        "title": "Scene 1 — Observe & Understand (2–4 min)",
+        "instruction": "Write a C program that takes two command-line arguments: an input filename and an output filename. The program should read the content of the input file character by character and write it to the output file, effectively creating a copy of the input file. Ensure you handle potential errors like files not being found or failing to open.\n\n```c\n#include <stdio.h>\n#include <stdlib.h> // For exit()\n\nint main(int argc, char *argv[])\n{\n    // 1. Check for correct number of command-line arguments\n    if (argc != 3)\n    {\n        printf(\"Usage: %s <input_filename> <output_filename>\\n\", argv[0]);\n        return 1; // Indicate error\n    }\n\n    char *input_filename = argv[1];\n    char *output_filename = argv[2];\n\n    FILE *input_file = NULL;\n    FILE *output_file = NULL;\n    int c; // To hold characters read from file, must be int for EOF\n\n    // 2. Open the input file for reading\n    input_file = fopen(input_filename, \"r\");\n    if (input_file == NULL)\n    {\n        printf(\"Error: Could not open input file '%s'.\\n\", input_filename);\n        return 1;\n    }\n\n    // 3. Open the output file for writing\n    output_file = fopen(output_filename, \"w\");\n    if (output_file == NULL)\n    {\n        printf(\"Error: Could not open output file '%s'.\\n\", output_filename);\n        fclose(input_file); // Close input file before exiting\n        return 1;\n    }\n\n    // 4. Read character by character from input and write to output\n    while ((c = fgetc(input_file)) != EOF)\n    {\n        fputc(c, output_file);\n    }\n\n    // 5. Close both files\n    fclose(input_file);\n    fclose(output_file);\n\n    printf(\"File '%s' successfully copied to '%s'.\\n\", input_filename, output_filename);\n\n    return 0;\n}\n```\nTo test this, first create a `source.txt` file with some content:\n```\nHello Cohortia!\nThis is a test file.\n```\nThen compile and run:\n`gcc copy_file.c -o copy_file`\n`./copy_file source.txt destination.txt`\nYou should then find a `destination.txt` file with the same content as `source.txt`.",
+        "narratorGuide": "Hello! In this first scene you'll run the provided file-copy utility without changing any code. Notice how the program validates argc, opens files with fopen(), loops using fgetc() until EOF, writes each character with fputc(), and finally closes both streams. Watching the program run gives context for later edits — you'll see the success message and then inspect the copied file to confirm byte-by-byte fidelity.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-1-compile-run",
+          "check-2-destination-contents"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-2-modify",
+        "title": "Scene 2 — Modify & Experiment (4–6 min)",
+        "instruction": "Write a C program that takes two command-line arguments: an input filename and an output filename. The program should read the content of the input file character by character and write it to the output file, effectively creating a copy of the input file. Ensure you handle potential errors like files not being found or failing to open.\n\n```c\n#include <stdio.h>\n#include <stdlib.h> // For exit()\n\nint main(int argc, char *argv[])\n{\n    // 1. Check for correct number of command-line arguments\n    if (argc != 3)\n    {\n        printf(\"Usage: %s <input_filename> <output_filename>\\n\", argv[0]);\n        return 1; // Indicate error\n    }\n\n    char *input_filename = argv[1];\n    char *output_filename = argv[2];\n\n    FILE *input_file = NULL;\n    FILE *output_file = NULL;\n    int c; // To hold characters read from file, must be int for EOF\n\n    // 2. Open the input file for reading\n    input_file = fopen(input_filename, \"r\");\n    if (input_file == NULL)\n    {\n        printf(\"Error: Could not open input file '%s'.\\n\", input_filename);\n        return 1;\n    }\n\n    // 3. Open the output file for writing\n    output_file = fopen(output_filename, \"w\");\n    if (output_file == NULL)\n    {\n        printf(\"Error: Could not open output file '%s'.\\n\", output_filename);\n        fclose(input_file); // Close input file before exiting\n        return 1;\n    }\n\n    // 4. Read character by character from input and write to output\n    while ((c = fgetc(input_file)) != EOF)\n    {\n        fputc(c, output_file);\n    }\n\n    // 5. Close both files\n    fclose(input_file);\n    fclose(output_file);\n\n    printf(\"File '%s' successfully copied to '%s'.\\n\", input_filename, output_filename);\n\n    return 0;\n}\n```\nTo test this, first create a `source.txt` file with some content:\n```\nHello Cohortia!\nThis is a test file.\n```\nThen compile and run:\n`gcc copy_file.c -o copy_file`\n`./copy_file source.txt destination.txt`\nYou should then find a `destination.txt` file with the same content as `source.txt`.",
+        "narratorGuide": "Now you'll modify the running program to count how many characters it copies. This is a focused change: add an integer counter initialized to zero, increment it inside the copy loop, and print the byte count before the success message. This reinforces thinking about loop invariants and gives observable feedback you can verify against the source file size.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-3-bytes-printed",
+          "check-4-destination-still-correct"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-3-build",
+        "title": "Scene 3 — Build & Integrate (4–8 min)",
+        "instruction": "Write a C program that takes two command-line arguments: an input filename and an output filename. The program should read the content of the input file character by character and write it to the output file, effectively creating a copy of the input file. Ensure you handle potential errors like files not being found or failing to open.\n\n```c\n#include <stdio.h>\n#include <stdlib.h> // For exit()\n\nint main(int argc, char *argv[])\n{\n    // 1. Check for correct number of command-line arguments\n    if (argc != 3)\n    {\n        printf(\"Usage: %s <input_filename> <output_filename>\\n\", argv[0]);\n        return 1; // Indicate error\n    }\n\n    char *input_filename = argv[1];\n    char *output_filename = argv[2];\n\n    FILE *input_file = NULL;\n    FILE *output_file = NULL;\n    int c; // To hold characters read from file, must be int for EOF\n\n    // 2. Open the input file for reading\n    input_file = fopen(input_filename, \"r\");\n    if (input_file == NULL)\n    {\n        printf(\"Error: Could not open input file '%s'.\\n\", input_filename);\n        return 1;\n    }\n\n    // 3. Open the output file for writing\n    output_file = fopen(output_filename, \"w\");\n    if (output_file == NULL)\n    {\n        printf(\"Error: Could not open output file '%s'.\\n\", output_filename);\n        fclose(input_file); // Close input file before exiting\n        return 1;\n    }\n\n    // 4. Read character by character from input and write to output\n    while ((c = fgetc(input_file)) != EOF)\n    {\n        fputc(c, output_file);\n    }\n\n    // 5. Close both files\n    fclose(input_file);\n    fclose(output_file);\n\n    printf(\"File '%s' successfully copied to '%s'.\\n\", input_filename, output_filename);\n\n    return 0;\n}\n```\nTo test this, first create a `source.txt` file with some content:\n```\nHello Cohortia!\nThis is a test file.\n```\nThen compile and run:\n`gcc copy_file.c -o copy_file`\n`./copy_file source.txt destination.txt`\nYou should then find a `destination.txt` file with the same content as `source.txt`.",
+        "narratorGuide": "In this scene you'll integrate two practical improvements. First, add a defensive check that refuses to copy when the input and output filenames are identical — this prevents data loss. Second, open files with \"rb\" and \"wb\" modes so the same program works with binary files. Both changes are small but meaningful in real-world tools: filename validation avoids surprising behavior, and binary modes preserve raw bytes.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-5-same-name-rejected",
+          "check-6-binary-copy"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "scene-4-verify",
+        "title": "Scene 4 — Verify & Extend (3–5 min)",
+        "instruction": "Write a C program that takes two command-line arguments: an input filename and an output filename. The program should read the content of the input file character by character and write it to the output file, effectively creating a copy of the input file. Ensure you handle potential errors like files not being found or failing to open.\n\n```c\n#include <stdio.h>\n#include <stdlib.h> // For exit()\n\nint main(int argc, char *argv[])\n{\n    // 1. Check for correct number of command-line arguments\n    if (argc != 3)\n    {\n        printf(\"Usage: %s <input_filename> <output_filename>\\n\", argv[0]);\n        return 1; // Indicate error\n    }\n\n    char *input_filename = argv[1];\n    char *output_filename = argv[2];\n\n    FILE *input_file = NULL;\n    FILE *output_file = NULL;\n    int c; // To hold characters read from file, must be int for EOF\n\n    // 2. Open the input file for reading\n    input_file = fopen(input_filename, \"r\");\n    if (input_file == NULL)\n    {\n        printf(\"Error: Could not open input file '%s'.\\n\", input_filename);\n        return 1;\n    }\n\n    // 3. Open the output file for writing\n    output_file = fopen(output_filename, \"w\");\n    if (output_file == NULL)\n    {\n        printf(\"Error: Could not open output file '%s'.\\n\", output_filename);\n        fclose(input_file); // Close input file before exiting\n        return 1;\n    }\n\n    // 4. Read character by character from input and write to output\n    while ((c = fgetc(input_file)) != EOF)\n    {\n        fputc(c, output_file);\n    }\n\n    // 5. Close both files\n    fclose(input_file);\n    fclose(output_file);\n\n    printf(\"File '%s' successfully copied to '%s'.\\n\", input_filename, output_filename);\n\n    return 0;\n}\n```\nTo test this, first create a `source.txt` file with some content:\n```\nHello Cohortia!\nThis is a test file.\n```\nThen compile and run:\n`gcc copy_file.c -o copy_file`\n`./copy_file source.txt destination.txt`\nYou should then find a `destination.txt` file with the same content as `source.txt`.",
+        "narratorGuide": "Now confirm the program fails gracefully when misused: run it with no arguments to see the usage message, run it with a nonexistent input file to see the file-open error, and consider how you'd add a -v flag to print progress each N bytes. These verifications are critical — they show your program anticipates bad input rather than crashing silently.",
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-7-usage-message",
+          "check-8-missing-input",
+          "check-9-extension-challenge"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      }
+    ],
+    "checks": [
+      {
+        "id": "check-1-compile-run",
+        "type": "command",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "gcc copy_file.c -o copy_file && ./copy_file source.txt destination.txt"
+      },
+      {
+        "id": "check-2-destination-contents",
+        "type": "command",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "cat destination.txt"
+      },
+      {
+        "id": "check-3-bytes-printed",
+        "type": "command",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "gcc copy_file.c -o copy_file && ./copy_file source.txt destination.txt"
+      },
+      {
+        "id": "check-4-destination-still-correct",
+        "type": "command",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "diff source.txt destination.txt || (echo 'DIFF-FOUND' && exit 1)"
+      },
+      {
+        "id": "check-5-same-name-rejected",
+        "type": "command",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "gcc copy_file.c -o copy_file && ./copy_file source.txt source.txt"
+      },
+      {
+        "id": "check-6-binary-copy",
+        "type": "command",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "printf \"\\x00\\x01\\x02\" > tiny.bin && ./copy_file tiny.bin tiny_copy.bin && wc -c tiny.bin tiny_copy.bin"
+      },
+      {
+        "id": "check-7-usage-message",
+        "type": "command",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "./copy_file"
+      },
+      {
+        "id": "check-8-missing-input",
+        "type": "command",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "./copy_file nonexistent.txt dest.txt"
+      },
+      {
+        "id": "check-9-extension-challenge",
+        "type": "manual",
+        "adapter": "shell-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      }
+    ],
+    "hints": [],
+    "evidence": [
+      {
+        "id": "practical-result",
+        "type": "artifact",
+        "label": "Practical result",
+        "required": true,
+        "redactSecrets": true
+      }
+    ],
+    "safety": {
+      "profile": "shell-isolated",
+      "networkAccess": "disabled",
+      "hostAccess": "none",
+      "requiresManualReview": true,
+      "prohibitedOperations": [
+        "accessing the host filesystem",
+        "reading credentials or secrets",
+        "privileged operations",
+        "network access outside declared fixtures"
+      ],
+      "learnerWarning": "This practical runs in an isolated workspace. Do not use real credentials or production resources."
+    },
+    "cleanup": {
+      "strategy": "discard-workspace",
+      "instructions": "Discard the isolated workspace after completion."
+    },
+    "completionRules": {
+      "requiredChecks": [
+        "check-1-compile-run",
+        "check-2-destination-contents",
+        "check-3-bytes-printed",
+        "check-4-destination-still-correct",
+        "check-5-same-name-rejected",
+        "check-6-binary-copy",
+        "check-7-usage-message",
+        "check-8-missing-input",
+        "check-9-extension-challenge"
+      ],
+      "minimumScore": 1,
+      "requiresEvidence": true,
+      "manualReview": true
+    },
+    "generator": {
+      "generatorVersion": "phase4.2",
+      "classifierVersion": "phase3.1"
+    },
+    "metadata": {
+      "courseId": "cs50s-introduction-to-computer-science",
+      "moduleNumber": 2,
+      "chapterNumber": 3,
+      "model": "gemini-2.5-flash",
+      "generatedAt": "2026-09-24T20:33:53.757Z",
+      "activitySourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "lessonSourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
+      "activitySourceHash": "sha256:bf2eaf40746e448b486cefb85c8b5e2bdb2545a7a333eee4d19b7e2cc5126b8c",
+      "lessonSourceHash": "sha256:3d06a30bf934a1976deb739f3e00e855fdb3dd5fab759e225433dc41ecb785f8"
+    },
+    "animationMetadata": {
+      "type": "interactive-code-reveal",
+      "narrator": "educator",
+      "synchronizedPlayback": true,
+      "totalLessonDurationMs": 720000
+    }
+  }
+}

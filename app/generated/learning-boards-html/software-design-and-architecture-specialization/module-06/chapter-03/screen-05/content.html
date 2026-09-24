@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Message Journey</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Producer behaviour</div>
+      <p class="text-sm text-slate-600 mt-2">Producers detect changes and create event messages. They must include stable schema fields and not assume who will consume the event. Producers should emit events quickly and avoid blocking business flow on subscribers.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Channel guarantees</div>
+        <ul class="text-sm text-slate-600 mt-2 space-y-2">
+          <li>Durability: persists events so consumers can read later.</li>
+          <li>Ordering: can preserve sequence for a partition or key.</li>
+          <li>Delivery semantics: at-least-once, at-most-once, or exactly-once depending on configuration.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Consumer responsibilities</div>
+        <p class="text-sm text-slate-600 mt-2">Consumers must be idempotent, handle retries, and emit compensating events when necessary. They own their downstream consistency and observability concerns.</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete example: OrderCreated flow</div>
+      <div class="text-sm text-slate-600 mt-2">OrderService publishes OrderCreated to the broker. InventoryService consumes and reserves stock; if reservation fails it emits InventoryReservationFailed. BillingService consumes and attempts charge, emitting PaymentProcessed. NotificationService subscribes to both PaymentProcessed and InventoryReserved to inform the customer.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-slate-50 card-border">
+          <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-2">Assuming ordering across unrelated partitions. If you need ordering per customer or per SKU, explicitly partition by that key and configure ordering guarantees in the channel.</div>
+        </div>
+
+        <div class="mt-3 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+          <p class="text-sm font-medium text-slate-800">Map events to delivery requirements early: decide which events need ordering, durability, or higher delivery semantics before implementation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

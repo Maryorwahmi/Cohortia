@@ -1,0 +1,47 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#f8fafc]" style="font-family:Inter,ui-sans-serif;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Web3.js: .send()</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl bg-black text-white p-4 font-mono" style="min-height:360px;">
+      <div class="text-sm font-bold text-white">Code (illustrative)</div>
+      <pre class="mt-3 text-xs overflow-auto" style="max-height:300px;"><code>// Instantiate contract with ABI and address
+const myMutable = new web3.eth.Contract(ABI, ADDRESS);
+const newMessage = "Hello from Cohortia!";
+try {
+  const receipt = await myMutable.methods.updateMessage(newMessage).send({
+    from: sender, gas: 300000
+  });
+  // receipt contains transactionHash, gasUsed, events
+} catch (error) {
+  // handle revert or insufficient funds
+}
+
+// Deposit Ether (convert to Wei first)
+const amountWei = web3.utils.toWei('0.05', 'ether');
+await myMutable.methods.deposit().send({ from: sender, value: amountWei, gas: 100000 });</code></pre>
+    </div>
+    <div class="w-1/3 rounded-2xl bg-white card-border p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Highlights</div>
+      <ul class="mt-2 text-slate-600 space-y-2">
+        <li>Use .send and await the Promise for the receipt.</li>
+        <li>Provide a from address and any value in Wei.</li>
+        <li>Wrap calls in try...catch to handle reverts or funding errors.</li>
+      </ul>
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-1">Test transactions on Ganache to inspect receipts and event logs locally before production.</div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">With Web3.js, .send handles broadcasting and returns the mined receipt; always await and validate it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

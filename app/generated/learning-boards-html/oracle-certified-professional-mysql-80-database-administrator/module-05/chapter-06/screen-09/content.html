@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px} pre{background:#0b1220;color:#e5f1ff;padding:10px;border-radius:8px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.6</span>
+      <span>›</span>
+      <span class="text-slate-700">GTID-based skipping vs skip counter</span>
+    </div>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col h-full">
+      <div class="card p-4 flex-1">
+        <div class="text-sm font-bold text-slate-800">GTID-based skip (recommended)</div>
+        <div class="mt-3 text-sm text-slate-700">Mark the specific GTID as executed so the replica records it without applying it. Preserves global transaction identity and simplifies later failover.</div>
+        <pre class="mt-3">STOP REPLICA;
+SET GLOBAL gtid_next = 'GTID_OF_ERROR';
+BEGIN; COMMIT;
+SET GLOBAL gtid_next = AUTOMATIC;
+START REPLICA;</pre>
+      </div>
+      <div class="mt-3 card p-3 border-l-4 border-l-amber-500 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">When not to use</div>
+        <div class="text-sm text-slate-800 mt-2">If you cannot find the GTID or GTID is not enabled, consider safer re-provisioning instead of risky skipping.</div>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col h-full">
+      <div class="card p-4 flex-1">
+        <div class="text-sm font-bold text-slate-800">sql_replica_skip_counter (legacy)</div>
+        <div class="mt-3 text-sm text-slate-700">Position-based skipping that sets a counter to skip the next N SQL statements. It is brittle and can create mismatches if relay logs differ.</div>
+        <div class="mt-3 text-xs text-slate-600">Use only when GTID is unavailable and you precisely control relay ordering.</div>
+      </div>
+      <div class="mt-3 card p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-2">Prefer GTID-based methods for safety; if you must skip, document the action and validate data integrity afterwards.</div>
+      </div>
+    </div>
+  </div>
+</div>

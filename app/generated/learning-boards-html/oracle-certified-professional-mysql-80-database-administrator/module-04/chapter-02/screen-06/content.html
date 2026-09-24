@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">--single-transaction</span>
+  </div>
+  <div class="rounded-2xl bg-white card-border p-6 shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Definition</div>
+      <p class="text-sm text-slate-700 mt-3">--single-transaction starts a transaction at dump time, providing a stable snapshot for InnoDB's MVCC. It avoids prolonged locks and produces consistent output even with concurrent writes.</p>
+      <div class="mt-4 space-y-3 text-sm">
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-700">Use it for InnoDB tables to ensure a single point-in-time view.</div>
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-700">Does not protect against DDL changes during the dump; DDL may still cause inconsistencies.</div>
+        <div class="rounded-lg p-3 bg-rose-50 text-rose-700">MyISAM tables require explicit locking because they are non-transactional.</div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Prefer --single-transaction for InnoDB to get a consistent snapshot without long read locks.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete example</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-4 flex-1 overflow-auto">
+        <pre class="text-sm">mysqldump -u backup -p --single-transaction mydatabase &gt; consistent_backup.sql</pre>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-white card-border text-sm text-slate-700">Misconception: --single-transaction locks tables for the entire dump. Reality: it starts a transaction and avoids table locks for InnoDB; only brief locks may be used for non-transactional engines.</div>
+    </div>
+    </div>
+  </div>
+</div>

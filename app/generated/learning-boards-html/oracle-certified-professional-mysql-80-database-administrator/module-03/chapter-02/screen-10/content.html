@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .terminal{background:#0b1220;color:#dbeafe;padding:14px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace;font-size:13px;line-height:1.45}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Scenario steps</div>
+      <ol class="text-sm text-slate-700 list-decimal ml-5 space-y-2">
+        <li>Create role with descriptive name.</li>
+        <li>Grant table-level DML to role for products and read for categories.</li>
+        <li>Create the user account with secure authentication.</li>
+        <li>Grant the role to the user and set it as default.</li>
+        <li>Verify by connecting as the user and checking active role.</li>
+      </ol>
+      <div class="mt-4 rounded-md bg-emerald-50 p-3">
+        <div class="text-xs font-semibold text-emerald-700">Why this matters</div>
+        <div class="text-sm text-slate-800 mt-1">Centralized role changes propagate safely and predictably to service accounts used by applications.</div>
+      </div>
+    </div>
+    <div class="rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Terminal demo (visual)</div>
+      <div class="terminal">
+        CREATE ROLE 'web_app_role';
+        <br>
+        GRANT SELECT, INSERT, UPDATE, DELETE ON `webapp_db`.`products` TO 'web_app_role';
+        <br>
+        GRANT SELECT ON `webapp_db`.`categories` TO 'web_app_role';
+        <br>
+        CREATE USER 'web_user1'@'localhost' IDENTIFIED BY 'WebAppPass#789';
+        <br>
+        GRANT 'web_app_role' TO 'web_user1'@'localhost';
+        <br>
+        ALTER USER 'web_user1'@'localhost' DEFAULT ROLE 'web_app_role';
+      </div>
+      <div class="mt-3">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check</div>
+          <p class="text-xs font-medium text-slate-800">Connect as the new user and run show grants and current role commands to confirm the role is active and privileges are correct.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

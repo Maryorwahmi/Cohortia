@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">What is a ScriptableObject?</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">ScriptableObject as a data asset</h3>
+      <p class="text-sm text-slate-600 mt-3">A persistent, shareable asset for configuration and content templates. Not tied to a scene object.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-700">Best fit: item definitions, weapon templates, quest data.</div>
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-700">Misuse to avoid: storing temporary runtime state.</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-700">Benefit: single source of truth reduces duplicated memory.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat ScriptableObjects as templates and configuration that multiple runtime objects can reference.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Example</div>
+      <div class="code mono mt-3 overflow-auto">
+<pre>// WeaponData: a ScriptableObject that stores weapon configuration
+[CreateAssetMenu(fileName = "NewWeaponData", menuName = "Game Data/Weapon Data")]
+public class WeaponData : ScriptableObject
+{
+    public string weaponName = "Default Weapon";
+    public float damage = 10f;
+    public float fireRate = 0.5f;
+    public float range = 100f;
+    public GameObject projectilePrefab;
+    public Sprite icon;
+}
+</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-800">Why this helps</div>
+        <ul class="text-sm text-slate-600 list-disc ml-5 mt-2">
+          <li>Designers create many WeaponData assets without editing code.</li>
+          <li>MonoBehaviours reference the asset for behavior values at runtime.</li>
+          <li>Avoids copying the same variables onto many GameObjects.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card-border{border:1px solid rgba(226,232,240,0.9)}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Hot backups & consistency</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col justify-between">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Definition</div>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Hot backups and InnoDB consistency</h2>
+        <p class="text-sm text-slate-700 mb-4">Hot backups copy files while the server runs; a prepare step applies redo logs to make the copy consistent.</p>
+
+        <div class="rounded-lg bg-white card-border p-3">
+          <div class="text-sm font-semibold text-slate-900">Why prepare matters</div>
+          <div class="text-sm text-slate-700 mt-2">The prepare step applies committed transactions from the redo or binary logs so the restored data reflects a consistent state.</div>
+        </div>
+
+        <div class="rounded-lg bg-white card-border p-3 mt-3">
+          <div class="text-sm font-semibold text-slate-900">Operational note</div>
+          <div class="text-sm text-slate-700 mt-2">Include prepare duration in your RTO estimates and validate restores after prepare completes.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Hot backups minimize downtime but require a formal prepare step to ensure transactional consistency before restoring to production.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full bg-white rounded-2xl card-border p-5 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example flow</div>
+      <div class="rounded-lg bg-slate-50 p-3">
+        <ol class="text-sm text-slate-700 space-y-2">
+          <li>Run Percona XtraBackup to copy data files while server is active.</li>
+          <li>Copy backup files to recovery host.</li>
+          <li>Run the prepare step to apply redo logs and make files consistent.</li>
+          <li>Start MySQL on restored files to complete recovery.</li>
+        </ol>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">This sequence ensures the backup reflects committed transactions up to the capture point and avoids starting a server on an inconsistent dataset.</div>
+    </div>
+  </div>
+</div>

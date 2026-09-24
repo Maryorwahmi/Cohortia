@@ -22,7 +22,16 @@
     "learningObjectives": [],
     "prerequisites": [],
     "instructions": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-    "narratorGuide": "",
+    "narratorGuide": "Welcome to Binary Conversion Challenge — How Computers 'Think'. I am your teacher for this practical, and we will work through Binary Conversion Challenge — How Computers 'Think' together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: **Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.",
+    "teacher": {
+      "role": "supportive computer science teacher",
+      "opening": "Welcome to Binary Conversion Challenge — How Computers 'Think'. I am your teacher for this practical, and we will work through Binary Conversion Challenge — How Computers 'Think' together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: **Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.",
+      "coachingPrompts": [
+        "What do you predict will happen before you run it?",
+        "What evidence shows that your change worked?",
+        "Can you explain the result in your own words?"
+      ]
+    },
     "codeWalkthrough": [],
     "completionRule": "all_tests_pass",
     "environment": {
@@ -38,13 +47,20 @@
       },
       "resetStrategy": "fresh-workspace"
     },
-    "files": [],
+    "files": [
+      {
+        "path": "binary_lab.py",
+        "content": "# binary_lab.py - Binary Conversion Challenge\n\ndef bin_to_dec(b):\n    b = b.strip()\n    if not all(ch in '01' for ch in b):\n        raise ValueError(\"Input is not a binary string\")\n    return sum(int(bit) * (2 ** idx) for idx, bit in enumerate(reversed(b)))\n\n\ndef dec_to_bin(n):\n    if n < 0:\n        raise ValueError(\"dec_to_bin only accepts non-negative integers\")\n    return format(n, 'b')\n\n\ndef unique_values(bits):\n    return 2 ** bits\n\n\ndef max_color_component():\n    return 2 ** 8 - 1\n\n\ndef twos_complement(n, bits):\n    if bits <= 0:\n        raise ValueError(\"bits must be positive\")\n    if n >= 0:\n        return format(n, f'0{bits}b')[-bits:]\n    mask = (1 << bits)\n    return format((mask + n) & (mask - 1), f'0{bits}b')\n\n\ndef main():\n    # Baseline outputs for the hands-on activity\n    print(\"Binary 11010 -> decimal:\", bin_to_dec(\"11010\"))\n    print(\"Decimal 27 -> binary:\", dec_to_bin(27))\n    print(\"6 bits can represent:\", unique_values(6), \"values\")\n    print(\"Max color component (8-bit):\", max_color_component())\n    print(\"24-bit colors total:\", unique_values(24))\n    print(\"Two's complement of -5 (8-bit):\", twos_complement(-5, 8))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "description": "",
+        "editable": true
+      }
+    ],
     "tasks": [
       {
-        "id": "task-1",
-        "title": "OBSERVE & UNDERSTAND — Run the starter program",
+        "id": "scene-1-observe-understand",
+        "title": "Scene 1 — Observe & Understand: Run the baseline program",
         "instruction": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-        "narratorGuide": "Hello, Learner! We'll start by running a small Python program that answers the four challenge questions. This gives you a clear baseline: how binary strings become decimal numbers, how to convert small decimals to binary, how capacities grow with bits, and the 8-bit color-channel maximum. Watch the printed results, note how each line corresponds to the chapter problems, and prepare to change one or two values in the next scene to see cause-and-effect.",
+        "narratorGuide": "Warm welcome! In this first short task you'll run a ready-made Python program that prints answers to the Binary Conversion Challenge. Running the script gives immediate, trustworthy output so you can connect the binary strings like '11010' to familiar decimals. Pay attention to the three functions shown: one converts binary strings to decimals, another converts decimals to binary, and small helpers compute powers-of-two based results (like how many values 6 bits can represent or the max 8-bit color). After you run it, note each printed value and reflect: the program is just using powers of two under the hood.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
@@ -54,10 +70,10 @@
         "terminalCommands": []
       },
       {
-        "id": "task-2",
-        "title": "MODIFY & EXPERIMENT — Change 1–2 values to see cause-and-effect",
+        "id": "scene-2-modify-experiment",
+        "title": "Scene 2 — Modify & Experiment: Change a line and re-run",
         "instruction": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-        "narratorGuide": "Great — you saw the baseline results. Next, change two values in main.py: the binary literal on the Q1 line and the decimal literal on the Q2 line. For example, change 11010 to 10101 and 27 to 45. Run the program again to see how those two outputs update, and mentally map the new binary string to the new decimal output.",
+        "narratorGuide": "Great — now we'll modify one call to see immediate results. Open the file and change the dec_to_bin(27) call to dec_to_bin(13). This is a tiny edit but forces the program to compute a different binary string when you run it again. The purpose: experience how decimal values map to binary patterns and how the program uses the same function to handle any integer. After running, confirm that decimal 13 becomes 1101. This direct modification and re-run pattern is the core scientific method in programming: change one thing, observe the effect.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
@@ -67,10 +83,10 @@
         "terminalCommands": []
       },
       {
-        "id": "task-3",
-        "title": "BUILD & INTEGRATE — Add padded-binary output (fixed-width)",
+        "id": "scene-3-build-integrate",
+        "title": "Scene 3 — Build & Integrate: Compute general bit-based values and test edge cases",
         "instruction": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-        "narratorGuide": "Excellent experimentation! Next you will add a tiny function that returns a binary string padded to a fixed width: decimal_to_binary_padded(n, bits). Call it from run_demo to print 27 as an 8-bit value (00011011). This reinforces how bytes form fixed ranges and how padding is a practical piece of many systems (like colors, network packets, and file formats).",
+        "narratorGuide": "Now build on the baseline by experimenting: change the value passed to unique_values, e.g., try 0, 6, 8, 24, and 32. Observe how the result doubles for each added bit — that's exponential growth (powers of two). Try an edge case like 0 bits (should return 1) and a larger bit count (for example 32 bits) to see huge numbers. This helps you appreciate why even moderate increases in bit-width dramatically increase representable values and storage requirements. If you like, add a new print that computes unique_values(12) and run again to observe the value.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
@@ -80,10 +96,10 @@
         "terminalCommands": []
       },
       {
-        "id": "task-4",
-        "title": "VERIFY & EXTEND — Test edge cases and answer the conceptual questions",
+        "id": "scene-4-verify-extend",
+        "title": "Scene 4 — Verify & Extend: Test edge cases and two's complement",
         "instruction": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-        "narratorGuide": "You're almost done — nice persistence! Now test 0 and the maximum representable value for 6 bits (63). Confirm decimal_to_binary returns '0' for zero and the correct binary for 63 ('111111'). Also confirm the 8-bit color max (255) and that padded output for 27 is '00011011'. These checks ensure your code works across common edge cases.",
+        "narratorGuide": "In this final scene, verify every output against the hands-on questions: binary 11010 should be 26; decimal 27 should yield 11011; 6 bits should represent 64 values; an 8-bit color channel ranges 0–255; and 24-bit color totals are 16,777,216. Then confirm two's complement: the script prints the 8-bit representation of -5 (11111011). As an extension challenge, change the negative value to -1 and -128 to see boundary behavior. This verification step builds confidence and connects binary arithmetic with signed integer encoding used throughout systems.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
@@ -95,44 +111,58 @@
     ],
     "checks": [
       {
-        "id": "observe-baseline",
-        "type": "manual",
+        "id": "check-1-binary-to-decimal",
+        "type": "output",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
         "visibility": "learner",
-        "explanation": "Verifies you can run the starter program and that binary 11010 converts to 26."
+        "explanation": "",
+        "command": "python -c \"from binary_lab import bin_to_dec; print(bin_to_dec('11010'))\""
       },
       {
-        "id": "decimal-to-binary-27",
-        "type": "manual",
+        "id": "check-2-decimal-to-binary",
+        "type": "output",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
         "visibility": "learner",
-        "explanation": "Checks the decimal-to-binary conversion for 27 yields 11011."
+        "explanation": "",
+        "command": "python -c \"from binary_lab import dec_to_bin; print(dec_to_bin(27))\""
       },
       {
-        "id": "six-bit-capacity",
-        "type": "manual",
+        "id": "check-3-6-bits-capacity",
+        "type": "output",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
         "visibility": "learner",
-        "explanation": "Confirms understanding that 6 bits represent 2^6 = 64 unique values."
+        "explanation": "",
+        "command": "python -c \"from binary_lab import unique_values; print(unique_values(6))\""
       },
       {
-        "id": "color-channel-max",
-        "type": "manual",
+        "id": "check-4-8bit-color",
+        "type": "output",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
         "visibility": "learner",
-        "explanation": "Verifies that each 8-bit color channel ranges from 0 to 255 (2^8 - 1)."
+        "explanation": "",
+        "command": "python -c \"from binary_lab import max_color_component; print(max_color_component())\""
       },
       {
-        "id": "padded-output-edge",
-        "type": "manual",
+        "id": "check-5-24bit-color-total",
+        "type": "output",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
         "visibility": "learner",
-        "explanation": "Checks that the padded-binary feature was added and prints 27 as 8 bits."
+        "explanation": "",
+        "command": "python -c \"from binary_lab import unique_values; print(unique_values(24))\""
+      },
+      {
+        "id": "check-6-twos-complement",
+        "type": "output",
+        "adapter": "manual-simulation",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": "",
+        "command": "python -c \"from binary_lab import twos_complement; print(twos_complement(-5,8))\""
       }
     ],
     "hints": [],
@@ -164,11 +194,12 @@
     },
     "completionRules": {
       "requiredChecks": [
-        "observe-baseline",
-        "decimal-to-binary-27",
-        "six-bit-capacity",
-        "color-channel-max",
-        "padded-output-edge"
+        "check-1-binary-to-decimal",
+        "check-2-decimal-to-binary",
+        "check-3-6-bits-capacity",
+        "check-4-8bit-color",
+        "check-5-24bit-color-total",
+        "check-6-twos-complement"
       ],
       "minimumScore": 1,
       "requiresEvidence": true,
@@ -183,7 +214,7 @@
       "moduleNumber": 1,
       "chapterNumber": 1,
       "model": "gemini-2.5-flash",
-      "generatedAt": "2026-09-24T15:33:08.839Z",
+      "generatedAt": "2026-09-24T20:27:33.297Z",
       "activitySourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "lessonSourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "activitySourceHash": "sha256:32855dbaace91fe8e31aafc66449ff114d2369e12186f3f7d3ca682a059db47e",

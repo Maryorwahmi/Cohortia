@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;} .panel{background:white;border-radius:12px;padding:12px;border:1px solid rgba(226,232,240,0.9)} .warn{border-left:4px solid #ef6675;padding:10px;background:#fff5f6;color:#7f1d1d;border-radius:8px} </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="panel">
+        <div class="text-sm font-bold text-slate-800">Web3.js — Sepolia via Infura</div>
+        <pre><code>const Web3 = require('web3');
+const web3 = new Web3('https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID');
+
+(async () => {
+  try {
+    const block = await web3.eth.getBlockNumber();
+    console.log('Current Sepolia block number (Web3.js):', block);
+  } catch (err) {
+    console.error('Error connecting to Sepolia with Web3.js:', err.message);
+  }
+})();
+</code></pre>
+      </div>
+
+      <div class="panel">
+        <div class="text-sm font-bold text-slate-800">Tips</div>
+        <ul class="text-sm text-slate-600 list-disc pl-5 mt-2">
+          <li>Replace the placeholder with your actual project ID before running.</li>
+          <li>Broken or missing keys typically produce authentication or 401-style errors.</li>
+          <li>Expect rate limits on free tiers; handle errors with retries or backoff.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="panel">
+        <div class="text-sm font-bold text-slate-800">Ethers.js — Sepolia via Alchemy</div>
+        <pre><code>const { ethers } = require('ethers');
+const provider = new ethers.providers.JsonRpcProvider('https://eth-sepolia.g.alchemy.com/v2/YOUR_ALCHEMY_API_KEY');
+
+(async () => {
+  try {
+    const block = await provider.getBlockNumber();
+    console.log('Current Sepolia block number (Ethers.js):', block);
+
+    const balanceBigNumber = await provider.getBalance('TARGET_ADDRESS');
+    const balance = ethers.utils.formatEther(balanceBigNumber);
+    console.log('Balance:', balance, 'ETH');
+  } catch (err) {
+    console.error('Error connecting to Sepolia with Ethers.js:', err.message);
+  }
+})();
+</code></pre>
+      </div>
+
+      <div class="warn">
+        <div class="text-xs font-bold">Security note</div>
+        <div class="text-sm">API keys in client code are readable. Use limited-scope keys and avoid storing sensitive server secrets in the frontend.</div>
+      </div>
+    </div>
+  </div>
+</div>

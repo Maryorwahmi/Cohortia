@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Sagas & Consistency</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-2/3">
+        <div class="text-sm font-bold text-slate-800 mb-2">Diagram: Saga example (annotated cards)</div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="p-3 rounded-lg bg-white border card-border">
+            <div class="text-xs uppercase tracking-wider text-slate-500">Step 1</div>
+            <div class="text-sm font-semibold text-slate-800">Create Order</div>
+            <p class="text-sm text-slate-600 mt-1">Order service saves draft order and emits order.created.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-white border card-border">
+            <div class="text-xs uppercase tracking-wider text-slate-500">Step 2</div>
+            <div class="text-sm font-semibold text-slate-800">Process Payment</div>
+            <p class="text-sm text-slate-600 mt-1">Payment service charges card and emits payment.completed.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-white border card-border">
+            <div class="text-xs uppercase tracking-wider text-slate-500">Step 3</div>
+            <div class="text-sm font-semibold text-slate-800">Reserve Inventory</div>
+            <p class="text-sm text-slate-600 mt-1">Inventory reserves items and emits inventory.reserved.</p>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-xl p-3 bg-white card-border">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Compensation example</div>
+        <p class="text-sm text-slate-700">If payment fails after reserve, a compensating action from the order service will cancel the reserve and mark the order failed, ensuring system consistency over time.</p>
+      </div>
+    </div>
+    <div class="w-1/3 flex flex-col gap-4">
+      <div class="rounded-xl bg-amber-50 p-3 card-border">
+        <div class="text-xs uppercase tracking-wider text-amber-700 mb-1">Implementation notes</div>
+        <ul class="text-sm text-slate-700 space-y-2">
+          <li>Ensure message delivery guarantees and idempotent handlers.</li>
+          <li>Model compensating transactions explicitly.</li>
+          <li>Record saga state for visibility and retries.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Sagas and eventual consistency let you coordinate multi-service transactions without global locks, but they require explicit compensation and observability.</p>
+      </div>
+    </div>
+  </div>
+</div>

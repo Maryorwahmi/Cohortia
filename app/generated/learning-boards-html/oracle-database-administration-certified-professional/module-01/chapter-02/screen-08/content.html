@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--violet:#7b42e8;--amber:#f5a623} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Optional Pools</span>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 bg-white rounded-2xl p-4 border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Purpose of optional pools</div>
+      <p class="mt-2 text-sm text-slate-600">They isolate large or specialized allocations so the Shared Pool remains efficient for parsing and dictionary caching.</p>
+
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-700">Large Pool</div>
+          <div class="text-sm text-slate-600 mt-1">Used for RMAN buffers, parallel execution and shared server stacks.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-700">Java Pool</div>
+          <div class="text-sm text-slate-600 mt-1">Session memory for JVM code and data in the database.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-slate-50 border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-700">Streams Pool</div>
+          <div class="text-sm text-slate-600 mt-1">Staging memory for Oracle Streams propagation.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        Use V$SGASTAT to observe these pool sizes and usage. Only allocate them when your workload demonstrates the need; unnecessary allocation reduces memory for buffer cache and shared pool.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+      <p class="mt-2 text-sm text-slate-700">Running an RMAN backup without a Large Pool may fragment the Shared Pool. After adding a Large Pool, parsing stability improves and backup I/O uses dedicated buffers.</p>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Optional pools solve specific problems. Size them on evidence, not guesswork.</p>
+      </div>
+    </div>
+  </div>
+</div>
