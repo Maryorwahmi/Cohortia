@@ -31,10 +31,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sourceHashFor } from "../backend/src/lib/practicalIdentity.js";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
+import { classifyActivity } from "./lib/hands-on-activity-source.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GENERATOR_VERSION = "phase4.1";
+const GENERATOR_VERSION = "phase4.2";
 const CLASSIFIER_VERSION = "phase3.1";
 const SOURCE_CATEGORIES = [
   "Cloud Console Lab",
@@ -57,6 +58,7 @@ function loadRepositoryEnv() {
     const value = trimmed.slice(separator + 1).trim().replace(/^"|"$/g, "");
     if (process.env[key] === undefined) process.env[key] = value;
   }
+
 }
 
 loadRepositoryEnv();
@@ -107,6 +109,7 @@ const PRACTICAL_SCHEMA = {
     completionRule: { type: "string", enum: ["all_tests_pass", "any_test_pass", "learner_submission"], description: "How to determine if practical is complete" },
     files: {
       type: "array",
+      minItems: 1,
       items: {
         type: "object",
         properties: {
@@ -140,6 +143,7 @@ const PRACTICAL_SCHEMA = {
           },
           tests: {
             type: "array",
+            minItems: 1,
             items: {
               type: "object",
               properties: {
@@ -333,7 +337,8 @@ async function resolveSourceContext({
   } else if (syllabusFile && isWithinRoot(activityRoot, syllabusFile)) {
     activityFile = syllabusFile;
   } else if (syllabusFile && isWithinRoot(lessonRoot, syllabusFile)) {
-    activityFile = resolveWithinRoot(activityRoot, toPosixRelative(lessonRoot, syllabusFile), "Activity source path");
+    // Course syllabi are authoritative when a separate hand-on activity tree is absent.
+    activityFile = syllabusFile;
   } else {
     throw new Error(
       "Could not resolve the activity source. Pass --activity-source relative to hand's-on activity or use a syllabus under docs/computer-science."
@@ -365,10 +370,8 @@ async function resolveSourceContext({
     throw new Error("Could not determine the course id from the source files. Pass --course-id.");
   }
 
-  const activityCategory = extractActivityCategory(activityChapter.handsOnActivity);
-  if (!activityCategory) {
-    throw new Error(`Chapter ${requestedChapter} has no supported hands-on activity category.`);
-  }
+  const activityCategory = extractActivityCategory(activityChapter.handsOnActivity)
+    || classifyActivity(activityChapter.handsOnActivity, activityChapter.raw).category;
   if (category && category !== activityCategory) {
     throw new Error(
       `Category mismatch for Chapter ${requestedChapter}: source declares "${activityCategory}", but --category requested "${category}".`
@@ -380,7 +383,9 @@ async function resolveSourceContext({
     throw new Error(`Unsupported source category: ${resolvedCategory}`);
   }
 
-  const sourcePath = toPosixRelative(activityRoot, activityFile);
+  const sourcePath = isWithinRoot(activityRoot, activityFile)
+    ? toPosixRelative(activityRoot, activityFile)
+    : toPosixRelative(lessonRoot, activityFile);
   const lessonPath = toPosixRelative(lessonRoot, lessonFile);
   const sourceHash = sourceHashFor({
     courseId: resolvedCourseId,
@@ -493,6 +498,9 @@ function normalizeId(value, fallback) {
 
 function inferLabType(raw, sourceContext) {
   if (LAB_TYPES.includes(raw.labType)) return raw.labType;
+  if (["Scenario & Design Exercise", "Research & Analysis"].includes(sourceContext.source.category)) {
+    return "simulation";
+  }
   const language = String(raw.language || "").toLowerCase();
   if (/^(bash|shell|sh|zsh|powershell)$/.test(language)) return "shell";
   if (/^(sql|postgresql|mysql|sqlite)$/.test(language)) return "database";
@@ -505,6 +513,133 @@ function inferLabType(raw, sourceContext) {
   if (/\b(bash|shell|terminal|linux|rhel|sudo|chmod|systemctl|vmstat|strace)\b/.test(text)) return "shell";
   if (/\b(pandas|matplotlib|csv|dataframe|dataset|statistics)\b/.test(text)) return "data";
   return sourceContext.source.category === "Terminal Coding Lab" ? "code" : "simulation";
+}
+
+function inferLanguage(raw, sourceContext, labType) {
+  const requested = String(raw.language || "").trim().toLowerCase();
+  if (requested) return requested === "c++" ? "cpp" : requested;
+  const text = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
+  if (labType === "database") return "sqlite";
+  if (labType === "shell") return "bash";
+  if (/\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program)\b/.test(text)) return "c";
+  if (/\b(python|\.py\b|def\s+\w+\s*\()\b/.test(text)) return "python";
+  if (/\b(javascript|node\.js|\.js\b)\b/.test(text)) return "javascript";
+  return labType === "code" ? "text" : undefined;
+}
+
+function extractFencedCode(text, language) {
+  const source = String(text || "");
+  const match = /```[^\r\n]*\r?\n([\s\S]*?)\r?\n```/.exec(source);
+  return match?.[1]?.trim() || "";
+}
+
+function fallbackStarterFile(instructions, labType, language) {
+  const extracted = extractFencedCode(instructions, language);
+  if (labType === "database") {
+    const content = extracted && /\b(create\s+table|insert\s+into|select)\b/i.test(extracted)
+      ? extracted
+      : `CREATE TABLE courses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  department TEXT NOT NULL,
+  credits INTEGER NOT NULL CHECK (credits BETWEEN 1 AND 6)
+);
+
+INSERT INTO courses (title, department, credits) VALUES
+  ('Introduction to Databases', 'Computer Science', 3),
+  ('Calculus I', 'Mathematics', 4),
+  ('Art History 101', 'Fine Arts', 3);
+
+SELECT id, title, department, credits FROM courses ORDER BY id;`;
+    return {
+      path: "courses.sql",
+      content: `${content}\n`,
+      language: "sql",
+      description: "SQLite starter script for the practical.",
+      editable: true,
+    };
+  }
+
+  if (labType === "shell") {
+    return {
+      path: "practical.sh",
+      content: extracted || "#!/usr/bin/env bash\nset -euo pipefail\necho \"Cohortia practical ready\"\n",
+      language: "bash",
+      description: "Safe shell starter script for the practical.",
+      editable: true,
+    };
+  }
+
+  const normalizedLanguage = language || "text";
+  if (normalizedLanguage === "python") {
+    return {
+      path: "main.py",
+      content: extracted || 'print("Cohortia practical ready")\n',
+      language: "python",
+      description: "Runnable Python starter file for the practical.",
+      editable: true,
+    };
+  }
+  if (normalizedLanguage === "javascript") {
+    return {
+      path: "index.js",
+      content: extracted || 'console.log("Cohortia practical ready");\n',
+      language: "javascript",
+      description: "Runnable JavaScript starter file for the practical.",
+      editable: true,
+    };
+  }
+  return {
+    path: normalizedLanguage === "cpp" ? "main.cpp" : "main.c",
+    content: extracted || '#include <stdio.h>\n\nint main(void) {\n    printf("Cohortia practical ready\\n");\n    return 0;\n}\n',
+    language: normalizedLanguage === "cpp" ? "cpp" : "c",
+    description: "Runnable C starter file for the practical.",
+    editable: true,
+  };
+}
+
+function fallbackChecks(labType, language, files) {
+  const file = files[0];
+  if (labType === "database") {
+    return [
+      {
+        id: "starter-sql-present",
+        type: "file_exists",
+        explanation: "The learner has a SQL starter script in the workspace.",
+      },
+      {
+        id: "database-schema-and-data",
+        type: "sql",
+        command: "SELECT COUNT(*) FROM courses;",
+        expected: "3",
+        matchMode: "contains",
+        explanation: "The courses table contains at least the three starter rows.",
+      },
+    ];
+  }
+  const output = /printf\s*\(\s*"([^"]+)/i.exec(file.content)?.[1]
+    || /print(?:ln)?\s*\(\s*["']([^"']+)/i.exec(file.content)?.[1]
+    || "Cohortia practical ready";
+  return [
+    {
+      id: "starter-file-present",
+      type: "file_exists",
+      explanation: `The learner has edited ${file.path}.`,
+    },
+    {
+      id: "program-runs",
+      type: "command",
+      command: language === "python" ? "python main.py" : language === "javascript" ? "node index.js" : "./main",
+      explanation: "The starter program compiles or runs without an execution error.",
+    },
+    {
+      id: "expected-output",
+      type: "output",
+      expected: output.replace(/\\n/g, "").trim(),
+      matchMode: "contains",
+      explanation: "The program produces observable output.",
+    },
+  ];
 }
 
 function modeForLabType(labType, requestedMode) {
@@ -647,6 +782,7 @@ function normalizePractical(raw, sourceContext, metadata) {
   if (!raw || typeof raw !== "object") throw new Error("Generated practical must be an object.");
 
   const labType = inferLabType(raw, sourceContext);
+  const language = inferLanguage(raw, sourceContext, labType);
   const title = raw.title || sourceContext.activityTitle || `Practical ${sourceContext.source.sourceKey}`;
   const instructions = raw.instructions || sourceContext.activityChapter.handsOnActivity;
   const rawTasks = Array.isArray(raw.tasks) && raw.tasks.length
@@ -666,7 +802,7 @@ function normalizePractical(raw, sourceContext, metadata) {
     return id;
   };
 
-  const tasks = rawTasks.map((task, index) => {
+  let tasks = rawTasks.map((task, index) => {
     const baseId = normalizeId(task.id, `task-${index + 1}`);
     let taskId = baseId;
     let taskSuffix = 2;
@@ -707,6 +843,30 @@ function normalizePractical(raw, sourceContext, metadata) {
     if (!checkIds.has(check?.id)) addCheck(check || {}, check?.id || `check-${index + 1}`);
   }
 
+  const executableLab = ["code", "shell", "database"].includes(labType);
+  const files = (Array.isArray(raw.files) ? raw.files : []).map((file, index) => ({
+    path: file.path || `workspace-${index + 1}.txt`,
+    content: typeof file.content === "string" ? file.content : "",
+    language: file.language || language || undefined,
+    description: file.description || "",
+    editable: file.editable !== false,
+  }));
+  if (executableLab && files.length === 0) {
+    files.push(fallbackStarterFile(instructions, labType, language));
+  }
+  if (executableLab && checks.length === 0) {
+    for (const fallback of fallbackChecks(labType, language, files, instructions)) {
+      addCheck(fallback, fallback.id);
+    }
+  }
+  if (executableLab && checks.length > 0) {
+    const checkIdList = checks.map((check) => check.id);
+    tasks = tasks.map((task, index) => {
+      if (task.checkIds.length > 0 || task.required === false) return task;
+      return { ...task, checkIds: [checkIdList[index % checkIdList.length]] };
+    });
+  }
+
   const safety = normalizeSafety(raw.safety, labType, sourceContext);
   const evidence = normalizeEvidence(raw.evidence);
   const completionRules = {
@@ -731,7 +891,7 @@ function normalizePractical(raw, sourceContext, metadata) {
     labType,
     mode: modeForLabType(labType, raw.mode),
     widgetType: typeof raw.widgetType === "string" ? raw.widgetType : undefined,
-    language: raw.language || undefined,
+    language,
     runtime: raw.runtime || undefined,
     sourceActivity: raw.sourceActivity || sourceContext.activityTitle || title,
     objectives: asStringArray(raw.objectives),
@@ -753,13 +913,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       ? raw.completionRule
       : "all_tests_pass",
     environment: normalizeEnvironment(raw.environment, raw, labType),
-    files: (Array.isArray(raw.files) ? raw.files : []).map((file, index) => ({
-      path: file.path || `workspace-${index + 1}.txt`,
-      content: typeof file.content === "string" ? file.content : "",
-      language: file.language || raw.language || undefined,
-      description: file.description || "",
-      editable: file.editable !== false,
-    })),
+    files,
     tasks,
     checks,
     hints: Array.isArray(raw.hints) ? raw.hints : [],
@@ -905,6 +1059,9 @@ function validatePractical(practical) {
 
   if (!Array.isArray(practical.files)) errors.push("files must be an array");
   else {
+    if (["code", "shell", "database"].includes(practical.labType) && practical.files.length === 0) {
+      errors.push(`${practical.labType} practical must include at least one starter file`);
+    }
     const filePaths = new Set();
     for (const file of practical.files) {
       try {
@@ -936,6 +1093,9 @@ function validatePractical(practical) {
       if (taskIds.has(task.id)) errors.push(`duplicate task id ${task.id}`);
       taskIds.add(task.id);
       for (const checkId of task.checkIds || []) if (!checkIds.has(checkId)) errors.push(`task ${task.id} references missing check ${checkId}`);
+      if (["code", "shell", "database"].includes(practical.labType) && task.required !== false && task.checkIds.length === 0) {
+        errors.push(`executable task ${task.id} must reference at least one check`);
+      }
     }
   }
 
@@ -945,6 +1105,9 @@ function validatePractical(practical) {
   if (!practical.safety?.profile || !practical.safety?.networkAccess || !practical.safety?.hostAccess) errors.push("safety is incomplete");
   if (!practical.cleanup?.strategy || typeof practical.cleanup.instructions !== "string") errors.push("cleanup is incomplete");
   if (!Array.isArray(practical.completionRules?.requiredChecks)) errors.push("completionRules.requiredChecks must be an array");
+  if (["code", "shell", "database"].includes(practical.labType) && checks.length === 0) {
+    errors.push(`${practical.labType} practical must include executable checks`);
+  }
   for (const checkId of practical.completionRules?.requiredChecks || []) if (!checkIds.has(checkId)) errors.push(`completionRules references missing check ${checkId}`);
   if (!practical.generator?.generatorVersion || !practical.generator?.classifierVersion) errors.push("generator metadata is incomplete");
   return errors;
@@ -1022,6 +1185,7 @@ async function main() {
     "lesson-source": lessonSourcePath,
     category,
     "mock-response": mockResponsePath,
+    provider,
   } = options;
   const courseArgumentIsPath = typeof courseArgument === "string"
     && (path.isAbsolute(courseArgument)
@@ -1048,6 +1212,14 @@ async function main() {
   }
 
   try {
+    if (provider) {
+      const normalizedProvider = String(provider).trim().toLowerCase();
+      if (!["azure", "gemini"].includes(normalizedProvider)) {
+        throw new Error(`Unsupported provider "${provider}". Use --provider azure or --provider gemini.`);
+      }
+      process.env.AI_PROVIDER = normalizedProvider;
+    }
+
     const moduleNumber = Number(moduleStr);
     const chapterNumber = Number(chapterStr);
     if (!Number.isInteger(moduleNumber) || !Number.isInteger(chapterNumber) || moduleNumber < 1 || chapterNumber < 1) {
@@ -1131,6 +1303,11 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
    For each task, include at least ONE test that shows observable proof of learning:
    - NOT just syntax checks
    - Real OUTPUT verification: "Program prints X", "File contains Y", "Query returns Z rows"
+   - For Terminal Coding Lab and database labs, NEVER return an empty files array or empty tests array.
+   - Every executable practical must include at least one runnable starter file and at least two checks.
+   - C/Python/JavaScript starters must be runnable without inventing missing code.
+   - Database starters must be a valid SQLite script with CREATE TABLE plus INSERT/SELECT statements.
+   - Database checks must use type "sql", include a command, and verify schema/data with an expected result.
 
 7. INTENSIVE ASSESSMENT:
    - 4-6 checks per practical (not 1-2)

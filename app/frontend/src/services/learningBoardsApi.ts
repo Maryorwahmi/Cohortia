@@ -264,6 +264,8 @@ export interface LearningBoardPractical {
   schemaVersion?: number | string | null;
   generatorVersion?: string | null;
   classifierVersion?: string | null;
+  summary?: string | null;
+  level?: string | null;
   language?: string | null;
   runtime?: string | null;
   title: string;

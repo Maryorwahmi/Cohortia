@@ -10,8 +10,16 @@ const applicationRoot = path.resolve(scriptsDirectory, '..', '..');
  * Render-provided environment variables always take precedence.
  */
 export function loadRepositoryEnv() {
-  const envPath = path.join(applicationRoot, 'backend', '.env');
-  if (!fs.existsSync(envPath)) return;
+  const configuredPath = process.env.COHORTIA_ENV_FILE;
+  const candidatePaths = [
+    configuredPath,
+    path.join(applicationRoot, 'backend', '.env'),
+    path.join(applicationRoot, '.env'),
+    path.join(applicationRoot, '..', '.env'),
+    path.join(applicationRoot, '..', '..', '..', 'Cohortia', 'app', 'backend', '.env'),
+  ].filter(Boolean).map((candidate) => path.resolve(candidate));
+  const envPath = candidatePaths.find((candidate) => fs.existsSync(candidate));
+  if (!envPath) return null;
 
   for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
     const trimmed = line.trim();
@@ -22,6 +30,8 @@ export function loadRepositoryEnv() {
     const value = trimmed.slice(separator + 1).trim().replace(/^"|"$/g, '');
     if (process.env[key] === undefined) process.env[key] = value;
   }
+
+  return envPath;
 }
 
 export { applicationRoot };

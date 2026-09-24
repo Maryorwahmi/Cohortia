@@ -14,15 +14,32 @@
 import { jsonrepair } from 'jsonrepair';
 import { loadRepositoryEnv } from './repository-paths.js';
 
-loadRepositoryEnv();
+const loadedEnvPath = loadRepositoryEnv();
+
+if (loadedEnvPath && process.env.PRACTICAL_GENERATOR_DEBUG === 'true') {
+  console.log(`Loaded practical generator environment from ${loadedEnvPath}`);
+}
 
 function getConfiguredProvider() {
-  return (process.env.AI_PROVIDER || 'gemini').toLowerCase();
+  const configuredProvider = (process.env.AI_PROVIDER || '').trim().toLowerCase();
+  if (configuredProvider) return configuredProvider;
+
+  // Standalone generator runs commonly have Azure credentials configured
+  // without the optional provider selector.
+  if (
+    process.env.AZURE_OPENAI_ENDPOINT
+    && (process.env.AZURE_OPENAI_API_KEY || process.env.AZURE_OPENAI_KEY)
+    && process.env.AZURE_OPENAI_DEPLOYMENT
+  ) {
+    return 'azure';
+  }
+
+  return 'gemini';
 }
 
 function getAzureConfig() {
   const endpoint = (process.env.AZURE_OPENAI_ENDPOINT || '').trim();
-  const key = (process.env.AZURE_OPENAI_API_KEY || '').trim();
+  const key = (process.env.AZURE_OPENAI_API_KEY || process.env.AZURE_OPENAI_KEY || '').trim();
   const deployment = (process.env.AZURE_OPENAI_DEPLOYMENT || '').trim();
   const apiVersion = (process.env.AZURE_OPENAI_API_VERSION || '2024-02-01').trim();
   return { endpoint, key, deployment, apiVersion };
@@ -226,7 +243,11 @@ function extractJson(text) {
 async function callAzureOpenAIForJson(prompt, responseSchema, maxTokens, temperature = 0.35) {
   const { endpoint, key, deployment, apiVersion } = getAzureConfig();
   if (!endpoint || !key || !deployment) {
-    return { success: false, error: 'Azure OpenAI is not configured. Set AI_PROVIDER=azure, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT.' };
+    return {
+      success: false,
+      error: "Azure OpenAI is not configured. Set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY (or AZURE_OPENAI_KEY), and AZURE_OPENAI_DEPLOYMENT in app/backend/.env or your shell.",
+      fatal: true,
+    };
   }
 
   const normalizedEndpoint = endpoint.replace(/\/+$/, '');

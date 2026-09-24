@@ -787,13 +787,65 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
       <div className="flex items-center justify-between pb-2.5 border-b border-immersive-border text-[10px] font-bold text-immersive-text-secondary uppercase">
         <span className="flex items-center gap-1.5">
           <Terminal className="w-3.5 h-3.5 text-[#FF4B3E]" />
-          <span>Adaptive Experiential Lab ({activeTrackId})</span>
+          <span>Practical Mode · {practical?.category || activeTrackId}</span>
         </span>
         <span className="text-[#FF4B3E] bg-[#FF4B3E]/10 px-2 py-0.5 rounded-md flex items-center gap-1">
           <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-          <span>Sandbox Active</span>
+          <span>{practical?.mode?.replace(/_/g, " ") || "Sandbox Active"}</span>
         </span>
       </div>
+
+      {practical && (
+        <div className="my-3 rounded-xl border border-immersive-border bg-immersive-card px-4 py-3 space-y-2 shrink-0">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-base font-bold text-immersive-text-primary truncate">{practical.title}</h2>
+              {practical.summary && (
+                <p className="mt-1 text-xs leading-relaxed text-immersive-text-secondary line-clamp-2">
+                  {practical.summary}
+                </p>
+              )}
+            </div>
+            <span className="shrink-0 rounded-md border border-immersive-border px-2 py-1 text-[10px] font-bold uppercase text-immersive-text-secondary">
+              {practical.level || practical.labType || "guided lab"}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 text-[10px]">
+            <div className="rounded-lg bg-immersive-bg px-2.5 py-2">
+              <span className="block font-bold uppercase text-immersive-text-secondary">Learning objectives</span>
+              <span className="mt-1 block text-immersive-text-primary">
+                {practical.objectives?.length
+                  ? practical.objectives.join(" · ")
+                  : "Objectives are described in the task instructions."}
+              </span>
+            </div>
+            <div className="rounded-lg bg-immersive-bg px-2.5 py-2">
+              <span className="block font-bold uppercase text-immersive-text-secondary">Task progress</span>
+              <span className="mt-1 block text-immersive-text-primary">
+                {Object.values(checkedItems).filter(Boolean).length}/{practical.tasks.length} tasks completed
+              </span>
+            </div>
+            <div className="rounded-lg bg-immersive-bg px-2.5 py-2">
+              <span className="block font-bold uppercase text-immersive-text-secondary">Verification</span>
+              <span className={`mt-1 block ${practical.checks?.length ? "text-emerald-400" : "text-amber-300"}`}>
+                {practical.checks?.length
+                  ? `${practical.checks.length} automated checks available`
+                  : "Manual evidence checklist · no automated checks published"}
+              </span>
+            </div>
+          </div>
+          {practical.files?.length ? (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              <span className="text-[10px] font-bold uppercase text-immersive-text-secondary">Workspace files:</span>
+              {practical.files.map((file) => (
+                <span key={file.path} className="rounded bg-immersive-bg px-1.5 py-0.5 text-[10px] text-immersive-text-primary">
+                  {file.path}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      )}
 
       {/* Main Workspace Split layout */}
       <div className="flex-1 my-3 grid grid-cols-1 md:grid-cols-12 gap-4 overflow-hidden">
@@ -940,14 +992,17 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
         <div className="md:col-span-5 flex flex-col h-full bg-immersive-card border border-immersive-border rounded-xl overflow-hidden p-3 space-y-3">
           
           {/* Hands-on Activity Interactive Checklist */}
-          {handsOnActivities && handsOnActivities.length > 0 && (
+          {(practical?.tasks?.length || handsOnActivities.length > 0) && (
             <div className="bg-immersive-bg border border-immersive-border p-3 rounded-lg space-y-2.5 text-left shrink-0">
               <span className="text-[10px] font-sans font-black text-immersive-text-primary uppercase tracking-wider flex items-center gap-1.5 border-b border-immersive-border pb-1.5">
                 <CheckCircle className="w-3.5 h-3.5 text-[#FF4B3E]" />
-                <span>Hands-on Activity Checklist</span>
+                <span>Practical Task Checklist</span>
               </span>
               <ul className="space-y-2 max-h-[120px] overflow-y-auto scrollbar-thin pr-1 text-[11px] text-immersive-text-secondary font-medium">
-                {handsOnActivities.map((act, idx) => {
+                {(practical?.tasks?.length
+                  ? practical.tasks.map((task) => task.title || task.instruction)
+                  : handsOnActivities
+                ).map((act, idx) => {
                   const isChecked = !!checkedItems[idx];
                   return (
                     <li key={idx} className="flex items-start space-x-2.5 cursor-pointer select-none">
