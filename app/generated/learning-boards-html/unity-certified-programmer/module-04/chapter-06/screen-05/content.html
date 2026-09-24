@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">PlayerHealth Example</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">PlayerHealth (visual excerpt)</div>
+      <pre class="mt-3 bg-slate-900 text-green-200 rounded-lg p-3 font-mono text-sm" style="min-height:160px;">// Holds maxHealth and raises OnHealthChanged
+public int maxHealth = 100;
+private int _currentHealth;
+public event System.Action&lt;int,int&gt; OnHealthChanged;
+public int CurrentHealth { get { return _currentHealth; } set { _currentHealth = Mathf.Clamp(value,0,maxHealth); OnHealthChanged?.Invoke(_currentHealth,maxHealth); if(_currentHealth<=0) Die(); } }
+</pre>
+      <div class="mt-3 text-sm text-slate-700">Note how the setter clamps and invokes the event. This lets any UI element react without direct coupling to health internals.</div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">HealthUI (visual excerpt)</div>
+      <pre class="mt-3 bg-slate-900 text-green-200 rounded-lg p-3 font-mono text-sm" style="min-height:160px;">public Slider healthSlider;
+public TextMeshProUGUI healthText;
+public PlayerHealth playerHealth;
+void Start(){ if(playerHealth!=null){ playerHealth.OnHealthChanged += UpdateHealthUI; UpdateHealthUI(playerHealth.CurrentHealth, playerHealth.maxHealth);} }
+void UpdateHealthUI(int current,int max){ healthSlider.maxValue = max; healthSlider.value = current; healthText.text = $"{current}/{max}"; }
+void OnDestroy(){ if(playerHealth!=null) playerHealth.OnHealthChanged -= UpdateHealthUI; }
+</pre>
+      <div class="mt-3 grid gap-2">
+        <div class="rounded-lg p-3 bg-emerald-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Concrete test</div>
+          <div class="text-sm text-slate-700 mt-1">Reduce health via a test script or damage button and confirm the slider and text reflect changes immediately.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Pitfall</div>
+          <div class="text-sm text-slate-700 mt-1">Forgetting OnDestroy unsubscribe causes lingering callbacks and potential null calls when objects are removed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

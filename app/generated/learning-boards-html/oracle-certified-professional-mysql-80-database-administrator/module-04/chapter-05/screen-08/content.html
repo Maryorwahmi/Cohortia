@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Command Panel (illustrative)</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 text-sm" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+        <div><span class="text-amber-300"># Terminal 1: hold lock</span></div>
+        <div class="mt-2 text-slate-200">mysql -u root -p -e "FLUSH TABLES WITH READ LOCK;"  -- keep session open</div>
+        <div class="mt-3 text-amber-300"># Terminal 2: create snapshot</div>
+        <div class="mt-2 text-slate-200">sudo lvcreate -L 10G -s /dev/vg_mysql/lv_mysql_data -n mysql_data_snapshot_YYYYMMDD_HHMMSS</div>
+        <div class="mt-3 text-amber-300"># After lvcreate completes</div>
+        <div class="mt-2 text-slate-200">mysql -u root -p -e "UNLOCK TABLES;"</div>
+        <div class="mt-3 text-amber-300"># Mount snapshot and copy</div>
+        <div class="mt-2 text-slate-200">sudo mount /dev/vg_mysql/mysql_data_snapshot_YYYYMMDD_HHMMSS /mnt/mysql_snapshot</div>
+      </div>
+    </div>
+    <div class="flex flex-col justify-between bg-white rounded-2xl p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div>
+        <div class="text-sm font-semibold text-slate-800">Safe practices</div>
+        <ul class="mt-2 text-sm text-slate-600 list-disc list-inside">
+          <li>Keep the lock session open until lvcreate confirms.</li>
+          <li>Pick snapshot names with timestamps and remove them when done.</li>
+          <li>Monitor snapshot LV usage; avoid letting it fill.</li>
+        </ul>
+      </div>
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-sm font-medium text-slate-800">Assuming snapshot creation copies files immediately; it is metadata-fast but the copy-on-write area grows as writes occur.</p>
+      </div>
+    </div>
+  </div>
+</div>

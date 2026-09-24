@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4"> 
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">contract.connect()</span>
+  </div>
+
+  <div class="flex gap-6 h-full"> 
+    <div class="w-1/2 bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col"> 
+      <div class="text-lg font-semibold text-slate-800">Two-step pattern</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-600 space-y-2"> 
+        <li>Get signers: const [owner, addr1] = await ethers.getSigners();</li>
+        <li>Deploy with owner: Factory = await ethers.getContractFactory("Contract", owner);</li>
+        <li>Send transaction: await contract.connect(owner).set(500);</li>
+        <li>Assert state: expect(await contract.get()).to.equal(500);</li>
+      </ol>
+
+      <div class="mt-4 bg-slate-50 p-3 rounded-lg border border-[rgba(226,232,240,0.9)]"> 
+        <div class="text-sm font-semibold text-slate-700">Transient instance note</div>
+        <div class="text-sm text-slate-600 mt-1">connect returns a new contract instance bound to that signer; it does not change the original instance globally.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col"> 
+      <div class="text-sm font-semibold text-slate-700">Example test card</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto mt-2">it("Only owner can set a value", async function () {
+  await advancedStorage.connect(owner).set(500);
+  expect(await advancedStorage.get()).to.equal(500);
+  await expect(advancedStorage.connect(addr1).set(501))
+    .to.be.revertedWith("Only owner can call this function");
+});
+</pre>
+
+      <div class="mt-auto"> 
+        <div class="rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3"> 
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">Pro tip</div>
+          <p class="text-xs font-medium text-slate-800">When deploying, pass the intended owner to getContractFactory so constructor owner matches the test expectation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

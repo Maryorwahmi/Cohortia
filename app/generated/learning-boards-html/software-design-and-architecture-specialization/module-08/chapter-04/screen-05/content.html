@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .tag{font-size:10px;padding:4px 6px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Event Types</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xl font-bold text-slate-800">Domain Event</h3>
+        <div class="tag bg-violet-50 text-violet-700">Scoped</div>
+      </div>
+      <p class="text-sm text-slate-600">Represents a fact within a bounded context. Useful for internal business invariants and richer domain semantics.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs font-semibold text-slate-700">Design tip</div>
+          <div class="text-sm text-slate-600 mt-1">Include fields that support local decisions, but keep private details out of integration events.</div>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-xs font-semibold text-slate-700">Example</div>
+          <div class="text-sm text-slate-600 mt-1">OrderCreated with domain-specific timestamps and internal approval flags used only by OrderService.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border flex flex-col">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xl font-bold text-slate-800">Integration Event</h3>
+        <div class="tag bg-amber-50 text-amber-700">Cross-service</div>
+      </div>
+      <p class="text-sm text-slate-600">Shared across services. Keep payloads minimal and include correlation metadata for tracing and replay.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-slate-50 p-3 mb-3">
+          <div class="text-xs font-semibold text-slate-700">Example schema (conceptual)</div>
+          <pre class="text-sm text-slate-600 mt-2">{
+  "eventType": "OrderPlaced",
+  "data": { "orderId": "ORD-2023-001", "userId": "USER-456", "items": [{"productId":"PROD-123","quantity":1}] },
+  "metadata": { "correlationId": "xyz-123" }
+}</pre>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-semibold text-slate-700">Common pitfall</div>
+          <div class="text-sm text-slate-600 mt-1">Adding internal fields to integration events couples consumers to producer internals and increases schema churn.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

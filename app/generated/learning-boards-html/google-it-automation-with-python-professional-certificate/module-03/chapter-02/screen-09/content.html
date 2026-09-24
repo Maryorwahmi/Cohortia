@@ -1,0 +1,82 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .terminal { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; }
+  </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Restore Scenario</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="col-span-1 bg-white rounded-2xl p-4 border shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="flex items-center gap-3 mb-3">
+        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"></path><path d="M12 3v18"></path></svg>
+        <div>
+          <div class="text-sm font-bold text-slate-800">Scenario steps</div>
+          <div class="text-sm text-slate-600">Create temp file, stage it, unstage with restore --staged, then remove file to keep history clean.</div>
+        </div>
+      </div>
+
+      <div class="rounded-lg bg-slate-50 p-3 font-mono text-sm terminal">
+        <pre class="text-slate-800">echo "Temporary notes for a new feature idea." &gt; temp_notes.txt
+$ git status
+Untracked files:
+  temp_notes.txt
+
+$ git add temp_notes.txt
+$ git status
+Changes to be committed:
+  new file: temp_notes.txt
+
+$ git restore --staged temp_notes.txt
+# now untracked again
+$ rm temp_notes.txt
+</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl p-3 bg-white border shadow-sm border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Why it matters</div>
+          <div class="text-sm text-slate-700">Avoids accidental commits of throwaway files that clutter history and repositories.</div>
+        </div>
+
+        <div class="rounded-xl p-3 bg-white border-l-4 border-l-emerald-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check</div>
+          <div class="text-sm text-slate-700">Always verify with git status after unstaging or restoring to confirm the repository state.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-1 bg-white rounded-2xl p-4 border shadow-sm border-[rgba(226,232,240,0.9)]">
+      <div class="flex items-center gap-3 mb-3">
+        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+        <div>
+          <div class="text-sm font-bold text-slate-800">Misconception</div>
+          <div class="text-sm text-slate-600">Unstaging equals deleting edits. It does not. Unstaging only removes the staged snapshot; the working copy remains until you restore it or delete it explicitly.</div>
+        </div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-slate-50 font-mono text-sm terminal">
+        <pre class="text-slate-800"># Edit tracked file
+$ git add config.py
+# decide to unstage
+$ git restore --staged config.py
+# changes remain in config.py but are no longer staged
+# to discard the edits completely
+$ git restore config.py
+# config.py now matches HEAD</pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-white border shadow-sm border-[rgba(226,232,240,0.9)]">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-700 mb-1">Try this</div>
+          <div class="text-sm text-slate-700">Recreate the scenario in a disposable branch and practice unstaging and restoring until it feels safe.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

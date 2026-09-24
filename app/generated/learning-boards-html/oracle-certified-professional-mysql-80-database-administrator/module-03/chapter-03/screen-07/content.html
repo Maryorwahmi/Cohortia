@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Demonstrate password rejection and creation</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-700">Terminal: weak password attempt</div>
+      <div class="mt-3 mono bg-slate-50 p-3 rounded-lg">
+        <div class="text-xs text-slate-600">Attempt create with an intentionally weak password</div>
+        <pre class="mt-2 text-sm">CREATE USER 'dev_test_user'@'localhost' IDENTIFIED BY 'short';
+-- Expected: error rejecting due to policy</pre>
+      </div>
+      <div class="mt-4 text-sm text-slate-800">Observe the rejection message. Learn which variable caused the failure and adjust the password rather than lowering policy in production.</div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm border flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-700">Terminal: compliant creation</div>
+      <div class="mt-3 mono bg-slate-50 p-3 rounded-lg">
+        <div class="text-xs text-slate-600">Create user with a compliant password</div>
+        <pre class="mt-2 text-sm">CREATE USER 'dev_test_user'@'localhost' IDENTIFIED BY 'DevTestSecurePass!14';
+-- Expected: user created successfully</pre>
+      </div>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-emerald-50">
+          <div class="text-xs font-bold uppercase text-emerald-700">Verification</div>
+          <div class="text-sm text-slate-800 mt-1">Query mysql.user or use SHOW GRANTS to confirm the account and its host restrictions.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-xs font-bold uppercase text-slate-600">Pro tip</div>
+          <div class="text-sm text-slate-800 mt-1">Use a secrets manager to generate and store complex service passwords instead of embedding them in scripts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

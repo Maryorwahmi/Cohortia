@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f1724;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.4</span>
+    <span>›</span>
+    <span class="text-slate-700">ERC20Votes Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">MyToken highlights</div>
+      <div class="text-sm text-slate-600 mt-2">The contract inherits ERC20Votes and Ownable, mints an initial supply, and provides a mint function for the owner.</div>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-3">
+        <div>
+          <div class="font-semibold text-slate-800">Snapshot hooks</div>
+          <div class="text-xs text-slate-600 mt-1">_afterTokenTransfer and _beforeTokenTransfer are overridden to keep vote accounting accurate when balances change.</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-800">Delegation</div>
+          <div class="text-xs text-slate-600 mt-1">Delegation enables an address's voting power. Call delegate to activate voting power for proposals.</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-800">Owner-controlled mint</div>
+          <div class="text-xs text-slate-600 mt-1">Minting is restricted to the owner; in a DAO you should manage minting through governance or timelock roles.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-xs font-medium text-slate-800">Use delegation and snapshots to ensure voting power is computed at the correct block for each proposal.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl p-4 bg-white card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Code excerpt (illustrative)</div>
+      <pre class="mt-3 text-xs">// constructor mints initial tokens
+constructor(address initialOwner) ERC20("MyGovernanceToken","MGT") Ownable(initialOwner) {
+    _mint(initialOwner, 1_000_000 * 10 ** decimals());
+}
+
+// Hooks required for ERC20Votes
+function _afterTokenTransfer(address from, address to, uint256 amount) internal override(ERC20Votes, ERC20) {
+    super._afterTokenTransfer(from, to, amount);
+}
+
+function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20Votes, ERC20) {
+    super._beforeTokenTransfer(from, to, amount);
+}
+
+// Owner-only mint helper
+function mint(address to, uint256 amount) public onlyOwner {
+    _mint(to, amount);
+}</pre>
+
+      <div class="mt-3 text-xs text-slate-600">Note: This snippet is illustrative. In practice, prefer granting minting through timelock or governor-controlled privileges to decentralize power.</div>
+    </div>
+  </div>
+</div>

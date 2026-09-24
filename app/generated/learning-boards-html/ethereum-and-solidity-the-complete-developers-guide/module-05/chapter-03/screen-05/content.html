@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;} .card-border{border:1px solid rgba(226,232,240,0.95);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Web3.js Read</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-xl p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Code walkthrough</div>
+      <pre><code>// Assuming web3 is initialized
+const myContract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+
+async function readDataWeb3(){
+  try{
+    const message = await myContract.methods.message().call();
+    const counter = await myContract.methods.counter().call();
+    const doubled = await myContract.methods.multiplyByTwo(10).call();
+    console.log(message, counter.toString(), doubled.toString());
+  } catch (err){
+    console.error('Web3.js Read Error:', err.message);
+  }
+}
+</code></pre>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="p-3 bg-white rounded-xl card-border">
+          <div class="text-xs font-bold uppercase text-slate-600 mb-1">Example</div>
+          <div class="text-sm text-slate-700">Calling multiplyByTwo(10) returns 20 immediately from the node.</div>
+        </div>
+        <div class="p-3 bg-rose-50 rounded-xl card-border">
+          <div class="text-xs font-bold uppercase text-rose-600 mb-1">Common mistake</div>
+          <div class="text-sm text-rose-600">Expecting call() to mutate state. It only reads.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border">
+        <div class="text-xs font-bold uppercase text-slate-600 mb-1">Why it matters</div>
+        <div class="text-sm text-slate-700">Using .call() keeps your DApp responsive and avoids gas costs while showing current on-chain values.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-800">Web3.js exposes methods via .methods and .call() runs a local node execution. Convert numeric returns for UI use.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="text-xs font-bold uppercase text-slate-600 mb-1">Check your understanding</div>
+        <div class="text-sm text-slate-700">If you see function not found, confirm the ABI contains the function signature and the address points to the expected contract.</div>
+      </div>
+    </div>
+  </div>
+</div>

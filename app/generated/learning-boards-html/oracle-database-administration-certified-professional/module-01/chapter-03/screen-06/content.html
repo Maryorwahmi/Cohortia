@@ -1,0 +1,50 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Control Files</span>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-2/5 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col'>
+      <div class='uppercase text-[10px] tracking-wider text-slate-500 mb-2'>Core Concept</div>
+      <div class='text-xl font-bold text-slate-800'>Control Files (.ctl)</div>
+      <div class='text-sm text-slate-600 mt-2'>Binary files that record database structure and state needed to open and recover the database.</div>
+
+      <div class='mt-4 flex-1 flex flex-col gap-3'>
+        <div class='rounded-lg bg-slate-50 p-3 text-sm text-slate-700'>They record datafile and redo log locations, the current log sequence, and checkpoint info.</div>
+        <div class='rounded-lg bg-slate-50 p-3 text-sm text-slate-700'>Multiplexing across different disks reduces risk of a single disk failure making the database unparsable.</div>
+        <div class='rounded-lg bg-slate-50 p-3 text-sm text-slate-700'>If all control files are lost, manual reconstruction or a backup copy is required to open the database.</div>
+      </div>
+
+      <div class='mt-4'>
+        <div class='text-xs font-semibold text-slate-700'>Common mistake</div>
+        <div class='text-sm text-slate-700 mt-1'>Storing all control files on the same physical disk or array and treating them as non-critical duplicates.</div>
+      </div>
+    </div>
+
+    <div class='w-3/5 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Multiplexing example</div>
+      <div class='text-xs text-slate-600 mt-2'>A database with three control file locations on separate mount points is resilient to a single disk failure.</div>
+
+      <div class='mt-4 grid grid-cols-3 gap-3 flex-1 min-h-0'>
+        <div class='rounded-lg bg-slate-50 p-3'>/u01/oradata/db/ctrl01.ctl</div>
+        <div class='rounded-lg bg-slate-50 p-3'>/u02/oradata/db/ctrl02.ctl</div>
+        <div class='rounded-lg bg-slate-50 p-3'>/u03/oradata/db/ctrl03.ctl</div>
+      </div>
+
+      <div class='mt-4 flex gap-3'>
+        <div class='rounded-md p-3 bg-white card-border flex-1'>
+          <div class='text-xs font-semibold text-slate-700'>Concrete recovery step</div>
+          <div class='text-sm text-slate-700 mt-1'>If one copy is deleted, shut down if needed, copy a valid copy to the missing path with the same name, and restart the database.</div>
+        </div>
+        <div class='rounded-md p-3 bg-white card-border w-1/3'>
+          <div class='text-xs font-semibold text-slate-700'>Pro tip</div>
+          <div class='text-sm text-slate-700 mt-1'>Include control files in your backup plan and test restore steps to ensure you can recover if a copy is lost.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

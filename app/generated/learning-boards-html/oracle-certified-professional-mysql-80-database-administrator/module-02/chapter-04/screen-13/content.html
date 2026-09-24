@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px} .step{background:#f8fafc;border-radius:10px;padding:12px;border:1px solid rgba(226,232,240,0.9)} .code{background:#0b1220;color:#dbeafe;padding:10px;border-radius:6px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on activity</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+    <div class="flex flex-col gap-3">
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Step 1 — Inventory schemas</div>
+        <div class="text-sm text-slate-600 mt-2 code">SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA;</div>
+      </div>
+
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Step 2 — Find non-InnoDB system tables</div>
+        <div class="text-sm text-slate-600 mt-2 code">SELECT TABLE_NAME, ENGINE
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'mysql' AND ENGINE != 'InnoDB';</div>
+      </div>
+
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Step 3 — Generate activity</div>
+        <div class="text-sm text-slate-600 mt-2">Run test SELECT statements on a sample database to create measurable events in performance_schema.</div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Step 4 — Inspect recent statements</div>
+        <div class="text-sm text-slate-600 mt-2 code">SELECT EVENT_ID, SQL_TEXT, TIMER_WAIT, LOCK_TIME
+FROM performance_schema.events_statements_history_long
+ORDER BY EVENT_ID DESC
+LIMIT 5;</div>
+      </div>
+
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Step 5 — Summarize with sys</div>
+        <div class="text-sm text-slate-600 mt-2 code">SELECT statement, total_latency, exec_count, avg_latency
+FROM sys.statements_with_runtimes_in_95th_percentile
+ORDER BY total_latency DESC
+LIMIT 5;</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Combine metadata and runtime data for actionable insights. Prefer replicas for heavy scans and capture snapshots from performance_schema when needed.</p>
+      </div>
+    </div>
+  </div>
+</div>

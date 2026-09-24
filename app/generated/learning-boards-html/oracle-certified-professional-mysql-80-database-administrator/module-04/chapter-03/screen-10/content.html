@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Restore Procedure</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-6 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-900">Step-by-step commands</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-700 overflow-auto"># Stop MySQL
+sudo systemctl stop mysql
+
+# (Optional) Clear existing data - destructive
+# sudo rm -rf /var/lib/mysql/*
+
+# Copy prepared files back
+sudo xtrabackup --copy-back --target-dir=/data/backups/full_backup_YYYYMMDD_HHMMSS --datadir=/var/lib/mysql
+
+# Fix permissions
+sudo chown -R mysql:mysql /var/lib/mysql
+sudo chmod -R 750 /var/lib/mysql
+
+# Start MySQL
+sudo systemctl start mysql</pre>
+    </div>
+    <div class="bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Verification checklist</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>MySQL process starts without corruption errors.</li>
+        <li>Expected tables and data are present; run SELECT checks.</li>
+        <li>Confirm xtrabackup_binlog_info if point-in-time recovery is needed.</li>
+      </ul>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Caution</div>
+          <p class="text-sm text-slate-800">Double-check you are restoring prepared files and not overwriting a live production directory unintentionally.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} .tag{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#475569}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">What is Reentrancy?</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 shadow-sm card flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Definition</div>
+      <h2 class="text-xl font-bold text-slate-900">Reentrancy explained</h2>
+      <p class="mt-3 text-sm text-slate-700">A call to untrusted code can return control to your contract before state changes finish, violating assumptions and enabling repeated actions.</p>
+
+      <div class="mt-4 grid gap-2">
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800 text-sm">Thought experiment: withdraw reads balance, sends funds, then sets balance to zero — a fallback can call withdraw again.</div>
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-800 text-sm">Misconception: using transfer() always prevents reentrancy. Not guaranteed; assume reentry is possible and design accordingly.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat every external call as potentially reentrant. Order state updates before interactions or add a reentrancy guard.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full rounded-2xl bg-white p-4 shadow-sm card flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Analogy & Example</div>
+      <div class="flex-1 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border">Analogy: Imagine unlocking a vault, passing the key to an untrusted courier, and then updating the inventory only after the courier has left. If the courier returns before inventory is updated, they can take more items.</div>
+        <div class="rounded-lg p-3 bg-white border">Concrete example: the vulnerable EtherStore withdraw pattern shows external call before balances[msg.sender] = 0 allowing repeated withdrawals.</div>
+        <div class="rounded-lg p-3 bg-white border">Check your understanding: ask whether any external call in your function can cause state-dependent logic to run again before the state is updated.</div>
+      </div>
+    </div>
+  </div>
+</div>

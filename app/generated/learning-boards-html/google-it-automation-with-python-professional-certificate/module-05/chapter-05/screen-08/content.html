@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span class="text-slate-700">create_vm.py</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Key snippet</div>
+      <pre class="mt-3 bg-slate-100 p-3 rounded text-sm text-slate-800 overflow-auto"># get image and build disk
+image_response = image_client.get_from_family(project="debian-cloud", family="debian-11")
+source_image = image_response.self_link
+
+disk_config = compute_v1.AttachedDisk(auto_delete=True, boot=True, type_=compute_v1.AttachedDisk.Type.PERSISTENT, initialize_params=compute_v1.AttachedDiskInitializeParams(source_image=source_image, disk_size_gb="20"))
+
+instance = compute_v1.Instance(name=instance_name, machine_type=f"zones/{zone}/machineTypes/{machine_type}", disks=[disk_config], network_interfaces=[network_interface], metadata=compute_v1.Metadata(items=[compute_v1.Metadata.Items(key="startup-script", value="# startup...")]))
+
+operation = instance_client.insert(request=request)
+operation.wait()
+if operation.error:
+    print("Error creating instance")
+else:
+    print("Instance created")</pre>
+      <div class="mt-3 text-sm text-slate-700">The startup script runs when the instance boots and can install services like nginx automatically.</div>
+    </div>
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Get the latest image from a family to avoid pinning an outdated image.</li>
+        <li>Define disk type and size explicitly for reproducible instances.</li>
+        <li>Use metadata to supply startup actions for initial configuration.</li>
+        <li>Call operation.wait to block until provisioning completes, then fetch details.</li>
+      </ul>
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common-mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Skipping operation.wait often leads to empty or provisional state when you try to read instance fields immediately after insert.</div>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Compose instance configuration fully, run insert, then wait for the operation to ensure the VM is ready for verification or connections.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre.cfg{background:#f8fafc;padding:12px;border-radius:8px;color:#0f172a}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Monitoring & Resolving Lag</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border h-full">
+      <div class="text-sm font-bold mb-2">Triage steps</div>
+      <ol class="text-sm text-slate-600 pl-5 list-decimal">
+        <li>Check SHOW REPLICA STATUS: I/O and SQL thread states and Seconds_Behind_Source.</li>
+        <li>Run SHOW PROCESSLIST to find long or blocking queries on the replica.</li>
+        <li>Inspect disk I/O, CPU, and network metrics for bottlenecks.</li>
+      </ol>
+
+      <div class="mt-4 text-sm font-bold">Configuration to reduce lag</div>
+      <pre class="cfg"><code>[mysqld]
+replica_parallel_workers = 8
+replica_preserve_commit_order = ON</code></pre>
+      <div class="text-sm text-slate-600 mt-2">Choose workers based on CPU cores and test application behavior under parallel apply.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border h-full flex flex-col">
+      <div class="text-sm font-bold mb-2">Concrete example</div>
+      <div class="text-sm text-slate-700">If a long-running SELECT blocks the SQL thread and Seconds_Behind_Source grows, adding replica_parallel_workers can allow other transactions to be applied in parallel while the long query runs, reducing overall lag.</div>
+
+      <div class="mt-4 text-sm font-bold">Misconception</div>
+      <div class="text-sm text-slate-600 mt-2">Parallel workers are not a cure-all for I/O or network-bound lag. Identify the root cause before changing replication threads.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Diagnose the bottleneck, prefer tuning and parallel apply when appropriate, and reinitialize only when necessary after testing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px;padding:12px;} .code{background:#0b1220;color:#e6edf3;padding:10px;border-radius:8px;font-family:ui-monospace,monospace;}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Reset generation</h3>
+      <p class="text-sm text-slate-700 mt-3">Use an initial block to assert and later deassert reset with a clear, documented delay. This ensures repeatable startup behavior in simulation.</p>
+
+      <div class="card mt-4">
+        <div class="text-sm font-semibold">Example</div>
+        <pre class="code mt-2">initial begin
+  rst = 1;        // assert reset
+  #20 rst = 0;    // deassert after 20 ns
+end</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="card bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider" style="color:#b45a00">Common mistake</div>
+        <p class="text-sm text-slate-700 mt-2">Too-short reset pulses can leave registers in unknown states. Make sure the reset covers at least one clock edge when registers sample on the clock edge.</p>
+      </div>
+
+      <div class="card bg-emerald-50 mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Scenario</div>
+        <p class="text-sm text-slate-700 mt-2">For an asynchronous reset, check signals immediately after the reset edge; for synchronous resets, check after the subsequent clock edge.</p>
+      </div>
+    </div>
+  </div>
+</div>

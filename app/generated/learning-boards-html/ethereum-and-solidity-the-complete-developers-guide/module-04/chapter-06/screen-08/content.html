@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Assertions & BigNumber</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-6 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800">Why conversion matters</div>
+        <p class="mt-3 text-sm text-slate-600">BigNumber objects are not equal to primitive numbers. Convert with toNumber() or toString() before comparing to avoid type-based assertion failures.</p>
+
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          <div class="rounded-lg bg-white p-3 card-border">
+            <div class="font-semibold text-slate-800">Recommended</div>
+            <div class="text-sm text-slate-600 mt-1">Use actualValue.toNumber() for typical small integers in tests and assert.equal against a JavaScript number.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 card-border">
+            <div class="font-semibold text-slate-800">When to use toString()</div>
+            <div class="text-sm text-slate-600 mt-1">For very large integers near numeric limits, compare strings to avoid precision loss in JavaScript numbers.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconception</div>
+        <div class="mt-2 text-sm text-slate-700">Relying on weak equality conversions can hide type issues. Convert explicitly to a primitive and assert deterministically.</div>
+      </div>
+    </div>
+
+    <div class="col-span-6 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800">Concrete example</div>
+        <pre class="mt-3 bg-slate-900 text-slate-50 p-3 rounded-lg text-sm overflow-auto">const actualValue = await simpleStorageInstance.get();
+// Convert before asserting
+assert.equal(actualValue.toNumber(), 100, "The value was not stored correctly.");</pre>
+        <div class="mt-3 text-sm text-slate-600">This explicit conversion prevents object-vs-primitive mismatches and makes your assertion reflect numeric equality.</div>
+      </div>
+
+      <div class="rounded-2xl bg-emerald-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm text-slate-700">Always convert blockchain numeric types to a comparable primitive before asserting equality in tests.</p>
+      </div>
+    </div>
+  </div>
+</div>

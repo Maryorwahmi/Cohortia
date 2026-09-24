@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hot InnoDB Backup</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Definition</div>
+      <div class="text-sm text-slate-600 mt-2">A hot InnoDB backup copies raw files while the server is online, capturing the LSN and redo logs needed for later prepare.</div>
+      <div class="mt-4 text-sm text-slate-700">Key points:</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-2">
+        <li>InnoDB transactions use redo logs to record committed changes.</li>
+        <li>A hot backup records the LSN and redo metadata alongside the copied files.</li>
+        <li>The prepare step uses those logs to make the copied files consistent.</li>
+      </ul>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+          <p class="text-sm text-slate-800">Hot means zero impact. In practice, hot backups still consume disk and CPU and require correct privileges; plan accordingly.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-3/5 bg-white rounded-2xl p-6 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Annotated workflow</div>
+      <div class="mt-3 grid grid-cols-2 gap-3 flex-1">
+        <div class="p-3 rounded-xl bg-blue-50">
+          <div class="text-xs font-bold text-blue-700 uppercase">Snapshot files</div>
+          <div class="text-sm text-slate-700 mt-1">xtrabackup copies table space files and .frm metadata while server writes concurrently.</div>
+        </div>
+        <div class="p-3 rounded-xl bg-violet-50">
+          <div class="text-xs font-bold text-violet-700 uppercase">Record LSN</div>
+          <div class="text-sm text-slate-700 mt-1">The tool records the LSN and creates xtrabackup_binlog_info for binlog coordinates.</div>
+        </div>
+        <div class="p-3 rounded-xl bg-amber-50">
+          <div class="text-xs font-bold text-amber-700 uppercase">Prepare</div>
+          <div class="text-sm text-slate-700 mt-1">Applying redo rolls forward committed transactions and removes uncommitted changes.</div>
+        </div>
+        <div class="p-3 rounded-xl bg-emerald-50">
+          <div class="text-xs font-bold text-emerald-700 uppercase">Restore</div>
+          <div class="text-sm text-slate-700 mt-1">After copy-back and permission fixes, MySQL starts and performs normal crash recovery if needed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

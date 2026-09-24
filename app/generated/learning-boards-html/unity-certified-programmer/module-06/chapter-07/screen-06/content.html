@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+      <span class="text-slate-700 text-sm">AIAgentPool</span>
+    </div>
+    <div class="text-sm text-slate-600 mt-2">Inspect the pool mechanics and practical considerations for use in a scene.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-slate-800 rounded-xl p-4 shadow-sm h-full overflow-hidden">
+      <div class="text-xs text-slate-200 font-mono">// Simplified view of the example from the lesson content</div>
+      <pre class="text-sm text-slate-100 mt-2 leading-relaxed" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">public class AIAgentPool : MonoBehaviour
+{
+    public GameObject agentPrefab;
+    public int poolSize = 10;
+    private Queue&lt;GameObject&gt; agentPool = new Queue&lt;GameObject&gt;();
+
+    void Awake()
+    {
+        for (int i = 0; i &lt; poolSize; i++)
+        {
+            GameObject agent = Instantiate(agentPrefab);
+            agent.SetActive(false);
+            agentPool.Enqueue(agent);
+        }
+    }
+
+    public GameObject GetAgent()
+    {
+        if (agentPool.Count &gt; 0)
+        {
+            GameObject agent = agentPool.Dequeue();
+            agent.SetActive(true);
+            return agent;
+        }
+        else
+        {
+            Debug.LogWarning("Pool exhausted, instantiating new agent. Consider increasing pool size.");
+            return Instantiate(agentPrefab);
+        }
+    }
+
+    public void ReturnAgent(GameObject agent)
+    {
+        agent.SetActive(false);
+        agentPool.Enqueue(agent);
+    }
+}
+</pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-3">Walkthrough Notes</div>
+      <ul class="list-disc ml-5 text-sm text-slate-600 space-y-2">
+        <li>Awake pre-populates the queue to avoid runtime instantiation spikes.</li>
+        <li>GetAgent activates an object; remember to initialize agent-specific state there.</li>
+        <li>ReturnAgent deactivates and re-enqueues but must also clear references and timers.</li>
+        <li>Fallback Instantiate reduces failure but may reintroduce spikes; prefer growing pool at low risk times.</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-semibold text-slate-800">Example Caveat</div>
+      <div class="text-xs text-slate-600 mt-1">When agents have NavMeshAgents, ensure NavMesh state or path data is reset so the reused agent doesn't resume a stale path or cause movement glitches.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">Check: Run profiler before and after enabling pool. Spawn the same number of agents and compare spawn-time CPU and GC frequency.</div>
+      </div>
+    </div>
+  </div>
+</div>

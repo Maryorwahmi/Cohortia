@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--emerald:#10b981} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Monitoring Activity</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-2/3 bg-white rounded-2xl p-4 border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">SQL*Plus checks</div>
+      <pre class="mt-3 text-sm text-slate-700 bg-slate-50 p-3 rounded">-- 1. View current SGA allocation
+SELECT * FROM V$SGAINFO;
+
+-- 2. View component sizes
+SELECT * FROM V$SGASTAT;
+
+-- 3. Background processes
+SELECT P.SPID, S.PROGRAM, S.USERNAME, S.STATUS, S.MODULE
+FROM V$PROCESS P, V$SESSION S
+WHERE P.ADDR = S.PADDR AND S.TYPE = 'BACKGROUND'
+ORDER BY S.PROGRAM;
+
+-- 4. Check parameters
+SHOW PARAMETER DB_CACHE_SIZE;
+SHOW PARAMETER SHARED_POOL_SIZE;</pre>
+
+      <div class="mt-3 text-sm text-slate-600">Run these commands and save the output. Correlate the values with observed waits and OS-level I/O to form your diagnosis.</div>
+    </div>
+
+    <div class="w-96 bg-white rounded-2xl p-4 border shadow-sm flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Use case</div>
+      <p class="mt-2 text-sm text-slate-700">If LGWR shows heavy waits, check redo log locations and sizes. If DBWn is busy, check buffer cache sizing and data file storage performance.</p>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Collect evidence with V$ queries before changing memory settings; always tie a change to measured data.</p>
+      </div>
+    </div>
+  </div>
+</div>

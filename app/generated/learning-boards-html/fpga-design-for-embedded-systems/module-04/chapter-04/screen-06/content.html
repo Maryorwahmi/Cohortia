@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step{border:1px solid rgba(226,232,240,0.9);background:#fff;border-radius:12px;padding:12px;} .code{background:#0f172a;color:#e6edf3;padding:10px;border-radius:8px;font-family:ui-monospace,monospace;}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">Clock Generation</h3>
+      <div class="mt-4 grid gap-3">
+        <div class="step">
+          <div class="text-sm font-semibold">Pattern A: always toggle</div>
+          <pre class="code mt-2">reg clk = 0;
+always #5 clk = ~clk;  // 10 ns period</pre>
+          <p class="text-sm text-slate-700 mt-2">This is concise and commonly used in testbenches for a stable square clock.</p>
+        </div>
+
+        <div class="step">
+          <div class="text-sm font-semibold">Pattern B: initial with forever</div>
+          <pre class="code mt-2">initial begin
+  clk = 0;
+  forever #5 clk = ~clk;
+end</pre>
+          <p class="text-sm text-slate-700 mt-2">Equivalent to the always pattern; useful when you want to set initial conditions explicitly before starting the clock.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="step bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider" style="color:#b45a00">Misconception</div>
+        <p class="text-sm text-slate-700 mt-2">Do not drive the clock from logic in the DUT. Keep the testbench clock independent so timing is predictable and measurement is simple.</p>
+      </div>
+
+      <div class="step bg-emerald-50 mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Check your understanding</div>
+        <p class="text-sm text-slate-700 mt-2">Measure the time between consecutive rising edges in the waveform to confirm the period equals your intended value.</p>
+      </div>
+    </div>
+  </div>
+</div>

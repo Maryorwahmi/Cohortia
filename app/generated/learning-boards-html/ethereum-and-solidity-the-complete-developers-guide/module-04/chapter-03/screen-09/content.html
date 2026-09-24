@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">View vs Mutator</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full"> 
+    <div class="rounded-2xl bg-white p-5 card shadow-sm"> 
+      <div class="text-sm font-semibold text-slate-800">View (get)</div>
+      <div class="text-sm text-slate-600 mt-2">Marked <span class="mono">view</span>. Reads state, no gas for external calls. Use for UI displays.</div>
+      <div class="mt-4 mono bg-slate-50 p-3 rounded border text-sm">function get() public view returns (uint256) { return storedData; }</div>
+      <div class="mt-4 text-sm text-slate-600">Example: calling get after set(7) returns 7 immediately without gas when executed as a call.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card shadow-sm"> 
+      <div class="text-sm font-semibold text-slate-800">Mutator (set)</div>
+      <div class="text-sm text-slate-600 mt-2">Changes blockchain state and requires a transaction which consumes gas and waits for confirmation.</div>
+      <div class="mt-4 mono bg-slate-50 p-3 rounded border text-sm">function set(uint256 x) public { storedData = x; }</div>
+      <div class="mt-4 text-sm text-slate-600">Example: invoking set(100) sends a transaction; after mining get will return 100. Expect gas cost and block confirmation time.</div>
+    </div>
+
+    <div class="col-span-2 mt-4 rounded-lg p-3 border bg-white"> 
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Pitfall</div>
+      <div class="text-sm text-rose-700 mt-1">Wrapping a view call in a transaction is unnecessary and may lead developers to pay gas for an operation that could have been done as a free call.</div>
+    </div>
+
+    <div class="col-span-2 mt-auto"> 
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3"> 
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Design interactions to use view calls for reads and transactions for writes to keep costs clear to users.</p>
+      </div>
+    </div>
+  </div>
+</div>

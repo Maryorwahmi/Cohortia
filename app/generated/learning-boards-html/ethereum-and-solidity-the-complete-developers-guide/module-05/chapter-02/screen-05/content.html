@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;} .panel{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:white;padding:12px;} .warn{background:#fff1f2;border-left:4px solid #ef6675;padding:10px;border-radius:8px;color:#7f1d1d} </style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="panel">
+        <div class="text-sm font-bold text-slate-800">Terminal: run Ganache and test</div>
+        <pre><code>// Start Ganache (GUI or CLI) and note RPC URL
+// Then run node connectLocal.js which contains below examples
+</code></pre>
+      </div>
+
+      <div class="panel">
+        <div class="text-sm font-bold text-slate-800">Web3.js example</div>
+        <pre><code>const Web3 = require('web3');
+const web3 = new Web3('http://127.0.0.1:7545');
+
+(async () => {
+  try {
+    const accounts = await web3.eth.getAccounts();
+    console.log('Connected accounts (Web3.js):', accounts);
+  } catch (err) {
+    console.error('Error connecting with Web3.js:', err.message);
+  }
+})();
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="panel">
+        <div class="text-sm font-bold text-slate-800">Ethers.js example</div>
+        <pre><code>const { ethers } = require('ethers');
+const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:7545');
+
+(async () => {
+  try {
+    const accounts = await provider.listAccounts();
+    const block = await provider.getBlockNumber();
+    console.log('Connected accounts (Ethers.js):', accounts);
+    console.log('Local block number:', block);
+  } catch (err) {
+    console.error('Error connecting with Ethers.js:', err.message);
+  }
+})();
+</code></pre>
+      </div>
+
+      <div class="warn">
+        <div class="text-xs font-bold">Warning</div>
+        <div class="text-sm">Do not hardcode private keys in production. Use Ganache test accounts only for local testing and never commit secrets to version control.</div>
+      </div>
+    </div>
+  </div>
+</div>
