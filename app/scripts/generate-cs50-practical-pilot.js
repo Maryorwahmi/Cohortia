@@ -7,8 +7,10 @@ import { fileURLToPath } from "node:url";
 import { collectNormalizedActivities } from "./lib/hands-on-activity-source.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const BACKEND_ROOT = path.join(REPOSITORY_ROOT, "backend");
 const PILOT_PATH = path.join(REPOSITORY_ROOT, "scripts", "cs50-practical-pilot.json");
 const GENERATOR_PATH = path.join(REPOSITORY_ROOT, "scripts", "generate-learning-board-practical.js");
+const IMPORTER_PATH = path.join(BACKEND_ROOT, "scripts", "import-practicals.js");
 
 function optionValue(args, name, fallback) {
   const index = args.indexOf(name);
@@ -26,6 +28,21 @@ function runGenerator(args) {
     child.once("exit", (code) => {
       if (code === 0) resolve();
       else reject(new Error(`Practical generator exited with code ${code}.`));
+    });
+  });
+}
+
+function runImporter(practicalPath) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [IMPORTER_PATH, "--practical", practicalPath], {
+      cwd: BACKEND_ROOT,
+      stdio: "inherit",
+      env: process.env,
+    });
+    child.once("error", reject);
+    child.once("exit", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`Practical import exited with code ${code}.`));
     });
   });
 }
@@ -66,6 +83,17 @@ async function main() {
     if (mockResponse) generatorArgs.push("--mock-response", mockResponse);
     if (args.includes("--dry-run")) generatorArgs.push("--dry-run");
     await runGenerator(generatorArgs);
+
+    if (!args.includes("--dry-run") && !args.includes("--skip-import")) {
+      const practicalPath = path.join(
+        outputRoot,
+        pilot.courseId,
+        `m${record.module}-c${record.chapter}`,
+        "practical.json",
+      );
+      console.log(`Importing practical for Chapter ${record.module}.${record.chapter} into Turso...`);
+      await runImporter(practicalPath);
+    }
   }
 
   if (!args.includes("--dry-run")) {

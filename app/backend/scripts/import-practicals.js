@@ -30,6 +30,16 @@ function getPracticalSourceDirectory() {
   return resolve(process.cwd(), sourceFolder);
 }
 
+function getSinglePracticalPath() {
+  const practicalArgIndex = process.argv.indexOf('--practical');
+  if (practicalArgIndex < 0) return null;
+  const requestedPath = process.argv[practicalArgIndex + 1];
+  if (!requestedPath || requestedPath.startsWith('--')) {
+    throw new Error('Usage: node scripts/import-practicals.js --practical <path-to-practical.json>');
+  }
+  return resolve(process.cwd(), requestedPath);
+}
+
 const now = new Date().toISOString();
 
 function parseJson(value) {
@@ -377,7 +387,14 @@ async function importPractical(practicalData) {
         sql: 'SELECT * FROM learning_board_practical_tests WHERE task_id = ? ORDER BY test_order',
         args: [taskId],
       });
-      const tests = Array.isArray(task.tests) ? task.tests : [];
+      const declaredChecks = new Map(
+        (Array.isArray(practical.checks) ? practical.checks : [])
+          .filter((check) => check && check.id)
+          .map((check) => [check.id, check]),
+      );
+      const tests = Array.isArray(task.tests)
+        ? task.tests
+        : (Array.isArray(task.checkIds) ? task.checkIds.map((checkId) => declaredChecks.get(checkId)).filter(Boolean) : []);
       for (let testIndex = 0; testIndex < tests.length; testIndex++) {
         const test = tests[testIndex];
         const existingTest = existingTestsResult.rows[testIndex];
@@ -432,6 +449,16 @@ async function importPractical(practicalData) {
 async function main() {
   try {
     await ensureIdentitySchema();
+    const singlePracticalPath = getSinglePracticalPath();
+    if (singlePracticalPath) {
+      console.log(`📄 Reading practical from: ${singlePracticalPath}\n`);
+      const practicalData = JSON.parse(await readFile(singlePracticalPath, 'utf8'));
+      const practicalId = await importPractical(practicalData);
+      if (!practicalId) throw new Error(`Practical was not imported: ${singlePracticalPath}`);
+      console.log(`\n✅ Imported practical into the configured database: ${practicalId}`);
+      return;
+    }
+
     const sourceDir = getPracticalSourceDirectory();
     console.log(`📂 Reading practicals from: ${sourceDir}\n`);
 
