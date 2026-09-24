@@ -1,0 +1,93 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--emerald:#10b981} pre{background:#0f1724;color:#e6eef8;padding:0.75rem;border-radius:.5rem;overflow:auto}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Explosion Effect & Trigger Script</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Configure ExplosionEffect</h3>
+
+      <div class="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Main</div>
+          <div class="mt-1">Looping off, Start Lifetime 1.5, Start Speed 5, Start Size 0.5, Max Particles 100.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Emission</div>
+          <div class="mt-1">Rate over Time = 0, add Burst at time 0 Count = 50.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Shape</div>
+          <div class="mt-1">Sphere, Radius 0.1 for tight origin.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Over Lifetime</div>
+          <div class="mt-1">Color gradient yellow→orange→transparent black; Size curve quick grow then shrink.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Trigger Script (attach to ExplosionTrigger)</div>
+        <pre class="mt-2 text-xs">using UnityEngine;
+
+public class ExplosionTrigger : MonoBehaviour
+{
+    public ParticleSystem explosionParticleSystem; // Drag ExplosionEffect here
+    private bool hasExploded = false;
+
+    void Start()
+    {
+        if (explosionParticleSystem != null)
+            explosionParticleSystem.Stop();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E) && !hasExploded)
+        {
+            TriggerExplosion();
+            hasExploded = true;
+        }
+    }
+
+    void TriggerExplosion()
+    {
+        if (explosionParticleSystem != null)
+            explosionParticleSystem.Play();
+    }
+}
+</pre>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Common setup mistake</div>
+          <p class="text-xs font-medium text-slate-800">Ensure Looping is unchecked for one-shot explosions and that the ParticleSystem field is assigned in the inspector.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-5/12 grid grid-rows-3 gap-4">
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4">
+        <div class="font-semibold text-slate-800">Why it matters</div>
+        <p class="text-sm text-slate-600 mt-2">On-demand one-shot effects save performance compared to continuously looping systems and are ideal for impact events.</p>
+      </div>
+
+      <div class="rounded-xl bg-white border border-[rgba(226,232,240,0.9)] p-4">
+        <div class="font-semibold text-slate-800">Testing tip</div>
+        <p class="text-sm text-slate-600 mt-2">Press the trigger key and watch the preview while adjusting burst count and lifetime until the blast timing feels right.</p>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Try this</div>
+        <p class="text-sm text-slate-600">After the explosion plays, experiment with Gravity Modifier to add downward motion to debris-like particles.</p>
+      </div>
+    </div>
+  </div>
+</div>

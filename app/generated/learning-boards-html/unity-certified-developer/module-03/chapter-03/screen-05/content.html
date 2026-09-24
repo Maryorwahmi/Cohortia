@@ -1,0 +1,60 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#f8fbff}.card-border{border:1px solid rgba(226,232,240,0.9)}pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>Rigidbody methods</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col'>
+      <div class='text-lg font-bold text-slate-900'>When to use each method</div>
+      <div class='mt-3 text-sm text-slate-600'>Practical patterns and a pseudo-code walkthrough to show timing and data flow.</div>
+
+      <div class='mt-4 flex-1'>
+        <div class='rounded-lg p-3 bg-white border card-border'>
+          <div class='text-sm font-bold text-slate-800'>AddForce</div>
+          <div class='text-sm text-slate-600 mt-1'>Use for impulses and continuous forces where physics should determine acceleration and collisions.</div>
+        </div>
+
+        <div class='rounded-lg p-3 bg-white border card-border mt-3'>
+          <div class='text-sm font-bold text-slate-800'>Velocity control</div>
+          <div class='text-sm text-slate-600 mt-1'>Set or lerp rb.velocity for precise horizontal speeds. Preserve vertical component to keep gravity intact.</div>
+        </div>
+
+        <div class='rounded-lg p-3 bg-white border card-border mt-3'>
+          <div class='text-sm font-bold text-slate-800'>MovePosition</div>
+          <div class='text-sm text-slate-600 mt-1'>Interpolate the Rigidbody smoothly while still allowing collision resolution; call from FixedUpdate.</div>
+        </div>
+      </div>
+
+      <div class='mt-4'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>Synchronize Rigidbody work with FixedUpdate and select the method that balances realism and control for your game feel.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class='w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col'>
+      <div class='text-sm font-bold text-slate-800'>Pseudo-code walkthrough</div>
+      <pre class='mt-3'>// In FixedUpdate:
+// compute target horizontal velocity from input
+// preserve rb.velocity.y before applying
+// rb.velocity = Vector3.Lerp(rb.velocity, targetVelocity, accel * Time.fixedDeltaTime)
+// For jump: rb.AddForce(up * jumpForce, impulse)</pre>
+
+      <div class='mt-4 rounded-lg p-3 bg-white border card-border'>
+        <div class='text-sm font-bold text-slate-800'>Common mistake</div>
+        <div class='text-sm text-slate-600 mt-1'>Calling MovePosition or velocity changes in Update can produce inconsistent collision responses across frame rates.</div>
+      </div>
+
+      <div class='mt-3 rounded-lg p-3 bg-white border card-border'>
+        <div class='text-sm font-bold text-slate-800'>Pro tip</div>
+        <div class='text-sm text-slate-600 mt-1'>Use small drag values and PhysicMaterials on surfaces to tune how quickly a body stops instead of forcing velocity to zero abruptly.</div>
+      </div>
+    </div>
+  </div>
+</div>

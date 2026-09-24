@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+      <span>›</span>
+      <span>Chapter 2.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Order Refactor</span>
+    </div>
+
+    <div class="flex gap-4 h-[72%]">
+      <div class="w-1/2 rounded-xl p-4 bg-white border border-slate-100 shadow-sm overflow-auto">
+        <div class="text-sm font-bold text-slate-800">SRP Violation (conceptual)</div>
+        <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 text-sm overflow-auto" style="font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">class Order:
+    def calculate_total(self): ...
+    def save_to_database(self): ...
+    def send_confirmation_email(self): ...</pre>
+        <div class="text-sm text-slate-600 mt-3">Tests must mock multiple concerns and business logic may be harder to reason about inside a multi-purpose class.</div>
+      </div>
+
+      <div class="w-1/2 rounded-xl p-4 bg-white border border-slate-100 shadow-sm flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Refactored collaborators</div>
+        <div class="mt-3 grid gap-3">
+          <div class="rounded-lg p-3 bg-white border border-slate-100">
+            <div class="text-sm font-semibold text-slate-800">Order</div>
+            <div class="text-sm text-slate-600 mt-1">Holds items and business methods like calculate_total only.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-white border border-slate-100">
+            <div class="text-sm font-semibold text-slate-800">OrderRepository</div>
+            <div class="text-sm text-slate-600 mt-1">Handles persistence and can be swapped for different storage backends.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-white border border-slate-100">
+            <div class="text-sm font-semibold text-slate-800">EmailService</div>
+            <div class="text-sm text-slate-600 mt-1">Handles notification delivery and formats messages based on order data.</div>
+          </div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">Instantiating concrete services inside domain objects creates tight coupling and makes testing harder. Prefer passing collaborators in.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

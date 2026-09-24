@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    :root{--amber:#f5a623;--blue:#1769ff}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">BrowserProvider and injected wallets</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-600 space-y-2">
+        <li>Check for window.ethereum. If absent, prompt user to install a wallet.</li>
+        <li>Wrap with new ethers.BrowserProvider(window.ethereum).</li>
+        <li>Call provider.send('eth_requestAccounts', []) to request permission.</li>
+        <li>Obtain signer via provider.getSigner() for signing transactions.</li>
+        <li>Listen for accountsChanged and chainChanged to update your UI.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete code pattern</div>
+      <pre class="text-sm text-slate-700 mt-3">if (window.ethereum) {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send('eth_requestAccounts', []);
+  const signer = await provider.getSigner();
+} else {
+  // prompt to install a wallet
+}
+</pre>
+
+      <div class="mt-4 rounded-xl p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-semibold text-slate-700">Mistake to avoid</div>
+        <div class="text-sm text-slate-600 mt-1">Do not assume provider existence; always check window.ethereum and handle user denials gracefully.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">BrowserProvider ties your DApp to the user's wallet for signing while keeping private keys out of your frontend code.</p>
+  </div>
+</div>

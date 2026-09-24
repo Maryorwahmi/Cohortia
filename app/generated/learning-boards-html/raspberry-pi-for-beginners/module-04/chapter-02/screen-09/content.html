@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Polling vs Events</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Polling example</h3>
+      <pre><code>while True:
+    if button.is_pressed:
+        led.on()
+    else:
+        led.off()
+    sleep(0.1)</code></pre>
+      <div class="text-sm text-slate-600 mt-2">Simple and deterministic, but the loop runs continuously and depends on the sleep interval for responsiveness.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Event-driven example</h3>
+      <pre><code>def toggle_led():
+    led.toggle()
+
+button.when_pressed = toggle_led
+
+input("Press Enter to exit...")</code></pre>
+      <div class="text-sm text-slate-600 mt-2">Cleaner and efficient for multiple inputs; handlers run on events rather than on a repeating loop.</div>
+
+      <div class="mt-4 p-3 rounded-lg bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-800 mt-1">Event callbacks are not automatically parallel workers; long-running work in a handler can block other callbacks unless explicitly threaded.</div>
+      </div>
+
+      <div class="mt-auto p-3 rounded-xl bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Use events for responsiveness and scalability; use polling when you need simple sequential checks or explicit timing control.</div>
+      </div>
+    </div>
+  </div>
+</div>

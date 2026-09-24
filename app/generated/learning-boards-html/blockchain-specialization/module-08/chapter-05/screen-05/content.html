@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-900">Checks → Effects → Interactions</div>
+      <div class="text-sm text-slate-600 mt-2">A step-by-step ordering that eliminates stale-state windows before external calls.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-900">Step 1: Checks</div>
+          <div class="text-sm text-slate-700 mt-2">Validate inputs and requirements, for example ensure the user has sufficient balance and the amount is valid.</div>
+        </div>
+        <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-900">Step 2: Effects</div>
+          <div class="text-sm text-slate-700 mt-2">Update internal state such as balances or flags so subsequent calls observe the new, safe state.</div>
+        </div>
+        <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+          <div class="text-sm font-bold text-slate-900">Step 3: Interactions</div>
+          <div class="text-sm text-slate-700 mt-2">Only now perform external calls or transfers, minimizing what external code can observe or influence.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-900">ReentrancyGuard in practice</div>
+        <div class="text-sm text-slate-700 mt-2">A mutex protects functions by setting and checking a status flag. If the function is entered again before the first execution completes, the modifier reverts.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-900">When to choose which</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc list-inside space-y-2">
+          <li>Prefer Checks-Effects-Interactions as a primary design rule for simple flows.</li>
+          <li>Use ReentrancyGuard when multiple calls must happen in one transaction or when integrating legacy code that breaks strict ordering.</li>
+          <li>Combine both for defense-in-depth: order state updates and add a mutex on critical entry points.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Prefer ordering state changes before external calls; add a non-reentrancy lock when flows are complex.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

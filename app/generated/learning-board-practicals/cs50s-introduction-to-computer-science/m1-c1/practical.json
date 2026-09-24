@@ -41,56 +41,16 @@
     "files": [
       {
         "path": "workspace-1.txt",
-        "content": "# Binary Conversion Lab - main.py\n\ndef binary_to_decimal(bin_str):\n    # validate\n    if not all(c in '01' for c in bin_str):\n        raise ValueError(\"Input must be a binary string containing only 0 and 1\")\n    return sum(int(bit) * (2 ** idx) for idx, bit in enumerate(reversed(bin_str)))\n\n\ndef decimal_to_binary(n):\n    if n < 0:\n        raise ValueError(\"Only non-negative integers supported\")\n    if n == 0:\n        return '0'\n    bits = []\n    while n:\n        bits.append(str(n % 2))\n        n //= 2\n    return ''.join(reversed(bits))\n\n\ndef unique_values(bits):\n    if bits < 0:\n        raise ValueError(\"bits must be non-negative\")\n    return 2 ** bits\n\n\ndef max_color_component(bits_per_component=8):\n    return unique_values(bits_per_component) - 1\n\n\ndef padded_binary(n, bits=8):\n    b = decimal_to_binary(n)\n    if len(b) > bits:\n        raise ValueError(f\"Number {n} cannot fit in {bits} bits\")\n    return b.rjust(bits, '0')\n\n\nif __name__ == \"__main__\":\n    # Baseline conversions for the lab activity\n    print(\"Binary 11010 -> decimal:\", binary_to_decimal('11010'))  # expected 26\n    print(\"Decimal 27 -> binary:\", decimal_to_binary(27))          # expected 11011\n    print(\"Unique values with 6 bits:\", unique_values(6))         # expected 64\n    print(\"Max color component for 8 bits:\", max_color_component(8))  # expected 255\n",
+        "content": "TEST_BINARY = '11010'\nTEST_DECIMAL = 27\nPADDING_BITS = 8\n\n\ndef binary_to_decimal(b):\n    \"\"\"Convert a binary string to its decimal integer.\"\"\"\n    return int(b, 2)\n\n\ndef decimal_to_binary(n):\n    \"\"\"Convert a non-negative integer to an unpadded binary string.\"\"\"\n    return bin(n)[2:]\n\n\ndef decimal_to_padded_binary(n, bits):\n    \"\"\"Return the binary representation of n padded with leading zeros to 'bits' length.\"\"\"\n    return format(n, f'0{bits}b')\n\n\ndef values_for_bits(n):\n    \"\"\"Number of unique values representable with n bits (2^n).\"\"\"\n    return 2 ** n\n\n\ndef main():\n    print(\"Baseline conversions:\")\n    print(f\"1) Binary {TEST_BINARY} -> {binary_to_decimal(TEST_BINARY)}\")\n    print(f\"2) Decimal {TEST_DECIMAL} -> {decimal_to_binary(TEST_DECIMAL)}\")\n    print(f\"3) 6 bits can represent {values_for_bits(6)} unique values\")\n    print(f\"4) 24-bit color max per component -> {values_for_bits(8)-1}\")\n    print(f\"Bonus: {TEST_DECIMAL} as {PADDING_BITS}-bit binary -> {decimal_to_padded_binary(TEST_DECIMAL, PADDING_BITS)}\")\n\n\nif __name__ == '__main__':\n    main()\n",
         "description": "",
         "editable": true
       }
     ],
     "tasks": [
       {
-        "id": "scene-1-observe",
-        "title": "Scene 1 — Observe & Understand: Run the baseline program",
+        "id": "task-1",
+        "title": "Binary Conversion Challenge — Interactive Lab",
         "instruction": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-        "narratorGuide": "Hello — in this first scene we run the baseline program and link its outputs to the binary concepts. You’ll see a safe, short Python script that implements binary_to_decimal, decimal_to_binary, and some helper functions. Focus on how the binary_to_decimal function uses reversed bit positions and powers of two to compute the value. Run the program and inspect printed lines: they are explicit answers to the challenge. This builds a mental model you’ll test and extend next.",
-        "required": true,
-        "requiredConcepts": [],
-        "hints": [],
-        "checkIds": [],
-        "animationTimeline": [],
-        "totalDurationMs": 180000,
-        "terminalCommands": []
-      },
-      {
-        "id": "scene-2-modify",
-        "title": "Scene 2 — Modify & Experiment: Change one or two literals",
-        "instruction": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-        "narratorGuide": "Now you’ll make a tiny, deliberate change. Open main.py and edit one of the print-line literals. For example, change the binary literal '11010' to '10101' (which should produce decimal 21). Or change the decimal 27 to 13 and observe the binary output '1101'. This hands-on step deepens your mental mapping of bit positions to numeric value — and it’s safe because you’re only changing readable constants.",
-        "required": true,
-        "requiredConcepts": [],
-        "hints": [],
-        "checkIds": [],
-        "animationTimeline": [],
-        "totalDurationMs": 180000,
-        "terminalCommands": []
-      },
-      {
-        "id": "scene-3-build",
-        "title": "Scene 3 — Build & Integrate: Show padded 8-bit binary",
-        "instruction": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-        "narratorGuide": "In this scene you’ll add a single integration line that calls an existing function. The padded_binary function is already present, so you only need to add a print call right after the existing outputs. This shows how modular building works: define small helpers, then integrate them where needed. After adding the print, run the script and notice the 8-bit display of 27. That directly links the decimal 27 to a byte-length representation used in RGB channels and memory.",
-        "required": true,
-        "requiredConcepts": [],
-        "hints": [],
-        "checkIds": [],
-        "animationTimeline": [],
-        "totalDurationMs": 180000,
-        "terminalCommands": []
-      },
-      {
-        "id": "scene-4-verify",
-        "title": "Scene 4 — Verify & Extend: Test edge cases and limits",
-        "instruction": "**Binary Conversion Challenge:**\nWork through the following conversions to solidify your understanding of binary representation.\n1.  Convert the binary number `11010` to its decimal equivalent.\n2.  Convert the decimal number `27` to its binary equivalent.\n3.  How many unique values can be represented by 6 bits?\n4.  If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
-        "narratorGuide": "Great — now verify the functions under edge conditions. Use short python -c commands to import the module and call functions: check binary_to_decimal('0'), unique_values(6), and padded_binary(255,8). Also test an overflow (like padded_binary(256,8)) to see the error. These checks demonstrate you understand both normal and exceptional behavior — a key part of practical coding.",
         "required": true,
         "requiredConcepts": [],
         "hints": [],
@@ -102,7 +62,7 @@
     ],
     "checks": [
       {
-        "id": "check-1-observe",
+        "id": "check-1",
         "type": "manual",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
@@ -110,7 +70,7 @@
         "explanation": ""
       },
       {
-        "id": "check-2-modify",
+        "id": "check-2",
         "type": "manual",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
@@ -118,7 +78,7 @@
         "explanation": ""
       },
       {
-        "id": "check-3-build",
+        "id": "check-3",
         "type": "manual",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
@@ -126,7 +86,7 @@
         "explanation": ""
       },
       {
-        "id": "check-4-verify",
+        "id": "check-4",
         "type": "manual",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
@@ -134,7 +94,7 @@
         "explanation": ""
       },
       {
-        "id": "check-5-extend",
+        "id": "check-5",
         "type": "manual",
         "adapter": "manual-simulation",
         "timeoutSeconds": 30,
@@ -171,11 +131,11 @@
     },
     "completionRules": {
       "requiredChecks": [
-        "check-1-observe",
-        "check-2-modify",
-        "check-3-build",
-        "check-4-verify",
-        "check-5-extend"
+        "check-1",
+        "check-2",
+        "check-3",
+        "check-4",
+        "check-5"
       ],
       "minimumScore": 1,
       "requiresEvidence": true,
@@ -190,7 +150,7 @@
       "moduleNumber": 1,
       "chapterNumber": 1,
       "model": "gemini-2.5-flash",
-      "generatedAt": "2026-09-24T13:57:01.492Z",
+      "generatedAt": "2026-09-24T15:22:21.129Z",
       "activitySourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "lessonSourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "activitySourceHash": "sha256:32855dbaace91fe8e31aafc66449ff114d2369e12186f3f7d3ca682a059db47e",
@@ -200,7 +160,7 @@
       "type": "interactive-code-reveal",
       "narrator": "educator",
       "synchronizedPlayback": true,
-      "totalLessonDurationMs": 720000
+      "totalLessonDurationMs": 180000
     }
   }
 }

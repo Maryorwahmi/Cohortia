@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} .code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 1.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Interface & DI</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 border border-[rgba(226,232,240,0.9)] shadow-sm h-full flex">
+    <div class="w-2/3 pr-4 flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Low coupling through interface and injection</div>
+      <pre class="mt-3 p-3 rounded-md bg-slate-50 code border border-[rgba(226,232,240,0.9)] text-sm overflow-auto" style="max-height:58%">// Low Coupling Example (C#)
+public interface IPaymentGateway
+{
+    bool ProcessPayment(decimal amount);
+}
+
+public class CreditCardGateway : IPaymentGateway
+{
+    public bool ProcessPayment(decimal amount) { return true; }
+}
+
+public class OrderProcessor
+{
+    private IPaymentGateway _gateway;
+
+    public OrderProcessor(IPaymentGateway gateway)
+    {
+        _gateway = gateway; // dependency injected
+    }
+
+    public void PlaceOrder(decimal amount) { _gateway.ProcessPayment(amount); }
+}
+
+// Composition example:
+// var processor = new OrderProcessor(new CreditCardGateway());
+</pre>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Benefit</div>
+          <div class="text-sm text-slate-700">OrderProcessor can now use any implementation of IPaymentGateway without modification.</div>
+        </div>
+        <div class="rounded-md p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Testing</div>
+          <div class="text-sm text-slate-700">Inject a mock gateway to test success and failure paths deterministically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 pl-4 flex flex-col">
+      <div class="rounded-xl p-3 bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Composition root</div>
+        <div class="text-sm text-slate-700">Wire concrete implementations in one place to keep the rest of the codebase unaware of specific providers.</div>
+      </div>
+
+      <div class="mt-3 rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Pro tip</div>
+        <div class="text-sm text-slate-700">Constructor injection is simple and effective even without a framework.</div>
+      </div>
+    </div>
+  </div>
+</div>

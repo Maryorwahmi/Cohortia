@@ -1,0 +1,42 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class='text-slate-700'>Multiple inheritance</span>
+  </div>
+
+  <div class='rounded-2xl bg-white border p-5 shadow-sm border-[rgba(226,232,240,0.9)] h-full flex flex-col'>
+    <div class='text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2'>Process Flow</div>
+    <h3 class='text-2xl font-bold text-slate-900 mb-2'>Constructor & override order</h3>
+    <div class='flex gap-4 flex-1'>
+      <div class='w-1/2 flex flex-col gap-3'>
+        <div class='rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)] flex-1'>
+          <div class='text-sm font-semibold text-slate-800 mb-2'>Step-by-step</div>
+          <ol class='list-decimal list-inside text-sm text-slate-700 space-y-2'>
+            <li>List bases in the is clause: contract D is A, B { ... }</li>
+            <li>Compiler determines linearized order from most base to most derived.</li>
+            <li>Base constructors run first; derived runs last.</li>
+            <li>If base constructors require args, call them explicitly in the derived constructor.</li>
+            <li>When overriding functions from multiple bases, use override(BaseA, BaseB).</li>
+          </ol>
+        </div>
+
+        <div class='rounded-xl p-3 bg-amber-50 border border-[rgba(226,232,240,0.9)]'>
+          <div class='text-xs font-bold uppercase tracking-wider text-amber-800 mb-2'>Common mistake</div>
+          <div class='text-sm text-slate-800'>Neglecting to call a base constructor with required parameters leaves base state at defaults and causes subtle bugs or compilation errors.</div>
+        </div>
+      </div>
+
+      <div class='w-1/2 rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]'>
+        <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Example</div>
+        <pre class='text-sm text-slate-800'><code>contract BaseA { constructor(uint x) { /*...*/ } }
+contract BaseB { constructor(uint y) { /*...*/ } }
+contract Derived is BaseA, BaseB {
+  constructor(uint x, uint y) BaseA(x) BaseB(y) { }
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>

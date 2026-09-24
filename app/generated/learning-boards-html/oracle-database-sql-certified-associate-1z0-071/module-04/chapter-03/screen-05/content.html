@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Cartesian Product vs INNER JOIN</span>
+    </div>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <h3 class="text-2xl font-bold text-slate-800">Cross Join (Cartesian Product)</h3>
+      <p class="text-sm text-slate-600 mt-2">Every row from table A pairs with every row from table B. Often accidental and large.</p>
+      <div class="mt-4 p-4 rounded-xl bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example SQL</div>
+        <pre class="bg-slate-50 p-3 rounded text-sm code">-- Implicit Cartesian Product (avoid)
+SELECT e.employee_id, d.department_name
+FROM employees e, departments d;
+
+-- Explicit Cross Join
+SELECT e.employee_id, d.department_name
+FROM employees e CROSS JOIN departments d;</pre>
+      </div>
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="font-bold text-slate-700">Misconception</div>
+        <div class="text-sm text-slate-600 mt-1">Forgetting the ON clause will not be silently fixed by the engine. You will get a larger, usually wrong, result set.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <h3 class="text-2xl font-bold text-slate-800">INNER JOIN</h3>
+      <p class="text-sm text-slate-600 mt-2">Returns only rows where the join condition matches in both tables.</p>
+      <div class="mt-4 p-4 rounded-xl bg-white card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Example SQL</div>
+        <pre class="bg-slate-50 p-3 rounded text-sm code">-- Explicit Inner Join
+SELECT e.first_name, e.last_name, d.department_name
+FROM employees e INNER JOIN departments d
+ON e.department_id = d.department_id;</pre>
+      </div>
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="font-bold text-slate-700">Quick check</div>
+        <div class="text-sm text-slate-600 mt-1">If an employee's department_id is NULL or has no matching department, that employee will not appear in an inner join result.</div>
+      </div>
+    </div>
+  </div>
+</div>

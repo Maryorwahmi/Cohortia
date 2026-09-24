@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{border-radius:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}.mono{font-family:ui-monospace,Menlo,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">NON-EQUIJOIN</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-7/12 card p-4">
+      <div class="text-sm font-semibold text-slate-800">Salary grade example</div>
+      <div class="mono mt-3 p-3 bg-slate-50 rounded"><pre class="text-sm">SELECT e.first_name, e.last_name, e.salary, jg.grade_level
+FROM employees e
+JOIN job_grades jg
+  ON e.salary BETWEEN jg.min_salary AND jg.max_salary
+ORDER BY e.salary DESC;
+</pre></div>
+      <div class="mt-3 text-sm text-slate-700">This maps each salary to a grade range defined in the lookup table without needing CASE statements.</div>
+    </div>
+    <div class="w-5/12 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Important checks</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc pl-4">
+          <li>Validate that ranges in job_grades do not overlap.</li>
+          <li>Decide how to handle boundary values; BETWEEN includes both ends.</li>
+          <li>Test with edge salaries to confirm single matching grade.</li>
+        </ul>
+      </div>
+      <div class="card p-3 bg-rose-50 border-rose-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Common pitfall</div>
+        <div class="text-sm text-slate-700 mt-2">Overlapping ranges produce duplicate rows in the result; clean or prioritize ranges to ensure unique matches.</div>
+      </div>
+      <div class="card p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-2">Non-equi joins are cleaner than complex CASE logic for range matching, but require careful lookup-table design.</div>
+      </div>
+    </div>
+  </div>
+</div>

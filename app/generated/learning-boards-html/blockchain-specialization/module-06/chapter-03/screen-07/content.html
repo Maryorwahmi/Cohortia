@@ -1,0 +1,52 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">External Calls</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Call Semantics Comparison</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="rounded-md p-3 bg-white border card-border">
+          <div class="text-sm font-semibold">transfer / send</div>
+          <div class="text-sm text-slate-600 mt-1">Forward limited gas (2300). Can fail if recipient logic needs more gas; historically used to limit reentrancy surface.</div>
+        </div>
+        <div class="rounded-md p-3 bg-white border card-border">
+          <div class="text-sm font-semibold">call</div>
+          <div class="text-sm text-slate-600 mt-1">Forwards all available gas and returns (bool, data). Must check the boolean and handle failure paths explicitly.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-400">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Practical guideline</div>
+        <div class="text-sm text-slate-700 mt-1">Use call with a require(success) after updating state, or use pull patterns to avoid complex push logic.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl p-4 bg-white card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Concrete Example</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-md p-3 overflow-auto" style="min-height:220px;">
+        <pre class="text-sm">(bool success, ) = recipient.call{value: amount}("");
+require(success, "Transfer failed");
+
+// Prefer this after state is updated to follow CEI
+</pre>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-xl p-3 bg-emerald-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-xs text-slate-800 mt-1">Checking call success is non-negotiable; design push vs pull carefully.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-slate-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Misconception</div>
+          <div class="text-xs text-slate-700 mt-1">Assuming transfer always succeeds hides cases where recipient fallback requires more gas.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

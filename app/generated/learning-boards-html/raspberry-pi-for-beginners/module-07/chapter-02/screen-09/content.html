@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{background:#0f1724;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;overflow:auto;} .card{border-color:rgba(226,232,240,0.9)} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">Automating with cron</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border p-4 shadow-sm flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-xl font-bold text-slate-800">Safe automation pattern</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Create a small script that runs rsync and writes a timestamped log.</li>
+        <li>Include checks: ensure destination is mounted and has sufficient space.</li>
+        <li>Test the script manually, then add it to cron with an explicit schedule.</li>
+        <li>Monitor logs and test restores weekly.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-1">Use a log rotation policy or dated backup folders so old backups do not fill the destination.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border p-4 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Example cron entry (visual)</div>
+      <pre class="code mt-3"># Run backup script every night at midnight
+# 0 0 * * * /home/pi/bin/backup_rsync.sh >> /var/log/backup_rsync.log 2>&1</pre>
+      <div class="mt-3 text-xs text-slate-600">Make the script idempotent and safe: check mounts and return meaningful exit codes for monitoring.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white border p-3" style="border-color:rgba(226,232,240,0.9)">
+          <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+          <div class="text-xs text-slate-700 mt-2">Scheduling without testing or logging leads to silent failures. Always test and monitor logs or alerts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

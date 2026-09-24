@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{background:#0f172a;color:#e6eefb;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px;} .card-border{border:1px solid rgba(226,232,240,0.95);}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 h-full">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-2xl font-bold text-slate-900">BankAccount Example</div>
+      <div class="text-sm text-slate-600 mt-2">Private balance with validated deposit and withdraw preserves correctness.</div>
+
+      <div class="mt-4 rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800">Python example</div>
+        <pre class="mt-3">class BankAccount:
+    def __init__(self, initial_balance):
+        if initial_balance &lt; 0:
+            raise ValueError("Initial balance cannot be negative.")
+        self.__balance = initial_balance
+
+    def deposit(self, amount):
+        if amount &lt;= 0:
+            print("Deposit amount must be positive.")
+            return
+        self.__balance += amount
+
+    def withdraw(self, amount):
+        if amount &gt; 0 and self.__balance &gt;= amount:
+            self.__balance -= amount
+            return True
+        print("Invalid withdrawal or insufficient funds.")
+        return False
+
+    def get_balance(self):
+        return self.__balance</pre>
+
+        <div class="mt-3 text-sm text-slate-600">This design centralizes validation and makes the object's behavior predictable under test.</div>
+      </div>
+    </div>
+
+    <div class="w-5/12 h-full flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-700">Example Scenario</div>
+        <div class="mt-3 text-sm text-slate-600">An external module attempts to withdraw more than the balance. The withdraw method prevents the change and logs or returns failure, keeping state consistent.</div>
+
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-lg p-3 bg-amber-50 text-amber-700">Common mistake: Making balance public and relying on callers to behave.</div>
+          <div class="rounded-lg p-3 bg-emerald-50">Pro tip: Write tests that try invalid operations to ensure encapsulation holds.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

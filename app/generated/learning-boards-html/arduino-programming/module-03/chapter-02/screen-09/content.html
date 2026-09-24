@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Debounce with millis()</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border h-full">
+        <div class="text-lg font-bold text-slate-800">Key variables in the pattern</div>
+        <ul class="mt-3 text-sm text-slate-700 space-y-2">
+          <li>lastDebounceTime: timestamp of the last raw change.</li>
+          <li>debounceDelay: threshold in milliseconds to wait before accepting new state.</li>
+          <li>lastButtonState and buttonState: track raw and stable states.</li>
+        </ul>
+
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-600">Code excerpt</div>
+        <pre class="mono bg-slate-50 mt-2 p-3 rounded-lg card-border text-sm"><code>unsigned long lastDebounceTime = 0;
+const unsigned long debounceDelay = 50;
+int lastButtonState = HIGH;
+int buttonState = HIGH;
+
+void loop() {
+  int reading = digitalRead(2);
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();
+  }
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != buttonState) {
+      buttonState = reading;
+      if (buttonState == LOW) {
+        // button pressed
+      }
+    }
+  }
+  lastButtonState = reading;
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border h-full">
+        <div class="text-lg font-bold text-slate-800">Explanation cards</div>
+        <div class="mt-3 grid grid-cols-1 gap-3 text-sm text-slate-700">
+          <div class="p-3 rounded-lg bg-slate-50 card-border">
+            <div class="font-semibold">Why store lastButtonState?</div>
+            <div class="mt-1">It lets you detect a raw transition so you can start the debounce timer when the input first changes.</div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-slate-50 card-border">
+            <div class="font-semibold">Why compare elapsed time?</div>
+            <div class="mt-1">Comparing millis() to the saved timestamp ensures the reading is stable for the full debounce window before you act.</div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-emerald-50 card-border">
+            <div class="font-semibold">Key takeaway</div>
+            <div class="mt-1">This pattern filters transient changes while keeping the loop free for other work.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

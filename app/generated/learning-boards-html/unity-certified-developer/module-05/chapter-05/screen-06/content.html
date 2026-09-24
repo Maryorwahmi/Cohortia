@@ -1,0 +1,43 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <style>pre{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px} .card{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 rounded-2xl p-4 bg-white card shadow-sm overflow-hidden">
+      <div class="text-xs font-bold text-slate-700 mb-2">Example script</div>
+      <pre class="bg-slate-900 text-white rounded-lg p-3">// Sketch: MoveUIElement coroutine
+IEnumerator MoveUIElement(Vector3 currentPos, Vector3 targetPos, float duration)
+{
+  float timer = 0f;
+  while (timer &lt; duration)
+  {
+    timer += Time.deltaTime;
+    float progress = timer / duration;
+    float eased = 1f - Mathf.Pow(1f - progress, 2); // EaseOutQuad
+    targetRect.anchoredPosition = Vector3.Lerp(currentPos, targetPos, eased);
+    yield return null;
+  }
+  targetRect.anchoredPosition = targetPos;
+}
+</pre>
+      <div class="mt-3 text-sm text-slate-600">Stop conflicting animations with StopAllCoroutines or by tracking a running Coroutine reference to Stop it, then start the new one.</div>
+    </div>
+
+    <div class="flex-1 rounded-2xl p-4 bg-[#f8fafc] card">
+      <div class="text-sm font-bold text-slate-800">Pattern notes</div>
+      <ul class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>Compute progress = timer / duration and apply an easing function for natural motion.</li>
+        <li>Set final value explicitly after loop to avoid floating point drift.</li>
+        <li>Use CanvasGroup to fade and toggle interactability while animating.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border">
+        <div class="text-sm font-bold text-slate-800">Scenario</div>
+        <div class="text-sm text-slate-600 mt-1">Slide a settings panel in from the right over 0.75 seconds. If Open is called while closing, stop the close coroutine and start the open coroutine to avoid visual conflicts.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Coroutines provide readable, sequential animation logic and are ideal for panel control and interruptible sequences.</p>
+      </div>
+    </div>
+  </div>
+</div>

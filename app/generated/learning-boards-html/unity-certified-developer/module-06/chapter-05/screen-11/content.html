@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.editor{background:#0b1220;color:#dbeafe;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.5</span>
+      <span>›</span>
+      <span class="text-slate-700">BulletImpactController</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[72%]">
+      <div class="p-4 bg-white rounded-xl border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Controller pattern</div>
+        <div class="text-xl font-bold text-slate-900 mt-2">Instantiate, Play, Destroy</div>
+        <div class="text-sm text-slate-600 mt-3">Raycast on input, Instantiate a particle prefab at hit point, Play or Emit, then Destroy after main.duration plus the maximum start lifetime to ensure full playback and cleanup.</div>
+        <div class="mt-4 grid gap-2">
+          <div class="p-3 rounded-lg bg-white border border-slate-100">Inspector: assign the ImpactDust prefab field to the prefab from the Project window, not a scene instance.</div>
+          <div class="p-3 rounded-lg bg-rose-50 border border-slate-100">Common mistake: scheduling Destroy using hard-coded values instead of reading the system's main.duration and lifetime.</div>
+        </div>
+      </div>
+      <div class="p-4 rounded-xl bg-white border border-slate-100 flex flex-col">
+        <div class="font-bold text-slate-900">Starter code (concept)</div>
+        <pre class="editor mt-3 text-sm leading-5">// Conceptual snippet shown visually; use Inspector fields for prefabs.
+public ParticleSystem impactDustPrefab;
+
+void Update() {
+  if (Input.GetMouseButtonDown(0)) {
+    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+    if (Physics.Raycast(ray, out RaycastHit hit)) {
+      var ps = Instantiate(impactDustPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+      ps.Play();
+      Destroy(ps.gameObject, ps.main.duration + ps.main.startLifetime.constantMax);
+    }
+  }
+}</pre>
+        <div class="text-sm text-slate-600 mt-3">Use this pattern and then test clicking on the Ground plane. Verify sparks from the sub-emitter appear at impact points and the instantiated objects are removed after playback.</div>
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Instantiate and destroy particle prefabs safely by computing lifetimes from the particle system settings to avoid leaks and truncated effects.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

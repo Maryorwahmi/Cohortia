@@ -1,0 +1,69 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-[#ffffff]">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Document Converter Activity</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Hands-on Activity</div>
+    <div class="text-2xl font-bold text-slate-800 mt-2">Factory Method in a document converter</div>
+
+    <pre class="bg-slate-900 text-white p-3 rounded-lg overflow-auto text-sm mt-4" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Helvetica Neue', monospace;"># Product Interface
+class Converter:
+    def convert(self, content):
+        raise NotImplementedError
+
+# Concrete Products
+class PdfConverter(Converter):
+    def convert(self, content):
+        return f"Converting '{content}' to PDF format."
+
+class HtmlConverter(Converter):
+    def convert(self, content):
+        return f"Converting '{content}' to HTML format."
+
+# Abstract Creator
+class Document:
+    def create_converter(self) -> Converter:
+        raise NotImplementedError
+
+    def process_document(self, content):
+        converter = self.create_converter()
+        return converter.convert(content)
+
+# TODO: Implement TextDocument and ImageDocument
+class TextDocument(Document):
+    pass
+
+class ImageDocument(Document):
+    pass
+
+# --- Test ---
+if __name__ == "__main__":
+    text_doc = TextDocument()
+    print(text_doc.process_document("My important report"))
+
+    image_doc = ImageDocument()
+    print(image_doc.process_document("Vacation photo metadata"))</pre>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-lg p-3 bg-white card-border">
+        <div class="font-bold">Implementation hint</div>
+        <div class="text-sm text-slate-700 mt-1">TextDocument.create_converter should return PdfConverter(); ImageDocument.create_converter should return HtmlConverter().</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-amber-50">
+        <div class="font-bold">Common error</div>
+        <div class="text-sm text-slate-700 mt-1">Instantiating converters directly inside process_document instead of using the factory method breaks the pattern's intent.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-emerald-50">
+        <div class="font-bold">Expected output</div>
+        <div class="text-sm text-slate-700 mt-1">Converting 'My important report' to PDF format.\nConverting 'Vacation photo metadata' to HTML format.</div>
+      </div>
+    </div>
+  </div>
+</div>

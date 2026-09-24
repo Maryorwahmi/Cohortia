@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 p-4 card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Operators</div>
+      <div class="text-2xl font-bold text-slate-900">Not-equal and range operators</div>
+      <div class="text-sm text-slate-600 mt-2">Express exclusions and ranges with clear relational operators.</div>
+      <div class="mt-4">
+        <pre class="mono p-3 bg-slate-50 border rounded text-sm">-- Exclude department 90
+SELECT employee_id, first_name, department_id
+FROM employees
+WHERE department_id != 90;
+
+-- Salaries greater than 10000
+SELECT employee_id, salary
+FROM employees
+WHERE salary > 10000;</pre>
+      </div>
+      <div class="mt-3 grid grid-cols-1 gap-2">
+        <div class="p-2 rounded-md bg-amber-50 text-amber-700 text-xs">Use parentheses to clarify AND/OR precedence when combining conditions.</div>
+        <div class="p-2 rounded-md bg-rose-50 text-rose-700 text-xs">Common mistake: using != NULL - this will not match NULL values.</div>
+      </div>
+    </div>
+    <div class="w-1/2 p-4">
+      <div class="card h-full p-4">
+        <div class="text-sm font-semibold text-slate-800">Concrete example and pattern</div>
+        <pre class="mono mt-3 p-3 bg-slate-50 border rounded text-sm">-- High earners outside a department
+SELECT employee_id, first_name, salary, department_id
+FROM employees
+WHERE salary > 5000 AND department_id != 90;
+
+-- Use parentheses when logic gets complex
+WHERE (department_id = 10 OR department_id = 20) AND salary &gt;= 7000;</pre>
+        <div class="mt-3 text-sm text-slate-600">Parentheses make intent explicit and avoid accidental grouping by operator precedence.</div>
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Choose operators that clearly express inclusion or exclusion, and use parentheses to avoid logical errors.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

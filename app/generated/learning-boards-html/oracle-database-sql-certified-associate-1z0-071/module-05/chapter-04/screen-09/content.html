@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Performance choice</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 border" style="border-color: rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-700">When to refactor</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>If the inner computation is identical for many outer rows, compute it once in a grouped inline view.</li>
+        <li>Join the inline view to the outer table using the grouping key to compare per-row values.</li>
+        <li>Measure in your environment: data size, indexing, and optimizer behavior matter.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Inline view pattern</div>
+        <div class="text-sm text-slate-800">Compute department averages once and join to employees to avoid repeated AVG calls for each employee row.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-3 border code-panel" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-100">Inline view alternative</div>
+        <pre class="mt-2 text-sm">SELECT e.employee_id, e.first_name, e.last_name, e.salary, e.department_id
+FROM employees e
+JOIN (
+  SELECT department_id, AVG(salary) AS avg_dept_salary
+  FROM employees
+  GROUP BY department_id
+) d_avg
+ON e.department_id = d_avg.department_id
+WHERE e.salary &gt; d_avg.avg_dept_salary;
+</pre>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border" style="border-color: rgba(226,232,240,0.9)">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Misconception check</div>
+        <div class="text-sm text-slate-700 mt-1">Refactoring to an inline view usually reduces repeated work, but only benchmark in your environment to confirm actual gains.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-xl font-bold text-slate-900 mt-1">For loop example</div>
+      <div class="text-sm text-slate-600 mt-2">Sum an array using a for loop. Works for bounded arrays.</div>
+      <pre class="mono bg-slate-50 p-3 rounded-lg text-sm overflow-auto card-border mt-3"><code>function sumArray(uint[] memory _arr) public pure returns (uint) {
+    uint total = 0;
+    for (uint i = 0; i &lt; _arr.length; i++) {
+        total += _arr[i];
+    }
+    return total;
+}</code></pre>
+      <div class="mt-3 grid gap-2">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Why this matters</div>
+          <div class="text-sm text-slate-600 mt-1">Every iteration costs gas. Large arrays make calls expensive or impossible.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50 card-border">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Mitigation</div>
+          <div class="text-sm text-slate-800 mt-1">Use pagination: process a slice per transaction with start index and count parameters.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">While loop note</div>
+      <div class="text-sm text-slate-600 mt-2">A while loop executes while a condition remains true. It is less common for state-changing operations because ensuring termination is critical to avoid infinite gas consumption.</div>
+      <pre class="mono bg-slate-50 p-3 rounded-lg text-sm overflow-auto card-border mt-3"><code>function countdown(uint _start) public pure returns (uint) {
+    uint current = _start;
+    while (current &gt; 0) {
+        current--;
+    }
+    return current; // returns 0
+}</code></pre>
+      <div class="mt-3 rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Common mistake</div>
+        <div class="text-sm text-slate-600 mt-1">Iterating a dynamic, growing array in a public function. If the array gets large, the transaction can become unusable.</div>
+      </div>
+      <div class="mt-auto rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Plan loops with clear bounds and alternatives like chunking or off-chain aggregation to keep functions usable.</div>
+      </div>
+    </div>
+  </div>
+</div>

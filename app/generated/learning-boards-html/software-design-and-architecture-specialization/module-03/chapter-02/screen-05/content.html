@@ -1,0 +1,55 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Factory Method</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <div class="text-2xl font-bold text-slate-800 mt-2">Factory Method: intent and structure</div>
+      <div class="mt-3 text-sm text-slate-700">Declare a creation method and defer the instantiation to subclasses. Use when subclasses should determine the concrete product.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-800">
+          <div class="font-bold">Pattern parts</div>
+          <div class="text-sm mt-1 text-slate-700">Abstract Product, Concrete Products, Abstract Creator, Concrete Creators that override the factory method.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800">
+          <div class="font-bold">Misconception</div>
+          <div class="text-sm mt-1 text-slate-700">Don't substitute a static helper for true Factory Method; inheritance provides extensibility the static helper cannot.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+      <pre class="bg-slate-900 text-white p-3 rounded-lg overflow-auto text-sm mt-3" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Helvetica Neue', monospace;"># Abstract Product
+class Button:
+    def render(self):
+        raise NotImplementedError
+
+# Concrete Products
+class WindowsButton(Button):
+    def render(self):
+        return "Rendering a Windows button."
+
+class MacButton(Button):
+    def render(self):
+        return "Rendering a Mac button."
+
+# Abstract Creator
+class UIFactory:
+    def create_button(self):
+        raise NotImplementedError
+
+    def display_dialog(self):
+        button = self.create_button()
+        return f"Dialog with: {button.render()}"</pre>
+      <div class="mt-3 text-sm text-slate-700">The creator exposes display_dialog which uses the factory method. Concrete creators implement create_button to return platform-specific products.</div>
+    </div>
+  </div>
+</div>

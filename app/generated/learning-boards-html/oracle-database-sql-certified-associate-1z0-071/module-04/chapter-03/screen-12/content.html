@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Practice queries</span>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="p-4 bg-white rounded-2xl card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Starter Code (examples)</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm code">-- 1. Inner Join
+SELECT e.employee_id, e.first_name, e.last_name, d.department_name
+FROM employees e INNER JOIN departments d
+ON e.department_id = d.department_id;
+
+-- 2. Inner Join using USING
+SELECT e.first_name, e.last_name, d.department_name
+FROM employees e INNER JOIN departments d
+USING (department_id);
+
+-- 3. Left Join (all employees)
+SELECT e.first_name, e.last_name, d.department_name
+FROM employees e LEFT JOIN departments d
+ON e.department_id = d.department_id;</pre>
+    </div>
+    <div class="p-4 bg-white rounded-2xl card-border">
+      <pre class="bg-slate-50 p-3 rounded text-sm code">-- 4. Right Join (all departments)
+SELECT d.department_name, l.city
+FROM departments d RIGHT JOIN locations l
+ON d.location_id = l.location_id;
+
+-- 5. Full Join (all employees and departments)
+SELECT e.first_name, e.last_name, d.department_name, l.city
+FROM employees e FULL JOIN departments d
+ON e.department_id = d.department_id
+FULL JOIN locations l
+ON d.location_id = l.location_id;</pre>
+    </div>
+    <div class="col-span-2 mt-4 p-4 bg-slate-50 rounded-2xl card-border">
+      <div class="font-bold text-slate-800">What to check after running each query</div>
+      <ul class="text-sm text-slate-700 mt-2 space-y-2">
+        <li>Row counts: sudden multiplication likely means a Cartesian product.</li>
+        <li>NULLs: indicate missing matches. Decide if NULLs are acceptable for the report.</li>
+        <li>Filters: move predicates into JOIN clauses if they are intended to apply before preservation decisions.</li>
+      </ul>
+    </div>
+  </div>
+</div>
