@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Encoder Decoding</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border">
+      <div class="font-semibold text-slate-700">Verilog Snippet</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2;"><code>module quadrature_decoder (
+  input wire clk,
+  input wire a,
+  input wire b,
+  output reg signed [31:0] position
+);
+  reg a_prev, b_prev;
+  wire a_rising = a && !a_prev;
+
+  always @(posedge clk) begin
+    a_prev <= a;
+    b_prev <= b;
+    if (a_rising) begin
+      if (b)
+        position <= position + 1;
+      else
+        position <= position - 1;
+    end
+  end
+endmodule</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This example updates position on A rising edges and uses B to determine direction. Synchronize 'a' and 'b' into the 'clk' domain before this logic.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="font-semibold text-slate-700">Design Notes</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2 flex-1">
+        <li>Use double-register synchronization for asynchronous inputs.</li>
+        <li>Decide whether to count on both edges for higher resolution.</li>
+        <li>Test with synthetic A/B waveforms at worst-case encoder speed to confirm no missed edges.</li>
+      </ul>
+
+      <div class="mt-3">
+        <div class="rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-500">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+          <div class="text-xs text-slate-700">Failing to synchronize encoder signals can cause metastability and incorrect counts.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

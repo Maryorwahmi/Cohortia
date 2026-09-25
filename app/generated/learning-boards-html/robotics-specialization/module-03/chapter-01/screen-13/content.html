@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);} pre code{font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">MATLAB A* Experiment</span>
+  </div>
+
+  <div class="rounded-2xl card p-6 h-full flex gap-4">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xl font-bold text-slate-800">Experiment steps</div>
+      <div class="text-sm text-slate-600 mt-2">Code A*, visualize runs, and compare node counts against Dijkstra over multiple trials.</div>
+
+      <div class="mt-4 space-y-2 text-sm text-slate-700">
+        <div>• Create 50×50 grid, randomly place 20% obstacles for each trial.</div>
+        <div>• Implement A* with Euclidean heuristic and Dijkstra (heuristic = 0).</div>
+        <div>• Visualize obstacles, explored nodes, and final path for each algorithm and trial.</div>
+        <div>• Repeat 10 trials and compute average explored-node ratio between A* and Dijkstra.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Empirical measurement over random trials demonstrates practical benefits of a good heuristic and surfaces variance in planning difficulty.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-xl p-4 border bg-white flex-1">
+        <div class="text-sm font-bold text-slate-800">Starter pseudocode</div>
+        <pre class="mt-3"><code>function [path, explored] = astar(grid, start, goal, heuristic)
+  open = PriorityQueue();
+  open.insert(start, heuristic(start, goal));
+  g = containers.Map(); g(mat2str(start)) = 0;
+  parent = containers.Map();
+  explored = [];
+  while ~open.isEmpty()
+    current = open.pop();
+    explored(end+1,:) = current;
+    if isequal(current, goal)
+      path = reconstruct_path(parent, start, goal); return;
+    end
+    for nb = grid.neighbors(current)
+      tentative = g(mat2str(current)) + grid.cost(current, nb);
+      if ~g.isKey(mat2str(nb)) || tentative < g(mat2str(nb))
+        g(mat2str(nb)) = tentative;
+        f = tentative + heuristic(nb, goal);
+        open.insert(nb, f);
+        parent(mat2str(nb)) = current;
+      end
+    end
+  end
+  path = []; 
+end</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">Use a consistent random seed when debugging, but vary seeds across trials when measuring average behavior. Visualize explored nodes to build intuition about algorithmic differences.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

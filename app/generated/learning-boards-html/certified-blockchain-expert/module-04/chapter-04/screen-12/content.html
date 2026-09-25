@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 bg-white rounded-xl p-5 card-border overflow-hidden">
+      <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Code Walkthrough</div>
+      <h4 class="text-xl font-bold text-slate-800 mt-2">DealState.kt</h4>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm text-slate-800">package com.example.cordapp.states
+
+import com.example.cordapp.contracts.DealContract
+import net.corda.core.contracts.BelongsToContract
+import net.corda.core.contracts.ContractState
+import net.corda.core.identity.Party
+import net.corda.core.serialization.CordaSerializable
+
+@BelongsToContract(DealContract::class)
+@CordaSerializable
+data class DealState(
+  val dealId: String,
+  val value: Long,
+  val lender: Party,
+  val borrower: Party,
+  val status: String, // e.g., "PROPOSED", "ACCEPTED", "SETTLED"
+  override val participants: List<Party>
+) : ContractState {
+  override fun toString() = "DealState(dealId='$dealId', value=$value, lender=$lender, borrower=$borrower, status='$status')"
+}
+</pre>
+    </div>
+    <div class="w-1/2 bg-white rounded-xl p-5 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">What to inspect</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li><strong>participants:</strong> Controls who receives and can record the state; key to privacy.</li>
+        <li><strong>@BelongsToContract:</strong> Associates the state with DealContract so verify() runs when this state is used.</li>
+        <li><strong>status field:</strong> Drives allowed transitions in the contract logic.</li>
+        <li><strong>parties fields:</strong> lender and borrower are explicit for ownership and signature rules.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common misconception</div>
+          <p class="text-xs font-medium text-slate-800">Including a party in participants is not cosmetic: it gives them both visibility and potential signing responsibilities determined by contracts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

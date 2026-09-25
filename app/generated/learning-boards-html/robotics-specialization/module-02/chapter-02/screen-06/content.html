@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Altitude PD Controller</span>
+  </div>
+
+  <div class="flex-1 flex gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">MATLAB function</div>
+      <div class="text-sm text-slate-600 mt-2">This snippet returns total thrust including feedforward gravity and PD corrections.</div>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded-lg"><code>&lt;!-- Escaped MATLAB code --&gt;
+function u = altitude_controller(z, z_dot, z_des, Kp_z, Kd_z, m, g)
+    e_z = z_des - z;
+    u = m*g + Kp_z * e_z - Kd_z * z_dot;
+end
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Notes: the m*g term supplies hover thrust; Kp_z corrects altitude error; -Kd_z*z_dot damps vertical motion.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="bg-white rounded-2xl p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Concrete walkthrough</div>
+        <div class="text-sm text-slate-600 mt-2">If z_des=5 m and current z=4.8 m, e_z=0.2 m, Kp_z*e_z increases thrust to climb. If the vehicle is already moving upward, the -Kd_z*z_dot term subtracts thrust to prevent overshoot. The net thrust combines physics and corrections.</div>
+
+        <div class="mt-4 p-3 rounded-xl border card-border bg-amber-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Dropping the feedforward term forces the controller to hold hover via offset in Kp, making tuning and disturbance rejection harder.</div>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 rounded-xl p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Try this in sim</div>
+        <p class="text-xs font-medium text-slate-800">Run an ode45 simulation using this controller and compare responses with and without m*g in the control law. Observe steady offsets and required gain sizes.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

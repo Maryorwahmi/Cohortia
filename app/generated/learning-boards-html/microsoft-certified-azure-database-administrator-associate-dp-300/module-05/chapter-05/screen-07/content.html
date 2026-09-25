@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 rounded-2xl border border-[rgba(226,232,240,0.9)] bg-white p-5 shadow-sm">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Code Walkthrough</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">PITR Commands</div>
+      <div class="mt-4 text-sm text-slate-600">Example CLI commands used to restore a database to a specific timestamp. These create a new server or database as the restored target.</div>
+      <div class="mt-4 bg-slate-900 text-white rounded-lg p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code>az mysql flexible-server restore \
+  --resource-group MyResourceGroup \
+  --name MyRestoredMySQLServer \
+  --source-server MySourceMySQLServer \
+  --restore-point-in-time "2023-10-27T14:30:00Z" \
+  --no-wait
+
+az sql db restore \
+  --resource-group MyResourceGroup \
+  --server MySqlServer \
+  --name MyRestoredDb \
+  --from-database MySourceDb \
+  --from-server MySqlServer \
+  --restore-point-in-time "2023-10-27T14:30:00Z"
+</code></pre>
+      </div>
+    </div>
+    <div class="w-1/3 rounded-2xl border border-[rgba(226,232,240,0.9)] bg-white p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Walkthrough Notes</div>
+      <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+        <li>Capture the 'good' timestamp before the incident.</li>
+        <li>Restore to a new name and verify data before cutover.</li>
+        <li>Use --no-wait for asynchronous restores and monitor progress.</li>
+      </ul>
+      <div class="mt-auto p-3 rounded-lg bg-emerald-50 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-xs font-bold text-emerald-700">Validation Checklist</div>
+        <div class="text-sm text-slate-700 mt-2">Connect to restored DB, run SELECTs for affected tables, and confirm constraints and indexes are intact.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

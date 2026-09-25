@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Enable a VNet Service Endpoint</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card rounded-2xl p-5">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Steps</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-3">
+        <li><span class="font-medium">1.</span> Enable the service endpoint on the subnet for Microsoft.Sql (or relevant service).</li>
+        <li><span class="font-medium">2.</span> Create a VNet rule on the database server referencing the subnet resource ID.</li>
+        <li><span class="font-medium">3.</span> Test connectivity from a VM in the subnet and from an external client.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">CLI example</div>
+        <pre class="mt-2 text-sm text-slate-800 bg-slate-50 p-3 rounded-md" style="white-space:pre-wrap; tab-size:2"># Enable service endpoint for SQL on a subnet
+az network vnet subnet update --vnet-name MyVNet --name MySubnet --resource-group MyResourceGroup --service-endpoints Microsoft.Sql
+
+# Add VNet rule to Azure SQL Server
+az sql server vnet-rule create --name MyVNetRule --resource-group MyResourceGroup --server MySqlServer --subnet /subscriptions/&lt;subid&gt;/resourceGroups/MyResourceGroup/providers/Microsoft.Network/virtualNetworks/MyVNet/subnets/MySubnet</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="card rounded-2xl p-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Verification</div>
+        <div class="text-sm text-slate-700 mt-2">From a VM in the enabled subnet, connect to the database. From a machine outside the subnet and not in firewall allowlist, connection should fail. If it does not, re-check the subnet service endpoint status.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Pitfall</div>
+        <p class="text-xs font-medium text-slate-800">Adding a VNet rule to the server without enabling the service endpoint on the subnet will not route traffic over the backbone and can cause failed connections.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

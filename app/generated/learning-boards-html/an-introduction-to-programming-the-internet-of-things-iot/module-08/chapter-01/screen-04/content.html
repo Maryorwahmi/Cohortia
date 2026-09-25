@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}.chip{font-size:10px;font-weight:700}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Project Overview</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">System Requirements</div>
+      <ul class="mt-3 text-sm text-slate-700 flex-1 space-y-2">
+        <li><strong>Hardware:</strong> Arduino Uno + DHT22, LDR, relay; Raspberry Pi 4; DC fan via motor driver; LED lamp on relay.</li>
+        <li><strong>Sensing:</strong> Read every 5 seconds; compute 3-sample moving average for temp and humidity.</li>
+        <li><strong>Format:</strong> JSON serial: {"temp":25.5,"hum":60.2,"light":450}.</li>
+        <li><strong>Edge rules:</strong> Pi timestamps, stores in SQLite, applies user-configured thresholds to control fan and lamp.</li>
+        <li><strong>Uploads:</strong> Send to ThingSpeak every 2 minutes; buffer locally when offline.</li>
+      </ul>
+      <div class="mt-3">
+        <div class="rounded-md bg-slate-50 p-3 text-sm">Example acceptance test: With threshold 30°C, raise a heat source near the sensor until the Pi turns the fan on and ThingSpeak reports the temperature spike.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Data Schema & Timing</div>
+      <div class="mt-3 text-sm text-slate-700">Use a single-line JSON object for each sample. The Arduino is responsible for averaging and emitting samples every five seconds. The Pi must accept that schema and add an ISO timestamp before storage. Explicit timing avoids drift and mismatched expectations between devices.</div>
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-md bg-blue-50 p-3 text-sm text-blue-700">Why averaging matters: a three-sample moving average reduces sensor jitter, producing smoother charts and fewer false actuator triggers.</div>
+        <div class="rounded-md bg-amber-50 p-3 text-sm text-amber-700">Common pitfall: unspecified units or precision. Always document whether temperature is Celsius and whether light is raw ADC counts.</div>
+      </div>
+    </div>
+  </div>
+</div>

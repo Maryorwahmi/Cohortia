@@ -1,0 +1,35 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #ffffff;">
+  <style>.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2} .card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+    <div class="text-xl font-bold text-slate-800 mb-3">Enable statement instruments and consumers</div>
+    <div class="grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-white p-3 card-border mono">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Enable statement instruments</div>
+        <pre><code>UPDATE performance_schema.setup_instruments
+SET ENABLED = 'YES', TIMED = 'YES'
+WHERE NAME LIKE 'statement/%';</code></pre>
+      </div>
+      <div class="rounded-lg bg-white p-3 card-border mono">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Enable consumers</div>
+        <pre><code>UPDATE performance_schema.setup_consumers
+SET ENABLED = 'YES'
+WHERE NAME IN (
+  'events_statements_current',
+  'events_statements_history',
+  'events_statements_history_long'
+);</code></pre>
+      </div>
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-3">
+      <div class="rounded-lg bg-emerald-50 p-3">
+        <div class="text-sm font-semibold text-emerald-700">Validation</div>
+        <div class="text-sm text-slate-700 mt-2">Run a slow query in another session and then query events_statements_history to confirm the event appears with timer_wait.</div>
+      </div>
+      <div class="rounded-lg bg-rose-50 p-3">
+        <div class="text-sm font-semibold text-rose-700">Pitfall</div>
+        <div class="text-sm text-slate-700 mt-2">Avoid enabling wide patterns without a plan; large history buffers can increase memory usage and overhead.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

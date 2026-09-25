@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Definition</span>
+      <span class="text-slate-700">ESP8266 HTTP client</span>
+    </div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card border shadow-sm overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800">Code (ESP8266)</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 text-sm" style="white-space:pre-wrap; tab-size:2;"><code>#include &lt;ESP8266WiFi.h&gt;
+#include &lt;ESP8266HTTPClient.h&gt;
+
+const char* ssid = "YourNetwork";
+const char* password = "YourPassword";
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("WiFi connected");
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClient client;
+    HTTPClient http;
+    http.begin(client, "http://api.thingspeak.com/update?api_key=YOURKEY&field1=25.5");
+    int httpCode = http.GET();
+    Serial.println(httpCode);
+    http.end();
+  }
+  delay(60000);  // Send every minute
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-3 list-disc ml-5 text-sm text-slate-600">
+        <li>Use WiFi.begin with SSID and password and wait for WL_CONNECTED.</li>
+        <li>Create an HTTPClient, call begin with the URL, then GET and inspect the returned code.</li>
+        <li>Always call http.end to free resources and respect delays between sends to avoid rate limits.</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">Concrete example</div>
+      <div class="text-sm text-slate-600 mt-2">Sending a GET to ThingSpeak with your channel key stores a value that appears on a real‑time graph on the ThingSpeak dashboard once the channel receives it.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Troubleshooting tip</div>
+          <p class="text-xs font-medium text-slate-800">If Wi‑Fi connection fails, check the SSID, password, and signal strength; ensure the router allows new devices and is not blocking traffic.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,30 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code{white-space:pre-wrap; tab-size:2;} .card-border{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity: Initialize a Replica from a Source with mysqldump</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-5 card-border">
+      <div class="text-sm font-bold text-slate-800">Scenario</div>
+      <div class="text-sm text-slate-600 mt-2">Source: 192.168.1.100, Replica: 192.168.1.101. Assume source has log_bin and server_id=1 and a replication user exists.</div>
+
+      <div class="mt-4 text-sm font-bold text-slate-800">Step 1 — Dump on source</div>
+      <pre class="mt-2 p-3 rounded-md bg-slate-50 mono"><code>mysqldump -u root -p --all-databases --single-transaction --flush-logs --master-data=2 > /tmp/full_backup.sql</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Open /tmp/full_backup.sql and extract the commented CHANGE REPLICATION SOURCE TO line to get SOURCE_LOG_FILE and SOURCE_LOG_POS.</div>
+    </div>
+
+    <div class="bg-white rounded-xl p-5 card-border">
+      <div class="text-sm font-bold text-slate-800">Step 2 — Import and configure replica</div>
+      <div class="mt-2 text-sm text-slate-600">Transfer the dump to the replica and import:</div>
+      <pre class="mt-2 p-3 rounded-md bg-slate-50 mono"><code>mysql -u root -p < /path/to/full_backup.sql</code></pre>
+
+      <div class="mt-3 text-sm text-slate-600">Construct CHANGE REPLICATION SOURCE TO using the extracted SOURCE_LOG_FILE and SOURCE_LOG_POS, then START REPLICA and run SHOW REPLICA STATUS to confirm success.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

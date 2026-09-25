@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+      <span>›</span>
+      <span>Chapter 7.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Flip-Flop Timing</span>
+    </div>
+
+    <div class="flex gap-4 h-[62%]">
+      <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+        <div class="font-bold text-slate-800">Terms defined</div>
+        <ul class="text-sm text-slate-600 mt-3 list-disc list-inside">
+          <li><strong>T_co</strong>: clock-to-Q delay; time until output is stable after the clock edge.</li>
+          <li><strong>T_setup</strong>: data must be stable this long before the capture edge.</li>
+          <li><strong>Hold time</strong>: data must remain stable after the edge to be captured correctly.</li>
+        </ul>
+
+        <div class="mt-4 text-sm text-slate-600">Example numbers commonly used in illustrations: T_co ≈ 0.2 ns, T_setup ≈ 0.1 ns. These are not zero and contribute to the required clock period.</div>
+      </div>
+
+      <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+        <div class="font-bold text-slate-800">Concrete scenario</div>
+        <div class="text-sm text-slate-600 mt-2">If a launching flip-flop has T_co of 0.2 ns and the path through logic takes 6 ns, and the receiving register needs 0.1 ns setup, the required time without skew is 6.3 ns. If you target 10 ns clock period, slack is 3.7 ns.</div>
+
+        <div class="mt-4">
+          <div class="font-semibold text-xs uppercase tracking-wider text-slate-500 mb-1">Common pitfall</div>
+          <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-rose-700 mb-1">Hold violation</div>
+            <p class="text-sm font-medium text-slate-800">Do not assume hold violations can't happen. They can occur with small routing delay or negative skew; inspect hold checks if you see unstable capturing behavior.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3 h-28">
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="font-bold text-slate-800">Pro tip</div>
+        <div class="text-sm text-slate-600 mt-1">When pipelining, add registers where T_logic dominates to reduce stage delay and increase f_max.</div>
+      </div>
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="font-bold text-slate-800">Why it matters</div>
+        <div class="text-sm text-slate-600 mt-1">Small timing parameters limit top-end clock frequency; they compound with logic delays on each path.</div>
+      </div>
+      <div class="rounded-xl bg-white p-3 card-border">
+        <div class="font-bold text-slate-800">Check</div>
+        <div class="text-sm text-slate-600 mt-1">Always include vendor flip-flop timing in STA runs; don't assume idealized zero delays.</div>
+      </div>
+    </div>
+  </div>
+</div>

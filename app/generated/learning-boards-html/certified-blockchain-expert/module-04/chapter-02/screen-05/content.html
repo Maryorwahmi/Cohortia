@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">Execute-Order-Validate</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 rounded-xl card-border bg-white p-4 flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Steps</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-2">
+        <li><span class="font-semibold">Execute (simulate)</span>: Endorsing peers run chaincode and return signed responses without committing.</li>
+        <li><span class="font-semibold">Order</span>: The ordering service sequences transactions into blocks; it does not inspect endorsements.</li>
+        <li><span class="font-semibold">Validate & Commit</span>: Committers verify endorsements and read-write conflicts then append valid transactions.</li>
+      </ol>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always collect endorsements per policy before ordering; otherwise transactions will be invalid at commit.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-3/5 rounded-xl card-border bg-white p-4 h-full">
+      <div class="text-sm font-bold text-slate-900">Annotated Example</div>
+      <div class="mt-3 grid grid-cols-3 gap-2 h-full">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-800 flex flex-col">
+          <div class="font-bold">Client</div>
+          <div class="text-xs mt-2">Sends proposal and gathers endorsements.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50 text-violet-800 flex flex-col">
+          <div class="font-bold">Endorsers</div>
+          <div class="text-xs mt-2">Simulate chaincode and sign proposal responses.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-800 flex flex-col">
+          <div class="font-bold">Orderer</div>
+          <div class="text-xs mt-2">Orders transactions into blocks and broadcasts them.</div>
+        </div>
+        <div class="col-span-3 mt-2 p-3 rounded-lg bg-white card-border">
+          <div class="text-sm font-semibold">Validation Notes</div>
+          <ul class="text-sm text-slate-600 mt-2 space-y-1">
+            <li>Endorsement policy is checked when the block is validated.</li>
+            <li>Read-write conflict check ensures state hasn't changed since simulation.</li>
+            <li>Invalid transactions stay on the ledger but marked so for auditability.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

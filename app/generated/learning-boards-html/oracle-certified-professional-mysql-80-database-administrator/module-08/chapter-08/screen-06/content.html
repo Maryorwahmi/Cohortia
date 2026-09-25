@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">OS Tools Comparison</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <!-- Left: Tool cards -->
+    <div class="flex flex-col gap-3">
+      <div class="rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4">
+        <div class="text-sm font-bold text-slate-700 mb-2">Quick Reference</div>
+        <div class="grid gap-3">
+          <div class="p-3 rounded bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold text-slate-600">top / htop</div>
+            <div class="text-sm text-slate-700 mt-1">Monitor CPU, memory, process-level load. Check mysqld CPU and swap usage.</div>
+          </div>
+          <div class="p-3 rounded bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold text-slate-600">iostat</div>
+            <div class="text-sm text-slate-700 mt-1">Device I/O stats. Prioritize %util and await to identify disk contention.</div>
+          </div>
+          <div class="p-3 rounded bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold text-slate-600">vmstat</div>
+            <div class="text-sm text-slate-700 mt-1">Memory, paging, and CPU wait metrics. Useful for spotting memory pressure and wa time.</div>
+          </div>
+          <div class="p-3 rounded bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold text-slate-600">strace</div>
+            <div class="text-sm text-slate-700 mt-1">Trace syscalls. Powerful but high overhead; avoid on busy production unless on a replica or during a short capture.</div>
+          </div>
+          <div class="p-3 rounded bg-white border border-[rgba(226,232,240,0.9)]">
+            <div class="text-xs font-bold text-slate-600">tcpdump</div>
+            <div class="text-sm text-slate-700 mt-1">Capture network packets to diagnose connectivity or protocol issues between app and DB.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Concrete Command Examples</div>
+        <div class="text-sm text-slate-700">iostat -x 1 10  # extended stats every 1 second, 10 samples</div>
+        <div class="text-sm text-slate-700 mt-1">strace -p &lt;mysqld_pid&gt; -o /tmp/mysql_strace.log  # use with extreme caution</div>
+      </div>
+    </div>
+
+    <!-- Right: Diagnostic workflow and example -->
+    <div class="flex flex-col gap-3">
+      <div class="rounded-2xl border border-[rgba(226,232,240,0.9)] bg-white p-4 flex-1">
+        <div class="text-sm font-bold text-slate-700 mb-2">Diagnostic Workflow</div>
+        <ol class="list-decimal ml-5 text-sm text-slate-700 space-y-2">
+          <li>Confirm symptom in MySQL (slow queries, high Threads_running).</li>
+          <li>Start iostat and vmstat to capture device and memory behavior.</li>
+          <li>Run the heavy query and watch for spikes in %util, await, and wa.</li>
+          <li>If syscall waits look suspicious, consider a short strace on a test host; do not run long traces on production masters.</li>
+        </ol>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-xl p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro Tip</div>
+          <div class="text-sm text-slate-700 mt-2">Capture OS data for the same period you run EXPLAIN ANALYZE so you can correlate operator timing with I/O spikes.</div>
+        </div>
+        <div class="rounded-xl p-3 bg-rose-50 border border-[rgba(239,102,117,0.06)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Safety Warning</div>
+          <div class="text-sm text-slate-700 mt-2">strace can add significant overhead. Use it on replicas or during brief windows and prefer non-intrusive OS metrics in production.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

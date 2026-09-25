@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border">
+      <div class="text-sm font-bold text-slate-800">Checklist</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Install ProxySQL on a Linux VM and open client port.</li>
+        <li>Connect to admin interface on port 6032.</li>
+        <li>Add mysql_users and mysql_servers, load to runtime and save.</li>
+        <li>Create SELECT and catch-all query rules; test with a client.</li>
+        <li>Verify with stats tables and simulate failover in staging.</li>
+      </ol>
+    </div>
+    <div class="flex-1 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Starter commands</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-md text-sm overflow-auto" style="white-space:pre-wrap;tab-size:2"><code>-- Connect to admin
+mysql -u admin -padmin -h 127.0.0.1 -P 6032
+-- Add user
+INSERT INTO mysql_users (username, password, default_hostgroup) VALUES ('app_user', 'app_password', 10);
+LOAD MYSQL USERS TO RUNTIME; SAVE MYSQL USERS TO DISK;
+-- Add servers
+INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight) VALUES (10, '192.168.1.10', 3306, 100);
+INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight) VALUES (20, '192.168.1.11', 3306, 100);
+LOAD MYSQL SERVERS TO RUNTIME; SAVE MYSQL SERVERS TO DISK;</code></pre>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs text-slate-800">Follow the checklist and verify each step with runtime stats before saving to disk and promoting to production.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

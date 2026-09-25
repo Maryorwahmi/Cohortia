@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre.code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;tab-size:2;white-space:pre-wrap;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Mini Post‑Mortem: Real‑time Chat Launch</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-7/12 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Incident Facts</div>
+      <div class="text-lg font-bold text-slate-800 mb-2">What happened, with evidence</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li><strong>Deployment:</strong> Took twice as long due to environment config mismatches.</li>
+        <li><strong>Bug impact:</strong> Messages failed to send for ~10% of users; hotfix required.</li>
+        <li><strong>Support:</strong> Ticket surge overwhelmed rotation leads for 6 hours.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Immediate actions (example)</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-amber-50 p-3">
+            <div class="text-sm font-bold text-amber-700">Pre-deploy checklist</div>
+            <div class="text-xs text-slate-800 mt-1">Owner: DevOps — due: next sprint</div>
+          </div>
+          <div class="rounded-lg bg-emerald-50 p-3">
+            <div class="text-sm font-bold text-emerald-700">Monitoring + runbook</div>
+            <div class="text-xs text-slate-800 mt-1">Owner: SRE — target MTTR &lt; 1 hour</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Mini playbook excerpt</div>
+        <pre class="code"># Example verification check (illustrative)
+# Verify that staging and production config hashes match
+verify_config_hash --env=staging
+verify_config_hash --env=production
+if hashes_differ: abort_deploy_and_notify()</pre>
+      </div>
+    </div>
+
+    <div class="w-5/12 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Root Causes</div>
+      <div class="text-sm text-slate-700 space-y-2">
+        <div><strong>Cause pattern:</strong> Environment validation gaps plus missing runbooks for support.</div>
+        <div><strong>Misconception:</strong> Believing that a successful staging deploy guarantees production parity; in reality, small config differences can break behavior.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Follow-up plan</div>
+        <ol class="text-sm text-slate-700 list-decimal ml-4 space-y-2">
+          <li>Implement checklist and automate a config hash comparison before deploys.</li>
+          <li>Create support runbook and train rotation; simulate an incident once this sprint.</li>
+          <li>Review results in a two-week follow-up meeting to measure ticket volume and deployment time.</li>
+        </ol>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Document facts, choose a few measurable actions, assign owners, and schedule a review to close the learning loop.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

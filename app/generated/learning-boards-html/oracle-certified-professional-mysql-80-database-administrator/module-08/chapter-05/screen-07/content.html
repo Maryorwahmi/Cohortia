@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Error 1032 — Can't find record</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl border p-4 border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-800">Cause and implications</div>
+      <p class="text-sm text-slate-600 mt-2">Slave tried to modify a row that does not exist locally. The master had the row at execution time. This indicates earlier divergence or missing transactions on the slave.</p>
+
+      <div class="mt-4 text-sm">
+        <div class="rounded-lg bg-slate-50 p-3 border">
+          <div class="text-[11px] font-bold text-slate-700">Resolution (immediate)</div>
+          <pre class="mt-2 text-xs bg-white p-2 rounded border"><code>STOP SLAVE;
+SET GLOBAL sql_slave_skip_counter = 1;
+START SLAVE;
+SHOW SLAVE STATUS\G</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border p-4 border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Investigate before skipping</div>
+      <div class="text-sm text-slate-600 mt-2">Capture the failed DELETE/UPDATE statement and check if the missing row is required by your application. If it is, avoid skipping and perform a resync.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-amber-50 p-3 border border-[rgba(245,166,35,0.08)]">
+          <div class="text-[11px] font-bold text-amber-700">When to resync</div>
+          <div class="text-sm text-slate-600 mt-2">When the missing row affects correctness, restore a fresh dataset from the master and use CHANGE MASTER TO to set the correct file and position before restarting replication.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Error 1032 is a clear indicator of prior divergence. Skipping is a workaround, not a substitution for restoring correct data when correctness matters.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

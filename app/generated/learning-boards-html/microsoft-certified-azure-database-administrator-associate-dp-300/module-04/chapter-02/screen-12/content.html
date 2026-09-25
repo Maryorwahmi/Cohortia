@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex flex-col h-full gap-4">
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Hands-on Activity</div>
+      <h3 class="text-xl font-bold text-slate-900">Analyze Query Store Data</h3>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div>
+          <div class="text-sm text-slate-700">Steps:</div>
+          <ol class="list-decimal pl-5 text-sm text-slate-600 mt-2 space-y-2">
+            <li>Enable Query Store on a non-production copy.</li>
+            <li>Run representative workload to populate Query Store.</li>
+            <li>Use SSMS report or run the Query Store DMV query to find top consumers.</li>
+            <li>Inspect plans for top queries and test a remediation in staging.</li>
+            <li>Measure before/after and document the result.</li>
+          </ol>
+        </div>
+        <div>
+          <div class="text-sm text-slate-700">Sample workload snippets to run:</div>
+          <pre class="bg-slate-800 text-white rounded-md p-3 font-mono text-sm mt-2" style="white-space:pre-wrap; tab-size:2;">
+SELECT * FROM sys.objects ORDER BY name;
+SELECT COUNT(*) FROM sys.columns;
+WAITFOR DELAY '00:00:05'; -- simulate long-running query
+SELECT TOP 10 * FROM sys.messages ORDER BY message_id DESC;
+          </pre>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-xs font-semibold text-slate-700">Validation</div>
+      <div class="text-sm text-slate-600 mt-2">Capture key metrics such as CPU time, logical reads, and execution count for the target query before and after your change. Confirm the change benefits the targeted workload and does not introduce regressions.</div>
+      <div class="mt-3 p-3 rounded-lg bg-white card-border">
+        <div class="text-xs font-semibold text-slate-700">Safety Note</div>
+        <div class="text-sm text-slate-600 mt-1">Some DMV queries can be heavy on busy systems; avoid running large cross-database joins in production and always prefer targeted diagnostics.</div>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">This activity turns recorded Query Store data into validated fixes; test everything under representative load before production changes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Definition</div>
+      <div class="text-lg font-bold text-slate-800 mt-2">Dynamic Data Masking</div>
+      <div class="text-sm text-slate-600 mt-2">Mask column output for non-privileged users without changing stored data.</div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        Mask types include default, email, partial, and random. Grant the UNMASK permission to administrators who must see full values.
+      </div>
+
+      <div class="mt-4">
+        <pre class="bg-slate-900 text-white p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+ALTER TABLE Customers
+ALTER COLUMN EmailAddress ADD MASKED WITH (FUNCTION = 'email()');
+
+ALTER TABLE Customers
+ALTER COLUMN CreditCardNumber ADD MASKED WITH (FUNCTION = 'partial(0,"XXXX-XXXX-XXXX-",4)');
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">When to use</div>
+      <ul class="list-disc list-inside text-sm text-slate-600 mt-2 space-y-1">
+        <li>Protect data in support or analyst views.</li>
+        <li>Meet compliance requirements for casual access.</li>
+        <li>Combine with role checks so only specific accounts have UNMASK.</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">Misconception</div>
+      <div class="text-sm text-slate-600 mt-2">Masking is not encryption. It reduces visible exposure but does not make data unreadable to privileged accounts.</div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use DDM to minimize accidental exposure, and pair it with permissions and encryption where appropriate.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9)} pre.code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, monospace}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+      <span>›</span>
+      <span>Chapter 4.5</span>
+      <span>›</span>
+      <span class="text-slate-700">States: ContractState explained</span>
+    </div>
+    <div class="flex gap-6 h-[calc(100%-40px)]">
+      <div class="w-1/2 bg-white rounded-2xl p-5 card h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Definition</div>
+        <div class="text-sm text-slate-600 mt-2">A ContractState records a fact; it is immutable and includes a participants list that determines distribution and signing rights.</div>
+        <div class="mt-4 flex-1">
+          <div class="text-sm font-semibold text-slate-700 mb-2">Explanation bullets</div>
+          <ul class="text-sm text-slate-600 space-y-2">
+            <li>Immutable snapshot: updates create new output states while inputs are consumed.</li>
+            <li>Participants list defines who receives the transaction and can sign—missing participants cause distribution issues.</li>
+            <li>States are linked to a governing contract via @BelongsToContract for verification.</li>
+          </ul>
+        </div>
+        <div class="mt-4">
+          <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Design states as immutable facts; list every party that must see or sign the data.</p>
+          </div>
+        </div>
+      </div>
+      <div class="w-1/2 h-full bg-white rounded-2xl p-5 card flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+        <div class="mt-3 text-sm text-slate-600">DealState models a loan-like agreement. It includes dealId, value, lender, borrower, status, and participants. The participants list includes lender and borrower so both receive related transactions.</div>
+        <pre class="code mt-4">// fields shown for clarity
+data class DealState(
+  val dealId: String,
+  val value: Long,
+  val lender: Party,
+  val borrower: Party,
+  val status: String,
+  override val participants: List&lt;Party&gt;
+) : ContractState</pre>
+        <div class="mt-3 text-sm text-slate-600">Misconception: States are not mutable records. Changing status requires a transaction that consumes the old state and creates a new one.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

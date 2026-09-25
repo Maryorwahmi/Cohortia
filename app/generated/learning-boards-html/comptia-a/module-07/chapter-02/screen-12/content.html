@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Correlation Rules Lab</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="font-bold">Rule 1: Credential stuffing → Account takeover → Data access</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded font-mono text-sm" style="white-space:pre-wrap;tab-size:2;">
+<code>// Stage 1: Multiple Failed Logins
+IF Okta_Event.Type = "Login_Failure"
+AGGREGATE COUNT BY Okta_Event.Source_IP
+WHERE COUNT > 10 WITHIN 5 minutes
+THEN FLAG_IP_AS_SUSPICIOUS(Source_IP)
+
+// Stage 2: Successful Login from Suspicious IP
+IF Okta_Event.Type = "Login_Success" AND Okta_Event.Source_IP IN SUSPICIOUS
+THEN SET CONTEXT(User_ID, Source_IP)
+
+// Stage 3: Sensitive Data Access After Suspicious Login
+IF PostgreSQL.Type = "Query_Execution" AND Query LIKE "%FROM customers%" AND PostgreSQL.Source_User = CONTEXT.User_ID
+AND WITHIN 2 minutes OF Context
+THEN GENERATE_CRITICAL_ALERT("Account Takeover & Data Access")</code></pre>
+    </div>
+    <div class="bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="font-bold">Rule 2: Web exploit → process spawn → compromise</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded font-mono text-sm" style="white-space:pre-wrap;tab-size:2;"><code>// Stage 1: Web Attack Attempt
+IF Nginx.Request_URI CONTAINS "UNION SELECT" OR "etc/passwd" OR "cmd.exe"
+AND Nginx.Response_Code = 200
+THEN FLAG_WEB_ATTACK(Source_IP, Request_URI)
+
+// Stage 2: Suspicious Process Creation
+IF Syslog.Event = "Process_Creation" AND Process_Name IN ("nc","bash","python")
+AND Parent_Process = "nginx" AND Syslog.Source_IP IN FLAGGED_WEB_ATTACK
+AND WITHIN 5 minutes
+THEN GENERATE_CRITICAL_ALERT("Web Compromise & Shell Spawn")</code></pre>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Write multi-stage rules with context variables and time windows, and enrich inputs so you can prioritize and validate alerts accurately.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

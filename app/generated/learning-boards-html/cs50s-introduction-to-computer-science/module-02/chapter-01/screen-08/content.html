@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.step{border-radius:10px;padding:12px;border:1px solid rgba(226,232,240,0.9);background:#fff}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.1</span>
+    <span>›</span>
+    <span class="text-slate-700">malloc, calloc &amp; realloc</span>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 h-full">
+    <div class="col-span-2 flex flex-col gap-3">
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Step 1: Request memory</div>
+        <div class="text-xs text-slate-700 mt-2">Use malloc(bytes) or calloc(count, size). For example: int *arr = (int *) malloc(n * sizeof(int));</div>
+      </div>
+
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Step 2: Check the result</div>
+        <div class="text-xs text-slate-700 mt-2">If the pointer is NULL, handle the error. Never assume allocation succeeded.</div>
+      </div>
+
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Step 3: Use &amp; resize</div>
+        <div class="text-xs text-slate-700 mt-2">Populate memory and use realloc when you need a new size. Use a temporary pointer with realloc to avoid losing the original on failure.</div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="step">
+        <div class="text-sm font-bold text-slate-800">Concrete code pattern</div>
+        <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#f8fafc;padding:10px;border-radius:8px">int *a = (int *) malloc(n * sizeof(int));
+if (a == NULL) { /* handle error */ }
+
+// later
+int *tmp = (int *) realloc(a, new_n * sizeof(int));
+if (tmp == NULL) { /* handle error, a still valid */ }
+else { a = tmp; }</pre>
+      </div>
+
+      <div class="step">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Assigning realloc result directly to the original pointer without checking can lose the only reference to allocated memory on failure, causing a leak.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:12px;border-radius:8px;background:#0f172a;color:#e6eef8}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Leaky Scene Example and Fix</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex gap-4">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Starter code (leaky)</div>
+      <pre><code>// LeakyManager.cs
+using UnityEngine;
+using System.Collections.Generic;
+
+public class LeakyManager : MonoBehaviour
+{
+  public GameObject leakyPrefab;
+  private List<GameObject> _leakedObjects = new List<GameObject>();
+  private List<string> _leakedStrings = new List<string>();
+
+  void Update()
+  {
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+      GameObject newObj = Instantiate(leakyPrefab, transform.position, Quaternion.identity);
+      _leakedObjects.Add(newObj);
+      _leakedStrings.Add("Leaked String " + Time.frameCount);
+    }
+
+    if (Input.GetKeyDown(KeyCode.Return))
+    {
+      Resources.UnloadUnusedAssets();
+    }
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Fixed pattern</div>
+      <pre><code>// Fixed example
+void OnUserTriggerUnload()
+{
+  foreach (GameObject obj in _leakedObjects)
+  {
+    Destroy(obj);
+  }
+  _leakedObjects.Clear();
+  _leakedStrings.Clear();
+  Resources.UnloadUnusedAssets();
+}
+</code></pre>
+
+      <div class="mt-3 rounded-lg bg-emerald-50 p-3">
+        <div class="text-sm font-semibold text-emerald-700">Concrete result</div>
+        <div class="text-sm text-slate-700 mt-2">After clearing references and destroying objects, snapshots show reduced managed counts and smaller retained sizes for related assets.</div>
+      </div>
+
+      <div class="mt-3 rounded-lg bg-rose-50 p-3">
+        <div class="text-sm font-semibold text-rose-700">Misconception</div>
+        <div class="text-sm text-slate-700 mt-2">Destroying objects without clearing the lists that reference them prevents GC from reclaiming memory; both steps are required.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

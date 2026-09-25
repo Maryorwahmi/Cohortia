@@ -1,0 +1,79 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>pre{white-space:pre-wrap;tab-size:2;background:#0f172a;color:#e6eef8;border-radius:.5rem;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.5</span>
+    <span>›</span>
+    <span class="text-slate-700">PoS validator selection — conceptual code</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-[11px] uppercase tracking-wider text-slate-500">Process</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Stake-weighted selection</h3>
+      <p class="text-sm text-slate-600 mt-2">This simplified example shows how stake affects selection probability. It’s a teaching model, not production code.</p>
+
+      <div class="mt-4 rounded-lg bg-white p-4 border border-slate-100 shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Explanation bullets</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-2">
+          <li>Calculate total stake to handle empty or zero-stake edge cases.</li>
+          <li>Build a weighted structure that reflects proportional chances.</li>
+          <li>Randomly select one entry; over many rounds selection frequency mirrors stake proportions.</li>
+          <li>Production systems replace this with cryptographic randomness and efficient sampling.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-amber-50">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Concrete example</div>
+          <p class="text-sm text-slate-700 mt-1">Alice:100, Bob:50, Carol:25 — Alice appears most often and will propose blocks more frequently across many rounds.</p>
+        </div>
+        <div class="rounded-lg p-3 bg-white border border-slate-100">
+          <div class="text-[10px] uppercase tracking-wider text-rose-600 font-bold">Common mistake</div>
+          <p class="text-sm text-slate-700 mt-1">Treating this list-based method as production-ready; it is inefficient and predictable without cryptographic randomness.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white p-4 border card-border shadow-sm h-full flex flex-col">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Code walkthrough (conceptual)</div>
+        <pre class="mt-3"><code>import random
+
+def select_pos_validator(staked_amounts):
+  """Simulates selecting a PoS validator based on staked amounts.
+
+  Args:
+    staked_amounts (dict): keys are validator IDs, values are stake amounts.
+  Returns:
+    str: selected validator ID or None
+  """
+  if not staked_amounts:
+    return None
+
+  total_stake = sum(staked_amounts.values())
+  if total_stake == 0:
+    return None
+
+  weighted_validators = []
+  for validator, stake in staked_amounts.items():
+    weighted_validators.extend([validator] * stake)
+
+  selected_validator = random.choice(weighted_validators)
+  return selected_validator
+
+# Example usage
+validator_stakes = {
+  "Validator_Alice": 100,
+  "Validator_Bob": 50,
+  "Validator_Carol": 25
+}
+for _ in range(10):
+  print(select_pos_validator(validator_stakes))</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">Note: &lt; and &gt; characters are escaped if shown in some renderers. Production systems use verifiable randomness and weight-aware data structures instead of naive lists.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

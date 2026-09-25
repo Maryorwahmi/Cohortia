@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Missing Index Recommendations</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-5 border" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-lg font-bold text-slate-900">Collecting recommendations</div>
+      <div class="text-sm text-slate-600 mt-2">The combined DMVs provide candidate columns and stats to estimate impact; use them to prioritize possibilities.</div>
+
+      <pre class="mt-3 text-sm bg-white p-3 rounded border overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:monospace; border-color:rgba(226,232,240,0.9); max-height:320px;">
+-- Example: Retrieving missing index recommendations
+SELECT
+    migs.avg_total_user_cost * (migs.avg_user_impact / 100.0) AS EstimatedImpact,
+    mid.statement AS TableName,
+    mid.equality_columns,
+    mid.inequality_columns,
+    mid.included_columns,
+    migs.unique_compiles,
+    migs.user_seeks,
+    migs.user_scans
+FROM
+    sys.dm_db_missing_index_groups mig
+JOIN
+    sys.dm_db_missing_index_group_stats migs ON migs.group_handle = mig.index_group_handle
+JOIN
+    sys.dm_db_missing_index_details mid ON mig.index_handle = mid.index_handle
+ORDER BY
+    EstimatedImpact DESC;
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">EstimatedImpact gives a quick way to sort candidates, but validate with controlled tests.</div>
+    </div>
+
+    <div class="rounded-xl bg-white p-5 border flex flex-col" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-semibold text-slate-700">Evaluation checklist</div>
+      <ul class="text-sm text-slate-700 list-disc list-inside mt-3">
+        <li>Compare candidate columns with existing indexes to avoid duplication.</li>
+        <li>Test the index in a staging environment and measure both read improvement and write overhead.</li>
+        <li>Consider storage cost and maintenance windows before deployment.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Warning</div>
+          <p class="text-xs font-medium text-slate-800">Adding many suggested indexes without analysis can cause worse overall performance due to write amplification and maintenance costs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

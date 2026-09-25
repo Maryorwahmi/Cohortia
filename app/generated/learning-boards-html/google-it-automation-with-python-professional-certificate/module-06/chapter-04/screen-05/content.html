@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full min-h-0">
+    <div class="card rounded-xl p-4 overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Safe copy pattern</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Verify source exists with os.path.exists or os.path.isfile.</li>
+        <li>Check destination: does it exist? decide overwrite vs unique name.</li>
+        <li>Attempt shutil.copy or shutil.copytree inside try/except to catch IO/OSError.</li>
+        <li>On failure, log the exception and revert any partial changes if needed.</li>
+      </ol>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border text-sm">Misconception: copytree merges into an existing folder. It does not; handle the destination first.</div>
+        <div class="rounded-lg p-3 bg-white border text-sm">Pro tip: to avoid collisions, append datetime strings to destination names.</div>
+      </div>
+    </div>
+
+    <div class="card rounded-xl p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Example: safe recursive copy</div>
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>import os
+import shutil
+from datetime import datetime
+
+src = 'my_logs'
+dst = 'my_logs_backup'
+if os.path.exists(dst):
+  dst = f"{dst}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+try:
+  shutil.copytree(src, dst)
+  print('Copied to', dst)
+except (IOError, OSError) as e:
+  print('Copy failed:', e)</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check Your Understanding</div>
+          <p class="text-xs font-medium text-slate-800">Why might copytree fail when copying into an existing directory? Think about default behavior and permissions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

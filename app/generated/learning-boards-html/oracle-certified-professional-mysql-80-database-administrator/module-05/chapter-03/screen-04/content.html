@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">What the Binary Log Records</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full">
+        <div class="text-lg font-bold text-slate-800">Definition and purpose</div>
+        <div class="text-sm text-slate-600 mt-2">A sequential record of data-modifying events and transaction boundaries used for replication and recovery.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg p-3 bg-white border card-border">
+            <div class="text-sm font-semibold">What you see in logs</div>
+            <ul class="mt-2 text-sm text-slate-700 list-disc list-inside space-y-1">
+              <li>Transaction markers such as BEGIN and COMMIT.</li>
+              <li>Events: INSERT, UPDATE and DELETE statements or row images.</li>
+              <li>Metadata: table identifiers, schema names and positions for replication tracking.</li>
+            </ul>
+          </div>
+
+          <div class="rounded-lg p-3 bg-amber-50 border card-border">
+            <div class="text-sm font-semibold">Concrete example</div>
+            <div class="text-sm text-slate-700 mt-2">In ROW format: an UPDATE records the old row and the new row values so the replica applies identical changes regardless of nondeterministic SQL.</div>
+          </div>
+
+          <div class="rounded-lg p-3 bg-white border card-border">
+            <div class="text-sm font-semibold">Common misconception</div>
+            <div class="text-sm text-slate-700 mt-2">The binlog is not primarily a human audit; it is designed for exact replay. Use mysqlbinlog for interpretation rather than ad hoc reading.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Treat the binlog as the canonical, replayable stream of data modifications. Losing files can force re-initialization of replicas.</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Visual: event types</div>
+      <div class="mt-3 text-sm text-slate-700">Example of a simplified mysqlbinlog snippet showing transaction markers and an UPDATE event in row format.</div>
+      <pre class="mt-4 p-3 bg-slate-50 rounded-lg text-sm"># at 1234
+#200101 12:00:00 server id 1  end_log_pos 1300  Query   thread_id=1  exec_time=0  error_code=0
+SET TIMESTAMP=1609459200;
+BEGIN
+# at 1300
+#200101 12:00:01 server id 1  end_log_pos 1500  Write_rows: table_id=123 flags: STMT_END_F
+### INSERT INTO `binlog_test`.`users`
+### SET
+###   @1=1 /* id */
+###   @2='Alice' /* name */
+###   @3='alice@example.com' /* email */
+COMMIT</pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

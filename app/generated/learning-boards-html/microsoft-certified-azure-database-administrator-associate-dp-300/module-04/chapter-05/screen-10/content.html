@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Statistics Updates</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white card-border p-4">
+      <div class="text-lg font-bold">When to update statistics</div>
+      <ul class="list-disc list-inside text-sm text-slate-700 mt-2">
+        <li>After large data imports or batch updates.</li>
+        <li>When query plans shift due to stale estimates.</li>
+        <li>On a schedule if your workload patterns are predictable.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconception</div>
+        <div class="text-sm text-slate-700 mt-2">Running full statistics updates constantly wastes resources; target updates where data changes are significant.</div>
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white card-border p-4">
+      <div class="text-sm font-semibold">T-SQL example</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md"><code>-- Update statistics for a single table
+UPDATE STATISTICS [dbo].[Sales];
+
+-- Update with fullscan for more accurate stats after large imports
+UPDATE STATISTICS [dbo].[LargeTable] WITH FULLSCAN;
+
+-- Update statistics for all tables (use with caution)
+EXEC sp_msforeachtable 'UPDATE STATISTICS ? WITH SAMPLE 50 PERCENT';</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">When you automate, include checks for data-change thresholds and run full scans only when justified.</div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Schedule statistics updates after significant data changes and automate them with checks to avoid unnecessary system load.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

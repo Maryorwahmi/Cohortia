@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <style>.card{border:1px solid rgba(226,232,240,0.9);} .mono{font-family:ui-monospace,Menlo,monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Live vs Dead Acquisition</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="col-span-1 rounded-xl bg-white p-4 card flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h2 class="text-xl font-bold text-slate-800 mt-2">Live Acquisition</h2>
+      <p class="text-sm text-slate-600 mt-2">Captures RAM, running processes, and open network connections. Necessary for volatile evidence that disappears on shutdown.</p>
+      <ul class="mt-3 text-sm text-slate-600 space-y-1">
+        <li>Tools: winpmem, dumpit, FTK Imager Lite</li>
+        <li>Risk: forensic tools modify system state</li>
+        <li>Mitigation: trusted media and minimal footprint</li>
+      </ul>
+      <div class="mt-auto pt-3">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common Mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Delaying volatile capture and powering down a system, losing in-memory evidence irretrievably.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-1 rounded-xl bg-white p-4 card flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Comparison</div>
+      <h2 class="text-xl font-bold text-slate-800 mt-2">Dead Acquisition</h2>
+      <p class="text-sm text-slate-600 mt-2">Imaging storage from a powered-off system to preserve the disk's original state. Preferred for forensic imaging to prevent further writes.</p>
+      <ul class="mt-3 text-sm text-slate-600 space-y-1">
+        <li>Tools: dd, FTK Imager, EnCase</li>
+        <li>Practice: remove drive, connect via hardware write-blocker</li>
+        <li>Always: calculate hashes pre- and post-image</li>
+      </ul>
+      <div class="mt-auto pt-3">
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Pro Tip</div>
+          <div class="text-sm text-slate-700 mt-1">When in doubt, document the state and prioritize volatile evidence before imaging disks.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-2 rounded-xl bg-slate-50 p-4 mt-4 card">
+      <div class="text-sm font-semibold text-slate-800">Scenario Example</div>
+      <div class="text-sm text-slate-600 mt-2">If you receive an alert indicating fileless malware on a live server, capture a memory dump immediately with a trusted tool, compute its hash, then proceed to preserve storage images later via write-blocker and hashing.</div>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-white p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Live Command Example</div>
+          <div class="mono text-xs text-slate-700 mt-2">E:\winpmem.exe -o C:  emp\SRV-WEB-001_memory.raw</div>
+        </div>
+        <div class="rounded-lg bg-white p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Dead Command Example</div>
+          <div class="mono text-xs text-slate-700 mt-2">sudo dd if=/dev/sda of=/media/forensics/disk_image.dd bs=4M status=progress</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

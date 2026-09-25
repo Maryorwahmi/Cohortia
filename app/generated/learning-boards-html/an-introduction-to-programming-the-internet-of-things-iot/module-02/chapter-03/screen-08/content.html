@@ -1,0 +1,44 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#ffffff'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process</span>
+    <span class='text-slate-700'>SPI code walkthrough</span>
+  </div>
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 card p-4'>
+      <h3 class='text-lg font-bold text-slate-800'>Example sketch (SPI)</h3>
+      <pre style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#0f172a; color:#e6eef8; padding:12px; border-radius:10px; overflow:auto;' class='mt-3'><code>#include &lt;SPI.h&gt;
+
+const int csPin = 10;  // Chip select pin
+
+void setup() {
+  SPI.begin();
+  pinMode(csPin, OUTPUT);
+  digitalWrite(csPin, HIGH);
+  Serial.begin(9600);
+}
+
+void loop() {
+  digitalWrite(csPin, LOW);
+  SPI.transfer(0x00);  // Send command
+  byte response = SPI.transfer(0x00);  // Read response
+  digitalWrite(csPin, HIGH);
+  Serial.println(response);
+  delay(1000);
+}
+</code></pre>
+    </div>
+    <div class='flex-1 card p-4'>
+      <h4 class='text-sm font-bold text-slate-800'>Explanation</h4>
+      <ul class='text-sm text-slate-600 mt-3 space-y-2'>
+        <li>Set CS high when idle so no device is selected.</li>
+        <li>Bring CS low to start, transfer the command and read the response, then set CS high to end the transaction.</li>
+        <li>SPI.transfer both sends and receives because the clock moves bits both directions.</li>
+        <li>Use separate CS pins for each peripheral and ensure only one is low at a time.</li>
+      </ul>
+      <div class='mt-4 p-3 rounded-md bg-rose-50'>
+        <div class='text-xs font-bold uppercase tracking-wider text-rose-600 mb-1'>Common mistake</div>
+        <div class='text-sm text-slate-800'>Not raising previously used CS before lowering another leads to bus contention. Confirm CS states in code and wiring.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    pre { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Harden Nginx</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex gap-4">
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Hardened Dockerfile (example)</div>
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 card-border flex-1">
+        <pre><code># Start with a secure, pinned minimal base
+FROM nginx:1.21-alpine
+
+# Ensure owned files and create a non-root user if needed
+# Many official images include a non-root 'nginx' user; make explicit ownership adjustments
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup \
+  && chown -R appuser:appgroup /var/cache/nginx /var/log/nginx /var/lib/nginx /usr/share/nginx/html
+
+# Switch to non-root user
+USER appuser
+
+# Copy web content
+COPY html/ /usr/share/nginx/html
+
+# Expose the container port (80) but do not require host privileged ports
+EXPOSE 80
+
+# Run Nginx in the foreground
+CMD ["nginx", "-g", "daemon off;"]</code></pre>
+      </div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key run command</div>
+        <div class="text-sm text-slate-700">Map a non-privileged host port and set a memory limit to 256MB to avoid needing root:</div>
+        <pre class="mt-2"><code>docker run --rm -p 8080:80 --memory=256m my-nginx:1.0</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Guided checklist</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Pin base image version, not 'latest'.</li>
+        <li>Run processes as non-root and adjust file ownership during build.</li>
+        <li>Drop unnecessary capabilities and avoid --privileged mode.</li>
+        <li>Apply CPU and memory runtime limits.</li>
+        <li>Scan and sign images in CI before pushing to registry.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-white card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Misconception</div>
+        <p class="text-sm text-slate-700">Switching to a non-root user may require file ownership changes, but it rarely breaks production if tested; it's safer than running everything as root.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

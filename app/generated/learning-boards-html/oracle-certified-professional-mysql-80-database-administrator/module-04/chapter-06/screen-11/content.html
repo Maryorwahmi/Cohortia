@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{border:1px solid rgba(226,232,240,0.9);background:white;border-radius:12px} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Encrypt & Upload</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Command Example</div>
+      <pre><code># Encrypting a mysqldump backup with GPG
+mysqldump -u root -p mydatabase | gzip | gpg --encrypt --recipient "backup_key_id" &gt; mydatabase_backup.sql.gz.gpg
+
+# Uploading to S3 (AWS CLI)
+aws s3 cp mydatabase_backup.sql.gz.gpg s3://my-cohortia-backup-bucket/</code></pre>
+      <div class="mt-3 text-sm text-slate-700">Note: the operator needs the private key to decrypt before restore. Never store keys with the backups.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Verification</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Confirm exit code was zero.</li>
+        <li>Check file size and a checksum if available.</li>
+        <li>Verify upload by checking the cloud object's presence and size.</li>
+      </ul>
+
+      <div class="mt-3 p-3 border rounded-md">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-1">Use recipient keys managed in a keyring and rotate keys on schedule. Test decryption regularly in a safe environment.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

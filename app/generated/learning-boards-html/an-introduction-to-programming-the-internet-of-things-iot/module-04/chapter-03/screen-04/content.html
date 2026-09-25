@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Gateway Role</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 h-full rounded-xl bg-white p-4 card-border">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Definition</div>
+      <p class="text-sm text-slate-600 mb-3">A gateway collects sensor data, performs local processing and storage, and forwards data to cloud services while handling network failures gracefully.</p>
+
+      <div class="space-y-2">
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Durability</div>
+          <div class="text-sm text-slate-700">Persist readings immediately to prevent loss on power failure.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Observability</div>
+          <div class="text-sm text-slate-700">Expose recent data via SQL or a local web UI for debugging and verification.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Graceful degradation</div>
+          <div class="text-sm text-slate-700">Continue to collect and buffer when connectivity is lost, then retry uploads later.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Design the Pi as the authoritative short‑term store: write first, send later.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 h-full rounded-xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700 mb-3">Architecture Snapshot</div>
+      <div class="flex-1 grid grid-cols-3 gap-3 h-full">
+        <div class="rounded-lg bg-blue-50 p-3 flex flex-col">
+          <div class="text-sm font-semibold text-blue-800">Sensors</div>
+          <div class="text-sm text-slate-600 mt-2">Multiple sensor inputs, serial, I2C, or ADC, normalized to a common format.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Raspberry Pi</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc ml-5">
+            <li>Store readings in SQLite</li>
+            <li>Run retry loop for unsent rows</li>
+            <li>Host Flask dashboard</li>
+          </ul>
+        </div>
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-800">Cloud</div>
+          <div class="text-sm text-slate-600 mt-2">Receive forwarded events; Pi ensures eventual delivery.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50">
+        <div class="text-sm font-semibold text-slate-700 mb-1">Concrete example</div>
+        <div class="text-sm text-slate-600">A temperature sensor sends readings every 10 seconds; the Pi writes each reading to a table with timestamp and sensor id, then attempts to POST it to the cloud. If the POST fails, the row remains unsent and the retry loop will resend it later.</div>
+      </div>
+    </div>
+  </div>
+</div>

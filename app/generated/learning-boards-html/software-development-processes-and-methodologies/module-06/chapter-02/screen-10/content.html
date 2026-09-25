@@ -1,0 +1,81 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Integration Example</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Service code</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg overflow-hidden font-mono text-sm">
+        <pre class="p-4 whitespace-pre-wrap" style="tab-size:2"># user_service.py
+class UserService:
+    def __init__(self, db_service):
+        self.db_service = db_service
+
+    def create_user(self, username, email):
+        if self.db_service.user_exists(username):
+            return None
+        user_id = self.db_service.save_user(username, email)
+        return {"id": user_id, "username": username, "email": email}
+
+# database_service.py
+class DatabaseService:
+    def __init__(self):
+        self.users = {}
+        self._next_id = 1
+
+    def user_exists(self, username):
+        return any(user['username'] == username for user in self.users.values())
+
+    def save_user(self, username, email):
+        user_id = self._next_id
+        self.users[user_id] = {'id': user_id, 'username': username, 'email': email}
+        self._next_id += 1
+        return user_id
+
+    def get_user(self, user_id):
+        return self.users.get(user_id)
+</pre>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Integration test</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-lg overflow-hidden font-mono text-sm">
+        <pre class="p-4 whitespace-pre-wrap" style="tab-size:2"># test_integration.py
+import pytest
+from user_service import UserService
+from database_service import DatabaseService
+
+def test_create_and_retrieve_user_integration():
+    db = DatabaseService()
+    user_service = UserService(db)
+
+    new_user = user_service.create_user("johndoe", "john@example.com")
+    assert new_user is not None
+    assert new_user['username'] == "johndoe"
+
+    retrieved_user = db.get_user(new_user['id'])
+    assert retrieved_user is not None
+    assert retrieved_user['email'] == "john@example.com"
+
+    duplicate_user = user_service.create_user("johndoe", "john_new@example.com")
+    assert duplicate_user is None
+</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        This test uses the real DatabaseService to validate the contract between the two components. It verifies creation, retrieval, and duplicate handling as a combined behavior check.
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Integration tests ensure modules communicate correctly; use realistic but controlled services for repeatability.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

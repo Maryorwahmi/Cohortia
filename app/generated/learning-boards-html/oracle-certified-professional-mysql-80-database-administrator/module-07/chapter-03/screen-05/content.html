@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;font-size:13px;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter: Managing MySQL InnoDB Cluster</span>
+    <span>›</span>
+    <span class="text-slate-700">dba utilities</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-800">Core dba commands</div>
+      <div class="mt-3 text-sm text-slate-600">These commands perform validation and automation steps so you don't run individual SQL statements on each server. They create users, set required variables, and orchestrate group membership.</div>
+
+      <div class="mt-4">
+        <pre class="code" aria-hidden="false"><code>mysqlsh root@192.168.1.10:3306 --sql
+
+# Prepare an instance
+# dba.configureInstance('user@host:port')
+dba.configureInstance('root@192.168.1.10:3306')
+
+# Bootstrap a cluster
+# dba.createCluster('mycluster')
+dba.createCluster('mycluster')
+
+# Add a prepared instance
+# cluster.addInstance('user@host:port')
+cluster.addInstance('root@192.168.1.11:3306')
+
+# Check status
+cluster.status()</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="font-semibold text-slate-800">Explanation & example</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li><strong>dba.configureInstance</strong>: validates prerequisites, sets GTID and replication variables, and creates required accounts.</li>
+        <li><strong>dba.createCluster</strong>: bootstraps Group Replication using the prepared instance as the initial primary.</li>
+        <li><strong>cluster.addInstance</strong>: performs state transfer and joins the instance to the group safely.</li>
+        <li><strong>cluster.status</strong>: returns topology, roles, and status so you can confirm the cluster health.</li>
+      </ul>
+
+      <div class="mt-5">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="mt-2 text-sm text-rose-700">Attempting to add an unprepared instance is a frequent error. dba.configureInstance prevents this by checking GTID, server_id, and required privileges before the join.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

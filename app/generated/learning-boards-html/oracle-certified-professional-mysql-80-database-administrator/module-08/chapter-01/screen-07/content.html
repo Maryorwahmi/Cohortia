@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Global vs Session Status Variables</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4 border-r border-slate-100">
+      <div class="text-xl font-extrabold text-slate-800">Global status variables</div>
+      <div class="text-sm text-slate-600 mt-1">Aggregate counters since server start, useful for trends and rates.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Typical uses</div>
+          <div class="text-sm text-slate-700 mt-1">Capacity planning, detecting steady increases in connections or queries, and estimating workload over time.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Example</div>
+          <div class="text-sm text-slate-700 mt-1">SHOW GLOBAL STATUS LIKE 'Connections' yields a cumulative count; compute a connection rate by differencing two readings.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4">
+      <div class="text-xl font-extrabold text-slate-800">Session status variables</div>
+      <div class="text-sm text-slate-600 mt-1">Counters specific to the current client connection, useful for per-client debugging.</div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Typical uses</div>
+          <div class="text-sm text-slate-700 mt-1">Debugging a particular application connection, seeing what statements a session executed, or identifying how a client navigates indexes.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-sm font-semibold text-slate-800">Example</div>
+          <div class="text-sm text-slate-700 mt-1">SHOW SESSION STATUS LIKE 'Handler_read_first' shows how many times that session read the first entry in an index, which helps analyze query patterns for that client.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-3 gap-3">
+    <div class="rounded-xl bg-amber-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Misconception</div>
+      <div class="text-sm text-slate-700">Mixing global and session counters when computing rates leads to incorrect conclusions. Always compare like with like.</div>
+    </div>
+    <div class="rounded-xl bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+      <div class="text-sm text-slate-700">When investigating a single client's behavior, open a session and run session-level SHOW STATUS to capture that client’s actions directly.</div>
+    </div>
+    <div class="rounded-xl bg-white p-3 card-border">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Check</div>
+      <div class="text-sm text-slate-700">Ask: am I measuring server-wide trends or the actions of one connection? Choose global for the former, session for the latter.</div>
+    </div>
+  </div>
+</div>

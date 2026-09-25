@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">interact.js Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white border p-4 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Script preview</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// scripts/interact.js
+require("dotenv").config();
+const { ethers } = require("hardhat");
+
+async function main() {
+  const contractAddress = process.env.COUNTER_CONTRACT_ADDRESS;
+  const privateKey = process.env.PRIVATE_KEY;
+
+  const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+  const signer = new ethers.Wallet(privateKey, provider);
+
+  const CounterArtifact = require("../artifacts/contracts/Counter.sol/Counter.json");
+  const counterABI = CounterArtifact.abi;
+
+  const counterContract = new ethers.Contract(contractAddress, counterABI, signer);
+
+  let currentCount = await counterContract.count();
+  console.log("Current count:", currentCount.toString());
+
+  const tx = await counterContract.increment();
+  await tx.wait();
+  console.log("Increment tx:", tx.hash);
+}
+
+main().catch(console.error);</code></pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white border p-4 shadow-sm flex-grow">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Running the script</div>
+        <div class="text-sm text-slate-700 mt-2">Set COUNTER_CONTRACT_ADDRESS and PRIVATE_KEY in .env, then run node scripts/interact.js. Watch the terminal output for the current count, transaction hash, and updated count after confirmation.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">This interact script demonstrates the complete read-write-confirm cycle and the use of the transaction hash for verification.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

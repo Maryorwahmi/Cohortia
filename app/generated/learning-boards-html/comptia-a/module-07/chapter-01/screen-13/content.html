@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">GlobalTech Scenario</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Architecture Proposal (summary)</div>
+      <div class="mt-3 grid gap-3">
+        <div class="card p-3">
+          <div class="text-sm font-semibold">Key data sources</div>
+          <div class="text-xs text-slate-600 mt-2">AD logs, firewall syslog, IDS/IPS alerts, Linux syslog, EDR, CloudTrail, VPC Flow, GuardDuty, WAF, app logs.</div>
+        </div>
+        <div class="card p-3">
+          <div class="text-sm font-semibold">Component placement</div>
+          <div class="text-xs text-slate-600 mt-2">Forwarders and syslog collectors on-premise; Firehose/Lambda for AWS; regional aggregators; central indexer cluster with search heads and management server.</div>
+        </div>
+        <div class="card p-3">
+          <div class="text-sm font-semibold">Data flow highlights</div>
+          <div class="text-xs text-slate-600 mt-2">Buffer at collectors, pre-parse at aggregators, normalize at indexers, enrich and correlate at analytics nodes.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="card p-4 h-full flex flex-col">
+        <div class="text-[11px] font-semibold">Critical correlation rule (pseudo)</div>
+        <pre class="mt-2 text-sm text-slate-800">IF (
+  (Event_Type = "Windows_Authentication_Failure" AND User_Account = X)
+  AND WITHIN 10 minutes (
+    (Event_Type = "AWS_Console_Login_Success" AND User_Account = X AND Source_IP NOT_IN Known_VPN_Ranges)
+    AND WITHIN 5 minutes (
+      (Event_Type = "AWS_SecurityGroup_Modification" AND User_Account = X)
+    )
+  )
+)
+THEN GENERATE HIGH_SEVERITY_ALERT("Potential On-Premise to Cloud Credential Theft and Privilege Escalation")</pre>
+
+        <div class="mt-4">
+          <div class="text-[11px] font-semibold">Validation</div>
+          <div class="text-xs text-slate-600 mt-2">Test this rule against historical logs, measure false positives, and tune time windows and aggregation thresholds accordingly.</div>
+        </div>
+
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Combine architectural placement with focused rules that link activity by account and time to detect lateral credential theft across environments.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

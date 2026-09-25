@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Identifying the active binary log and positions</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Master and Replica checks</div>
+      <div class="text-sm text-slate-600 mt-2">Capture these values before backups and purges.</div>
+
+      <pre class="mt-4 p-3 bg-slate-50 rounded-lg text-sm">-- On the source server
+SHOW MASTER STATUS;
+
+-- On a replica
+SHOW REPLICA STATUS;  -- inspect Source_Log_File and Source_Log_Pos or Retrieved_Gtid_Set</pre>
+
+      <div class="mt-3 text-sm text-slate-700">Record the file and position from SHOW MASTER STATUS when taking logical backups so replicas can start from that exact point without missing or replaying events out of order.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Checklist before purge</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc list-inside space-y-2">
+        <li>Run SHOW REPLICA STATUS on all replicas and confirm they do not need older files.</li>
+        <li>Confirm backup retention windows align with expire_logs_days.</li>
+        <li>Document the latest master file and position for recovery.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Not checking all replicas before purging. A late or offline replica may still need older binary logs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

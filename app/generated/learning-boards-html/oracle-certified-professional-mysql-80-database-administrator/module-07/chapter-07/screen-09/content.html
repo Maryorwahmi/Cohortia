@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex h-full gap-4">
+    <div class="w-3/5 rounded-xl bg-white border border-[var(--card-border)] p-5 shadow-sm flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <div class="text-2xl font-bold text-slate-800 mb-3">Failover Runbook — High Level Steps</div>
+
+      <ol class="list-decimal ml-5 text-sm text-slate-700 space-y-3">
+        <li><strong>Detect disaster:</strong> Confirm region outage via monitoring and alerts.</li>
+        <li><strong>Stop replication:</strong> Stop the async replica apply to avoid partial writes.</li>
+        <li><strong>Promote DR cluster:</strong> Ensure members are consistent, switch to primary mode.</li>
+        <li><strong>Reconfigure applications:</strong> Update DNS or Router/Proxy endpoints and verify connectivity.</li>
+        <li><strong>Validate:</strong> Run integrity checks and smoke tests to confirm application functionality.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border border-[var(--card-border)]">
+        <div class="text-sm font-semibold text-slate-700">Example commands</div>
+        <pre class="mt-2 text-sm bg-slate-50 p-3 rounded" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">STOP SLAVE;
+-- verify binlog position and consistency
+-- then promote local Group Replication cluster</pre>
+        <div class="text-xs text-slate-500 mt-2">Note: perform commands in a test environment first and document exact sequences.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">A clear, practiced runbook reduces error during failover. Pay special attention to application reconfiguration and network rules.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-2/5 rounded-xl bg-white border border-[var(--card-border)] p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Scenario card</div>
+      <div class="text-sm text-slate-700 mb-3">During a Region A outage, the DR team executes the runbook: stop replication on Region B, promote Region B cluster, switch DNS, and validate application transactions.</div>
+
+      <div class="rounded-lg p-3 bg-rose-50 border border-[var(--card-border)] mb-3">
+        <div class="text-sm font-semibold text-rose-700">Common pitfall</div>
+        <div class="text-sm text-slate-700 mt-1">Failing to update DNS TTLs or firewall rules, leaving application servers unable to reach the promoted cluster.</div>
+      </div>
+
+      <div class="rounded-lg p-3 bg-white border border-[var(--card-border)]">
+        <div class="text-sm font-semibold text-slate-700">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-1">Pre-script DNS or proxy changes and test them in drills to reduce human error in live failovers.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

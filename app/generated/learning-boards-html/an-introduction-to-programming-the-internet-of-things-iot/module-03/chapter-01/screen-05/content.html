@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">DC Motors &amp; H-Bridge</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-5 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800 mb-1">Core concept</div>
+      <div class="text-sm text-slate-600 mb-3">H-bridge drivers allow direction control and PWM-based speed control for DC motors while protecting the Arduino.</div>
+
+      <div class="space-y-3 text-sm text-slate-700 flex-1">
+        <div><strong>Why use an H-bridge</strong>: It switches polarity safely and accepts PWM on an enable pin so the motor does not draw current through the Arduino pin.</div>
+        <div><strong>Example</strong>: Use L298N with IN1/IN2 for direction and ENA for PWM. Use an external supply for the motor and common the grounds.</div>
+        <div><strong>Misconception</strong>: analogWrite does not change supply voltage; it varies duty cycle to control average power to the motor.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Driving a motor directly from an Arduino I/O pin risks large current draw and board resets; always use a motor driver.</p>
+      </div>
+    </div>
+
+    <div class="col-span-7 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Code example</div>
+      <div class="bg-slate-900 text-slate-100 rounded-lg overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; padding:12px; white-space:pre-wrap; tab-size:2;">
+        <pre><code>const int motorPin1 = 9;   // L298N IN1
+const int motorPin2 = 10;  // L298N IN2
+const int enablePin = 11;  // L298N ENA (PWM)
+
+void setup() {
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  pinMode(enablePin, OUTPUT);
+}
+
+void loop() {
+  // Forward at half speed
+  digitalWrite(motorPin1, HIGH);
+  digitalWrite(motorPin2, LOW);
+  analogWrite(enablePin, 128);  // 50% duty cycle
+  delay(2000);
+
+  // Stop
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, LOW);
+  delay(1000);
+
+  // Reverse at full speed
+  digitalWrite(motorPin1, LOW);
+  digitalWrite(motorPin2, HIGH);
+  analogWrite(enablePin, 255);  // 100% duty cycle
+  delay(2000);
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-lg p-3 bg-slate-50 text-sm">
+          <div class="font-bold text-slate-800">Concrete example</div>
+          <div class="text-slate-700">A small robot wheel driven via L298N where ENA is PWM to control speed and IN1/IN2 set direction.</div>
+        </div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-sm">
+          <div class="font-bold text-emerald-700">Key takeaway</div>
+          <div class="text-slate-800">Always use a driver and external supply; common the grounds with the Arduino to ensure correct signal reference.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

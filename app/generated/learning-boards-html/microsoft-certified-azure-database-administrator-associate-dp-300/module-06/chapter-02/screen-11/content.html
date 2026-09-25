@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-5">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Hands-on Activity</div>
+      <h3 class="text-lg font-bold text-slate-900">Daily Index Maintenance</h3>
+      <ol class="mt-3 list-decimal pl-5 space-y-3 text-sm text-slate-700">
+        <li>Connect to Azure SQL Managed Instance with SSMS or Azure Data Studio.</li>
+        <li>Create an operator named <span class="font-medium">DBA_Alerts</span> and set a test email address.</li>
+        <li>Create a job named <span class="font-medium">Daily_Index_Maintenance</span> and add a T-SQL step to rebuild indexes.</li>
+        <li>Configure the step to use the correct database context and notify DBA_Alerts on failure.</li>
+        <li>Create a daily schedule (e.g., 3:00 AM) and link it to the job.</li>
+        <li>Manually start the job and verify job history and notifications.</li>
+      </ol>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Starter T-SQL for test table</div>
+      <pre class="mt-3 bg-slate-900 text-white p-4 rounded-lg overflow-auto" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size:13px;">
+USE YourDatabaseName;
+GO
+
+IF OBJECT_ID('dbo.TestTableForIndexes','U') IS NULL
+BEGIN
+  CREATE TABLE dbo.TestTableForIndexes (ID INT IDENTITY(1,1) PRIMARY KEY, DataColumn NVARCHAR(255), CreateDate DATETIME DEFAULT GETDATE());
+  DECLARE @i INT = 0;
+  WHILE @i &lt; 10000
+  BEGIN
+    INSERT INTO dbo.TestTableForIndexes (DataColumn) VALUES (NEWID());
+    SET @i = @i + 1;
+  END;
+  CREATE NONCLUSTERED INDEX IX_DataColumn ON dbo.TestTableForIndexes (DataColumn);
+END;
+GO
+      </pre>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+        <div class="text-sm text-slate-800">After running the job, inspect the job history and ensure the operator received failure emails if you forced an error.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

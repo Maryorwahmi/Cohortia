@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Interpreting buffer pool metrics</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex flex-col">
+    <div class="text-xl font-extrabold text-slate-800">Buffer pool hit ratio</div>
+    <div class="text-sm text-slate-600 mt-1">How to calculate and act on the result.</div>
+
+    <div class="mt-6 grid grid-cols-12 gap-4 flex-1">
+      <div class="col-span-8 flex flex-col gap-3">
+        <div class="rounded-xl bg-slate-50 p-4">
+          <div class="text-sm font-semibold text-slate-800">Formula and steps</div>
+          <div class="text-sm text-slate-700 mt-2">Hit ratio ≈ (Innodb_buffer_pool_read_requests - Innodb_buffer_pool_reads) / Innodb_buffer_pool_read_requests. Capture both counters at two timestamps, compute deltas, and then compute the ratio.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-4 card-border">
+          <div class="text-sm font-semibold text-slate-800">Worked example</div>
+          <div class="text-sm text-slate-700 mt-2">Delta read_requests = 12,000, delta reads = 120. Hit ratio = (12000 - 120) / 12000 = 0.99 or 99%. Most reads served from memory, buffer pool sizing likely adequate.</div>
+        </div>
+
+        <div class="rounded-xl bg-white p-4 card-border">
+          <div class="text-sm font-semibold text-slate-800">Decision guidance</div>
+          <ul class="text-sm text-slate-700 list-disc ml-4 mt-2 space-y-2">
+            <li>High hit ratio (>95%): prefer query tuning before adding memory.</li>
+            <li>Moderate hit ratio (80–95%): consider increasing buffer pool if memory is available.</li>
+            <li>Low hit ratio (<80%): investigate both buffer pool sizing and inefficient queries that scan many pages.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-span-4 flex flex-col gap-3">
+        <div class="rounded-xl bg-amber-50 p-4">
+          <div class="text-xs uppercase tracking-wider text-amber-700 font-bold">Misconception</div>
+          <div class="text-sm text-slate-700 mt-2">A single reading of Innodb_buffer_pool_reads is insufficient. Always compute ratios using read requests to understand cache efficiency.</div>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use deltas of buffer pool counters to estimate how often reads hit memory. Low hit ratios point to memory or query issues that need systematic investigation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.border-light{border-color:rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-2/5 bg-white rounded-xl p-4 border border-light flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Concept</div>
+      <div class="text-xl font-bold text-slate-800">Mesh Complexity</div>
+      <div class="text-sm text-slate-600 mt-2">Triangles and vertices determine vertex processing cost on the GPU.</div>
+
+      <div class="mt-4 space-y-2">
+        <div class="text-sm font-semibold text-slate-700">Explanation</div>
+        <ul class="list-disc ml-4 text-sm text-slate-600">
+          <li>Each triangle adds vertex transforms and rasterization work.</li>
+          <li>Distant objects often don’t need high triangle counts.</li>
+          <li>High polycount is justified only when visible and resolving detail.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-1">A decorative statue with 500k triangles looks great up close but can be replaced by a 50k LOD at distance to save GPU time.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Measure triangle counts, then reduce polygons where they are not visible.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 bg-white rounded-xl p-4 border border-light flex flex-col">
+      <div class="text-sm font-bold text-slate-700 mb-2">Visualization — cost cards</div>
+      <div class="grid grid-cols-2 gap-3 flex-grow">
+        <div class="p-3 rounded-lg bg-blue-50">
+          <div class="font-bold text-blue-700">High-detail model</div>
+          <div class="text-sm text-slate-700 mt-1">500k triangles • heavy vertex work</div>
+        </div>
+        <div class="p-3 rounded-lg bg-amber-50">
+          <div class="font-bold text-amber-700">Mid LOD</div>
+          <div class="text-sm text-slate-700 mt-1">50k triangles • visible at medium distance</div>
+        </div>
+        <div class="p-3 rounded-lg bg-violet-50">
+          <div class="font-bold text-violet-700">Low LOD</div>
+          <div class="text-sm text-slate-700 mt-1">5k triangles • distant placeholder</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white border" style="border-color:rgba(226,232,240,0.9)">
+          <div class="font-bold text-slate-800">Hidden geometry</div>
+          <div class="text-sm text-slate-700 mt-1">Faces never seen by camera — safe to remove.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Common misconception</div>
+        <div class="text-sm text-slate-600 mt-1">More polygons always equal better visuals. In reality, careful placement of polygons and normal maps often provides equivalent appearance at far lower cost.</div>
+      </div>
+    </div>
+  </div>
+</div>

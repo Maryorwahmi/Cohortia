@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc} pre{white-space:pre-wrap;tab-size:2} .card{border:1px solid rgba(226,232,240,0.9)} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Secure Access</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/3 bg-white rounded-xl p-4 card shadow-sm overflow-auto">
+      <div class="font-bold text-slate-800">SecureAccess.sol (pattern)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm"><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SecureAccess {
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this function");
+        _;
+    }
+
+    function withdrawFunds() public onlyOwner {
+        // ... logic to withdraw funds ...
+    }
+}
+</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">This pattern ensures only the immediate caller with ownership can execute sensitive logic. Use audited libraries for production and centralize ownership checks to reduce mistakes.</div>
+    </div>
+
+    <div class="flex-1 bg-white rounded-xl p-4 card shadow-sm">
+      <div class="font-bold text-slate-800">Why this works</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>msg.sender reflects the direct caller, so a relay contract calling the target will have msg.sender equal to the relay, not the owner.</li>
+        <li>Only explicit, centralized checks reduce the chance of missing a protection in another function.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-sm text-slate-800">Authorize the caller you intend to trust and keep that logic in a modifier or an audited library.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

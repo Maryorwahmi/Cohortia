@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    :root{--border:rgba(226,232,240,0.9);--royal:#2563eb}
+    pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
+  </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">ZKP Analogy Script</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border p-4 overflow-auto" style="border-color:var(--border);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code walkthrough</div>
+      <p class="text-sm text-slate-600 mt-2">This Python script demonstrates a commitment to a secret and a prover claim checked by a verifier in a simplified way. It is an educational analogy, not a secure ZKP implementation.</p>
+
+      <pre class="mt-3 rounded-lg bg-slate-900 text-slate-50 p-3" style="min-height:220px;"><code>import hashlib
+import random
+
+def generate_hash(data):
+  return hashlib.sha256(str(data).encode()).hexdigest()
+
+secret_number = random.randint(1, 1000)
+secret_commitment = generate_hash(secret_number)
+
+print(f"Prover's Secret Number: {secret_number} (kept private)")
+print(f"Public Commitment to Secret: {secret_commitment}
+")
+
+# Prover proves evenness if hash matches commitment
+
+def prover_proves_even(secret_num, commitment):
+  if generate_hash(secret_num) == commitment:
+    if secret_num % 2 == 0:
+      return True, f"I know a number whose hash is {commitment} AND it's even."
+    else:
+      return False, "My secret number is not even."
+  return False, "My secret number does not match the commitment."</code></pre>
+
+    </div>
+
+    <div class="rounded-2xl bg-white border p-4" style="border-color:var(--border);">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Explanation</div>
+      <div class="mt-2 text-sm text-slate-700">Key parts: a public commitment derived from a secret, a prover that makes a claim tied to the commitment, and a verifier that accepts or rejects based on consistency. The script prints outcomes so you can experiment with different secrets.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="text-sm font-semibold text-slate-800">Try this</div>
+          <p class="text-sm text-slate-600 mt-1">Change the claimed property from evenness to divisibility by three and observe verification behavior.</p>
+        </div>
+        <div class="rounded-lg bg-white p-3 border" style="border-color:var(--border);">
+          <div class="text-sm font-semibold text-slate-800">Misconception check</div>
+          <p class="text-sm text-slate-600 mt-1">This simplification exposes the secret in some branches and trusts global variables; real ZKPs avoid leaking witness data and are non-interactive or use cryptographic transforms.</p>
+        </div>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use the script to form intuition about commitments and verification, then study formal ZKP constructions for secure deployment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

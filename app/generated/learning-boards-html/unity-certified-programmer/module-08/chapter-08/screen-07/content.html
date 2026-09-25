@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px}.code{background:#0b1220;color:#e6eef8;border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:12px;overflow:auto}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Code Walkthrough</div>
+      <div class="text-sm font-semibold text-slate-800">GameLauncher (simplified)</div>
+      <div class="mt-3 code">
+        <pre><code>// Awake: initialize analytics and crash reporting
+void Awake() {
+  InitializeAnalyticsAndCrashReporting();
+  // Log build info and platform
+}
+
+void Start() {
+  StartCoroutine(SendGameStartEventAfterDelay(5f));
+}
+
+IEnumerator SendGameStartEventAfterDelay(float delay) {
+  yield return new WaitForSeconds(delay);
+  // Send "game_start" with properties like game_version and platform
+}
+</code></pre>
+      </div>
+      <div class="mt-3 text-xs text-slate-600">The real implementation will call your chosen SDKs. The key pattern is initialize early, attach context properties, and send lifecycle events consistently.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Event Design</div>
+        <ul class="text-sm text-slate-600 mt-2">
+          <li>• game_start { game_version, platform, session_id }</li>
+          <li>• level_complete { level_index, time, score }</li>
+          <li>• purchase { item_id, price, currency }</li>
+        </ul>
+      </div>
+
+      <div class="p-3 rounded-lg border border-slate-100 bg-white">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Common Mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Sending too many verbose events without consistent property names makes dashboards noisy. Define an event taxonomy before release.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A small set of well-named events and crash traces with context will give far more actionable insight than an unstructured flood of signals.</p>
+      </div>
+    </div>
+  </div>
+</div>

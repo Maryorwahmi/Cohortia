@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">HMAC Process</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-700">Process</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">Creating and verifying an HMAC</h3>
+
+      <div class="mt-4 flex flex-col gap-3 flex-1">
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-violet-50 text-violet-700 w-10 h-10 flex items-center justify-center font-bold">1</div>
+          <div>
+            <div class="font-semibold text-slate-800">Sender computes tag</div>
+            <div class="text-sm text-slate-600 mt-1">Combine message and secret using the HMAC construction and compute the hash-based tag.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-violet-50 text-violet-700 w-10 h-10 flex items-center justify-center font-bold">2</div>
+          <div>
+            <div class="font-semibold text-slate-800">Sender sends message + tag</div>
+            <div class="text-sm text-slate-600 mt-1">Tag is appended as a header or trailer; transport must protect confidentiality if needed, but tag itself authenticates integrity.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="rounded-full bg-violet-50 text-violet-700 w-10 h-10 flex items-center justify-center font-bold">3</div>
+          <div>
+            <div class="font-semibold text-slate-800">Receiver verifies</div>
+            <div class="text-sm text-slate-600 mt-1">Receiver recomputes HMAC with the shared key and compares tags; match confirms integrity and authenticity.</div>
+          </div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="font-semibold text-slate-800">Concrete example</div>
+          <p class="text-sm text-slate-600 mt-1">An internal API includes an HMAC header computed over the JSON payload using a secret stored in each service's secrets manager. The verifying service rejects requests with mismatched tags.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-2">Rotate shared keys regularly, store secrets in a managed vault, and prefer library HMAC implementations rather than homegrown constructions.</div>
+
+        <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Pitfall</div>
+          <p class="text-sm text-slate-700 mt-1">Using the same secret across many services increases blast radius if the secret is leaked; plan per-service keys and rotation policies.</p>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">HMAC gives efficient integrity and authenticity for shared-secret scenarios; it is not suitable for public verification at scale.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span>›</span>
+      <span class="text-slate-700">Hybrid Cryptography</span>
+    </div>
+
+    <div class="flex h-[72vh] gap-6">
+      <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+        <h3 class="text-xl font-bold text-slate-900">TLS-style handshake flow</h3>
+        <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+          <li>Server presents certificate and public key for authentication.</li>
+          <li>Client verifies certificate chain and authenticity.</li>
+          <li>Client and server perform ephemeral key exchange to derive a session key.</li>
+          <li>Both sides switch to symmetric encryption using the session key for bulk data transfer.</li>
+        </ol>
+
+        <div class="mt-4">
+          <div class="rounded-lg bg-slate-50 p-3">
+            <div class="font-semibold text-slate-800">Concrete example</div>
+            <div class="text-sm text-slate-600 mt-2">Browser verifies server certificate, executes ECDHE to produce an ephemeral session key, then encrypts HTTP traffic with AES-GCM using that session key.</div>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 card-border mt-3">
+            <div class="font-semibold text-slate-800">Misconception</div>
+            <div class="text-sm text-slate-600 mt-2">Assuming authentication equals confidentiality. Authentication validates identity; session keys provide the actual confidentiality for transmitted data.</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Hybrid cryptography secures key exchange with asymmetric operations and delivers performance with symmetric encryption for the data channel.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-1/2 rounded-2xl bg-white p-6 card-border shadow-sm flex flex-col">
+        <div class="font-semibold text-slate-800">Decision points</div>
+        <div class="mt-3 grid gap-3 flex-1">
+          <div class="rounded-lg bg-blue-50 p-3">
+            <div class="text-sm font-semibold text-blue-700">Choose ephemeral key exchange</div>
+            <div class="text-xs text-slate-700 mt-2">Prefer DHE or ECDHE to enable Perfect Forward Secrecy for session keys.</div>
+          </div>
+
+          <div class="rounded-lg bg-slate-50 p-3">
+            <div class="text-sm font-semibold text-slate-800">Select symmetric mode</div>
+            <div class="text-xs text-slate-700 mt-2">Use authenticated modes like AES-GCM to ensure confidentiality and integrity together.</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-lg bg-white p-3 card-border">
+            <div class="font-semibold text-slate-800">Practical checklist</div>
+            <ul class="mt-2 text-sm text-slate-600 list-disc list-inside">
+              <li>Use certificates for authentication.</li>
+              <li>Prefer ephemeral key exchanges for session keys.</li>
+              <li>Switch to symmetric authenticated modes for bulk data.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

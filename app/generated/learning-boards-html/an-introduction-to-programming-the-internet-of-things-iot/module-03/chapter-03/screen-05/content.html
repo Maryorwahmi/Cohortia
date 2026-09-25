@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm overflow-hidden">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <h4 class="text-lg font-bold text-slate-800 mb-2">Arduino: serial output sketch</h4>
+      <pre class="bg-slate-900 text-white p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  int temp = analogRead(A0);
+  Serial.print("TEMP:");
+  Serial.println(temp);
+  delay(1000);
+}
+      </pre>
+      <div class="mt-3 rounded-lg p-3 bg-blue-50">
+        <div class="text-xs uppercase tracking-wider text-blue-700">Example format</div>
+        <div class="text-sm text-slate-700 mt-1">TEMP:512 followed by newline. Labeling avoids ambiguity when multiple sensors stream.</div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl p-5 card-border shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <h4 class="text-lg font-bold text-slate-800 mb-2">Raspberry Pi: pyserial reader</h4>
+      <pre class="bg-slate-900 text-white p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+import serial
+import time
+
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+ser.flush()
+
+while True:
+    if ser.in_waiting > 0:
+        line = ser.readline().decode('utf-8').rstrip()
+        if line.startswith("TEMP:"):
+            temp = int(line.split(":")[1])
+            print(f"Temperature: {temp}")
+    time.sleep(0.1)
+      </pre>
+      <div class="mt-3 rounded-lg p-3 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Notes</div>
+        <ul class="text-sm text-slate-700 mt-2 list-disc pl-4">
+          <li>Confirm the correct device node on the Pi before opening.</li>
+          <li>Use labeled prefixes so the parser can handle mixed messages.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

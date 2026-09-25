@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;padding:12px;border-radius:8px;background:#0f172a;color:#e6eef8}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Identifying and fixing reentrancy in a wallet</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Starter code: VulnerableWallet</div>
+      <div class="text-sm text-slate-600 mt-2">This is the provided vulnerable contract you will deploy and attack.</div>
+      <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VulnerableWallet {
+    mapping(address =&gt; uint) public balances;
+
+    event Deposit(address indexed user, uint amount);
+    event Withdraw(address indexed user, uint amount);
+
+    function deposit() public payable {
+        balances[msg.sender] += msg.value;
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function withdraw(uint _amount) public {
+        require(balances[msg.sender] &gt;= _amount, "Insufficient balance");
+
+        // Vulnerable point: External call before state update
+        (bool success, ) = msg.sender.call{value: _amount}("");
+        require(success, "Transfer failed");
+
+        balances[msg.sender] -= _amount; // State updated AFTER external call
+        emit Withdraw(msg.sender, _amount);
+    }
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+}
+</code></pre>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Refactor guidance</div>
+      <div class="text-sm text-slate-600 mt-2">Apply CEI and optionally a reentrancy guard. Example approach shown below.</div>
+      <pre><code>// Refactor outline
+// 1) require check
+// 2) balances[msg.sender] -= _amount; // Effects
+// 3) (bool success, ) = msg.sender.call{value: _amount}(""); // Interactions
+// 4) require(success, "Transfer failed");
+
+// Optionally import ReentrancyGuard and mark withdraw nonReentrant
+</code></pre>
+      <div class="mt-3 grid gap-2">
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-700">Try: Deploy VulnerableWallet, write AttackContract that calls back into withdraw, confirm exploit, then deploy SecureWallet and confirm attack fails.</div>
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-700">Key verification: Add tests that attempt the attack and assert balances did not decrease unfairly after the fix.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

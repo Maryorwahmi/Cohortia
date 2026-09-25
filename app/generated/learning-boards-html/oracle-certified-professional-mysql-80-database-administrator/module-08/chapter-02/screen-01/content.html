@@ -1,0 +1,83 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #fbfdff;">
+  <style>
+    .card-border { border: 1px solid rgba(226,232,240,0.9); }
+    .title { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue'; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; }
+  </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+      <span>›</span>
+      <span>Chapter 8.2</span>
+      <span>›</span>
+      <span class="text-slate-700">Using Performance Schema</span>
+    </div>
+    <div class="flex items-start gap-6">
+      <div class="flex-1">
+        <div class="rounded-2xl bg-white shadow-sm card-border p-6">
+          <div class="title text-3xl font-bold text-slate-800 mb-2">Using Performance Schema for Detailed Monitoring</div>
+          <div class="text-sm text-slate-600 mb-4">Collect event-level timing for statements and waits to identify root causes of slow queries and contention.</div>
+          <div class="text-sm text-slate-700 leading-relaxed">
+            Performance Schema instruments server internals and stores events in consumers. You will selectively enable instruments and consumers, query event tables, and interpret timer_wait and lock metrics to focus tuning efforts where they matter most.
+          </div>
+        </div>
+        <div class="mt-4 grid grid-cols-3 gap-3">
+          <div class="rounded-xl bg-white p-3 card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Instruments</div>
+            <div class="text-sm text-slate-700">Points in server code that record events such as statement or wait events.</div>
+          </div>
+          <div class="rounded-xl bg-white p-3 card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">Consumers</div>
+            <div class="text-sm text-slate-700">Where the collected events are stored: history, current, or long history tables.</div>
+          </div>
+          <div class="rounded-xl bg-white p-3 card-border">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-600">Key Tables</div>
+            <div class="text-sm text-slate-700">events_statements_history, events_waits_history and related tables you will query.</div>
+          </div>
+        </div>
+      </div>
+      <div class="w-96 flex-shrink-0">
+        <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Interactive 16:9 Masterclass</div>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-blue-600"><path d="M12 2v20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2 12h20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </div>
+          <div class="space-y-3">
+            <div class="rounded-xl bg-blue-50 p-3">
+              <div class="text-sm font-semibold text-blue-700">Enable instruments</div>
+              <div class="text-xs text-slate-600 mt-1 mono">UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME LIKE 'statement/%';</div>
+            </div>
+            <div class="rounded-xl bg-emerald-50 p-3">
+              <div class="text-sm font-semibold text-emerald-700">Capture statements</div>
+              <div class="text-xs text-slate-600 mt-1 mono">UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='events_statements_history';</div>
+            </div>
+            <div class="rounded-xl bg-amber-50 p-3">
+              <div class="text-sm font-semibold text-amber-700">Inspect waits</div>
+              <div class="text-xs text-slate-600 mt-1 mono">Query events_waits_history for lock and IO waits.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 rounded-xl bg-white p-3 card-border flex items-center justify-between">
+      <div>
+        <div class="text-sm font-bold text-slate-700">Explore Key Topics</div>
+        <div class="text-xs text-slate-500">What we will cover in this chapter</div>
+      </div>
+      <div class="flex gap-3">
+        <div class="rounded-lg bg-white p-2 card-border text-center w-48">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Statement Events</div>
+          <div class="text-xs text-slate-600">Enable statement instruments, run a slow query, and inspect timer_wait to find duration and lock time.</div>
+        </div>
+        <div class="rounded-lg bg-white p-2 card-border text-center w-48">
+          <div class="text-xs font-bold uppercase tracking-wider text-violet-700">Wait Events</div>
+          <div class="text-xs text-slate-600">Use events_waits_history to identify file I/O and lock waits that drive latency.</div>
+        </div>
+        <div class="rounded-lg bg-white p-2 card-border text-center w-48">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Overhead</div>
+          <div class="text-xs text-slate-600">Enable only needed instruments and consumers to minimize monitoring cost on busy servers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

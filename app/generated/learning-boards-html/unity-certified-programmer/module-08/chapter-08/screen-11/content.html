@@ -1,0 +1,65 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Device Logs & Crash Diagnosis</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card h-1/2">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Code Pattern</div>
+        <div class="text-sm text-slate-600">Embed build metadata and emit a minimal start event so logs show version and platform context.</div>
+        <pre class="code mt-3">// Example log pattern (conceptual)
+Debug.Log($"Game Launched. Version: {gameVersion}, Platform: {Application.platform}");
+// send lightweight telemetry event: game_start
+</pre>
+        <div class="text-xs text-slate-500 mt-2">Use real SDK calls in your integration; this is the pattern to follow.</div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Diagnostic Steps</div>
+        <ol class="text-sm text-slate-600 list-decimal list-inside space-y-2">
+          <li>Reproduce crash on a target device with the same build.</li>
+          <li>Collect device log (Logcat / Console / output_log.txt).</li>
+          <li>Attach stack trace, device model, OS version, and steps to reproduce.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Logs + build metadata = fast triage. Capture both telemetry and raw device logs when filing bugs.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 shadow-sm card h-2/3 overflow-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-violet-700 mb-2">Diagnostics Panel</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-slate-50 rounded-lg border">
+            <div class="text-sm font-semibold text-slate-700">Android</div>
+            <p class="text-sm text-slate-600 mt-2">Use Logcat to capture runtime logs and stack traces. Attach logs with the exact build version for support tickets.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-lg border">
+            <div class="text-sm font-semibold text-slate-700">iOS</div>
+            <p class="text-sm text-slate-600 mt-2">Capture the device console and crash reports from Xcode or TestFlight. Include provisioning metadata when relevant.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-lg border col-span-2">
+            <div class="text-sm font-semibold text-slate-700">Crash Reporting</div>
+            <p class="text-sm text-slate-600 mt-2">Tools capture stack traces and device context automatically. Prioritize fixes by frequency and device family impact.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-white p-3 border card">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+        <p class="text-sm text-slate-700">Relying solely on player descriptions. Ask for logs and the exact build version to make the bug actionable.</p>
+      </div>
+    </div>
+  </div>
+</div>

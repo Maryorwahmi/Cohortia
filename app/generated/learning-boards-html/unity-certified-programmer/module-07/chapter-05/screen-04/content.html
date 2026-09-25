@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#fff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Understanding the Memory Profiler</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">What a snapshot contains</h3>
+      <p class="text-sm text-slate-700 mt-3">A snapshot lists managed heap objects and unmanaged engine allocations, plus reference paths that reveal why objects remain alive.</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="text-sm font-semibold text-blue-700">Managed Memory</div>
+          <div class="text-sm text-slate-700 mt-1">C# objects, strings and collections tracked by the garbage collector.</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="text-sm font-semibold text-violet-700">Unmanaged Memory</div>
+          <div class="text-sm text-slate-700 mt-1">Textures, mesh buffers, audio data allocated by the engine.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-800">Reference Paths</div>
+          <div class="text-sm text-slate-700 mt-1">Shows which root object or GC handle is keeping an allocation alive.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Walkthrough</div>
+      <div class="text-sm text-slate-700 mt-2">Example: capture snapshot A, instantiate objects by pressing play actions, capture snapshot B, compare. Look for new GameObject and String counts. Inspect reference chain to find a list or event root that still points to the allocated objects.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 flex-1">
+        <div class="rounded-lg bg-emerald-50 p-3">
+          <div class="text-sm font-semibold text-emerald-700">Concrete example</div>
+          <div class="text-sm text-slate-700 mt-1">A list in a manager kept references to instantiated enemies. Snapshots showed growing managed heap and the list as the root—clearing the list freed memory.</div>
+        </div>
+
+        <div class="rounded-lg bg-rose-50 p-3">
+          <div class="text-sm font-semibold text-rose-700">Common misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Calling UnloadUnusedAssets alone is not a fix if references exist. You must remove references so the assets become eligible for unloading.</div>
+        </div>
+
+        <div class="mt-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <p class="text-xs font-medium text-slate-800">Use snapshots to track changes, inspect reference paths, and clear the actual roots keeping memory alive before calling unload operations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+    <h3 class="text-2xl font-bold text-slate-900">Inspecting X.509 certificates with openssl</h3>
+    <p class="text-sm text-slate-600">Retrieve a certificate chain and examine it for Subject, Issuer, SAN, Key Usage, and EKU.</p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-bold text-slate-800 mb-2">Commands</div>
+      <pre class="text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, " ># Part 1: Retrieve the certificate chain and save to a file
+openssl s_client -connect www.google.com:443 -servername www.google.com \
+    -showcerts -print_certs -verify_hostname www.google.com -verify_return_error \
+    < /dev/null 2>/dev/null | openssl x509 -outform PEM > google_cert_chain.pem
+
+echo "Certificate chain saved to google_cert_chain.pem"
+
+# Part 2: Inspect the server certificate
+openssl x509 -in google_cert_chain.pem -noout -text
+
+echo "--- Certificate Inspection Complete ---"
+</pre>
+      <div class="mt-3 text-xs text-slate-500">Note: When running these commands locally, ensure your shell handles redirection and SNI is set with -servername.</div>
+    </div>
+
+    <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] text-sm text-slate-600">
+      <div class="text-sm font-bold text-slate-800 mb-2">What to look for in the output</div>
+      <ul class="list-disc list-inside space-y-2">
+        <li><b>Subject</b> and <b>Issuer</b> names to confirm identity and signer.</li>
+        <li><b>Validity</b> dates to ensure not expired or not yet valid.</li>
+        <li><b>X509v3 Subject Alternative Name</b> for hostnames covered by the certificate.</li>
+        <li><b>X509v3 Key Usage</b> and <b>Extended Key Usage</b> to confirm permitted operations.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Command-line inspection is an essential audit and incident response skill for validating certificates and revocation points.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

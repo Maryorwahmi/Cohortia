@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#f8fafc;} .card{border:1px solid rgba(226,232,240,0.9);} pre code{tab-size:2;white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Init & Invoke</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Init — initialization</div>
+      <p class="text-sm text-slate-600 mt-3">Called on instantiation or upgrade. Use it for seeding state or storing a version marker. Avoid non-deterministic operations here.</p>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-white p-3 card">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-700">Check</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-4">
+            <li>Keep Init idempotent where possible.</li>
+            <li>Record version info to support upgrades.</li>
+            <li>Don't call external services directly.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Invoke — routing and helpers</div>
+      <p class="text-sm text-slate-600 mt-3">Invoke receives a function name and arguments, routes to helpers, and returns a response. Validate args early and route with a clear switch or map to avoid ambiguous behavior.</p>
+
+      <div class="mt-4">
+        <pre class="bg-slate-900 text-slate-50 rounded-md p-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// pseudo-Go invoke routing
+function, args := stub.GetFunctionAndParameters()
+switch function {
+case "createAsset":
+    return t.createAsset(stub, args)
+case "readAsset":
+    return t.readAsset(stub, args)
+default:
+    return shim.Error("Invalid chaincode function name")
+}
+</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-3">
+    <div class="rounded-xl p-3 bg-emerald-50 card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Example practice</div>
+      <p class="text-sm text-slate-800">Implement argument count checks in each helper to return helpful errors when clients submit malformed requests.</p>
+    </div>
+    <div class="rounded-xl p-3 bg-rose-50 card">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception</div>
+      <p class="text-sm text-slate-800">Don't assume Invoke will only be called in a single order; treat each invocation as independent and validate state each time.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

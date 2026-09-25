@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">CohortiaChain Exercise</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full overflow-hidden">
+    <div class="text-lg font-semibold text-slate-800">Design checklist</div>
+    <div class="text-sm text-slate-600 mt-2">Follow these steps to conceptually design shard count, assignment, and a cross-shard flow.</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+      <div class="p-4 rounded-lg bg-blue-50 text-blue-800">
+        <div class="font-bold">Step 1 — Number of shards</div>
+        <div class="text-sm mt-2">Target TPS 10,000 / prototype TPS 100 = 100 shards required under ideal distribution.</div>
+      </div>
+
+      <div class="p-4 rounded-lg bg-violet-50 text-violet-800">
+        <div class="font-bold">Step 2 — Assignment mechanism</div>
+        <div class="text-sm mt-2">Example: assign transactions by hashing the sender address prefix to a shard ID, or route by transaction type to specific shards.</div>
+      </div>
+
+      <div class="col-span-2 p-4 rounded-lg bg-white card-border">
+        <div class="font-bold text-sm">Step 3 — Cross-shard transfer (Alice on Shard A → Bob on Shard B)</div>
+        <div class="text-sm text-slate-700 mt-2">Conceptual flow:</div>
+        <pre class="mt-2 bg-slate-50 p-3 rounded text-sm text-slate-800">1. Alice submits transaction to Shard A; Shard A validates and locks or burns Alice's tokens.
+2. Shard A creates a signed cross-shard message and posts it to a canonical message pool or beacon coordination layer.
+3. Shard B sees the message, verifies the signature and proof of lock, then credits Bob.
+4. Shard B emits a receipt; Shard A awaits the receipt to finalize and release the locked state.
+5. If receipts fail to appear, dispute or recovery procedures revert or compensate according to the protocol.</pre>
+      </div>
+
+      <div class="p-4 rounded-lg bg-amber-50 text-amber-800">
+        <div class="font-bold">Step 4 — Security challenge</div>
+        <div class="text-sm mt-2">Challenge: a shard attack if validators are weak or predictable. Mitigation: random validator sampling and a beacon chain that rotates validators across shards to raise the cost of capture.</div>
+      </div>
+
+      <div class="p-4 rounded-lg bg-emerald-50 text-emerald-800">
+        <div class="font-bold">Reflection</div>
+        <div class="text-sm mt-2">List your assumptions about perfect distribution, message finality, and validator honesty. Those assumptions determine whether your shard count and protocols preserve safety in real conditions.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Prerequisites & my.cnf</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border p-5 shadow-sm overflow-hidden">
+      <div class="text-sm font-bold text-slate-800">Why each setting matters</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li><span class="font-semibold">log_bin</span>: needed for state transfer and replication.</li>
+        <li><span class="font-semibold">gtid_mode & enforce_gtid_consistency</span>: GTIDs uniquely identify transactions across the group.</li>
+        <li><span class="font-semibold">log_slave_updates</span>: ensures replicated transactions are recorded locally for forwarding.</li>
+        <li><span class="font-semibold">binlog_format=ROW</span>: required for safe and deterministic apply semantics.</li>
+        <li><span class="font-semibold">InnoDB</span>: required storage engine for transactional guarantees.</li>
+      </ul>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl border p-5 shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Minimal my.cnf example (server1)</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2;"><code>[mysqld]
+server_id=1
+log_bin=mysql-bin
+enforce_gtid_consistency=ON
+gtid_mode=ON
+log_slave_updates=ON
+binlog_format=ROW
+# group_replication settings to apply later
+# group_replication_bootstrap_group=OFF
+# group_replication_start_on_boot=OFF
+# group_replication_group_name="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+# group_replication_local_address="192.168.1.10:33061"
+# group_replication_group_seeds="192.168.1.10:33061,192.168.1.11:33061,192.168.1.12:33061"</code></pre>
+      <div class="mt-3 text-sm text-slate-700">Restart each server after changing the configuration. Failing to set any required option will prevent Group Replication from starting correctly.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

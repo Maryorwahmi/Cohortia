@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{font-family:ui-monospace,monospace;white-space:pre-wrap;tab-size:2}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Cubic Trajectories</span>
+  </div>
+
+  <div class="flex-1 flex gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">MATLAB cubic generator</div>
+      <pre class="mt-4 bg-slate-50 p-3 rounded-lg"><code>&lt;!-- Escaped MATLAB code --&gt;
+function [pos, vel, acc] = cubic_trajectory(p0, p1, v0, v1, T, t)
+    % p0, p1: initial and final positions
+    % v0, v1: initial and final velocities
+    % T: total duration
+    % t: current time (0 <= t <= T)
+    
+    a0 = p0;
+    a1 = v0;
+    a2 = (3*(p1 - p0) - T*(2*v0 + v1)) / T^2;
+    a3 = (2*(p0 - p1) + T*(v0 + v1)) / T^3;
+    
+    pos = a0 + a1*t + a2*t^2 + a3*t^3;
+    vel = a1 + 2*a2*t + 3*a3*t^2;
+    acc = 2*a2 + 6*a3*t;
+end
+</code></pre>
+      <div class="text-sm text-slate-600 mt-3">This produces continuous pos, vel and acc across the interval [0,T]. Verify by plotting pos, vel and acc against time.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="bg-white rounded-2xl p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Why continuous acceleration matters</div>
+        <div class="text-sm text-slate-600 mt-2">Motors and propellers cannot instantaneously change thrust. Continuous acceleration avoids commanding infinite jerk and keeps actuator demands feasible.</div>
+
+        <div class="mt-4 p-3 rounded-xl border card-border bg-amber-50">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Higher-order polynomials always solve problems. They add complexity and require more constraints; start with cubic for typical waypoint transitions.</div>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 rounded-xl p-3 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use cubic polynomials when you need smooth position, velocity and acceleration profiles with minimal constraints and simple implementation.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

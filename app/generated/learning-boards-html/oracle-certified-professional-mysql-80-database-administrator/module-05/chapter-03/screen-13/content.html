@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card-border{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Inspect binlog events for a test table</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter SQL</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded text-sm">CREATE DATABASE IF NOT EXISTS binlog_test;
+USE binlog_test;
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE
+);
+
+INSERT INTO users (name, email) VALUES ('Alice', 'alice@example.com');
+INSERT INTO users (name, email) VALUES ('Bob', 'bob@example.com');
+UPDATE users SET email = 'alice_new@example.com' WHERE name = 'Alice';
+DELETE FROM users WHERE name = 'Bob';</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Inspection steps</div>
+      <ol class="mt-3 text-sm text-slate-700 list-decimal list-inside space-y-2">
+        <li>Run SHOW MASTER STATUS and note the File name.</li>
+        <li>Exit the client and run mysqlbinlog with decode and verbose on that file.</li>
+        <li>Find INSERT, UPDATE and DELETE events for binlog_test.users and describe the row images.</li>
+      </ol>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Exercise outcome</div>
+        <p class="text-xs font-medium text-slate-800">You should be able to identify old and new values in the UPDATE event and locate the INSERT and DELETE events for the test table using mysqlbinlog.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

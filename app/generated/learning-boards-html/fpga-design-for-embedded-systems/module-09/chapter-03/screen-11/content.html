@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff;} .card{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, monospace;} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Verification & Pitfalls</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Example Bug: Latch Inference</div>
+      <pre class="rounded p-3 bg-slate-900 text-red-200"><code>module mystery (
+  input wire [3:0] a, b,
+  input wire sel,
+  output reg [3:0] y
+);
+  always @(*) begin
+    if (sel)
+      y = a; // Missing else causes latch inference
+  end
+endmodule
+</code></pre>
+      <div class="text-sm text-slate-700 mt-2">Fix: add an else or default assignment to avoid unintended latches.</div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Example Bug: Blocking in Sequential</div>
+      <pre class="rounded p-3 bg-slate-900 text-yellow-200"><code>always @(posedge clk) begin
+  if (rst)
+    count = 8'b0; // Use non-blocking <= for registers
+  else
+    count = count + 1;
+end
+</code></pre>
+      <div class="text-sm text-slate-700 mt-2">Fix: use non-blocking assignments to model register updates correctly.</div>
+    </div>
+  </div>
+
+  <div class="mt-4 p-3 bg-emerald-50 rounded-xl card shadow-sm">
+    <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Verification Deliverable</div>
+    <div class="text-sm text-slate-800 mt-2">Include ModelSim waveforms and assertion logs in your report to show each module meets its spec under corner cases.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

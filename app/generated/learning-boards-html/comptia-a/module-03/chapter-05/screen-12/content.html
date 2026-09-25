@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Lab: Windows Hardening</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Lab Steps (Conceptual)</div>
+      <div class="text-sm text-slate-600 mt-2">Follow these steps in a virtual machine before applying in production.</div>
+
+      <div class="mt-4 space-y-3 flex-1">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-semibold">Step A: Disable SMBv1</div>
+          <div class="text-sm text-slate-600 mt-1">Run the PowerShell command to turn off legacy protocol: Set-SmbServerConfiguration -EnableSMB1Protocol $false</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-semibold">Step B: Firewall rule</div>
+          <div class="text-sm text-slate-600 mt-1">Configure Windows Firewall to block inbound by default and allow RDP only from management addresses.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="font-semibold">Step C: Local Security Policy</div>
+          <div class="text-sm text-slate-600 mt-1">Enforce password complexity, account lockout, and auditing to support investigations.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Validation & AppLocker</div>
+      <pre class="mt-3 bg-slate-900 text-white p-3 rounded text-sm" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;height:220px;overflow:auto;">
+# Disable SMBv1
+Set-SmbServerConfiguration -EnableSMB1Protocol $false
+
+# Conceptual firewall example
+# New-NetFirewallRule -DisplayName "Allow RDP from management" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3389 -RemoteAddress 10.0.0.0/24
+
+# AppLocker check: ensure Application Identity service
+# sc config appidsvc start= auto
+# sc start appidsvc
+
+# Test: run unapproved exe -> should be blocked (in Audit mode it logs attempts)
+</pre>
+
+      <div class="mt-3 rounded-lg p-3 bg-amber-50 text-amber-800">
+        <div class="font-semibold">Common oversight</div>
+        <div class="text-sm text-slate-700 mt-1">Forgetting the Application Identity service or skipping Audit mode can cause AppLocker to be ineffective or to block legitimate apps without logging first.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

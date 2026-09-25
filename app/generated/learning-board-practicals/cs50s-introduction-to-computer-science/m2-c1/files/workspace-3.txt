@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void)
+{
+    int num_grades;
+    float *grades = NULL;
+
+    printf("How many grades? ");
+    if (scanf("%d", &num_grades) != 1)
+    {
+        printf("Invalid input.\n");
+        return 1;
+    }
+
+    if (num_grades <= 0)
+    {
+        printf("Number of grades must be positive.\n");
+        return 1;
+    }
+
+    grades = malloc(num_grades * sizeof *grades);
+    if (!grades)
+    {
+        printf("Allocation failed.\n");
+        return 1;
+    }
+
+    printf("Enter grade 1: ");
+    if (scanf("%f", &grades[0]) != 1)
+    {
+        printf("Invalid grade.\n");
+        free(grades);
+        return 1;
+    }
+
+    // Demonstrate safe free + NULLing. We won't access freed memory.
+    free(grades);
+    grades = NULL;
+
+    if (grades == NULL)
+    {
+        printf("Pointer is NULL after free. Do NOT dereference.\n");
+    }
+    else
+    {
+        // This branch should not happen in correct code
+        printf("Unsafe: pointer not NULL; first value: %.2f\n", grades[0]);
+    }
+
+    return 0;
+}

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Activity</span>
+    <span>›</span>
+    <span class="text-slate-700">docker-compose & configtx</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl card-border bg-white p-4 overflow-auto">
+      <div class="text-sm font-bold text-slate-900">docker-compose.yaml (excerpt)</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2;"><code>version: '2'
+
+services:
+  ca.org1.example.com:
+    image: hyperledger/fabric-ca:latest
+  orderer.example.com:
+    image: hyperledger/fabric-orderer:latest
+  peer0.org1.example.com:
+    image: hyperledger/fabric-peer:latest
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Observation: services include a CA, an orderer, and a peer. The CA issues certificates used by peers and clients to authenticate.</div>
+    </div>
+    <div class="rounded-xl card-border bg-white p-4 overflow-auto">
+      <div class="text-sm font-bold text-slate-900">configtx.yaml (excerpt)</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm" style="white-space:pre-wrap; tab-size:2;"><code>Orderer:
+    OrdererType: solo # Or Raft, Kafka
+
+Organizations:
+    - &Org1
+        Name: Org1MSP
+        Endorsement:
+            Type: Signature
+            Rule: "OR('Org1MSP.peer')"
+</code></pre>
+      <div class="mt-3 text-sm text-slate-600">Observation: OrdererType is solo in this snippet; Org1 endorsement rule requires a peer from Org1 to endorse.</div>
+    </div>
+  </div>
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+    <p class="text-xs font-medium text-slate-800">Question: If an endorsement policy requires 3 organizations but only two endorse, what happens at validation? Answer: The transaction will be invalid and marked so in the ledger.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

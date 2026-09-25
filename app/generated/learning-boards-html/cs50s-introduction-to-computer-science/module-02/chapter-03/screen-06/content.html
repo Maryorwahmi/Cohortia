@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Code Walkthrough</span>
+  </div>
+
+  <div class="flex-1 grid grid-cols-2 gap-6">
+    <div class="bg-white rounded-2xl p-5 shadow-sm border" style="border-color:rgba(226,232,240,0.9);">
+      <h3 class="text-xl font-bold text-slate-900">Copying characters</h3>
+      <p class="text-sm text-slate-600 mt-3">Read with fgetc into an int, check for EOF, and write with fputc. Close both streams.</p>
+
+      <pre class="mt-4 bg-slate-900 text-white rounded-md p-3 text-sm"><code>#include &lt;stdio.h&gt;
+int main(void)
+{
+  FILE *in = fopen("source.txt", "r");
+  FILE *out = fopen("dest.txt", "w");
+  if (in == NULL || out == NULL) return 1;
+  int c;
+  while ((c = fgetc(in)) != EOF) {
+    fputc(c, out);
+  }
+  fclose(in);
+  fclose(out);
+  return 0;
+}</code></pre>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 shadow-sm border flex flex-col justify-between" style="border-color:rgba(226,232,240,0.9);">
+      <div>
+        <div class="text-sm font-bold text-slate-700">Why use int for fgetc?</div>
+        <div class="text-sm text-slate-600 mt-2">fgetc returns EOF as a negative integer. If you use char, EOF can be misinterpreted as a valid character and the loop fails.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-bold text-slate-700">Misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Character loops are slow for large files. They are fine for small tasks and clear teaching examples; for larger data prefer block reads with fread.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use int for fgetc, test for EOF, and always fclose to flush output.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

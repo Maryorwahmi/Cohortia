@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} .card-border{border:1px solid rgba(226,232,240,0.9)} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Automation: cron and Event Scheduler</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Event Scheduler example</div>
+      <div class="text-sm text-slate-600 mt-2">Enable the scheduler, then create a daily event that purges binary logs older than seven days.</div>
+
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm"><code>-- Enable scheduler
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT IF NOT EXISTS purge_old_binary_logs
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+DO
+    PURGE BINARY LOGS BEFORE (NOW() - INTERVAL 7 DAY);</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Include verification steps in event logic where possible or have a secondary job that confirms the action completed successfully.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Cron approach</div>
+      <div class="text-sm text-slate-600 mt-2">Use cron to run shell scripts that call mysql client, rotate logs, or back up databases, with built-in error handling and alerts.</div>
+
+      <div class="mt-3 text-sm text-slate-700">Always test automation in staging and add logging and alerting so failures are visible and actionable.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border border-emerald-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Automate repeatable, safe tasks and include verification so automation reduces human overhead while preserving safety.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.95)} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Variables & Control Flow</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded font-mono text-sm">DECLARE @currentValue NVARCHAR(100);
+SELECT @currentValue = SettingValue
+FROM AppSettings
+WHERE SettingName = 'MaintenanceMode';
+
+IF @currentValue = 'OFF'
+BEGIN
+  UPDATE AppSettings
+  SET SettingValue = 'ON', LastModified = GETDATE()
+  WHERE SettingName = 'MaintenanceMode';
+END;
+</pre>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Explanation</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-2">
+        <li>Variables hold values for conditional checks across the script.</li>
+        <li>IF...ELSE allows safe conditional execution; verify conditions with SELECT first.</li>
+        <li>Prefer set-based updates; use loops only when set operations cannot express the needed logic.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common pitfall</div>
+          <p class="text-xs font-medium text-slate-800">Using cursors for large datasets can be very slow. Rewrite as set-based queries when possible or batch carefully.</p>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use variables to capture state and control flow sparingly. Favor set-based logic for performance and clarity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

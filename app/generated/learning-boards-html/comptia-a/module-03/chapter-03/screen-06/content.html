@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-500">Chapter 3.3</span>
+    <span class="text-slate-400">›</span>
+    <span class="text-slate-700">SNMPv3</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 bg-white rounded-2xl p-6 border card shadow-sm">
+      <div class="text-xl font-bold text-slate-800 mb-2">SNMPv3 configuration example</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+snmp-server view SECUREVIEW iso included
+snmp-server group SECUREGROUP v3 auth priv read SECUREVIEW
+snmp-server user COHORTIAUSER SECUREGROUP v3 auth sha COHORTIAPASS priv aes 128 COHORTIAENC
+      </pre>
+      <div class="mt-3 text-sm text-slate-600">This creates a restricted view, groups it with auth and privacy, and creates a user mapped to that group. Adjust the view to include only necessary OIDs.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-6 border card shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Operational guidance</div>
+      <ul class="list-inside space-y-2 text-sm text-slate-600">
+        <li>Use strong authentication (SHA) and AES privacy to prevent sniffing and tampering.</li>
+        <li>Restrict SNMP access with ACLs so only collectors can query the device.</li>
+        <li>Limit views to required metrics to reduce data exposure if credentials are misused.</li>
+        <li>Harden and monitor the collector; if it’s compromised, flow records and alerts may be lost.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-slate-800">Leaving SNMPv2c enabled alongside SNMPv3 creates mixed security and exposure; disable older versions once SNMPv3 works.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

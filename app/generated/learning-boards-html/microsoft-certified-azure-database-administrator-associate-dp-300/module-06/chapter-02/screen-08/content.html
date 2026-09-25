@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-5">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900">Authentication for Runbooks</h3>
+      <p class="text-sm text-slate-600 mt-2">Use managed identities when possible; grant only the roles needed for each task.</p>
+
+      <div class="mt-4 space-y-3 text-sm text-slate-700">
+        <div><strong>Managed Identity:</strong> No credentials to store, preferred for Azure resources.</div>
+        <div><strong>Service Principal:</strong> Use only if needed; store credentials securely and rotate regularly.</div>
+        <div><strong>Least Privilege:</strong> Assign reader or narrowly scoped SQL permissions instead of broad contributor roles.</div>
+      </div>
+
+      <div class="mt-6 rounded-xl bg-amber-50 p-3 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+        <div class="text-sm text-slate-800">Granting excessive permissions is a frequent oversight. Limit rights and document them.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Architecture note</div>
+      <div class="text-sm text-slate-600 mt-2">For runbooks needing T-SQL execution against Azure SQL Database, consider a hybrid worker or a secure connection method and ensure the identity has appropriate SQL-level rights.</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+          <div class="text-sm text-slate-700 mt-1">Grant the runbook managed identity the 'SQL DB Contributor' or a custom role limited to the actions it needs, or create a database user with read-only permissions for audit queries.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Checklist</div>
+          <ul class="text-sm text-slate-700 mt-1 list-disc pl-4 space-y-1">
+            <li>Test identity in staging</li>
+            <li>Document assigned roles</li>
+            <li>Rotate credentials if using service principals</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

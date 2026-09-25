@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Advanced Dynamic SQL: Rebuild Indexes</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-8 rounded-2xl bg-white p-4 shadow-sm card-border">
+      <div class="text-sm font-semibold text-slate-800">Maintenance script example</div>
+      <div class="mt-3 rounded-lg bg-gray-900 text-white p-3 overflow-auto" style="height:300px;">
+        <pre><code>DECLARE @SchemaName NVARCHAR(128) = N'dbo';
+DECLARE @TableName NVARCHAR(256);
+DECLARE @IndexRebuildSQL NVARCHAR(MAX);
+
+DECLARE cur_tables CURSOR FOR
+SELECT QUOTENAME(s.name) + '.' + QUOTENAME(t.name)
+FROM sys.tables t
+JOIN sys.schemas s ON t.schema_id = s.schema_id
+WHERE s.name = @SchemaName;
+
+OPEN cur_tables;
+FETCH NEXT FROM cur_tables INTO @TableName;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @IndexRebuildSQL = N'PRINT ''Rebuilding indexes on ' + @TableName + '''; ' +
+                           N'ALTER INDEX ALL ON ' + @TableName + N' REBUILD WITH (ONLINE = ON);';
+    EXEC sp_executesql @IndexRebuildSQL;
+    FETCH NEXT FROM cur_tables INTO @TableName;
+END;
+
+CLOSE cur_tables;
+DEALLOCATE cur_tables;
+GO
+</code></pre>
+      </div>
+    </div>
+
+    <div class="col-span-4 rounded-2xl bg-white p-4 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Notes</div>
+      <ul class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>QUOTENAME prevents issues with special characters in identifiers.</li>
+        <li>Log outputs and PRINT statements to capture progress.</li>
+        <li>Test the ONLINE option and consider maintenance windows.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Caution</div>
+        <p class="text-xs font-medium text-slate-800">Dynamic maintenance can be powerful but must be tested for locking and resource impact before production runs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

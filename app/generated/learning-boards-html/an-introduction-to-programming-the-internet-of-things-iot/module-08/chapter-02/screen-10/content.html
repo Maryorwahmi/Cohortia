@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">ThingSpeak Bug</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-xl p-4 bg-white border shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-bold text-slate-800">Original code excerpt</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-white rounded-md"><code>import requests
+import time
+
+API_KEY = "YOUR_KEY"
+URL = "https://api.thingspeak.com/update"
+
+while True:
+    temp = 25.5
+    response = requests.get(URL, params={"api_key": API_KEY, "field1": temp})
+    print(response.status_code)
+    time.sleep(1)</code></pre>
+      <div class="mt-3 text-sm text-slate-600">The sleep value should be changed to 15 seconds to comply with the ThingSpeak rate limit and avoid rejected writes.</div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Fix</div>
+        <div class="mt-2 text-sm text-slate-700">Replace time.sleep(1) with time.sleep(15) and move API keys to environment variables to prevent accidental exposure.</div>
+      </div>
+
+      <div class="rounded-xl p-3 bg-amber-50 border-l-4 border-l-amber-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Check response codes and apply exponential backoff on errors rather than aggressive retries.</p>
+      </div>
+
+      <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Obey API rate limits and handle error responses to maintain reliable uploads.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

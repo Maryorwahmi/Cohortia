@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre.code{background:#0f172a;color:#e6edf3;padding:12px;border-radius:8px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">SIEM + EDR</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-6 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">One-line claim</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Link SIEM queries to EDR context</div>
+      <p class="text-sm text-slate-700 mt-3">A SIEM surfaces events at scale; EDR supplies endpoint detail. Use both to validate an incident before blocking or remediation.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Example SIEM query</div>
+        <pre class="code mt-2" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">index=web_logs status=500 | stats count by src_ip</pre>
+        <div class="text-xs text-slate-600 mt-2">Run this to find clients returning server errors; investigate their hosts in EDR next.</div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-white card-border">
+          <div class="text-sm font-semibold text-slate-800">Follow-up steps</div>
+          <ul class="text-xs text-slate-600 mt-2 list-disc list-inside">
+            <li>Identify hosts for each src_ip</li>
+            <li>Pull EDR process trees and recent network connections</li>
+            <li>Cross-reference hashes against validated feeds</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-6 bg-white rounded-2xl p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="mt-2 p-4 rounded-lg bg-amber-50">
+        <div class="text-sm font-medium text-slate-800">Scenario</div>
+        <div class="text-xs text-slate-700 mt-2">A SIEM query shows a spike of 500s from three client IPs. NetFlow shows connections to an uncommon external IP. EDR shows a child process creating a outbound connection and a new file hash.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Sequence queries and enrichments: SIEM → NetFlow → EDR → external IoC cross-check to avoid acting on uncorroborated alerts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

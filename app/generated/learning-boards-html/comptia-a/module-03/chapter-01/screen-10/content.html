@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,monospace;padding:12px;background:#0f172a;color:#e6eef8;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">PVLAN Lab</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white card-border p-4 shadow-sm">
+      <div class="font-semibold text-slate-800">Scenario steps</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Create primary and isolated VLANs and associate them.</li>
+        <li>Configure server ports as private-vlan host with correct association.</li>
+        <li>Configure firewall port as promiscuous and map isolated VLANs.</li>
+        <li>Verify server-to-firewall connectivity and server-to-server isolation.</li>
+      </ol>
+    </div>
+    <div class="rounded-2xl bg-white card-border p-4 shadow-sm">
+      <div class="font-semibold text-slate-800">Reference configuration</div>
+      <pre>&excl; Global Configuration
+vlan 100
+ private-vlan primary
+vlan 101
+ private-vlan isolated
+vlan 102
+ private-vlan isolated
+vlan 100
+ private-vlan association 101,102
+
+! Interface for Server A
+interface GigabitEthernet0/1
+ switchport mode private-vlan host
+ switchport private-vlan host-association 100 101
+
+! Interface for Server B
+interface GigabitEthernet0/2
+ switchport mode private-vlan host
+ switchport private-vlan host-association 100 102
+
+! Interface for Firewall
+interface GigabitEthernet0/3
+ switchport mode private-vlan promiscuous
+ switchport private-vlan mapping 100 101,102</pre>
+      <div class="mt-3 text-sm text-slate-700">After applying, run pings: Server A → Firewall should succeed; Server A → Server B should fail. Inspect switch MAC/ARP tables for unexpected entries.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

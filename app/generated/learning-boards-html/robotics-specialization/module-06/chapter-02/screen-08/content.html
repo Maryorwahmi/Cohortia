@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre.code{white-space:pre-wrap; tab-size:2; background:#0f1724; color:#dbeafe; padding:12px; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size:13px;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.2</span>
+      <span>›</span>
+      <span class="text-slate-700">MATLAB Example</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Code snippet</div>
+      <pre class="code"><code>function grid = occupancy_grid_mapping(grid, pose, range_reading, angles, cell_size)
+    % pose: [x, y, theta]
+    % range_reading: distances from LiDAR
+    % angles: angles of each LiDAR beam
+
+    for i = 1:length(range_reading)
+        % End point of the ray
+        x_end = pose(1) + range_reading(i) * cos(pose(3) + angles(i));
+        y_end = pose(2) + range_reading(i) * sin(pose(3) + angles(i));
+
+        % Ray tracing: mark cells along the ray as free
+        [x_cells, y_cells] = bresenham_line(pose(1), pose(2), x_end, y_end);
+        for j = 1:length(x_cells)-1
+            grid(y_cells(j), x_cells(j)) = grid(y_cells(j), x_cells(j)) - 0.1;
+        end
+
+        % Mark the end cell as occupied
+        grid(y_cells(end), x_cells(end)) = grid(y_cells(end), x_cells(end)) + 0.4;
+    end
+end</code></pre>
+    </div>
+
+    <div class="w-1/2 card p-4 flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Explanation</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Compute world endpoint from pose and beam angle to locate the detected obstacle.</li>
+        <li>Use an integer ray tracer to enumerate intervening cells and apply a free update.</li>
+        <li>Apply an occupied update to the final cell if the reading is valid.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-100">
+        <div class="text-sm font-semibold text-slate-800">Practical tips</div>
+        <div class="text-xs text-slate-500 mt-2">Tune the free and occupied increments to match sensor noise. Convert probabilities to log-odds externally if you prefer additive updates.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

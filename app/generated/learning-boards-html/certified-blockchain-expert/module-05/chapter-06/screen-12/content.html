@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre {white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", monospace; font-size: 13px;}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 5.6</span>
+      <span>›</span>
+      <span class="text-slate-700">GDPR Simulation</span>
+    </div>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm card-border h-full flex flex-col">
+    <div class="text-lg font-bold text-slate-900">Simulation: Off‑Chain PII, On‑Chain Hash</div>
+    <div class="text-sm text-slate-600 mt-1">Run the conceptual Python script to observe storage, verification, and deletion.</div>
+
+    <div class="mt-4 grid grid-cols-1 gap-3 flex-grow min-h-0">
+      <div class="rounded-lg bg-white p-3 card-border overflow-auto">
+        <div class="text-sm font-semibold text-slate-800">Code (conceptual)</div>
+        <pre class="mt-2"><code>import hashlib
+import json
+import datetime
+
+# --- Mock Off-Chain Database (Python dictionary) ---
+off_chain_db = {}
+
+# --- Mock On-Chain Contract (conceptually, we'll just store hashes) ---
+on_chain_hashes = {} # Maps user_id to data_hash
+
+def store_user_data(user_id, pii_data):
+    """
+    Simulates storing PII off-chain and its hash on-chain.
+    """
+    print(f"
+--- Storing Data for User {user_id} ---")
+    
+    # 1. Store PII off-chain (mutable, encrypted in a real scenario)
+    off_chain_db[user_id] = {
+        "data": pii_data,
+        "timestamp": datetime.datetime.now().isoformat()
+    }
+    print(f"Off-chain stored for {user_id}: {off_chain_db[user_id]['data']}")
+
+    # 2. Compute hash of PII for on-chain commitment
+    pii_string = json.dumps(pii_data, sort_keys=True)
+    data_hash = hashlib.sha256(pii_string.encode('utf-8')).hexdigest()
+    
+    # 3. Conceptually store hash on-chain (immutable proof of data at a point in time)
+    on_chain_hashes[user_id] = data_hash
+    print(f"On-chain hash committed for {user_id}: {on_chain_hashes[user_id]}")
+    print("This hash proves the data existed and was in this state at this time.")
+
+# ... rest of the script follows the same conceptual flow shown in the lesson content</code></pre>
+        <div class="text-xs text-slate-600 mt-2">Note: This code is a conceptual mock. A real implementation must encrypt off‑chain data, protect salts and keys, and interact with a real blockchain API to commit hashes.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Try this</div>
+        <div class="text-xs text-slate-700">Run the script locally, observe verification before deletion, then exercise the right to be forgotten and confirm retrieval fails while on‑chain hash remains.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">The hybrid approach provides verifiable history while enabling erasure by removing mutable off‑chain records and protecting linking metadata.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

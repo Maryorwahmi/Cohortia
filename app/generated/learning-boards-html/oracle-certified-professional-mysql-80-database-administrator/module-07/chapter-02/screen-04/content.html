@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;} .card{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Prerequisite Check</span>
+  </div>
+
+  <div class="flex gap-4 h-[62%]">
+    <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm">
+      <div class="text-lg font-semibold">Definition and rationale</div>
+      <ul class="mt-3 list-disc list-inside text-slate-600">
+        <li><strong>InnoDB:</strong> provides transactional guarantees required by Group Replication.</li>
+        <li><strong>GTID mode:</strong> ensures each transaction has a global identifier for safe replication.</li>
+        <li><strong>Binary logging + log_slave_updates:</strong> records applied transactions so members can recover consistently.</li>
+        <li><strong>Unique server_id:</strong> prevents confusion when attributing transactions.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold">Verification commands</div>
+        <pre class="mt-2 rounded-md bg-slate-50 p-3"><code>SHOW GLOBAL VARIABLES LIKE 'gtid_mode';
+SHOW GLOBAL VARIABLES LIKE 'log_bin';
+SHOW GLOBAL VARIABLES LIKE 'server_id';
+SHOW GLOBAL VARIABLES LIKE 'log_slave_updates';</code></pre>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Validate prerequisites before installing group_replication to avoid startup and join failures later.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+      <div class="text-sm font-semibold">Common misconceptions</div>
+      <ul class="mt-2 list-disc list-inside text-slate-600">
+        <li>Thinking binary logging alone is sufficient; GTID and log_slave_updates are required.</li>
+        <li>Assuming server_id can be duplicated without consequence; duplicate IDs break replication attribution.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold">Example my.cnf snippet</div>
+        <pre class="mt-2 rounded-md bg-slate-50 p-3"><code>[mysqld]
+server_id=101
+log_bin=mysqld-bin
+gtid_mode=ON
+enforce_gtid_consistency=ON
+log_slave_updates=ON</code></pre>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl p-3 bg-amber-50 text-amber-700">
+          <div class="text-xs font-bold uppercase tracking-wider">Try this</div>
+          <div class="text-sm">Run the SHOW GLOBAL VARIABLES checks and confirm each instance reports expected values before plugin install.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

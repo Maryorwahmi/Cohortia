@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">4-bit Adder/Subtractor</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white p-4 border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Design idea</div>
+      <div class="mt-3 text-sm text-slate-700">Use full-adders with B XOR M to conditionally invert B. Set initial carry-in to M to implement two's complement subtraction.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 border shadow-sm">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Check</div>
+      <div class="mt-3 text-sm text-slate-700">Simulate cases for M=0 (addition) and M=1 (subtraction). Watch for correct borrow behavior reflected in the carry-out bit.</div>
+    </div>
+
+    <div class="col-span-2 rounded-xl bg-white p-4 border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Starter Verilog (behavioral)</div>
+      <div class="mt-3 text-sm text-slate-600">Place this code in a file and simulate. The syntax expresses intent so synthesis will use carry primitives when available.</div>
+      <div class="mt-3 bg-slate-50 p-3 rounded text-sm font-mono">
+        <pre class="whitespace-pre-wrap tab-size-2">module addsub4(input [3:0] A, input [3:0] B, input M, output [3:0] S, output Cout);
+  wire [3:0] B_xor;
+  assign B_xor = B ^ {4{M}}; // invert B when M=1
+  assign {Cout, S} = A + B_xor + M; // carry-in equals M for two's complement
+endmodule</pre>
+      </div>
+    </div>
+
+    <div class="col-span-2 rounded-xl p-3 bg-white border shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Pro-tip</div>
+      <div class="text-sm text-slate-600 mt-2">Write arithmetic as expressions so synthesis recognizes adder patterns and uses fast carry-chain hardware rather than arbitrary LUT networks.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

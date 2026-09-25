@@ -1,0 +1,342 @@
+{
+  "course_id": "comptia-a",
+  "course_title": "CompTIA A+",
+  "module_id": "module-4",
+  "module_title": "Module 4",
+  "chapter_id": "cloud-service-models-iaas-paas-saas-and-security",
+  "chapter_title": "Cloud Service Models (IaaS, PaaS, SaaS) and Security",
+  "chapter_summary": "Building upon our understanding of cloud deployment models, we now pivot to cloud *service* models. These models define the level of abstraction and management that the cloud provider offers, fundamentally altering the shared responsibility for security. For an advanced security practitioner, recognizing where your security responsibilities begin and end within IaaS, PaaS, and SaaS is crucial for designing effective security architectures and avoiding critical gaps.\n\nLet's start with **Infrastructure as a Service (IaaS)**. This is the most basic category of cloud computing services. With IaaS, you rent IT infrastructure—servers, virtual machines (VMs), storage, networks, operating systems—from a cloud provider. You, the customer, are responsible for managing the operating system, applications, data, and middleware. The CSP is responsible for the underlying infrastructure: the virtualization layer, physical servers, networking, and data center facilities. Think of it like renting a car: the rental company maintains the engine, tires, and chassis, but you're responsible for driving, fueling, and what you put in the trunk. From a security perspective, IaaS offers the most control to the customer over the operating system and application stack, which means more flexibility but also more responsibility. Common IaaS security tasks include hardening the guest OS, configuring network security groups (NSGs) or security groups, managing patches, implementing endpoint protection, and securing application code. A common mistake is neglecting OS patching or leaving default administrative credentials on provisioned VMs. For example, when deploying an EC2 instance on AWS (an IaaS offering), you are fully responsible for patching the Linux or Windows OS, installing antivirus, and configuring the instance's firewall rules.\n\nMoving up the stack, we encounter **Platform as a Service (PaaS)**. PaaS provides a complete development and deployment environment in the cloud, with resources that enable you to deliver everything from simple cloud-based apps to sophisticated, cloud-enabled enterprise applications. The CSP manages the underlying infrastructure, including servers, storage, networking, and even the operating system, middleware, and runtime environment. You, the customer, are primarily responsible for your application code, data, and configurations. This is like renting an apartment: the landlord manages the building's infrastructure (plumbing, electricity, walls), but you're responsible for your furniture, decorations, and what you do inside. Security in PaaS shifts some responsibilities to the CSP. For instance, the CSP is typically responsible for patching the operating system and runtime environment. Your security focus shifts to securing your application code (e.g., against OWASP Top 10 vulnerabilities), data encryption, identity and access management for your application users, and secure configuration of the platform services. A critical security concern in PaaS is ensuring secure coding practices and properly configuring platform-specific security features. For instance, using Azure App Service (a PaaS offering), Microsoft handles OS patching, but you must secure your application's database connections, protect API keys, and implement proper authentication/authorization within your application.\n\nFinally, we reach **Software as a Service (SaaS)**. SaaS delivers software applications over the internet, on demand, typically on a subscription basis. The CSP manages the entire application stack, from infrastructure to application code. You, the customer, are primarily responsible for your data, user access management, and specific application configurations. This is like using a public bus: the bus company owns and maintains the bus, the driver, and the route. You just get on, pay your fare, and use the service. Security in SaaS involves the least customer responsibility for the underlying infrastructure and application code. Your security focus is almost entirely on user management (strong passwords, MFA), data governance (who has access to what data within the application), and ensuring the application is configured securely according to your organizational policies. A common mistake here is failing to enforce strong access controls or neglecting to review the security settings provided by the SaaS vendor. For example, using Microsoft 365 or Salesforce (SaaS offerings), Microsoft/Salesforce is responsible for the application's security, but you are responsible for managing user accounts, enforcing MFA, and configuring data sharing settings within the application to prevent unauthorized access to your organizational data.\n\nThe **Shared Responsibility Model** evolves significantly across these service models.\n*   **IaaS:** CSP secures *of* the cloud (physical, network, virtualization). Customer secures *in* the cloud (OS, applications, data, network config).\n*   **PaaS:** CSP secures *of* the cloud and the platform (OS, middleware, runtime). Customer secures *in* the cloud (application code, data, platform configuration, identity).\n*   **SaaS:** CSP secures *of* the cloud and the application itself. Customer secures *in* the cloud (data, user access, application configuration).\n\nAs an advanced practitioner, you must deeply understand these distinctions. When evaluating a new cloud service, you need to ask: \"What security controls am I responsible for, and what is the provider responsible for?\" This dictates your security architecture, your incident response plan, and your compliance strategy. For instance, if your organization adopts a new SaaS CRM, your security team must focus on integrating it with your enterprise identity provider, configuring least privilege access for users, and setting up data loss prevention (DLP) policies, rather than worrying about patching the underlying server OS. Conversely, for an IaaS deployment, your team must have robust vulnerability management, patching, and configuration management processes in place for every VM. This nuanced understanding is critical for building resilient and compliant cloud security postures.",
+  "screens": [
+    {
+      "id": "screen-01",
+      "order": 1,
+      "type": "hero",
+      "template": "hero",
+      "eyebrow": "Module 4 › Chapter 4.2",
+      "title": "Cloud Service Models and Security",
+      "subtitle": "How IaaS, PaaS, and SaaS change your security responsibilities",
+      "narration": {
+        "text": "In this lesson we’ll map three core cloud service models to security responsibilities you must manage. You already know cloud deployment models; now we focus on what changes when the provider manages more of the stack. IaaS gives you virtual machines and networks to run, so you keep OS and application security. PaaS delivers a managed platform where the provider handles OS and runtime, and you focus on application code, data, and configuration. SaaS delivers a finished application; your responsibility narrows primarily to data, user access, and application configuration. Each model shifts the shared responsibility line and that shift drives your architecture, patching plan, identity strategy, and incident response playbooks. We will use concrete examples from common offerings — an EC2-style VM for IaaS, an Azure App Service style PaaS, and a Salesforce-style SaaS — and surface frequent misconfigurations practitioners see in real environments. By the end, you will be able to identify who owns which controls, design the appropriate hardening checklist for each model, and avoid the common operational slip-ups that lead to breaches. Consider what model most of your services use today and how your team’s processes must adapt.",
+        "durationSeconds": 80
+      },
+      "keyIdea": {
+        "title": "Core insight",
+        "text": "The more of the stack the provider manages, the fewer infrastructure tasks you must secure — but your responsibilities for data, identity, and configuration remain critical."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-02",
+      "order": 2,
+      "type": "learning_objectives",
+      "template": "learning_objectives",
+      "eyebrow": "Module 4 › Chapter 4.2",
+      "title": "Learning Objectives",
+      "subtitle": "What you'll learn and prove in this chapter",
+      "narration": {
+        "text": "These objectives guide your study of service models and their security implications. First, you will learn to distinguish IaaS, PaaS, and SaaS by the level of abstraction each provides. You should be able to name concrete responsibilities for both the cloud provider and the customer for each model. Second, you will understand the shared responsibility model and how it shifts as you move from IaaS to PaaS to SaaS. That shift changes your controls for patching, network configuration, and runtime security. Third, you will apply this understanding to design security controls and choose monitoring, identity, and encryption strategies that match the service model. Finally, you will identify common misconfigurations and hardening best practices so you can proactively reduce risk. Each objective connects to a practical competency: mapping responsibilities for an enterprise application, designing a hardening checklist, and auditing a SaaS configuration. As you progress, ask yourself how your current toolset and team processes would adapt if a component moved from IaaS to PaaS or to SaaS.",
+        "durationSeconds": 75
+      },
+      "keyIdea": {
+        "title": "Objective snapshot",
+        "text": "Master the differences, apply the shared responsibility model, design model-appropriate controls, and harden each service model."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-03",
+      "order": 3,
+      "type": "learning_objectives",
+      "template": "learning_objectives",
+      "eyebrow": "Module 4 › Chapter 4.2",
+      "title": "Learning Objectives — Competency Milestones",
+      "subtitle": "Skills you'll demonstrate and how they matter",
+      "narration": {
+        "text": "These four competency milestones map to tasks you will ultimately perform. Milestone one: accurately classify services as IaaS, PaaS, or SaaS and explain the practical security implications. This helps you determine what to patch and monitor. Milestone two: analyze the shared responsibility model for a mixed deployment and identify where gaps could appear — for example, unpatched VMs in IaaS or misconfigured APIs in PaaS. Milestone three: design controls that match the model, such as endpoint protection and OS hardening for IaaS, secure coding and secret management for PaaS, and identity governance for SaaS. Milestone four: demonstrate an audit of common misconfigurations and produce a prioritized hardening checklist. Each milestone includes a verification step so you can show competency: a mapping table, a control design, and a remediation plan. Keep these milestones in mind while we work through examples and the hands-on scenario.",
+        "durationSeconds": 78
+      },
+      "keyIdea": {
+        "title": "Milestone focus",
+        "text": "Translate model knowledge into auditable controls and remediation steps you can apply to real systems."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-04",
+      "order": 4,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "definition",
+      "eyebrow": "Definition",
+      "title": "Infrastructure as a Service (IaaS)",
+      "subtitle": "Full infrastructure access and customer-managed OS and apps",
+      "narration": {
+        "text": "IaaS provides foundational compute, storage, and networking resources that you rent from a cloud provider. In practical terms, you provision and manage virtual machines, storage volumes, and network controls while the provider manages the physical hosts, virtualization, and data center. A concrete example is deploying a virtual server instance to run a database on a cloud VM. Your security tasks in that scenario include patching the operating system, managing database and application user accounts, configuring the VM firewall and network security groups, installing endpoint protection, and ensuring secure backups. A common misconception is that the cloud provider will keep the guest OS patched for you; in IaaS the provider is responsible only for the underlying infrastructure, not the guest operating system. That means missing OS patches or leaving default administrative credentials on a VM is a customer-side error that can lead to compromise. To harden IaaS you should adopt automation for patching, enforce configuration standards for images, and continuously scan for vulnerabilities. Think of IaaS as renting an unfurnished server room: you own the software and data inside it. Closing question: what processes would you add to ensure every VM remains patched and monitored?",
+        "durationSeconds": 95
+      },
+      "keyIdea": {
+        "title": "IaaS takeaway",
+        "text": "IaaS gives control and responsibility: customers must secure OS, apps, and configuration while providers secure the physical and virtualization layers."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-05",
+      "order": 5,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "definition",
+      "eyebrow": "Definition",
+      "title": "Platform as a Service (PaaS)",
+      "subtitle": "Managed runtime with customer-managed application and data",
+      "narration": {
+        "text": "PaaS provides a managed platform for developing and running applications; the provider handles servers, operating system patching, middleware, and runtime. Your work narrows to what you deploy: application code, data, configuration, and identity management for users. For example, when you deploy a web app to a managed app service, the provider patches the OS and runtime but you must secure database connections, handle secrets and A P I keys, and ensure your code prevents common web vulnerabilities. A common misunderstanding is to assume that PaaS removes all security work; in reality it shifts it. Attackers frequently exploit insecure application logic, exposed credentials, or weak platform configuration. To build secure PaaS deployments enforce secure coding, integrate secrets management, require encrypted connections to managed databases, and apply least privilege to service identities. Monitor application logs and platform configuration changes because misconfiguration often yields exposure even when the provider manages the runtime. Consider PaaS like renting an apartment where the landlord maintains the building systems but you are responsible for what you bring inside. How would you change your code review and deployment pipeline to catch configuration risks early?",
+        "durationSeconds": 95
+      },
+      "keyIdea": {
+        "title": "PaaS takeaway",
+        "text": "PaaS reduces infrastructure chores but increases the need for secure development, secret handling, and platform configuration vigilance."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-06",
+      "order": 6,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "definition",
+      "eyebrow": "Definition",
+      "title": "Software as a Service (SaaS)",
+      "subtitle": "Provider-managed applications; customer focuses on data and access",
+      "narration": {
+        "text": "SaaS delivers ready-to-use applications over the internet where the provider manages the entire stack: infrastructure, platform, and application. Your primary responsibilities are data governance, user and access management, and application-level configuration. For example, a CRM delivered as SaaS requires you to manage user roles, enforce multi-factor authentication, and control data sharing settings. A common mistake is assuming the provider will enforce your organization’s internal access policies; in reality the provider secures the application, but how data is accessed and shared inside that application is your job. Hardening SaaS includes enforcing strong authentication, implementing least privilege roles, enabling logging and audit trails, and applying data loss prevention rules where available. Also, integrate SaaS with your enterprise identity provider to manage lifecycle of accounts and to centralize authentication and authorization decisions. Think of SaaS like riding public transit: the operator runs and maintains the vehicle; your safety comes from how you use it and manage your ticket and account. What governance checks would you add before onboarding a new SaaS application? Software as a Service (SaaS) means saas minimizes infrastructure responsibility but preserves the need for strong access control, data governance, and configuration review.. In practical terms, provider-managed applications; customer focuses on data and access. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 95
+      },
+      "keyIdea": {
+        "title": "SaaS takeaway",
+        "text": "SaaS minimizes infrastructure responsibility but preserves the need for strong access control, data governance, and configuration review."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-07",
+      "order": 7,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "architecture",
+      "eyebrow": "Process Flow",
+      "title": "The Shared Responsibility Model",
+      "subtitle": "How responsibilities shift from IaaS to PaaS to SaaS",
+      "narration": {
+        "text": "The shared responsibility model clarifies who secures what. The core claim is simple: providers secure the infrastructure they control; customers secure what they deploy and manage. As you move from IaaS to PaaS to SaaS the provider absorbs more responsibility, but the customer still retains critical control over data, identity, and configuration. For example, in IaaS the customer secures the guest OS, middleware, and applications. In PaaS the provider usually secures the OS and runtime while the customer secures the app and its configuration. In SaaS the provider secures the application stack and the customer focuses on user accounts and data governance. A common misconception is treating the model as all-or-nothing; in practice responsibilities can vary with each service and feature you adopt. Architecturally, you should map each service to a responsibility matrix during procurement and deployment so nothing gets missed. That matrix drives your monitoring, logging boundaries, and incident response handoffs. A practical question: when a security alert appears, who is the escalation contact at the provider and who executes remediation in your environment? The Shared Responsibility Model means always define the split of responsibilities for every managed service — a one-line assumption will cause blind spots.. In practical terms, how responsibilities shift from iaas to paas to saas. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 95
+      },
+      "keyIdea": {
+        "title": "Shared responsibility",
+        "text": "Always define the split of responsibilities for every managed service — a one-line assumption will cause blind spots."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-08",
+      "order": 8,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Process Flow",
+      "title": "Security Controls for IaaS",
+      "subtitle": "Patching, hardening, network controls, and endpoint protection",
+      "narration": {
+        "text": "Securing IaaS requires a layered process that treats each VM and image as an asset you own. Start with secure images and baseline hardening: build golden images with only approved packages, remove default accounts, and enforce configuration templates. Next, implement automated patching and vulnerability scanning so that every instance receives timely updates. Network segmentation and security groups restrict lateral movement between instances; combine them with host firewalls and endpoint protection on each VM. Manage secrets and credentials using a centralized secret store rather than embedding them in images or code. Logging and monitoring must capture both host-level events and cloud audit trails so you can correlate user activity to system changes. A frequent mistake is failing to automate image updates or relying on manual patching for dozens of VMs. Another is leaving default administrative credentials enabled on a new instance. Your process should include image rebuilds, configuration management, and continuous scanning that gates deployment. Example: for a database VM, ensure disk encryption, restrict access by security group rules, and require multi-factor authentication for privileged logins. Closing question: which part of this process will be hardest to automate in your environment and why?",
+        "durationSeconds": 100
+      },
+      "keyIdea": {
+        "title": "IaaS controls",
+        "text": "Treat VMs as first-class assets: automated hardening, patching, network segmentation, and centralized secrets reduce risk."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-09",
+      "order": 9,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Process Flow",
+      "title": "Security Controls for PaaS",
+      "subtitle": "Secure coding, secrets management, and platform configuration",
+      "narration": {
+        "text": "PaaS security centers on the application and how it uses platform services. Begin with secure development: validate input, sanitize output, and follow the OWASP Top Ten to reduce injection and authentication flaws. Integrate secrets management so A P I keys and database credentials never appear in source control or environment variables exposed to developers. Use managed identity features to grant least privilege to platform services and databases. Configure platform-level security options, such as enforced TLS, IP restrictions, and platform-provided firewalls. Monitor application logs and platform audit trails to detect anomalous behavior and configuration drift. Test deployments in staging with the same platform settings to catch misconfigurations early. Common mistakes include leaving A P I keys in configuration files, overlooking platform-specific default settings, or assuming the runtime enforces secure defaults. For example, if you deploy to a managed app service, ensure database connections use managed identities and that connection strings are stored in a secrets store. Closing question: how will you structure code reviews and CI/CD to catch secret leakage and insecure configuration before production? Security Controls for PaaS means focus on application-level security: secure coding, secrets management, managed identities, and platform configuration monitoring.. In practical terms, secure coding, secrets management, and platform configuration. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 100
+      },
+      "keyIdea": {
+        "title": "PaaS controls",
+        "text": "Focus on application-level security: secure coding, secrets management, managed identities, and platform configuration monitoring."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-10",
+      "order": 10,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Process Flow",
+      "title": "Security Controls for SaaS",
+      "subtitle": "Identity, access governance, and data protection",
+      "narration": {
+        "text": "In SaaS the provider manages the application stack; your controls concentrate on identity, access, and protecting the data the application processes. Start by integrating the SaaS application with your enterprise identity provider and enforce strong authentication such as multi-factor authentication for all privileged and remote users. Define least privilege role mappings inside the SaaS product and periodically review role assignments and group membership. Apply data protection: enable encryption at rest and in transit where available, and configure data loss prevention controls to restrict exports and sharing. Enable logging and connect logs to your SIEM so you can detect suspicious access patterns. A common misstep is not reviewing default sharing settings or failing to disable unused features that expose data. For example, a CRM with overly permissive sharing or default public reports can leak customer data. Regularly audit application settings, apply conditional access policies where supported, and maintain an offboarding process that revokes access when employees change roles. Closing question: which SaaS setting would you prioritize for an initial security audit and why? Security Controls for SaaS means in saas, identity and data governance are your primary levers: enforce mfa, least privilege, and dlp-like protections.. In practical terms, identity, access governance, and data protection. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 100
+      },
+      "keyIdea": {
+        "title": "SaaS controls",
+        "text": "In SaaS, identity and data governance are your primary levers: enforce MFA, least privilege, and DLP-like protections."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-11",
+      "order": 11,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "comparison",
+      "eyebrow": "Comparison",
+      "title": "Common Misconfigurations and Mistakes",
+      "subtitle": "Where teams typically fail across service models",
+      "narration": {
+        "text": "There are recurring operational mistakes across IaaS, PaaS, and SaaS that lead to exposure. In IaaS, common failures are missing OS patches, leaving default admin credentials, and weak network security group rules. In PaaS, teams often leak secrets in configuration, fail to apply secure connection strings, or assume the platform enforces secure coding practices. In SaaS, organizations neglect role reviews, fail to enforce multi-factor authentication, or leave overly permissive sharing options enabled. A helpful mental model is to ask for each service: who controls the patching, who controls configuration, and who owns the data? Contrast the mistake of an unpatched VM — clearly a customer error in IaaS — with an exposed configuration setting in SaaS; both require different remediation paths and contacts. To avoid these mistakes, enforce automation where possible: automated patching and image pipelines for IaaS, CI/CD secret scanning for PaaS, and scheduled SaaS configuration audits. Example: a misconfigured storage container exposed via public read access is a fast, common exploit across models if defaults are not hardened. Closing question: which misconfiguration type has the highest likelihood of cross-team ownership disputes in your organization?",
+        "durationSeconds": 100
+      },
+      "keyIdea": {
+        "title": "Common mistakes",
+        "text": "Automate and audit: many breaches start with a missed patch, leaked secret, or permissive SaaS sharing setting."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-12",
+      "order": 12,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "process",
+      "eyebrow": "Process Flow",
+      "title": "Designing Security Strategies by Service Model",
+      "subtitle": "Mapping controls, monitoring, and incident response",
+      "narration": {
+        "text": "Designing an effective security strategy begins by creating a control matrix that maps each service to owner, controls, and monitoring. For IaaS include OS hardening, vulnerability scanning, configuration management, and host-based logging. For PaaS include secure development practices, platform configuration checks, secrets management, and application telemetry. For SaaS include identity federation, role auditing, DLP configuration, and event streaming to your SIEM. Monitoring must collect the right signals: cloud audit logs, platform diagnostics, application logs, and host telemetry. Incident response playbooks should define provider contact points, escalation criteria, and who performs remediation in each model. A frequent misconception is that incident response is identical across models; it is not — IaaS incidents often require immediate host-level remediation, PaaS incidents may require application code fixes or platform configuration changes, and SaaS incidents often involve account suspension and data export controls. Prioritize controls by risk and business impact, and automate repeatable responses such as isolating a compromised instance or revoking a SaaS session. Closing question: how will you determine the critical signals that should trigger an automated containment action? Designing Security Strategies by Service Model means build a responsibility matrix, align monitoring to ownership boundaries, and codify model-specific incident playbooks.. In practical terms, mapping controls, monitoring, and incident response. A concrete example makes the pattern visible, and a brief contrast helps prevent a common misconception. This matters because learners need the underlying reasoning before they can apply the idea confidently or notice where it breaks down. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 105
+      },
+      "keyIdea": {
+        "title": "Strategy design",
+        "text": "Build a responsibility matrix, align monitoring to ownership boundaries, and codify model-specific incident playbooks."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-13",
+      "order": 13,
+      "type": "lesson",
+      "template": "lesson",
+      "sub_template": "comparison",
+      "eyebrow": "Scenario",
+      "title": "Hands-on Scenario: GlobalTech Solutions",
+      "subtitle": "Map responsibilities for a mixed deployment",
+      "narration": {
+        "text": "Let’s apply what we’ve learned to a multi-cloud example. GlobalTech runs a backend A P I on an EC2-style VM (IaaS), a frontend on a managed app service (PaaS), and a support ticketing system in Salesforce-style SaaS. For the backend A P I, GlobalTech is responsible for OS patching, database hardening, and endpoint protection. The cloud provider secures the physical hosts, hypervisor, and networking fabric. For the PaaS frontend, GlobalTech is responsible for application code security, secrets management, and proper platform configuration. The provider secures the runtime and OS. For the SaaS ticketing system, GlobalTech must manage user accounts, roles, MFA, and data sharing controls while the vendor manages the application platform and underlying infrastructure. When you document this mapping, include at least two customer responsibilities and two provider responsibilities for each component and note escalation paths. An important misconception to avoid is assuming a single playbook covers all three; instead create three tailored checklists and one combined escalation plan. Closing exercise: build the table of responsibilities and identify one automated control that can be applied immediately for each component.",
+        "durationSeconds": 100
+      },
+      "keyIdea": {
+        "title": "Scenario insight",
+        "text": "Mixed deployments require per-component responsibility mapping and distinct remediation playbooks for IaaS, PaaS, and SaaS."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-14",
+      "order": 14,
+      "type": "key_concepts",
+      "template": "key_concepts",
+      "eyebrow": "Chapter Summary",
+      "title": "Key Concepts — Part 1",
+      "subtitle": "What to remember from models and responsibility",
+      "narration": {
+        "text": "We end with concise, memorable concepts to carry forward. First, IaaS supplies infrastructure but customers manage OS and apps — so patching and host hardening are essential. Second, PaaS manages the runtime and operating system while customers focus on application security, secrets, and platform configuration. Third, SaaS minimizes infrastructure responsibilities but places the burden of identity, access governance, and data controls on the customer. Each model requires a tailored security approach, different monitoring signals, and distinct incident response steps. A helpful habit is to always produce a responsibility matrix during procurement so that everyone understands who performs which control. Finally, common failure modes are avoidable with automation, scheduled audits, and clear escalation paths. Keep these concepts front of mind when you design controls or review cloud services. Key Concepts — Part 1 means model choice changes the security boundary; align controls, monitoring, and response to that boundary.. In practical terms, what to remember from models and responsibility. A simple real-world example is helpful here, because students learn best when they can connect the idea to a familiar situation. This matters because it gives the learner a clear mental model and helps them connect the concept to later examples and problems. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 75
+      },
+      "keyIdea": {
+        "title": "Remember",
+        "text": "Model choice changes the security boundary; align controls, monitoring, and response to that boundary."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    },
+    {
+      "id": "screen-15",
+      "order": 15,
+      "type": "key_concepts",
+      "template": "key_concepts",
+      "eyebrow": "Quick Reference",
+      "title": "Key Concepts — Part 2",
+      "subtitle": "Three quick cards to use in checklists",
+      "narration": {
+        "text": "Use these three quick cards as checklist prompts. Card one: IaaS — verify image hardening, automated patching, and host-based monitoring. Card two: PaaS — enforce secure development, secrets management, and platform configuration checks. Card three: SaaS — implement identity federation, role audits, and data sharing controls. Each card summarizes the immediate actions you should take when onboarding or auditing a service. Before you complete a procurement or deployment, answer these three prompts and record the responsible owner. That small habit prevents many common configuration errors and clarifies your incident response responsibilities across provider and customer teams. Key Concepts — Part 2 means iaas: patch and monitor. paas: secure code and secrets. saas: control identity and data.. In practical terms, three quick cards to use in checklists. A simple real-world example is helpful here, because students learn best when they can connect the idea to a familiar situation. This matters because it gives the learner a clear mental model and helps them connect the concept to later examples and problems. The main takeaway is that the concept should be understood as a meaningful pattern, not just a label on the screen.",
+        "durationSeconds": 70
+      },
+      "keyIdea": {
+        "title": "Quick checklist",
+        "text": "IaaS: patch and monitor. PaaS: secure code and secrets. SaaS: control identity and data."
+      },
+      "content": {
+        "html": "<div class=\"h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg\" data-theme=\"light\">",
+        "css": ""
+      }
+    }
+  ],
+  "module_number": 4,
+  "chapter_number": 2,
+  "presentation_mode": "animated_explainer",
+  "main_diagram_requested": false,
+  "ai_generation_note": "Produce a 10-minute interactive slide deck with voiceover. Each slide should clearly define IaaS, PaaS, and SaaS, using a visual analogy (e.g., building a house from scratch, renting an unfurnished apartment, renting a fully furnished apartment). For each model, highlight 2-3 key security responsibilities for both the customer and the CSP. Include a \"spot the difference\" interactive quiz where learners identify which security task belongs to the customer versus the CSP for a given scenario. Use a professional, clear, and engaging tone with high-contrast visuals.",
+  "course_level": "advanced"
+}

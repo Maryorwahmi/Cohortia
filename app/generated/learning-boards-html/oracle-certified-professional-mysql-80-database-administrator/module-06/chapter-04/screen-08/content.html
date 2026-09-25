@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} </style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.4</span>
+      <span>›</span>
+      <span class="text-slate-700">Composite Indexes</span>
+    </div>
+    <div class="h-[68vh] grid grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl border p-6 shadow-sm" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Definition</div>
+        <h3 class="text-2xl font-bold text-slate-800 mt-2">Composite index design and ordering</h3>
+        <div class="mt-4 text-sm text-slate-600">
+          <p>Design the column order to match the query's filter and sort sequence. The most selective, most commonly filtered column should be first. The index can then refine results using subsequent columns.</p>
+        </div>
+        <div class="mt-4 grid gap-3">
+          <div class="rounded-lg p-3 bg-slate-50">
+            <div class="text-sm font-semibold text-slate-800">Usage rules</div>
+            <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+              <li>Index (a,b,c) supports filters on a, a and b, or a, b and c.</li>
+              <li>It does not support a filter on b alone efficiently.</li>
+            </ul>
+          </div>
+          <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9)">
+            <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+            <div class="text-sm text-slate-600 mt-1">For WHERE city = 'X' AND state = 'Y' ORDER BY last_name, use (city, state, last_name) so filtering and sorting both use the index.</div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border p-6 shadow-sm overflow-auto" style="border-color:rgba(226,232,240,0.9)">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Check your understanding</div>
+        <div class="mt-3 text-sm text-slate-700">
+          <p>Ask: does the query filter on the first column of the composite? If not, the composite may not help. Test with EXPLAIN after creating the index to confirm it removes filesort or reduces row scans.</p>
+          <div class="mt-3 rounded-xl p-3 bg-emerald-50">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+            <div class="text-sm text-slate-800 mt-1">Order composite columns to match how queries filter and sort, then validate with EXPLAIN.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

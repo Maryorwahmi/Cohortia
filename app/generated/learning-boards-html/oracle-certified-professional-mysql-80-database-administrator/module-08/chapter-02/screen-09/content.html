@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background: #ffffff;">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; white-space:pre-wrap; tab-size:2}</style>
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+    <div class="text-xl font-bold text-slate-800 mb-3">Inspect wait events</div>
+    <div class="grid grid-cols-1 gap-3 flex-1">
+      <div class="rounded-lg bg-white p-3 card-border mono">
+        <pre><code>UPDATE performance_schema.setup_instruments
+SET ENABLED = 'YES', TIMED = 'YES'
+WHERE NAME LIKE 'wait/%';
+
+UPDATE performance_schema.setup_consumers
+SET ENABLED = 'YES'
+WHERE NAME = 'events_waits_history';
+
+SELECT
+  event_id,
+  event_name,
+  object_schema,
+  object_name,
+  index_name,
+  operation,
+  timer_wait / 1000000000 AS duration_ms
+FROM
+  performance_schema.events_waits_history
+WHERE
+  event_name LIKE 'wait/io/file/%' OR event_name LIKE 'wait/lock/%'
+ORDER BY
+  timer_wait DESC
+LIMIT 10;</code></pre>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-lg bg-blue-50 p-3">
+          <div class="font-semibold text-blue-700">I/O Waits</div>
+          <div class="text-sm text-slate-700 mt-1">Look for repeated large duration_ms on file I/O operations; this points to disk or query design problems.</div>
+        </div>
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="font-semibold text-violet-700">Lock Waits</div>
+          <div class="text-sm text-slate-700 mt-1">Identify the locking object and consider shorter transactions, row-level locks, or resolving DDL timing.</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-3 rounded-xl bg-white p-3 border-l-4 border-l-emerald-500">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Differentiate I/O and lock waits and act accordingly: improve storage, change queries, or reduce transaction scope depending on the root cause.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,103 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Helvetica Neue', monospace; font-size:13px;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">Adaptive Architectures</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 min-w-0 flex flex-col">
+      <div class="rounded-2xl bg-white p-5 shadow-sm flex-1" style="border:1px solid rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Principles</div>
+        <h3 class="text-xl font-bold text-slate-800">Control loops and safe actions</h3>
+        <p class="text-sm text-slate-600 mt-3">Adaptive systems require metrics, prediction or thresholding logic, decision policies, and actuators. Each action must include safety checks and fallbacks to avoid harm from incorrect automation.</p>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="rounded-lg bg-slate-50 p-3">
+            <div class="font-semibold text-slate-800">Self‑healing examples</div>
+            <ul class="mt-2 text-sm text-slate-600 list-disc ml-4">
+              <li>Restarting failed services after detection</li>
+              <li>Routing around degraded nodes</li>
+              <li>Auto‑scaling based on local load forecasts</li>
+            </ul>
+          </div>
+
+          <div class="rounded-lg bg-white p-3 border shadow-sm" style="border-color:rgba(226,232,240,0.9);">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+            <p class="text-sm text-slate-700">Automating high‑impact changes without staged rollouts or human review can create cascading failures. Always define safe action boundaries.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 border shadow-sm" style="border-color:rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Check your understanding</div>
+        <p class="text-sm text-slate-700">List one metric to observe, one decision you would trigger, and the safe rollback plan if the decision causes harm.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 min-w-0 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 shadow-sm flex-1 overflow-auto" style="border:1px solid rgba(226,232,240,0.9);">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Concrete Code Example</div>
+        <p class="text-sm text-slate-600">A minimal serverless function demonstrates an adaptive fallback: when an external service is unhealthy, return cached or fallback data instead of blocking callers.</p>
+
+        <div class="mt-3 bg-slate-900 text-white rounded-lg p-3 overflow-auto" style="max-height:320px;">
+          <pre><code>import os
+import json
+import logging
+import time
+import requests # For external API calls
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Configuration for adaptive behavior
+ADAPTIVE_MODE_ENABLED = os.environ.get('ADAPTIVE_MODE', 'false').lower() == 'true'
+EXTERNAL_SERVICE_CHECK_URL = os.environ.get('EXTERNAL_SERVICE_CHECK_URL', 'http://localhost:8080/health')
+FALLBACK_DATA = {"status": "fallback", "message": "Using cached/default data due to degraded external service."}
+
+def check_external_service_health(service_url):
+  try:
+    response = requests.get(service_url, timeout=1) # Short timeout
+    return response.status_code == 200
+  except requests.exceptions.RequestException as e:
+    logger.warning(f"External service health check failed: {e}")
+    return False
+
+def lambda_handler(event, context):
+  logger.info(f"Function invoked. Adaptive mode: {ADAPTIVE_MODE_ENABLED}")
+
+  if ADAPTIVE_MODE_ENABLED:
+    is_external_service_healthy = check_external_service_health(EXTERNAL_SERVICE_CHECK_URL)
+    if not is_external_service_healthy:
+      logger.warning("External service is unhealthy. Returning fallback data.")
+      return {
+        'statusCode': 200,
+        'body': json.dumps(FALLBACK_DATA)
+      }
+
+  try:
+    logger.info("External service is healthy or adaptive mode is off. Proceeding with normal operation.")
+    time.sleep(0.1) # Simulate external call latency
+    real_data = {"status": "live", "message": "Data from external service.", "timestamp": time.time()}
+
+    return {
+      'statusCode': 200,
+      'body': json.dumps(real_data)
+    }
+  except Exception as e:
+    logger.error(f"Error during normal operation: {e}")
+    return {
+      'statusCode': 500,
+      'body': json.dumps({"error": "Internal server error during data retrieval."})
+    }
+</code></pre>
+        </div>
+
+        <div class="mt-3 text-xs text-slate-500">Note: The code shows the pattern; in production replace simple checks with robust health signals and safe rollout controls.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

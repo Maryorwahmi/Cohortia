@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Definition</span>
+      <span class="text-slate-700">MATLAB odometry</span>
+    </div>
+    <div class="text-xl font-bold text-slate-800 mt-2">A minimal, readable odometry update</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Code</div>
+      <pre class="text-sm bg-slate-900 text-slate-100 rounded-md p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+function pose = odometry_update(pose, v_L, v_R, L, dt)
+    v = (v_R + v_L) / 2;
+    omega = (v_R - v_L) / L;
+
+    pose.x = pose.x + v * cos(pose.theta) * dt;
+    pose.y = pose.y + v * sin(pose.theta) * dt;
+    pose.theta = pose.theta + omega * dt;
+end
+      </pre>
+      <div class="text-xs text-slate-600 mt-2">Ensure v_L and v_R are linear speeds (m/s). Convert encoder counts using wheel circumference and time delta before calling this function.</div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-[rgba(226,232,240,0.9)] p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Notes & checklist</div>
+      <ul class="mt-2 text-sm text-slate-600 space-y-2">
+        <li>Normalize theta periodically to avoid numerical overflow in long runs.</li>
+        <li>Account for encoder quantization; small dt helps but increases compute cost.</li>
+        <li>If wheels slip, add sensor fusion to correct drift.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">This function is the simple, testable core of odometry. Use it as a baseline before adding filters or corrections.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

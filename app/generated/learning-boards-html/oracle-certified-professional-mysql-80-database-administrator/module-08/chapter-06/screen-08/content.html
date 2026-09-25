@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#ffffff} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace} .card-border{border:1px solid rgba(226,232,240,0.9)} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 08</span>
+    <span>›</span>
+    <span>Chapter 8.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Binary Logs: Purging Safely</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Manual purge commands</div>
+      <div class="text-sm text-slate-600 mt-2">Two common purge forms for immediate relief.</div>
+
+      <pre class="mt-3 bg-slate-50 p-3 rounded-md text-sm"><code>-- Purge up to a specific file
+PURGE BINARY LOGS TO 'mysql-bin.000123';
+
+-- Purge before a specific date/time
+PURGE BINARY LOGS BEFORE '2023-01-01 00:00:00';</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">After purging, run SHOW BINARY LOGS to confirm which files remain. If slaves still require older logs, do not purge them. Automation is safer when combined with replication checks and backups.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border overflow-auto">
+      <div class="text-lg font-bold text-slate-800">Safety checklist</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>• Check each slave: SHOW SLAVE STATUS\G and inspect Master_Log_File and Exec_Master_Log_Pos.</li>
+        <li>• Ensure backups allow point-in-time recovery for the retention window.</li>
+        <li>• Prefer expire_logs_days for automated expiry aligned to your retention policy.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border border-amber-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Purging logs required by slaves or forgetting to verify backups before deleting logs used for recovery.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-sm font-medium text-slate-800">Purge binary logs only after verifying replication and backups; prefer automatic expiry configured to your recovery window.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

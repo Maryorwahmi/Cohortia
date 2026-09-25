@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-3/5 bg-white rounded-xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900">Query Store</h3>
+      <p class="text-sm text-slate-600 mt-2">A historical recorder of queries, plans, and runtime stats. Use it to find regressions and compare plans across time.</p>
+      <div class="mt-4 space-y-3">
+        <div class="p-3 rounded-lg bg-violet-50 text-violet-700">sys.query_store_query, sys.query_store_plan, sys.query_store_runtime_stats</div>
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">Built-in reports in SSMS: Top Resource Consuming Queries</div>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use Query Store to attach performance changes to plan changes and to recover a better-known plan when appropriate.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-2/5 bg-white rounded-xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Example Query</div>
+      <pre class="bg-slate-900 text-white rounded-md p-3 font-mono text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; height:240px;">
+-- Top 10 queries by average CPU time from Query Store
+SELECT TOP 10
+    qt.query_text_id,
+    q.query_id,
+    qt.query_sql_text,
+    SUM(rs.avg_cpu_time) AS total_avg_cpu_time,
+    SUM(rs.count_executions) AS total_executions
+FROM
+    sys.query_store_query_text AS qt
+JOIN
+    sys.query_store_query AS q
+    ON qt.query_text_id = q.query_text_id
+JOIN
+    sys.query_store_plan AS p
+    ON q.query_id = p.query_id
+JOIN
+    sys.query_store_runtime_stats AS rs
+    ON p.plan_id = rs.plan_id
+GROUP BY
+    qt.query_text_id, q.query_id, qt.query_sql_text
+ORDER BY
+    total_avg_cpu_time DESC;
+      </pre>
+      <div class="mt-3 p-3 rounded-lg bg-white card-border">
+        <div class="text-xs font-semibold text-slate-700">Supporting Point</div>
+        <div class="text-sm text-slate-600 mt-1">Query Store is persistent; it lets you inspect plan changes after the fact, unlike transient DMV state.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

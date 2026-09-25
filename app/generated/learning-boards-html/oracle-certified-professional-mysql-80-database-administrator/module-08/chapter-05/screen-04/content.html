@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class="text-slate-700">What does a replication failure mean?</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-5 h-full flex">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-sm text-slate-800 font-semibold">Definition</div>
+      <p class="text-sm text-slate-600 mt-3">A replication failure happens when the slave stops applying events from the master's binary log. The slave's I/O thread or SQL thread reports an error and halts progress.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-amber-50 p-3 border border-[rgba(245,166,35,0.12)]">
+          <div class="text-[11px] font-bold text-amber-700">Common causes</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+            <li>SQL errors applying an event (duplicate key, missing row)</li>
+            <li>Network connectivity loss for the I/O thread</li>
+            <li>Manual, unsynchronized changes on the slave causing divergence</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg bg-rose-50 p-3 border border-[rgba(239,102,117,0.08)]">
+          <div class="text-[11px] font-bold text-rose-700">Misconception</div>
+          <div class="text-sm text-slate-600 mt-2">Seconds_Behind_Master is not always an error; it estimates lag but does not identify the failing thread or an error code.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use SHOW SLAVE STATUS to locate which thread failed and read Last_SQL_Error or Last_IO_Error before taking action.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-xl bg-white p-4 border border-[rgba(226,232,240,0.9)] flex-grow">
+        <div class="text-[11px] font-bold text-slate-700">Analogy</div>
+        <div class="text-sm text-slate-600 mt-2">Think of the master as a publisher and the slave as a subscriber. If the subscriber's network disconnects, it stops receiving updates. If the subscriber cannot apply an update because it conflicts with local data, it stops applying further updates.</div>
+
+        <div class="mt-4">
+          <div class="text-[11px] font-bold text-slate-700">Quick checklist</div>
+          <ul class="text-sm text-slate-600 mt-2 list-disc ml-4">
+            <li>Run SHOW SLAVE STATUS\G</li>
+            <li>Confirm Slave_IO_Running and Slave_SQL_Running</li>
+            <li>Read Last_IO_Error and Last_SQL_Error for specifics</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-white p-3 border border-[rgba(226,232,240,0.9)]">
+        <div class="text-[11px] font-bold text-slate-700">Example</div>
+        <pre class="mt-2 rounded text-xs bg-slate-50 p-2"><code>SHOW SLAVE STATUS\G
+-- look for: Slave_IO_Running, Slave_SQL_Running, Last_SQL_Error, Exec_Master_Log_Pos</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

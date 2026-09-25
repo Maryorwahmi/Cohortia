@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre.code{background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Pi Gateway</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Gateway responsibilities</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2 flex-1">
+        <div>Validate and parse JSON lines from serial. Add an ISO timestamp and insert into SQLite for history and buffering.</div>
+        <div>Apply threshold logic and control GPIO for the fan, or send serial commands to Arduino for the relay.</div>
+        <div>Buffer uploads and retry when internet connectivity returns to avoid data loss.</div>
+      </div>
+      <div class="mt-3 rounded-md bg-slate-50 p-3 text-sm text-slate-700">Debug tip: run the gateway in a terminal and watch both inserts and control outputs to confirm end-to-end behavior before adding cloud uploads.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Illustrative Python parsing and insert</div>
+      <pre class="code mt-3"><code># Pseudocode for gateway parsing
+import json
+import sqlite3
+from datetime import datetime
+
+# assume serial_line is a single-line JSON string
+try:
+  data = json.loads(serial_line)
+  temp = float(data['temp'])
+  hum = float(data['hum'])
+  light = int(data['light'])
+  ts = datetime.utcnow().isoformat()
+  conn.execute('INSERT INTO samples(timestamp,temp,hum,light) VALUES (?,?,?,?)', (ts,temp,hum,light))
+  conn.commit()
+except Exception as e:
+  print('parse error', e)
+</code></pre>
+      <div class="mt-3 text-sm text-slate-700">Ensure the insert matches your SQLite schema and add retry-safe transactions for resilience.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

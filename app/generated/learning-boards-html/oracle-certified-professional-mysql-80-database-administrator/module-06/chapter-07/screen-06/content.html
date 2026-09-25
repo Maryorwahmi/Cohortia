@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl border p-4 bg-white shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500">Definition & Example</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Query Patterns for Performance Schema</div>
+      <div class="mt-3 text-sm text-slate-600">Practice these steps: generate workload, run digest summaries, and map digests back to SQL text and wait events to decide on fixes.</div>
+      <div class="mt-4 text-sm font-semibold text-slate-700">Example code panel</div>
+      <pre class="mt-2 bg-slate-50 p-3 rounded text-sm text-slate-700">-- Sample pattern
+SELECT DIGEST, DIGEST_TEXT, COUNT_STAR AS exec_count, SUM_TIMER_WAIT AS total_latency
+FROM performance_schema.events_statements_summary_by_digest
+ORDER BY total_latency DESC
+LIMIT 10;
+
+-- Map a digest to full text
+SELECT SQL_TEXT FROM performance_schema.events_statements_history WHERE DIGEST = 'your_digest' LIMIT 1;</pre>
+    </div>
+    <div class="w-1/2 rounded-xl border p-4 bg-white shadow-sm border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Explanation cards</div>
+      <div class="mt-2 grid gap-2">
+        <div class="rounded-lg p-3 bg-blue-50 text-blue-700">Digest groups similar statements reducing noise when many similar queries run.</div>
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-700">Total latency helps prioritize which shapes cost most overall; avg latency shows per-execution cost.</div>
+        <div class="rounded-lg p-3 bg-amber-50 text-amber-800">Map digests to full SQL to understand why a plan is expensive and whether an index or rewrite can help.</div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-sm font-medium text-slate-800">Use statement digest summaries to find the highest-impact SQL shapes, then inspect specific statements and waits for targeted action.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

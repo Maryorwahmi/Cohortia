@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Why Group Replication</span>
+  </div>
+  <div class="flex gap-5 h-full">
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Asynchronous / Semi-sync</div>
+      <div class="mt-3 text-sm text-slate-700 leading-relaxed">Asynchronous replication replicates changes after commit and requires manual promotion on failure. Semi-synchronous adds some acknowledgement guarantees but still lacks a group-wide ordering that prevents divergence after partitions. Operators commonly face manual recovery, split-brain risk, and inconsistent replicas during failover.</div>
+      <div class="mt-6 grid gap-2">
+        <div class="rounded-lg p-3 bg-white border text-sm">Pros: simple, low overhead for writes.</div>
+        <div class="rounded-lg p-3 bg-white border text-sm">Cons: manual failover, possible divergence, limited automation.</div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Group Replication (MGR)</div>
+      <div class="mt-3 text-sm text-slate-700 leading-relaxed">MGR uses a messaging and consensus layer so members agree on transaction order. That gives strong consistency and automatic membership reconfiguration. MGR reduces manual intervention for failover, but requires careful configuration and low-latency networks.</div>
+      <div class="mt-6 grid gap-2">
+        <div class="rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">Benefit: automatic failover and uniform state.</div>
+        <div class="rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-600">Trade-off: stricter prerequisites and sensitivity to latency.</div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-5 grid grid-cols-3 gap-3">
+    <div class="rounded-xl p-3 bg-white border">Example: Two-node split in async requires manual reconciliation after rejoin.</div>
+    <div class="rounded-xl p-3 bg-white border">Misconception: MGR automatically solves all scaling problems—no, it enforces ordering and consistency which can limit write latency.</div>
+    <div class="rounded-xl p-3 bg-white border">Takeaway: Choose MGR when strong consistency and automated membership are priorities.</div>
+  </div>
+</div>

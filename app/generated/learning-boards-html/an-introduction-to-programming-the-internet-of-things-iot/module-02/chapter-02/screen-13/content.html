@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-900">Activity overview</div>
+      <div class="mt-3 text-sm text-slate-700">Read TMP36 on A0, LDR divider on A1, pushbutton on pin 2. Apply a 10-sample average to temperature and light, convert and calibrate, then print CSV every second with temperature, light%, button.</div>
+
+      <div class="mt-4 text-sm font-bold text-slate-700">Verification</div>
+      <ul class="mt-2 text-sm text-slate-700 space-y-2">
+        <li>Compare TMP36 output to a room thermometer.</li>
+        <li>Cover the LDR and observe light percentage change.</li>
+        <li>Press the button and confirm Serial shows the state change.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-900">Example sketch skeleton</div>
+      <pre class="mt-3 bg-slate-900 text-green-100 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+const int tempPin = A0; // TMP36
+const int ldrPin = A1;  // LDR divider
+const int buttonPin = 2;
+
+void setup(){
+  Serial.begin(9600);
+  pinMode(buttonPin, INPUT_PULLUP);
+}
+
+float readAverage(int pin, int samples){
+  long sum = 0;
+  for(int i=0;i<samples;i++){
+    sum += analogRead(pin);
+    delay(5);
+  }
+  return sum / (float)samples;
+}
+
+void loop(){
+  float rawTemp = readAverage(tempPin,10);
+  float voltage = (rawTemp / 1023.0) * 5.0;
+  float tempC = (voltage - 0.5) * 100.0; // TMP36 conversion
+
+  float rawLdr = readAverage(ldrPin,10);
+  // TODO: map rawLdr to 0-100% using calibration references
+
+  int buttonState = digitalRead(buttonPin);
+  Serial.print(tempC); Serial.print(",");
+  Serial.print(/*lightPercent*/ 0); Serial.print(",");
+  Serial.println(buttonState == LOW ? "pressed" : "released");
+  delay(1000);
+}
+      </pre>
+
+      <div class="mt-3 text-sm text-slate-700">Replace TODO with your measured dark and bright references for accurate light percent conversion.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">pytest Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Code</div>
+      <h4 class="text-lg font-semibold text-slate-800 mt-2">app.py and test_app.py</h4>
+
+      <div class="mt-3 bg-slate-900 text-white rounded-lg overflow-hidden font-mono text-sm">
+        <pre class="p-4 whitespace-pre-wrap" style="tab-size:2"># test_app.py
+import pytest
+from app import calculate_discount
+
+def test_calculate_discount_valid_input():
+    assert calculate_discount(100, 10) == 90.00
+    assert calculate_discount(50, 0) == 50.00
+    assert calculate_discount(200, 100) == 0.00
+    assert calculate_discount(100, 7.5) == 92.50
+
+def test_calculate_discount_invalid_price():
+    with pytest.raises(ValueError, match="Price must be a non-negative number."):
+        calculate_discount(-10, 10)
+    with pytest.raises(ValueError, match="Price must be a non-negative number."):
+        calculate_discount("abc", 10)
+
+def test_calculate_discount_invalid_percentage():
+    with pytest.raises(ValueError, match="Discount percentage must be between 0 and 100."):
+        calculate_discount(100, -5)
+    with pytest.raises(ValueError, match="Discount percentage must be between 0 and 100."):
+        calculate_discount(100, 101)
+</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-2">
+        <div><strong>Run:</strong> In the terminal run <span class="font-mono">pytest</span> to discover and run tests.</div>
+        <div><strong>Assert pattern:</strong> One test function per behavior, use pytest.raises for expected errors.</div>
+        <div><strong>Test names:</strong> Use names that describe behavior to act as documentation.</div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-5 border shadow-sm flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Support</div>
+      <div class="mt-2 text-sm text-slate-700">Why use pytest.raises? It checks that code defends against invalid inputs and raises the expected exception with a helpful message. This makes error handling explicit in tests rather than relying on broad exception catching.</div>
+
+      <div class="mt-4 rounded-xl p-3 bg-amber-50 border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common Mistake</div>
+        <p class="text-xs text-slate-800">Putting many assertions for different behaviors into one test reduces clarity. Split scenarios across test functions.</p>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">pytest discovery and pytest.raises make writing clear, self-validating unit tests straightforward and repeatable.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

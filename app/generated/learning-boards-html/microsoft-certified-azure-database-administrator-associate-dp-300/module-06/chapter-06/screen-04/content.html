@@ -1,0 +1,75 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.6</span>
+    <span>›</span>
+    <span class="text-slate-700">DMVs & DMFs</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 rounded-xl bg-white p-5 border" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-lg font-bold text-slate-900">DMVs and DMFs — definition</div>
+      <div class="text-sm text-slate-600 mt-2">DMVs return server state in near real time. DMFs return diagnostic data often with parameters for context.</div>
+
+      <div class="mt-4 space-y-2">
+        <div class="text-sm font-medium text-slate-800">Key properties</div>
+        <ul class="text-sm text-slate-700 list-disc list-inside">
+          <li>Readable like tables but provide runtime engine state</li>
+          <li>Not a historical log — capture snapshots if you need history</li>
+          <li>Useful for sessions, requests, waits, missing index data, and plan inspection</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Common misconception</div>
+        <div class="text-sm text-slate-600 mt-2">DMVs are sometimes treated like persistent audit logs. They are not: most present current or aggregated data since the last reset.</div>
+      </div>
+
+      <div class="mt-4 key-takeaway">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Use DMVs to observe live behavior and combine them with query text and plans to decide corrective actions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-3/5 rounded-xl bg-white p-5 border flex flex-col" style="border-color:rgba(226,232,240,0.9);">
+      <div class="text-sm font-semibold text-slate-700">Illustrative analogies</div>
+      <div class="text-sm text-slate-600 mt-2">Think of DMVs as dashboard instruments in a car. Gauges tell you speed and temperature; they don't change the engine, but they tell you when to stop and intervene.</div>
+
+      <div class="mt-4 h-full flex flex-col">
+        <div class="flex-1 rounded-lg bg-slate-50 p-3 overflow-hidden">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-bold">Example query</div>
+          <pre class="mt-2 text-sm bg-white p-3 rounded border" style="white-space:pre-wrap; tab-size:2; font-family:monospace; border-color:rgba(226,232,240,0.9);">
+SELECT TOP 10
+  session_id,
+  status,
+  total_elapsed_time,
+  cpu_time,
+  wait_type
+FROM
+  sys.dm_exec_requests
+WHERE
+  session_id &gt; 50 -- user sessions
+ORDER BY
+  total_elapsed_time DESC;
+          </pre>
+          <div class="text-sm text-slate-600 mt-3">Run this during an incident to see the heaviest running requests and their wait types.</div>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">When to use DMVs</div>
+            <div class="text-sm text-slate-700 mt-2">During real‑time troubleshooting, capacity planning, and targeted performance tuning.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Remember</div>
+            <div class="text-sm text-slate-700 mt-2">Always test any changes discovered via DMVs in nonproduction before applying to live workloads.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

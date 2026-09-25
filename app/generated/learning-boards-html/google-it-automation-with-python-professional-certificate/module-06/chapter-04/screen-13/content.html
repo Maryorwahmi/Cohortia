@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full min-h-0">
+    <div class="card rounded-xl p-4 overflow-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-800 mt-2">Debugging checklist</h3>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-600 space-y-2">
+        <li>Reproduce the issue on a tiny sample.</li>
+        <li>Run a dry-run that prints planned file operations without changing files.</li>
+        <li>Test regex stepwise; use findall to inspect matches.</li>
+        <li>Log exceptions with stack traces and include path info for failing files.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border text-sm">Pro tip: add a --dry-run flag to scripts so you can preview moves and renames safely before applying them.</div>
+    </div>
+
+    <div class="card rounded-xl p-4">
+      <div class="text-sm font-semibold text-slate-800">Example: dry-run pattern</div>
+      <div class="text-sm text-slate-600 mt-2">Print intended rename operations before calling shutil.move.</div>
+
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>for name in os.listdir('logs'):
+  if 'app' in name and name.endswith('.log'):
+    new_name = name.replace('.log', '_processed.log')
+    print('Would rename', name, '->', new_name)  # dry-run
+    # when satisfied: shutil.move(src, dst)
+</code></pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">A dry-run and small tests reduce the risk of destructive mistakes when scripts run unattended.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

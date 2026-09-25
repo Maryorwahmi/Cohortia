@@ -33,6 +33,79 @@
         "Can you explain the result in your own words?"
       ]
     },
+    "teachingPlaylist": [
+      {
+        "title": "Run and Observe the Starter Calculator",
+        "description": "Compile and run calculator.c to see current behavior: it reads two integers and prints only their sum.",
+        "learningGoal": "Identify variable declarations and how scanf with & stores user input.",
+        "narratorScript": "Run the program and observe the two prompts and the single printed Sum line. Note the use of & with scanf — it's providing the address of the variable so scanf can store the input value.",
+        "workedExample": "Input 10 and 3; the program prints Sum: 13.",
+        "scenario": "You are investigating what the provided code already does before editing it.",
+        "learnerPrompt": "Run the compile and run commands. Write a one-line explanation: why is & required with scanf?",
+        "commonMistake": "Forgetting the & leads to undefined behavior or segmentation faults.",
+        "recap": "You observed scanf reading two ints and the program printing the sum.",
+        "durationSeconds": 150,
+        "codeSteps": [
+          "clang calculator.c -o calculator",
+          "printf \"10\\n3\\n\" | ./calculator"
+        ],
+        "id": "path-1"
+      },
+      {
+        "title": "Fill the TODOs: Difference, Product, Quotient",
+        "description": "Add printf calls for difference and product, and a formatted floating-point quotient using casting.",
+        "learningGoal": "Practice arithmetic operators and type casting for float division.",
+        "narratorScript": "Add three printf lines. Use %i for integer outputs and (float) cast plus %.2f for a readable decimal quotient.",
+        "workedExample": "After edits, 10 and 3 should print Quotient: 3.33.",
+        "scenario": "You improve the calculator by implementing missing outputs.",
+        "learnerPrompt": "Edit, compile, and run with 10 and 3 to confirm outputs.",
+        "commonMistake": "Using %f without casting operands will still perform integer division first.",
+        "recap": "You added difference, product, and a correctly formatted quotient.",
+        "durationSeconds": 240,
+        "codeSteps": [
+          "Edit calculator.c to add three printf lines.",
+          "clang calculator.c -o calculator",
+          "printf \"10\\n3\\n\" | ./calculator"
+        ],
+        "id": "path-2"
+      },
+      {
+        "title": "Add Safety: Division-by-Zero Guard and Remainder",
+        "description": "Introduce a check to avoid division/modulo by zero and print an informative message.",
+        "learningGoal": "Use conditionals to prevent runtime errors and print remainder when safe.",
+        "narratorScript": "Add an if (num2 == 0) branch to handle zero divisor. In else branch compute quotient and remainder safely.",
+        "workedExample": "Input 10 and 0 -> 'Cannot divide by zero.' Input 10 and 3 -> 'Remainder: 1'.",
+        "scenario": "You make the tool safe for real users by handling invalid input.",
+        "learnerPrompt": "Implement the guard and test both zero and nonzero divisor cases.",
+        "commonMistake": "Computing remainder without guarding causes crashes.",
+        "recap": "You learned to add simple guards and why they're important.",
+        "durationSeconds": 240,
+        "codeSteps": [
+          "Edit calculator.c to add if (num2 == 0) branch.",
+          "Else compute quotient and remainder.",
+          "Compile and test with 0 and nonzero divisor."
+        ],
+        "id": "path-3"
+      },
+      {
+        "title": "Verify Edge Cases and Plan an Extension to Floats",
+        "description": "Test negative and large inputs; plan how to support floating-point input.",
+        "learningGoal": "Confirm behavior with edge-case inputs and prepare to change types for decimals.",
+        "narratorScript": "Run tests with -5 and 2 and with large numbers. To accept decimals, change ints to float/double and update scanf/printf format specifiers accordingly.",
+        "workedExample": "Input -5 and 2 produces Sum: -3 and Product: -10.",
+        "scenario": "You validate correctness and prepare to extend the program.",
+        "learnerPrompt": "Run the edge-case tests and write down the three edits needed to accept floats.",
+        "commonMistake": "Changing only format specifiers without changing variable types leads to incorrect behavior.",
+        "recap": "You verified edge cases and planned the float/double extension.",
+        "durationSeconds": 210,
+        "codeSteps": [
+          "printf \"-5\\n2\\n\" | ./calculator",
+          "printf \"100000\\n200000\\n\" | ./calculator",
+          "Plan edits: variable types, scanf formats, printf formats."
+        ],
+        "id": "path-4"
+      }
+    ],
     "codeWalkthrough": [],
     "completionRule": "all_tests_pass",
     "environment": {
@@ -59,15 +132,148 @@
     ],
     "tasks": [
       {
-        "id": "task-1",
-        "title": "Interactive Lab: Variables, Data Types, and User Input in C — Simple Calculator",
+        "id": "task-1-observe",
+        "title": "Scene 1 — Observe & Understand: Run the starter program",
         "instruction": "**Simple Calculator Program:**\nWrite a C program that prompts the user to enter two integers, then calculates and displays their sum, difference, product, and floating-point quotient.\n\n```c\n#include <stdio.h>\n\nint main(void)\n{\n    int num1, num2; // Declare two integer variables\n\n    // Prompt user for the first number and read it\n    printf(\"Enter the first integer: \");\n    scanf(\"%i\", &num1);\n\n    // Prompt user for the second number and read it\n    printf(\"Enter the second integer: \");\n    scanf(\"%i\", &num2);\n\n    // Calculate and print the sum\n    printf(\"Sum: %i\\n\", num1 + num2);\n\n    // TODO: Calculate and print the difference\n    // TODO: Calculate and print the product\n    // TODO: Calculate and print the floating-point quotient (remember type casting!)\n\n    return 0;\n}\n```\n**Instructions:**\n1.  Save the above code as `calculator.c`.\n2.  Fill in the `TODO` sections to complete the program.\n3.  Compile with `clang calculator.c -o calculator`.\n4.  Run with `./calculator` and test with different integer inputs. Pay attention to the quotient when using integers.",
-        "narratorGuide": "In this observe step, focus on Interactive Lab: Variables, Data Types, and User Input in C — Simple Calculator in Interactive Lab: Variables, Data Types, and User Input in C — Simple Calculator. Read the instruction aloud, make a prediction, and then work carefully through one change at a time. Notice the evidence produced by your program or design. Ask yourself why the result makes sense, what assumption you tested, and what you would change next. If you get stuck, compare the result with the core concept rather than copying a solution. When the check passes, explain the reason in your own words before continuing.",
+        "narratorGuide": "Let's compile and run the starter program exactly as provided. Watch the prompts and the computed sum. As you watch, predict what will print for the input pair 10 and 3. Notice where the program uses & with scanf, and how only the sum is shown because the other operations are left as TODOs. After running, I'll ask you to explain in one sentence why the & is required and to predict what would change if %i were replaced with %f.",
+        "teaching": {
+          "learningGoal": "Understand Scene 1 — Observe & Understand: Run the starter program.",
+          "teacherTalk": "Let's compile and run the starter program exactly as provided. Watch the prompts and the computed sum. As you watch, predict what will print for the input pair 10 and 3. Notice where the program uses & with scanf, and how only the sum is shown because the other operations are left as TODOs. After running, I'll ask you to explain in one sentence why the & is required and to predict what would change if %i were replaced with %f.",
+          "realWorldExample": "Connect Scene 1 — Observe & Understand: Run the starter program to a small real-world program or system.",
+          "guidedSteps": [
+            "**Simple Calculator Program:**\nWrite a C program that prompts the user to enter two integers, then calculates and displays their sum, difference, product, and floating-point quotient.\n\n```c\n#include <stdio.h>\n\nint main(void)\n{\n    int num1, num2; // Declare two integer variables\n\n    // Prompt user for the first number and read it\n    printf(\"Enter the first integer: \");\n    scanf(\"%i\", &num1);\n\n    // Prompt user for the second number and read it\n    printf(\"Enter the second integer: \");\n    scanf(\"%i\", &num2);\n\n    // Calculate and print the sum\n    printf(\"Sum: %i\\n\", num1 + num2);\n\n    // TODO: Calculate and print the difference\n    // TODO: Calculate and print the product\n    // TODO: Calculate and print the floating-point quotient (remember type casting!)\n\n    return 0;\n}\n```\n**Instructions:**\n1.  Save the above code as `calculator.c`.\n2.  Fill in the `TODO` sections to complete the program.\n3.  Compile with `clang calculator.c -o calculator`.\n4.  Run with `./calculator` and test with different integer inputs. Pay attention to the quotient when using integers."
+          ],
+          "questions": [
+            "What do you predict will happen before you run it?"
+          ],
+          "expectedObservations": [
+            "Compare the result with your prediction."
+          ],
+          "feedback": {
+            "success": "Good observation. Explain why the result makes sense before continuing.",
+            "misconception": "That result is useful evidence. Let us compare it with the underlying concept.",
+            "retry": "Try one small change and observe the result again."
+          },
+          "recap": "Let's compile and run the starter program exactly as provided. Watch the prompts and the computed sum. As you watch, predict what will print for the input pair 10 and 3. Notice where the program uses & with scanf, and how only the sum is shown because the other operations are left as TODOs. After running, I'll ask you to explain in one sentence why the & is required and to predict what would change if %i were replaced with %f.",
+          "waitForLearner": true
+        },
         "required": true,
         "requiredConcepts": [],
         "hints": [],
         "checkIds": [
-          "check-1-baseline-sum"
+          "check-1a",
+          "check-1b"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "task-2-modify",
+        "title": "Scene 2 — Modify & Experiment: Fill in the TODOs",
+        "instruction": "**Simple Calculator Program:**\nWrite a C program that prompts the user to enter two integers, then calculates and displays their sum, difference, product, and floating-point quotient.\n\n```c\n#include <stdio.h>\n\nint main(void)\n{\n    int num1, num2; // Declare two integer variables\n\n    // Prompt user for the first number and read it\n    printf(\"Enter the first integer: \");\n    scanf(\"%i\", &num1);\n\n    // Prompt user for the second number and read it\n    printf(\"Enter the second integer: \");\n    scanf(\"%i\", &num2);\n\n    // Calculate and print the sum\n    printf(\"Sum: %i\\n\", num1 + num2);\n\n    // TODO: Calculate and print the difference\n    // TODO: Calculate and print the product\n    // TODO: Calculate and print the floating-point quotient (remember type casting!)\n\n    return 0;\n}\n```\n**Instructions:**\n1.  Save the above code as `calculator.c`.\n2.  Fill in the `TODO` sections to complete the program.\n3.  Compile with `clang calculator.c -o calculator`.\n4.  Run with `./calculator` and test with different integer inputs. Pay attention to the quotient when using integers.",
+        "narratorGuide": "Now make a focused change: add three printf lines beneath the existing sum line. One prints the difference with %i, one prints the product with %i, and one prints the floating-point quotient using (float)num1 / num2 formatted with %.2f. Save, compile, and run with inputs 10 and 3. Predict the printed quotient before running. This small edit teaches type casting and format specifiers with immediate feedback.",
+        "teaching": {
+          "learningGoal": "Understand Scene 2 — Modify & Experiment: Fill in the TODOs.",
+          "teacherTalk": "Now make a focused change: add three printf lines beneath the existing sum line. One prints the difference with %i, one prints the product with %i, and one prints the floating-point quotient using (float)num1 / num2 formatted with %.2f. Save, compile, and run with inputs 10 and 3. Predict the printed quotient before running. This small edit teaches type casting and format specifiers with immediate feedback.",
+          "realWorldExample": "Connect Scene 2 — Modify & Experiment: Fill in the TODOs to a small real-world program or system.",
+          "guidedSteps": [
+            "**Simple Calculator Program:**\nWrite a C program that prompts the user to enter two integers, then calculates and displays their sum, difference, product, and floating-point quotient.\n\n```c\n#include <stdio.h>\n\nint main(void)\n{\n    int num1, num2; // Declare two integer variables\n\n    // Prompt user for the first number and read it\n    printf(\"Enter the first integer: \");\n    scanf(\"%i\", &num1);\n\n    // Prompt user for the second number and read it\n    printf(\"Enter the second integer: \");\n    scanf(\"%i\", &num2);\n\n    // Calculate and print the sum\n    printf(\"Sum: %i\\n\", num1 + num2);\n\n    // TODO: Calculate and print the difference\n    // TODO: Calculate and print the product\n    // TODO: Calculate and print the floating-point quotient (remember type casting!)\n\n    return 0;\n}\n```\n**Instructions:**\n1.  Save the above code as `calculator.c`.\n2.  Fill in the `TODO` sections to complete the program.\n3.  Compile with `clang calculator.c -o calculator`.\n4.  Run with `./calculator` and test with different integer inputs. Pay attention to the quotient when using integers."
+          ],
+          "questions": [
+            "What do you predict will happen before you run it?"
+          ],
+          "expectedObservations": [
+            "Compare the result with your prediction."
+          ],
+          "feedback": {
+            "success": "Good observation. Explain why the result makes sense before continuing.",
+            "misconception": "That result is useful evidence. Let us compare it with the underlying concept.",
+            "retry": "Try one small change and observe the result again."
+          },
+          "recap": "Now make a focused change: add three printf lines beneath the existing sum line. One prints the difference with %i, one prints the product with %i, and one prints the floating-point quotient using (float)num1 / num2 formatted with %.2f. Save, compile, and run with inputs 10 and 3. Predict the printed quotient before running. This small edit teaches type casting and format specifiers with immediate feedback.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-2a",
+          "check-2b"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "task-3-build",
+        "title": "Scene 3 — Build & Integrate: Handle division by zero + remainder",
+        "instruction": "**Simple Calculator Program:**\nWrite a C program that prompts the user to enter two integers, then calculates and displays their sum, difference, product, and floating-point quotient.\n\n```c\n#include <stdio.h>\n\nint main(void)\n{\n    int num1, num2; // Declare two integer variables\n\n    // Prompt user for the first number and read it\n    printf(\"Enter the first integer: \");\n    scanf(\"%i\", &num1);\n\n    // Prompt user for the second number and read it\n    printf(\"Enter the second integer: \");\n    scanf(\"%i\", &num2);\n\n    // Calculate and print the sum\n    printf(\"Sum: %i\\n\", num1 + num2);\n\n    // TODO: Calculate and print the difference\n    // TODO: Calculate and print the product\n    // TODO: Calculate and print the floating-point quotient (remember type casting!)\n\n    return 0;\n}\n```\n**Instructions:**\n1.  Save the above code as `calculator.c`.\n2.  Fill in the `TODO` sections to complete the program.\n3.  Compile with `clang calculator.c -o calculator`.\n4.  Run with `./calculator` and test with different integer inputs. Pay attention to the quotient when using integers.",
+        "narratorGuide": "Add a guard against division by zero: if num2 == 0 print a message and skip quotient/remainder computation. Otherwise compute quotient (with casting) and remainder (num1 % num2). Compile and run with inputs 10 and 0 to see the message, and with 10 and 3 to see the remainder 1. This exercise shows how small conditional checks prevent runtime errors and improve user experience.",
+        "teaching": {
+          "learningGoal": "Understand Scene 3 — Build & Integrate: Handle division by zero + remainder.",
+          "teacherTalk": "Add a guard against division by zero: if num2 == 0 print a message and skip quotient/remainder computation. Otherwise compute quotient (with casting) and remainder (num1 % num2). Compile and run with inputs 10 and 0 to see the message, and with 10 and 3 to see the remainder 1. This exercise shows how small conditional checks prevent runtime errors and improve user experience.",
+          "realWorldExample": "Connect Scene 3 — Build & Integrate: Handle division by zero + remainder to a small real-world program or system.",
+          "guidedSteps": [
+            "**Simple Calculator Program:**\nWrite a C program that prompts the user to enter two integers, then calculates and displays their sum, difference, product, and floating-point quotient.\n\n```c\n#include <stdio.h>\n\nint main(void)\n{\n    int num1, num2; // Declare two integer variables\n\n    // Prompt user for the first number and read it\n    printf(\"Enter the first integer: \");\n    scanf(\"%i\", &num1);\n\n    // Prompt user for the second number and read it\n    printf(\"Enter the second integer: \");\n    scanf(\"%i\", &num2);\n\n    // Calculate and print the sum\n    printf(\"Sum: %i\\n\", num1 + num2);\n\n    // TODO: Calculate and print the difference\n    // TODO: Calculate and print the product\n    // TODO: Calculate and print the floating-point quotient (remember type casting!)\n\n    return 0;\n}\n```\n**Instructions:**\n1.  Save the above code as `calculator.c`.\n2.  Fill in the `TODO` sections to complete the program.\n3.  Compile with `clang calculator.c -o calculator`.\n4.  Run with `./calculator` and test with different integer inputs. Pay attention to the quotient when using integers."
+          ],
+          "questions": [
+            "What do you predict will happen before you run it?"
+          ],
+          "expectedObservations": [
+            "Compare the result with your prediction."
+          ],
+          "feedback": {
+            "success": "Good observation. Explain why the result makes sense before continuing.",
+            "misconception": "That result is useful evidence. Let us compare it with the underlying concept.",
+            "retry": "Try one small change and observe the result again."
+          },
+          "recap": "Add a guard against division by zero: if num2 == 0 print a message and skip quotient/remainder computation. Otherwise compute quotient (with casting) and remainder (num1 % num2). Compile and run with inputs 10 and 0 to see the message, and with 10 and 3 to see the remainder 1. This exercise shows how small conditional checks prevent runtime errors and improve user experience.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-3a",
+          "check-3b"
+        ],
+        "animationTimeline": [],
+        "totalDurationMs": 180000,
+        "terminalCommands": []
+      },
+      {
+        "id": "task-4-verify",
+        "title": "Scene 4 — Verify & Extend: Edge cases and next-step extension",
+        "instruction": "**Simple Calculator Program:**\nWrite a C program that prompts the user to enter two integers, then calculates and displays their sum, difference, product, and floating-point quotient.\n\n```c\n#include <stdio.h>\n\nint main(void)\n{\n    int num1, num2; // Declare two integer variables\n\n    // Prompt user for the first number and read it\n    printf(\"Enter the first integer: \");\n    scanf(\"%i\", &num1);\n\n    // Prompt user for the second number and read it\n    printf(\"Enter the second integer: \");\n    scanf(\"%i\", &num2);\n\n    // Calculate and print the sum\n    printf(\"Sum: %i\\n\", num1 + num2);\n\n    // TODO: Calculate and print the difference\n    // TODO: Calculate and print the product\n    // TODO: Calculate and print the floating-point quotient (remember type casting!)\n\n    return 0;\n}\n```\n**Instructions:**\n1.  Save the above code as `calculator.c`.\n2.  Fill in the `TODO` sections to complete the program.\n3.  Compile with `clang calculator.c -o calculator`.\n4.  Run with `./calculator` and test with different integer inputs. Pay attention to the quotient when using integers.",
+        "narratorGuide": "Run tests with negative values and large integers to verify correctness. Then consider the extension: change num1 and num2 to float or double, update scanf to %f or %lf, and update printf format specifiers. If you change to float: declare float a, b; use scanf(\"%f\", &a); printf(\"Sum: %.2f\\n\", a + b); — you'll also no longer need casting for division. Try negative inputs (-5 and 2) and large inputs to see the results.",
+        "teaching": {
+          "learningGoal": "Understand Scene 4 — Verify & Extend: Edge cases and next-step extension.",
+          "teacherTalk": "Run tests with negative values and large integers to verify correctness. Then consider the extension: change num1 and num2 to float or double, update scanf to %f or %lf, and update printf format specifiers. If you change to float: declare float a, b; use scanf(\"%f\", &a); printf(\"Sum: %.2f\\n\", a + b); — you'll also no longer need casting for division. Try negative inputs (-5 and 2) and large inputs to see the results.",
+          "realWorldExample": "Connect Scene 4 — Verify & Extend: Edge cases and next-step extension to a small real-world program or system.",
+          "guidedSteps": [
+            "**Simple Calculator Program:**\nWrite a C program that prompts the user to enter two integers, then calculates and displays their sum, difference, product, and floating-point quotient.\n\n```c\n#include <stdio.h>\n\nint main(void)\n{\n    int num1, num2; // Declare two integer variables\n\n    // Prompt user for the first number and read it\n    printf(\"Enter the first integer: \");\n    scanf(\"%i\", &num1);\n\n    // Prompt user for the second number and read it\n    printf(\"Enter the second integer: \");\n    scanf(\"%i\", &num2);\n\n    // Calculate and print the sum\n    printf(\"Sum: %i\\n\", num1 + num2);\n\n    // TODO: Calculate and print the difference\n    // TODO: Calculate and print the product\n    // TODO: Calculate and print the floating-point quotient (remember type casting!)\n\n    return 0;\n}\n```\n**Instructions:**\n1.  Save the above code as `calculator.c`.\n2.  Fill in the `TODO` sections to complete the program.\n3.  Compile with `clang calculator.c -o calculator`.\n4.  Run with `./calculator` and test with different integer inputs. Pay attention to the quotient when using integers."
+          ],
+          "questions": [
+            "What do you predict will happen before you run it?"
+          ],
+          "expectedObservations": [
+            "Compare the result with your prediction."
+          ],
+          "feedback": {
+            "success": "Good observation. Explain why the result makes sense before continuing.",
+            "misconception": "That result is useful evidence. Let us compare it with the underlying concept.",
+            "retry": "Try one small change and observe the result again."
+          },
+          "recap": "Run tests with negative values and large integers to verify correctness. Then consider the extension: change num1 and num2 to float or double, update scanf to %f or %lf, and update printf format specifiers. If you change to float: declare float a, b; use scanf(\"%f\", &a); printf(\"Sum: %.2f\\n\", a + b); — you'll also no longer need casting for division. Try negative inputs (-5 and 2) and large inputs to see the results.",
+          "waitForLearner": true
+        },
+        "required": true,
+        "requiredConcepts": [],
+        "hints": [],
+        "checkIds": [
+          "check-4a",
+          "id-check-4b"
         ],
         "animationTimeline": [],
         "totalDurationMs": 180000,
@@ -76,7 +282,7 @@
     ],
     "checks": [
       {
-        "id": "check-1-baseline-sum",
+        "id": "check-1a",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -84,7 +290,7 @@
         "explanation": ""
       },
       {
-        "id": "check-2-diff-product",
+        "id": "check-1b",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -92,7 +298,7 @@
         "explanation": ""
       },
       {
-        "id": "check-3-quotient-casting",
+        "id": "check-2a",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -100,7 +306,7 @@
         "explanation": ""
       },
       {
-        "id": "check-4-division-by-zero",
+        "id": "check-2b",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -108,7 +314,7 @@
         "explanation": ""
       },
       {
-        "id": "check-5-remainder-extension",
+        "id": "check-3a",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -116,7 +322,23 @@
         "explanation": ""
       },
       {
-        "id": "check-6-edge-behavior-negative",
+        "id": "check-3b",
+        "type": "manual",
+        "adapter": "code-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "check-4a",
+        "type": "manual",
+        "adapter": "code-sandbox",
+        "timeoutSeconds": 30,
+        "visibility": "learner",
+        "explanation": ""
+      },
+      {
+        "id": "id-check-4b",
         "type": "manual",
         "adapter": "code-sandbox",
         "timeoutSeconds": 30,
@@ -153,12 +375,14 @@
     },
     "completionRules": {
       "requiredChecks": [
-        "check-1-baseline-sum",
-        "check-2-diff-product",
-        "check-3-quotient-casting",
-        "check-4-division-by-zero",
-        "check-5-remainder-extension",
-        "check-6-edge-behavior-negative"
+        "check-1a",
+        "check-1b",
+        "check-2a",
+        "check-2b",
+        "check-3a",
+        "check-3b",
+        "check-4a",
+        "id-check-4b"
       ],
       "minimumScore": 1,
       "requiresEvidence": true,
@@ -173,7 +397,7 @@
       "moduleNumber": 1,
       "chapterNumber": 3,
       "model": "gemini-2.5-flash",
-      "generatedAt": "2026-09-24T20:30:45.844Z",
+      "generatedAt": "2026-09-24T23:44:58.089Z",
       "activitySourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "lessonSourcePath": "beginner/programming-software-development-fundamentals/cs50s-introduction-to-computer-science.md",
       "activitySourceHash": "sha256:ce72e3400d3fe24450030de0bf74a1969934571064ad1510d1f8e2b203aace7d",
@@ -183,7 +407,7 @@
       "type": "interactive-code-reveal",
       "narrator": "educator",
       "synchronizedPlayback": true,
-      "totalLessonDurationMs": 180000
+      "totalLessonDurationMs": 720000
     }
   }
 }

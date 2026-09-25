@@ -1,0 +1,53 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#ffffff'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process</span>
+    <span class='text-slate-700'>I2C code walkthrough</span>
+  </div>
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <h3 class='text-lg font-bold text-slate-800'>Example sketch (Wire)</h3>
+      <pre style='white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#0f172a; color:#e6eef8; padding:12px; border-radius:10px; overflow:auto;' class='mt-3'><code>#include &lt;Wire.h&gt;
+
+#define BME280_ADDRESS 0x76  // I2C address of the BME280 sensor
+
+void setup() {
+  Wire.begin();
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Read temperature register from BME280
+  Wire.beginTransmission(BME280_ADDRESS);
+  Wire.write(0xFA);  // Temperature register MSB
+  Wire.endTransmission();
+  Wire.requestFrom(BME280_ADDRESS, 3);  // Read 3 bytes
+
+  if (Wire.available() == 3) {
+    byte msb = Wire.read();
+    byte lsb = Wire.read();
+    byte xlsb = Wire.read();
+    long adc_T = ((long)msb &lt;&lt; 12) | ((long)lsb &lt;&lt; 4) | (xlsb &gt;&gt; 4);
+    // Convert adc_T to temperature using calibration data (simplified)
+    Serial.print("Raw temp: ");
+    Serial.println(adc_T);
+  }
+  delay(1000);
+}
+</code></pre>
+    </div>
+    <div class='flex-1 card p-4 flex flex-col'>
+      <h4 class='text-sm font-bold text-slate-800'>Explanation & tips</h4>
+      <ul class='text-sm text-slate-600 mt-3 space-y-2'>
+        <li>Wire.begin() prepares the bus; many boards use internal pull‑ups but external 4.7k resistors are reliable.</li>
+        <li>beginTransmission writes the register pointer; requestFrom asks for bytes the sensor will return.</li>
+        <li>Always check Wire.available() so your code handles missing bytes safely.</li>
+        <li>Combine bytes using shifts; then apply calibration formulas or use a library for physical units.</li>
+        <li>Use Serial prints of raw ADC values as a debugging step before using library conversions.</li>
+      </ul>
+      <div class='mt-4 p-3 rounded-md bg-amber-50'>
+        <div class='text-xs font-bold uppercase tracking-wider text-amber-700 mb-1'>Misconception</div>
+        <div class='text-sm text-slate-800'>Seeing numbers on Serial means measurements are correct. Always convert raw values using calibration; raw counts are not temperatures yet.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

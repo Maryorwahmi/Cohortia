@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Replication lag and parallel workers</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl border p-4 border-[rgba(226,232,240,0.9)]">
+      <div class="text-sm font-semibold text-slate-800">Interpreting Seconds_Behind_Master</div>
+      <p class="text-sm text-slate-600 mt-2">It measures time lag as an estimate. High values alone do not indicate corruption; they point to throughput or long transactions on the master.</p>
+
+      <div class="mt-4 text-sm">
+        <div class="rounded-lg bg-slate-50 p-3 border">
+          <div class="text-[11px] font-bold text-slate-700">Common cause</div>
+          <div class="text-sm text-slate-600 mt-2">A very large transaction on the master or many independent transactions queued in the relay log for the SQL thread to apply.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border p-4 border-[rgba(226,232,240,0.9)] flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Using multi-threaded replication</div>
+      <p class="text-sm text-slate-600 mt-2">Set slave_parallel_workers in my.cnf to a positive value to allow concurrent apply. For example, set slave_parallel_workers = 4 to run four worker threads.</p>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-amber-50 p-3 border border-[rgba(245,166,35,0.08)]">
+          <div class="text-[11px] font-bold text-amber-700">Caveat</div>
+          <div class="text-sm text-slate-600 mt-2">Parallel apply helps independent transactions but can complicate ordering for conflicting statements. Test carefully before deploying to production.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">When lag is due to apply throughput, increase parallel workers incrementally and validate that application-level correctness is preserved.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

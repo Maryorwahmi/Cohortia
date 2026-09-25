@@ -1,0 +1,32 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="grid grid-cols-2 gap-4 h-full min-h-0">
+    <div class="card rounded-xl p-4 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <h3 class="text-2xl font-bold text-slate-800 mt-2">shutil.move behavior</h3>
+      <p class="text-sm text-slate-600 mt-3">Move attempts a rename first. If that fails because source and destination are on different filesystems, it falls back to copying and deleting the source.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-white border text-sm">Example failure mode: interrupted copy to network share can leave partial destination and unchanged source.</div>
+        <div class="rounded-lg p-3 bg-white border text-sm">Mitigation: copy, verify checksum, then remove original to avoid unintended data loss.</div>
+      </div>
+    </div>
+
+    <div class="card rounded-xl p-4">
+      <div class="text-sm font-semibold text-slate-800">Quick detection</div>
+      <div class="text-sm text-slate-600 mt-2">You can check device IDs using os.stat on both paths and compare st_dev; if they differ, a cross-filesystem move will trigger a copy.</div>
+
+      <pre class="mt-3 bg-slate-900 text-white rounded-lg p-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>import os
+
+def is_cross_filesystem(src, dst):
+  return os.stat(src).st_dev != os.stat(os.path.dirname(dst)).st_dev
+</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">Assuming move is instantaneous and atomic. Always plan for the copying fallback and handle errors.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

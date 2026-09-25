@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Definition</div>
+      <h3 class="text-xl font-bold text-slate-900">Key DMVs to Know</h3>
+      <p class="text-sm text-slate-600 mt-2">Target these DMVs when diagnosing common problems: who is running work, what they run, and where waits occur.</p>
+      <div class="mt-4 space-y-3">
+        <div class="p-3 rounded-lg bg-blue-50 text-blue-700">sys.dm_exec_sessions — connection and client details</div>
+        <div class="p-3 rounded-lg bg-violet-50 text-violet-700">sys.dm_exec_requests — active requests, CPU, reads, blocking</div>
+        <div class="p-3 rounded-lg bg-amber-50 text-amber-700">sys.dm_io_virtual_file_stats — per-file I/O counters</div>
+        <div class="p-3 rounded-lg bg-rose-50 text-rose-700">sys.dm_tran_locks — current locks and resources</div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-white rounded-xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Example</div>
+      <div class="bg-slate-800 text-white rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+-- Inspect blocking and SQL text for active requests
+SELECT r.session_id, r.blocking_session_id, r.wait_type, r.cpu_time,
+       st.text AS sql_text
+FROM sys.dm_exec_requests r
+CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) st
+WHERE r.session_id <> @@SPID
+ORDER BY r.cpu_time DESC;
+      </div>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-xs font-semibold text-slate-700">Supporting Point</div>
+          <div class="text-sm text-slate-600 mt-1">Cross-apply to get SQL text and use blocking_session_id to trace the blocking chain.</div>
+        </div>
+        <div class="p-3 rounded-lg bg-white card-border">
+          <div class="text-xs font-semibold text-slate-700">Pro Tip</div>
+          <div class="text-sm text-slate-600 mt-1">Avoid wide DMV joins on busy systems; start with the minimal columns you need.</div>
+        </div>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pick the smallest DMV that answers your question to limit diagnostic overhead and speed resolution.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

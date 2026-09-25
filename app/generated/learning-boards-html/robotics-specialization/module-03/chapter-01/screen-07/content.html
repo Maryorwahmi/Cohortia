@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);} pre code{font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Breadth-First Search</span>
+  </div>
+
+  <div class="rounded-2xl card p-6 h-full flex gap-4">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="text-xl font-bold text-slate-800">BFS overview</div>
+      <div class="text-sm text-slate-600 mt-2">Use BFS for unweighted grids to guarantee fewest-step paths.</div>
+
+      <div class="mt-4 text-sm text-slate-700 space-y-2">
+        <div>• Uses a FIFO queue and a visited set to avoid repeats.</div>
+        <div>• Guarantees shortest path in number of edges on unweighted graphs.</div>
+        <div>• Memory grows with the frontier size; be cautious for large grids.</div>
+        <div>• Not appropriate when edges have non-uniform costs; use Dijkstra or A* instead.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">BFS is reliable and simple for uniform-cost grids but becomes costly in memory as grid size grows.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="rounded-xl p-4 border bg-slate-50 flex-1">
+        <div class="text-sm font-bold text-slate-800">MATLAB-style pseudocode</div>
+        <pre class="mt-3"><code>function path = bfs(graph, start, goal)
+  queue = {start};
+  visited = containers.Map();
+  visited(mat2str(start)) = true;
+  parent = containers.Map();
+  while ~isempty(queue)
+    current = queue{1}; queue(1) = [];
+    if isequal(current, goal)
+      path = reconstruct_path(parent, start, goal);
+      return;
+    end
+    for neighbor = graph.neighbors(current)
+      if ~visited.isKey(mat2str(neighbor))
+        visited(mat2str(neighbor)) = true;
+        parent(mat2str(neighbor)) = current;
+        queue{end+1} = neighbor;
+      end
+    end
+  end
+  path = [];
+end</code></pre>
+
+        <div class="mt-3 text-sm text-slate-600">Reconstruct the final path by following parent pointers back from goal to start; this is standard in grid planners.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

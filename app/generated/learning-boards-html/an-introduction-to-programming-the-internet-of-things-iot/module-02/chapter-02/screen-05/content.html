@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Button Debounce</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-6/12 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Wire → Pull-up → Read → Debounce</div>
+      <ol class="mt-3 list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>Wire button: pin to one side, ground to the other.</li>
+        <li>Enable pinMode(pin, INPUT_PULLUP) so open state is HIGH.</li>
+        <li>Read digitalRead(pin) and treat LOW as pressed.</li>
+        <li>Debounce: require a stable read for a short window before accepting a change.</li>
+      </ol>
+
+      <div class="mt-4 text-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pro tip</div>
+        <div class="text-sm text-slate-700 mt-1">Use a non-blocking timestamp method if your loop must do other tasks while debouncing.</div>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Non-blocking debounce pattern (concept)</div>
+      <pre class="mt-3 bg-slate-900 text-green-100 p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+// Concept: check time, accept new state only after stable interval
+int lastState = HIGH;
+unsigned long lastChange = 0;
+const unsigned long debounceMs = 30;
+
+void loop() {
+  int reading = digitalRead(buttonPin);
+  if (reading != lastState) {
+    lastChange = millis();
+  }
+  if ((millis() - lastChange) > debounceMs) {
+    // state has been stable for debounceMs
+    // handle stable state change here
+  }
+  lastState = reading;
+}
+      </pre>
+
+      <div class="mt-3 grid grid-cols-2 gap-2">
+        <div class="p-2 bg-white rounded-lg border card-border text-sm">Example: count presses by incrementing a counter when a stable LOW is detected.</div>
+        <div class="p-2 bg-amber-50 rounded-lg text-sm">Misconception: delay-based debounce blocks sensor reads and is bad for multitasking.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

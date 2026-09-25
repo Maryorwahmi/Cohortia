@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Log Analytics & KQL</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 flex flex-col gap-4">
+      <div class="text-xl font-bold text-slate-800">KQL patterns for security investigations</div>
+      <div class="text-sm text-slate-600">Use time filtering, grouping, and counts to spot anomalies like repeated failed logins or unusual DDL activity.</div>
+
+      <div class="rounded-xl bg-white border p-4 shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Sample KQL</div>
+        <pre class="mt-2 text-sm bg-slate-900 text-slate-50 p-3 rounded" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+AzureDiagnostics
+| where ResourceType == "SQLServers" or ResourceType == "SQLDatabases"
+| where Category == "SQLSecurityAuditEvents"
+| order by TimeGenerated desc
+| project TimeGenerated, ActionName, Succeeded, ClientIP, SessionId, Statement
+        </pre>
+        <div class="text-xs text-slate-500 mt-2">This query returns recent SQL audit events and projects key fields for investigation.</div>
+      </div>
+
+      <div class="rounded-xl mt-3 p-3 border bg-amber-50">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Example detection query</div>
+        <div class="text-sm text-slate-800 mt-2">Use summarize and where to flag repeated failures, for example counting LOGIN_FAILED events by ClientIP and alerting when counts exceed a threshold.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Start with simple queries, validate results by reproducing events, and then convert queries into Monitor alerts for automation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex flex-col gap-4">
+      <div class="rounded-xl bg-white border p-4 shadow-sm">
+        <div class="text-sm font-semibold text-slate-800">Misconception</div>
+        <div class="text-sm text-slate-600 mt-2">Believing KQL is only for advanced users. Basic filtering, grouping, and summarization address many security use cases quickly.</div>
+      </div>
+
+      <div class="rounded-xl bg-white border p-4 shadow-sm mt-auto">
+        <div class="text-sm font-semibold text-slate-800">Pro tip</div>
+        <div class="text-sm text-slate-600 mt-2">Validate a query by performing the corresponding actions against a test database so you know the fields and values to watch for in production.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

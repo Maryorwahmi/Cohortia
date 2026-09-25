@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">Transparent Data Encryption</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">How TDE works</div>
+      <div class="text-sm text-slate-600 mt-3">TDE performs real-time I/O encryption and decryption at the storage layer; reads bring decrypted data into memory, writes persist encrypted bytes to disk.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg p-3 bg-blue-50 border border-blue-100">
+          <div class="text-sm font-semibold text-blue-700">Scope</div>
+          <div class="text-xs text-slate-700 mt-2">Encrypts database files, transaction logs, and backups.</div>
+        </div>
+
+        <div class="rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-sm font-semibold text-slate-700">Operational note</div>
+          <div class="text-xs text-slate-600 mt-2">Transparent to applications; enable via portal or CLI for supported services.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">TDE protects stored artifacts from offline exposure but not against in‑engine access by DBAs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm flex flex-col">
+      <div class="text-lg font-semibold text-slate-800">Enablement and verification</div>
+      <div class="text-sm text-slate-600 mt-3">Enable TDE via the Azure portal or CLI, then verify encryption status using the system DM view.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-slate-50 border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-600">Verification query</div>
+          <pre class="text-sm text-slate-700 mt-2">SELECT DB_NAME(database_id) AS DatabaseName, encryption_state, percent_complete, key_algorithm, key_length
+FROM sys.dm_database_encryption_keys;</pre>
+          <div class="text-xs text-slate-500 mt-2">Note: encryption_state = 3 indicates the database is encrypted.</div>
+        </div>
+
+        <div class="mt-4 rounded-lg p-3 bg-white border border-[rgba(226,232,240,0.9)]">
+          <div class="text-xs font-semibold text-slate-600">CLI example</div>
+          <pre class="text-sm text-slate-700 mt-2">az postgres flexible-server parameter set \
+  --resource-group MyResourceGroup \
+  --server-name MyPostgresServer \
+  --name azure.enable_data_encryption_at_rest \
+  --value ON</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

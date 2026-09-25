@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.term{border:1px solid rgba(226,232,240,0.9)} pre{font-family:Inter,ui-monospace,monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Hands-on Lab</span>
+    <span>›</span>
+    <span class="text-slate-700">VLAN & NGFW Walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 term shadow-sm flex flex-col">
+      <div class="font-bold text-lg text-slate-800">Switch configuration (conceptual)</div>
+      <pre class="bg-slate-50 rounded-md p-3 mt-3 text-sm text-slate-700">vlan 10
+ name FINANCIAL_APPS
+exit
+
+interface GigabitEthernet0/1
+ switchport mode access
+ switchport access vlan 10
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security violation restrict
+ switchport port-security mac-address sticky
+exit</pre>
+
+      <div class="mt-auto text-xs text-slate-500">Note: this is a conceptual command sequence. Test in a lab environment and document learned MAC addresses.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 term shadow-sm flex flex-col">
+      <div class="font-bold text-lg text-slate-800">NGFW policy (conceptual)</div>
+      <pre class="bg-slate-50 rounded-md p-3 mt-3 text-sm text-slate-700">Policy: Allow_Finance_HTTPS_to_Apps
+ Source Zone: Internal_Finance_Zone
+ Source IP: 192.168.10.0/24
+ Dest Zone: Financial_App_Zone
+ Dest IP: 172.16.10.0/24
+ Application: HTTPS (TCP/443)
+ Action: Allow
+ Logging: Enable
+
+Policy: Deny_All_Other_to_Apps
+ Source Zone: Any
+ Dest Zone: Financial_App_Zone
+ Action: Deny
+ Logging: Enable</pre>
+
+      <div class="mt-3 grid gap-2">
+        <div class="rounded-lg bg-emerald-50 p-2 text-emerald-800">Validation: test HTTPS from allowed host and check allow logs.</div>
+        <div class="rounded-lg bg-rose-50 p-2 text-rose-800">Validation: attempt access from unallowed IP and confirm denial and logged event.</div>
+      </div>
+
+      <div class="mt-auto text-xs text-slate-500">Keep a rollback plan and perform changes during a maintenance window where possible.</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Enable semi‑sync on Source</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 mono">
+      <div class="text-sm font-semibold text-slate-800">Terminal: source commands</div>
+      <pre class="mt-3 text-sm">-- On the source server:
+INSTALL PLUGIN rpl_semi_sync_source SONAME 'mysql_semi_sync_source.so';
+SET GLOBAL rpl_semi_sync_source_enabled = ON;
+SET GLOBAL rpl_semi_sync_source_timeout = 5000; -- milliseconds</pre>
+      <div class="mt-3 text-xs text-slate-600">Tip: Choose a timeout that fits your network; 5000ms is a common starting point.</div>
+    </div>
+
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-semibold text-slate-800">Persisting in my.cnf</div>
+      <pre class="mt-3 text-sm mono">[mysqld]
+plugin_load_add = 'mysql_semi_sync_source.so'
+rpl_semi_sync_source_enabled = ON
+rpl_semi_sync_source_timeout = 5000</pre>
+      <div class="mt-3 text-sm text-slate-700">If you only run INSTALL PLUGIN without adding to my.cnf, the plugin may not be available after a restart. Always restart and verify with SHOW STATUS.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

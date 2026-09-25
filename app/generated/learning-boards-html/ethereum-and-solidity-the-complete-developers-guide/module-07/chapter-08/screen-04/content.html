@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Core Concept</span>
+      <span class="text-slate-700">Why immutability creates a maintenance problem</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-800 mt-2">Immutability vs evolvability</h3>
+    <p class="text-sm text-slate-600 mt-2 max-w-3xl">Immutable code prevents unauthorized changes but blocks fixes and new features unless you plan migrations. Upgradeability provides a controlled alternative.</p>
+  </div>
+
+  <div class="flex gap-4 h-[60%]">
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Illustrative example</div>
+      <p class="text-sm text-slate-500 mt-2">Imagine a token contract discovered to have a transfer bug after wide distribution. Redeploying a new token loses balances or requires user migration. A proxy-based approach keeps balances in the proxy and swaps logic to fix transfer behavior.</p>
+      <div class="mt-3 text-sm text-slate-600">
+        <div class="mb-2 font-semibold">Key points</div>
+        <ul class="list-disc ml-4 space-y-2 text-sm text-slate-600">
+          <li>Proxy address stays constant and holds storage.</li>
+          <li>Implementation contracts contain replaceable logic.</li>
+          <li>delegatecall runs implementation code in proxy storage context.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-4">
+      <div class="text-sm font-semibold text-slate-700">Concrete analogy</div>
+      <p class="text-sm text-slate-500 mt-2">Think of the proxy as a house with the furniture (state) inside. Replacing the business logic is like swapping the blueprints used by the builder. The house and its contents remain where they are, but how it behaves can change.</p>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Upgradeability preserves state while allowing logic to evolve; it requires disciplined storage design and secure upgrade controls.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-3 grid grid-cols-3 gap-3">
+    <div class="card p-3 text-sm">
+      <div class="font-semibold text-slate-700">Common mistake</div>
+      <p class="text-slate-600 mt-1">Assuming upgrades are risk-free; without storage checks you can corrupt data.</p>
+    </div>
+    <div class="card p-3 text-sm">
+      <div class="font-semibold text-slate-700">Pro tip</div>
+      <p class="text-slate-600 mt-1">Design storage layout up-front and append new variables only at the end when possible.</p>
+    </div>
+    <div class="card p-3 text-sm">
+      <div class="font-semibold text-slate-700">Try this</div>
+      <p class="text-slate-600 mt-1">Deploy a simple Box proxy, store a value, then prepare a new implementation and verify state after upgrade.</p>
+    </div>
+  </div>
+</div>

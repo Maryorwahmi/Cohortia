@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 shadow card-border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-2xl font-bold text-slate-900 mt-2">Extended Kalman Filter (EKF)</div>
+      <div class="text-sm text-slate-600 mt-3">Linearize nonlinear dynamics around the current estimate using Jacobians, then apply Kalman steps.</div>
+
+      <div class="mt-4 bg-white p-3 border card-border">
+        <div class="text-sm font-semibold text-slate-800">Nonlinear model</div>
+        <div class="text-sm text-slate-600 mt-2">x_k = f(x_{k-1},u_{k-1}) + w; z_k = h(x_k) + v</div>
+        <div class="text-sm text-slate-600 mt-2">F = ∂f/∂x, H = ∂h/∂x evaluated at the current estimate.</div>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-2xl bg-white p-5 shadow card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Mobile robot example</div>
+      <div class="text-sm text-slate-600 mt-2">Prediction using motion model:
+        <div class="mt-2">x_pred = x + v*dt*cos(theta); y_pred = y + v*dt*sin(theta); theta_pred = theta + omega*dt</div>
+      </div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Jacobian</div>
+          <div class="text-sm text-slate-600 mt-2">F = [1,0,-v*dt*sin(theta); 0,1,v*dt*cos(theta); 0,0,1] captures linearized dependence on theta.</div>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Limitation</div>
+          <div class="text-sm text-rose-600 mt-2">If the linear approximation is poor, EKF updates may push the estimate away from the true state. Monitor innovation magnitude and covariance growth as diagnostics.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto text-sm text-slate-600">Question: during an EKF run, would a sudden large innovation always mean the measurement is correct? Not necessarily—check sensor faults, model mismatch, and whether the prior uncertainty supports such a change before accepting it.</div>
+    </div>
+  </div>
+</div>

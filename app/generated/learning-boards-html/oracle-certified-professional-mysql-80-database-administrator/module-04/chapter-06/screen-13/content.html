@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card{background:white;border:1px solid rgba(226,232,240,0.9);border-radius:12px} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Automation Script</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Cron Entry</div>
+      <pre><code># In /etc/cron.d/mysql_backup
+0 2 * * * root /usr/local/bin/daily_mysql_backup.sh &gt; /var/log/mysql/daily_backup.log 2&gt;&amp;1</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Schedule at off-peak hours and redirect output to a central log for monitoring and parsing.</div>
+    </div>
+
+    <div class="card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Script (abridged)</div>
+      <pre><code>#!/bin/bash
+BACKUP_DIR="/data/backups/daily"
+DB_USER="backup_user"
+DB_PASS="StrongPassword123!"
+DATE=$(date +%Y%m%d_%H%M%S)
+LOG_FILE="/var/log/mysql/daily_backup.log"
+
+mkdir -p $BACKUP_DIR
+
+echo "Starting daily backup at $DATE" &gt;&gt; $LOG_FILE
+
+mysqldump -u $DB_USER -p$DB_PASS --single-transaction --all-databases --routines --triggers --events \
+    | gzip &gt; $BACKUP_DIR/all_databases_$DATE.sql.gz
+
+if [ $? -eq 0 ]; then
+    echo "Backup completed successfully for all_databases_$DATE.sql.gz" &gt;&gt; $LOG_FILE
+else
+    echo "Backup FAILED for all_databases_$DATE.sql.gz" &gt;&gt; $LOG_FILE
+fi
+
+# Purge old backups older than 7 days
+find $BACKUP_DIR -type f -name "*.sql.gz" -mtime +7 -delete
+
+echo "Finished daily backup at $(date +%Y%m%d_%H%M%S)" &gt;&gt; $LOG_FILE</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">Replace hardcoded credentials with a secure .my.cnf and consider offsite upload steps after successful backup.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

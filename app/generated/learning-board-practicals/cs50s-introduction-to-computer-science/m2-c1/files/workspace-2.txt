@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int main(void)
+{
+    int num_grades;
+    float *grades = NULL;
+    float sum = 0.0f;
+
+    printf("How many grades do you want to enter initially? ");
+    if (scanf("%d", &num_grades) != 1 || num_grades <= 0)
+    {
+        printf("Number of grades must be positive.\n");
+        return 1;
+    }
+
+    grades = malloc(num_grades * sizeof *grades);
+    if (!grades)
+    {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+
+    for (int i = 0; i < num_grades; i++)
+    {
+        printf("Enter grade %d: ", i + 1);
+        if (scanf("%f", &grades[i]) != 1)
+        {
+            printf("Invalid input.\n");
+            free(grades);
+            return 1;
+        }
+        sum += grades[i];
+    }
+
+    // Ask user if they want to add more grades and demonstrate realloc
+    printf("Do you want to add more grades? (y/n): ");
+    char resp = 'n';
+    if (scanf(" %c", &resp) == 1)
+    {
+        resp = tolower((unsigned char)resp);
+        if (resp == 'y')
+        {
+            int more;
+            printf("How many more grades do you want to add? ");
+            if (scanf("%d", &more) != 1 || more <= 0)
+            {
+                printf("No additional grades added.\n");
+            }
+            else
+            {
+                int new_total = num_grades + more;
+                float *tmp = realloc(grades, new_total * sizeof *grades);
+                if (tmp == NULL)
+                {
+                    printf("Reallocation failed; keeping original grades.\n");
+                }
+                else
+                {
+                    grades = tmp;
+                    for (int i = num_grades; i < new_total; i++)
+                    {
+                        printf("Enter grade %d: ", i + 1);
+                        if (scanf("%f", &grades[i]) != 1)
+                        {
+                            printf("Invalid input. Stopping.\n");
+                            free(grades);
+                            return 1;
+                        }
+                        sum += grades[i];
+                    }
+                    num_grades = new_total;
+                }
+            }
+        }
+    }
+
+    printf("Final average for %d grades: %.2f\n", num_grades, sum / num_grades);
+
+    free(grades);
+    grades = NULL; // Avoid dangling pointer
+
+    if (grades == NULL)
+    {
+        printf("Grades pointer is NULL after free (safe).\n");
+    }
+
+    return 0;
+}

@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2;border-radius:.5rem}</style>
+  <div class="flex h-full gap-6"> 
+    <div class="w-1/2"> 
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900">Constructing a Transaction — JSON Example</h3>
+      <p class="mt-3 text-sm text-slate-700">Below is a simplified conceptual JSON of a Bitcoin-like transaction. Read it to map inputs, outputs, and signatures to real explorer fields.</p>
+      <div class="mt-4 rounded-xl p-3 bg-white border" style="border-color:rgba(226,232,240,0.9);">
+        <pre class="code text-sm text-slate-800 p-3 bg-slate-50" aria-hidden>
+{
+  "txid": "unique_transaction_identifier",
+  "version": 1,
+  "locktime": 0,
+  "vin": [
+    {
+      "txid_prev": "hash_of_previous_transaction_output_spent",
+      "vout_prev": 0,
+      "scriptSig": "Alice's_digital_signature_and_public_key",
+      "sequence": 4294967295
+    }
+  ],
+  "vout": [
+    {
+      "value": 1.0,
+      "scriptPubKey": "Bob's_public_key_hash"
+    },
+    {
+      "value": 0.5,
+      "scriptPubKey": "Alice's_public_key_hash"
+    }
+  ]
+}
+        </pre>
+      </div>
+    </div>
+    <div class="w-1/2 flex flex-col"> 
+      <div class="rounded-xl p-4 bg-white border" style="border-color:rgba(226,232,240,0.9); flex:1"> 
+        <div class="text-sm font-semibold text-slate-800">Field map</div>
+        <ul class="text-xs text-slate-600 mt-2 list-disc pl-4">
+          <li><strong>txid</strong>: Transaction identifier derived from hashing the transaction.</li>
+          <li><strong>vin</strong>: Inputs referencing previous outputs and containing signatures authorizing spending.</li>
+          <li><strong>vout</strong>: New outputs created by this transaction and the amounts each recipient gets.</li>
+          <li><strong>Fee</strong>: Not explicit; computed as sum(inputs) minus sum(outputs).</li>
+        </ul>
+      </div>
+      <div class="mt-4 rounded-xl p-3 bg-amber-50 border" style="border-color:rgba(226,232,240,0.9);"> 
+        <div class="text-sm font-semibold text-slate-800">Misconception check</div>
+        <div class="text-xs text-slate-600 mt-2">Do not assume scriptSig is a plain key; it is cryptographic proof that the sender controls the referenced outputs.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

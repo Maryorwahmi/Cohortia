@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc;} .card{background:#fff;border:1px solid rgba(226,232,240,0.9);}.tag{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#475569}.note{background:#eef2ff;border-left:4px solid #6366f1;padding:10px;border-radius:8px}</style>
+
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+      <span>›</span>
+      <span>Chapter 8.4</span>
+      <span>›</span>
+      <span class="text-slate-700">BSP</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 h-[68%]">
+      <div class="card rounded-2xl p-4 flex flex-col">
+        <div class="tag mb-2">Core Concept</div>
+        <h2 class="text-xl font-bold text-slate-900 mb-2">Board Support Package</h2>
+        <div class="text-sm text-slate-600 mb-3">A generated collection of headers, drivers, HAL, newlib, and linker scripts that match your Qsys system.</div>
+
+        <div class="grid grid-cols-1 gap-2 mt-2">
+          <div class="p-3 rounded-lg bg-white border"> <div class="text-xs font-bold text-slate-700">HAL</div><div class="text-sm text-slate-500 mt-1">C functions and macros to access UART, GPIO, timers without raw addresses.</div></div>
+          <div class="p-3 rounded-lg bg-white border"> <div class="text-xs font-bold text-slate-700">Device drivers</div><div class="text-sm text-slate-500 mt-1">Peripheral-specific code produced for the components present in Qsys.</div></div>
+          <div class="p-3 rounded-lg bg-white border"> <div class="text-xs font-bold text-slate-700">Linker script</div><div class="text-sm text-slate-500 mt-1">Defines memory regions for code and data based on on-chip memory or external SDRAM.</div></div>
+          <div class="p-3 rounded-lg bg-white border"> <div class="text-xs font-bold text-slate-700">system.h</div><div class="text-sm text-slate-500 mt-1">Generated header with base address macros like PIO_LED_BASE used by HAL macros.</div></div>
+        </div>
+
+      </div>
+
+      <div class="card rounded-2xl p-4 flex flex-col">
+        <div class="text-sm font-bold text-slate-800 mb-2">Practical example: LED PIO</div>
+        <pre class="code">/* system.h contains: */
+#define PIO_LED_BASE 0x00001000
+
+/* HAL write uses the base symbol: */
+IOWR_ALTERA_AVALON_PIO_DATA(PIO_LED_BASE, 0xFF);
+</pre>
+        <div class="note mt-3">
+          <div class="text-xs font-bold text-indigo-700">Regenerate BSP</div>
+          <div class="text-sm text-slate-600 mt-1">When you add or remove peripherals in Qsys, regenerate the BSP so system.h and the linker script remain correct for your software build.</div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+          <div class="text-sm text-slate-800 mt-1">Treat the BSP as the authoritative mapping of hardware to software interfaces; it prevents hardcoded-address bugs.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

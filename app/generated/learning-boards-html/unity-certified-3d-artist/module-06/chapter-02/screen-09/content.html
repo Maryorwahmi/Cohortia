@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)} pre code{display:block;white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:12px;background:#0f172a;color:#e6eef8;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.2</span>
+    <span>›</span>
+    <span class="text-slate-700">PropRandomizer Script</span>
+  </div>
+  <div class="flex h-full gap-4">
+    <div class="w-2/3 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-800">Editor script (place in an Editor folder)</div>
+      <div class="text-sm text-slate-600 mt-2">This script randomizes local scale and Y rotation for the currently selected GameObjects in the Editor.</div>
+      <div class="mt-4 overflow-auto">
+        <pre><code>// This is an Editor script, place it in an 'Editor' folder in your project.
+using UnityEngine;
+using UnityEditor;
+
+public class PropRandomizer : EditorWindow
+{
+  float minScale = 0.9f;
+  float maxScale = 1.1f;
+  float rotationRange = 360f; // Max Y rotation in degrees
+
+  [MenuItem("Tools/Prop Randomizer")]
+  public static void ShowWindow()
+  {
+    GetWindow<PropRandomizer>("Prop Randomizer");
+  }
+
+  void OnGUI()
+  {
+    GUILayout.Label("Randomize Selected Props", EditorStyles.boldLabel);
+
+    minScale = EditorGUILayout.FloatField("Min Scale", minScale);
+    maxScale = EditorGUILayout.FloatField("Max Scale", maxScale);
+    rotationRange = EditorGUILayout.FloatField("Max Y Rotation", rotationRange);
+
+    if (GUILayout.Button("Apply Randomization"))
+    {
+      RandomizeSelectedProps();
+    }
+  }
+
+  void RandomizeSelectedProps()
+  {
+    foreach (GameObject obj in Selection.gameObjects)
+    {
+      // Randomize Scale
+      float randomScale = Random.Range(minScale, maxScale);
+      obj.transform.localScale = new Vector3(randomScale, randomScale, randomScale);
+
+      // Randomize Y Rotation
+      float randomRotationY = Random.Range(0f, rotationRange);
+      obj.transform.localRotation = Quaternion.Euler(obj.transform.localRotation.eulerAngles.x, randomRotationY, obj.transform.localRotation.eulerAngles.z);
+
+      // Mark scene as dirty to save changes
+      EditorUtility.SetDirty(obj);
+    }
+    Debug.Log("Randomization applied to " + Selection.gameObjects.Length + " objects.");
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-700">Explanation</div>
+      <ul class="text-sm text-slate-600 mt-2 space-y-2">
+        <li>Place script in an Editor folder so it compiles into the Editor assembly.</li>
+        <li>It exposes an EditorWindow UI for min/max scale and rotation range.</li>
+        <li>Selection.gameObjects is iterated and each transform is modified and marked dirty.</li>
+      </ul>
+      <div class="mt-4 rounded-xl bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Use case</div>
+        <div class="text-sm text-amber-700">Run on a selection of crates to quickly create believable scale and rotation differences, then manually adjust outliers.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

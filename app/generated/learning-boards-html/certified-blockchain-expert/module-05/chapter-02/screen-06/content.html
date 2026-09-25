@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Checks‑Effects‑Interactions (CEI) pattern</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-xl font-bold text-slate-800">CEI process</div>
+      <div class="text-sm text-slate-600 mt-2">A simple three‑step ordering that minimizes reentrancy risk.</div>
+      <div class="mt-4 space-y-3 text-sm text-slate-700">
+        <div class="flex items-start gap-3"><div class="w-6 h-6 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center">1</div><div><strong>Checks:</strong> Verify balances, permissions, and preconditions using require statements.</div></div>
+        <div class="flex items-start gap-3"><div class="w-6 h-6 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center">2</div><div><strong>Effects:</strong> Apply all state updates so the contract reflects the new truth.</div></div>
+        <div class="flex items-start gap-3"><div class="w-6 h-6 rounded-full bg-violet-50 text-violet-700 flex items-center justify-center">3</div><div><strong>Interactions:</strong> Make external calls or transfers only after internal state is consistent.</div></div>
+      </div>
+      <div class="mt-auto pt-4">
+        <div class="rounded-lg p-3 bg-emerald-50 text-emerald-700">Analogy: Lock the door, change the inventory, then notify delivery — steps reduce race conditions.</div>
+      </div>
+    </div>
+    <div class="w-3/5 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700 uppercase tracking-wider">Concrete rewrite</div>
+      <pre style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px">function withdraw(uint _amount) public {
+  require(balances[msg.sender] &gt;= _amount, "Insufficient balance"); // Checks
+
+  balances[msg.sender] -= _amount; // Effects
+
+  (bool success, ) = msg.sender.call{value: _amount}(""); // Interactions
+  require(success, "Transfer failed");
+}</pre>
+      <div class="mt-3 grid gap-2">
+        <div class="rounded-lg p-3 bg-white card-border text-sm text-slate-700">Misconception check: CEI does not remove the need for good access control or limits on loops; it simply prevents a common reentrancy vector.</div>
+        <div class="rounded-lg p-3 bg-violet-50 text-violet-700">Pro tip: Keep external calls to the end of your function and avoid making multiple external calls if possible.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>
