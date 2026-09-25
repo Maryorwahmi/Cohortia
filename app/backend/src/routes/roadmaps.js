@@ -29,48 +29,6 @@ function parseRoadmapSelection(value) {
   }
 }
 
-function attachSelectedBundle(generated, selectedBundle, desiredField) {
-  if (!selectedBundle) return generated;
-  const toId = (course) => typeof course === 'string' ? course : course?.id;
-  const roadmapOrder = Array.isArray(selectedBundle.roadmapOrder)
-    ? selectedBundle.roadmapOrder.map(toId).filter(Boolean)
-    : [];
-  if (!roadmapOrder.length) return generated;
-
-  const levelById = new Map();
-  for (const level of ['beginner', 'intermediate', 'advanced']) {
-    for (const course of Array.isArray(selectedBundle.selectedCourses?.[level]) ? selectedBundle.selectedCourses[level] : []) {
-      const id = toId(course);
-      if (id) levelById.set(id, level);
-    }
-  }
-  const modules = Array.isArray(generated.modules) ? generated.modules : [];
-  const baseCount = Math.floor(modules.length / roadmapOrder.length);
-  const remainder = modules.length % roadmapOrder.length;
-  let moduleCursor = 0;
-  const courses = roadmapOrder.map((courseId, index) => {
-    const moduleCount = baseCount + (index < remainder ? 1 : 0);
-    const courseModules = modules.slice(moduleCursor, moduleCursor + moduleCount);
-    moduleCursor += moduleCount;
-    return {
-      courseId,
-      level: levelById.get(courseId) || 'beginner',
-      order: index + 1,
-      modules: courseModules,
-    };
-  });
-
-  return {
-    ...generated,
-    selection: {
-      careerGoal: selectedBundle.careerGoal || null,
-      selectedCareerId: selectedBundle.selectedCareerId || desiredField || null,
-      roadmapOrder,
-    },
-    courses,
-  };
-}
-
 const SYSTEM_PROMPT = `You are Cohortia, an expert curriculum designer and career educator. Generate a syllabus-driven, personalised learning roadmap.
 
 CRITICAL DESIGN PRINCIPLES:
@@ -203,7 +161,8 @@ function deriveLearnerType(user) {
   const experienceLevel = String(user?.experienceLevel || '').toLowerCase();
   const careerGoal = String(user?.careerGoal || '').toLowerCase();
 
-  if (onboardingGoal.includes('switch') || currentStatus.includes('switch') || currentStatus.includes('career-switcher')) {
+  if (onboardingGoal.includes('switch') || onboardingGoal.includes('pivot') ||
+    careerGoal.includes('pivot') || currentStatus.includes('switch') || currentStatus.includes('career-switcher')) {
     return 'switch_career';
   }
   if (onboardingGoal.includes('real') || onboardingGoal.includes('experience') || currentStatus.includes('employed')) {
@@ -462,10 +421,14 @@ roadmaps.get('/active', async (c) => {
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
-  const selection = parseRoadmapSelection(user[0]?.roadmapSelection);
+  const storedSelection = user[0]?.roadmapSelection;
+  const selection = parseRoadmapSelection(storedSelection);
 
-  if (!selection?.roadmapOrder?.length) {
+  if (!storedSelection) {
     return c.json({ success: true, data: { selection: null, courses: [] } });
+  }
+  if (!selection?.roadmapOrder?.length) {
+    return c.json({ success: false, error: 'Your saved roadmap selection is invalid. Please rebuild it.' }, 409);
   }
 
   const catalogRows = await db.select()
@@ -495,6 +458,17 @@ roadmaps.get('/active', async (c) => {
     ),
   }));
 
+  const missingCourseIds = courses
+    .filter((course) => !catalogById.has(course.id) || course.lessons.length === 0)
+    .map((course) => course.id);
+  if (missingCourseIds.length) {
+    return c.json({
+      success: false,
+      error: 'Some courses in your roadmap no longer have an available learning curriculum.',
+      details: { missingCourseIds },
+    }, 409);
+  }
+
   return c.json({ success: true, data: { selection, courses } });
 });
 
@@ -515,7 +489,7 @@ roadmaps.get('/me', async (c) => {
   });
 });
 
-// Generate a new roadmap for the current user, using the selected course bundle when available.
+// Generate a standalone AI roadmap. Active dashboard progression uses the selected catalog bundle.
 roadmaps.post('/generate', async (c) => {
   const userId = c.get('userId');
   const user = c.get('user');
@@ -531,7 +505,6 @@ roadmaps.post('/generate', async (c) => {
     skillsKnown,
     availability,
     allowMultiple = false,
-    roadmapSelection,
   } = body;
 
   // Merge request overrides with stored user profile
@@ -553,17 +526,7 @@ roadmaps.post('/generate', async (c) => {
     biggestChallenge: user?.biggestChallenge,
     previousField: user?.previousField,
     wantsRealWorldExperience: user?.wantsRealWorldExperience,
-    roadmapSelection: roadmapSelection || user?.roadmapSelection,
   };
-
-  let selectedBundle = null;
-  try {
-    selectedBundle = typeof roadmapInput.roadmapSelection === 'string'
-      ? JSON.parse(roadmapInput.roadmapSelection)
-      : roadmapInput.roadmapSelection || null;
-  } catch {
-    selectedBundle = null;
-  }
 
   const learnerType = deriveLearnerType({ ...user, ...roadmapInput });
   const archetype = deriveArchetype(roadmapInput.desiredField);
@@ -589,8 +552,6 @@ Current status: ${roadmapInput.currentStatus || 'Not specified'}
 Career goal: ${roadmapInput.careerGoal || 'Not specified'}
 Skills I already know: ${knownSkills.length > 0 ? knownSkills.join(', ') : 'None listed'}
 Availability pattern: ${roadmapInput.availability || 'Not specified'}
-
-Selected roadmap bundle (preserve this course order and level progression): ${selectedBundle ? JSON.stringify(selectedBundle) : 'None selected'}
 
 Derived learner type: ${learnerType}
 Derived archetype: ${archetype}
@@ -646,7 +607,6 @@ Important:
 
   // Deduplicate modules to ensure unique titles
   generated = deduplicateModules(generated);
-  generated = attachSelectedBundle(generated, selectedBundle, roadmapInput.desiredField);
 
   const now = new Date().toISOString();
   const roadmapId = uuidv4();

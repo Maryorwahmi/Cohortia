@@ -229,8 +229,20 @@ export interface CatalogCoursesResponse {
 
 export const catalogCourseApi = {
   getAll: () => fetchApi<CatalogCoursesResponse>('/catalog-courses'),
-  recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string; catalogCourses: CatalogCourse[] }) =>
-    fetchApi<{success: boolean; data?: {careerId: string; goal: string; learnerStage: string; courses: Record<string, CatalogCourse[]>}; error?: string}>('/catalog-courses/recommend', {
+  recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string }) =>
+    fetchApi<{
+      success: boolean;
+      data?: {
+        careerId: string;
+        goal: string;
+        learnerStage: string;
+        courses: Record<string, CatalogCourse[]>;
+        rankingMethod: 'ai' | 'mixed' | 'catalog-order';
+        rankingNotice?: string | null;
+      };
+      error?: string;
+      details?: Record<string, unknown>;
+    }>('/catalog-courses/recommend', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
@@ -335,19 +347,7 @@ export const contactApi = {
     }),
 };
 
-// Roadmaps
-export interface Roadmap {
-  id: string;
-  userId: string;
-  title: string;
-  description: string;
-  careerTrack?: string;
-  generatedData?: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
+// The ordered catalog bundle and its lesson rows are the active dashboard curriculum.
 export interface ActiveRoadmapCourse extends CatalogCourse {
   level: string;
   order: number;
@@ -365,14 +365,6 @@ export interface ActiveRoadmapResponse {
 
 export const roadmapApi = {
   getActive: () => fetchApi<ActiveRoadmapResponse>('/roadmaps/active'),
-  getMine: () => fetchApi<{ success: boolean; data?: { roadmap: Roadmap }; error?: string }>('/roadmaps/me'),
-  listMine: () => fetchApi<{ success: boolean; data?: { roadmaps: Roadmap[] }; error?: string }>('/roadmaps/mine/all'),
-  generate: (data: { careerGoal?: string; desiredField?: string; experienceLevel?: string; weeklyHours?: string; roadmapSelection?: string }) =>
-    fetchApi<{ success: boolean; data?: { roadmap: Roadmap }; error?: string }>('/roadmaps/generate', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  delete: (id: string) => fetchApi<{ success: boolean; message?: string; error?: string }>(`/roadmaps/${id}`, { method: 'DELETE' }),
 };
 
 // AI Lessons

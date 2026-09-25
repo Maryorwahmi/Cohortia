@@ -1,5 +1,5 @@
 import { db } from '../db/index.js';
-import { users, tracks, catalogCourses, catalogCourseCareers, enrollments } from '../db/schema.js';
+import { users, tracks, catalogCourses, catalogCourseCareers, lessons, enrollments } from '../db/schema.js';
 import { eq, and, inArray } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -167,7 +167,8 @@ auth.post('/signup', async (c) => {
     if (!selectedIds.length || !selectedIds.every((id) => typeof id === 'string') ||
       selectedCourseIds.some((id) => typeof id !== 'string') ||
       selectedIdSet.size !== selectedCourseIds.length || roadmapIdSet.size !== selectedIds.length ||
-      selectedIdSet.size !== roadmapIdSet.size || [...selectedIdSet].some((id) => !roadmapIdSet.has(id))) {
+      selectedIdSet.size !== roadmapIdSet.size || [...selectedIdSet].some((id) => !roadmapIdSet.has(id)) ||
+      selectedIds.some((id, index) => id !== selectedCourseIds[index])) {
       return c.json({ success: false, error: 'A complete roadmap selection is required' }, 400);
     }
 
@@ -181,6 +182,17 @@ auth.post('/signup', async (c) => {
       .where(and(eq(catalogCourseCareers.careerId, careerSlug), inArray(catalogCourseCareers.courseId, selectedIds)));
     if (careerLinks.length !== selectedIds.length) {
       return c.json({ success: false, error: 'One or more courses do not belong to the selected career' }, 400);
+    }
+
+    const availableLessons = await db.select({ trackId: lessons.trackId })
+      .from(lessons)
+      .where(inArray(lessons.trackId, selectedIds));
+    const coursesWithLessons = new Set(availableLessons.map((lesson) => lesson.trackId));
+    if (selectedIds.some((id) => !coursesWithLessons.has(id))) {
+      return c.json({
+        success: false,
+        error: 'One or more selected courses do not have a learning curriculum yet',
+      }, 409);
     }
 
     const levelCounts = courses.reduce((counts, course) => {
@@ -298,6 +310,7 @@ auth.post('/signup', async (c) => {
         role: data.role,
         onboardingGoal: data.onboardingGoal || null,
         experienceLevel: data.experienceLevel || null,
+        currentStatus: data.currentStatus || null,
         careerGoal: data.careerGoal || null,
         desiredField: data.desiredField || null,
         roadmapSelection: data.roadmapSelection || null,

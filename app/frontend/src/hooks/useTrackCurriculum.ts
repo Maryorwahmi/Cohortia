@@ -41,14 +41,25 @@ export function useTrackCurriculum(): UseTrackCurriculumReturn {
 
     try {
       const [activeRoadmapRes, progressRes] = await Promise.all([
-        roadmapApi.getActive().catch(() => null),
+        roadmapApi.getActive().catch((error) => {
+          if (user.roadmapSelection) throw error;
+          return null;
+        }),
         userApi.getProgress(),
       ]);
       const activeRoadmap = activeRoadmapRes?.data?.selection && activeRoadmapRes.data.courses?.length
         ? activeRoadmapRes.data
         : null;
 
+      if (user.roadmapSelection && !activeRoadmap) {
+        throw new Error("Your saved roadmap could not be loaded. Please try again or rebuild your roadmap.");
+      }
+
       if (activeRoadmap) {
+        const coursesWithoutLessons = activeRoadmap.courses.filter((course) => course.lessons.length === 0);
+        if (coursesWithoutLessons.length) {
+          throw new Error(`No learning content is available for: ${coursesWithoutLessons.map((course) => course.title).join(", ")}.`);
+        }
         const firstCourse = activeRoadmap.courses[0];
         const roadmapLessons = activeRoadmap.courses.flatMap((course, courseIndex) =>
           course.lessons.map((lesson) => ({

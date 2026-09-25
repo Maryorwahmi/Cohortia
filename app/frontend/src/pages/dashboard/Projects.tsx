@@ -19,7 +19,7 @@ interface BackendSubmission {
 
 export default function Projects() {
   const {user} = useAuth();
-  const {lessons, loading: curriculumLoading, error: curriculumError} = useTrackCurriculum();
+  const {lessons, completedSteps, loading: curriculumLoading, error: curriculumError} = useTrackCurriculum();
   const [submissions, setSubmissions] = useState<BackendSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +84,7 @@ export default function Projects() {
 
   return (
     <div className="relative">
-      <RoadmapSummary selection={userProfile.roadmapSelection} />
+      <RoadmapSummary selection={userProfile.roadmapSelection} completedSteps={completedSteps} />
       {(error || curriculumError) && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-xl text-xs font-mono font-bold">
           {error || curriculumError}

@@ -36,6 +36,9 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   const [activeTab, setActiveTab] = useState<"signup" | "login">(initialTab);
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
+  const [roadmapSelection] = useState<RoadmapSelection | undefined>(() =>
+    (location.state as LocationState | null)?.roadmapSelection || readPendingRoadmap()
+  );
 
   // STEP 1: About You
   const [name, setName] = useState("");
@@ -47,16 +50,13 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   const [learningMethods, setLearningMethods] = useState<string[]>(["Hands-on projects"]);
 
   // STEP 2: Background
-  const [objective, setObjective] = useState("Pivot into a tech career");
+  const [objective, setObjective] = useState(roadmapSelection?.careerGoal || "Pivot into a tech career");
   const [experienceText, setExperienceText] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("beginner");
 
   // STEP 3: Learning Plan & Track
   const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
   const [selectedTrack, setSelectedTrack] = useState("");
-  const [roadmapSelection] = useState<RoadmapSelection | undefined>(() =>
-    (location.state as LocationState | null)?.roadmapSelection || readPendingRoadmap()
-  );
   const [commitment, setCommitment] = useState("fulltime");
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
         }
       })
       .catch(() => {});
-  }, [location.state]);
+  }, [location.state, roadmapSelection?.selectedCareerId]);
 
   // STEP 4: Account Security
   const [password, setPassword] = useState("");
@@ -157,10 +157,13 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     setFieldErrors({});
 
     const roleMap: Record<string, 'career-starter' | 'level-up' | 'experience-track'> = {
+      "Pivot into a new career": "career-starter",
       "Pivot into a tech career": "career-starter",
       "Up-skill in my current role": "level-up",
+      "Lead & Specialize": "level-up",
       "Build side projects & start a company": "experience-track"
     };
+    const selectedGoal = roadmapSelection?.careerGoal || objective;
 
     const weeklyHours = commitment === "fulltime"
       ? "35-40 hrs/week"
@@ -170,12 +173,13 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       name: name.trim(),
       email: email.trim(),
       password,
-      currentStatus: objective.trim(),
-      role: roleMap[objective] || "career-starter",
-      onboardingGoal: objective,
+      currentStatus: selectedGoal,
+      role: roleMap[selectedGoal] || "career-starter",
+      onboardingGoal: selectedGoal,
       experienceLevel,
       weeklyHours,
       desiredField: selectedTrack.trim(),
+      careerGoal: selectedGoal,
       roadmapSelection: roadmapSelection ? JSON.stringify(roadmapSelection) : undefined,
     });
 
@@ -454,8 +458,11 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
                 <div className="space-y-2 text-left">
                   <label className="text-[10px] font-mono text-immersive-secondary font-bold uppercase tracking-wider block">Primary Goal *</label>
                   <div className="grid grid-cols-1 gap-2">
-                    {["Pivot into a tech career", "Up-skill in my current role", "Build side projects & start a company"].map((option) => (
-                      <button key={option} type="button" onClick={() => setObjective(option)} className={`rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all cursor-pointer ${objective === option ? "border-immersive-secondary bg-immersive-primary/5 text-immersive-text-primary" : "border-immersive-border bg-immersive-bg/30 text-immersive-text-secondary hover:text-immersive-text-primary"}`}>
+                    {(roadmapSelection
+                      ? [roadmapSelection.careerGoal]
+                      : ["Pivot into a tech career", "Up-skill in my current role", "Build side projects & start a company"]
+                    ).map((option) => (
+                      <button key={option} type="button" disabled={Boolean(roadmapSelection)} onClick={() => setObjective(option)} className={`rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${roadmapSelection ? "cursor-default" : "cursor-pointer"} ${objective === option ? "border-immersive-secondary bg-immersive-primary/5 text-immersive-text-primary" : "border-immersive-border bg-immersive-bg/30 text-immersive-text-secondary hover:text-immersive-text-primary"}`}>
                         {option}
                       </button>
                     ))}
@@ -695,15 +702,18 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
                       </label>
                       
                       <div className="grid grid-cols-1 gap-3">
-                        {[
-                          { id: "Pivot into a tech career", label: "Pivot into a tech career", desc: "Acquire industrial experience to transition completely." },
-                          { id: "Up-skill in my current role", label: "Up-skill in my current role", desc: "Gain professional production habits and master React/Vite." },
-                          { id: "Build side projects & start a company", label: "Build side projects", desc: "Turn concepts into high-contrast interactive prototypes." }
-                        ].map((obj) => (
+                        {(roadmapSelection
+                          ? [{ id: roadmapSelection.careerGoal, label: roadmapSelection.careerGoal, desc: "Selected in your roadmap." }]
+                          : [
+                            { id: "Pivot into a tech career", label: "Pivot into a tech career", desc: "Acquire industrial experience to transition completely." },
+                            { id: "Up-skill in my current role", label: "Up-skill in my current role", desc: "Gain professional production habits and master React/Vite." },
+                            { id: "Build side projects & start a company", label: "Build side projects", desc: "Turn concepts into high-contrast interactive prototypes." }
+                          ]
+                        ).map((obj) => (
                           <div 
                             key={obj.id}
-                            onClick={() => setObjective(obj.id)}
-                            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start space-x-3.5 ${
+                            onClick={roadmapSelection ? undefined : () => setObjective(obj.id)}
+                            className={`p-4 rounded-2xl border ${roadmapSelection ? "cursor-default" : "cursor-pointer"} transition-all flex items-start space-x-3.5 ${
                               objective === obj.id 
                                 ? "bg-immersive-primary/5 border-immersive-secondary shadow-md shadow-immersive-shadow"
                                 : "bg-immersive-bg/40 border-immersive-border hover:border-immersive-border-hover"

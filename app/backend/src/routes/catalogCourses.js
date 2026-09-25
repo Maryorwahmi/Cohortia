@@ -188,10 +188,31 @@ catalogCoursesRoute.post('/recommend', async (c) => {
   const linkedCourses = linkedIds.length
     ? await db.select().from(catalogCourses).where(inArray(catalogCourses.id, linkedIds))
     : [];
-  const candidateCourses = linkedCourses.filter((course) => Object.prototype.hasOwnProperty.call(limits, String(course.level || '').toLowerCase()));
+  const levelCourses = linkedCourses.filter((course) => Object.prototype.hasOwnProperty.call(limits, String(course.level || '').toLowerCase()));
+  const candidateIds = levelCourses.map((course) => course.id);
+  const lessonRows = candidateIds.length
+    ? await db.select({ trackId: lessons.trackId }).from(lessons).where(inArray(lessons.trackId, candidateIds))
+    : [];
+  const coursesWithLessons = new Set(lessonRows.map((lesson) => lesson.trackId));
+  const candidateCourses = levelCourses.filter((course) => coursesWithLessons.has(course.id));
 
   if (!candidateCourses.length) {
-    return c.json({success: false, error: 'No catalog courses are available for this career and stage'}, 404);
+    return c.json({success: false, error: 'No courses with an available learning curriculum are linked to this career'}, 404);
+  }
+
+  const insufficientLevels = Object.entries(limits)
+    .map(([level, quota]) => ({
+      level,
+      required: quota.options,
+      available: candidateCourses.filter((course) => String(course.level || '').toLowerCase() === level).length,
+    }))
+    .filter((item) => item.available < item.required);
+  if (insufficientLevels.length) {
+    return c.json({
+      success: false,
+      error: 'There are not enough courses with learning content for this career and roadmap goal.',
+      details: { levels: insufficientLevels },
+    }, 409);
   }
 
   const metadata = candidateCourses.map((course) => ({
@@ -207,7 +228,6 @@ catalogCoursesRoute.post('/recommend', async (c) => {
     skills: course.skills,
     certification: course.certification,
   }));
-  const suppliedMetadata = Array.isArray(body.catalogCourses) ? body.catalogCourses : [];
   const prompt = `Rank the canonical catalog course IDs for a learner.
 Goal: ${body.careerGoal}
 Career ID: ${careerId}
@@ -216,12 +236,10 @@ Learner stage: ${learnerStage}
 Canonical catalog metadata:
 ${JSON.stringify(metadata)}
 
-The client supplied this same catalog context for display:
-${JSON.stringify(suppliedMetadata)}
-
 Return ONLY JSON in this shape: {"beginner":["course-id"],"intermediate":["course-id"],"advanced":["course-id"]}.
 Rank only IDs from the canonical metadata. Keep each level in sensible learning order. Do not invent IDs.`;
   let ranked = {};
+  let rankingFailure = null;
   try {
     const result = await generateCompleteJson({
       systemPrompt: 'You are Cohortia curriculum selection AI. Use only the supplied canonical catalog records.',
@@ -229,13 +247,21 @@ Rank only IDs from the canonical metadata. Keep each level in sensible learning 
       maxTokens: 1800,
       maxContinuations: 1,
     });
-    if (result.success && result.data && typeof result.data === 'object') ranked = result.data;
+    if (result.success && result.data && typeof result.data === 'object') {
+      ranked = result.data;
+    } else {
+      rankingFailure = result.error || 'AI did not return a usable ranking.';
+      console.error('Course recommendation AI ranking failed:', rankingFailure);
+    }
   } catch (error) {
-    console.error('Course recommendation failed:', error);
+    rankingFailure = error instanceof Error ? error.message : 'Unknown AI ranking error';
+    console.error('Course recommendation AI ranking failed:', error);
   }
 
   const byId = new Map(candidateCourses.map((course) => [course.id, course]));
   const options = {};
+  let usedAI = false;
+  let usedCatalogOrder = false;
   for (const [level, quota] of Object.entries(limits)) {
     const rankedIds = Array.isArray(ranked[level]) ? ranked[level] : [];
     const validRanked = rankedIds.filter((id, index) => typeof id === 'string' && byId.get(id)?.level?.toLowerCase() === level && rankedIds.indexOf(id) === index);
@@ -243,11 +269,26 @@ Rank only IDs from the canonical metadata. Keep each level in sensible learning 
       .filter((course) => String(course.level || '').toLowerCase() === level)
       .sort((left, right) => left.title.localeCompare(right.title))
       .map((course) => course.id);
+    usedAI ||= validRanked.length > 0;
+    usedCatalogOrder ||= validRanked.length < quota.options;
     const ids = [...validRanked, ...fallbackIds.filter((id) => !validRanked.includes(id))].slice(0, quota.options);
     options[level] = ids.map((id, index) => ({...byId.get(id), recommendationRank: index + 1}));
   }
 
-  return c.json({success: true, data: {careerId, goal: body.careerGoal, learnerStage, courses: options}});
+  const rankingMethod = usedAI && usedCatalogOrder ? 'mixed' : usedAI ? 'ai' : 'catalog-order';
+  return c.json({
+    success: true,
+    data: {
+      careerId,
+      goal: body.careerGoal,
+      learnerStage,
+      courses: options,
+      rankingMethod,
+      rankingNotice: rankingFailure
+        ? 'AI ranking was unavailable. Courses are shown in catalog order where needed.'
+        : null,
+    },
+  });
 });
 
 catalogCoursesRoute.get('/:id/details', async (c) => {
