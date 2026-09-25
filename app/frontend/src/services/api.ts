@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '../config/api';
+import type { RoadmapSelection } from '../types';
 
 export interface ApiError extends Error {
   status?: number;
@@ -342,7 +343,23 @@ export interface Roadmap {
   updatedAt: string;
 }
 
+export interface ActiveRoadmapCourse extends CatalogCourse {
+  level: string;
+  order: number;
+  lessons: Lesson[];
+}
+
+export interface ActiveRoadmapResponse {
+  success: boolean;
+  data?: {
+    selection: RoadmapSelection | null;
+    courses: ActiveRoadmapCourse[];
+  };
+  error?: string;
+}
+
 export const roadmapApi = {
+  getActive: () => fetchApi<ActiveRoadmapResponse>('/roadmaps/active'),
   getMine: () => fetchApi<{ success: boolean; data?: { roadmap: Roadmap }; error?: string }>('/roadmaps/me'),
   listMine: () => fetchApi<{ success: boolean; data?: { roadmaps: Roadmap[] }; error?: string }>('/roadmaps/mine/all'),
   generate: (data: { careerGoal?: string; desiredField?: string; experienceLevel?: string; weeklyHours?: string; roadmapSelection?: string }) =>

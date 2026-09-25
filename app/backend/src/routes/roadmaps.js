@@ -1,12 +1,33 @@
 import { Hono } from 'hono';
 import { db } from '../db/index.js';
-import { userRoadmaps, projectTemplates, aiLessons, userLessonProgress } from '../db/schema.js';
-import { eq, desc, and } from 'drizzle-orm';
+import { users, userRoadmaps, projectTemplates, aiLessons, userLessonProgress, catalogCourses, lessons } from '../db/schema.js';
+import { eq, desc, and, inArray } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { generateCompleteJson } from '../lib/gemini.js';
 import { buildSyllabus } from '../lib/syllabi.js';
 
 const roadmaps = new Hono();
+
+function parseRoadmapSelection(value) {
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    if (!parsed?.roadmapOrder || !parsed?.selectedCourses) return null;
+    const toId = (course) => typeof course === 'string' ? course : course?.id;
+    const levels = ['beginner', 'intermediate', 'advanced'];
+    const selectedCourses = Object.fromEntries(levels.map((level) => [
+      level,
+      Array.isArray(parsed.selectedCourses[level]) ? parsed.selectedCourses[level].map(toId).filter(Boolean) : [],
+    ]));
+    return {
+      ...parsed,
+      selectedCareerId: parsed.selectedCareerId || String(parsed.selectedCareer || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      selectedCourses,
+      roadmapOrder: parsed.roadmapOrder.map(toId).filter(Boolean),
+    };
+  } catch {
+    return null;
+  }
+}
 
 const SYSTEM_PROMPT = `You are Cohortia, an expert curriculum designer and career educator. Generate a syllabus-driven, personalised learning roadmap.
 
@@ -392,7 +413,50 @@ function deduplicateModules(roadmap) {
   };
 }
 
-// Get current user's roadmap
+// Get the user's selected multi-course roadmap with real catalog lessons.
+roadmaps.get('/active', async (c) => {
+  const userId = c.get('userId');
+  const user = await db.select({ roadmapSelection: users.roadmapSelection })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  const selection = parseRoadmapSelection(user[0]?.roadmapSelection);
+
+  if (!selection?.roadmapOrder?.length) {
+    return c.json({ success: true, data: { selection: null, courses: [] } });
+  }
+
+  const catalogRows = await db.select()
+    .from(catalogCourses)
+    .where(inArray(catalogCourses.id, selection.roadmapOrder));
+  const lessonRows = await db.select()
+    .from(lessons)
+    .where(inArray(lessons.trackId, selection.roadmapOrder));
+  const levelById = new Map([
+    ...selection.selectedCourses.beginner.map((id) => [id, 'beginner']),
+    ...selection.selectedCourses.intermediate.map((id) => [id, 'intermediate']),
+    ...selection.selectedCourses.advanced.map((id) => [id, 'advanced']),
+  ]);
+  const catalogById = new Map(catalogRows.map((course) => [course.id, course]));
+  const lessonsByCourse = new Map();
+  for (const lesson of lessonRows) {
+    if (!lessonsByCourse.has(lesson.trackId)) lessonsByCourse.set(lesson.trackId, []);
+    lessonsByCourse.get(lesson.trackId).push(lesson);
+  }
+
+  const courses = selection.roadmapOrder.map((courseId, index) => ({
+    ...(catalogById.get(courseId) || { id: courseId, title: courseId }),
+    level: levelById.get(courseId) || String(catalogById.get(courseId)?.level || '').toLowerCase(),
+    order: index + 1,
+    lessons: (lessonsByCourse.get(courseId) || []).sort((left, right) =>
+      (left.moduleIndex - right.moduleIndex) || (left.order - right.order)
+    ),
+  }));
+
+  return c.json({ success: true, data: { selection, courses } });
+});
+
+// Get current user's generated roadmap
 roadmaps.get('/me', async (c) => {
   const userId = c.get('userId');
 

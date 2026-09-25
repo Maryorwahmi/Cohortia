@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
-import { trackApi, learningApi, userApi, Lesson, Track } from "../services/api";
+import { trackApi, learningApi, userApi, roadmapApi, Lesson, Track } from "../services/api";
 import { DashboardMilestone } from "../data/dashboardData";
 import { trackLessonsToDashboardMilestones, LessonProgress } from "../lib/roadmap";
 
@@ -12,6 +12,7 @@ export interface UseTrackCurriculumReturn {
   completedSteps: string[];
   practicalAttempts: Array<Record<string, unknown>>;
   practicalTaskProgress: Array<Record<string, unknown>>;
+  isRoadmap: boolean;
   loading: boolean;
   error: string | null;
   completeLesson: (lessonId: string) => Promise<void>;
@@ -25,6 +26,7 @@ export function useTrackCurriculum(): UseTrackCurriculumReturn {
   const [progress, setProgress] = useState<LessonProgress[]>([]);
   const [practicalAttempts, setPracticalAttempts] = useState<Array<Record<string, unknown>>>([]);
   const [practicalTaskProgress, setPracticalTaskProgress] = useState<Array<Record<string, unknown>>>([]);
+  const [isRoadmap, setIsRoadmap] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +40,44 @@ export function useTrackCurriculum(): UseTrackCurriculumReturn {
     setError(null);
 
     try {
+      const [activeRoadmapRes, progressRes] = await Promise.all([
+        roadmapApi.getActive().catch(() => null),
+        userApi.getProgress(),
+      ]);
+      const activeRoadmap = activeRoadmapRes?.data?.selection && activeRoadmapRes.data.courses?.length
+        ? activeRoadmapRes.data
+        : null;
+
+      if (activeRoadmap) {
+        const firstCourse = activeRoadmap.courses[0];
+        const roadmapLessons = activeRoadmap.courses.flatMap((course, courseIndex) =>
+          course.lessons.map((lesson) => ({
+            ...lesson,
+            trackId: course.id,
+            moduleIndex: courseIndex * 100 + (lesson.moduleIndex || 0),
+            moduleTitle: `${course.title} · ${lesson.moduleTitle || 'Curriculum'}`,
+          }))
+        );
+        setIsRoadmap(true);
+        setTrack({
+          id: firstCourse.id,
+          title: `${String(activeRoadmap.selection?.selectedCareer || 'Career')} Roadmap`,
+          description: 'Your ordered multi-course learning roadmap.',
+          category: 'Roadmap',
+          difficulty: 'Progressive',
+          level: firstCourse.level,
+        });
+        setLessons(roadmapLessons);
+        const progressData = Array.isArray(progressRes.data?.progress)
+          ? (progressRes.data?.progress as LessonProgress[])
+          : [];
+        setProgress(progressData);
+        setPracticalAttempts(Array.isArray(progressRes.data?.practicalAttempts) ? progressRes.data.practicalAttempts : []);
+        setPracticalTaskProgress(Array.isArray(progressRes.data?.practicalTaskProgress) ? progressRes.data.practicalTaskProgress : []);
+        return;
+      }
+
+      setIsRoadmap(false);
       const enrolledRes = await trackApi.getEnrolled();
       const enrollments = Array.isArray(enrolledRes.data?.enrollments)
         ? (enrolledRes.data?.enrollments as { trackId: string; status: string }[])
@@ -51,7 +91,7 @@ export function useTrackCurriculum(): UseTrackCurriculumReturn {
         return;
       }
 
-      const [lessonsRes, progressRes] = await Promise.all([
+      const [lessonsRes, legacyProgressRes] = await Promise.all([
         trackApi.getLessons(activeEnrollment.trackId),
         userApi.getProgress(),
       ]);
@@ -63,12 +103,12 @@ export function useTrackCurriculum(): UseTrackCurriculumReturn {
       setTrack(lessonsRes.data.track || null);
       setLessons(Array.isArray(lessonsRes.data.lessons) ? lessonsRes.data.lessons : []);
 
-      const progressData = Array.isArray(progressRes.data?.progress)
-        ? (progressRes.data?.progress as LessonProgress[])
+      const progressData = Array.isArray(legacyProgressRes.data?.progress)
+        ? (legacyProgressRes.data?.progress as LessonProgress[])
         : [];
       setProgress(progressData);
-      setPracticalAttempts(Array.isArray(progressRes.data?.practicalAttempts) ? progressRes.data.practicalAttempts : []);
-      setPracticalTaskProgress(Array.isArray(progressRes.data?.practicalTaskProgress) ? progressRes.data.practicalTaskProgress : []);
+      setPracticalAttempts(Array.isArray(legacyProgressRes.data?.practicalAttempts) ? legacyProgressRes.data.practicalAttempts : []);
+      setPracticalTaskProgress(Array.isArray(legacyProgressRes.data?.practicalTaskProgress) ? legacyProgressRes.data.practicalTaskProgress : []);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to load course curriculum.";
       setError(message);
@@ -118,6 +158,7 @@ export function useTrackCurriculum(): UseTrackCurriculumReturn {
     completedSteps,
     practicalAttempts,
     practicalTaskProgress,
+    isRoadmap,
     loading,
     error,
     completeLesson,

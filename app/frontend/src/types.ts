@@ -13,6 +13,7 @@ export interface RoadmapCourseSelection {
 export interface RoadmapSelection {
   careerGoal: RoadmapGoal;
   learningStage: RoadmapLevel;
+  selectedCareerId: string;
   selectedCareer: string;
   selectedCourses: Record<RoadmapLevel, string[]>;
   roadmapOrder: string[];
@@ -89,6 +90,7 @@ export function backendUserToPreferences(user: {
       const toId = (course: string | RoadmapCourseSelection) => typeof course === "string" ? course : course.id;
       roadmapSelection = {
         ...parsed,
+        selectedCareerId: parsed.selectedCareerId || parsed.selectedCareer,
         selectedCourses: Object.fromEntries(
           (Object.keys(parsed.selectedCourses) as RoadmapLevel[]).map((level) => [level, parsed.selectedCourses[level].map(toId)])
         ) as Record<RoadmapLevel, string[]>,

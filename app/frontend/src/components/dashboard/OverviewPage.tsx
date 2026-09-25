@@ -18,9 +18,10 @@ interface OverviewPageProps {
   onChangePage: (page: string) => void;
   curriculum?: DashboardMilestone[];
   onToggleLesson?: (lessonId: string) => void | Promise<void>;
+  isRoadmap?: boolean;
 }
 
-export default function OverviewPage({ userProfile, track, onUpdateProfile, onChangePage, curriculum: curriculumProp, onToggleLesson }: OverviewPageProps) {
+export default function OverviewPage({ userProfile, track, onUpdateProfile, onChangePage, curriculum: curriculumProp, onToggleLesson, isRoadmap = false }: OverviewPageProps) {
   const activeTrackId = userProfile.track || "cpp";
   const baseCurriculum = curriculumProp || TRACK_CURRICULA[activeTrackId] || TRACK_CURRICULA.frontend;
   const overviewSummary = track?.overview
@@ -41,6 +42,12 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
 
   useEffect(() => {
     setCourseChaptersLoading(true);
+
+    if (isRoadmap) {
+      setCourseChapters([]);
+      setCourseChaptersLoading(false);
+      return;
+    }
 
     if (!track?.id) {
       setCourseChapters([]);
@@ -80,7 +87,7 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
     return () => {
       cancelled = true;
     };
-  }, [track?.id]);
+  }, [track?.id, isRoadmap]);
 
   if (courseChaptersLoading) {
     return <SkeletonLoader activePage="overview" />;

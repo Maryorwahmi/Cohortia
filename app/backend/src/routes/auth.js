@@ -146,7 +146,7 @@ auth.post('/signup', async (c) => {
     const allLevels = ['beginner', 'intermediate', 'advanced'];
     const limits = limitsByGoal[selection?.careerGoal];
     const expectedStages = stagesByGoal[selection?.careerGoal] || [];
-    const careerSlug = String(selection?.selectedCareer || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const careerSlug = String(selection?.selectedCareerId || selection?.selectedCareer || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const validCareerSlugs = new Set([
       'frontend-development', 'backend-development', 'data-analytics', 'data-science',
       'ai-ml-engineering', 'cybersecurity', 'cloud-engineering', 'devops-engineering',

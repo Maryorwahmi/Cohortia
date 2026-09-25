@@ -15,7 +15,20 @@ const goals: Array<{ id: RoadmapGoal; title: string; description: string }> = [
   { id: "Lead & Specialize", title: "Lead & Specialize", description: "Move into advanced practice, ownership, and technical leadership." },
 ];
 
-const careers = ["Frontend Development", "Backend Development", "Data Analytics", "Data Science", "AI/ML Engineering", "Cybersecurity", "Cloud Engineering", "DevOps Engineering", "UX/UI Design", "QA/Testing", "Product Management", "Full-Stack Development"];
+const careers = [
+  { id: "frontend-development", label: "Frontend Development" },
+  { id: "backend-development", label: "Backend Development" },
+  { id: "data-analytics", label: "Data Analytics" },
+  { id: "data-science", label: "Data Science" },
+  { id: "ai-ml-engineering", label: "AI/ML Engineering" },
+  { id: "cybersecurity", label: "Cybersecurity" },
+  { id: "cloud-engineering", label: "Cloud Engineering" },
+  { id: "devops-engineering", label: "DevOps Engineering" },
+  { id: "ux-ui-design", label: "UX/UI Design" },
+  { id: "qa-testing", label: "QA/Testing" },
+  { id: "product-management", label: "Product Management" },
+  { id: "full-stack-development", label: "Full-Stack Development" },
+];
 const levels: RoadmapLevel[] = ["beginner", "intermediate", "advanced"];
 const quotas: Record<RoadmapGoal, Partial<Record<RoadmapLevel, { options: number; choose: number }>>> = {
   "Pivot into a new career": { beginner: { options: 4, choose: 2 }, intermediate: { options: 3, choose: 2 }, advanced: { options: 2, choose: 1 } },
@@ -50,12 +63,12 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
   const activeLevels = (Object.keys(quotas[goal]) as RoadmapLevel[]);
   const optionsByLevel = useMemo(() => {
     const matches = catalog
-      .map((course) => ({ course, score: courseMatchesCareer(course, career) }))
+      .map((course) => ({ course, score: courseMatchesCareer(course, career.label) }))
       .sort((a, b) => b.score - a.score || a.course.title.localeCompare(b.course.title));
     return levels.reduce((result, level) => {
       const quota = quotas[goal][level];
       if (!quota) return result;
-      const levelCourses = matches.filter(({ course }) => normalizeLevel(course.level) === level && courseMatchesCareer(course, career) > 0).map(({ course }) => course);
+      const levelCourses = matches.filter(({ course }) => normalizeLevel(course.level) === level && courseMatchesCareer(course, career.label) > 0).map(({ course }) => course);
       const fallback = matches.filter(({ course }) => normalizeLevel(course.level) === level).map(({ course }) => course);
       result[level] = (levelCourses.length ? levelCourses : fallback).slice(0, quota.options);
       return result;
@@ -75,12 +88,12 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
       result[level] = selected[level].map((course) => course.id);
       return result;
     }, {} as RoadmapSelection["selectedCourses"]);
-    return { careerGoal: goal, learningStage: activeLevels[0], selectedCareer: career, selectedCourses, roadmapOrder: activeLevels.flatMap((level) => selectedCourses[level]) };
+    return { careerGoal: goal, learningStage: activeLevels[0], selectedCareerId: career.id, selectedCareer: career.label, selectedCourses, roadmapOrder: activeLevels.flatMap((level) => selectedCourses[level]) };
   };
 
   const continueToSignup = () => {
     const roadmapSelection = createSelection();
-    navigate("/signup", { state: { roadmapSelection, selectedTrackId: career } });
+    navigate("/signup", { state: { roadmapSelection, selectedTrackId: career.id } });
   };
 
   return (
@@ -93,9 +106,9 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
           </div>
           <div className="p-5 sm:p-8">
             {step === 1 && <div className="space-y-6"><h3 className="text-2xl font-extrabold text-immersive-text-primary">What are you building toward?</h3><div className="grid md:grid-cols-3 gap-3">{goals.map((item) => <button key={item.id} onClick={() => { setGoal(item.id); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} className={`text-left p-5 rounded-2xl border transition-all ${goal === item.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}><span className="text-sm font-bold text-immersive-text-primary">{item.title}</span><p className="text-xs text-immersive-text-secondary mt-2 leading-relaxed">{item.description}</p></button>)}</div><button onClick={() => setStep(2)} className="primary-action">Choose a career <ArrowRight className="w-4 h-4" /></button></div>}
-            {step === 2 && <div className="space-y-6"><div><h3 className="text-2xl font-extrabold text-immersive-text-primary">Choose your career lane</h3><p className="text-sm text-immersive-text-secondary mt-2">We will use the course catalog to shape the right progression for this goal.</p></div><div className="grid grid-cols-2 md:grid-cols-4 gap-2">{careers.map((item) => <button key={item} onClick={() => setCareer(item)} className={`p-3 rounded-xl border text-xs font-bold text-left ${career === item ? "border-[#FF4B3E] text-immersive-text-primary bg-[#FF4B3E]/10" : "border-immersive-border text-immersive-text-secondary hover:border-immersive-secondary/60"}`}>{item}</button>)}</div><div className="flex gap-3"><button onClick={() => setStep(1)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Back</button><button onClick={() => setStep(3)} className="primary-action">Browse {career} courses <ArrowRight className="w-4 h-4" /></button></div></div>}
+            {step === 2 && <div className="space-y-6"><div><h3 className="text-2xl font-extrabold text-immersive-text-primary">Choose your career lane</h3><p className="text-sm text-immersive-text-secondary mt-2">We will use the course catalog to shape the right progression for this goal.</p></div><div className="grid grid-cols-2 md:grid-cols-4 gap-2">{careers.map((item) => <button key={item.id} onClick={() => setCareer(item)} className={`p-3 rounded-xl border text-xs font-bold text-left ${career.id === item.id ? "border-[#FF4B3E] text-immersive-text-primary bg-[#FF4B3E]/10" : "border-immersive-border text-immersive-text-secondary hover:border-immersive-secondary/60"}`}>{item.label}</button>)}</div><div className="flex gap-3"><button onClick={() => setStep(1)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Back</button><button onClick={() => setStep(3)} className="primary-action">Browse {career.label} courses <ArrowRight className="w-4 h-4" /></button></div></div>}
             {step === 3 && <div className="space-y-7"><div><h3 className="text-2xl font-extrabold text-immersive-text-primary">Build your course bundle</h3><p className="text-sm text-immersive-text-secondary mt-2">Choose the required number at each level. Beginner always comes first in your roadmap.</p></div>{loading ? <div className="flex items-center gap-2 text-sm text-immersive-text-secondary"><LoaderCircle className="w-4 h-4 animate-spin" /> Loading catalog...</div> : activeLevels.map((level) => <div key={level} className="space-y-3"><div className="flex justify-between items-center"><h4 className="text-sm font-bold uppercase tracking-widest text-immersive-text-primary">{level}</h4><span className="text-xs text-immersive-secondary">Choose {quotas[goal][level]?.choose}</span></div><div className="grid md:grid-cols-2 gap-3">{(optionsByLevel[level] || []).map((course) => { const isSelected = selected[level].some((item) => item.id === course.id); return <button key={course.id} onClick={() => toggleCourse(level, course)} className={`p-4 rounded-xl border text-left ${isSelected ? "border-emerald-400 bg-emerald-400/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}><div className="flex justify-between gap-3"><span className="text-sm font-bold text-immersive-text-primary">{course.title}</span>{isSelected && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}</div><p className="text-xs text-immersive-text-secondary mt-2 line-clamp-2">{course.description || "Catalog course selected for this career lane."}</p></button>; })}</div></div>)}<div className="flex gap-3"><button onClick={() => setStep(2)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Back</button><button disabled={!canContinue} onClick={() => setStep(4)} className="primary-action disabled:opacity-40">Review roadmap <ArrowRight className="w-4 h-4" /></button></div></div>}
-            {step === 4 && <div className="space-y-6"><div><span className="text-xs font-mono tracking-widest text-[#FF4B3E]">ROADMAP READY</span><h3 className="text-2xl font-extrabold text-immersive-text-primary mt-2">{career} / {goal}</h3><p className="text-sm text-immersive-text-secondary mt-2">Your active learning lane has {totalSelected} courses in level order.</p></div><div className="space-y-2">{activeLevels.flatMap((level) => selected[level].map((course) => ({ level, course }))).map(({ level, course }, index) => <div key={course.id} className="flex items-center gap-4 p-4 rounded-xl border border-immersive-border"><span className="text-xs font-mono text-immersive-secondary">0{index + 1}</span><div><p className="text-sm font-bold text-immersive-text-primary">{course.title}</p><p className="text-xs text-immersive-text-secondary uppercase mt-1">{level}</p></div></div>)}</div><div className="flex gap-3"><button onClick={() => setStep(3)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Edit bundle</button><button onClick={continueToSignup} className="primary-action">Continue to sign up <ArrowRight className="w-4 h-4" /></button></div></div>}
+            {step === 4 && <div className="space-y-6"><div><span className="text-xs font-mono tracking-widest text-[#FF4B3E]">ROADMAP READY</span><h3 className="text-2xl font-extrabold text-immersive-text-primary mt-2">{career.label} / {goal}</h3><p className="text-sm text-immersive-text-secondary mt-2">Your active learning lane has {totalSelected} courses in level order.</p></div><div className="space-y-2">{activeLevels.flatMap((level) => selected[level].map((course) => ({ level, course }))).map(({ level, course }, index) => <div key={course.id} className="flex items-center gap-4 p-4 rounded-xl border border-immersive-border"><span className="text-xs font-mono text-immersive-secondary">0{index + 1}</span><div><p className="text-sm font-bold text-immersive-text-primary">{course.title}</p><p className="text-xs text-immersive-text-secondary uppercase mt-1">{level}</p></div></div>)}</div><div className="flex gap-3"><button onClick={() => setStep(3)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Edit bundle</button><button onClick={continueToSignup} className="primary-action">Continue to sign up <ArrowRight className="w-4 h-4" /></button></div></div>}
           </div>
         </div>
       </div>

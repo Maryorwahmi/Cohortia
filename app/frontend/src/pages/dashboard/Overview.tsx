@@ -18,7 +18,7 @@ const PAGE_PATHS: Record<string, string> = {
 export default function Overview() {
   const navigate = useNavigate();
   const {user, refreshUser} = useAuth();
-  const {track, milestones, completedSteps, loading, error, completeLesson} = useTrackCurriculum();
+  const {track, milestones, completedSteps, loading, error, completeLesson, isRoadmap} = useTrackCurriculum();
 
   const userProfile = useMemo<UserPreferences | null>(() => {
     if (!user) return null;
@@ -55,6 +55,7 @@ export default function Overview() {
         onChangePage={(page) => navigate(PAGE_PATHS[page] || `/dashboard/${page}`)}
         curriculum={milestones.length ? milestones : undefined}
         onToggleLesson={handleToggleLesson}
+        isRoadmap={isRoadmap}
       />
     </div>
   );
