@@ -19,6 +19,15 @@ interface LocationState {
   roadmapSelection?: RoadmapSelection;
 }
 
+function readPendingRoadmap(): RoadmapSelection | undefined {
+  try {
+    const stored = sessionStorage.getItem("cohortia_pending_roadmap");
+    return stored ? JSON.parse(stored) as RoadmapSelection : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export default function AuthPages({ initialTab }: AuthPagesProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,7 +55,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
   const [selectedTrack, setSelectedTrack] = useState("");
   const [roadmapSelection] = useState<RoadmapSelection | undefined>(() =>
-    (location.state as LocationState | null)?.roadmapSelection
+    (location.state as LocationState | null)?.roadmapSelection || readPendingRoadmap()
   );
   const [commitment, setCommitment] = useState("fulltime");
 
@@ -55,7 +64,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       .then((res) => {
         const tracks = Array.isArray(res.data?.tracks) ? (res.data?.tracks as Track[]) : [];
         setAvailableTracks(tracks);
-        const selectedTrackId = (location.state as LocationState | null)?.selectedTrackId;
+        const selectedTrackId = (location.state as LocationState | null)?.selectedTrackId || roadmapSelection?.selectedCareerId;
         if (selectedTrackId) {
           setSelectedTrack(selectedTrackId);
         } else if (tracks.length > 0) {
@@ -173,6 +182,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     setIsSubmitting(false);
 
     if (result.success) {
+      sessionStorage.removeItem("cohortia_pending_roadmap");
       setSuccessMsg("Welcome to Cohortia! Account created successfully.");
       setTimeout(() => {
         navigate("/dashboard");

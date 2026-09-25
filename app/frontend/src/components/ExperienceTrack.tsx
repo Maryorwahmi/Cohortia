@@ -94,6 +94,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
 
   const continueToSignup = () => {
     const roadmapSelection = createSelection();
+    sessionStorage.setItem("cohortia_pending_roadmap", JSON.stringify(roadmapSelection));
     navigate("/signup", { state: { roadmapSelection, selectedTrackId: career.id } });
   };
 
