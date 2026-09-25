@@ -9,6 +9,7 @@ import BadgesComponent from "./BadgesComponent";
 import DailyHabitTracker from "./DailyHabitTracker";
 import HabitLogger from "./HabitLogger";
 import SkeletonLoader from "./SkeletonLoader";
+import RoadmapSummary from "./RoadmapSummary";
 
 interface OverviewPageProps {
   userProfile: UserPreferences;
@@ -220,6 +221,7 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
       <div className="absolute bottom-20 left-20 w-[450px] h-[450px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
+        <RoadmapSummary selection={userProfile.roadmapSelection} completedSteps={userProfile.completedSteps} />
 
         {/* Banner/Header Box */}
         <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 relative overflow-hidden mb-8 shadow-2xl shadow-immersive-shadow">

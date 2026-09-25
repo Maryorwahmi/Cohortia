@@ -7,6 +7,7 @@ import {
 import Logo from "./Logo";
 import { useAuth } from "../context/AuthContext";
 import { trackApi, Track } from "../services/api";
+import { RoadmapSelection } from "../types";
 
 interface AuthPagesProps {
   initialTab: "signup" | "login";
@@ -15,6 +16,7 @@ interface AuthPagesProps {
 interface LocationState {
   from?: { pathname?: string };
   selectedTrackId?: string;
+  roadmapSelection?: RoadmapSelection;
 }
 
 export default function AuthPages({ initialTab }: AuthPagesProps) {
@@ -43,6 +45,9 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   // STEP 3: Learning Plan & Track
   const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
   const [selectedTrack, setSelectedTrack] = useState("");
+  const [roadmapSelection] = useState<RoadmapSelection | undefined>(() =>
+    (location.state as LocationState | null)?.roadmapSelection
+  );
   const [commitment, setCommitment] = useState("fulltime");
 
   useEffect(() => {
@@ -162,6 +167,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       experienceLevel,
       weeklyHours,
       desiredField: selectedTrack.trim(),
+      roadmapSelection: roadmapSelection ? JSON.stringify(roadmapSelection) : undefined,
     });
 
     setIsSubmitting(false);

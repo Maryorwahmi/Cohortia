@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { User, Mail, Compass, Target, Clock, ShieldAlert, Check, Sparkles, Award, FileText, Download, LogOut, TrendingUp } from "lucide-react";
 import { UserPreferences, CohortTrackId } from "../../types";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
+import RoadmapSummary from "./RoadmapSummary";
 
 interface ProfilePageProps {
   userProfile: UserPreferences;
@@ -24,6 +25,7 @@ export default function ProfilePage({ userProfile, onUpdateProfile, onResetProfi
     desiredField: userProfile.desiredField,
     availability: userProfile.availability,
     portfolioLink: userProfile.portfolioLink,
+    roadmapSelection: userProfile.roadmapSelection,
   });
 
   const [isSaved, setIsSaved] = useState(false);
@@ -125,6 +127,7 @@ export default function ProfilePage({ userProfile, onUpdateProfile, onResetProfi
       <div className="absolute bottom-20 left-20 w-[400px] h-[400px] bg-immersive-secondary/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
+        <RoadmapSummary selection={userProfile.roadmapSelection} completedSteps={userProfile.completedSteps} />
 
         {/* Title */}
         <div className="mb-8">

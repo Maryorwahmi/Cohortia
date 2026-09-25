@@ -63,6 +63,7 @@ export interface BackendUser {
   learningPace?: string | null;
   careerGoal?: string | null;
   desiredField?: string | null;
+  roadmapSelection?: string | null;
   skillsKnown?: string | null;
   availability?: string | null;
   portfolioLink?: string | null;
@@ -93,6 +94,7 @@ export interface SignupData {
   learningPace?: string;
   careerGoal?: string;
   desiredField?: string;
+  roadmapSelection?: string;
   skillsKnown?: string;
   availability?: string;
   portfolioLink?: string;
@@ -343,7 +345,7 @@ export interface Roadmap {
 export const roadmapApi = {
   getMine: () => fetchApi<{ success: boolean; data?: { roadmap: Roadmap }; error?: string }>('/roadmaps/me'),
   listMine: () => fetchApi<{ success: boolean; data?: { roadmaps: Roadmap[] }; error?: string }>('/roadmaps/mine/all'),
-  generate: (data: { careerGoal?: string; desiredField?: string; experienceLevel?: string; weeklyHours?: string }) =>
+  generate: (data: { careerGoal?: string; desiredField?: string; experienceLevel?: string; weeklyHours?: string; roadmapSelection?: string }) =>
     fetchApi<{ success: boolean; data?: { roadmap: Roadmap }; error?: string }>('/roadmaps/generate', {
       method: 'POST',
       body: JSON.stringify(data),

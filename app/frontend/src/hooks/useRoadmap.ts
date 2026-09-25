@@ -93,6 +93,7 @@ export function useRoadmap(): UseRoadmapReturn {
           desiredField: user.desiredField || user.role || undefined,
           experienceLevel: user.experienceLevel || undefined,
           weeklyHours: user.weeklyHours || undefined,
+          roadmapSelection: user.roadmapSelection ? JSON.stringify(user.roadmapSelection) : undefined,
         });
         currentRoadmap = generateRes.data?.roadmap || null;
       }

@@ -409,16 +409,8 @@ roadmaps.get('/me', async (c) => {
   });
 });
 
-// Generate a new roadmap for the current user
-// NOTE: Roadmap generation is disabled. Users now enrol in pre-built courses with syllabi.
+// Generate a new roadmap for the current user, using the selected course bundle when available.
 roadmaps.post('/generate', async (c) => {
-  return c.json({
-    success: false,
-    error: 'Roadmap generation is disabled',
-    message: 'Cohortia now uses pre-built courses. Please choose a course/track and enrol instead.',
-  }, 410);
-
-  // eslint-disable-next-line no-unreachable
   const userId = c.get('userId');
   const user = c.get('user');
   const body = await c.req.json();
@@ -433,6 +425,7 @@ roadmaps.post('/generate', async (c) => {
     skillsKnown,
     availability,
     allowMultiple = false,
+    roadmapSelection,
   } = body;
 
   // Merge request overrides with stored user profile
@@ -454,7 +447,17 @@ roadmaps.post('/generate', async (c) => {
     biggestChallenge: user?.biggestChallenge,
     previousField: user?.previousField,
     wantsRealWorldExperience: user?.wantsRealWorldExperience,
+    roadmapSelection: roadmapSelection || user?.roadmapSelection,
   };
+
+  let selectedBundle = null;
+  try {
+    selectedBundle = typeof roadmapInput.roadmapSelection === 'string'
+      ? JSON.parse(roadmapInput.roadmapSelection)
+      : roadmapInput.roadmapSelection || null;
+  } catch {
+    selectedBundle = null;
+  }
 
   const learnerType = deriveLearnerType({ ...user, ...roadmapInput });
   const archetype = deriveArchetype(roadmapInput.desiredField);
@@ -480,6 +483,8 @@ Current status: ${roadmapInput.currentStatus || 'Not specified'}
 Career goal: ${roadmapInput.careerGoal || 'Not specified'}
 Skills I already know: ${knownSkills.length > 0 ? knownSkills.join(', ') : 'None listed'}
 Availability pattern: ${roadmapInput.availability || 'Not specified'}
+
+Selected roadmap bundle (preserve this course order and level progression): ${selectedBundle ? JSON.stringify(selectedBundle) : 'None selected'}
 
 Derived learner type: ${learnerType}
 Derived archetype: ${archetype}

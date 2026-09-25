@@ -37,6 +37,7 @@ usersRoute.put('/profile', async (c) => {
     currentStatus: body.currentStatus,
     careerGoal: body.careerGoal,
     desiredField: body.desiredField,
+    roadmapSelection: body.roadmapSelection,
     availability: body.availability,
     portfolioLink: body.portfolioLink,
     updatedAt: new Date().toISOString(),

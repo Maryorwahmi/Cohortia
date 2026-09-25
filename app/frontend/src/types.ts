@@ -1,5 +1,23 @@
 export type CohortTrackId = string;
 
+export type RoadmapLevel = "beginner" | "intermediate" | "advanced";
+export type RoadmapGoal = "Pivot into a new career" | "Up-skill in my current role" | "Lead & Specialize";
+
+export interface RoadmapCourseSelection {
+  id: string;
+  title: string;
+  level: RoadmapLevel;
+  description?: string | null;
+}
+
+export interface RoadmapSelection {
+  careerGoal: RoadmapGoal;
+  learningStage: RoadmapLevel;
+  selectedCareer: string;
+  selectedCourses: Record<RoadmapLevel, RoadmapCourseSelection[]>;
+  roadmapOrder: RoadmapCourseSelection[];
+}
+
 export interface CohortTrack {
   id: string;
   title: string;
@@ -28,6 +46,7 @@ export interface UserPreferences {
   desiredField?: string;
   availability?: string;
   portfolioLink?: string;
+  roadmapSelection?: RoadmapSelection;
 }
 
 export function backendUserToPreferences(user: {
@@ -43,6 +62,7 @@ export function backendUserToPreferences(user: {
   careerGoal?: string | null;
   availability?: string | null;
   portfolioLink?: string | null;
+  roadmapSelection?: string | null;
 }): UserPreferences {
   const desiredField = user.desiredField || user.role || "frontend";
   const track = desiredField.toLowerCase();
@@ -62,6 +82,14 @@ export function backendUserToPreferences(user: {
     weeklyHours.includes("15") || weeklyHours.includes("12") || weeklyHours.toLowerCase().includes("part") ? "parttime" :
     "fulltime";
 
+  let roadmapSelection: RoadmapSelection | undefined;
+  try {
+    const parsed = user.roadmapSelection ? JSON.parse(user.roadmapSelection) : null;
+    if (parsed?.roadmapOrder && parsed?.selectedCourses) roadmapSelection = parsed;
+  } catch {
+    roadmapSelection = undefined;
+  }
+
   return {
     name: user.name,
     email: user.email,
@@ -75,6 +103,7 @@ export function backendUserToPreferences(user: {
     desiredField: user.desiredField || undefined,
     availability: user.availability || undefined,
     portfolioLink: user.portfolioLink || undefined,
+    roadmapSelection,
   };
 }
 

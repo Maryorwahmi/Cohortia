@@ -13,6 +13,7 @@ const columnsToAdd = [
   { name: 'weekly_hours', type: 'TEXT' },
   { name: 'learning_pace', type: 'TEXT' },
   { name: 'skills_known', type: 'TEXT' },
+  { name: 'roadmap_selection', type: 'TEXT' },
 ];
 
 async function migrate() {

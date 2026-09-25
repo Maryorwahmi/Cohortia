@@ -64,6 +64,7 @@ export default function Profile() {
         careerGoal: updated.careerGoal,
         availability: updated.availability,
         portfolioLink: updated.portfolioLink,
+        roadmapSelection: updated.roadmapSelection ? JSON.stringify(updated.roadmapSelection) : undefined,
       });
       setProfile(updated);
       await refreshUser();

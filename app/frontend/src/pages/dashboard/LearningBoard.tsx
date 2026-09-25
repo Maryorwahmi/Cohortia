@@ -8,6 +8,7 @@ import {useTrackCurriculum} from '../../hooks/useTrackCurriculum';
 import {useCourseManifest} from '../../hooks/useCourseManifest';
 import {DashboardMilestone, DashboardLesson} from '../../data/dashboardData';
 import {findFirstIncompleteLesson} from '../../lib/roadmap';
+import RoadmapSummary from '../../components/dashboard/RoadmapSummary';
 import type { ManifestChapter, CourseManifest } from '../../lib/courseManifest';
 
 const PAGE_PATHS: Record<string, string> = {
@@ -183,6 +184,7 @@ export default function LearningBoard() {
 
   return (
     <div className="relative">
+      <RoadmapSummary selection={userProfile.roadmapSelection} completedSteps={userProfile.completedSteps} />
       {error && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-xl text-xs font-mono font-bold">
           {error}

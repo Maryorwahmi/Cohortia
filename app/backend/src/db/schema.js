@@ -17,6 +17,7 @@ export const users = sqliteTable('users', {
   learningPace: text('learning_pace'),
   careerGoal: text('career_goal'),
   desiredField: text('desired_field'),
+  roadmapSelection: text('roadmap_selection'), // JSON: goal, stage, career, selected courses, ordered roadmap
   skillsKnown: text('skills_known'), // JSON array as string
   availability: text('availability'),
   portfolioLink: text('portfolio_link'),

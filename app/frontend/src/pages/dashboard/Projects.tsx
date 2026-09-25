@@ -5,6 +5,7 @@ import {backendUserToPreferences} from '../../types';
 import {useTrackCurriculum} from '../../hooks/useTrackCurriculum';
 import {projectApi} from '../../services/api';
 import {ProjectBrief} from '../../data/dashboardData';
+import RoadmapSummary from '../../components/dashboard/RoadmapSummary';
 
 interface BackendSubmission {
   id?: string;
@@ -83,6 +84,7 @@ export default function Projects() {
 
   return (
     <div className="relative">
+      <RoadmapSummary selection={userProfile.roadmapSelection} />
       {(error || curriculumError) && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-xl text-xs font-mono font-bold">
           {error || curriculumError}

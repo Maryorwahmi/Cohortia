@@ -23,6 +23,7 @@ const statements = [
     learning_pace TEXT,
     career_goal TEXT,
     desired_field TEXT,
+    roadmap_selection TEXT,
     skills_known TEXT,
     availability TEXT,
     portfolio_link TEXT,
