@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 06</span>
+    <span>›</span>
+    <span>Chapter 6.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Aggregations & Functions</span>
+  </div>
+
+  <div class="rounded-2xl border p-6 bg-white shadow-sm h-full flex flex-col">
+    <div class="font-semibold text-slate-900">Aggregation patterns</div>
+    <div class="text-sm text-slate-600 mt-1">Use functions to prepare data, then aggregate inside windows</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 flex-1">
+      <div class="rounded-lg bg-slate-900 text-slate-50 p-4 font-mono text-sm" style="white-space:pre-wrap;tab-size:2;min-height:160px;">
+<pre><code>SELECT
+  System.Timestamp AS WindowEnd,
+  AVG(TRY_CAST(pressure AS float)) AS AveragePressure,
+  COUNT(*) AS EventCount
+FROM
+  SensorReadingsInput TIMESTAMP BY EventEnqueuedUtcTime
+WHERE
+  TRY_CAST(pressure AS float) IS NOT NULL
+GROUP BY
+  TUMBLINGWINDOW(minute, 1)</code></pre>
+      </div>
+
+      <div>
+        <div class="rounded-xl p-3 bg-white border">
+          <div class="font-semibold text-slate-800">Practical notes</div>
+          <div class="text-sm text-slate-700 mt-2">Always TRY_CAST before AVG when inputs may be strings. Use HAVING to filter low-count windows.</div>
+        </div>
+
+        <div class="mt-3 rounded-xl p-3 bg-amber-50 border border-amber-100">
+          <div class="font-semibold text-amber-800">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-2">Aggregating mixed types without casts yields NULLs or runtime errors; clean data first.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Sequence transformations first, then aggregates: validate types with TRY_CAST, apply functions, then compute statistics.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

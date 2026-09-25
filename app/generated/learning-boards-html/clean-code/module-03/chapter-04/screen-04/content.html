@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .left{width:48%}.right{width:52%} pre.code{background:#0f1724;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace,monospace}</style>
+  <div class="flex flex-col h-full">
+    <div class="flex items-center justify-between mb-3">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-sm text-slate-500">Core concept</div>
+    </div>
+
+    <div class="flex gap-4 flex-1">
+      <div class="left bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+        <div class="text-lg font-bold text-slate-800">Error Codes explained</div>
+        <div class="text-sm text-slate-600 mt-2">A function returns a status value that the caller inspects. Use this when failure is expected and can be handled locally without unwinding the stack.</div>
+
+        <ul class="mt-4 space-y-2 text-sm text-slate-700">
+          <li>Explicit: the caller sees a code and decides the next step.</li>
+          <li>Good for recoverable outcomes, like parsing user input.</li>
+          <li>Costs: cluttering checks and risk of ignored returns.</li>
+        </ul>
+
+        <div class="mt-auto pt-4">
+          <div class="text-xs uppercase tracking-wider text-slate-500 mb-1">Concrete example</div>
+          <div class="text-sm text-slate-700">A divide function returns (status, result) where status 0 means success and negative values indicate specific input or runtime errors.</div>
+        </div>
+      </div>
+
+      <div class="right bg-white rounded-xl p-4 card shadow-sm flex flex-col">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Code Example</div>
+        <pre class="code">def divide_numbers_with_code(numerator, denominator):
+  if denominator == 0:
+    return -1, "Error: Cannot divide by zero."
+  if not isinstance(numerator, (int, float)) or not isinstance(denominator, (int, float)):
+    return -2, "Error: Invalid input types."
+  return 0, numerator / denominator
+
+# Caller:
+status, result = divide_numbers_with_code(10, 2)
+if status == 0:
+  print(f"Result: {result}")
+else:
+  print(f"Failed: {result}")</pre>
+
+        <div class="mt-3">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Choose error codes for common, expected failures and ensure callers consistently check returned status.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

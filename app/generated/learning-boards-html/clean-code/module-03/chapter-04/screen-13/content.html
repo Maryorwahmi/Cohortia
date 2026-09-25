@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre.code{background:#0b1220;color:#dbeafe;padding:10px;border-radius:8px;font-family:ui-monospace,monospace} .note{background:#eef2ff;border-left:4px solid #7b42e8;padding:10px;border-radius:8px}</style>
+  <div class="flex flex-col h-full">
+    <div class="text-xs uppercase tracking-wider text-slate-500 mb-3">Refactor Demo</div>
+    <div class="grid grid-cols-2 gap-4 flex-1">
+      <div class="bg-white rounded-xl p-4 card shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Before: error codes</div>
+        <pre class="code">def divide_numbers_with_code(numerator, denominator):
+  if denominator == 0:
+    return -1, "Error: Cannot divide by zero."
+  if not isinstance(numerator, (int, float)):
+    return -2, "Error: Invalid input types."
+  return 0, numerator / denominator</pre>
+      </div>
+
+      <div class="bg-white rounded-xl p-4 card shadow-sm">
+        <div class="text-sm font-bold text-slate-800">After: exceptions</div>
+        <pre class="code">def divide_numbers_with_exception(numerator, denominator):
+  if not isinstance(numerator, (int, float)) or not isinstance(denominator, (int, float)):
+    raise TypeError("Invalid input types. Both numerator and denominator must be numbers.")
+  if denominator == 0:
+    raise ValueError("Cannot divide by zero.")
+  return numerator / denominator</pre>
+      </div>
+    </div>
+
+    <div class="mt-4 note text-sm">Run tests to confirm callers still behave correctly. If callers expected status codes, update them to try-except patterns; this centralizes error handling and surfaces real problems faster.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

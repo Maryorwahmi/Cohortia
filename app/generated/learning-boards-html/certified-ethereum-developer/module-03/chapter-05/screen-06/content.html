@@ -1,0 +1,47 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 3.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Packing Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold">Bad packing example</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-slate-100 rounded-lg p-3" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// Bad packing: separated small fields
+struct BadUser {
+  uint8 age;        // 1 byte
+  uint256 balance;  // 32 bytes - takes a full slot
+  uint8 score;      // 1 byte - ends up in a new slot
+}
+
+// Writing fields separately can trigger multiple SSTOREs
+// and cost more gas cumulatively.
+      </pre>
+
+      <div class="mt-4 text-xs text-slate-600">Misconception: Using small types guarantees gas savings. The saving only occurs when they occupy the same storage slot.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold">Good packing example</div>
+      <pre class="mt-3 text-sm bg-slate-900 text-slate-100 rounded-lg p-3" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+// Good packing: grouped small fields
+struct UserInfo {
+  uint8 age;         // 1 byte
+  uint8 isActive;    // 1 byte
+  uint16 score;      // 2 bytes
+  address userAddr;  // 20 bytes
+  // Total 24 bytes -> fits in one 32-byte slot
+}
+
+// Assigning the whole struct in one write packs into a single slot,
+// reducing the number of SSTORE operations.
+      </pre>
+
+      <div class="mt-4 text-xs text-slate-600">Tip: group small fields, write packed structs in a single assignment to reduce SSTORE occurrences.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

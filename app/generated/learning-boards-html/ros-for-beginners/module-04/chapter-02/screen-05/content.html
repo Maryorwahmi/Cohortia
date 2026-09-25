@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">SimpleActionServer Walkthrough</span>
+  </div>
+  <div class="flex gap-6 h-[calc(100%-48px)]">
+    <div class="w-1/2 min-w-0">
+      <div class="rounded-2xl bg-white border p-6 h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Constructor &amp; binding</div>
+        <pre class="mt-3 bg-slate-900 text-white rounded-md p-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace,Menlo,monospace; max-height:320px;"><code>// in CountUntilServer constructor
+_as(nh, "/count_until", boost::bind(&amp;CountUntilServer::executeCB, this, _1), false) {
+  _as.start();
+  ROS_INFO("CountUntil server is ready.");
+}
+
+void executeCB(const my_first_robot::CountUntilGoalConstPtr&amp; goal) {
+  // process loop publishes feedback, checks preemption, then setSucceeded
+}
+</code></pre>
+        <div class="mt-4 text-sm text-slate-600">Note how boost::bind wraps the member function and this pointer so the server can call executeCB with the goal argument. Omitting the final false or failing to call start would alter server behavior.</div>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg p-3 bg-white border">
+            <div class="text-xs font-bold text-slate-700">Why ConstPtr</div>
+            <div class="text-sm text-slate-600 mt-1">ConstPtr avoids copying goal data and expresses immutability of the received request.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-white border">
+            <div class="text-xs font-bold text-slate-700">Misstep</div>
+            <div class="text-sm text-slate-600 mt-1">Binding a free function instead of a member will not give access to class state; ensure you bind this.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <div class="rounded-2xl bg-white border p-6 h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Process: goal lifecycle</div>
+        <ol class="mt-3 text-sm text-slate-600 space-y-2">
+          <li>Server constructed with name and a bound execute callback.</li>
+          <li>Server start() enables goal acceptance.</li>
+          <li>executeCB receives a ConstPtr goal and performs the work loop.</li>
+          <li>Publish feedback regularly; check isPreemptRequested to respect cancellation.</li>
+          <li>Call setSucceeded or setPreempted based on outcome.</li>
+        </ol>
+        <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Bind executeCB with boost::bind, start the server, and ensure the execute loop both publishes feedback and honors preemption.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

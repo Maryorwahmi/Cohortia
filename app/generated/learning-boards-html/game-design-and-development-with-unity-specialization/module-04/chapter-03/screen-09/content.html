@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;overflow:auto} </style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Bouncing Ball Example</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Practical steps</div>
+      <ol class="text-sm text-slate-600 mt-3 space-y-2 list-decimal list-inside">
+        <li>Add Rigidbody and a primitive collider to the ball.</li>
+        <li>Create a Physics Material with desired bounciness and assign it to the collider.</li>
+        <li>Use OnCollisionEnter to detect strong impacts and optionally apply force or play effects.</li>
+      </ol>
+
+      <div class="mt-4 text-xs text-slate-500">Tip: If collisions feel jittery, check mass ratios and solver settings, and prefer primitive colliders on dynamic objects.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl border border-[rgba(226,232,240,0.9)] bg-white p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Example code snippet</div>
+      <pre><code>[RequireComponent(typeof(Rigidbody))] // Ensures Rigidbody is present
+[RequireComponent(typeof(BoxCollider))] // Or SphereCollider, etc.
+public class BouncingBall : MonoBehaviour
+{
+  public float bounceForce = 10f;
+  public PhysicsMaterial2D bouncyMaterial; // For 2D, use PhysicsMaterial. For 3D, use PhysicsMaterial
+
+  void Start()
+  {
+    // Assign a bouncy Physics Material to the collider if not already set
+    // Or set it directly in the Inspector
+    // GetComponent&lt;Collider&gt;().material = bouncyMaterial;
+  }
+
+  void OnCollisionEnter(Collision collision)
+  {
+    if (collision.relativeVelocity.magnitude > 2f)
+    {
+      Debug.Log("Ball collided with " + collision.gameObject.name);
+      // Example: Add a slight upward impulse
+      // GetComponent&lt;Rigidbody&gt;().AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
+    }
+  }
+}
+</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

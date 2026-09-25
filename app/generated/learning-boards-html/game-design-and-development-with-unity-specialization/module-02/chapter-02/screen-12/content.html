@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">PlayerCollector Activity</span>
+  </div>
+
+  <div class="flex gap-4 h-[calc(100%-40px)]">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Scene Setup</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-600 mt-2 space-y-2">
+        <li>Create a Player capsule with a Rigidbody and a child empty named SpawnPoint.</li>
+        <li>Create a Sphere, tag it "Collectible", make it a prefab and remove it from the Hierarchy.</li>
+        <li>Attach PlayerCollector, assign collectiblePrefab and spawnPoint in Inspector.</li>
+      </ol>
+
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Behavior checks</div>
+        <div class="text-sm text-slate-700 mt-1">Ensure colliders and Is Trigger are configured so OnTriggerEnter is called when the player meets the collectible.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Starter code</div>
+      <div class="mt-3 rounded bg-slate-50 p-3">
+        <pre style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;" class="text-sm"><code>void Update()
+{
+  if (Input.GetKeyDown(KeyCode.Space))
+  {
+    Instantiate(collectiblePrefab, spawnPoint.position, spawnPoint.rotation);
+  }
+
+  if (Input.GetKeyDown(KeyCode.R))
+  {
+    GameObject[] collectibles = GameObject.FindGameObjectsWithTag("Collectible");
+    foreach (GameObject c in collectibles) Destroy(c);
+  }
+}
+
+void OnTriggerEnter(Collider other)
+{
+  if (other.gameObject.CompareTag("Collectible")) Destroy(other.gameObject);
+}
+</code></pre>
+      </div>
+
+      <div class="mt-3 rounded-lg p-3 bg-slate-50 card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Test</div>
+        <div class="text-sm text-slate-700 mt-1">Press Space to spawn, touch collectibles to collect, press R to clear the scene. If nothing happens, check tags and collider trigger settings.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

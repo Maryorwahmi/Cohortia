@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Architecture</div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 pr-4 flex flex-col">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Delta write pattern</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="tab-size:2;white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+query = daily_summary_df.writeStream \
+  .format("delta") \
+  .outputMode("complete") \
+  .option("checkpointLocation", checkpoint_location) \
+  .trigger(processingTime="1 minute") \
+  .toTable("daily_sales_summary")
+
+# Alternatively, for an unmanaged table or path:
+# .start(output_delta_path)
+</pre>
+        <div class="mt-3 text-xs text-slate-600">Choose .toTable for managed tables that appear in the metastore; use .start(path) to manage files directly.</div>
+      </div>
+
+      <div class="mt-3 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Delta offers durable, transactional writes for streams, but you must choose output mode and checkpointing to keep results correct and efficient.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Managed vs Unmanaged</div>
+        <div class="text-xs text-slate-600 mt-2">Managed tables live in the metastore and are convenient for queries; unmanaged tables let you control physical layout and paths.</div>
+
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          <div class="rounded-lg bg-violet-50 p-3">
+            <div class="text-xs font-bold text-violet-700">Example pattern</div>
+            <div class="text-xs text-slate-700 mt-1">Raw records -> raw Delta (append). Aggregates -> curated Delta (complete) on a slower trigger.</div>
+          </div>
+
+          <div class="rounded-lg bg-rose-50 p-3">
+            <div class="text-xs font-bold text-rose-700">Mistake</div>
+            <div class="text-xs text-slate-700 mt-1">Using ephemeral storage for checkpointLocation or mixing outputMode incompatible with sink can cause data duplication or lost updates.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

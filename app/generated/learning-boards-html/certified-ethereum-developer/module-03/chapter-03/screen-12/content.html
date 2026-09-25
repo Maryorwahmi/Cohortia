@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,Menlo,monospace;} .panel{border:1px solid rgba(226,232,240,0.9)} </style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 panel">
+      <div class="text-sm font-bold text-slate-800">Key Contract Snippet</div>
+      <pre class="text-sm mt-3">// Custom Error
+error AlreadyVoted(address voter);
+error InvalidCandidateId(uint256 candidateId);
+
+contract Voting {
+  address public owner;
+  uint256 public nextCandidateId = 0;
+  mapping(uint256 =&gt; string) public candidates;
+  mapping(uint256 =&gt; uint256) public voteCounts;
+  mapping(address =&gt; bool) public hasVoted;
+
+  event VoteCast(address indexed voter, uint256 candidateId);
+  event CandidateAdded(uint256 indexed candidateId, string name);
+
+  constructor() { owner = msg.sender; }
+
+  modifier onlyOwner() {
+    require(msg.sender == owner, "Only owner can call this function.");
+    _;
+  }
+
+  function addCandidate(string memory _name) public onlyOwner {
+    candidates[nextCandidateId] = _name;
+    emit CandidateAdded(nextCandidateId, _name);
+    nextCandidateId++;
+  }
+
+  function vote(uint256 _candidateId) public {
+    require(msg.sender != address(0), "Voter address cannot be zero.");
+    if (hasVoted[msg.sender]) { revert AlreadyVoted(msg.sender); }
+    require(_candidateId &lt; nextCandidateId, "Invalid candidate ID.");
+    voteCounts[_candidateId]++;
+    hasVoted[msg.sender] = true;
+    emit VoteCast(msg.sender, _candidateId);
+  }
+}</pre>
+    </div>
+    <div class="rounded-xl bg-white p-4 panel flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation & Testing</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc ml-5 space-y-2">
+        <li>alreadyVoted is a custom error that returns the voter's address for tooling.</li>
+        <li>VoteCast indexes voter so UIs can filter votes by address efficiently.</li>
+        <li>Tests should assert that duplicate voting reverts with the custom error and that VoteCast appears in the logs.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">This pattern keeps validation explicit, errors compact and structured, and events searchable for off-chain consumers.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.2</span>
+    <span>›</span>
+    <span class="text-slate-700">ERC-20 Deployment Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Contract example</div>
+      <pre class="text-sm p-3 bg-slate-50 rounded-lg card-border" style="white-space:pre-wrap;tab-size:2">// contracts/MyToken.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract MyToken is ERC20 {
+    constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
+        _mint(msg.sender, initialSupply);
+    }
+}</pre>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm mono">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Deployment script</div>
+      <pre class="text-sm p-3 bg-slate-50 rounded-lg card-border" style="white-space:pre-wrap;tab-size:2">// scripts/deployMyToken.js
+const { ethers } = require("hardhat");
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying MyToken with the account:", deployer.address);
+
+  const initialSupply = ethers.utils.parseUnits("1000000", 18);
+  const MyToken = await ethers.getContractFactory("MyToken");
+  const myToken = await MyToken.deploy("Cohortia Token", "CHT", initialSupply);
+  await myToken.deployed();
+  console.log("MyToken deployed to:", myToken.address);
+  console.log("Initial supply minted to deployer:", (await myToken.balanceOf(deployer.address)).toString());
+}
+
+main().catch((error) => { console.error(error); process.exit(1); });</pre>
+    </div>
+  </div>
+
+  <div class="mt-4 bg-white rounded-xl p-4 card-border">
+    <div class="text-sm font-semibold text-slate-800">Hands-on steps</div>
+    <ol class="list-decimal list-inside text-sm text-slate-600 mt-3">
+      <li>Install OpenZeppelin and create the MyToken.sol contract.</li>
+      <li>Configure SEPOLIA_RPC_URL and PRIVATE_KEY in .env.</li>
+      <li>Fund your deployer from a Sepolia faucet.</li>
+      <li>Run npx hardhat run scripts/deployMyToken.js --network sepolia and copy the address.</li>
+      <li>Verify the contract and confirm the minted balance matches expectations.</li>
+    </ol>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

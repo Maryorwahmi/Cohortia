@@ -1,0 +1,65 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Hands-on</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">my-web-app walkthrough</div>
+      <div class="text-sm text-slate-600 mb-4">A compact lab to deploy and expose a simple web app.</div>
+
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Deployment YAML (summary)</div>
+        <pre class="text-sm code bg-slate-50 p-3 rounded-md border card-border"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-web-app-deployment
+  labels:
+    app: my-web-app
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: my-web-app
+    spec:
+      containers:
+      - name: my-web-app-container
+        image: hashicorp/http-echo:latest
+        args: ["-text", "Hello from Cohortia Web App!"]
+        ports:
+        - containerPort: 5678</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">ClusterIP Service</div>
+        <pre class="text-sm code bg-slate-50 p-3 rounded-md border card-border"><code>apiVersion: v1
+kind: Service
+metadata:
+  name: my-web-app-clusterip-service
+spec:
+  selector:
+    app: my-web-app
+  ports:
+    - port: 80
+      targetPort: 5678
+  type: ClusterIP</code></pre>
+      </div>
+
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">NodePort Service (external test)</div>
+        <pre class="text-sm code bg-slate-50 p-3 rounded-md border card-border"><code>apiVersion: v1
+kind: Service
+metadata:
+  name: my-web-app-nodeport-service
+spec:
+  selector:
+    app: my-web-app
+  ports:
+    - port: 80
+      targetPort: 5678
+      nodePort: 30080
+  type: NodePort</code></pre>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

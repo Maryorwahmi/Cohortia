@@ -1,0 +1,59 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.code {white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+      <div class="text-2xl font-bold text-slate-900 mb-2">Service resource breakdown</div>
+      <div class="text-sm text-slate-600 mb-3">Know which fields determine routing and exposure.</div>
+
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800 mb-2">Field guide</div>
+        <ul class="list-disc ml-4 text-sm text-slate-700">
+          <li><strong>metadata.name</strong>: the Service name and DNS entry.</li>
+          <li><strong>spec.selector</strong>: matches Pod labels to form endpoints.</li>
+          <li><strong>spec.ports</strong>: defines port, targetPort, and protocol.</li>
+          <li><strong>spec.type</strong>: ClusterIP, NodePort, LoadBalancer, or ExternalName.</li>
+        </ul>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg p-3 bg-slate-50 border card-border">
+            <div class="text-xs font-bold text-slate-700">Example check</div>
+            <div class="text-sm text-slate-800">Confirm targetPort matches the containerPort in your Pod spec before applying.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-rose-50 border card-border">
+            <div class="text-xs font-bold text-rose-700">Misconception</div>
+            <div class="text-sm text-slate-800">Assuming ClusterIP works externally. ClusterIP is internal only.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">YAML walkthrough</div>
+        <pre class="code bg-slate-50 p-3 rounded-md text-sm border card-border"><code>apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP</code></pre>
+        <div class="text-xs text-slate-600 mt-2">Apply and then run kubectl describe service nginx-service to inspect endpoints and port mappings.</div>
+      </div>
+
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Quick debugging steps</div>
+        <ol class="list-decimal ml-4 text-sm text-slate-700">
+          <li>kubectl get pods --show-labels to confirm labels.</li>
+          <li>kubectl describe service &lt;name&gt; to see endpoints.</li>
+          <li>If endpoints are empty, re-check the selector labels on Pods.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

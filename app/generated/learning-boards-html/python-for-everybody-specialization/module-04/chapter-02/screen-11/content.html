@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Error Handling</span>
+  </div>
+
+  <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] shadow-sm p-6 h-full grid grid-cols-2 gap-4">
+    <div>
+      <div class="text-lg font-bold text-slate-900">Try / Except / Finally pattern</div>
+      <p class="text-sm text-slate-600 mt-2">Use defensive initialization and finally to close the connection regardless of errors.</p>
+
+      <pre class="mt-4 bg-slate-50 p-3 rounded text-sm font-mono text-slate-800" style="white-space:pre-wrap; tab-size:2">import sqlite3
+
+conn = None
+try:
+    conn = sqlite3.connect('ecommerce.db')
+    cursor = conn.cursor()
+    # execute statements
+    conn.commit()
+except sqlite3.Error as e:
+    print(f"Database error: {e}")
+except Exception as e:
+    print(f"General error: {e}")
+finally:
+    if conn:
+        conn.close()
+        print("Database connection closed.")</pre>
+
+      <div class="mt-3 rounded-md bg-amber-50 border border-amber-100 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Tip</div>
+        <div class="text-sm text-slate-700 mt-1">Initialize conn to None so finally can safely check and close it only when set.</div>
+      </div>
+    </div>
+
+    <div class="border-l border-[rgba(226,232,240,0.9)] pl-4">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Common failures</div>
+      <ul class="text-sm text-slate-700 mt-2 list-disc ml-4">
+        <li>Permission errors when creating a file in a protected path.</li>
+        <li>SQL syntax mistakes causing sqlite3.Error exceptions.</li>
+        <li>Uncommitted changes lost when not calling commit.</li>
+      </ul>
+
+      <div class="mt-6">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Expect database operations to fail; catch sqlite3.Error and use finally to close connections to preserve integrity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

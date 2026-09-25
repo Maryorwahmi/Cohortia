@@ -1,0 +1,77 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"><span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span><span class="text-slate-700">Original Method</span></div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-3">generate_sales_report (long)</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card">
+      <div class="text-sm font-semibold text-slate-800">Context</div>
+      <p class="text-sm text-slate-600 mt-2">Method prints status, fetches data, filters it, aggregates sales, applies business rules, and formats output. Each of these is a candidate for extraction.</p>
+
+      <div class="mt-4 code" style="white-space:pre-wrap; tab-size:2;">
+class ReportGenerator:
+    def __init__(self, data_source):
+        self.data_source = data_source
+        self.report_data = []
+
+    def generate_sales_report(self, start_date, end_date, region, product_category, min_sales_amount, include_tax, currency_symbol):
+        print(f"Generating sales report for region: {region}, category: {product_category}")
+        print(f"From {start_date} to {end_date}, min sales: {min_sales_amount}")
+
+        # 1. Fetch raw sales data
+        raw_sales = self.data_source.fetch_sales_data(start_date, end_date)
+        filtered_sales = []
+
+        # 2. Filter sales by region and product category
+        for sale in raw_sales:
+            if sale['region'] == region and sale['category'] == product_category:
+                filtered_sales.append(sale)
+
+        # 3. Aggregate sales by product and calculate total
+        aggregated_products = {}
+        for sale in filtered_sales:
+            product_name = sale['product']
+            amount = sale['amount']
+            if product_name not in aggregated_products:
+                aggregated_products[product_name] = {'total_sales': 0, 'count': 0}
+            aggregated_products[product_name]['total_sales'] += amount
+            aggregated_products[product_name]['count'] += 1
+
+        # 4. Apply minimum sales amount filter
+        final_report_items = []
+        for product, data in aggregated_products.items():
+            if data['total_sales'] >= min_sales_amount:
+                item = {'product': product, 'total_sales': data['total_sales']}
+                if include_tax:
+                    item['total_sales_with_tax'] = data['total_sales'] * 1.05 # Assume 5% tax
+                final_report_items.append(item)
+
+        # 5. Format and print report
+        print("
+--- Sales Report ---")
+        for item in final_report_items:
+            sales_value = item['total_sales_with_tax'] if include_tax else item['total_sales']
+            print(f"{item['product']}: {currency_symbol}{sales_value:.2f}")
+        print("--------------------")
+        self.report_data = final_report_items
+        return final_report_items
+      </div>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card">
+      <div class="text-sm font-semibold text-slate-800">Extraction cues</div>
+      <ul class="mt-3 text-sm text-slate-600 list-disc ml-5">
+        <li>Fetching and filtering form a distinct data-prep step.</li>
+        <li>Aggregation is a pure calculation that can be tested independently.</li>
+        <li>Applying business rules like min sales and tax can be isolated.</li>
+        <li>Formatting and printing are presentation concerns removable from logic.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50 border border-amber-100">
+        <div class="text-xs uppercase tracking-wider text-amber-700 font-bold">Misconception</div>
+        <div class="text-xs text-slate-700 mt-1">Avoid just rearranging code; extraction should create meaningful, testable steps.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

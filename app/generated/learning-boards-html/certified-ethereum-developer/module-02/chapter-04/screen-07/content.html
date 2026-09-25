@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="text-sm font-semibold text-slate-600">Definition</div>
+    <div class="text-2xl font-bold text-slate-900">While loops and their risks</div>
+    <div class="text-sm text-slate-600 mt-1">Dynamic-condition repetition — verify termination</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-sm font-bold mb-2">Example: countdown</div>
+      <pre class="mono bg-slate-50 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;">// Example of a while loop (use with care)
+function countdown(uint start) public pure returns (uint) {
+    uint current = start;
+    while (current &gt; 0) {
+        // In a real contract, this would perform some action
+        current--;
+    }
+    return current; // will be 0
+}
+</pre>
+      <div class="text-xs text-slate-600 mt-2">This is safe because the loop body reduces current and termination is guaranteed by the input magnitude.</div>
+    </div>
+
+    <div class="card bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold mb-2">Safety checklist</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Prove the loop condition becomes false in all cases.</li>
+        <li>Add an explicit iteration cap if the condition can depend on external input.</li>
+        <li>Avoid while loops in functions that process untrusted user data without bounds.</li>
+      </ul>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Assuming termination without proving it. An infinite while loop will exhaust gas and revert the transaction.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

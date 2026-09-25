@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f172a;color:#e6eef8;border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;white-space:pre-wrap;tab-size:2}</style>
+
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Unbounded loop: VulnerableAirdrop</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/5 card p-5 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Code walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">VulnerableAirdrop</h3>
+      <p class="text-sm text-slate-600 mt-3">A single transaction tries to pay every participant. This scales poorly.</p>
+
+      <div class="mt-4 p-3 rounded-lg border border-slate-100 bg-white">
+        <div class="text-sm font-semibold">Key risks</div>
+        <ul class="list-disc ml-4 mt-2 text-sm text-slate-600">
+          <li>Gas grows with participant count until it exceeds block limit.</li>
+          <li>External calls inside loops can revert and abort entire distribution.</li>
+          <li>Attackers can add junk entries to inflate cost.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-3/5 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Example code</div>
+        <pre class="code mt-2">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VulnerableAirdrop {
+  address[] public participants;
+  mapping(address =&gt; bool) public hasReceivedAirdrop;
+
+  function addParticipant(address _participant) public {
+    participants.push(_participant);
+  }
+
+  // Vulnerable: Iterates over an unbounded array
+  function distributeAirdrop(uint256 _amount) public {
+    for (uint i = 0; i &lt; participants.length; i++) {
+      address participant = participants[i];
+      if (!hasReceivedAirdrop[participant]) {
+        (bool success, ) = participant.call{value: _amount}("");
+        require(success, "Transfer failed");
+        hasReceivedAirdrop[participant] = true;
+      }
+    }
+  }
+}
+</pre>
+      </div>
+
+      <div class="p-3 card">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Concrete analogy</div>
+        <div class="text-sm font-medium text-slate-800 mt-1">Think of a toll booth that must process every car in one minute. As cars grow, the single booth becomes a bottleneck and eventually cannot handle traffic.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

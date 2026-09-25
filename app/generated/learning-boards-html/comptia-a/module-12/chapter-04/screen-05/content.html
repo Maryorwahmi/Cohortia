@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#fbfeff;">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Comparison</span>
+      <span class="text-slate-700">Backup Types</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Full, Incremental, Differential</h3>
+    <p class="text-sm text-slate-700">Choose the type or combination that aligns with RPO and RTO tradeoffs.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 grid gap-3">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="text-blue-700 font-bold">Full Backup</div>
+          <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" class="text-blue-600"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"></path></svg>
+        </div>
+        <p class="text-sm text-slate-700">A complete copy of all selected data. Pros: simplest restore process. Cons: longest runtime, highest storage use. Restore pattern: restore last full.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="text-violet-700 font-bold">Incremental Backup</div>
+          <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" class="text-violet-600"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 2v20"></path></svg>
+        </div>
+        <p class="text-sm text-slate-700">Copies only changes since the last backup of any type. Pros: fastest per job and minimal daily storage. Cons: restore requires last full plus every incremental, increasing complexity.</p>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="text-amber-700 font-bold">Differential Backup</div>
+          <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" class="text-amber-600"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 7h18"></path></svg>
+        </div>
+        <p class="text-sm text-slate-700">Copies changes since the last full backup. Pros: simpler restore (last full + last differential). Cons: differentials grow over the interval between fulls.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800 mb-2">Strategy Example</div>
+      <div class="text-sm text-slate-700 mb-3">Schedule: weekly full backups on Sunday plus daily differential backups. Why: restore requires only the most recent full and latest differential, keeping restores straightforward while limiting daily backup runtime.</div>
+
+      <div class="rounded-lg bg-slate-50 p-3 mb-3">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Concrete scenario</div>
+        <div class="text-sm text-slate-800 mt-2">A team shares design files that change throughout the week. Weekly fulls keep a complete copy while daily differentials capture ongoing edits and allow a single-step restore to bring the server back to last night’s state.</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-auto">
+        <div class="rounded-lg p-3" style="border-left:4px solid rgba(239,102,117,1); background:#fff1f2;">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception</div>
+          <p class="text-sm text-slate-800">Assuming incrementals always lower cost. They can increase restore effort and risk if not managed.</p>
+        </div>
+        <div class="rounded-lg p-3" style="border-left:4px solid rgba(16,185,129,1); background:#ecfdf5;">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Pro tip</div>
+          <p class="text-sm text-slate-800">Schedule periodic fulls to cap differential growth and simplify recovery procedures.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

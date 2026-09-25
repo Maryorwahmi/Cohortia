@@ -1,0 +1,57 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Comparison</span>
+      <span>›</span>
+      <span class="text-slate-700">ReportGenerator: Before vs After</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Before — ReportGenerator</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm text-slate-700" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">
+public class ReportGenerator {
+    public void generateReport(String data, String format) {
+        if ("PDF".equals(format)) {
+            generatePdfReport(data);
+        } else if ("CSV".equals(format)) {
+            generateCsvReport(data);
+        } else {
+            System.out.println("Unsupported report format.");
+        }
+    }
+
+    private void generatePdfReport(String data) {
+        // Complex PDF generation logic
+    }
+
+    private void generateCsvReport(String data) {
+        // Complex CSV generation logic
+    }
+
+    public void saveReport(String reportContent, String filePath) {
+        // File I/O logic
+    }
+
+    public void emailReport(String reportContent, String recipient) {
+        // Email sending logic
+    }
+}
+      </pre>
+      <div class="mt-3 text-sm text-slate-700">Problems: multiple format implementations, persistence, and notification all in one class — five reasons to change.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">After — Focused classes</div>
+      <div class="mt-3 grid gap-2">
+        <div class="rounded-lg p-3 bg-violet-50 border border-violet-100 text-sm text-slate-700">PdfReportGenerator — responsibility: PDF creation</div>
+        <div class="rounded-lg p-3 bg-amber-50 border border-amber-100 text-sm text-slate-700">CsvReportGenerator — responsibility: CSV creation</div>
+        <div class="rounded-lg p-3 bg-blue-50 border border-blue-100 text-sm text-slate-700">ReportSaver — responsibility: persistence</div>
+        <div class="rounded-lg p-3 bg-emerald-50 border border-emerald-100 text-sm text-slate-700">ReportEmailer — responsibility: sending reports</div>
+      </div>
+      <div class="mt-4 text-sm text-slate-700">Each class has one reason to change. Tests focus on the single behavior and mock collaborators instead of complex setups.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

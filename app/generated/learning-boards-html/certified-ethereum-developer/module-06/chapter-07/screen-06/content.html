@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Hardhat test example</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4">
+      <div class="text-lg font-bold text-slate-800">Representative test (excerpt)</div>
+      <pre class="mono bg-slate-900 text-white rounded-lg p-3 mt-3 h-[56%] overflow-hidden" style="white-space: pre-wrap; tab-size: 2; font-size: 13px;">// test/MyToken.test.js
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("MyToken", function () {
+  let MyToken, myToken, owner, addr1, addr2;
+
+  beforeEach(async function () {
+    MyToken = await ethers.getContractFactory("MyToken");
+    [owner, addr1, addr2] = await ethers.getSigners();
+    myToken = await MyToken.deploy(1000);
+    await myToken.deployed();
+  });
+
+  it("transfers tokens between accounts", async function () {
+    await myToken.transfer(addr1.address, 50);
+    expect(await myToken.balanceOf(addr1.address)).to.equal(50);
+    await myToken.connect(addr1).transfer(addr2.address, 50);
+    expect(await myToken.balanceOf(addr2.address)).to.equal(50);
+  });
+});</pre>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation</div>
+      <ul class="mt-3 space-y-2 text-sm text-slate-700">
+        <li>beforeEach deploys a fresh contract instance to isolate tests.</li>
+        <li>Use .connect(signer) to simulate transactions from different accounts in the suite.</li>
+        <li>Assert both success cases and expected revert messages for error conditions.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-xs uppercase tracking-wider text-amber-700 font-bold">Common mistake</div>
+        <div class="text-xs text-slate-700 mt-1">Sharing state between tests causes order-dependent failures; isolate with fresh deploys.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Write tests that read like examples: arrange setup, act, then assert results and failures.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

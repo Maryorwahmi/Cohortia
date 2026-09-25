@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">PlayerMovement walkthrough</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-3/5 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Full example (escaped for display)</div>
+      <pre class="mono mt-3 p-3 bg-slate-50 rounded-md" style="max-height:58%; overflow:auto">// Example: Basic PlayerMovement
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+    public float moveSpeed = 5f;
+    public float jumpForce = 8f;
+    public float gravity = -20f; // Custom gravity for CharacterController
+
+    private CharacterController controller;
+    private Vector3 moveDirection;
+    private float verticalVelocity;
+    private bool isGrounded;
+
+    void Start()
+    {
+        controller = GetComponent&lt;CharacterController&gt;();
+        if (controller == null)
+        {
+            Debug.LogError("CharacterController not found on this GameObject.");
+            enabled = false; // Disable script if no controller
+        }
+    }
+
+    void Update()
+    {
+        // Movement, gravity, and controller.Move called here
+    }
+}
+</pre>
+
+      <div class="mt-3 text-sm text-slate-700">The snippet above shows the structure: public tuning fields, cached controller, and space for Update logic. Keep physics state like verticalVelocity inside the script so jumps behave consistently.</div>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Explanation cards</div>
+      <div class="mt-3 space-y-3 flex-1">
+        <div class="rounded-md bg-amber-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-amber-700">Gravity handling</div>
+          <div class="text-sm text-slate-700 mt-1">Accumulate gravity into verticalVelocity each frame and include it in the movement vector so the controller falls naturally.</div>
+        </div>
+
+        <div class="rounded-md bg-blue-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-blue-700">Camera-relative movement</div>
+          <div class="text-sm text-slate-700 mt-1">Compute forward and right from the main camera with y=0 so forward input moves toward where the player is looking horizontally.</div>
+        </div>
+
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-emerald-700">Grounding trick</div>
+          <div class="text-sm text-slate-700 mt-1">When grounded and verticalVelocity is negative, set it to a small negative value to keep contact with uneven terrain.</div>
+        </div>
+      </div>
+
+      <div class="mt-3 text-xs uppercase tracking-wider text-slate-500">Check your understanding</div>
+      <div class="text-sm text-slate-700 mt-1">Why must gravity be applied manually with CharacterController, and what happens if you apply it in FixedUpdate instead of Update?</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

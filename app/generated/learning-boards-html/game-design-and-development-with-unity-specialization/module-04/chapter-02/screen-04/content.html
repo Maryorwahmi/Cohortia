@@ -1,0 +1,61 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">CharacterController: definition</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 h-full rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Core Concept</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">CharacterController behavior</div>
+      <div class="text-sm text-slate-600 mt-3">A non-physics-driven mover that handles collisions and sliding. You supply movement vectors; it prevents penetration and steps over small obstacles when tuned.</div>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-700">Key properties</div>
+        <ul class="list-disc text-sm text-slate-600 pl-5 mt-2">
+          <li><span class="font-medium">slopeLimit</span>: controls maximum climbable incline.</li>
+          <li><span class="font-medium">stepOffset</span>: allows automatic stepping up small ledges.</li>
+          <li><span class="font-medium">isGrounded</span>: reports whether controller touches ground.</li>
+        </ul>
+      </div>
+
+      <div class="mt-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Forgetting manual gravity makes the character float after jump. Always add a vertical velocity term to movement before Move().</div>
+      </div>
+    </div>
+
+    <div class="flex-1 h-full rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Walkthrough: how movement works</div>
+      <div class="text-sm text-slate-600 mt-2">The script computes a desired horizontal vector relative to camera orientation, normalizes it, scales by speed, then combines it with verticalVelocity and calls controller.Move(delta).</div>
+
+      <div class="mt-4 flex-1">
+        <div class="rounded-lg bg-slate-50 p-3 h-full mono" style="overflow:auto">
+&lt;!-- Example pseudocode flow, not exact code --&gt;
+
+desired = normalized(camera.forward * v + camera.right * h) * speed
+if grounded and jumpPressed:
+  verticalVelocity = jumpForce
+else:
+  verticalVelocity += gravity * deltaTime
+movement = desired + Vector3.up * verticalVelocity
+controller.Move(movement * deltaTime)
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-700 mt-1">A platformer uses CharacterController for tight, non-slippery movement and well-controlled jumps.</div>
+        </div>
+        <div class="rounded-md bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Takeaway</div>
+          <div class="text-sm text-slate-700 mt-1">CharacterController = deterministic control, manual gravity, adjustable slope/step tuning.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

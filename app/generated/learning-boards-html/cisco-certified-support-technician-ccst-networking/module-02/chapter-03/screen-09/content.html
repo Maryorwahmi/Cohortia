@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Decapsulation</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700 uppercase tracking-wider">Process Flow</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">From bits back to application data</h3>
+      <p class="text-sm text-slate-600 mt-3">Each upward step validates and removes the layer-specific wrapper until the original payload is recovered.</p>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold text-slate-700">Step 1 — Link</div>
+          <div class="text-xs text-slate-600 mt-1">Reassemble bits into a frame, validate FCS, strip header/trailer, pass IP packet up if address matches.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold text-slate-700">Step 2 — Internet</div>
+          <div class="text-xs text-slate-600 mt-1">Check destination IP, strip IP header, forward segment up to transport.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold text-slate-700">Step 3 — Transport</div>
+          <div class="text-xs text-slate-600 mt-1">Check destination port, perform reassembly using sequence numbers, strip TCP header.</div>
+        </div>
+        <div class="rounded-lg bg-white p-3 card-border">
+          <div class="text-xs font-bold text-slate-700">Step 4 — Application</div>
+          <div class="text-xs text-slate-600 mt-1">Deliver payload (for example, the HTTP response) to the application process for presentation.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <div class="text-xs font-medium text-slate-800">Each host layer inspects only what it needs and passes valid data upward; failed validation at an early step prevents delivery.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-700 uppercase tracking-wider">Example</div>
+      <div class="text-sm text-slate-600 mt-2">A received Ethernet frame fails FCS: the NIC drops it and the OS never sees the IP packet. If the FCS passes but the IP address is not for this host, the frame can be ignored unless forwarding is intended.</div>
+
+      <div class="mt-4 rounded-lg bg-white p-3 card-border">
+        <div class="text-xs font-bold text-slate-700">Misconception</div>
+        <div class="text-xs text-slate-600 mt-1">Intermediate devices like routers do not usually reassemble transport segments for the final application; they only need to reach the level required for their function.</div>
+      </div>
+
+      <div class="mt-auto text-sm text-slate-600">Check your understanding: If an application receives out-of-order data, which transport header field would you inspect first? (Sequence numbers.)</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-2xl p-4 card-border flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600 font-bold mb-2">Process Flow</div>
+      <div class="text-xl font-bold text-slate-800 mb-2">Replacing Tick</div>
+      <div class="text-sm text-slate-600 mb-4">A step-by-step pattern to move per-frame logic to safe alternatives.</div>
+
+      <div class="flex flex-col gap-3">
+        <div class="rounded-md bg-white card-border p-3">
+          <div class="font-bold text-slate-800">1. Measure</div>
+          <div class="text-sm text-slate-600">Confirm Tick is the top cost using Stat Game or the profiler.</div>
+        </div>
+        <div class="rounded-md bg-white card-border p-3">
+          <div class="font-bold text-slate-800">2. Ask "Does this need per-frame precision?"</div>
+          <div class="text-sm text-slate-600">If no, continue to timers or events.</div>
+        </div>
+        <div class="rounded-md bg-white card-border p-3">
+          <div class="font-bold text-slate-800">3. Replace with Event/Timer</div>
+          <div class="text-sm text-slate-600">Use event dispatchers or Set Timer by Event to schedule periodic updates.</div>
+        </div>
+        <div class="rounded-md bg-white card-border p-3">
+          <div class="font-bold text-slate-800">4. Reprofile</div>
+          <div class="text-sm text-slate-600">Verify frame-time improvement after the change.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">If work does not need to run every frame, move it to timers or events and confirm the improvement with profiling.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 card-border flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Concrete Example</div>
+      <div class="rounded-xl bg-slate-50 p-3 mb-3">
+        <div class="text-sm text-slate-700">Original: Event Tick -> For Loop 10,000 iterations. After: OnTimer (every 2s) -> For Loop 10,000 iterations. Result: per-frame cost removed; work happens infrequently and profiler shows large drop in game thread time.</div>
+      </div>
+
+      <div class="text-sm font-bold text-slate-800 mb-2">Common Mistake</div>
+      <div class="rounded-xl bg-rose-50 p-3">
+        <div class="text-sm text-slate-700">Leaving temporary Print String nodes in Tick during shipping or debugging many actors with Tick still enabled across the level.</div>
+      </div>
+    </div>
+  </div>
+</div>

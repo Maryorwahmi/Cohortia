@@ -1,0 +1,66 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0f172a;color:#e6eef6;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;tab-size:2;white-space:pre-wrap}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Configuration</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Create VLANs & assign access ports</h3>
+      <p class="text-sm text-slate-600 mt-3">Follow these steps to define VLANs and put ports into access mode so end devices only carry a single VLAN.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Commands (simulated)</div>
+        <pre class="mt-2"><code>Switch> enable
+Switch# configure terminal
+Switch(config)# vlan 10
+Switch(config-vlan)# name Sales_VLAN
+Switch(config-vlan)# exit
+Switch(config)# vlan 20
+Switch(config-vlan)# name HR_VLAN
+Switch(config-vlan)# exit
+Switch(config)# interface GigabitEthernet0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 10
+Switch(config-if)# description Connected to Sales PC
+Switch(config-if)# exit
+Switch(config)# interface GigabitEthernet0/2
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 20
+Switch(config-if)# description Connected to HR PC
+Switch(config-if)# exit
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Verification</div>
+      <div class="mt-2">
+        <div class="rounded-lg bg-white p-3 border card-border">
+          <div class="text-sm font-semibold text-slate-900">Show VLAN brief (simulated)</div>
+          <pre class="mt-2"><code>VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Gi0/3, Gi0/4
+10   Sales_VLAN                       active    Gi0/1
+20   HR_VLAN                          active    Gi0/2
+</code></pre>
+        </div>
+
+        <div class="rounded-lg bg-white p-3 border card-border mt-3">
+          <div class="text-sm font-semibold text-slate-900">Show interfaces switchport (simulated)</div>
+          <pre class="mt-2"><code>Name: Gi0/1
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+Access Mode VLAN: 10 (Sales_VLAN)
+Trunking Native Mode VLAN: 1 (default)
+</code></pre>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always verify access mode and access VLAN after changing interface configuration to avoid misassignment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

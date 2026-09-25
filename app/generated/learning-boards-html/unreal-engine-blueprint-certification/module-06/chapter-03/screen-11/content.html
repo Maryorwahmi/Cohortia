@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)}pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}</style>
+  <div>
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+      <span>›</span>
+      <span>Chapter 6.3</span>
+      <span>›</span>
+      <span class="text-slate-700">Event Dispatchers</span>
+    </div>
+    <div class="grid grid-cols-2 gap-4 h-[68vh]">
+      <div class="rounded-2xl bg-white p-5 shadow-sm card-border flex flex-col">
+        <div class="text-sm font-bold text-slate-800">Pattern</div>
+        <p class="text-sm text-slate-600 mt-3">Declare dynamic multicast delegates in C++, mark them BlueprintAssignable, and broadcast from C++ when state changes occur.</p>
+        <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">When to use</div>
+        <ul class="mt-2 text-sm text-slate-700 list-disc list-inside space-y-2">
+          <li>To notify UI, VFX, or other Blueprint systems of state changes.</li>
+          <li>For decoupled systems where listeners subscribe at runtime.</li>
+        </ul>
+        <div class="mt-auto text-xs text-slate-600">Performance note: dynamic delegates are convenient for Blueprint binding but consider direct calls for hot paths.</div>
+      </div>
+      <div class="rounded-2xl bg-white p-5 shadow-sm card-border overflow-auto">
+        <div class="text-sm font-bold text-slate-800">HealthComponent snippet</div>
+        <pre class="mt-3"><code>DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, CurrentHealth, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTakeDamage, float, DamageAmount);
+
+UPROPERTY(BlueprintAssignable, Category = "Health")
+FOnHealthChanged OnHealthChanged;
+
+UPROPERTY(BlueprintAssignable, Category = "Health")
+FOnTakeDamage OnDamageTaken;
+
+// Broadcast when health changes
+OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+</code></pre>
+        <div class="mt-3 text-xs text-slate-600">In Blueprint: bind to OnHealthChanged and update UI or play sound when broadcasted.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

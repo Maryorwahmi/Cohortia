@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">executemany()</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-3/4 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example</div>
+      <pre class="mono mt-3 p-3 bg-slate-50 border border-slate-100 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2;">new_users = [
+    ("Charlie Chaplin", "charlie@example.com"),
+    ("Diana Prince", "diana@example.com"),
+    ("Eve Adams", "eve@example.com")
+]
+cursor.executemany("INSERT INTO users (name, email) VALUES (?, ?)", new_users)
+print(f"Inserted {cursor.rowcount} new users.")
+conn.commit()</pre>
+
+      <div class="mt-4 text-sm text-slate-700">Note: cursor.rowcount reports the number of rows affected by the last call. For executemany it reflects the batch size in many implementations.</div>
+    </div>
+
+    <div class="w-1/4 flex flex-col gap-4">
+      <div class="p-3 rounded-lg bg-white border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Batching tips</div>
+        <ul class="mt-2 text-sm text-slate-700 space-y-1">
+          <li>Validate rows before inserting</li>
+          <li>Use reasonable batch sizes to avoid long transactions</li>
+          <li>Handle IntegrityError to identify problematic rows</li>
+        </ul>
+      </div>
+
+      <div class="p-3 rounded-lg bg-white border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Common mistake</div>
+        <p class="text-sm text-slate-700 mt-2">Relying on implicit commits per row slows performance. Group inserts and call commit once per batch.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

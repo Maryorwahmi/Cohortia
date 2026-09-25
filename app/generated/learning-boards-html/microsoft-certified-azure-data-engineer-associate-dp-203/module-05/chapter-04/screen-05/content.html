@@ -1,0 +1,70 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Mounting ADLS Gen2</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl p-4 bg-white card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Step-by-step</div>
+        <ol class="text-sm text-slate-700 mt-2 space-y-2 list-decimal pl-4">
+          <li>Decide authentication: Service Principal or Managed Identity.</li>
+          <li>Grant Storage Blob Data Contributor on the ADLS Gen2 account.</li>
+          <li>Store credentials in Databricks Secrets or use Managed Identity.</li>
+          <li>Call dbutils.fs.mount with the abfss source and extra configs.</li>
+          <li>List mount point to confirm access.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl p-3 bg-white card-border shadow-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2">Example caution</div>
+        <div class="text-sm text-rose-600">Never hardcode service principal secrets in notebooks for production. Use Databricks Secrets and Azure Key Vault instead.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl p-4 bg-white card-border shadow-sm h-full overflow-auto">
+        <div class="text-sm font-bold text-slate-800">Mount example (PySpark)</div>
+        <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Configuration for Service Principal authentication
+tenant_id = "&lt;your-tenant-id&gt;"
+application_id = "&lt;your-service-principal-application-id&gt;"
+service_credential = "&lt;your-service-principal-secret&gt;"
+storage_account_name = "&lt;your-adls-gen2-account-name&gt;"
+container_name = "&lt;your-container-name&gt;"
+mount_point = "/mnt/datalake"
+
+configs = {"fs.azure.account.auth.type": "OAuth",
+           "fs.azure.account.oauth.provider.type": "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider",
+           "fs.azure.account.oauth2.client.id": application_id,
+           "fs.azure.account.oauth2.client.secret": service_credential,
+           "fs.azure.account.oauth2.client.endpoint": f"https://login.microsoftonline.com/{tenant_id}/oauth2/token",
+           "fs.azure.createRemoteFileSystemDuringInitialization": "true"}
+
+# Unmount if exists and mount
+if any(m.mountPoint == mount_point for m in dbutils.fs.mounts()):
+    dbutils.fs.unmount(mount_point)
+
+dbutils.fs.mount(
+  source = f"abfss://{container_name}@{storage_account_name}.dfs.core.windows.net/",
+  mount_point = mount_point,
+  extra_configs = configs)
+
+print(f"ADLS Gen2 mounted at {mount_point}")
+
+# List contents
+dbutils.fs.ls(mount_point)
+        </pre>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Prefer Managed Identity when possible to avoid secret lifecycle management. If you must use a service principal, store its secret in Databricks Secrets.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

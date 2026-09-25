@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#fff;} .card-border{border:1px solid rgba(226,232,240,0.95);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Schema vs Data Sequence</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Correct: Schema first</div>
+      <div class="text-sm text-slate-700 mt-2">Steps: deploy .dacpac to apply schema updates, then execute post-deploy data scripts that assume the new schema.</div>
+      <div class="mt-3 text-xs font-bold text-slate-600">Why this matters</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700 mt-2">
+        <li>Prevents script failures when columns/tables do not exist.</li>
+        <li>Helps generated deployment scripts preserve existing data.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Incorrect: Data first</div>
+      <div class="text-sm text-slate-700 mt-2">Running data updates before schema is applied commonly causes immediate failures and rollbacks. This is a frequent root cause of outages.</div>
+
+      <div class="mt-3 text-xs font-bold text-slate-600">Mitigations</div>
+      <ul class="list-disc pl-4 text-sm text-slate-700 mt-2">
+        <li>Use idempotent data scripts.</li>
+        <li>Include pre-checks to ensure required columns exist.</li>
+        <li>Keep backups and rollback scripts prepared.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Order matters: apply schema changes first, then data migrations, and design scripts to be safe when run multiple times.</p>
+  </div>
+</div>

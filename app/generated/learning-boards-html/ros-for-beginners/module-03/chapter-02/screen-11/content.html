@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Automation script: spawn, draw, kill</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="flex-1 rounded-xl bg-white card p-5 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Script skeleton (concept)</div>
+      <pre class="mt-3 whitespace-pre-wrap p-3 bg-slate-50 border rounded" style="tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>#!/usr/bin/env python3
+import rospy
+from turtlesim.srv import Spawn, Kill
+from geometry_msgs.msg import Twist
+
+rospy.init_node('turtle_automation')
+rospy.wait_for_service('/spawn')
+spawn = rospy.ServiceProxy('/spawn', Spawn)
+kill = rospy.ServiceProxy('/kill', Kill)
+vel_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
+
+# Spawn helper turtle
+res = spawn(5.0, 5.0, 0.0, 'turtle2')
+# Draw a circle by publishing Twist messages for a duration
+# Kill helper turtle when done
+kill('turtle2')</code></pre>
+      <div class="mt-3 text-xs text-slate-600">Test each step from the CLI first, then compose into a script. Use small waits between service calls and motion to ensure entities exist.</div>
+    </div>
+    <div class="w-1/3 rounded-xl bg-white card p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Testing checklist</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Validate spawn parameters with a manual rosservice call.</li>
+        <li>Confirm cmd_vel publishes produce the expected movement in teleop tests.</li>
+        <li>Add logging and check service responses before proceeding to motion steps.</li>
+      </ul>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

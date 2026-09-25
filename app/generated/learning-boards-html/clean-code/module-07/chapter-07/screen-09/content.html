@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#fbfdff;">
+  <div class="mb-3">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500">Live Coding</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Account subclass hierarchy</div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 overflow-auto" style="min-height:0;">
+      <div class="text-sm font-semibold text-slate-800">Abstract base and subclasses</div>
+      <pre class="mt-3 p-3 bg-slate-50 text-sm rounded-md" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, monospace;">from abc import ABC, abstractmethod
+
+class BaseAccount(ABC):
+    def __init__(self, account_id, balance):
+        self.account_id = account_id
+        self.balance = balance
+
+    @abstractmethod
+    def get_interest_rate(self):
+        pass
+
+    @abstractmethod
+    def deposit(self, amount):
+        pass
+
+class CheckingAccount(BaseAccount):
+    def get_interest_rate(self):
+        return 0.01
+    def deposit(self, amount):
+        self.balance += amount
+        return True
+
+class SavingsAccount(BaseAccount):
+    def get_interest_rate(self):
+        return 0.02
+    def deposit(self, amount):
+        if amount < 10:
+            return False
+        self.balance += amount
+        return True
+
+class LoanAccount(BaseAccount):
+    def get_interest_rate(self):
+        return 0.05
+    def deposit(self, amount):
+        return False</pre>
+    </div>
+
+    <div class="w-1/2 card p-4 overflow-auto" style="min-height:0;">
+      <div class="text-sm font-semibold text-slate-800">Factory and usage</div>
+      <pre class="mt-3 p-3 bg-slate-50 text-sm rounded-md" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, monospace;">class AccountFactory:
+    @staticmethod
+    def create_account(account_type_str, account_id, balance):
+        if account_type_str == "CHECKING":
+            return CheckingAccount(account_id, balance)
+        elif account_type_str == "SAVINGS":
+            return SavingsAccount(account_id, balance)
+        elif account_type_str == "LOAN":
+            return LoanAccount(account_id, balance)
+        else:
+            raise ValueError(f"Unknown account type: {account_type_str}")
+
+# Usage
+acc = AccountFactory.create_account("CHECKING", "C101", 1000)
+acc.deposit(500)</pre>
+
+      <div class="mt-4 rounded-xl p-3 border-l-4 border-l-amber-400 bg-amber-50">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700">Why it helps</div>
+        <div class="text-sm text-slate-800 mt-1">Client code calls methods on BaseAccount and relies on polymorphism rather than checking types itself.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

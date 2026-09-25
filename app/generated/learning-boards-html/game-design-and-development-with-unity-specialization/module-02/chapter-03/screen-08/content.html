@@ -1,0 +1,71 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">PlayerMovement.cs</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-slate-900 text-white p-4 font-mono overflow-hidden" style="white-space:pre-wrap; tab-size:2;">
+        <pre><code>// PlayerMovement.cs - excerpt
+using UnityEngine;
+
+[RequireComponent(typeof(Rigidbody))]
+public class PlayerMovement : MonoBehaviour
+{
+  public float moveSpeed = 5.0f;
+  public float jumpForce = 8.0f;
+  private Rigidbody rb;
+  private bool isGrounded = true;
+
+  void Awake()
+  {
+    rb = GetComponent&lt;Rigidbody&gt;();
+  }
+
+  void FixedUpdate()
+  {
+    float moveHorizontal = Input.GetAxis("Horizontal");
+    float moveVertical = Input.GetAxis("Vertical");
+
+    Vector3 movement = transform.right * moveHorizontal + transform.forward * moveVertical;
+    movement = movement.normalized * moveSpeed;
+
+    rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
+
+    if (Input.GetButtonDown("Jump") &amp;&amp; isGrounded)
+    {
+      rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+      isGrounded = false;
+    }
+  }
+
+  void OnCollisionEnter(Collision collision)
+  {
+    if (collision.gameObject.CompareTag("Ground")) isGrounded = true;
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl p-4 bg-white border border-[rgba(226,232,240,0.9)] shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Explanation</div>
+        <ul class="list-disc pl-5 mt-2 text-sm text-slate-700">
+          <li>Awake caches the Rigidbody once for performance.</li>
+          <li>FixedUpdate keeps physics stable; read axes and update velocity here.</li>
+          <li>Jump uses AddForce with ForceMode.Impulse and a grounded boolean to guard double jumps.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check your understanding</div>
+        <p class="text-xs font-medium text-slate-800">Why preserve rb.velocity.y when setting horizontal velocity? Answer: to allow gravity and vertical forces to continue acting independently from horizontal control.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

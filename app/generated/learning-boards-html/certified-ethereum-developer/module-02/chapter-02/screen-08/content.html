@@ -1,0 +1,80 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#ffffff;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Code Walkthrough</span>
+    <span>›</span>
+    <span class="text-slate-700">Example Contract</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full overflow-hidden flex flex-col">
+    <div class="text-sm font-bold text-slate-800">DataTypesAndOperators (excerpt)</div>
+    <pre class="mt-3 text-sm bg-slate-100 p-3 rounded flex-1 overflow-auto" style="white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract DataTypesAndOperators {
+    // Value Types
+    uint256 public balance = 100 ether; // uint256 is default for uint
+    bool public isActive = true;
+    address public ownerAddress;
+    bytes32 public documentHash; // Fixed-size bytes
+
+    // Enum example
+    enum OrderStatus { Pending, Shipped, Delivered, Cancelled }
+    OrderStatus public currentStatus = OrderStatus.Pending;
+
+    // Reference Types (storage)
+    uint[] public numbers; // Dynamic array of uints
+    mapping(address => uint) public balances; // Mapping from address to uint
+
+    struct Product {
+        uint id;
+        string name;
+        uint price;
+        bool inStock;
+    }
+    Product[] public products; // Dynamic array of structs
+
+    constructor(address _owner) {
+        ownerAddress = _owner;
+        documentHash = keccak256(abi.encodePacked("my_secret_doc")); // Example of bytes32
+        balances[_owner] = balance; // Initialize owner's balance in mapping
+    }
+
+    function calculateDiscount(uint _price, uint _discountPercent) public pure returns (uint) {
+        return _price - (_price * _discountPercent / 100);
+    }
+
+    function addProduct(uint _id, string memory _name, uint _price) public {
+        Product memory newProduct = Product({
+            id: _id,
+            name: _name,
+            price: _price,
+            inStock: true
+        });
+        products.push(newProduct);
+    }
+
+    function updateOrderStatus(OrderStatus newStatus) public {
+        currentStatus = newStatus;
+    }
+
+    function checkEligibility(uint age, bool hasLicense) public pure returns (bool) {
+        return (age >= 18 && hasLicense);
+    }
+}
+</pre>
+    <div class="mt-3 grid grid-cols-3 gap-3">
+      <div class="rounded-lg p-3 bg-blue-50">
+        <div class="text-xs font-bold text-blue-700">Observation</div>
+        <div class="text-sm text-slate-700 mt-1">Constructor writes to storage; functions show memory usage and pure computations.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-amber-50">
+        <div class="text-xs font-bold text-amber-700">Example</div>
+        <div class="text-sm text-slate-700 mt-1">addProduct creates a Product in memory and then pushes to storage.</div>
+      </div>
+      <div class="rounded-lg p-3 bg-emerald-50">
+        <div class="text-xs font-bold text-emerald-700">Takeaway</div>
+        <div class="text-sm text-slate-700 mt-1">Split pure logic and state changes for clarity and cheaper testing.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

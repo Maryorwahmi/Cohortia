@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Rigidbody vs CharacterController</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Quick comparison</div>
+      <div class="mt-3 grid grid-cols-1 gap-3">
+        <div class="rounded-md bg-white p-3 border shadow-sm">
+          <div class="text-sm font-semibold text-slate-700">CharacterController</div>
+          <div class="text-sm text-slate-600 mt-1">Precise, script-driven movement. Manual gravity. No physical pushes from other rigidbodies.</div>
+        </div>
+        <div class="rounded-md bg-white p-3 border shadow-sm">
+          <div class="text-sm font-semibold text-slate-700">Rigidbody</div>
+          <div class="text-sm text-slate-600 mt-1">Physics-driven, reacts to forces and collisions, uses FixedUpdate for consistent behavior.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-xs uppercase tracking-wider text-slate-500">When to choose</div>
+      <ul class="text-sm text-slate-700 pl-5 mt-2 list-disc">
+        <li>Choose CharacterController for tight platforming and deterministic control.</li>
+        <li>Choose Rigidbody when environmental physics must affect the player.</li>
+      </ul>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Practical tips for Rigidbody</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li>Apply forces or change velocity inside FixedUpdate to match the physics timestep.</li>
+        <li>Use ForceMode.VelocityChange for immediate velocity adjustments without mass scaling.</li>
+        <li>Tune mass, drag, and physics materials to reduce sliding while preserving responsiveness.</li>
+      </ul>
+
+      <div class="mt-4 rounded-md bg-slate-50 p-3 mono" style="overflow:auto">
+&lt;!-- Example usage (escaped) --&gt;
+void FixedUpdate()
+{
+  Vector3 desired = // compute movement
+  rigidbody.AddForce(desired * speed, ForceMode.VelocityChange);
+}
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-700 mt-1">Use Rigidbody when a falling crate should knock the player back and change their velocity.</div>
+        </div>
+        <div class="rounded-md bg-rose-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-rose-600">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Rigidbody does not automatically make control better; it makes interactions realistic but requires extra tuning for player feel.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

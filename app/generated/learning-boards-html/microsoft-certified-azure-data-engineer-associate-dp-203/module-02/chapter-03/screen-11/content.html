@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Simulated BULK INSERT</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Steps to simulate a bulk load</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-600">
+        <li>Ensure the database and target table exist</li>
+        <li>Create or truncate a staging table</li>
+        <li>Insert multiple rows in a single statement to simulate a file load</li>
+        <li>Validate staging rows with queries</li>
+        <li>MERGE into production tables inside a transaction</li>
+      </ol>
+
+      <div class="mt-4 text-xs font-bold uppercase tracking-wider text-slate-600">Safety note</div>
+      <div class="text-sm text-slate-600 mt-2">For Azure SQL Database, real BULK INSERT requires blob storage access. This simulation teaches process and validation without external file setup.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-700">Example SQL (simulated bulk insert)</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 rounded-lg p-3 text-sm" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+USE mydataengdb;
+GO
+
+-- Drop and re-create DimProduct for a clean start
+IF OBJECT_ID('DimProduct', 'U') IS NOT NULL DROP TABLE DimProduct;
+GO
+
+CREATE TABLE DimProduct (
+    ProductKey INT IDENTITY(1,1) PRIMARY KEY,
+    ProductID NVARCHAR(50) NOT NULL UNIQUE,
+    ProductName NVARCHAR(255) NOT NULL,
+    Category NVARCHAR(100)
+);
+GO
+
+-- Simulate bulk insert by inserting multiple rows at once
+INSERT INTO DimProduct (ProductID, ProductName, Category) VALUES
+('P001', 'Laptop X1', 'Electronics'),
+('P002', 'Monitor Ultra', 'Electronics'),
+('P003', 'Webcam HD', 'Accessories'),
+('P004', 'Gaming Keyboard', 'Accessories');
+GO
+
+-- Verify the inserted data
+SELECT * FROM DimProduct;
+      </pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap; tab-size:2} .panel{border:1px solid rgba(226,232,240,0.9)}</style>
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 rounded-xl bg-white p-4 panel">
+      <div class="text-xs uppercase tracking-wider text-blue-700 font-bold">Core Concept</div>
+      <div class="text-xl font-bold text-slate-800 mt-2">revert()</div>
+      <div class="text-sm text-slate-600 mt-2">Explicitly revert with flexible logic and conditional checks. Refunds remaining gas like require.</div>
+      <div class="mt-4 rounded-lg bg-white p-3 border-l-4 border-l-violet-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-violet-700">Example</div>
+        <pre class="mono text-sm mt-2">function withdraw(uint256 _amount) public {
+  if (_amount == 0) {
+    revert("Withdrawal amount cannot be zero.");
+  }
+  if (_amount &gt; value) {
+    revert("Insufficient contract balance.");
+  }
+  value -= _amount;
+}</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 panel flex flex-col">
+      <div class="text-sm font-bold text-slate-800">When to prefer revert</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc ml-5 space-y-2">
+        <li>Multiple conditional branches where each branch returns a different reason.</li>
+        <li>When centralizing validation into helper functions that call revert on failure.</li>
+        <li>When you need a targeted rollback deeper inside function logic rather than at entrance.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-800 mt-2">revert is not inherently costlier than require; use the one that makes code clearer while still refunding unused gas on failure.</div>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-sm text-slate-800 mt-1">Use revert when branching or centralized rollback increases clarity; it refunds gas like require.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

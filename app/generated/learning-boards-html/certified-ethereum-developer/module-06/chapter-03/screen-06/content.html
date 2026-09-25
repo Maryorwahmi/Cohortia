@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.3</span>
+    <span>›</span>
+    <span class="text-slate-700">VulnerableCounter</span>
+  </div>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 border" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Vulnerable contract (0.7.x)</div>
+      <pre class="mt-3 bg-slate-50 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.7.0; // Vulnerable to silent overflow/underflow
+
+contract VulnerableCounter {
+    uint8 public count = 0; // Small type for easy demonstration
+
+    function increment() public {
+        count++; // Potential overflow
+    }
+
+    function decrement() public {
+        count--; // Potential underflow
+    }
+
+    function add(uint8 a, uint8 b) public pure returns (uint8) {
+        return a + b; // Potential overflow
+    }
+
+    function subtract(uint8 a, uint8 b) public pure returns (uint8) {
+        return a - b; // Potential underflow
+    }
+}
+</code></pre>
+    </div>
+    <div class="rounded-xl bg-white p-4 border flex flex-col" style="border-color:rgba(226,232,240,0.9)">
+      <div class="text-sm font-semibold text-slate-800">Explanation & implications</div>
+      <ul class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>count++ and count-- have no safety checks in 0.7.x; they can wrap silently.</li>
+        <li>Pure arithmetic functions returning a + b or a - b can overflow/underflow without revert.</li>
+        <li>If this counter guards funds or permissions, the wrapped value can open an exploit path.</li>
+      </ul>
+      <div class="mt-4 rounded-lg p-3 bg-rose-50 border-l-4 border-l-rose-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common Mistake</div>
+        <div class="text-sm text-slate-800">Assuming small demo counters are harmless; in production they often connect to critical logic and require checks.</div>
+      </div>
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Any unchecked arithmetic in pre-0.8.0 Solidity is a potential severity one issue for financial or state-critical code.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

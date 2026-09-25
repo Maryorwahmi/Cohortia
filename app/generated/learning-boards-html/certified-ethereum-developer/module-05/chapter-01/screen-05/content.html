@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Provider & Signer</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Architecture</div>
+        <div class="text-xs text-slate-600 mb-4">Provider connects to nodes. Signer holds authority to sign transactions via wallet.</div>
+
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 mb-2">Example code pattern</div>
+        <pre class="bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>if (window.ethereum) {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const contract = new ethers.Contract(contractAddress, contractABI, signer);
+} else {
+  // Prompt user to install MetaMask
+}</code></pre>
+
+        <div class="mt-4 text-sm text-slate-700">Note: Remote providers like Infura are useful for reads and backend tasks, but cannot sign transactions for end users. Browser wallets provide both the provider and the signer when the user connects.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2">
+      <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 h-full">
+        <div class="text-sm font-bold text-slate-800 mb-2">Checks & UX</div>
+        <ul class="text-sm text-slate-700 space-y-2">
+          <li>Show connected account address and current network to the user.</li>
+          <li>Detect provider absence and advise wallet installation rather than failing silently.</li>
+          <li>Guard transaction paths with a connected signer and clear confirmation prompts.</li>
+        </ul>
+
+        <div class="mt-4 text-[10px] uppercase tracking-wider text-rose-700">Misconception</div>
+        <div class="text-xs text-slate-700 mt-1">Not every provider can sign. You cannot send transactions without a signer that holds the user's keys — typically provided by the wallet.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

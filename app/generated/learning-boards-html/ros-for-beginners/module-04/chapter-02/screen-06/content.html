@@ -1,0 +1,37 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Preemption & Cancellation</span>
+  </div>
+  <div class="grid grid-cols-2 gap-6 h-[calc(100%-48px)]">
+    <div class="rounded-2xl bg-white border p-6">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step: server check loop</div>
+      <div class="mt-4 text-sm text-slate-600 space-y-2">
+        <div>1. Begin executeCB and read goal parameters from ConstPtr.</div>
+        <div>2. Start a loop to perform work, e.g., counting with ros::Rate sleep.</div>
+        <div>3. At each iteration call _as.isPreemptRequested().</div>
+        <div>4. If true, call _as.setPreempted() and exit the loop.</div>
+        <div>5. If loop completes, fill a result and call _as.setSucceeded(result).</div>
+      </div>
+      <div class="mt-4 rounded-lg p-3 bg-white border">
+        <div class="text-xs font-bold text-slate-700">Example scenario</div>
+        <div class="text-sm text-slate-600 mt-1">Client sends goal to count to 10. After 3 seconds the client calls cancelGoal. The server sees isPreemptRequested on the next iteration, calls setPreempted, and the client receives a done callback reporting a preempted state.</div>
+      </div>
+    </div>
+    <div class="rounded-2xl bg-white border p-6">
+      <div class="text-sm font-semibold text-slate-800">Common mistakes</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Not checking isPreemptRequested often enough — delays responding to cancel requests.</li>
+        <li>Calling setSucceeded without verifying the goal completed — hides cancellations from clients.</li>
+        <li>Assuming cancel always immediately stops work — server must cooperate by checking and acknowledging.</li>
+      </ul>
+      <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro tip</div>
+        <p class="text-xs font-medium text-slate-800">Check preemption at predictable points in your loop and make the acknowledgement explicit with setPreempted for clearer debugging.</p>
+      </div>
+    </div>
+  </div>
+</div>

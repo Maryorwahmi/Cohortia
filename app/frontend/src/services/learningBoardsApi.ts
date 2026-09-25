@@ -248,6 +248,12 @@ export interface LearningBoardPractical {
     learnerArtifact?: string;
     teacherRole?: string;
   } | null;
+  experience?: {
+    experienceType?: string;
+    workspaceFamily?: string;
+    learnerArtifact?: string;
+    requiredUi?: string[];
+  } | null;
   labType?: string | null;
   mode: string;
   sourceActivity?: string | null;

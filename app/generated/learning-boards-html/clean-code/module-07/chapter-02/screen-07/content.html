@@ -1,0 +1,57 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='card p-4 h-full'>
+    <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Refactor</div>
+    <h3 class='text-xl font-bold text-slate-900'>Customer class — after</h3>
+
+    <div class='mt-4 grid grid-cols-2 gap-4 h-full'>
+      <div class='p-3 rounded-lg bg-slate-50 border border-slate-100 min-h-0'>
+        <div class='text-sm font-semibold text-slate-800'>Refactored code (excerpt)</div>
+        <pre style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size: 13px; background:#0f172a08; padding:10px; border-radius:8px; margin-top:8px; overflow:auto;'>
+class Customer:
+  def __init__(self, name, member_status, purchases):
+    self.name = name
+    self.member_status = member_status
+    self.purchases = purchases
+
+  def _get_member_status_details(self):
+    if self.member_status == 'Gold':
+      return "Gold", 0.15, 0.20
+    elif self.member_status == 'Silver':
+      return "Silver", 0.10, 0.10
+    else:
+      return "Standard", 0.05, 0.0
+
+  def calculate_loyalty_points(self):
+    status_name, points_multiplier, _ = self._get_member_status_details()
+    print(f"[{self.name}] {status_name} member - calculating points.")
+    points = sum(self.purchases) * points_multiplier
+    return points
+
+  def apply_discount(self, total_amount):
+    status_name, _, discount_rate = self._get_member_status_details()
+    print(f"[{self.name}] {status_name} member - applying {discount_rate*100}% discount.")
+    return total_amount * (1 - discount_rate)
+        </pre>
+      </div>
+
+      <div class='p-3 rounded-lg bg-white border border-slate-100 min-h-0'>
+        <div class='text-sm font-semibold text-slate-800'>Explanation</div>
+        <ul class='list-disc list-inside text-sm text-slate-600 mt-2'>
+          <li>The membership-to-values mapping is in one place now.</li>
+          <li>Each caller requests only the value it needs, reducing duplication.</li>
+          <li>Changing tier multipliers or rates requires updating one method.</li>
+        </ul>
+
+        <div class='mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-100'>
+          <div class='text-xs font-bold uppercase tracking-wider text-emerald-700'>Pro tip</div>
+          <div class='text-sm text-slate-800 mt-2'>Prefix internal helpers with an underscore to indicate a private implementation detail.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class='mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+      <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+      <p class='text-xs font-medium text-slate-800'>A single helper reduces repetition and becomes the authoritative place for membership rules.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

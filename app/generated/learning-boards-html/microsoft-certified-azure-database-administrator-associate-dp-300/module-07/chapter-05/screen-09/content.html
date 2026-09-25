@@ -1,0 +1,38 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#ffffff;} pre.code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,monospace;}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.5</span>
+      <span>›</span>
+      <span class='text-slate-700'>Testing DDM</span>
+    </div>
+  </div>
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 rounded-xl bg-white border p-5 shadow-sm'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Step-by-step</div>
+      <ol class='list-decimal pl-5 text-sm text-slate-700 space-y-2'>
+        <li>Create the sample Sales.Customers table and insert rows.</li>
+        <li>Apply DDM rules to Email and CreditCardNumber columns.</li>
+        <li>Create login TestUser and grant SELECT on the table.</li>
+        <li>Connect as TestUser and run SELECT to observe masked values.</li>
+        <li>Connect as admin to confirm unmasked output.</li>
+      </ol>
+      <div class='mt-4 p-3 rounded-lg bg-white border'>
+        <div class='text-sm font-semibold'>Common mistake</div>
+        <div class='text-sm text-slate-600'>Granting UNMASK too broadly defeats privacy controls; grant only to roles with a clear need.</div>
+      </div>
+    </div>
+    <div class='w-1/2 rounded-xl bg-white border p-5 shadow-sm'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Example SQL snippets</div>
+      <pre class='code rounded-lg p-3 bg-slate-50 border text-sm'><code>-- Create a non-privileged test user
+CREATE LOGIN TestUser WITH PASSWORD = 'YourStrongPassword!';
+CREATE USER TestUser FOR LOGIN TestUser;
+GRANT SELECT ON Sales.Customers TO TestUser;
+
+-- Test result: connect as TestUser and run:
+SELECT CustomerID, Email, CreditCardNumber FROM Sales.Customers;</code></pre>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

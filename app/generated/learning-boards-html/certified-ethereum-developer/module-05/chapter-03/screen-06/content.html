@@ -1,0 +1,53 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="h-full grid grid-cols-2 gap-6">
+    <div class="card p-5 rounded-2xl border">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Starter Code</div>
+      <pre class="text-sm bg-slate-900 text-white rounded-md p-3 overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">import { ethers } from "ethers";
+
+let provider = null;
+let signer = null;
+let currentAccount = null;
+let currentChainId = null;
+
+async function connectWallet() {
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      currentAccount = accounts[0];
+      provider = new ethers.BrowserProvider(window.ethereum);
+      signer = await provider.getSigner();
+      const network = await provider.getNetwork();
+      currentChainId = network.chainId.toString();
+      // setupEventListeners();
+      return { account: currentAccount, chainId: currentChainId };
+    } catch (error) {
+      if (error.code === 4001) {
+        // user rejected
+      } else {
+        // other errors
+      }
+      return { account: null, chainId: null };
+    }
+  } else {
+    // wallet not detected
+    return { account: null, chainId: null };
+  }
+}</pre>
+
+      <div class="mt-4 p-3 rounded-lg bg-emerald-50">
+        <div class="text-sm font-bold text-emerald-700">Concrete example</div>
+        <div class="text-sm text-slate-700 mt-1">After user approval, currentAccount holds the first returned address and currentChainId is the numeric chain identifier, both usable in UI and validations.</div>
+      </div>
+    </div>
+
+    <div class="card p-5 rounded-2xl border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Explanation & Pitfalls</div>
+      <div class="text-sm text-slate-700 leading-relaxed">Remember to: verify accounts array length, handle the 4001 error code meaning the user declined to connect, and avoid auto-retrying prompts that annoy users. Use provider.getNetwork() to confirm the network and prompt the user to switch if necessary.</div>
+
+      <div class="mt-4 p-3 rounded-lg border-l-4 border-l-amber-500 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Instantiate provider and signer only after a successful accounts response. Then read chainId and initialize event listeners to keep state accurate.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

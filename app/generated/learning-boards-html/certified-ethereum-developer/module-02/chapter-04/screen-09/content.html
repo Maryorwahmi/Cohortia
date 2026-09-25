@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="text-sm font-semibold text-slate-600">Process Flow</div>
+    <div class="text-2xl font-bold text-slate-900">Pagination and Pull Patterns</div>
+    <div class="text-sm text-slate-600 mt-1">Design choices to manage gas for large data sets</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-sm font-bold mb-2">Pagination</div>
+      <div class="text-sm text-slate-700">Process a limited number of items per transaction. Maintain a cursor or page index and let an external actor advance pages. This ensures each transaction stays under the gas limit and is retryable if partial work succeeds.</div>
+
+      <div class="mt-3 text-sm font-bold">Example constraints</div>
+      <ul class="text-sm text-slate-700 mt-2 space-y-2">
+        <li>Define page size (e.g., 50 items)</li>
+        <li>Validate page index bounds</li>
+        <li>Emit progress events for off-chain monitoring</li>
+      </ul>
+    </div>
+
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-sm font-bold mb-2">Pull pattern</div>
+      <div class="text-sm text-slate-700">Users claim values individually, paying gas themselves. The contract keeps balances and exposes claim functions. This scales naturally because cost is distributed across claimers.</div>
+
+      <div class="mt-3 text-sm font-bold">Design notes</div>
+      <ul class="text-sm text-slate-700 mt-2 space-y-2">
+        <li>Store owed balances per user</li>
+        <li>Protect transfers with reentrancy guards</li>
+        <li>Prefer pull when the receiver is known and claimable</li>
+      </ul>
+    </div>
+  </div>
+</div>

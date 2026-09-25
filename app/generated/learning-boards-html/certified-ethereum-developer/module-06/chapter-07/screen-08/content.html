@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Fuzz testing</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex">
+    <div class="w-1/2 pr-4">
+      <div class="text-lg font-bold text-slate-800">What is fuzz testing?</div>
+      <div class="text-sm text-slate-600 mt-2">Generate randomized inputs to validate properties and find edge cases you would not write manually.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-amber-50 p-3">
+          <div class="font-bold text-amber-700">Example property</div>
+          <div class="text-xs text-slate-700 mt-1">For any valid transfer amount within balance, sender balance decreases and recipient increases by the same amount.</div>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-bold">Assumptions matter</div>
+          <div class="text-xs text-slate-700 mt-1">Use vm.assume to restrict fuzzed inputs to meaningful domains to avoid spurious failures.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Fuzz test sketch</div>
+      <pre class="mono bg-slate-900 text-white rounded-lg p-3 mt-3 h-[56%] overflow-hidden" style="white-space: pre-wrap; tab-size: 2; font-size: 13px;">function testFuzz_TransferWithRandomAmounts(address _from, address _to, uint256 _amount) public {
+  vm.assume(_from != address(0) && _to != address(0) && _from != _to);
+  myToken.mint(_from, 1000);
+  uint256 initialFrom = myToken.balanceOf(_from);
+  uint256 initialTo = myToken.balanceOf(_to);
+
+  vm.startPrank(_from);
+  if (_amount <= initialFrom) {
+    myToken.transfer(_to, _amount);
+    assertEq(myToken.balanceOf(_from), initialFrom - _amount);
+  } else {
+    vm.expectRevert("ERC20: transfer amount exceeds balance");
+    myToken.transfer(_to, _amount);
+  }
+  vm.stopPrank();
+}</pre>
+
+      <div class="mt-auto text-xs text-slate-600">Use fuzzing for functions with wide input domains and important invariants.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

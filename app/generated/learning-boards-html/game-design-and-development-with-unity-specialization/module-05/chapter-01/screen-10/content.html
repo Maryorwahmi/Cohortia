@@ -1,0 +1,85 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.9rem}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Object Pooling — Pattern and Practice</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Core implementation</div>
+      <div class="text-sm text-slate-600 mt-2">A singleton pool that pre-instantiates objects and serves them on request prevents allocations during gameplay.</div>
+
+      <div class="mt-4 bg-white rounded-lg p-3 card-border overflow-auto">
+        <div class="text-sm font-bold text-slate-900">C# example</div>
+        <pre class="mt-2"><code>using System.Collections.Generic;
+using UnityEngine;
+
+public class ObjectPool : MonoBehaviour
+{
+    public static ObjectPool Instance { get; private set; }
+
+    [SerializeField] private GameObject prefab;
+    [SerializeField] private int initialPoolSize = 10;
+
+    private Queue&lt;GameObject&gt; pool = new Queue&lt;GameObject&gt;();
+
+    void Awake()
+    {
+        if (Instance == null) Instance = this; else Destroy(gameObject);
+
+        for (int i = 0; i &lt; initialPoolSize; i++)
+        {
+            GameObject obj = Instantiate(prefab);
+            obj.SetActive(false);
+            pool.Enqueue(obj);
+        }
+    }
+
+    public GameObject GetPooledObject()
+    {
+        if (pool.Count &gt; 0)
+        {
+            GameObject obj = pool.Dequeue();
+            obj.SetActive(true);
+            return obj;
+        }
+        else
+        {
+            GameObject obj = Instantiate(prefab);
+            Debug.LogWarning("Object pool expanded at runtime. Consider increasing initialPoolSize.");
+            return obj;
+        }
+    }
+
+    public void ReturnPooledObject(GameObject obj)
+    {
+        obj.SetActive(false);
+        pool.Enqueue(obj);
+    }
+}
+</code></pre>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Pool frequently spawned, short-lived objects to avoid runtime allocation and visible GC hitches.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-900">Usage example</div>
+      <div class="text-sm text-slate-700 mt-2">Call ObjectPool.Instance.GetPooledObject() instead of Instantiate, and ObjectPool.Instance.ReturnPooledObject(myObj) instead of Destroy. Pre-warm the pool to expected peak concurrency to avoid runtime expansion.</div>
+
+      <div class="mt-4 bg-amber-50 rounded-lg p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Not caching references or repeatedly calling GetComponent in Update loops — cache components and reuse references to reduce CPU cost.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

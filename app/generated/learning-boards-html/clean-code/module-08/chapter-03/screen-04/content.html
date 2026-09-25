@@ -1,0 +1,67 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-6 h-full">
+    <div class="w-2/5 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Definition</div>
+      <div class="text-xl font-bold text-slate-900 mt-2">Immutability</div>
+      <p class="text-sm text-slate-600 mt-3">An object whose state cannot be modified after creation. Any change yields a new object.</p>
+      <div class="mt-4 space-y-2">
+        <div class="rounded-md p-3 bg-emerald-50 text-emerald-700">Predictable state: no surprises from other code</div>
+        <div class="rounded-md p-3 bg-blue-50 text-blue-700">Safe sharing: inherently thread-safe</div>
+        <div class="rounded-md p-3 bg-violet-50 text-violet-700">Easier caching: values won't mutate after caching</div>
+      </div>
+    </div>
+    <div class="w-3/5 bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Example — Python</div>
+      <div class="mt-3 bg-slate-900 text-white rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code># Mutable Point
+class MutablePoint:
+  def __init__(self, x, y):
+    self.x = x
+    self.y = y
+
+  def move(self, dx, dy):
+    self.x += dx
+    self.y += dy
+    return self
+
+p1 = MutablePoint(1, 2)
+p2 = p1
+p1.move(1, 1)
+# p2 now observes changed state
+
+# Immutable Point
+class ImmutablePoint:
+  def __init__(self, x, y):
+    self._x = x
+    self._y = y
+
+  @property
+  def x(self):
+    return self._x
+
+  @property
+  def y(self):
+    return self._y
+
+  def move(self, dx, dy):
+    return ImmutablePoint(self.x + dx, self.y + dy)
+
+p3 = ImmutablePoint(1, 2)
+p4 = p3
+p5 = p3.move(1, 1)
+# p3 and p4 remain unchanged, p5 is new
+</code></pre>
+      </div>
+      <div class="mt-3 grid grid-cols-2 gap-3">
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-xs font-bold text-slate-700">Concrete takeaway</div>
+          <div class="text-sm text-slate-600 mt-1">Prefer immutability where state sharing or concurrency exists.</div>
+        </div>
+        <div class="rounded-md p-3 bg-white card-border">
+          <div class="text-xs font-bold text-slate-700">Common mistake</div>
+          <div class="text-sm text-slate-600 mt-1">Treating returned objects as mutated references instead of new instances.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

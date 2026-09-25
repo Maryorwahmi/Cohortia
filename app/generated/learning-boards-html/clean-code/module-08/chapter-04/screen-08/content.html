@@ -1,0 +1,85 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Factory Method</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Java Example (illustrative)</div>
+      <div class="mt-3 text-sm text-slate-700">Creator defers instantiation to subclasses so clients remain decoupled from concrete products.</div>
+
+      <div class="mt-4 bg-slate-900 text-white rounded-lg overflow-hidden p-3" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px;">
+        <pre style="white-space:pre-wrap; tab-size:2; margin:0;">// Factory Method Example (Java)
+
+// 1. Product Interface
+interface Document {
+  void open();
+  void save();
+}
+
+// 2. Concrete Products
+class WordDocument implements Document {
+  public void open() { System.out.println("Opening Word Document."); }
+  public void save() { System.out.println("Saving Word Document."); }
+}
+
+class PdfDocument implements Document {
+  public void open() { System.out.println("Opening PDF Document."); }
+  public void save() { System.out.println("Saving PDF Document."); }
+}
+
+// 3. Creator Abstract Class with Factory Method
+abstract class DocumentCreator {
+  public abstract Document createDocument();
+
+  public void manageDocument() {
+    Document doc = createDocument();
+    doc.open();
+    doc.save();
+  }
+}
+
+// 4. Concrete Creators
+class WordDocumentCreator extends DocumentCreator {
+  @Override
+  public Document createDocument() { return new WordDocument(); }
+}
+
+class PdfDocumentCreator extends DocumentCreator {
+  @Override
+  public Document createDocument() { return new PdfDocument(); }
+}
+</pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <ul class="list-disc ml-5 space-y-2">
+          <li>Creators expose a factory method; subclasses decide concrete product types.</li>
+          <li>Adding a product requires a new concrete product and creator, not changes to clients.</li>
+          <li>Factory Method supports DIP by keeping clients dependent on abstractions.</li>
+        </ul>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Factory Method isolates instantiation choices so new product types can be added with minimal changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 bg-white rounded-2xl border border-[rgba(226,232,240,0.9)] p-5 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">When to choose Factory</div>
+      <div class="mt-2 text-sm text-slate-700">Use Factory Method when a class can’t anticipate the exact concrete type it must create, or when subclasses should decide the product variants.</div>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="text-sm font-semibold">Common mistake</div>
+        <div class="mt-2">Using a complex factory hierarchy for a handful of product types increases indirection. Prefer simple factories or dependency injection when appropriate.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

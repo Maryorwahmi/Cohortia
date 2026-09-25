@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--emerald:#10b981;--slate-100:rgba(226,232,240,0.9);} pre code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Approve & Commit</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-slate-100 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Approve for my organization</div>
+      <div class="mt-3 text-sm text-slate-600">Use the package ID and submit approveformyorg with the channel ID, name, version, sequence, and required flags. This transaction records your organization's approval on the channel ledger.</div>
+
+      <div class="mt-4 pre-wrap text-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Approve example</div>
+        <pre class="rounded-md bg-slate-50 p-3 text-sm overflow-auto"><code>export CC_PACKAGE_ID="YOUR_PACKAGE_ID_HERE"
+peer lifecycle chaincode approveformyorg -o localhost:7050 --tls --cafile ... --channelID mychannel --name simple_chaincode --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --init-required --waitForEvent</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-6 border border-slate-100 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Check readiness and commit</div>
+      <div class="mt-3 text-sm text-slate-600">Run checkcommitreadiness to confirm needed approvals. If readiness is satisfied, submit the commit transaction that activates the chaincode definition on the channel.</div>
+
+      <div class="mt-4 pre-wrap text-sm">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Check and commit</div>
+        <pre class="rounded-md bg-slate-50 p-3 text-sm overflow-auto"><code>peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name simple_chaincode --version 1.0 --sequence 1 --init-required --output json
+# after approvals
+peer lifecycle chaincode commitchanneldefinition -o localhost:7050 --tls --cafile ... --channelID mychannel --name simple_chaincode --version 1.0 --sequence 1 --init-required --peerAddresses localhost:7051 --tlsRootCertFiles ...</code></pre>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Approvals record organizational consent; commit only after readiness checks to ensure the chaincode definition is agreed upon.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

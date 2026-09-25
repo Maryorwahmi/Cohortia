@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#f8fafc;">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+    <span>›</span>
+    <span class="text-slate-700">storage / memory / calldata</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Storage</div>
+      <div class="text-sm text-slate-600 mt-2">Persistent state variables live here and remain on-chain between transactions. Writing to storage is expensive.</div>
+      <div class="mt-4 rounded-lg p-3 bg-amber-50">
+        <div class="text-xs font-bold text-amber-700">Example</div>
+        <div class="text-sm text-slate-700 mt-1">uint[] public numbers; // stored on-chain</div>
+      </div>
+
+      <div class="mt-4 text-xs text-rose-600 font-bold">Mistake to avoid</div>
+      <div class="text-sm text-slate-600 mt-1">Overwriting large storage structures in a single transaction without considering gas limits.</div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm h-full flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Memory and Calldata</div>
+      <div class="text-sm text-slate-600 mt-2">Memory exists only during calls and is cheaper than storage. Calldata is read-only and cheapest for external inputs because it avoids copies.</div>
+      <div class="mt-4 grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3 bg-violet-50">
+          <div class="text-xs font-bold text-violet-700">Calldata Example</div>
+          <div class="text-sm text-slate-700 mt-1">function submit(string calldata s) external { /* read s without copying */ }</div>
+        </div>
+        <div class="rounded-lg p-3 bg-blue-50">
+          <div class="text-xs font-bold text-blue-700">Memory Example</div>
+          <div class="text-sm text-slate-700 mt-1">function copy(string memory s) internal { /* temporary copy for manipulation */ }</div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Prefer calldata for external read-only inputs, memory for temporary in-call data, storage for persistent state.</p>
+      </div>
+    </div>
+  </div>
+</div>

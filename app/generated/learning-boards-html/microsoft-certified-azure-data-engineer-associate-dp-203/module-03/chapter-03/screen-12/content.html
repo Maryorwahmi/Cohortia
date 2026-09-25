@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card{background:white;border-radius:12px;border:1px solid rgba(226,232,240,0.9);}.step{font-weight:600}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity Walkthrough</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card p-4">
+      <div class="text-sm font-bold text-slate-800">Steps</div>
+      <ol class="mt-3 list-decimal ml-5 text-sm text-slate-700 space-y-3">
+        <li><span class="step">Provision:</span> Create a Cosmos DB account using Core (SQL) API and note endpoint and key.</li>
+        <li><span class="step">Create:</span> Make a database and a container with partition_key set to a property like /category or /city.</li>
+        <li><span class="step">Insert:</span> Upsert several sample JSON documents with varied partition key values.</li>
+        <li><span class="step">Measure:</span> Perform read_item with id and partition_key and record x-ms-request-charge.</li>
+        <li><span class="step">Compare:</span> Run a single-partition query, then a cross-partition query with enable_cross_partition_query=True and compare RU charges.</li>
+      </ol>
+    </div>
+
+    <div class="card p-4 flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Expected observations</div>
+      <ul class="text-sm text-slate-700 mt-3 list-disc ml-5 space-y-2">
+        <li>Point reads should consume the fewest RUs.</li>
+        <li>Single-partition queries have moderate RU cost.</li>
+        <li>Cross-partition queries consume the most RUs and may be throttled if throughput is limited.</li>
+      </ul>
+
+      <div class="mt-4 text-sm font-semibold text-slate-700">Pitfalls to avoid</div>
+      <div class="text-sm text-slate-600 mt-2">Do not hard-code secrets in scripts. Use environment variables. Also avoid creating containers with low-cardinality partition keys that concentrate traffic.</div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Hands-on measurement of RU charges is the most reliable way to understand cost and to guide partition and query design decisions.</p>
+      </div>
+    </div>
+  </div>
+</div>

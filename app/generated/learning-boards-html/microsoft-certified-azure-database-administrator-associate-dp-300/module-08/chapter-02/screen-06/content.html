@@ -1,0 +1,63 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.2</span>
+    <span>›</span>
+    <span class="text-slate-700">BACPAC Steps</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 flex-grow">
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Export steps</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Create the BACPAC</div>
+      <ol class="mt-3 text-sm text-slate-700 space-y-2">
+        <li>Use SSMS: Tasks → Export Data-tier Application and follow the wizard.</li>
+        <li>Or use sqlpackage.exe /Action:Export to generate a .bacpac file.</li>
+        <li>Validate the file locally before uploading.</li>
+      </ol>
+
+      <div class="mt-4 text-sm text-slate-700">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Common mistake</div>
+        <div class="mt-1">Quiescing only partially or exporting while heavy DML is running can produce inconsistent snapshots.</div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Import via CLI</div>
+      <div class="text-lg font-bold text-slate-900 mt-2">Azure CLI pattern</div>
+
+      <div class="mt-3 bg-slate-800 text-slate-50 rounded-md p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code># Example import command (replace placeholders)
+az sql db import \
+  --resource-group &lt;your-resource-group-name&gt; \
+  --server &lt;your-azure-sql-server-name&gt; \
+  --name AdventureWorksLT_Migrated \
+  --storage-key-type SharedAccessKey \
+  --storage-key "&lt;your-sas-token-for-blob&gt;" \
+  --storage-uri "https://&lt;your-storage-account-name&gt;.blob.core.windows.net/bacpac-files/AdventureWorksLT.bacpac" \
+  --admin-user &lt;azure-sql-server-admin-login&gt; \
+  --admin-password &lt;azure-sql-server-admin-password&gt; \
+  --service-objective S0
+</code></pre>
+      </div>
+
+      <div class="mt-3 text-sm text-slate-700">Replace placeholders and run in Cloud Shell or a logged-in CLI. Monitor the operation until completion and validate the result in SSMS or Azure Data Studio.</div>
+    </div>
+  </div>
+
+  <div class="mt-6 grid grid-cols-3 gap-4">
+    <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Example check</div>
+      <div class="text-sm text-slate-700 mt-1">Connect to the migrated database and compare row counts for key tables.</div>
+    </div>
+    <div class="rounded-xl bg-white p-3 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-amber-600">Pro tip</div>
+      <div class="text-sm text-slate-700 mt-1">Test the full export/upload/import flow in a disposable environment to surface access issues early.</div>
+    </div>
+    <div class="rounded-xl p-3 border-l-4 border-l-emerald-500 bg-emerald-50">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Ensure the SAS token and storage access work before starting the import to avoid failed imports and wasted time.</p>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

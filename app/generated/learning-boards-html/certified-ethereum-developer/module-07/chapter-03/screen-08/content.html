@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white border p-4 shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Code Walkthrough</div>
+      <div class="text-lg font-bold text-slate-900 mb-2">Forge scripts in Solidity</div>
+      <div class="text-sm text-slate-600">Scripts inherit Script.sol and use vm helpers to control broadcasting.</div>
+      <pre class="mt-3 bg-slate-900 text-slate-100 p-3 rounded text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>// script/DeployGreeter.s.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "forge-std/Script.sol";
+import "../src/Greeter.sol";
+
+contract DeployGreeter is Script {
+  function run() public returns (Greeter greeter) {
+    // Start broadcasting transactions from the configured deployer
+    vm.startBroadcast();
+
+    greeter = new Greeter("Hello, Foundry!");
+
+    vm.stopBroadcast();
+  }
+}
+</code></pre>
+    </div>
+    <div class="rounded-xl bg-white border p-4 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Explanation & pitfalls</div>
+      <ul class="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-2">
+        <li>vm.startBroadcast marks when transactions are signed and sent.</li>
+        <li>Without --broadcast, forge script only simulates actions locally.</li>
+        <li>Private keys are read from FOUNDRY_PRIVATE_KEY or CLI args; never hardcode keys.</li>
+      </ul>
+      <div class="mt-4 rounded-lg bg-amber-50 p-3 border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Pro Tip</div>
+        <div class="text-sm text-amber-800 mt-1">Simulate with high verbosity before broadcasting; use -vvvv to inspect transaction steps.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

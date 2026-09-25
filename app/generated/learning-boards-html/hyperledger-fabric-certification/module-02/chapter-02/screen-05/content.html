@@ -1,0 +1,73 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--amber:#f5a623;--slate-100:rgba(226,232,240,0.9);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Module 2</span>
+    <span>›</span>
+    <span>Chapter 2.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Transaction Ordering Lifecycle</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4 h-full">
+    <div class="col-span-7 rounded-2xl bg-white border p-4" style="border-color:var(--slate-100);">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Process</div>
+      <h3 class="text-xl font-bold text-slate-900">Endorse to Commit: five steps</h3>
+      <div class="mt-3 flex flex-col gap-3 h-full">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center font-bold text-blue-700">1</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Client gathers endorsements</div>
+            <div class="text-sm text-slate-600 mt-1">Peers execute chaincode proposals and sign responses; no state is committed yet.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center font-bold text-blue-700">2</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Client submits endorsed tx to orderer</div>
+            <div class="text-sm text-slate-600 mt-1">The orderer accepts complete endorsed transactions for sequencing.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center font-bold text-blue-700">3</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Orderer sequences and batches</div>
+            <div class="text-sm text-slate-600 mt-1">Transactions are ordered deterministically and grouped into blocks by size or timeout.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center font-bold text-blue-700">4</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Block signed and broadcast</div>
+            <div class="text-sm text-slate-600 mt-1">Orderer signs the block and broadcasts it to subscribing committing peers on the channel.</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center font-bold text-blue-700">5</div>
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Peers validate and commit</div>
+            <div class="text-sm text-slate-600 mt-1">Each peer validates transactions, appends the block to the ledger, and updates world state where valid.</div>
+          </div>
+        </div>
+
+        <div class="mt-auto rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Performance note</div>
+          <p class="text-xs font-medium text-slate-800">Block size and timeout tuning affect throughput and latency; larger blocks increase throughput but can add commit latency for individual transactions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white border p-4" style="border-color:var(--slate-100);">
+      <div class="text-sm font-semibold text-slate-800">Concrete example</div>
+      <div class="text-sm text-slate-600 mt-2">A client submits a payment transaction after collecting endorsements. The orderer batches it with other transactions, signs the block, and peers validate the payment against endorsement policy and versioning checks before committing.</div>
+
+      <div class="mt-4 rounded-lg p-3 bg-white border" style="border-color:var(--slate-100);">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">Ordering guarantees sequence but not semantic correctness. If endorsement policy is wrong, invalid transactions can be rejected at peer validation despite being ordered.</div>
+      </div>
+    </div>
+  </div>
+</div>

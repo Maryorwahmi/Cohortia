@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">Hands-on Activity</span>
+      <span class="text-slate-700">Secure the Lambda</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-900">Secure the function and verify</div>
+    <div class="text-sm text-slate-600 mt-1">Apply Secrets Manager and least-privilege IAM, then run verification tests.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-2xl bg-white p-4 border border-slate-100 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Secure code (secure_lambda.py)</div>
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-xs" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+import json
+import boto3
+
+secrets_client = boto3.client('secretsmanager')
+SECRET_NAME = "my-app-api-key"
+cached_secret = None
+
+def get_api_key():
+    global cached_secret
+    if cached_secret is None:
+        response = secrets_client.get_secret_value(SecretId=SECRET_NAME)
+        if 'SecretString' in response:
+            secret = json.loads(response['SecretString'])
+            cached_secret = secret['api_key']
+    return cached_secret
+
+def lambda_handler(event, context):
+    if 'queryStringParameters' in event and 'name' in event['queryStringParameters']:
+        name = event['queryStringParameters']['name']
+        if not name.isalpha():
+            return {'statusCode': 400, 'body': json.dumps({'message': 'Invalid input: name must be alphabetic'})}
+    api_key = get_api_key()
+    # Use api_key for secure operations without revealing it
+    return {'statusCode': 200, 'body': json.dumps({'message': 'Hello from secure Lambda! API key retrieved securely.'})}
+      </pre>
+    </div>
+
+    <div class="w-1/3 rounded-2xl bg-white p-4 border border-slate-100 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">IAM policy (inline) highlights</div>
+      <pre class="bg-slate-100 rounded-lg p-3 text-sm text-slate-800" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+{
+  "Statement": [
+    {"Effect":"Allow","Action":["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"],"Resource":"arn:aws:logs:*:*:*"},
+    {"Effect":"Allow","Action":"secretsmanager:GetSecretValue","Resource":"<Secret_ARN>"}
+  ]
+}
+      </pre>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">After deployment verify CloudWatch logs show masked retrievals, validation rejects bad input, and the function role cannot perform broader actions.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

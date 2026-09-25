@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:13px;padding:12px;border-radius:8px;background:#0f172a;color:#e6eef8}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">IsValid & Safety</span>
+  </div>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 h-full">
+      <div class="rounded-2xl bg-white p-6 card-border h-full">
+        <div class="font-semibold text-slate-800 mb-3">When to IsValid</div>
+        <ul class="text-sm text-slate-700 space-y-2">
+          <li>After Create Widget before binding or adding to viewport.</li>
+          <li>Before calling functions on references that may be destroyed.</li>
+          <li>When a reference is set externally or depends on network state.</li>
+        </ul>
+        <div class="mt-4 text-sm text-slate-600">Avoid overusing IsValid inside every node; place checks where ownership or lifecycle boundaries are crossed.</div>
+      </div>
+    </div>
+    <div class="w-1/2 h-full flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-6 card-border h-1/2">
+        <div class="font-semibold text-slate-800 mb-2">Blueprint snippet</div>
+        <pre><code>// In BP_MyGameMode Graph
+// Event BeginPlay
+//      |
+//      V
+//   Create Widget (Class: WBP_MainMenu)
+//      |
+//      V
+//   IsValid? (Target: Return Value from Create Widget)
+//      | (Is Valid)
+//      V
+//   Set MainMenuRef (Variable)
+//      |
+//      V
+//   // ... rest of your binding and Add to Viewport logic ...
+//
+//      ^ (Is Not Valid)
+//      |
+//   Print String (Text: "Error: Main Menu Widget failed to create!")</code></pre>
+      </div>
+      <div class="rounded-xl bg-white p-4 card-border h-1/2">
+        <div class="font-semibold text-slate-800">Check your understanding</div>
+        <p class="text-sm text-slate-600">If a cast succeeds but the object later gets destroyed, IsValid is still necessary before using the reference. Where would you place validation in your project?</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

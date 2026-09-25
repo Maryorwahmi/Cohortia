@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Deploy Script</span>
+  </div>
+
+  <div class="rounded-xl bg-white border p-5 h-full flex">
+    <div class="w-3/4 pr-4">
+      <div class="text-sm font-bold text-slate-800">Example deploy.js</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-lg text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2;"><code>const hre = require("hardhat");
+
+async function main() {
+  const MyContract = await hre.ethers.getContractFactory("MyContract");
+  const myContract = await MyContract.deploy();
+  await myContract.waitForDeployment();
+
+  console.log(`MyContract deployed to: ${myContract.target}`);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+</code></pre>
+
+      <div class="mt-4 text-sm text-slate-600">After running the script with --network localhost, copy the printed address into your .env.local as NEXT_PUBLIC_CONTRACT_ADDRESS and ensure the frontend imports the contract ABI from contracts/.</div>
+    </div>
+
+    <div class="w-1/4 pl-4 flex flex-col gap-3">
+      <div class="rounded-xl p-3 bg-white border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Verification</div>
+        <div class="text-sm text-slate-700 mt-2">Call a read-only method like greeting in the deployed MyContract from the frontend and confirm the returned value matches the contract state.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-xs font-medium text-slate-800">Automate address propagation to the frontend with a small script that writes .env.local after deployment during local CI or dev workflows.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

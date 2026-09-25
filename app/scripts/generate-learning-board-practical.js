@@ -32,10 +32,11 @@ import { fileURLToPath } from "node:url";
 import { sourceHashFor } from "../backend/src/lib/practicalIdentity.js";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
 import { classifyActivity } from "./lib/hands-on-activity-source.js";
+import { profileFor, profileSchema } from "./lib/practical-experience-profiles.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GENERATOR_VERSION = "phase4.2";
+const GENERATOR_VERSION = "phase5.0-experience-profiles";
 const CLASSIFIER_VERSION = "phase3.1";
 const SOURCE_CATEGORIES = [
   "Cloud Console Lab",
@@ -453,11 +454,11 @@ ${sourceContext?.lessonChapter?.raw || "(lesson source unavailable)"}
 `;
 }
 
-async function callGemini({ model, prompt }) {
+async function callGemini({ model, prompt, responseSchema = PRACTICAL_SCHEMA }) {
   const result = await generateCompleteJson({
     prompt,
     systemPrompt: "",
-    responseSchema: PRACTICAL_SCHEMA,
+    responseSchema,
     maxTokens: 65536,
     temperature: 0.35,
     model
@@ -794,6 +795,7 @@ function normalizePractical(raw, sourceContext, metadata) {
   if (!raw || typeof raw !== "object") throw new Error("Generated practical must be an object.");
 
   const labType = inferLabType(raw, sourceContext);
+  const experienceProfile = profileFor({ category: sourceContext.source.category, labType });
   const language = inferLanguage(raw, sourceContext, labType);
   const title = raw.title || sourceContext.activityTitle || `Practical ${sourceContext.source.sourceKey}`;
   const instructions = raw.instructions || sourceContext.activityChapter.handsOnActivity;
@@ -943,11 +945,27 @@ function normalizePractical(raw, sourceContext, metadata) {
     practicalId: `practical-${metadata.courseId}-m${metadata.moduleNumber}-c${metadata.chapterNumber}`,
     source: sourceContext.source,
     category: sourceContext.source.category,
+    experienceType: experienceProfile.experienceType,
+    categoryProfile: {
+      experience: experienceProfile.experienceType,
+      workspaceFamily: experienceProfile.workspaceFamily,
+      defaultMode: experienceProfile.defaultMode,
+      learnerArtifact: experienceProfile.learnerArtifact,
+      teacherRole: raw.teacher?.role || "supportive practical mentor",
+    },
+    experience: {
+      experienceType: experienceProfile.experienceType,
+      workspaceFamily: experienceProfile.workspaceFamily,
+      learnerArtifact: raw.experience?.learnerArtifact || experienceProfile.learnerArtifact,
+      requiredUi: experienceProfile.requiredUi,
+    },
     title,
     summary: raw.summary || "",
     level: raw.level || sourceContext.level || undefined,
     labType,
-    mode: modeForLabType(labType, raw.mode),
+    mode: experienceProfile.experienceType === "terminal_coding_lab"
+      ? modeForLabType(labType, raw.mode)
+      : experienceProfile.defaultMode,
     widgetType: typeof raw.widgetType === "string" ? raw.widgetType : undefined,
     language,
     runtime: raw.runtime || undefined,
@@ -1436,7 +1454,11 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
       lessonHash: sourceContext.lessonHash,
     };
 
-    const prompt = buildGeminiPrompt(promptTemplate, chapterData, metadata, sourceContext);
+    const inferredLabType = inferLabType({}, sourceContext);
+    const experienceProfile = profileFor({ category: sourceContext.source.category, labType: inferredLabType });
+    const experienceBrief = `\n\nEXPERIENCE PROFILE (AUTHORITATIVE)\n==================================\nExperience: ${experienceProfile.experienceType}\nWorkspace family: ${experienceProfile.workspaceFamily}\nLearner artifact: ${experienceProfile.learnerArtifact}\nRequired learner UI: ${experienceProfile.requiredUi.join(", ")}\n\n${experienceProfile.prompt}\n\nReturn an \"experience\" object that exactly matches this profile. Do not substitute another experience family.`;
+    const prompt = `${buildGeminiPrompt(promptTemplate, chapterData, metadata, sourceContext)}${experienceBrief}`;
+    const responseSchema = profileSchema(PRACTICAL_SCHEMA, experienceProfile);
 
     if (options["dry-run"] === true) {
       console.log(JSON.stringify({
@@ -1444,6 +1466,7 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
         source: sourceContext.source,
         lessonSourcePath: sourceContext.lessonSourcePath,
         lessonHash: sourceContext.lessonHash,
+        experienceType: experienceProfile.experienceType,
         promptCharacters: prompt.length,
       }, null, 2));
       return;
@@ -1455,7 +1478,7 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
       const mockDocument = JSON.parse(await fs.readFile(mockResponsePath, "utf8"));
       result = { success: true, data: mockDocument.data && mockDocument.success !== undefined ? mockDocument.data : mockDocument };
     } else {
-      result = await callGemini({ model, prompt });
+      result = await callGemini({ model, prompt, responseSchema });
     }
 
     if (!result || !result.success) {

@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--emerald:#10b981} pre{white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; font-size:0.9rem;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Module 11</span>
+      <span>›</span>
+      <span>Chapter 10.9</span>
+      <span>›</span>
+      <span class="text-slate-700">Design Experiment</span>
+    </div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Checklist</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-600">
+        <li>State a clear hypothesis about steady-state metrics.</li>
+        <li>Choose a small blast radius and a target service.</li>
+        <li>Use controlled tools to inject latency or failures.</li>
+        <li>Observe metrics and logs across the topology.</li>
+        <li>Verify, learn, remediate, and document.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Small, repeatable experiments with clear metrics are more valuable than infrequent large tests.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Tool example (conceptual)</div>
+      <pre class="rounded-lg bg-slate-50 p-3 border border-[rgba(226,232,240,0.9)]">
+# Create a proxy for InventoryService
+toxiproxy-cli create inventory-proxy -l 0.0.0.0:8081 -u inventory-service:8080
+# Add latency to simulate slowness
+toxiproxy-cli toxic add inventory-proxy -t latency -a latency=2000 -a jitter=500
+# Simulate down (connection timeout)
+toxiproxy-cli toxic add inventory-proxy -t timeout -a timeout=1000 -a up=false
+      </pre>
+      <div class="text-sm text-slate-600 mt-3">Using a proxy lets the PaymentService call a proxy endpoint while you alter network behavior without changing service code.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

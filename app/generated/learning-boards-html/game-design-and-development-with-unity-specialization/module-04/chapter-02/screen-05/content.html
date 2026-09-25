@@ -1,0 +1,64 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Controller Setup</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Step-by-step</div>
+      <ol class="list-decimal pl-5 mt-3 text-sm text-slate-700 space-y-3">
+        <li>Create a Capsule and rename to Player. Add CharacterController and match height/radius to model.</li>
+        <li>Create PlayerMovement script and attach it. In Start, cache controller reference and disable if missing.</li>
+        <li>In Update read Move input, compute camera-relative forward and right, zero out y, normalize, apply moveSpeed.</li>
+        <li>Handle grounding via controller.isGrounded, apply manual gravity each frame, and set jump impulse when requested.</li>
+        <li>Combine horizontal and vertical motion, call controller.Move(movement * Time.deltaTime).</li>
+      </ol>
+
+      <div class="mt-4 text-xs text-slate-500 uppercase tracking-wider">Pro tip</div>
+      <div class="text-sm text-slate-700 mt-2">Use a small negative vertical velocity when grounded to keep the controller snapped to slopes and avoid floating.</div>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Visual checklist and example</div>
+      <div class="text-sm text-slate-600 mt-2">A short run through to verify each step in the editor and play mode.</div>
+
+      <div class="mt-3 rounded-lg bg-slate-50 p-3 mono" style="flex:1; overflow:auto">
+&lt;!-- Example code snippet (escaped) --&gt;
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+  public float moveSpeed = 5f;
+  public float jumpForce = 8f;
+  public float gravity = -20f;
+
+  private CharacterController controller;
+  private float verticalVelocity;
+
+  void Start()
+  {
+    controller = GetComponent&lt;CharacterController&gt;();
+    if (controller == null) { enabled = false; }
+  }
+
+  void Update() { /* compute input, gravity, and controller.Move() here */ }
+}
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-emerald-700">Example test</div>
+          <div class="text-sm text-slate-700 mt-1">Press WASD and Space: character should walk and jump then return to ground without drifting.</div>
+        </div>
+        <div class="rounded-md bg-rose-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-rose-600">Pitfall</div>
+          <div class="text-sm text-slate-700 mt-1">Calling controller.Move with incorrect delta scaling can produce inconsistent speeds across frame rates; multiply by Time.deltaTime.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

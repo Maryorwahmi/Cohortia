@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border { border: 1px solid rgba(226,232,240,0.9); } pre code { white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">CI/CD Pipeline</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6 h-full">
+    <div class="col-span-7 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Process Flow</div>
+      <h3 class="text-2xl font-bold text-slate-900 mt-2">A typical CI/CD pipeline targeting a managed cluster</h3>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 rounded-lg border bg-white">
+          <div class="text-sm font-semibold text-slate-800">1. Code Commit & CI</div>
+          <div class="text-sm text-slate-600 mt-2">Run unit and integration tests, build and tag a Docker image, and push to a registry using a commit SHA or build number.</div>
+        </div>
+
+        <div class="p-3 rounded-lg border bg-white">
+          <div class="text-sm font-semibold text-slate-800">2. CD Trigger & Deploy</div>
+          <div class="text-sm text-slate-600 mt-2">Update manifests or Helm charts to reference the new tag and apply them to the managed cluster. Use rolling updates or Helm upgrades for minimal disruption.</div>
+        </div>
+
+        <div class="p-3 rounded-lg border bg-white">
+          <div class="text-sm font-semibold text-slate-800">3. Post-deploy verification</div>
+          <div class="text-sm text-slate-600 mt-2">Run smoke tests and health checks, then inspect logs and metrics. Fail the pipeline if verification fails.</div>
+        </div>
+
+        <div class="p-3 rounded-lg border bg-white">
+          <div class="text-sm font-semibold text-slate-800">4. Observability & rollback</div>
+          <div class="text-sm text-slate-600 mt-2">Monitor performance and use rollout history to roll back if needed. Automate alerts for anomalies.</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600">
+        <div class="font-semibold text-slate-800">Misconception check</div>
+        <p class="mt-2">Pipelines must authenticate to the managed cluster; they do not automatically inherit access. Ensure CI/CD credentials use least-privilege accounts and that the pipeline can configure kubectl or Helm securely.</p>
+      </div>
+    </div>
+
+    <div class="col-span-5 rounded-2xl bg-white p-4 card-border shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Concrete example</div>
+      <p class="text-sm text-slate-600 mt-2">A pipeline pushes an image tagged with the commit SHA, then runs a command to instruct Kubernetes to use that image and waits for rollout completion.</p>
+
+      <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 overflow-auto"><code># Example pipeline commands
+# Update deployment image using an environment variable IMAGE_TAG
+kubectl set image deployment/my-app-deployment my-app-container=myregistry/my-app:${IMAGE_TAG} -n default
+kubectl rollout status deployment/my-app-deployment -n default</code></pre>
+
+      <div class="mt-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <div class="text-xs font-medium text-slate-800">Automate both the deploy and the verification steps so the pipeline fails fast if the rollout does not become healthy.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

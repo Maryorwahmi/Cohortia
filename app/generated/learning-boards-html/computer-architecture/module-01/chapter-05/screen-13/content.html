@@ -1,0 +1,45 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code{background:#0b1220;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+    <span>›</span>
+    <span>Chapter 1.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Hands-on: Amdahl Choices</span>
+  </div>
+  <div class="rounded-2xl bg-white p-5 card shadow-sm h-full grid grid-cols-2 gap-4">
+    <div class="p-3 bg-white border rounded-lg">
+      <div class="font-semibold text-slate-800">Problem statement</div>
+      <div class="text-sm text-slate-700 mt-2">Breakdown: integer 30%, FP 20%, memory 30%, branches 20%. Options: A 2× integer, B 4× FP, C 2× memory, D 3× branch predictor. Calculate net speedups and compare.</div>
+      <div class="mt-3 code">
+        <pre style="white-space:pre-wrap;tab-size:2;margin:0;"><code>// Formula
+// Speedup = 1 / ((1 - f) + f / s)
+
+// Option A: integer 2x
+// f=0.3, s=2 → 1 / (0.7 + 0.15) = 1 / 0.85 = 1.176×
+
+// Option B: FP 4x
+// f=0.2, s=4 → 1 / (0.8 + 0.05) = 1 / 0.85 = 1.176×
+
+// Option C: memory 2x
+// f=0.3, s=2 → 1 / 0.85 = 1.176×
+
+// Option D: branch 3x
+// f=0.2, s=3 → 1 / (0.8 + 0.0667) = 1 / 0.8667 ≈ 1.154×
+</code></pre>
+      </div>
+    </div>
+    <div class="p-3 bg-white border rounded-lg flex flex-col">
+      <div class="font-semibold text-slate-800">Interpretation and combined case</div>
+      <div class="text-sm text-slate-700 mt-2">Options A, B, and C are tied here because their f × effect produces similar overall gain. A higher local s on a small fraction may not beat a moderate s on a larger fraction. For combined improvements, compute combined denominator as (1 - total_f) + sum(f_i / s_i) for all improved fractions; the result is bounded by the parts you didn't improve.</div>
+      <div class="mt-3 rounded-lg p-3 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common pitfall</div>
+        <div class="text-sm text-slate-700 mt-1">Assuming independence of improvements. Some optimizations interact, so measure or model combined effects carefully.</div>
+      </div>
+      <div class="mt-3 rounded-lg p-3 bg-emerald-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <div class="text-sm text-slate-800 mt-1">Always compute numeric net speedups and normalize by cost or complexity. Fraction and independence determine the true return.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

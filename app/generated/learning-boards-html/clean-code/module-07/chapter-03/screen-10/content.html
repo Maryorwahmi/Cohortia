@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-3"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500"><span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">Code Walkthrough</span><span class="text-slate-700">Parameter Object</span></div>
+    <h3 class="text-2xl font-bold text-slate-900 mt-3">ReportCriteria in use</h3>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-xl bg-white p-4 card">
+      <div class="text-sm font-semibold text-slate-800">Dataclass usage</div>
+      <pre class="code mt-2"># create criteria and call
+report_criteria = ReportCriteria(
+    start_date='2023-01-01',
+    end_date='2023-01-31',
+    region='North',
+    product_category='Electronics',
+    min_sales_amount=100,
+    include_tax=True,
+    currency_symbol='$'
+)
+
+generator.generate_sales_report(report_criteria)</pre>
+    </div>
+
+    <div class="rounded-xl bg-white p-4 card">
+      <div class="text-sm font-semibold text-slate-800">Helper signature example</div>
+      <pre class="code mt-2">def _fetch_and_filter_sales(self, criteria: ReportCriteria):
+    raw_sales = self.data_source.fetch_sales_data(criteria.start_date, criteria.end_date)
+    filtered_sales = [
+        sale for sale in raw_sales
+        if sale['region'] == criteria.region and sale['category'] == criteria.product_category
+    ]
+    return filtered_sales</pre>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl bg-white p-3 card border-l-4 border-l-emerald-500">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <div class="text-sm text-slate-800">A dataclass clarifies intent at call sites and reduces parameter-order mistakes while keeping helpers focused.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,67 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light' style='background:#f8fafc'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Process Flow</span>
+    <span>›</span>
+    <span class='text-slate-700'>Basic Redis operations in Python</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-1/2 card p-4 flex flex-col'>
+      <div class='font-bold text-slate-800'>Code example</div>
+      <div class='text-sm text-slate-600 mt-2'>Use the official redis client and TLS for Azure Cache for Redis. The code below demonstrates the common calls you'll use in a small script.</div>
+
+      <pre class='mt-3 p-3 rounded-md bg-slate-900 text-slate-100 overflow-auto' style='font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; white-space: pre-wrap; tab-size:2;'>import os
+import redis
+
+# Configuration
+REDIS_HOST = os.environ.get('REDIS_HOST', 'your-redis-cache.redis.cache.windows.net')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', 6380))
+REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD', 'YOUR_REDIS_PRIMARY_KEY')
+
+try:
+  r = redis.StrictRedis(host=REDIS_HOST,
+                        port=REDIS_PORT,
+                        password=REDIS_PASSWORD,
+                        ssl=True)
+
+  # Set and get
+  r.set('product:101', 'Laptop Pro X')
+  product_name = r.get('product:101')
+  if product_name:
+    print('Retrieved product: ', product_name.decode('utf-8'))
+
+  # Set with expiration
+  r.setex('temp_report:123', 60, 'Report content')
+
+  # Check existence and delete
+  if r.exists('temp_report:123'):
+    r.delete('product:101')
+
+except Exception as e:
+  print('Error connecting or operating with Redis:', e)</pre>
+    </div>
+
+    <div class='w-1/2 card p-4 flex flex-col justify-between'>
+      <div>
+        <div class='text-sm font-bold text-slate-800'>Explanation and best practices</div>
+        <ul class='mt-2 list-disc ml-5 text-sm text-slate-700'>
+          <li>Always use secure credentials and TLS for production connections.</li>
+          <li>Use setex for predictable expiration and explicit deletes after source updates.</li>
+          <li>Keep keys small and named consistently for easy invalidation.</li>
+        </ul>
+      </div>
+
+      <div class='mt-4 grid grid-cols-1 gap-3'>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1'>Key Takeaway</div>
+          <p class='text-xs font-medium text-slate-800'>A few Redis commands cover most caching needs: set, get, setex, exists, and delete. Protect keys and credentials.</p>
+        </div>
+
+        <div class='p-3 rounded-md bg-rose-50 text-rose-700'>
+          <div class='text-xs font-bold uppercase tracking-wider'>Misconception</div>
+          <div class='text-sm text-slate-800 mt-1'>Expiry is exact to the second; build tolerant checks and do not depend on millisecond-level expiry alignment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

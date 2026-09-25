@@ -1,0 +1,62 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .cohortia-bg{background:#fbfdff;} .card-border{border:1px solid rgba(226,232,240,0.95);} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Representing schema</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">SSDT → .dacpac (Azure SQL)</div>
+        <div class="text-sm text-slate-600 mt-2">Author schema in a Visual Studio SQL project; CI compiles it into a .dacpac which becomes the deployment artifact.</div>
+
+        <div class="mt-3 text-xs font-bold text-slate-600">Repository layout tip</div>
+        <ul class="list-disc pl-4 text-sm text-slate-700 mt-2">
+          <li>src/MyDatabaseProject/*.sql</li>
+          <li>PublishProfiles/*.publish.xml</li>
+          <li>azure-pipelines.yml</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Migration scripts (PostgreSQL / MySQL)</div>
+        <div class="text-sm text-slate-600 mt-2">Keep ordered, versioned scripts or use Flyway/Liquibase. CI validates by linting or executing scripts against a temporary database.</div>
+      </div>
+
+      <div class="mt-2 rounded-xl bg-amber-50 p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+        <div class="text-sm text-slate-700 mt-1">SSDT is not required for PostgreSQL; the essential practice is versioned, validated artifacts, whatever the toolchain.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col">
+      <div class="rounded-xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Architecture snapshot</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-white card-border">
+            <div class="text-[11px] font-bold text-slate-600">Developer</div>
+            <div class="text-sm text-slate-700 mt-1">Edits SSDT or migration scripts, commits to Git.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white card-border">
+            <div class="text-[11px] font-bold text-slate-600">CI</div>
+            <div class="text-sm text-slate-700 mt-1">Builds .dacpac or validates scripts and publishes artifacts.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white card-border">
+            <div class="text-[11px] font-bold text-slate-600">Artifact</div>
+            <div class="text-sm text-slate-700 mt-1">.dacpac or migration-scripts artifact.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-white card-border">
+            <div class="text-[11px] font-bold text-slate-600">CD</div>
+            <div class="text-sm text-slate-700 mt-1">Deploys schema, then runs post-deploy scripts if needed.</div>
+          </div>
+        </div>
+
+        <div class="mt-4 text-sm text-slate-700">Concrete example: SSDT compiles a .dacpac; CD uses SqlAzureDacpacDeployment@1 to compare the .dacpac to the target database and generate a safe deployment script that preserves data where possible.</div>
+      </div>
+    </div>
+  </div>
+</div>

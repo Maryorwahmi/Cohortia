@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="text-sm font-semibold text-slate-600">Comparison</div>
+    <div class="text-2xl font-bold text-slate-900">Storage vs Memory Iteration</div>
+    <div class="text-sm text-slate-600 mt-1">Cost grows fast when loops read/write storage</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-sm font-bold mb-2">Memory / Calldata loops</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Caller supplies data; contract iterates a memory array.</li>
+        <li>Gas cost proportional to provided size; predictable if you limit input size.</li>
+        <li>Good for small aggregation tasks like summing a short array.</li>
+      </ul>
+    </div>
+
+    <div class="card bg-white p-4 shadow-sm">
+      <div class="text-sm font-bold mb-2">Storage loops</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Iterating dynamic storage arrays reads expensive slots each iteration.</li>
+        <li>Risk: hit block gas limit and revert the transaction.</li>
+        <li>DoS risk: untrusted input can force long iterations.</li>
+      </ul>
+    </div>
+
+    <div class="col-span-2 card bg-white p-4 shadow-sm mt-2">
+      <div class="text-sm font-bold mb-2">Mitigation patterns</div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="p-3 rounded bg-blue-50 text-blue-700 text-sm">Pagination: split processing into pages</div>
+        <div class="p-3 rounded bg-amber-50 text-amber-700 text-sm">Pull pattern: users claim their share</div>
+        <div class="p-3 rounded bg-violet-50 text-violet-700 text-sm">Off-chain processing + proofs</div>
+      </div>
+    </div>
+  </div>
+</div>

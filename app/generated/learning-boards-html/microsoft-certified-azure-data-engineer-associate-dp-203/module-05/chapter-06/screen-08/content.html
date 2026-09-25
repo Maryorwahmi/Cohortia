@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 5.6</span>
+    <span>›</span>
+    <span class="text-slate-700">Activity: Salting</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-5 card-border shadow-sm h-full flex flex-col">
+    <div class="text-lg font-semibold text-slate-800">Hands-on: watch, change, measure</div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 h-full">
+      <div class="bg-slate-50 p-4 rounded-lg border">
+        <div class="text-sm font-semibold text-slate-700">Step 1 — Baseline run</div>
+        <ol class="text-sm text-slate-600 mt-2 list-decimal list-inside space-y-2">
+          <li>Run result_skewed = df_skewed.groupBy("CustomerID").agg(sum("Amount"))</li>
+          <li>Open Spark UI, go to Stages, and record task duration distribution for the shuffle stage.</li>
+          <li>Record total stage duration and executor memory usage.</li>
+        </ol>
+      </div>
+
+      <div class="bg-slate-50 p-4 rounded-lg border">
+        <div class="text-sm font-semibold text-slate-700">Step 2 — Apply salting</div>
+        <ol class="text-sm text-slate-600 mt-2 list-decimal list-inside space-y-2">
+          <li>Add SaltedCustomerID as shown in the code walkthrough and aggregate by it.</li>
+          <li>Re-aggregate after removing salt to get final totals.</li>
+          <li>Compare stage and task durations in the Spark UI with the baseline.</li>
+        </ol>
+      </div>
+
+      <div class="col-span-2 rounded-lg p-3 bg-white border mt-2">
+        <div class="text-sm font-semibold text-slate-700">Measurement tips</div>
+        <ul class="text-sm text-slate-600 mt-2 space-y-2">
+          <li>Materialize cached DataFrames before timing to avoid measuring lazy evaluation differences.</li>
+          <li>Capture median and max task durations — the reduction in max is the best evidence of skew mitigation.</li>
+          <li>Note shuffle write/read sizes per task to confirm more even distribution.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

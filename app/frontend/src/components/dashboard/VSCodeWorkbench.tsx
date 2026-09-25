@@ -6,6 +6,7 @@ import BinaryConverterWidget from "./BinaryConverterWidget";
 import AlgorithmDesignWidget from "./AlgorithmDesignWidget";
 import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
 import MentorChatMessage from "./MentorChatMessage";
+import PracticalMissionPanel from "./PracticalMissionPanel";
 import { motion, AnimatePresence } from "motion/react";
 
 type PracticalTask = LearningBoardPractical["tasks"][number];
@@ -51,6 +52,7 @@ interface VSCodeWorkbenchProps {
   practicalStatus?: string | null;
   practicalSource?: string | null;
   practicalInstructions?: string | null;
+  objectives?: string[];
   language?: string | null;
   checks?: PracticalCheck[];
   files?: PracticalFile[];
@@ -97,6 +99,7 @@ export default function VSCodeWorkbench({
   practicalStatus,
   practicalSource,
   practicalInstructions,
+  objectives,
   language,
   checks = [],
   files = [],
@@ -149,7 +152,6 @@ export default function VSCodeWorkbench({
         category={mode === "code_lab" || mode === "terminal_lab" || mode === "database_lab" ? "Terminal Coding Lab" : isResearchMode ? "Research & Analysis" : isCloudMode ? "Cloud Console Lab" : "Scenario & Design Exercise"}
         tasks={tasks}
         output={output}
-        onRun={onRun}
         onOpenLab={() => setActiveViewMode("sandbox")}
       />
     );
@@ -237,6 +239,20 @@ export default function VSCodeWorkbench({
               </button>
             </div>
           </div>
+
+          <PracticalMissionPanel
+            title={selectedLesson.title}
+            instructions={practicalInstructions}
+            objectives={objectives}
+            tasks={tasks}
+            activeTaskIndex={activeTaskIndex}
+            checkedItems={checkedItems}
+            revealedHintCount={revealedHintCount}
+            onTaskSelect={onTaskSelect}
+            onCheckItem={onCheckItem}
+            onRevealHint={onRevealHint}
+            onPlayNarration={onPlayNarration}
+          />
 
           {files.length > 0 && (
             <div className="flex h-9 shrink-0 items-center gap-1 overflow-x-auto border-b border-[#d8deea] bg-[#f1f4f9] px-2">

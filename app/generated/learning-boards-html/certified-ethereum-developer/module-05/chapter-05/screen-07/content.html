@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Send & Wait Example</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl border bg-white p-4 shadow-sm overflow-hidden">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example code</div>
+      <pre class="text-sm bg-slate-900 text-slate-100 rounded-lg p-3 overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+async function sendDataTransaction(contract, newValue) {
+  if (!contract.signer) {
+    console.error("Contract instance must have a signer for transactions.");
+    return;
+  }
+  try {
+    const tx = await contract.set(newValue);
+    console.log("Transaction sent. Hash:", tx.hash);
+    const receipt = await tx.wait();
+    if (receipt && receipt.status === 1) {
+      alert(`Data set to ${newValue} in transaction ${tx.hash}`);
+      return true;
+    } else {
+      alert(`Transaction ${tx.hash} failed or reverted.`);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error sending transaction:", error);
+    if (error.code === 4001) {
+      alert("Transaction rejected by user.");
+    } else {
+      alert(`Transaction failed: ${error.message}`);
+    }
+    return false;
+  }
+}
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-xl border bg-white p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800 mb-2">Explanation</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>Check contract.signer to ensure transactions can be signed.</li>
+        <li>contract.set(...) returns a TransactionResponse with a hash once broadcast.</li>
+        <li>tx.wait() returns a TransactionReceipt containing status, gasUsed, and events.</li>
+        <li>Catch both broadcast errors (e.g., user rejected) and execution failures reported in the receipt.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Design UI to await the receipt before declaring success and handle error codes like 4001 separately.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

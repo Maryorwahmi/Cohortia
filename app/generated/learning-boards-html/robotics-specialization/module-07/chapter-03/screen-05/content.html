@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Kalman Filter Steps</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-6 flex flex-col">
+      <div class="text-xs uppercase tracking-wider text-slate-600">Process</div>
+      <h2 class="text-2xl font-bold text-slate-800 mt-2">Prediction & Update</h2>
+
+      <div class="mt-4">
+        <div class="p-3 rounded-lg border border-slate-100">
+          <div class="font-semibold">Prediction (state)</div>
+          <div class="text-sm text-slate-600 mt-2">x = A x + B u — propagate the mean using the system model and control input.</div>
+        </div>
+
+        <div class="p-3 rounded-lg border border-slate-100 mt-3">
+          <div class="font-semibold">Prediction (covariance)</div>
+          <div class="text-sm text-slate-600 mt-2">P = A P A' + Q — project uncertainty through dynamics and add process noise. Omitting A' is a common bug.</div>
+        </div>
+
+        <div class="p-3 rounded-lg border border-slate-100 mt-3">
+          <div class="font-semibold">Update</div>
+          <div class="text-sm text-slate-600 mt-2">Compute Kalman gain K = P_pred H' (H P_pred H' + R)^{-1}, apply innovation to correct state and covariance.</div>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Both state and covariance propagation must be correct. Test with known noise to validate behavior.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-6">
+      <div class="font-bold text-slate-800">Code snippet (covariance bug)</div>
+      <pre class="mt-3 p-3 bg-slate-900 text-slate-50 rounded-md" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">% Incorrect:
+P = A * P + Q;
+
+% Correct:
+P = A * P * A' + Q;</pre>
+
+      <div class="mt-4 text-sm text-slate-600">Run unit tests where A rotates uncertainty to confirm the A' term is present. Without it the covariance will not represent the rotated uncertainty correctly.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

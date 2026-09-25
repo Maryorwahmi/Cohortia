@@ -1,0 +1,43 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.panel{border:1px solid rgba(226,232,240,0.9);} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+      <span>›</span>
+      <span>Chapter 1.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Messy vs. Clean Code</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white panel p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-rose-700 uppercase tracking-wider mb-2">Messy Example</div>
+      <pre class="bg-rose-50 rounded-md p-3 text-sm text-rose-800">def calculate_price_with_discount(items_list, disc_thresh, disc_perc):
+  tot_val = 0
+  for i in items_list:
+    tot_val += i['price'] * i['quantity']
+  if tot_val &gt; disc_thresh:
+    fin_val = tot_val * (1 - disc_perc)
+  else:
+    fin_val = tot_val
+  return fin_val</pre>
+      <div class="mt-3 text-sm text-slate-600">Issues: unclear names, two responsibilities, and abbreviated loop variable. Hard to locate the discount rule later.</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white panel p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-emerald-700 uppercase tracking-wider mb-2">Clean Example</div>
+      <pre class="bg-emerald-50 rounded-md p-3 text-sm text-emerald-800">def calculate_subtotal(items):
+  total = 0
+  for item in items:
+    total += item['price'] * item['quantity']
+  return total
+
+def apply_discount_if_eligible(subtotal, discount_threshold, discount_percentage):
+  if subtotal &gt; discount_threshold:
+    return subtotal * (1 - discount_percentage)
+  return subtotal</pre>
+      <div class="mt-3 text-sm text-slate-600">Benefits: intent is explicit, responsibilities separated, and each function is easier to test and update independently.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

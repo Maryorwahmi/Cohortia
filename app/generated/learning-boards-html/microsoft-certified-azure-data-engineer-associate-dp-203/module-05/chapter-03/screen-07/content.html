@@ -1,0 +1,52 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.3</span>
+    <span>›</span>
+    <span class='text-slate-700'>User-Defined Functions</span>
+  </div>
+
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='cohortia-card p-3'>
+        <div class='font-semibold text-slate-800 mb-2'>Python UDF example</div>
+        <pre class='bg-slate-900 text-white p-3 rounded mono text-sm' style='white-space:pre-wrap; tab-size:2'><code>from pyspark.sql.functions import udf
+from pyspark.sql.types import StringType
+
+def categorize_amount(amount):
+  if amount &lt; 100:
+    return 'Low'
+  elif 100 &lt;= amount &lt; 200:
+    return 'Medium'
+  else:
+    return 'High'
+
+categorize_amount_udf = udf(categorize_amount, StringType())
+df_categorized = df_sales.withColumn('AmountCategory', categorize_amount_udf(col('Amount')))
+df_categorized.show()</code></pre>
+      </div>
+
+      <div class='cohortia-card p-3'>
+        <div class='font-semibold text-slate-800 mb-2'>Misconception</div>
+        <div class='text-sm text-slate-600'>Assuming Python UDFs are fine at any scale. The overhead of crossing JVM⇄Python repeatedly can be orders of magnitude slower on big data.</div>
+      </div>
+    </div>
+
+    <div class='w-1/2 flex flex-col gap-3'>
+      <div class='cohortia-card p-3'>
+        <div class='font-semibold text-slate-800 mb-2'>When to use UDFs</div>
+        <ul class='text-sm text-slate-600 list-disc pl-5'>
+          <li>When logic cannot be expressed with built-in functions</li>
+          <li>For small datasets or one-off transformations</li>
+          <li>Prefer Pandas UDFs for high-volume row-wise custom logic</li>
+        </ul>
+      </div>
+
+      <div class='cohortia-card p-3'>
+        <div class='font-semibold text-slate-800 mb-2'>Example takeaway</div>
+        <div class='text-sm text-slate-600'>If a function will be called millions of times, measure both Python UDF and Pandas UDF implementations and default to vectorized options where they exist.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,31 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--blue:#2563eb;--slate-border:rgba(226,232,240,0.9)} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Best Practice</span>
+    <span>›</span>
+    <span class="text-slate-700">Staging to Distributed Load</span>
+  </div>
+  <div class="h-full flex gap-4">
+    <div class="w-2/3 rounded-xl bg-white p-4 shadow-sm" style="border:1px solid var(--slate-border)">
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Staging workflow</h3>
+      <div class="text-sm text-slate-600 space-y-3">
+        <p>1) Ingest raw files into Staging_RawSales using DISTRIBUTION = ROUND_ROBIN and a HEAP for fastest writes. 2) Run batch transformations and enrichment on the staging table. 3) Insert transformed rows into FactSales_Synapse with DISTRIBUTION = HASH(ProductKey) and a clustered columnstore index. 4) Validate distribution balance and query performance.</p>
+        <p>Batch-oriented loads and transformations preserve MPP efficiency and minimize overhead from frequent small writes. If you expect very heavy loads, consider scaling DWUs up temporarily to speed up the ETL window.</p>
+      </div>
+    </div>
+    <div class="w-1/3 rounded-xl bg-white p-4 shadow-sm" style="border:1px solid var(--slate-border)">
+      <h3 class="text-lg font-semibold text-slate-900 mb-2">Checks & tips</h3>
+      <ul class="text-sm text-slate-600 space-y-2">
+        <li>Use batch inserts rather than single-row operations.</li>
+        <li>Monitor for data skew after load and redistribute if needed.</li>
+        <li>Consider composite hash keys if a single column causes uneven distribution.</li>
+      </ul>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Staging first then distribute reduces ingestion overhead and gives you control to choose an optimal distribution key for production facts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

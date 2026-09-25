@@ -1,0 +1,74 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#fbfdff;">
+  <div class="mb-3">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500">Live Coding</div>
+    <div class="text-2xl font-bold text-slate-900 mt-2">Account refactor walkthrough</div>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4 overflow-auto" style="min-height:0;">
+      <div class="text-sm font-semibold text-slate-800">Original (primitive type code)</div>
+      <pre class="mt-3 p-3 bg-slate-50 text-sm rounded-md" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, monospace;">class Account:
+    CHECKING = 0
+    SAVINGS = 1
+    LOAN = 2
+
+    def __init__(self, account_id, balance, account_type):
+        self.account_id = account_id
+        self.balance = balance
+        self.account_type = account_type
+
+    def get_interest_rate(self):
+        if self.account_type == Account.CHECKING:
+            return 0.01
+        elif self.account_type == Account.SAVINGS:
+            return 0.02
+        elif self.account_type == Account.LOAN:
+            return 0.05
+        else:
+            raise ValueError("Unknown account type")
+
+    def deposit(self, amount):
+        if self.account_type == Account.LOAN:
+            print("Cannot deposit directly into a loan account.")
+            return False
+        self.balance += amount
+        return True</pre>
+    </div>
+
+    <div class="w-1/2 card p-4 overflow-auto" style="min-height:0;">
+      <div class="text-sm font-semibold text-slate-800">Refactored (AccountType class)</div>
+      <pre class="mt-3 p-3 bg-slate-50 text-sm rounded-md" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, monospace;">from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class AccountType:
+    name: str
+    interest_rate: float
+    can_deposit: bool
+
+class AccountTypes:
+    CHECKING = AccountType("Checking", 0.01, True)
+    SAVINGS = AccountType("Savings", 0.02, True)
+    LOAN = AccountType("Loan", 0.05, False)
+
+class Account:
+    def __init__(self, account_id, balance, account_type: AccountType):
+        self.account_id = account_id
+        self.balance = balance
+        self.account_type = account_type
+
+    def get_interest_rate(self):
+        return self.account_type.interest_rate
+
+    def deposit(self, amount):
+        if not self.account_type.can_deposit:
+            print(f"Cannot deposit directly into a {self.account_type.name} account.")
+            return False
+        self.balance += amount
+        return True</pre>
+
+      <div class="mt-3 p-3 rounded-md bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700">Refactor benefit</div>
+        <div class="text-sm text-slate-800 mt-1">Account now delegates behavior and the conditional logic is removed from the owner class, improving clarity and testability.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

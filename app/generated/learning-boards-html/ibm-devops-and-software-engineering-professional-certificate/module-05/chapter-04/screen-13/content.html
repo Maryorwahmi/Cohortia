@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">PostgreSQL Activity</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Activity steps (visual commands)</div>
+      <div class="mt-3 rounded-lg bg-slate-900 text-white p-3 font-mono text-sm" style="white-space:pre-wrap; tab-size:2;">
+<pre><code># 1 Create a custom network
+docker network create my-db-network
+
+# 2 Create a named volume
+docker volume create pg-data
+
+# 3 Run PostgreSQL with network and volume
+docker run -d \
+  --name my-postgres-db \
+  --network my-db-network \
+  -p 5432:5432 \
+  -e POSTGRES_DB=mydb \
+  -e POSTGRES_USER=user \
+  -e POSTGRES_PASSWORD=password \
+  -v pg-data:/var/lib/postgresql/data \
+  postgres:13-alpine
+
+# 4 Verify
+docker network inspect my-db-network
+docker volume inspect pg-data
+
+# 5 Test connectivity from a temporary container
+docker run --rm --network my-db-network alpine ping my-postgres-db</code></pre>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-700">If you see the database listed in the network inspect and the volume mounted at the expected container path, the setup is correct. Recreate the container using the same volume to confirm data persistence.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-6 shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Common checks</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Confirm the container name appears under the network’s containers in the inspect output.</li>
+        <li>Confirm the volume inspect shows that Docker manages pg-data.</li>
+        <li>If ping fails, ensure both containers are on the same network and that no firewall blocks ICMP locally.</li>
+      </ul>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Result</div>
+        <p class="text-xs font-medium text-slate-800">A PostgreSQL container with persistent storage accessible by containers on the same custom network.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

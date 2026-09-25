@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Battery monitor example</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-2/3 rounded-xl bg-white card p-5 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800">Representative Python excerpt</div>
+      <pre class="mt-3 whitespace-pre-wrap p-3 bg-slate-50 border rounded" style="tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code># Battery Monitor (concept)
+import rospy
+from my_first_robot.srv import SetLed
+from sensor_msgs.msg import BatteryState
+
+class BatteryMonitor:
+    def __init__(self):
+        self.low_battery_threshold = 20
+        rospy.wait_for_service('/set_led')
+        self.set_led = rospy.ServiceProxy('/set_led', SetLed)
+        self.sub = rospy.Subscriber('/battery_state', BatteryState, self.callback)
+        self.led_on = False
+
+    def callback(self, msg):
+        if msg.percentage &lt; self.low_battery_threshold and not self.led_on:
+            self.set_led(3, True)
+            self.led_on = True
+            rospy.logwarn("Low battery! LED turned on.")
+        elif msg.percentage &gt;= self.low_battery_threshold and self.led_on:
+            self.set_led(3, False)
+            self.led_on = False
+            rospy.loginfo("Battery OK. LED turned off.")
+</code></pre>
+    </div>
+    <div class="flex-1 rounded-xl bg-white card p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Explanation</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>wait_for_service ensures the server exists before creating a proxy.</li>
+        <li>ServiceProxy wraps the remote call; calls are synchronous and should be short.</li>
+        <li>A local led_on flag prevents repeated identical calls, reducing unnecessary traffic and load on the server.</li>
+      </ul>
+      <div class="mt-4 rounded-lg p-3 bg-emerald-50 border-l-4 border-l-emerald-500">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use a ServiceProxy inside callbacks with local guards for efficient, predictable service usage.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

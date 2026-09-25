@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;} .panel{border:1px solid rgba(226,232,240,0.9);} </style>
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 1</span>
+      <span>›</span>
+      <span>Chapter 1.1</span>
+      <span>›</span>
+      <span class="text-slate-700">Identifying Messy Code</span>
+    </div>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white panel p-4 shadow-sm overflow-auto">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Messy snippet</div>
+      <pre class="bg-slate-50 rounded-md p-3 text-sm text-slate-800"># orders.py
+def proc_ord_data(ord_list, disc_rate):
+    final_totals = []
+    for o in ord_list:
+        curr_total = 0
+        for item_info in o['items']:
+            curr_total += item_info['p'] * item_info['q']
+        
+        if o['cust_id'] in get_loyalty_members():
+            curr_total *= (1 - disc_rate)
+        
+        final_totals.append(curr_total)
+    return final_totals</pre>
+      <div class="mt-3 text-sm text-slate-600">Questions: what does proc_ord_data return exactly? Are item keys predictable? Where does get_loyalty_members come from?</div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white panel p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Review checklist</div>
+      <ul class="list-disc pl-5 text-sm text-slate-600 space-y-2 flex-1">
+        <li>Names: ord_list, proc_ord_data, p, q are unclear; rename to orders, process_order_totals, price, quantity.</li>
+        <li>Single responsibility: separate subtotal calculation and loyalty application.</li>
+        <li>Dependency clarity: get_loyalty_members is implicit; inject or document its source.</li>
+        <li>Return shape: returning only totals loses order identity; consider returning paired ids or structured results.</li>
+        <li>Testability: extract small functions to unit test subtotal and loyalty behavior independently.</li>
+      </ul>
+      <div class="mt-4 text-sm text-slate-600">Cost mapping: each issue adds time, increases bug surface, and hinders onboarding. Pick one fix and apply the Boy Scout Rule.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

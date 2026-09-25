@@ -1,0 +1,36 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Access control: onlyOwner and RBAC</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border">
+      <div class="font-bold text-slate-800">onlyOwner pattern</div>
+      <pre class="mono mt-3 p-3 bg-slate-50 rounded-lg card-border text-sm"><code>contract AdminControlled {
+  address public owner;
+  constructor() { owner = msg.sender; }
+  modifier onlyOwner() {
+    require(msg.sender == owner, "Not authorized");
+    _;
+  }
+  function sensitiveFunction() public onlyOwner { /* ... */ }
+}
+</code></pre>
+      <div class="text-sm text-slate-600 mt-3">Use onlyOwner for small teams but plan for recovery and ownership transfer controls.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border">
+      <div class="font-bold text-slate-800">Role-Based Access Control (RBAC)</div>
+      <div class="text-sm text-slate-600 mt-3">RBAC defines named roles like MINTER_ROLE and PAUSER_ROLE and assigns them to addresses. Functions check whether the caller has the required role. This allows granular delegation without exposing full owner privileges. Prefer audited libraries and test role grants and revocations.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="p-3 rounded-lg bg-emerald-50 text-emerald-700">Pro-tip: Protect role-granting functions with multisig or timelock for high value systems.</div>
+        <div class="p-3 rounded-lg bg-rose-50 text-rose-700">Common mistake: Over-granting roles or leaving a role open to any caller; always require authorization for role changes.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

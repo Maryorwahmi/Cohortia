@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Problem: process_order</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Problematic function (excerpt)</div>
+      <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm text-slate-800">def process_order(order_details, customer_email):
+    # Responsibility 1: Validate order details
+    if not order_details.get("items") or not order_details.get("total_amount"):
+        print("Error: Invalid order details.")
+        return False
+
+    # Responsibility 2: Calculate total including tax
+    tax_rate = 0.08
+    order_details["total_amount"] *= (1 + tax_rate)
+    print(f"Calculated total with tax: {order_details['total_amount']}")
+
+    # Responsibility 3: Save order to database
+    try:
+        print(f"Saving order {order_details} to database...")
+        print("Order saved successfully.")
+    except Exception as e:
+        print(f"Error saving order: {e}")
+        return False
+
+    # Responsibility 4: Send confirmation email
+    try:
+        print(f"Sending confirmation email to {customer_email}...")
+        print("Confirmation email sent.")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
+
+    return True</pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Breakdown</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-4 space-y-2">
+        <li>Validation: rejects bad input; changes when rules change.</li>
+        <li>Calculation: tax logic; changes with tax policy.</li>
+        <li>Persistence: database interactions and schema.</li>
+        <li>Communication: email templates and delivery logic.</li>
+      </ul>
+
+      <div class="mt-4 p-3 rounded-md bg-amber-50 text-amber-700">Review question: which responsibility would you test first and how would you isolate it?</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">ecommerce Lab</span>
+  </div>
+
+  <div class="card p-4 h-full">
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Code Template</div>
+    <pre class="mono mt-3 p-3 bg-slate-50 border border-slate-100 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2;">import sqlite3
+import datetime
+
+conn = None
+try:
+    conn = sqlite3.connect('ecommerce_data.db')
+    cursor = conn.cursor()
+
+    # --- Insert Customers ---
+    customers_to_insert = [
+        ("Alice Johnson", "alice@example.com"),
+        ("Bob Williams", "bob@example.com"),
+        ("Charlie Davis", "charlie@example.com")
+    ]
+    cursor.executemany("INSERT INTO Customers (name, email) VALUES (?, ?)", customers_to_insert)
+    print(f"Inserted {cursor.rowcount} customers.")
+    conn.commit()
+
+    # --- Insert Orders ---
+    orders_to_insert = [
+        (1, datetime.date.today().strftime('%Y-%m-%d'), 120.50),
+        (1, (datetime.date.today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'), 45.99),
+        (2, datetime.date.today().strftime('%Y-%m-%d'), 250.00),
+        (3, (datetime.date.today() - datetime.timedelta(days=3)).strftime('%Y-%m-%d'), 75.25)
+    ]
+    cursor.executemany("INSERT INTO Orders (customer_id, order_date, total_amount) VALUES (?, ?, ?)", orders_to_insert)
+    print(f"Inserted {cursor.rowcount} orders.")
+    conn.commit()
+
+except sqlite3.IntegrityError as e:
+    print(f"Data integrity error: {e}")
+except sqlite3.Error as e:
+    print(f"A database error occurred: {e}")
+finally:
+    if conn:
+        conn.close()
+        print("Database connection closed.")</pre>
+
+    <div class="mt-4 text-sm text-slate-700">Follow these steps in your environment and verify outputs. Adjust customer_id retrieval for production code by querying last row id instead of assuming starting ids.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

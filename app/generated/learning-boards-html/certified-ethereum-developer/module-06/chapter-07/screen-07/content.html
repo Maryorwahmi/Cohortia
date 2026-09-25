@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 6.7</span>
+    <span>›</span>
+    <span class="text-slate-700">Foundry basics</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-6/12 rounded-2xl bg-white p-5 card-border shadow-sm">
+      <div class="text-lg font-bold text-slate-800">Foundry setup & patterns</div>
+      <div class="text-sm text-slate-600 mt-2">Install foundryup, init a project, and write tests inside test/ in Solidity.</div>
+
+      <div class="mt-4 grid gap-3">
+        <div class="rounded-lg bg-violet-50 p-3">
+          <div class="font-bold text-violet-700">Cheatcodes</div>
+          <div class="text-xs text-slate-700 mt-1">vm.addr, vm.deal, vm.startPrank, vm.expectRevert let you shape test context precisely.</div>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <div class="font-bold">setUp pattern</div>
+          <div class="text-xs text-slate-700 mt-1">Deploy contracts and prepare accounts so tests share a known starting state.</div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Foundry's solidity-native tests and cheatcodes enable fast, expressive test scenarios and fuzzing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-6/12 rounded-2xl bg-white p-5 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Example test sketch</div>
+      <pre class="mono bg-slate-900 text-white rounded-lg p-3 mt-3 h-[56%] overflow-hidden" style="white-space: pre-wrap; tab-size: 2; font-size: 13px;">// test/MyToken.t.sol
+import "forge-std/Test.sol";
+import "../src/MyToken.sol";
+
+contract MyTokenTest is Test {
+  MyToken myToken;
+  address owner = vm.addr(1);
+
+  function setUp() public {
+    vm.deal(owner, 10 ether);
+    vm.startPrank(owner);
+    myToken = new MyToken(1000);
+    vm.stopPrank();
+  }
+
+  function testDeployment_AssignsTotalSupply() public view {
+    assertEq(myToken.totalSupply(), myToken.balanceOf(owner));
+  }
+}</pre>
+
+      <div class="mt-auto text-xs text-slate-600">Use vm.assume to constrain fuzzed inputs and vm.expectRevert to assert failure messages.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

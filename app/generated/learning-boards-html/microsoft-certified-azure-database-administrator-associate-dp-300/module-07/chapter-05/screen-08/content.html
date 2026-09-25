@@ -1,0 +1,40 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <style>.cohortia-bg{background:#ffffff;} pre.code{white-space:pre-wrap; tab-size:2; font-family:ui-monospace,monospace;}</style>
+  <div class='mb-4'>
+    <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500'>
+      <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Module 7</span>
+      <span>›</span>
+      <span>Chapter 7.5</span>
+      <span>›</span>
+      <span class='text-slate-700'>Dynamic Data Masking</span>
+    </div>
+  </div>
+  <div class='flex gap-4 h-full'>
+    <div class='w-1/2 rounded-xl bg-white border p-5 shadow-sm flex flex-col'>
+      <div class='text-xs font-bold uppercase tracking-wider text-slate-600 mb-2'>Definition</div>
+      <h3 class='text-xl font-bold text-slate-900 mb-2'>Masking at query time</h3>
+      <div class='text-sm text-slate-700 mb-3'>Masking alters query results for non-privileged users. The stored data stays intact.</div>
+      <pre class='code rounded-lg p-3 bg-slate-50 border text-sm'><code>-- Apply email mask and partial mask for credit card
+ALTER TABLE Sales.Customers
+ADD MASKED WITH (FUNCTION = 'email()') FOR Email;
+
+ALTER TABLE Sales.Customers
+ADD MASKED WITH (FUNCTION = 'partial(0, "XXXX-XXXX-XXXX-", 4)') FOR CreditCardNumber;
+
+-- Grant UNMASK to allow specific roles to see unmasked data
+GRANT UNMASK TO AnalystRole;</code></pre>
+    </div>
+    <div class='w-1/2 rounded-xl bg-white border p-5 shadow-sm flex flex-col'>
+      <div class='text-sm font-bold text-slate-800 mb-2'>Practical notes</div>
+      <ul class='list-disc pl-5 text-sm text-slate-700 space-y-2'>
+        <li>DDM is quick to deploy and useful where apps cannot be changed immediately.</li>
+        <li>Masking policy can be applied per column and can expose partial characters for usability.</li>
+        <li>Misconception: DDM is not encryption and does not prevent privileged users from seeing plaintext.</li>
+      </ul>
+      <div class='mt-4 p-3 rounded-lg bg-white border'>
+        <div class='text-sm font-semibold'>Example</div>
+        <div class='text-sm text-slate-600'>An AnalystRole sees masked emails and credit cards, while an admin with UNMASK sees real values during investigations.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">INSERT & Placeholders</span>
+  </div>
+
+  <div class="flex h-full gap-4">
+    <div class="w-1/2 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Concept</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Parameter substitution</h3>
+      <p class="text-sm text-slate-700 mt-3">Use question-mark placeholders and pass a tuple of values to cursor.execute. sqlite3 performs escaping and binding for you.</p>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+        <pre class="mt-2 mono p-3 rounded-lg bg-slate-50 border border-slate-100 text-sm" style="white-space:pre-wrap; tab-size:2;">import sqlite3
+
+conn = sqlite3.connect('my_first_database.db')
+cursor = conn.cursor()
+
+cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL)")
+user_name = "Alice Wonderland"
+user_email = "alice@example.com"
+cursor.execute("INSERT INTO users (name, email) VALUES (?, ?)", (user_name, user_email))
+conn.commit()
+conn.close()</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 card p-4 flex flex-col justify-between">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600">Why it matters</div>
+        <p class="text-sm text-slate-700 mt-2">Using placeholders prevents malicious input from becoming executable SQL. It also standardizes how values are passed, simplifying error handling and portability.</p>
+
+        <div class="mt-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common misconception</div>
+          <p class="text-sm text-slate-700 mt-2">Some think placeholders are only necessary for web inputs. In fact, they are best practice for all dynamic data, including API responses and file contents.</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Always bind values with placeholders. This is the simplest and most effective defense against SQL injection.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,40 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">State-modifying Calls</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Example transaction flow</div>
+      <pre class="bg-slate-900 text-slate-100 rounded-lg p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>async function setStoredData(newValue) {
+  if (!signer) { alert('Connect wallet first'); return; }
+  try {
+    const tx = await contract.set(newValue);
+    console.log('Transaction sent:', tx.hash);
+    const receipt = await tx.wait();
+    console.log('Transaction confirmed:', receipt);
+  } catch (error) {
+    console.error('Error setting data:', error);
+  }
+}</code></pre>
+
+      <div class="mt-3 text-sm text-slate-700">UX tip: show a pending state after submission and a success state once the receipt arrives. Provide links to the transaction hash when appropriate.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white border border-[rgba(226,232,240,0.9)] p-5 shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Common errors</div>
+      <ul class="text-sm text-slate-700 space-y-2">
+        <li>User rejected transaction: catch specific wallet error codes and inform the user without retrying automatically.</li>
+        <li>UNPREDICTABLE_GAS_LIMIT: gas estimation failed — check contract logic and revert reasons.</li>
+        <li>Insufficient funds: the user’s account must have enough to cover gas.</li>
+      </ul>
+
+      <div class="mt-4 text-[10px] uppercase tracking-wider text-emerald-700">Key takeaway</div>
+      <div class="text-xs text-slate-700 mt-1">Treat transactions as a multi-step asynchronous workflow and surface each step to the user.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light" style="background:#fbfeff;">
+  <div class="mb-3">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Process Flow</span>
+      <span class="text-slate-700">PostgreSQL Streaming Replica</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900">Replication and PostgreSQL Streaming Replica</h3>
+    <p class="text-sm text-slate-700">Streaming replication lowers RPO by continuously shipping WAL changes to a standby.</p>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm overflow-auto">
+      <div class="font-semibold text-slate-800 mb-2">Conceptual Steps</div>
+      <ol class="text-sm text-slate-700 list-decimal pl-5 space-y-2">
+        <li>Configure primary: wal_level=replica, archive_mode on, and archive_command.</li>
+        <li>Create a replication user with REPLICATION privilege.</li>
+        <li>Take a base backup from primary for the standby.</li>
+        <li>Start standby with pg_basebackup and set primary_conninfo to stream WAL.</li>
+        <li>Monitor replication lag and secure credentials and network channels.</li>
+      </ol>
+
+      <div class="mt-3 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-bold">Example command</div>
+        <pre class="text-sm bg-white rounded p-2 mt-2 text-slate-800" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"># On standby, create a base backup and start streaming
+pg_basebackup -h primary_db_ip -U replica_user -D /var/lib/postgresql/14/main -F p -X stream -C -S replication_slot_name -P
+
+# Then configure primary_conninfo in the standby postgresql.conf
+# primary_conninfo = 'host=primary_db_ip port=5432 user=replica_user password=secure_password'
+# primary_slot_name = 'replication_slot_name'
+# hot_standby = on</pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-4 card-border shadow-sm flex flex-col">
+      <div class="font-semibold text-slate-800 mb-2">Operational Considerations</div>
+      <ul class="text-sm text-slate-700 list-disc pl-5 space-y-2">
+        <li>Secure replication credentials and use TLS for the replication channel.</li>
+        <li>Monitor lag: lag increases RPO risk; set alerts for thresholds.</li>
+        <li>Plan failover steps and ensure the standby can accept connections after promotion.</li>
+        <li>Combine replication with regular backups to protect against logical errors.</li>
+      </ul>
+
+      <div class="mt-auto grid grid-cols-1 gap-3">
+        <div class="rounded-lg p-3" style="border-left:4px solid rgba(239,102,117,1); background:#fff1f2;">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Misconception</div>
+          <p class="text-sm text-slate-800">Replication is not a replacement for backups; it can mirror accidental deletions and corruption.</p>
+        </div>
+        <div class="rounded-lg p-3" style="border-left:4px solid rgba(16,185,129,1); background:#ecfdf5;">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Check</div>
+          <p class="text-sm text-slate-800">Can your monitoring detect replication lag and trigger a failover or investigation fast enough for your RPO?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

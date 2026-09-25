@@ -1,0 +1,44 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Delta Read/Write</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-2xl p-4 bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800">Write a Delta table</div>
+        <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+# Writing a DataFrame to ADLS Gen2 as a Delta table
+delta_path = f"{mount_point}/curated/sales_delta_table"
+df_sales.write.format("delta").mode("overwrite").save(delta_path)
+
+# Reading from a Delta table
+df_delta_read = spark.read.format("delta").load(delta_path)
+df_delta_read.show(5)
+        </pre>
+
+        <div class="mt-3 text-xs text-slate-600">Always verify the table contents after writing and keep a test snapshot before overwriting in production.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl p-4 bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800">Example checks</div>
+        <ul class="text-sm text-slate-700 mt-2 space-y-2">
+          <li>Confirm expected row counts and schema fields after write.</li>
+          <li>Check delta table history with deltaTable.history() during development.</li>
+          <li>Use partitioning to keep file sizes manageable for OPTIMIZE later.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Delta format adds a transaction log. Use the delta read/write pattern consistently to preserve versioning and atomicity.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

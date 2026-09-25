@@ -1,0 +1,58 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='card p-4 h-full'>
+    <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2'>Example</div>
+    <h3 class='text-xl font-bold text-slate-900'>Customer class — before</h3>
+
+    <div class='mt-4 grid grid-cols-2 gap-4 h-full'>
+      <div class='p-3 rounded-lg bg-slate-50 border border-slate-100 min-h-0'>
+        <div class='text-sm font-semibold text-slate-800'>Original code (excerpt)</div>
+        <pre style='white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; font-size: 13px; background:#0f172a08; padding:10px; border-radius:8px; margin-top:8px; overflow:auto;'>
+class Customer:
+  def __init__(self, name, member_status, purchases):
+    self.name = name
+    self.member_status = member_status
+    self.purchases = purchases
+
+  def calculate_loyalty_points(self):
+    if self.member_status == 'Gold':
+      print(f"[{self.name}] Gold member - calculating points with bonus.")
+      points = sum(self.purchases) * 0.15
+    elif self.member_status == 'Silver':
+      print(f"[{self.name}] Silver member - calculating points.")
+      points = sum(self.purchases) * 0.10
+    else:
+      print(f"[{self.name}] Standard member - calculating points.")
+      points = sum(self.purchases) * 0.05
+    return points
+
+  def apply_discount(self, total_amount):
+    discount_rate = 0.0
+    if self.member_status == 'Gold':
+      print(f"[{self.name}] Gold member - applying 20% discount.")
+      discount_rate = 0.20
+    elif self.member_status == 'Silver':
+      print(f"[{self.name}] Silver member - applying 10% discount.")
+      discount_rate = 0.10
+    else:
+      print(f"[{self.name}] Standard member - no discount.")
+      discount_rate = 0.0
+    return total_amount * (1 - discount_rate)
+        </pre>
+      </div>
+
+      <div class='p-3 rounded-lg bg-white border border-slate-100 min-h-0'>
+        <div class='text-sm font-semibold text-slate-800'>Notes</div>
+        <ul class='list-disc list-inside text-sm text-slate-600 mt-2'>
+          <li>The same membership checks appear in two methods.</li>
+          <li>Print statements differ, but the membership-to-rate mapping is duplicated.</li>
+          <li>If rules change, multiple places must be updated.</li>
+        </ul>
+
+        <div class='mt-4 p-3 rounded-lg bg-amber-50 border border-amber-100'>
+          <div class='text-xs font-bold uppercase tracking-wider text-amber-700'>Misconception</div>
+          <div class='text-sm text-slate-800 mt-2'>Different outputs mean the logic can't be shared. In fact, shared rules can be called and the final calculation kept in each method.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

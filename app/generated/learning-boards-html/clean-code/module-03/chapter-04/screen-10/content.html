@@ -1,0 +1,29 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> .warn{background:#fff1f2;border-left:4px solid #ef6675;padding:10px;border-radius:8px} pre.code{background:#0f1724;color:#ffdfe2;padding:10px;border-radius:8px;font-family:ui-monospace,monospace}</style>
+  <div class="flex flex-col h-full">
+    <div class="text-xs uppercase tracking-wider text-slate-500 mb-3">Common Mistakes</div>
+    <div class="grid grid-cols-2 gap-4 flex-1">
+      <div class="bg-white rounded-xl p-4 card shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Swallowing exceptions</div>
+        <div class="text-sm text-slate-700 mt-2">Do not use empty except blocks. They hide errors and make debugging impossible.</div>
+        <pre class="code"># Dangerous
+try:
+  value = int(input_value)
+except ValueError:
+  pass  # silently ignores bad input</pre>
+        <div class="mt-3 warn text-sm">Better: log the issue, provide user feedback, or raise a clearer exception so the caller can decide.</div>
+      </div>
+
+      <div class="bg-white rounded-xl p-4 card shadow-sm">
+        <div class="text-sm font-bold text-slate-800">Catching Exception broadly</div>
+        <div class="text-sm text-slate-700 mt-2">Using 'except Exception' masks many root causes and conflates them with recoverable errors.</div>
+        <pre class="code"># Risky
+try:
+  do_work()
+except Exception as e:
+  handle_error()  # hides underlying error</pre>
+        <div class="mt-3 warn text-sm">Better: catch specific exceptions, log details, and re-raise if you cannot fully handle them.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

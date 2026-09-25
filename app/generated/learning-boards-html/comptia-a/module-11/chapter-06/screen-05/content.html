@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="mb-4">
+    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-rose-500 mb-2">
+      <span class="px-2 py-1 rounded-md bg-rose-50 text-rose-600 border border-rose-100">Threat Example</span>
+      <span class="text-slate-700">Vulnerable SQL in a Lambda</span>
+    </div>
+    <div class="text-2xl font-bold text-slate-900">Injection risks</div>
+    <div class="text-sm text-slate-600 mt-1">Never build queries from raw input.</div>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-3 border border-slate-100 shadow-sm overflow-hidden">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Vulnerable example</div>
+      <pre class="bg-slate-900 text-slate-50 rounded-lg p-3 text-xs" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI Mono', monospace;">
+import os
+import pymysql
+
+def lambda_handler(event, context):
+    user_input = event['queryStringParameters']['query']  # Vulnerable input
+    conn = pymysql.connect(host=os.environ['DB_HOST'],
+                           user=os.environ['DB_USER'],
+                           password=os.environ['DB_PASSWORD'],
+                           db=os.environ['DB_NAME'])
+    with conn.cursor() as cursor:
+        sql_query = f"SELECT * FROM users WHERE username = '{user_input}'"
+        cursor.execute(sql_query)
+        result = cursor.fetchone()
+    conn.close()
+    return {
+        'statusCode': 200,
+        'body': str(result)
+    }
+      </pre>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-4 border border-slate-100 shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800 mb-2">Explainer</div>
+      <ul class="text-sm text-slate-600 list-disc pl-4 space-y-2">
+        <li>The code interpolates user_input directly into SQL. An attacker can inject logical operators or extra clauses.</li>
+        <li>A sample malicious payload like <span class="font-mono text-xs">' OR '1'='1</span> can bypass checks and return all rows.</li>
+        <li>Serverless isolation does not remove database privilege risk if credentials permit access.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Concrete fix</div>
+        <div class="rounded-lg bg-emerald-50 p-3 border border-emerald-100 text-sm text-slate-800">Use parameterized queries or an ORM so inputs are bound, not concatenated.</div>
+
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-4">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Treat all event inputs as untrusted. Parameterize queries and validate early to remove injection risk.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

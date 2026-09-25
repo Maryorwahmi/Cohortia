@@ -1,0 +1,68 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Why C++ for Action Servers</span>
+  </div>
+  <div class="flex gap-6 h-[calc(100%-48px)]">
+    <div class="w-2/5 min-w-0">
+      <div class="rounded-2xl bg-white border p-5 h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Definition</div>
+        <p class="text-sm text-slate-600 mt-3">C++ provides compiled performance and tighter control over resources, which matters for servers that must reply to preemption and publish frequent feedback without delay.</p>
+        <div class="mt-4 space-y-3">
+          <div class="rounded-lg p-3 bg-amber-50 border-l-4 border-l-amber-400">
+            <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">When to prefer C++</div>
+            <div class="text-sm text-slate-700 mt-1">Control loops, motion control, sensor fusion, or any task where timing is critical.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-white border">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Common misconception</div>
+            <div class="text-sm text-slate-600 mt-1">Choosing C++ is required for all nodes — false. Use C++ for performance-sensitive servers, Python for rapid prototyping.</div>
+          </div>
+        </div>
+        <div class="mt-auto">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-xs font-medium text-slate-800">Use C++ when you need reliable timing, low latency, and tight memory behavior for action servers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <div class="rounded-2xl bg-white border p-6 h-full flex flex-col">
+        <div class="text-sm font-semibold text-slate-800">Concrete example: CountUntil server</div>
+        <div class="mt-3 text-sm text-slate-600">A server loops from 1 to max_number at 2 hertz, publishes feedback percentage, checks isPreemptRequested each iteration, and calls setSucceeded on success. The C++ path uses a CountUntilGoalConstPtr to avoid copying the request.</div>
+        <pre class="mt-4 bg-slate-900 text-white rounded-md p-3 text-sm overflow-auto" style="white-space:pre-wrap; tab-size:2; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace; max-height:260px;"><code>&lt;!-- snippet adapted from chapter --&gt;
+void executeCB(const my_first_robot::CountUntilGoalConstPtr&amp; goal) {
+  ros::Rate rate(2);
+  for (int i=1; i&lt;=goal-&gt;max_number; ++i) {
+    if (_as.isPreemptRequested()) {
+      _as.setPreempted();
+      return;
+    }
+    my_first_robot::CountUntilFeedback feedback;
+    feedback.percentage = float(i) / float(goal-&gt;max_number);
+    _as.publishFeedback(feedback);
+    rate.sleep();
+  }
+  my_first_robot::CountUntilResult result;
+  result.count = goal-&gt;max_number;
+  _as.setSucceeded(result);
+}
+</code></pre>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg p-3 bg-white border">
+            <div class="text-xs font-bold text-slate-700">Analogy</div>
+            <div class="text-sm text-slate-600 mt-1">C++ action servers are like a compiled controller board: minimal overhead and tight timing.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-white border">
+            <div class="text-xs font-bold text-slate-700">Check your understanding</div>
+            <div class="text-sm text-slate-600 mt-1">Why is ConstPtr used for the goal? Hint: think about copying versus referencing.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

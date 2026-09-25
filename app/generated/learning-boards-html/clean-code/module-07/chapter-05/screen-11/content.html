@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 07</span>
+    <span>›</span>
+    <span>Chapter 7.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Refactor Order</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Refactoring steps</div>
+      <ol class="mt-3 list-decimal list-inside text-sm text-slate-700 space-y-2">
+        <li>Add calculate_final_total(self) to Order.</li>
+        <li>Adapt logic to use self.items, self.shipping_cost_per_item, and self.tax_rate directly.</li>
+        <li>Run tests and update callers to use order.calculate_final_total().</li>
+        <li>Remove or forward the original method in OrderProcessor.</li>
+      </ol>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 border border-[rgba(226,232,240,0.9)] shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example refactor (conceptual)</div>
+      <pre class="mt-3 text-sm text-slate-700 bg-gray-50 rounded-md p-3" style="white-space:pre-wrap; tab-size:2;"><code>class Order:
+    def calculate_final_total(self):
+        total_items_price = sum(item['price'] * item['quantity'] for item in self.items)
+        shipping_total = sum(item['quantity'] for item in self.items) * self.shipping_cost_per_item
+        subtotal = total_items_price + shipping_total
+        tax = subtotal * self.tax_rate
+        return subtotal + tax</code></pre>
+      <div class="mt-3 text-sm text-slate-600">After this change, processors can call order.calculate_final_total() and no longer need to inspect Order internals.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

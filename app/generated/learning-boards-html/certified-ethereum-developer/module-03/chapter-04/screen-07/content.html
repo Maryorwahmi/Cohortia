@@ -1,0 +1,52 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.4</span>
+    <span>›</span>
+    <span class="text-slate-700">Reentrancy Guard and secure withdraw</span>
+  </div>
+
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border overflow-auto">
+      <div class="font-bold text-slate-800">Secure contract example</div>
+      <pre class="mono mt-3 p-3 bg-slate-50 rounded-lg card-border text-sm"><code>contract SecureWithdraw {
+  mapping(address =&gt; uint256) public balances;
+  bool private locked; // simple reentrancy guard
+
+  modifier noReentrancy() {
+    require(!locked, "Reentrant call detected");
+    locked = true;
+    _;
+    locked = false;
+  }
+
+  function deposit() public payable {
+    balances[msg.sender] += msg.value;
+  }
+
+  function withdraw() public noReentrancy {
+    uint256 amount = balances[msg.sender];
+    require(amount &gt; 0, "No funds to withdraw");
+
+    balances[msg.sender] = 0; // EFFECT
+
+    (bool success, ) = msg.sender.call{value: amount}(""); // INTERACTION
+    require(success, "Transfer failed");
+  }
+}
+</code></pre>
+      <div class="text-sm text-slate-600 mt-3">This example shows the guard modifier and the Effects-before-Interactions ordering together.</div>
+    </div>
+
+    <div class="w-1/2 bg-white rounded-2xl p-4 shadow-sm card-border flex flex-col">
+      <div class="font-bold text-slate-800">Why both measures matter</div>
+      <div class="mt-3 text-sm text-slate-600">The guard blocks nested entries into the function body, while ordering ensures state is consistent if an interaction occurs. Defense-in-depth reduces the chance a single missed check produces a catastrophic exploit.</div>
+
+      <div class="mt-4">
+        <div class="p-3 rounded-xl bg-emerald-50 text-emerald-700">Pro-tip: Use audited library implementations for production, but review logic to ensure the ordering is correct.</div>
+        <div class="p-3 rounded-xl bg-rose-50 text-rose-700 mt-3">Common mistake: Forgetting to reset the locked flag on early returns or reverts can lock out functionality; prefer well-tested patterns.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

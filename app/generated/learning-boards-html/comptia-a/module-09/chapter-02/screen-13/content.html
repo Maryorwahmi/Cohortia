@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.code {background:#0f172a;color:#e6eef8;padding:12px;border-radius:10px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 9</span>
+    <span>›</span>
+    <span>Chapter 9.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Flask Lab</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white card-border shadow-sm p-5 overflow-hidden">
+      <div class="text-sm font-bold text-slate-700">Starter problem areas</div>
+      <ul class="mt-3 text-sm text-slate-700 list-disc pl-4 space-y-2">
+        <li>Registration/login used string interpolation for INSERT/SELECT statements.</li>
+        <li>Comments were rendered without explicit escaping in the template.</li>
+        <li>App secret was hardcoded in the sample.</li>
+      </ul>
+
+      <div class="mt-4 text-sm text-slate-700">Your tasks: replace insecure db.execute calls with parameterized statements, and update templates to escape comment text. Add a couple of tests to ensure exploit strings no longer affect behavior.</div>
+    </div>
+
+    <div class="rounded-2xl bg-white card-border shadow-sm p-5 overflow-hidden">
+      <div class="text-sm font-bold text-slate-700">Secure replacements (examples)</div>
+      <pre class="code mt-3"># Registration example (secure)
+password_hash = hashlib.sha256(password.encode()).hexdigest()
+query = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+db.execute(query, (username, password_hash))
+db.commit()
+
+# Template example (Jinja2 explicit escape)
+&lt;div&gt;User Comment: {{ comment.comment_text | escape }}&lt;/div&gt;
+</pre>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+    <p class="text-xs font-medium text-slate-800">Implement parameterized queries and output encoding, then validate fixes with tests that attempt prior exploits.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

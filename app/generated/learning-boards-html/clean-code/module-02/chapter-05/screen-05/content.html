@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100">False Implications</span>
+    <span>›</span>
+    <span class="text-slate-700">When a Name Hides Side Effects</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="bg-white rounded-xl p-4 shadow-sm card-border">
+      <div class="text-lg font-bold text-slate-900">Misleading Example</div>
+      <div class="text-sm text-slate-600 mt-2">A function name that sounds like a check but creates state will surprise callers and break assumptions.</div>
+      <pre class="mt-4 p-3 bg-slate-900 text-slate-100 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, monospace;">
+# Misleading
+def is_valid_user(data):
+    # creates a user record under the hood
+    create_user_in_db(data)
+    return True
+
+# Honest alternative
+def create_user_if_missing(data):
+    # returns newly created user or existing user
+    ...
+      </pre>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 shadow-sm card-border flex flex-col">
+      <div class="text-lg font-bold text-slate-900">Guidelines & Example Names</div>
+      <ul class="mt-2 list-disc pl-5 text-sm text-slate-700 flex-grow">
+        <li>Use predicates for pure checks: is_valid_user, has_permission.</li>
+        <li>Use verbs for commands: create_user, ensure_user_exists, update_account_balance.</li>
+        <li>If a function both checks and changes, prefer a name that reflects the command, e.g., ensure_* or create_*.</li>
+      </ul>
+
+      <div class="mt-4">
+        <div class="rounded-lg p-3 bg-rose-50">
+          <div class="text-xs uppercase tracking-wider text-rose-700 font-bold">Common Mistake</div>
+          <div class="mt-2 text-sm text-slate-800">Using is_* or get_* for operations that store, delete, or mutate data. This hides side effects from the caller.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

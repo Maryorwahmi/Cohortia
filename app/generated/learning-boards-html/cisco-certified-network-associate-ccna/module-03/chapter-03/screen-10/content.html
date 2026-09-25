@@ -1,0 +1,46 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">R1 Configuration</span>
+  </div>
+
+  <div class="grid grid-cols-12 gap-5 flex-grow">
+    <div class="col-span-8 bg-white rounded-2xl p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full">
+      <div class="text-sm font-semibold text-slate-800">Step-by-step CLI</div>
+      <pre class="mt-3 rounded-lg bg-slate-900 text-white p-3"><code>R1> enable
+R1# configure terminal
+R1(config)# interface GigabitEthernet0/0
+R1(config-if)# ip address 10.0.0.1 255.255.255.252
+R1(config-if)# no shutdown
+R1(config-if)# exit
+R1(config)# interface GigabitEthernet0/1
+R1(config-if)# ip address 192.168.1.1 255.255.255.0
+R1(config-if)# no shutdown
+R1(config-if)# exit
+
+# Static route to LAN B via R2
+R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2
+
+# Default route to R2 for internet
+R1(config)# ip route 0.0.0.0 0.0.0.0 10.0.0.2
+R1(config)# end
+R1# show ip route</code></pre>
+    </div>
+
+    <div class="col-span-4 bg-white rounded-2xl p-6 shadow-sm border border-[rgba(226,232,240,0.9)] h-full">
+      <div class="text-sm font-semibold text-slate-800">Example verification</div>
+      <div class="text-xs text-slate-600 mt-2">After configuration, show ip route should show:</div>
+      <pre class="mt-3 rounded-lg bg-slate-50 text-slate-800 p-3"><code>C 192.168.1.0/24 is directly connected, GigabitEthernet0/1
+S 192.168.2.0/24 [1/0] via 10.0.0.2
+* 0.0.0.0/0 via 10.0.0.2</code></pre>
+
+      <div class="mt-4 rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Run basic pings to the next-hop and remote LANs after configuring routes; static routes depend on next-hop reachability.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

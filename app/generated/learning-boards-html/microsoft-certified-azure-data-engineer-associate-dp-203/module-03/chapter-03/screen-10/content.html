@@ -1,0 +1,59 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre { background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; white-space:pre-wrap; tab-size:2; }</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Python SDK CRUD</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 card p-4 overflow-auto">
+      <div class="text-sm font-bold text-slate-800">Starter code (excerpts)</div>
+      <pre><code>import os
+from azure.cosmos import CosmosClient, PartitionKey
+
+# Initialize client from environment
+endpoint = os.environ.get("COSMOS_DB_ENDPOINT")
+key = os.environ.get("COSMOS_DB_KEY")
+client = CosmosClient(endpoint, credential=key)
+
+db = client.create_database_if_not_exists(id="ProductCatalog")
+container = db.create_container_if_not_exists(
+  id="Products",
+  partition_key=PartitionKey(path="/category"),
+  offer_throughput=400
+)
+
+# Upsert an item
+item = {"id": "1", "name": "Laptop Pro", "category": "Electronics", "price": 1200}
+container.upsert_item(body=item)
+
+# Point read (efficient)
+read = container.read_item(item="1", partition_key="Electronics")
+
+# Query within a single partition
+query = "SELECT * FROM c WHERE c.category = 'Electronics'"
+for doc in container.query_items(query=query, partition_key="Electronics", enable_cross_partition_query=False):
+  print(doc["name"])</code></pre>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="card p-3">
+        <div class="text-sm font-bold text-slate-800">Concrete example</div>
+        <div class="text-sm text-slate-600 mt-2">Creating a container with partition key /category lets you run efficient queries for products in a given category without crossing partitions. Use read_item with id and partition_key for cheapest reads.</div>
+      </div>
+
+      <div class="card p-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Common mistake</div>
+        <div class="text-sm text-slate-700 mt-2">Omitting partition_key on point reads or deletes causes cross-partition execution and higher RU usage. Always provide partition_key for point operations.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Use the SDK to observe x-ms-request-charge and iterate on partitioning and queries to reduce RU costs.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

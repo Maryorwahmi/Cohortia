@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Definition</div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 pr-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-sm font-semibold text-slate-800">Explicit schema example</div>
+        <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="tab-size:2;white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+sales_schema = StructType([
+  StructField("OrderID", StringType(), True),
+  StructField("CustomerID", StringType(), True),
+  StructField("OrderDate", TimestampType(), True),
+  StructField("ProductCategory", StringType(), True),
+  StructField("Quantity", IntegerType(), True),
+  StructField("TotalAmount", DoubleType(), True)
+])
+</pre>
+        <div class="mt-3 text-xs text-slate-600">Define types explicitly to prevent runtime parsing errors and to keep aggregation state consistent across micro-batches.</div>
+      </div>
+    </div>
+
+    <div class="w-1/2 pl-4 flex flex-col gap-3">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm flex-1">
+        <div class="text-sm font-semibold text-slate-800">Transformations</div>
+        <div class="text-xs text-slate-600 mt-2">Use withColumn for derived fields, cast to date for day-level aggregation, and add ingestion timestamps for traceability.</div>
+
+        <pre class="mt-3 p-3 bg-slate-50 rounded-md text-sm overflow-auto" style="tab-size:2;white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+processed_streaming_df = streaming_df \
+  .withColumn("ProcessingTimestamp", current_timestamp()) \
+  .withColumn("OrderDay", col("OrderDate").cast("date"))
+</pre>
+
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <div class="rounded-lg bg-emerald-50 p-3">
+            <div class="text-xs font-bold text-emerald-700">Example</div>
+            <div class="text-xs text-slate-700 mt-1">Cast OrderDate to date to compute daily totals using groupBy on OrderDay and ProductCategory.</div>
+          </div>
+          <div class="rounded-lg bg-rose-50 p-3">
+            <div class="text-xs font-bold text-rose-700">Pitfall</div>
+            <div class="text-xs text-slate-700 mt-1">Allowing schema inference in production can lead to type mismatches when sources evolve.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pro Tip</div>
+        <p class="text-xs font-medium text-slate-800">Validate a short run of the stream and inspect the schema files under schemaLocation before going to production.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

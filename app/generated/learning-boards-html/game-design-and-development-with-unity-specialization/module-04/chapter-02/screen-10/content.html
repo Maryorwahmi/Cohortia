@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 04</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Camera & Player Architecture</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 rounded-xl bg-white card-border p-4 shadow-sm flex flex-col">
+      <div class="text-sm font-bold text-slate-800">Component roles</div>
+      <ul class="list-disc pl-5 mt-3 text-sm text-slate-700 space-y-2">
+        <li><span class="font-medium">Player</span>: handles movement, state, and CameraTarget child updates.</li>
+        <li><span class="font-medium">CameraTarget</span>: a transform offset for framing that the camera looks at.</li>
+        <li><span class="font-medium">Camera</span>: separate GameObject that follows target in LateUpdate and smooths position.</li>
+      </ul>
+
+      <div class="mt-4 text-xs uppercase tracking-wider text-slate-500">Why a target</div>
+      <div class="text-sm text-slate-700 mt-2">It isolates camera concerns and gives a single anchor for look-at and collision checks, simplifying future adjustments like aim offsets.</div>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white card-border p-4 shadow-sm">
+      <div class="text-sm font-bold text-slate-800">Collision avoidance pattern</div>
+      <div class="text-sm text-slate-700 mt-2">Raycast from CameraTarget to desired camera position. If hit, move camera to hit point minus a short buffer distance. If not hit, use smoothed desired position.</div>
+
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="rounded-md bg-emerald-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-emerald-700">Example</div>
+          <div class="text-sm text-slate-700 mt-1">Raycast detects a wall; camera pulls closer so the player remains visible without seeing inside geometry.</div>
+        </div>
+        <div class="rounded-md bg-amber-50 p-3">
+          <div class="text-xs uppercase tracking-wider text-amber-700">Takeaway</div>
+          <div class="text-sm text-slate-700 mt-1">Keep camera logic decoupled and update it after player movement to avoid visual inconsistencies.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

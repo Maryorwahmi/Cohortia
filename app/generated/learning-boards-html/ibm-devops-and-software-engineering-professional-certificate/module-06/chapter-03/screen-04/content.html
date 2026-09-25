@@ -1,0 +1,61 @@
+<div data-theme="light" class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg bg-white">
+  <style>.code {white-space: pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;}</style>
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Core Concept</div>
+      <div class="text-2xl font-bold text-slate-900">Why Services are necessary</div>
+      <div class="text-sm text-slate-600">Pods change. Services provide a stable interface that routes to current Pods.</div>
+
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm mt-3 flex-1">
+        <div class="text-sm text-slate-800 mb-2">Explanation</div>
+        <ul class="text-sm text-slate-700 list-disc ml-4">
+          <li>Service maps a stable cluster IP and DNS name to a selector-based group of Pods.</li>
+          <li>Endpoints are updated automatically as Pods are created or destroyed.</li>
+          <li>Clients use the Service address so they never need to track Pod IPs.</li>
+        </ul>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="rounded-lg p-3 bg-slate-50 border card-border">
+            <div class="text-xs font-bold text-slate-700">Concrete example</div>
+            <div class="text-sm text-slate-800">An Nginx Deployment with label app: nginx is exposed as nginx-service; traffic to nginx-service:80 reaches the Pods.</div>
+          </div>
+          <div class="rounded-lg p-3 bg-rose-50 border card-border">
+            <div class="text-xs font-bold text-rose-700">Common mistake</div>
+            <div class="text-sm text-slate-800">Mismatched selectors mean the Service finds zero endpoints and won't route traffic.</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+            <p class="text-sm font-medium text-slate-800">Services decouple client addressing from Pod lifecycle and keep traffic routed to healthy Pods.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-3">
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Service YAML example</div>
+        <pre class="code bg-slate-50 p-3 rounded-md text-sm border card-border"><code>apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP</code></pre>
+        <div class="text-xs text-slate-600 mt-2">Apply with kubectl apply -f nginx-service.yaml and verify with kubectl get services.</div>
+      </div>
+
+      <div class="rounded-xl border card-border bg-white p-4 shadow-sm flex-1">
+        <div class="text-sm font-bold text-slate-800 mb-2">Why this matters</div>
+        <div class="text-sm text-slate-700">Without a Service, clients would need to discover changing Pod IPs continually. The Service solves this operational problem and enables stable, predictable traffic routing inside the cluster.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>pre{white-space:pre-wrap; tab-size:2} .script{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.2</span>
+    <span>›</span>
+    <span class="text-slate-700">CI Script Walkthrough</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 border shadow-sm border-[rgba(226,232,240,0.9)] h-full overflow-auto">
+    <div class="text-lg font-bold text-slate-900">ci_script.sh (annotated)</div>
+    <div class="mt-3 text-sm text-slate-700">The script illustrates three stages: build the Docker image, run tests in a container, and perform a placeholder static analysis.</div>
+
+    <div class="mt-4 script monospace">
+      <pre><code>#!/bin/bash
+set -e # Exit immediately if a command exits with a non-zero status
+
+echo "--- CI Pipeline Started ---"
+
+echo "Building Docker image..."
+docker build -t my_flask_app:latest ./my_flask_app
+
+echo "Running tests..."
+docker run --rm -v "$(pwd)/my_flask_app:/app" python:3.9-slim-buster /bin/bash -c "pip install Flask==2.3.3 pytest && pytest /app/test_app.py"
+
+echo "Performing static analysis (placeholder)..."
+
+echo "--- CI Pipeline Completed Successfully ---"</code></pre>
+    </div>
+
+    <div class="mt-4 text-sm text-slate-700">Note: set -e causes the script to stop on the first error so the CI system receives a failing exit code. Running tests in a container reduces environment differences between CI and local machines.</div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

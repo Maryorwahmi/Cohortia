@@ -1,0 +1,56 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-5 shadow-sm card-border overflow-hidden">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-600">Code Walkthrough</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Pipeline JSON (simplified)</h3>
+      <div class="mt-3">
+        <pre class="bg-slate-900 text-white p-3 rounded-md text-sm" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+{
+  "name": "CopyCsvToSqlPipeline",
+  "properties": {
+    "activities": [
+      {
+        "name": "CopySampleCsvData",
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "DelimitedTextSource",
+            "storeSettings": {
+              "type": "AzureBlobFSReadSettings",
+              "wildcardFolderPath": "raw/sales",
+              "wildcardFileName": "sales_data_*.csv"
+            }
+          },
+          "sink": {
+            "type": "AzureSqlSink",
+            "writeBehavior": "insert",
+            "preCopyScript": "TRUNCATE TABLE [dbo].[SalesStaging];"
+          },
+          "dataIntegrationUnits": 4,
+          "parallelCopies": 8
+        },
+        "inputs": [{ "referenceName": "SourceCsvDataset", "type": "DatasetReference" }],
+        "outputs": [{ "referenceName": "SinkSqlTableDataset", "type": "DatasetReference" }]
+      }
+    ]
+  }
+}
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-xl bg-white p-5 shadow-sm card-border overflow-hidden flex flex-col">
+      <div class="text-[10px] uppercase tracking-wider font-bold text-slate-600">Example DDL</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Target table DDL</h3>
+      <pre class="bg-slate-900 text-white p-3 rounded-md text-sm mt-3" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">
+CREATE TABLE [dbo].[Staging_SampleData] (
+  [ID] INT,
+  [Name] NVARCHAR(100),
+  [City] NVARCHAR(100)
+);
+      </pre>
+
+      <div class="mt-4 text-sm text-slate-600">Note: Keep pre-copy scripts and DDL in source control. The JSON fields dataIntegrationUnits and parallelCopies are primary knobs for performance tuning.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

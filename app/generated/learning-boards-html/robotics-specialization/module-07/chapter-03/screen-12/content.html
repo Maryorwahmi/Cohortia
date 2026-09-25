@@ -1,0 +1,41 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Balancing Robot Code</span>
+  </div>
+
+  <div class="card p-6 h-full overflow-hidden">
+    <div class="font-bold text-slate-800">Selected MATLAB excerpt</div>
+    <pre class="mt-3 p-3 bg-slate-900 text-slate-50 rounded-md h-[48%] overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;">% Linearized dynamics (as in the exam)
+A = [0, 1, 0, 0;
+     0, 0, -3.27, 0;
+     0, 0, 0, 1;
+     0, 0, 32.67, 0];
+B = [0; 0.67; 0; -2.22];
+
+% Controller gains
+Kp_theta = 60; Kd_theta = 15;
+Kp_x = 3; Kd_x = 2;
+
+% EKF setup
+x_est = [0; 0; 0.05; 0];
+P = diag([0.1,0.01,0.01,0.001]);
+Q = diag([0.001,0.001,0.001,0.001]);
+R = diag([0.05^2,0.05^2,0.1^2]);</pre>
+
+    <div class="mt-4 grid grid-cols-2 gap-4">
+      <div class="p-3 rounded-lg border border-slate-100">
+        <div class="font-semibold text-slate-800">Runtime notes</div>
+        <div class="text-sm text-slate-600 mt-2">Start motion after a stabilization period, saturate control forces, and keep desired tilt within safe limits to prevent divergence of the linear model.</div>
+      </div>
+
+      <div class="p-3 rounded-lg border border-slate-100 bg-emerald-50">
+        <div class="font-semibold text-slate-800">Validation</div>
+        <div class="text-sm text-slate-600 mt-2">Plot true vs estimated states to check filter convergence and tune Q and R if estimates lag or overreact to noise.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

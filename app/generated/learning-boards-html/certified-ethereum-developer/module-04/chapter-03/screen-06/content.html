@@ -1,0 +1,69 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">MyToken.sol — Contract Structure</span>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 card-border shadow-sm h-full flex flex-col">
+    <div class="text-xl font-bold text-slate-800">MyToken.sol — Contract Structure</div>
+    <div class="text-sm text-slate-600 mt-1">Inheritance, constructor, and initial mint explained.</div>
+
+    <div class="mt-4 grid grid-cols-12 gap-4 flex-1">
+      <div class="col-span-7 bg-slate-50 rounded-lg p-4 border card-border overflow-auto">
+        <div class="text-sm font-semibold text-slate-800">Core contract (excerpt)</div>
+        <pre class="mt-2 bg-white p-3 rounded text-sm" style="white-space:pre-wrap; tab-size:2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol"; // For basic access control
+
+contract MyToken is ERC20, Ownable {
+    constructor(string memory name_, string memory symbol_, uint256 initialSupply_)
+        ERC20(name_, symbol_)
+        Ownable(msg.sender) // The deployer is the owner
+    {
+        // Mint the initial supply to the contract deployer
+        // initialSupply_ is in human-readable units, convert to base units
+        _mint(msg.sender, initialSupply_ * (10 ** decimals()));
+    }
+}
+        </pre>
+      </div>
+
+      <div class="col-span-5 rounded-lg p-4 bg-white card-border">
+        <div class="text-sm font-semibold text-slate-800">Annotations</div>
+        <ul class="mt-2 text-sm text-slate-600 space-y-2">
+          <li><strong>ERC20(name, symbol):</strong> initializes token metadata and decimals behavior.</li>
+          <li><strong>Ownable(msg.sender):</strong> sets the deployer as owner for owner-only functions.</li>
+          <li><strong>_mint(...):</strong> creates tokens in the smallest unit; use decimals() to convert human amounts.</li>
+        </ul>
+
+        <div class="mt-4 rounded-md bg-amber-50 p-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Misconception</div>
+          <div class="text-sm text-slate-700 mt-1">Passing initialSupply already multiplied by decimals will double-scale amounts if you also multiply in the constructor. Decide one convention and be consistent.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-md bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Example</div>
+        <div class="text-sm text-slate-700 mt-1">If decimals() returns 18, _mint(msg.sender, 1000 * (10 ** 18)) mints one thousand tokens in base units.</div>
+      </div>
+
+      <div class="rounded-md bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Check</div>
+        <div class="text-sm text-slate-700 mt-1">After deploying locally, query balanceOf(deployer) to confirm the expected base-unit balance.</div>
+      </div>
+
+      <div class="rounded-md bg-white p-3 border card-border">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Takeaway</div>
+        <div class="text-sm text-slate-700 mt-1">Constructor responsibilities: initialize parents, set owner, and mint correctly converted initial supply.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

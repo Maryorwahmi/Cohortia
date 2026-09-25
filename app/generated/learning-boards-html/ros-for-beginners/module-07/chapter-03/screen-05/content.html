@@ -1,0 +1,50 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 7</span>
+    <span>›</span>
+    <span>Chapter 7.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Topics vs Services vs Actions</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Comparison</div>
+      <div class="grid grid-cols-1 gap-3">
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-800">Topic — continuous stream</div>
+          <p class="text-sm text-slate-700">One-way, asynchronous. Example: camera publishes images on /camera/image_raw continuously.</p>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-800">Service — request/response</div>
+          <p class="text-sm text-slate-700">Synchronous, blocking. Example: /get_battery_level returns current charge on demand.</p>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50">
+          <div class="font-bold text-slate-800">Action — goal with feedback</div>
+          <p class="text-sm text-slate-700">Asynchronous goal, provides feedback and can be canceled. Example: /inspect_area action for camera inspection with progress updates.</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-amber-500 bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Using a service for long-running tasks instead of an action causes blocking and poor feedback.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-1/2 rounded-2xl bg-white p-5 card shadow-sm">
+      <div class="text-sm font-bold text-slate-800 mb-2">Decision checklist</div>
+      <ol class="list-decimal pl-5 text-sm text-slate-700 space-y-2">
+        <li>If data is continuous and many nodes may consume it, choose a topic.</li>
+        <li>If the interaction is a quick query with an immediate answer, choose a service.</li>
+        <li>If the task runs for a while and needs feedback or cancellation, choose an action.</li>
+      </ol>
+
+      <div class="mt-4">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Concrete example</div>
+        <div class="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">Patrol robot: motion sensor publishes boolean on /motion (topic). When true, patrol_controller sends a goal to /inspect_area (action) so camera_node can stream high-res images for a fixed interval. The alert path uses a service to log or notify on demand.</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>
+    .card { border: 1px solid rgba(226,232,240,0.9); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; tab-size: 2; white-space: pre-wrap; }
+  </style>
+  <div class="flex-1 grid grid-cols-12 gap-5 h-full">
+    <div class="col-span-5 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white p-4 card h-1/3">
+        <div class="flex items-center gap-3">
+          <svg class="w-6 h-6 text-violet-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+          <div class="text-sm font-bold text-slate-700">Full Backup</div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">Copies all selected data. Simple to restore; longer to run and larger storage footprint.</p>
+        <div class="mt-3 text-xs text-slate-500 uppercase tracking-wider">Use when restores must be fast</div>
+      </div>
+      <div class="rounded-2xl bg-white p-4 card h-1/3">
+        <div class="flex items-center gap-3">
+          <svg class="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"></path><path d="M12 3v18"></path></svg>
+          <div class="text-sm font-bold text-slate-700">Incremental Backup</div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">Backs up only data changed since the last backup. Fast and storage-efficient, but restores require chained increments.</p>
+        <div class="mt-3 text-xs text-slate-500 uppercase tracking-wider">Good for tight backup windows</div>
+      </div>
+      <div class="rounded-2xl bg-white p-4 card h-1/3">
+        <div class="flex items-center gap-3">
+          <svg class="w-6 h-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle></svg>
+          <div class="text-sm font-bold text-slate-700">Differential Backup</div>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">Copies data changed since the last full backup. Faster restore than incremental, grows each day until the next full backup.</p>
+        <div class="mt-3 text-xs text-slate-500 uppercase tracking-wider">Balance of backup time and restore speed</div>
+      </div>
+    </div>
+    <div class="col-span-7 flex flex-col gap-4 h-full">
+      <div class="rounded-2xl bg-white p-5 card flex-1 h-2/3">
+        <div class="text-sm font-bold text-slate-700 mb-2">Restore Scenarios — visualized</div>
+        <div class="grid grid-cols-2 gap-4 h-full">
+          <div class="bg-blue-50 rounded-lg p-3">
+            <div class="text-xs font-bold uppercase text-blue-700 mb-2">Incremental Restore</div>
+            <div class="mono text-sm text-slate-800 p-2 bg-white rounded"># apply full backup (Sunday)
+apply incremental (Mon)
+apply incremental (Tue)
+apply incremental (Wed)
+apply incremental (Thu)</div>
+            <p class="text-xs text-slate-600 mt-2">Each incremental depends on the previous. Missing one piece breaks the chain.</p>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3">
+            <div class="text-xs font-bold uppercase text-slate-700 mb-2">Differential Restore</div>
+            <div class="mono text-sm text-slate-800 p-2 bg-white rounded"># apply full backup (Sunday)
+apply differential (Thu)</div>
+            <p class="text-xs text-slate-600 mt-2">Only the latest differential is required, simplifying restores compared to incremental chains.</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3 h-1/3">
+        <div class="flex-1 rounded-xl bg-white p-3 card">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Example</div>
+          <p class="text-sm text-slate-700">A database team runs a weekly full backup and nightly incrementals. After a disk failure, they can restore the last full and apply nightly incrementals to recover up to the failure point.</p>
+        </div>
+        <div class="w-72 rounded-xl bg-white p-3 card">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <p class="text-sm text-slate-700">Skipping verification of incremental chains or forgetting to secure backup metadata. A backup is only useful if it restores cleanly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4">
+    <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+      <p class="text-xs font-medium text-slate-800">Match backup type to recovery needs: choose full for simplest restores, incrementals to reduce backup time, and differentials for faster restores than incrementals.</p>
+    </div>
+  </div>
+</div>

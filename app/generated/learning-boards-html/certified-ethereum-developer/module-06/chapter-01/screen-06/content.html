@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.1</span>
+    <span>›</span>
+    <span class="text-slate-700">Reentrancy</span>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 h-full">
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm">
+      <div class="text-lg font-semibold text-slate-800">Definition & mechanics</div>
+      <div class="text-sm text-slate-600 mt-2">When execution yields to an external contract before internal state is final, that external actor can re-enter and repeat logic.</div>
+
+      <div class="mt-4 space-y-2 text-sm">
+        <div>Key sign: external call (transfer/call) occurs before balance or state update.</div>
+        <div>Effect: attacker repeats the action, draining assets or corrupting state.</div>
+        <div>Defense: Checks-Effects-Interactions ordering and reentrancy guards.</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 card-border shadow-sm flex flex-col">
+      <div class="text-sm font-semibold text-slate-800">Example scenario</div>
+      <div class="text-sm text-slate-600 mt-2">A withdraw that sends Ether and only later sets balances to zero allows a calling contract to recursively invoke withdraw while the balance still appears available.</div>
+
+      <div class="mt-4">
+        <div class="rounded-lg bg-white p-3 card-border">Analogy: lending someone cash before you record the ledger entry; they can repeatedly ask for cash until you update the ledger.</div>
+      </div>
+
+      <div class="mt-auto">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+          <p class="text-xs font-medium text-slate-800">Trusting that external calls are harmless. Any external interaction can invoke untrusted code; treat it as an attacker vector.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

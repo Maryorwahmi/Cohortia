@@ -1,0 +1,60 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#f8fafc}.card-border{border:1px solid rgba(226,232,240,0.9)} pre{background:#0b1220;color:#e6eef6;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco,'Roboto Mono','Courier New',monospace;white-space:pre-wrap;tab-size:2}</style>
+  <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Hands-on Activity</div>
+      <h3 class="text-xl font-bold text-slate-900 mt-2">Simulated VLAN lab</h3>
+      <p class="text-sm text-slate-600 mt-3">Practice the exact sequence of commands on a simulated switch to build confidence and avoid common mistakes.</p>
+
+      <div class="mt-4">
+        <div class="text-sm font-semibold text-slate-800">Playbook</div>
+        <pre class="mt-2"><code>Switch> enable
+Switch# configure terminal
+! Create VLANs
+Switch(config)# vlan 10
+Switch(config-vlan)# name Sales_VLAN
+Switch(config-vlan)# exit
+Switch(config)# vlan 20
+Switch(config-vlan)# name HR_VLAN
+Switch(config-vlan)# exit
+! Assign ports
+Switch(config)# interface GigabitEthernet0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 10
+Switch(config-if)# description Connected to Sales PC
+Switch(config-if)# exit
+Switch(config)# interface GigabitEthernet0/2
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 20
+Switch(config-if)# description Connected to HR PC
+Switch(config-if)# exit
+</code></pre>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-4 card-border flex flex-col">
+      <div class="text-sm font-semibold text-slate-700">Expected verification output</div>
+      <pre class="mt-2"><code>Switch# show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Gi0/3, Gi0/4
+10   Sales_VLAN                       active    Gi0/1
+20   HR_VLAN                          active    Gi0/2
+
+Switch# show interfaces GigabitEthernet0/1 switchport
+Name: Gi0/1
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+Access Mode VLAN: 10 (Sales_VLAN)
+</code></pre>
+
+      <div class="mt-4">
+        <div class="rounded-xl bg-amber-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+          <div class="text-sm text-slate-700 mt-1">Forgetting to set switchport mode access can leave the port in a different mode and cause unexpected VLAN behavior.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

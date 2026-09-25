@@ -1,0 +1,42 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 3</span>
+    <span>›</span>
+    <span>Chapter 3.2</span>
+    <span>›</span>
+    <span class="text-slate-700">Service-based control pattern</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white card p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Pattern explained</div>
+      <div class="mt-3 text-sm text-slate-600">
+        The battery node publishes BatteryState messages continuously. The monitor subscribes to that topic and calls a /set_led service when the percentage falls below a threshold. The service changes the LED panel state synchronously and returns success.
+      </div>
+
+      <div class="mt-4 text-sm text-slate-600 rounded-lg bg-slate-50 p-3">
+        <div class="text-xs font-medium text-slate-700">Python client snippet (concept)</div>
+        <pre class="mt-2 whitespace-pre-wrap p-2 bg-white border rounded" style="tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;"><code>rospy.wait_for_service('/set_led')
+set_led = rospy.ServiceProxy('/set_led', SetLed)
+# in callback:
+if msg.percentage &lt; threshold and not led_on:
+    set_led(3, True)
+    led_on = True</code></pre>
+      </div>
+    </div>
+
+    <div class="flex-1 rounded-xl bg-white card p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-800">Safety and performance</div>
+      <ul class="mt-3 text-sm text-slate-600 space-y-2">
+        <li>Prevent repeated calls by tracking local state or using hysteresis.</li>
+        <li>Keep service handlers fast to avoid blocking important callbacks.</li>
+        <li>Always check the service response and log or retry based on success flags.</li>
+      </ul>
+
+      <div class="mt-4 rounded-lg p-3 bg-amber-50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Common mistake</div>
+        <div class="text-sm text-slate-800 mt-1">Calling services on every topic message</div>
+        <div class="text-xs text-slate-500 mt-1">Use local guards so repeated identical calls are avoided.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

@@ -1,0 +1,78 @@
+<div class='h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg' data-theme='light'>
+  <div class='flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4'>
+    <span class='px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100'>Definition</span>
+    <span class='text-slate-700'>docker-compose.yml structure</span>
+  </div>
+
+  <div class='flex gap-6 h-full'>
+    <div class='w-7/12 bg-white rounded-2xl p-4 card-border'>
+      <div class='text-sm font-semibold text-slate-800'>Example docker-compose.yml (root of project)</div>
+      <div class='mt-3 rounded-lg bg-slate-50 p-3 mono text-sm card-border' style='white-space:pre-wrap; tab-size:2;'>
+<pre><code>version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:5000"
+    volumes:
+      - ./app:/app
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      DATABASE_URL: postgresql://user:password@db:5432/mydb
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+</code></pre>
+      </div>
+    </div>
+
+    <div class='w-5/12 bg-white rounded-2xl p-4 card-border flex flex-col'>
+      <div class='text-sm font-semibold text-slate-800'>Explainer cards</div>
+      <div class='mt-3 space-y-3 flex-1'>
+        <div class='rounded-lg bg-blue-50 p-3'>
+          <div class='font-semibold text-blue-700'>build vs image</div>
+          <div class='text-sm text-slate-600 mt-1'>Use build to construct an image from a Dockerfile in your repo. Use image to pull an existing image from a registry.</div>
+        </div>
+
+        <div class='rounded-lg bg-amber-50 p-3'>
+          <div class='font-semibold text-amber-700'>ports</div>
+          <div class='text-sm text-slate-600 mt-1'>Map a host port to a container port so you can access services from your machine.</div>
+        </div>
+
+        <div class='rounded-lg bg-emerald-50 p-3'>
+          <div class='font-semibold text-emerald-700'>volumes</div>
+          <div class='text-sm text-slate-600 mt-1'>Named volumes persist data. Bind mounts let you edit code live during development.</div>
+        </div>
+      </div>
+
+      <div class='mt-3'>
+        <div class='text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1'>Concrete example</div>
+        <div class='rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3'>
+          <div class='text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1'>Run this locally</div>
+          <p class='text-sm font-medium text-slate-800'>Place this file at the project root, then run docker compose up to build and start web and db together.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

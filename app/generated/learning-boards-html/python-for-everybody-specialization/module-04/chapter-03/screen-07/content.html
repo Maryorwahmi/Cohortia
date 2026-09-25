@@ -1,0 +1,33 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 4</span>
+    <span>›</span>
+    <span>Chapter 4.3</span>
+    <span>›</span>
+    <span class="text-slate-700">Safe vs Unsafe</span>
+  </div>
+
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-rose-600">Unsafe (vulnerable)</div>
+      <pre class="mono mt-3 p-3 bg-rose-50 border border-rose-100 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2;"># DO NOT DO THIS
+user_input = "'; DROP TABLE users; --"
+sql = "INSERT INTO users (name, email) VALUES ('" + user_input + "', 'x@example.com')"
+cursor.execute(sql)</pre>
+      <p class="text-sm text-slate-700 mt-3">This concatenation treats input as SQL. The malicious fragment could terminate the VALUES list and execute arbitrary commands.</p>
+    </div>
+
+    <div class="w-1/2 card p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-blue-700">Safe (parameterized)</div>
+      <pre class="mono mt-3 p-3 bg-slate-50 border border-slate-100 rounded-lg text-sm" style="white-space:pre-wrap; tab-size:2;"># Safe binding
+user_input = "'; DROP TABLE users; --"
+cursor.execute("INSERT INTO users (name, email) VALUES (?, ?)", (user_input, 'x@example.com'))</pre>
+      <p class="text-sm text-slate-700 mt-3">Here the input is treated as data. The database stores the literal string rather than executing it.</p>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-xl border-l-4 border-l-amber-400 bg-amber-50 p-3">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Quick Tip</div>
+    <p class="text-xs font-medium text-slate-800">Always prefer parameter binding to manual escaping. It is simpler and more reliable across drivers.</p>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

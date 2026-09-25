@@ -1,0 +1,34 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.cohortia-bg{background:#ffffff}</style>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 bg-white rounded-xl p-4 border" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-xs uppercase tracking-wider font-bold text-slate-600 mb-2">Code Walkthrough</div>
+      <div class="text-lg font-bold text-slate-900">Accessing content and attributes</div>
+      <div class="mt-3 text-sm text-slate-700 space-y-2">
+        <div>• element.text returns the text content of an element node.</div>
+        <div>• element.get('name') returns the attribute value or None if absent.</div>
+        <div>• Always assign the result of find to a variable and check it before reading .text.</div>
+      </div>
+      <div class="mt-4">
+        <div class="rounded-xl border-l-4 border-l-rose-500 bg-rose-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common Mistake</div>
+          <p class="text-xs font-medium text-slate-800">Calling .text on the result of find without checking for None will raise AttributeError when the element is missing.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 bg-slate-100 rounded-xl p-4 border" style="border-color: rgba(226,232,240,0.9);">
+      <div class="text-sm font-semibold text-slate-800">Example</div>
+      <pre class="mt-3 p-3 bg-white rounded text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2;"><code>for user in users:
+    user_id = user.get('id')
+    name_el = user.find('name')
+    name = name_el.text if name_el is not None else 'Unknown'
+    email_el = user.find('email')
+    email = email_el.text if email_el is not None else ''
+    email_type = email_el.get('type') if email_el is not None else None
+    phone_el = user.find('phone')
+    phone = phone_el.text if phone_el is not None else None
+    print(user_id, name, email_type, email, phone)</code></pre>
+      <div class="mt-3 text-sm text-slate-600">This pattern makes your script resilient: it sets sensible defaults and avoids raising AttributeError on missing nodes.</div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

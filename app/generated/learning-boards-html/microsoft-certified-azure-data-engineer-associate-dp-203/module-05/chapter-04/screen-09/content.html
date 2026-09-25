@@ -1,0 +1,55 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.4</span>
+    <span>›</span>
+    <span class="text-slate-700">MERGE INTO Upserts</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2">
+      <div class="rounded-2xl p-4 bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800">MERGE example</div>
+        <pre class="mt-3 rounded-md bg-slate-900 text-white p-3 text-sm overflow-auto" style="white-space: pre-wrap; tab-size: 2; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;">
+from delta.tables import DeltaTable
+from pyspark.sql.functions import current_timestamp
+
+# Prepare updates_df as shown in the chapter
+updates_df = spark.createDataFrame(updates_data, ["DeviceID", "ReadingDate", "Temperature"]).withColumn("ReadingDate", to_date(col("ReadingDate"), "yyyy-MM-dd"))
+
+deltaTable = DeltaTable.forPath(spark, delta_path)
+
+deltaTable.alias("target").merge(
+    updates_df.alias("source"),
+    "target.DeviceID = source.DeviceID AND target.ReadingDate = source.ReadingDate"
+).whenMatchedUpdate(set = {
+    "Temperature": "source.Temperature",
+    "LastUpdated": current_timestamp()
+}).whenNotMatchedInsert(values = {
+    "DeviceID": "source.DeviceID",
+    "ReadingDate": "source.ReadingDate",
+    "Temperature": "source.Temperature",
+    "LastUpdated": current_timestamp()
+}).execute()
+        </pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl p-4 bg-white card-border shadow-sm h-full">
+        <div class="text-sm font-bold text-slate-800">Checks and validations</div>
+        <ul class="text-sm text-slate-700 mt-2 space-y-2">
+          <li>Run the merge on a small test partition first.</li>
+          <li>Confirm before/after row counts and sample updated rows by ordering on keys.</li>
+          <li>Include audit columns to track the timing and origin of changes.</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl p-3 bg-rose-50 border card-border">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Common mistake</div>
+        <p class="text-xs font-medium text-rose-700">Executing MERGE without constraints or tests can accidentally overwrite rows. Always stage merges and validate results.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

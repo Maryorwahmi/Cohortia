@@ -1,0 +1,38 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> :root{--emerald:#10b981;--slate-border:rgba(226,232,240,0.9)} </style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">Definition</span>
+    <span>›</span>
+    <span class="text-slate-700">Distribution Strategies</span>
+  </div>
+  <div class="flex gap-4 h-full">
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm" style="border:1px solid var(--slate-border)">
+      <h3 class="text-xl font-bold text-slate-900 mb-3">Strategy cards</h3>
+      <div class="space-y-3">
+        <div class="rounded-lg p-3 bg-white border" style="border-color:var(--slate-border)">
+          <div class="flex items-start gap-3"><svg width="24" height="24" viewBox="0 0 24 24" class="text-emerald-600" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/></svg>
+          <div><div class="text-sm font-semibold text-slate-800">Hash Distribution</div><div class="text-xs text-slate-600 mt-1">Distribute by a hash of a chosen column. Best for large fact tables joined on that key. Reduces shuffle for joins when key co-location is present.</div></div></div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border" style="border-color:var(--slate-border)">
+          <div class="flex items-start gap-3"><svg width="24" height="24" viewBox="0 0 24 24" class="text-emerald-600" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+          <div><div class="text-sm font-semibold text-slate-800">Round Robin</div><div class="text-xs text-slate-600 mt-1">Evenly cycles rows across nodes. Fast loading but often causes data movement during joins because rows aren't co-located for join keys.</div></div></div>
+        </div>
+        <div class="rounded-lg p-3 bg-white border" style="border-color:var(--slate-border)">
+          <div class="flex items-start gap-3"><svg width="24" height="24" viewBox="0 0 24 24" class="text-emerald-600" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/></svg>
+          <div><div class="text-sm font-semibold text-slate-800">Replicated</div><div class="text-xs text-slate-600 mt-1">Full copy on every node. Great for small dimension tables frequently joined to large facts. Avoids shuffles but increases storage and write overhead.</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="w-1/2 rounded-xl bg-white p-4 shadow-sm" style="border:1px solid var(--slate-border)">
+      <h3 class="text-xl font-semibold text-slate-900 mb-2">Example & Guidance</h3>
+      <div class="text-sm text-slate-600 space-y-3">
+        <p>Example: FactSales with billions of rows should be Hash-distributed on ProductKey if DimProduct is frequently joined on ProductKey and DimProduct is small enough to replicate.</p>
+        <p>Guidance: Prefer hash when you can pick a high-cardinality join key used often in joins. If there's no good key, use round robin for staging and then redistribute for final load. Replicate small lookup tables under about two gigabytes compressed.</p>
+        <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+          <p class="text-xs font-medium text-slate-800">Distribution choices shape query movement and performance. Choose with joins and cardinality in mind.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

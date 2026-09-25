@@ -1,0 +1,58 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 6</span>
+    <span>›</span>
+    <span>Chapter 6.5</span>
+    <span>›</span>
+    <span class="text-slate-700">Refactor activity</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+    <div class="card p-5">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Starter code</div>
+      <pre class="text-sm font-mono bg-[#0b1220] text-[#dbeafe] p-3 rounded" style="white-space:pre-wrap;tab-size:2">// VulnerablePaymentSystem (starter)
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VulnerablePaymentSystem {
+  address[] public recipients;
+  mapping(address =&gt; bool) public isRecipient;
+  uint256 public paymentPerRecipient = 0.01 ether;
+
+  function addRecipient(address _recipient) public {
+    require(!isRecipient[_recipient], "Already a recipient");
+    recipients.push(_recipient);
+    isRecipient[_recipient] = true;
+  }
+
+  // Vulnerable to DoS if 'recipients' array grows too large
+  function payAllRecipients() public payable {
+    // owner guard omitted for brevity
+    for (uint i = 0; i &lt; recipients.length; i++) {
+      address payable recipient = payable(recipients[i]);
+      (bool success, ) = recipient.call{value: paymentPerRecipient}("");
+      require(success, "Payment failed for a recipient");
+    }
+  }
+
+  receive() external payable {}
+}
+</pre>
+    </div>
+
+    <div class="card p-5">
+      <div class="text-xs uppercase tracking-wider text-slate-500">Refactor steps</div>
+      <ol class="list-decimal ml-4 mt-2 text-sm text-slate-600">
+        <li>Replace recipients array with mapping(address =&gt; uint256) claims.</li>
+        <li>Record payable amounts via recordClaim instead of pushing to array.</li>
+        <li>Implement withdraw that zeros balance before transfer.</li>
+        <li>Test with increasing numbers of simulated recipients to confirm safety.</li>
+      </ol>
+
+      <div class="mt-4 p-3 rounded-lg bg-white border border-slate-100">
+        <div class="text-sm font-semibold">Testing tips</div>
+        <div class="text-xs text-slate-600 mt-1">Use scripts to add thousands of recipients locally and run gas estimates on payAllRecipients before and after the refactor to see the difference.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

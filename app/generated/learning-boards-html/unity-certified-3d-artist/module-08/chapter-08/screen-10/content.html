@@ -1,0 +1,81 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style>.card-border{border:1px solid rgba(226,232,240,0.9);} pre code{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 8</span>
+    <span>›</span>
+    <span>Chapter 8.8</span>
+    <span>›</span>
+    <span class="text-slate-700">2D Blend Tree &amp; Script</span>
+  </div>
+
+  <div class="flex gap-6 h-full">
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Setup summary</div>
+        <div class="text-sm text-slate-700 space-y-2">
+          <div>Create LocomotionController, add Float parameters Speed and Direction.</div>
+          <div>Create a 2D Freeform Directional Blend Tree and add five motion fields with positions Idle(0,0), WalkF(0,0.5), RunF(0,1), WalkL(-0.5,0.5), WalkR(0.5,0.5).</div>
+          <div>Assign controller to the Animator component on the character and set the Locomotion state as default.</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3 mt-auto">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Keep parameter updates consistent with your movement update method and validate behavior in Play mode while observing parameter values.</p>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-2xl bg-white p-4 card-border shadow-sm h-full overflow-auto">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">CharacterMovement.cs (template)</div>
+        <pre class="text-sm bg-slate-100 p-3 rounded" aria-hidden><code>using UnityEngine;
+
+public class CharacterMovement : MonoBehaviour
+{
+  public float walkSpeed = 2f;
+  public float runSpeed = 5f;
+  public float rotationSpeed = 100f; // Degrees per second
+
+  private Animator animator;
+  private Rigidbody rb; // Assuming a Rigidbody for movement
+
+  void Start()
+  {
+    animator = GetComponent&lt;Animator&gt;();
+    rb = GetComponent&lt;Rigidbody&gt;();
+    if (animator == null) Debug.LogError("Animator not found!");
+    if (rb == null) Debug.LogError("Rigidbody not found!");
+  }
+
+  void FixedUpdate() // Use FixedUpdate for Rigidbody physics
+  {
+    float horizontal = Input.GetAxis("Horizontal"); // A/D keys
+    float vertical = Input.GetAxis("Vertical");     // W/S keys
+
+    Vector3 moveDirection = new Vector3(horizontal, 0, vertical).normalized;
+    float currentSpeed = moveDirection.magnitude; // How much input is being given (0 to 1)
+
+    // Determine if running
+    bool isRunning = Input.GetKey(KeyCode.LeftShift);
+    float targetSpeed = isRunning ? runSpeed : walkSpeed;
+
+    // Update Animator parameters
+    animator.SetFloat("Speed", currentSpeed * (isRunning ? 1f : 0.5f)); // Scale speed for animator blend tree
+    animator.SetFloat("Direction", horizontal); // Use horizontal for direction
+
+    // Apply actual movement
+    Vector3 movement = transform.forward * vertical * targetSpeed * Time.fixedDeltaTime;
+    rb.MovePosition(rb.position + movement);
+
+    // Apply rotation
+    float turn = horizontal * rotationSpeed * Time.fixedDeltaTime;
+    Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
+    rb.MoveRotation(rb.rotation * turnRotation);
+  }
+}
+</code></pre>
+        <div class="text-xs text-slate-600 mt-2">Note: Keep SetFloat calls in FixedUpdate here to match Rigidbody movement updates for consistent parameter-reaction timing.</div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

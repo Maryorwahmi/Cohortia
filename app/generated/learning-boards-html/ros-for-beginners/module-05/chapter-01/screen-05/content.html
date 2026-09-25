@@ -1,0 +1,49 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light"> 
+  <style>.card{background:#fff;border:1px solid rgba(226,232,240,0.9);border-radius:12px;} pre{white-space:pre-wrap;tab-size:2;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;}</style>
+  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4">
+    <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">Module 5</span>
+    <span>›</span>
+    <span>Chapter 5.1</span>
+    <span>›</span>
+    <span class="text-slate-700">rosparam CLI</span>
+  </div>
+  <div class="flex gap-4 h-full"> 
+    <div class="w-1/2 card p-4 flex flex-col"> 
+      <div class="text-sm font-semibold text-slate-800 mb-2">Command cheatsheet</div>
+      <pre class="bg-slate-50 p-3 rounded text-sm text-slate-800"># Set a parameter
+rosparam set /robot_name "my_robot"
+rosparam set /sensor_frequency 40
+rosparam set /simulation_mode false
+
+# Get a parameter
+rosparam get /robot_name
+
+# List parameters
+rosparam list
+
+# Delete a parameter
+rosparam delete /robot_name
+
+# Dump and load
+rosparam dump params.yaml
+rosparam load params.yaml</pre>
+      <div class="mt-3 text-sm text-slate-600">Use these commands during an experiment for quick tuning. Remember that dump captures the server state and load merges values into the server.</div>
+    </div>
+    <div class="w-1/2 flex flex-col justify-between"> 
+      <div class="card p-4"> 
+        <div class="text-sm font-semibold text-slate-800 mb-2">Practical example</div>
+        <div class="text-sm text-slate-600">Suppose a sensor is noisy at 40 Hz. Use rosparam set /sensor_frequency 20 while testing; the node reading that parameter can adapt on its next check. After tuning, use rosparam dump to save the tuned configuration.</div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3"> 
+        <div class="p-3 rounded bg-slate-50 border"> 
+          <div class="text-xs font-semibold text-slate-700">Common misconception</div>
+          <div class="text-sm text-slate-600 mt-1">rosparam load will overwrite everything. In fact it merges keys; keys present in the YAML will be set or updated, others remain unchanged.</div>
+        </div>
+        <div class="p-3 rounded bg-emerald-50 border border-emerald-100"> 
+          <div class="text-xs font-semibold text-emerald-700">Pro tip</div>
+          <div class="text-sm text-slate-700 mt-1">Dump a params.yaml before a long run so you can restore the exact configuration if you need to repeat the experiment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>

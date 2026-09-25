@@ -1,0 +1,51 @@
+<div class="h-full w-full flex flex-col p-5 relative overflow-hidden cohortia-bg" data-theme="light">
+  <style> pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; background:#071029; color:#cfe8ff; padding:10px; border-radius:8px } .panel { border:1px solid rgba(226,232,240,0.9); background:#fff } </style>
+  <div class="flex h-full gap-6">
+    <div class="w-1/2 panel rounded-2xl p-4">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Starter code</div>
+      <div class="text-lg font-bold text-slate-900 mt-1">StopMySQLServer (Python)</div>
+      <div class="text-sm text-slate-600 mt-2">Simplified snippet from the chapter to stop a MySQL flexible server after retrieving secrets.</div>
+      <div class="mt-3">
+        <pre><code>from azure.identity import DefaultAzureCredential
+from azure.mgmt.rdbms.mysql_flexibleservers import MySQLManagementClient
+from azure.keyvault.secrets import SecretClient
+import os
+
+subscription_id = os.environ.get('AZURE_SUBSCRIPTION_ID')
+resource_group_name = os.environ.get('RESOURCE_GROUP_NAME')
+server_name = os.environ.get('MYSQL_SERVER_NAME')
+
+credential = DefaultAzureCredential()
+client = MySQLManagementClient(credential, subscription_id)
+
+# Get server state and stop if running
+server_status = client.servers.get(resource_group_name, server_name).user_visible_state
+if server_status.lower() == 'running':
+  client.servers.begin_stop(resource_group_name, server_name).result()
+</code></pre>
+      </div>
+    </div>
+
+    <div class="w-1/2 flex flex-col gap-4">
+      <div class="rounded-xl p-4 border border-slate-100 bg-white">
+        <div class="text-sm font-bold text-slate-800">Checklist</div>
+        <ol class="mt-2 text-sm text-slate-600 list-decimal pl-4">
+          <li>Create Automation Account and enable system-assigned Managed Identity.</li>
+          <li>Grant Managed Identity Get on Key Vault secret and a scoped role on the MySQL resource.</li>
+          <li>Add azure-identity and azure-keyvault-secrets packages.</li>
+          <li>Create, test, publish runbook, then link a schedule.</li>
+        </ol>
+      </div>
+
+      <div class="rounded-xl p-3 bg-slate-50 border border-slate-100">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Testing tip</div>
+        <div class="text-sm text-slate-600 mt-1">Use a non-production server and verify logs show stop initiation and completion before scheduling in production.</div>
+      </div>
+
+      <div class="rounded-xl border-l-4 border-l-emerald-500 bg-emerald-50 p-3">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Key Takeaway</div>
+        <p class="text-xs font-medium text-slate-800">Follow the checklist and test thoroughly; confirm Key Vault and role permissions to avoid runtime failures.</p>
+      </div>
+    </div>
+  </div>
+<style>pre, code, [class*="code"], [class*="editor"], [class*="snippet"], [class*="source"] { white-space: pre-wrap; tab-size: 2; }</style></div>
