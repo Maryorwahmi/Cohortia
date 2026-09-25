@@ -213,6 +213,7 @@ async function generateCourse(category, course, options) {
 
   const record = await readCourseRecord(course.id);
   const completedChapters = record.completedChapters || {};
+  console.log(`Using shared generation record: ${path.join(generatedRoot, 'record.json')}`);
   let code = 0;
   let generatedOrImported = 0;
   let skippedChapters = 0;
@@ -220,7 +221,7 @@ async function generateCourse(category, course, options) {
     const chapterKey = `${moduleNumber}.${chapterNumber}`;
     if (!options.overwrite
       && completedChapters[chapterKey]?.status === 'completed'
-      && !completedChapters[chapterKey]?.backfilled) {
+    ) {
       console.log(`Skipping ${course.id}, chapter ${chapterKey}; record.json marks it complete.`);
       skippedChapters += 1;
       continue;

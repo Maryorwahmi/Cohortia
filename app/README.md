@@ -121,6 +121,10 @@ be deleted without losing generation history. Existing per-course
 `<course-id>/record.json` files are migrated into the central record the next
 time the batch generator runs.
 
+Every completed chapter is treated as resumable, including chapters marked
+`backfilled`. Use `--overwrite` only when you intentionally want to regenerate
+completed chapters.
+
 ### Recovering after a Turso network failure
 
 Chapter generation writes the local manifest before the Turso import. If the
