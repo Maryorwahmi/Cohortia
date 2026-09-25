@@ -189,6 +189,17 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     }
   };
 
+  const handleGoogleContinue = () => {
+    const googleAuthUrl = String(import.meta.env.VITE_GOOGLE_AUTH_URL || "").trim();
+
+    if (!googleAuthUrl) {
+      setErrorMsg("Google sign-in is not configured yet. Please use your email and password for now.");
+      return;
+    }
+
+    window.location.assign(googleAuthUrl);
+  };
+
   const learningMethodOptions = [
     "Video lessons & demos",
     "Reading & documentation",
@@ -313,6 +324,23 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
                   <p className="text-sm text-immersive-text-secondary">
                     Choose your learning direction and start your workspace in one step.
                   </p>
+                </div>
+
+                <div className="space-y-4">
+                  <button
+                    type="button"
+                    onClick={handleGoogleContinue}
+                    className="w-full py-3.5 rounded-xl text-xs font-bold text-immersive-text-primary bg-immersive-bg border border-immersive-border hover:border-immersive-secondary hover:bg-immersive-card-hover transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                    aria-label="Continue with Google"
+                  >
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white text-sm font-bold leading-none">G</span>
+                    <span>Continue with Google</span>
+                  </button>
+                  <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-immersive-text-secondary/60">
+                    <span className="h-px flex-1 bg-immersive-border" />
+                    <span>Or use your email</span>
+                    <span className="h-px flex-1 bg-immersive-border" />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -915,6 +943,23 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
               </div>
 
               <form onSubmit={handleLoginSubmit} className="space-y-5">
+                <div className="space-y-4">
+                  <button
+                    type="button"
+                    onClick={handleGoogleContinue}
+                    className="w-full py-3.5 rounded-xl text-xs font-bold text-immersive-text-primary bg-immersive-bg border border-immersive-border hover:border-immersive-secondary hover:bg-immersive-card-hover transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                    aria-label="Continue with Google"
+                  >
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white text-sm font-bold leading-none">G</span>
+                    <span>Continue with Google</span>
+                  </button>
+                  <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-immersive-text-secondary/60">
+                    <span className="h-px flex-1 bg-immersive-border" />
+                    <span>Or use your email</span>
+                    <span className="h-px flex-1 bg-immersive-border" />
+                  </div>
+                </div>
+
                 {/* Email */}
                 <div className="space-y-1.5 text-left">
                   <label className="text-[10px] font-mono text-immersive-secondary font-bold uppercase tracking-wider block">
