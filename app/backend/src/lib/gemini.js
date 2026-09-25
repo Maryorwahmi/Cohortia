@@ -415,10 +415,30 @@ export async function generateCompleteJson({ systemPrompt, userPrompt, maxTokens
     continuations++;
   }
 
-  const parsed = extractJson(fullText);
-  if (parsed) {
+  let parsed = extractJson(fullText);
+  if (parsed !== null) {
     return { success: true, data: parsed, raw: fullText };
   }
 
-  return { success: false, error: 'Could not parse valid JSON from AI response', raw: fullText };
+  const repair = await callGemini({
+    systemPrompt: `${systemPrompt || ''}\nReturn exactly one valid JSON value matching the requested response shape. Do not include markdown or explanatory text.`,
+    userPrompt: `The previous response could not be parsed as JSON. Retry the original task and return only valid JSON.\n\nOriginal task:\n${userPrompt}\n\nPrevious response to correct:\n${fullText.slice(-8000)}`,
+    maxTokens,
+    jsonMode: true,
+    responseSchema,
+  });
+  if (repair.success) {
+    parsed = extractJson(repair.text);
+    if (parsed !== null) {
+      return { success: true, data: parsed, raw: repair.text };
+    }
+  }
+
+  return {
+    success: false,
+    error: repair.success
+      ? 'Could not parse valid JSON from AI response after a format retry'
+      : `Could not parse valid JSON from AI response; format retry failed: ${repair.error}`,
+    raw: fullText,
+  };
 }

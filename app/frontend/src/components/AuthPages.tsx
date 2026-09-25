@@ -6,8 +6,7 @@ import {
 } from "lucide-react";
 import Logo from "./Logo";
 import { useAuth } from "../context/AuthContext";
-import { trackApi, Track } from "../services/api";
-import { RoadmapSelection } from "../types";
+import { RoadmapSelection, SignupDraft } from "../types";
 
 interface AuthPagesProps {
   initialTab: "signup" | "login";
@@ -17,6 +16,7 @@ interface LocationState {
   from?: { pathname?: string };
   selectedTrackId?: string;
   roadmapSelection?: RoadmapSelection;
+  signupDraft?: SignupDraft;
 }
 
 function readPendingRoadmap(): RoadmapSelection | undefined {
@@ -28,51 +28,80 @@ function readPendingRoadmap(): RoadmapSelection | undefined {
   }
 }
 
+function readPendingSignupDraft(): SignupDraft | undefined {
+  try {
+    const stored = sessionStorage.getItem("cohortia_pending_signup_draft");
+    return stored ? JSON.parse(stored) as SignupDraft : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function RoadmapSignupSummary({selection}: {selection: RoadmapSelection}) {
+  const courseInfo = new Map((selection.courseInfo || []).map((course) => [course.id, course]));
+  const levelById = new Map(
+    (Object.entries(selection.selectedCourses) as Array<[string, string[]]>)
+      .flatMap(([level, ids]) => ids.map((id) => [id, level] as const))
+  );
+
+  return (
+    <section aria-label="Selected roadmap courses" className="rounded-2xl border border-immersive-border bg-immersive-card/60 p-4 space-y-3">
+      <div>
+        <h3 className="text-sm font-bold text-immersive-text-primary">{selection.selectedCareer} roadmap</h3>
+        <p className="text-xs text-immersive-text-secondary mt-1">{selection.careerGoal} · {selection.roadmapOrder.length} courses in progression order</p>
+        {selection.careerFocusLabel && <p className="text-xs text-immersive-text-secondary mt-1">Focus: {selection.careerFocusLabel}</p>}
+      </div>
+      <ol className="space-y-2">
+        {selection.roadmapOrder.map((id, index) => {
+          const course = courseInfo.get(id);
+          return (
+            <li key={id} className="flex gap-3 rounded-xl border border-immersive-border p-3">
+              <span className="text-xs font-mono text-immersive-secondary shrink-0">0{index + 1}</span>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-immersive-text-primary">{course?.title || id}</p>
+                <p className="text-[10px] uppercase text-immersive-text-secondary mt-1">{course?.level || levelById.get(id)}</p>
+                {course?.description && <p className="text-xs text-immersive-text-secondary mt-1 line-clamp-2">{course.description}</p>}
+                {course?.skills?.length ? <p className="text-[10px] text-immersive-text-secondary mt-1"><strong>Skills:</strong> {course.skills.slice(0, 4).join(", ")}</p> : null}
+                {course?.outcomes?.length ? <p className="text-[10px] text-immersive-text-secondary mt-1"><strong>You’ll learn:</strong> {course.outcomes.slice(0, 2).join("; ")}</p> : null}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
 export default function AuthPages({ initialTab }: AuthPagesProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, signup, completeExternalLogin } = useAuth();
+  const routeState = location.state as LocationState | null;
+  const pendingRoadmap = routeState?.roadmapSelection || readPendingRoadmap();
+  const signupDraft = routeState?.signupDraft || (pendingRoadmap ? readPendingSignupDraft() : undefined);
 
   const [activeTab, setActiveTab] = useState<"signup" | "login">(initialTab);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(signupDraft?.step || 1);
   const [showPassword, setShowPassword] = useState(false);
-  const [roadmapSelection] = useState<RoadmapSelection | undefined>(() =>
-    (location.state as LocationState | null)?.roadmapSelection || readPendingRoadmap()
-  );
+  const [roadmapSelection] = useState<RoadmapSelection | undefined>(pendingRoadmap);
 
   // STEP 1: About You
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [country, setCountry] = useState("Nigeria");
-  const [ageRange, setAgeRange] = useState("20-25");
-  const [education, setEducation] = useState("Bachelor's Degree");
-  const [learningMethods, setLearningMethods] = useState<string[]>(["Hands-on projects"]);
+  const [name, setName] = useState(signupDraft?.name || "");
+  const [phone, setPhone] = useState(signupDraft?.phone || "");
+  const [email, setEmail] = useState(signupDraft?.email || "");
+  const [country, setCountry] = useState(signupDraft?.country || "Nigeria");
+  const [ageRange, setAgeRange] = useState(signupDraft?.ageRange || "20-25");
+  const [education, setEducation] = useState(signupDraft?.education || "Bachelor's Degree");
+  const [learningMethods, setLearningMethods] = useState<string[]>(signupDraft?.learningMethods || ["Hands-on projects"]);
 
   // STEP 2: Background
-  const [objective, setObjective] = useState(roadmapSelection?.careerGoal || "Pivot into a tech career");
-  const [experienceText, setExperienceText] = useState("");
-  const [experienceLevel, setExperienceLevel] = useState("beginner");
+  const [objective, setObjective] = useState(roadmapSelection?.careerGoal || signupDraft?.objective || "Pivot into a tech career");
+  const [experienceText, setExperienceText] = useState(signupDraft?.experienceText || "");
+  const [experienceLevel, setExperienceLevel] = useState(signupDraft?.experienceLevel || "beginner");
 
   // STEP 3: Learning Plan & Track
-  const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
-  const [selectedTrack, setSelectedTrack] = useState("");
-  const [commitment, setCommitment] = useState("fulltime");
-
-  useEffect(() => {
-    trackApi.getAll()
-      .then((res) => {
-        const tracks = Array.isArray(res.data?.tracks) ? (res.data?.tracks as Track[]) : [];
-        setAvailableTracks(tracks);
-        const selectedTrackId = (location.state as LocationState | null)?.selectedTrackId || roadmapSelection?.selectedCareerId;
-        if (selectedTrackId) {
-          setSelectedTrack(selectedTrackId);
-        } else if (tracks.length > 0) {
-          setSelectedTrack(tracks[0].id);
-        }
-      })
-      .catch(() => {});
-  }, [location.state, roadmapSelection?.selectedCareerId]);
+  const [selectedTrack, setSelectedTrack] = useState(routeState?.selectedTrackId || roadmapSelection?.selectedCareerId || signupDraft?.selectedTrack || "");
+  const [commitment, setCommitment] = useState(signupDraft?.commitment || "fulltime");
 
   // STEP 4: Account Security
   const [password, setPassword] = useState("");
@@ -119,6 +148,28 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     }
   };
 
+  const createSignupDraft = (resumeStep: number): SignupDraft => ({
+    name,
+    phone,
+    email,
+    country,
+    ageRange,
+    education,
+    learningMethods,
+    objective,
+    experienceText,
+    experienceLevel,
+    commitment,
+    selectedTrack,
+    step: resumeStep,
+  });
+
+  const continueToRoadmap = () => {
+    const draft = createSignupDraft(3);
+    sessionStorage.setItem("cohortia_pending_signup_draft", JSON.stringify(draft));
+    navigate("/experience?signup=1", {state: {signupDraft: draft}});
+  };
+
   const handleNextStep = () => {
     if (step === 1) {
       if (!name.trim() || !phone.trim() || !email.trim()) {
@@ -128,6 +179,10 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       setStep(2);
       setErrorMsg("");
     } else if (step === 2) {
+      if (!roadmapSelection) {
+        continueToRoadmap();
+        return;
+      }
       setStep(3);
     } else if (step === 3) {
       setStep(4);
@@ -143,6 +198,10 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
 
   const handleSignupSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!roadmapSelection) {
+      continueToRoadmap();
+      return;
+    }
     if (password !== confirmPassword) {
       setErrorMsg("Passwords do not match!");
       return;
@@ -187,6 +246,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
 
     if (result.success) {
       sessionStorage.removeItem("cohortia_pending_roadmap");
+      sessionStorage.removeItem("cohortia_pending_signup_draft");
       setSuccessMsg("Welcome to Cohortia! Account created successfully.");
       setTimeout(() => {
         navigate("/dashboard");
@@ -236,6 +296,11 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   };
 
   const handleGoogleContinue = () => {
+    if (activeTab === "signup" && !roadmapSelection) {
+      continueToRoadmap();
+      return;
+    }
+
     const googleAuthUrl = String(import.meta.env.VITE_GOOGLE_AUTH_URL || "").trim();
 
     if (!googleAuthUrl) {
@@ -253,12 +318,6 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     "Mentor calls & feedback",
     "Community & peer learning"
   ];
-
-  const tracks = availableTracks.map((t) => ({
-    id: t.id,
-    label: t.title,
-    desc: t.category || 'Computer Science',
-  }));
 
   const getFieldError = (field: string) => fieldErrors[field]?.[0];
 
@@ -430,10 +489,16 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
 
                 <div className="space-y-1.5 text-left">
                   <label className="text-[10px] font-mono text-immersive-secondary font-bold uppercase tracking-wider block">Learning Field *</label>
-                  <select required value={selectedTrack} onChange={(e) => setSelectedTrack(e.target.value)} className="w-full bg-immersive-bg border border-immersive-border rounded-xl px-4 py-3 text-xs text-immersive-text-primary focus:outline-none focus:border-immersive-secondary cursor-pointer">
-                    <option value="">Choose a course or learning track</option>
-                    {tracks.map((track) => <option key={track.id} value={track.id}>{track.label}</option>)}
-                  </select>
+                  {roadmapSelection ? (
+                    <RoadmapSignupSummary selection={roadmapSelection} />
+                  ) : (
+                    <div className="space-y-2">
+                      <button type="button" onClick={continueToRoadmap} className="w-full rounded-xl border border-immersive-border px-4 py-3 text-left text-xs font-bold text-immersive-text-primary hover:border-immersive-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary">
+                        Choose a career roadmap and courses <ArrowRight aria-hidden="true" className="inline ml-2 w-4 h-4" />
+                      </button>
+                      <p className="text-[11px] text-immersive-text-secondary">Your profile details will be saved. For your security, enter your password after choosing your courses.</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -780,34 +845,16 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
                     </div>
 
                     <div className="space-y-3 text-left">
-                      <label className="text-[10px] font-mono text-immersive-secondary font-bold uppercase tracking-wider block">
-                        Choose your curriculum
-                      </label>
-                      <select 
-                        className="w-full bg-immersive-bg border border-immersive-border rounded-xl px-4 py-3.5 text-sm text-immersive-text-primary focus:outline-none focus:border-immersive-secondary transition-all cursor-pointer"
-                        value={selectedTrack}
-                        onChange={(e) => setSelectedTrack(e.target.value)}
-                      >
-                        {tracks.length === 0 && <option value="">Loading courses...</option>}
-                        {Array.from(new Set(tracks.map((t) => t.desc.split(' — ')[0] || 'Courses'))).map((category) => (
-                          <optgroup key={category} label={category}>
-                            {tracks
-                              .filter((t) => (t.desc.split(' — ')[0] || 'Courses') === category)
-                              .slice(0, 25)
-                              .map((t) => (
-                                <option key={t.id} value={t.id}>{t.label}</option>
-                              ))}
-                          </optgroup>
-                        ))}
-                        <option value="custom">Other (Custom Course)</option>
-                      </select>
-                      
-                      {selectedTrack === "custom" && (
-                        <input
-                          type="text"
-                          placeholder="What course would you like to take?"
-                          className="w-full bg-immersive-bg border border-immersive-border rounded-xl px-4 py-3.5 text-sm text-immersive-text-primary focus:outline-none focus:border-immersive-secondary transition-all mt-2"
-                        />
+                      <label className="text-[10px] font-mono text-immersive-secondary font-bold uppercase tracking-wider block">Your selected curriculum</label>
+                      {roadmapSelection ? (
+                        <RoadmapSignupSummary selection={roadmapSelection} />
+                      ) : (
+                        <div className="space-y-2">
+                          <button type="button" onClick={continueToRoadmap} className="w-full rounded-xl border border-immersive-border p-4 text-left text-sm font-bold text-immersive-text-primary hover:border-immersive-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary">
+                            Choose a career roadmap and courses <ArrowRight aria-hidden="true" className="inline ml-2 w-4 h-4" />
+                          </button>
+                          <p className="text-[11px] text-immersive-text-secondary">Your profile details will be saved. For your security, enter your password after choosing your courses.</p>
+                        </div>
                       )}
                     </div>
 

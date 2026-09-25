@@ -21,6 +21,20 @@ const recommendationResponseSchema = {
   },
   required: ['beginner', 'intermediate', 'advanced'],
 };
+const careerFocuses = {
+  'frontend-development': { interfaces: 'responsive, accessible user interfaces', performance: 'fast, reliable browser experiences', applications: 'interactive web applications and state management' },
+  'backend-development': { apis: 'API design and service integration', data: 'data modelling and database reliability', architecture: 'secure, scalable backend architecture' },
+  'data-analytics': { reporting: 'dashboards, reporting, and communicating insights', sql: 'SQL, data quality, and analytical workflows', decisions: 'using metrics to guide business decisions' },
+  'data-science': { modelling: 'statistical modelling and prediction', experiments: 'experimentation, causal reasoning, and evaluation', pipelines: 'preparing data and building reproducible workflows' },
+  'ai-ml-engineering': { models: 'training, evaluating, and deploying machine-learning models', generative: 'generative AI applications and language models', production: 'reliable ML systems, monitoring, and responsible deployment' },
+  cybersecurity: { defense: 'threat detection and defensive security operations', application: 'application security and vulnerability testing', governance: 'risk analysis, identity, and security governance' },
+  'cloud-engineering': { architecture: 'cloud infrastructure and architecture', security: 'cloud security, identity, and networking', operations: 'reliable cloud operations and cost management' },
+  'devops-engineering': { automation: 'CI/CD and release automation', infrastructure: 'infrastructure as code and cloud platforms', reliability: 'observability, incident response, and reliability' },
+  'ux-ui-design': { research: 'user research and usability testing', interaction: 'interaction design and prototyping', systems: 'design systems and accessible visual interfaces' },
+  'qa-testing': { automation: 'automated testing and test frameworks', quality: 'test planning and product quality practices', delivery: 'API, performance, and continuous testing' },
+  'product-management': { discovery: 'customer discovery and problem definition', strategy: 'product strategy and prioritization', analytics: 'product analytics and experimentation' },
+  'full-stack-development': { frontend: 'building polished, accessible frontend experiences', backend: 'designing APIs, data models, and backend services', delivery: 'shipping complete applications from idea to deployment' },
+};
 
 const normalizeCareerId = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const bundledCourseDetailsPath = path.resolve(import.meta.dirname, '..', 'data', 'course-details.json');
@@ -185,9 +199,13 @@ catalogCoursesRoute.post('/recommend', async (c) => {
   const careerId = normalizeCareerId(body.selectedCareerId);
   const limits = recommendationLimits[body.careerGoal];
   const learnerStage = String(body.learnerStage || '').toLowerCase();
+  const careerFocus = careerFocuses[careerId];
 
   if (!limits || !Object.keys(limits).includes(learnerStage) || !careerId) {
     return c.json({success: false, error: 'Career goal, career, and learner stage are required'}, 400);
+  }
+  if (body.careerFocusId && (!careerFocus || !Object.hasOwn(careerFocus, body.careerFocusId))) {
+    return c.json({success: false, error: 'The selected career focus is invalid'}, 400);
   }
 
   const links = await db.select({courseId: catalogCourseCareers.courseId})
@@ -241,6 +259,7 @@ catalogCoursesRoute.post('/recommend', async (c) => {
 Goal: ${body.careerGoal}
 Career ID: ${careerId}
 Learner stage: ${learnerStage}
+Learner's selected focus: ${careerFocus?.[body.careerFocusId] || 'No specific focus selected'}
 
 Canonical catalog metadata:
 ${JSON.stringify(metadata)}

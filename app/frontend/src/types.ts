@@ -8,6 +8,8 @@ export interface RoadmapCourseSelection {
   title: string;
   level: RoadmapLevel;
   description?: string | null;
+  outcomes?: string[];
+  skills?: string[];
 }
 
 export interface RoadmapSelection {
@@ -15,8 +17,27 @@ export interface RoadmapSelection {
   learningStage: RoadmapLevel;
   selectedCareerId: string;
   selectedCareer: string;
+  careerFocusId?: string;
+  careerFocusLabel?: string;
   selectedCourses: Record<RoadmapLevel, string[]>;
   roadmapOrder: string[];
+  courseInfo?: RoadmapCourseSelection[];
+}
+
+export interface SignupDraft {
+  name: string;
+  phone: string;
+  email: string;
+  country: string;
+  ageRange: string;
+  education: string;
+  learningMethods: string[];
+  objective: string;
+  experienceText: string;
+  experienceLevel: string;
+  commitment: string;
+  selectedTrack: string;
+  step: number;
 }
 
 export interface CohortTrack {

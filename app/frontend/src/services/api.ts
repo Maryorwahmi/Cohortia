@@ -221,6 +221,14 @@ export interface CatalogCourse {
   source?: string | null;
 }
 
+export interface CatalogCourseDetails {
+  overview: string;
+  keyConcepts: string[];
+  outcomes: string[];
+  skills?: string[];
+  syllabus: Array<{module: string; theme: string; chapters: string}>;
+}
+
 export interface CatalogCoursesResponse {
   success: boolean;
   data?: {courses: CatalogCourse[]};
@@ -229,7 +237,7 @@ export interface CatalogCoursesResponse {
 
 export const catalogCourseApi = {
   getAll: () => fetchApi<CatalogCoursesResponse>('/catalog-courses'),
-  recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string }) =>
+  recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string; careerFocusId?: string }) =>
     fetchApi<{
       success: boolean;
       data?: {
@@ -249,7 +257,7 @@ export const catalogCourseApi = {
   getByCareer: (careerId: string) =>
     fetchApi<CatalogCoursesResponse>(`/catalog-courses?careerId=${encodeURIComponent(careerId)}`),
   getDetails: (id: string) =>
-    fetchApi<{success: boolean; data?: {course: CatalogCourse; details: {overview: string; keyConcepts: string[]; outcomes: string[]; skills?: string[]; syllabus: Array<{module: string; theme: string; chapters: string}>}}; error?: string}>(`/catalog-courses/${encodeURIComponent(id)}/details`),
+    fetchApi<{success: boolean; data?: {course: CatalogCourse; details: CatalogCourseDetails}; error?: string}>(`/catalog-courses/${encodeURIComponent(id)}/details`),
 };
 
 // Tracks
