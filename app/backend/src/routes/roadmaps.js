@@ -29,6 +29,48 @@ function parseRoadmapSelection(value) {
   }
 }
 
+function attachSelectedBundle(generated, selectedBundle, desiredField) {
+  if (!selectedBundle) return generated;
+  const toId = (course) => typeof course === 'string' ? course : course?.id;
+  const roadmapOrder = Array.isArray(selectedBundle.roadmapOrder)
+    ? selectedBundle.roadmapOrder.map(toId).filter(Boolean)
+    : [];
+  if (!roadmapOrder.length) return generated;
+
+  const levelById = new Map();
+  for (const level of ['beginner', 'intermediate', 'advanced']) {
+    for (const course of Array.isArray(selectedBundle.selectedCourses?.[level]) ? selectedBundle.selectedCourses[level] : []) {
+      const id = toId(course);
+      if (id) levelById.set(id, level);
+    }
+  }
+  const modules = Array.isArray(generated.modules) ? generated.modules : [];
+  const baseCount = Math.floor(modules.length / roadmapOrder.length);
+  const remainder = modules.length % roadmapOrder.length;
+  let moduleCursor = 0;
+  const courses = roadmapOrder.map((courseId, index) => {
+    const moduleCount = baseCount + (index < remainder ? 1 : 0);
+    const courseModules = modules.slice(moduleCursor, moduleCursor + moduleCount);
+    moduleCursor += moduleCount;
+    return {
+      courseId,
+      level: levelById.get(courseId) || 'beginner',
+      order: index + 1,
+      modules: courseModules,
+    };
+  });
+
+  return {
+    ...generated,
+    selection: {
+      careerGoal: selectedBundle.careerGoal || null,
+      selectedCareerId: selectedBundle.selectedCareerId || desiredField || null,
+      roadmapOrder,
+    },
+    courses,
+  };
+}
+
 const SYSTEM_PROMPT = `You are Cohortia, an expert curriculum designer and career educator. Generate a syllabus-driven, personalised learning roadmap.
 
 CRITICAL DESIGN PRINCIPLES:
@@ -604,6 +646,7 @@ Important:
 
   // Deduplicate modules to ensure unique titles
   generated = deduplicateModules(generated);
+  generated = attachSelectedBundle(generated, selectedBundle, roadmapInput.desiredField);
 
   const now = new Date().toISOString();
   const roadmapId = uuidv4();

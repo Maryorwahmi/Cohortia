@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Check, ChevronLeft, LoaderCircle, Route, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { catalogCourseApi, CatalogCourse } from "../services/api";
@@ -41,39 +41,40 @@ function normalizeLevel(level?: string | null): RoadmapLevel | null {
   return levels.includes(value as RoadmapLevel) ? value as RoadmapLevel : null;
 }
 
-function courseMatchesCareer(course: CatalogCourse, career: string) {
-  const text = `${course.title} ${course.category} ${course.subcategory} ${course.description || ""}`.toLowerCase();
-  const terms = career.toLowerCase().replace(/[\/&]/g, " ").split(/\s+/).filter((term) => term.length > 2);
-  return terms.filter((term) => text.includes(term)).length;
-}
-
 export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState<RoadmapGoal>(goals[0].id);
   const [career, setCareer] = useState(careers[0]);
   const [catalog, setCatalog] = useState<CatalogCourse[]>([]);
+  const [optionsByLevel, setOptionsByLevel] = useState<Record<RoadmapLevel, CatalogCourse[]>>({ beginner: [], intermediate: [], advanced: [] });
   const [selected, setSelected] = useState<Record<RoadmapLevel, CatalogCourse[]>>({ beginner: [], intermediate: [], advanced: [] });
   const [loading, setLoading] = useState(true);
+  const [recommending, setRecommending] = useState(false);
 
   useEffect(() => {
     catalogCourseApi.getAll().then((response) => setCatalog(response.data?.courses || [])).catch(() => setCatalog([])).finally(() => setLoading(false));
   }, []);
 
   const activeLevels = (Object.keys(quotas[goal]) as RoadmapLevel[]);
-  const optionsByLevel = useMemo(() => {
-    const matches = catalog
-      .map((course) => ({ course, score: courseMatchesCareer(course, career.label) }))
-      .sort((a, b) => b.score - a.score || a.course.title.localeCompare(b.course.title));
-    return levels.reduce((result, level) => {
-      const quota = quotas[goal][level];
-      if (!quota) return result;
-      const levelCourses = matches.filter(({ course }) => normalizeLevel(course.level) === level && courseMatchesCareer(course, career.label) > 0).map(({ course }) => course);
-      const fallback = matches.filter(({ course }) => normalizeLevel(course.level) === level).map(({ course }) => course);
-      result[level] = (levelCourses.length ? levelCourses : fallback).slice(0, quota.options);
-      return result;
-    }, {} as Record<RoadmapLevel, CatalogCourse[]>);
-  }, [catalog, career, goal]);
+  useEffect(() => {
+    if (loading || !catalog.length) return;
+    let cancelled = false;
+    setRecommending(true);
+    catalogCourseApi.recommend({
+      careerGoal: goal,
+      selectedCareerId: career.id,
+      learnerStage: activeLevels[0],
+      catalogCourses: catalog,
+    }).then((response) => {
+      if (!cancelled) setOptionsByLevel({ beginner: response.data?.courses?.beginner || [], intermediate: response.data?.courses?.intermediate || [], advanced: response.data?.courses?.advanced || [] });
+    }).catch(() => {
+      if (!cancelled) setOptionsByLevel({ beginner: [], intermediate: [], advanced: [] });
+    }).finally(() => {
+      if (!cancelled) setRecommending(false);
+    });
+    return () => { cancelled = true; };
+  }, [catalog, goal, career.id, activeLevels[0], loading]);
 
   const totalSelected = Object.values(selected).flat().length;
   const canContinue = activeLevels.every((level) => selected[level].length === quotas[goal][level]?.choose);
@@ -106,8 +107,8 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
           </div>
           <div className="p-5 sm:p-8">
             {step === 1 && <div className="space-y-6"><h3 className="text-2xl font-extrabold text-immersive-text-primary">What are you building toward?</h3><div className="grid md:grid-cols-3 gap-3">{goals.map((item) => <button key={item.id} onClick={() => { setGoal(item.id); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} className={`text-left p-5 rounded-2xl border transition-all ${goal === item.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}><span className="text-sm font-bold text-immersive-text-primary">{item.title}</span><p className="text-xs text-immersive-text-secondary mt-2 leading-relaxed">{item.description}</p></button>)}</div><button onClick={() => setStep(2)} className="primary-action">Choose a career <ArrowRight className="w-4 h-4" /></button></div>}
-            {step === 2 && <div className="space-y-6"><div><h3 className="text-2xl font-extrabold text-immersive-text-primary">Choose your career lane</h3><p className="text-sm text-immersive-text-secondary mt-2">We will use the course catalog to shape the right progression for this goal.</p></div><div className="grid grid-cols-2 md:grid-cols-4 gap-2">{careers.map((item) => <button key={item.id} onClick={() => setCareer(item)} className={`p-3 rounded-xl border text-xs font-bold text-left ${career.id === item.id ? "border-[#FF4B3E] text-immersive-text-primary bg-[#FF4B3E]/10" : "border-immersive-border text-immersive-text-secondary hover:border-immersive-secondary/60"}`}>{item.label}</button>)}</div><div className="flex gap-3"><button onClick={() => setStep(1)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Back</button><button onClick={() => setStep(3)} className="primary-action">Browse {career.label} courses <ArrowRight className="w-4 h-4" /></button></div></div>}
-            {step === 3 && <div className="space-y-7"><div><h3 className="text-2xl font-extrabold text-immersive-text-primary">Build your course bundle</h3><p className="text-sm text-immersive-text-secondary mt-2">Choose the required number at each level. Beginner always comes first in your roadmap.</p></div>{loading ? <div className="flex items-center gap-2 text-sm text-immersive-text-secondary"><LoaderCircle className="w-4 h-4 animate-spin" /> Loading catalog...</div> : activeLevels.map((level) => <div key={level} className="space-y-3"><div className="flex justify-between items-center"><h4 className="text-sm font-bold uppercase tracking-widest text-immersive-text-primary">{level}</h4><span className="text-xs text-immersive-secondary">Choose {quotas[goal][level]?.choose}</span></div><div className="grid md:grid-cols-2 gap-3">{(optionsByLevel[level] || []).map((course) => { const isSelected = selected[level].some((item) => item.id === course.id); return <button key={course.id} onClick={() => toggleCourse(level, course)} className={`p-4 rounded-xl border text-left ${isSelected ? "border-emerald-400 bg-emerald-400/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}><div className="flex justify-between gap-3"><span className="text-sm font-bold text-immersive-text-primary">{course.title}</span>{isSelected && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}</div><p className="text-xs text-immersive-text-secondary mt-2 line-clamp-2">{course.description || "Catalog course selected for this career lane."}</p></button>; })}</div></div>)}<div className="flex gap-3"><button onClick={() => setStep(2)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Back</button><button disabled={!canContinue} onClick={() => setStep(4)} className="primary-action disabled:opacity-40">Review roadmap <ArrowRight className="w-4 h-4" /></button></div></div>}
+            {step === 2 && <div className="space-y-6"><div><h3 className="text-2xl font-extrabold text-immersive-text-primary">Choose your career lane</h3><p className="text-sm text-immersive-text-secondary mt-2">We will use the course catalog to shape the right progression for this goal.</p></div><div className="grid grid-cols-2 md:grid-cols-4 gap-2">{careers.map((item) => <button key={item.id} onClick={() => { setCareer(item); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} className={`p-3 rounded-xl border text-xs font-bold text-left ${career.id === item.id ? "border-[#FF4B3E] text-immersive-text-primary bg-[#FF4B3E]/10" : "border-immersive-border text-immersive-text-secondary hover:border-immersive-secondary/60"}`}>{item.label}</button>)}</div><div className="flex gap-3"><button onClick={() => setStep(1)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Back</button><button onClick={() => setStep(3)} className="primary-action">Browse {career.label} courses <ArrowRight className="w-4 h-4" /></button></div></div>}
+            {step === 3 && <div className="space-y-7"><div><h3 className="text-2xl font-extrabold text-immersive-text-primary">Build your course bundle</h3><p className="text-sm text-immersive-text-secondary mt-2">AI ranked these courses from the canonical {career.label} catalog for your goal and stage.</p></div>{loading || recommending ? <div className="flex items-center gap-2 text-sm text-immersive-text-secondary"><LoaderCircle className="w-4 h-4 animate-spin" /> {loading ? "Loading catalog..." : "Ranking career courses..."}</div> : activeLevels.map((level) => <div key={level} className="space-y-3"><div className="flex justify-between items-center"><h4 className="text-sm font-bold uppercase tracking-widest text-immersive-text-primary">{level}</h4><span className="text-xs text-immersive-secondary">Choose {quotas[goal][level]?.choose}</span></div><div className="grid md:grid-cols-2 gap-3">{(optionsByLevel[level] || []).map((course) => { const isSelected = selected[level].some((item) => item.id === course.id); return <button key={course.id} onClick={() => toggleCourse(level, course)} className={`p-4 rounded-xl border text-left ${isSelected ? "border-emerald-400 bg-emerald-400/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}><div className="flex justify-between gap-3"><span className="text-sm font-bold text-immersive-text-primary">{course.title}</span>{isSelected && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}</div><p className="text-xs text-immersive-text-secondary mt-2 line-clamp-2">{course.description || "Catalog course selected for this career lane."}</p></button>; })}</div></div>)}<div className="flex gap-3"><button onClick={() => setStep(2)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Back</button><button disabled={!canContinue} onClick={() => setStep(4)} className="primary-action disabled:opacity-40">Review roadmap <ArrowRight className="w-4 h-4" /></button></div></div>}
             {step === 4 && <div className="space-y-6"><div><span className="text-xs font-mono tracking-widest text-[#FF4B3E]">ROADMAP READY</span><h3 className="text-2xl font-extrabold text-immersive-text-primary mt-2">{career.label} / {goal}</h3><p className="text-sm text-immersive-text-secondary mt-2">Your active learning lane has {totalSelected} courses in level order.</p></div><div className="space-y-2">{activeLevels.flatMap((level) => selected[level].map((course) => ({ level, course }))).map(({ level, course }, index) => <div key={course.id} className="flex items-center gap-4 p-4 rounded-xl border border-immersive-border"><span className="text-xs font-mono text-immersive-secondary">0{index + 1}</span><div><p className="text-sm font-bold text-immersive-text-primary">{course.title}</p><p className="text-xs text-immersive-text-secondary uppercase mt-1">{level}</p></div></div>)}</div><div className="flex gap-3"><button onClick={() => setStep(3)} className="secondary-action"><ChevronLeft className="w-4 h-4" /> Edit bundle</button><button onClick={continueToSignup} className="primary-action">Continue to sign up <ArrowRight className="w-4 h-4" /></button></div></div>}
           </div>
         </div>

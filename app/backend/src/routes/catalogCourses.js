@@ -4,8 +4,16 @@ import path from 'node:path';
 import {db} from '../db/index.js';
 import {catalogCourses, catalogCourseSubcategories, catalogCourseCareers, tracks, lessons} from '../db/schema.js';
 import {eq, inArray} from 'drizzle-orm';
+import {generateCompleteJson} from '../lib/gemini.js';
 
 const catalogCoursesRoute = new Hono();
+const recommendationLimits = {
+  'Pivot into a new career': {beginner: {options: 4, choose: 2}, intermediate: {options: 3, choose: 2}, advanced: {options: 2, choose: 1}},
+  'Up-skill in my current role': {beginner: {options: 3, choose: 2}, intermediate: {options: 2, choose: 1}, advanced: {options: 2, choose: 1}},
+  'Lead & Specialize': {intermediate: {options: 2, choose: 1}, advanced: {options: 2, choose: 1}},
+};
+
+const normalizeCareerId = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const bundledCourseDetailsPath = path.resolve(import.meta.dirname, '..', 'data', 'course-details.json');
 let bundledCourseDetails;
 
@@ -162,6 +170,85 @@ async function getTrackDetails(courseId) {
     })(),
   };
 }
+
+catalogCoursesRoute.post('/recommend', async (c) => {
+  const body = await c.req.json();
+  const careerId = normalizeCareerId(body.selectedCareerId);
+  const limits = recommendationLimits[body.careerGoal];
+  const learnerStage = String(body.learnerStage || '').toLowerCase();
+
+  if (!limits || !Object.keys(limits).includes(learnerStage) || !careerId) {
+    return c.json({success: false, error: 'Career goal, career, and learner stage are required'}, 400);
+  }
+
+  const links = await db.select({courseId: catalogCourseCareers.courseId})
+    .from(catalogCourseCareers)
+    .where(eq(catalogCourseCareers.careerId, careerId));
+  const linkedIds = links.map((link) => link.courseId);
+  const linkedCourses = linkedIds.length
+    ? await db.select().from(catalogCourses).where(inArray(catalogCourses.id, linkedIds))
+    : [];
+  const candidateCourses = linkedCourses.filter((course) => Object.prototype.hasOwnProperty.call(limits, String(course.level || '').toLowerCase()));
+
+  if (!candidateCourses.length) {
+    return c.json({success: false, error: 'No catalog courses are available for this career and stage'}, 404);
+  }
+
+  const metadata = candidateCourses.map((course) => ({
+    id: course.id,
+    title: course.title,
+    level: String(course.level || '').toLowerCase(),
+    category: course.category,
+    subcategory: course.subcategory,
+    provider: course.provider,
+    platform: course.platform,
+    duration: course.duration,
+    description: course.description,
+    skills: course.skills,
+    certification: course.certification,
+  }));
+  const suppliedMetadata = Array.isArray(body.catalogCourses) ? body.catalogCourses : [];
+  const prompt = `Rank the canonical catalog course IDs for a learner.
+Goal: ${body.careerGoal}
+Career ID: ${careerId}
+Learner stage: ${learnerStage}
+
+Canonical catalog metadata:
+${JSON.stringify(metadata)}
+
+The client supplied this same catalog context for display:
+${JSON.stringify(suppliedMetadata)}
+
+Return ONLY JSON in this shape: {"beginner":["course-id"],"intermediate":["course-id"],"advanced":["course-id"]}.
+Rank only IDs from the canonical metadata. Keep each level in sensible learning order. Do not invent IDs.`;
+  let ranked = {};
+  try {
+    const result = await generateCompleteJson({
+      systemPrompt: 'You are Cohortia curriculum selection AI. Use only the supplied canonical catalog records.',
+      userPrompt: prompt,
+      maxTokens: 1800,
+      maxContinuations: 1,
+    });
+    if (result.success && result.data && typeof result.data === 'object') ranked = result.data;
+  } catch (error) {
+    console.error('Course recommendation failed:', error);
+  }
+
+  const byId = new Map(candidateCourses.map((course) => [course.id, course]));
+  const options = {};
+  for (const [level, quota] of Object.entries(limits)) {
+    const rankedIds = Array.isArray(ranked[level]) ? ranked[level] : [];
+    const validRanked = rankedIds.filter((id, index) => typeof id === 'string' && byId.get(id)?.level?.toLowerCase() === level && rankedIds.indexOf(id) === index);
+    const fallbackIds = candidateCourses
+      .filter((course) => String(course.level || '').toLowerCase() === level)
+      .sort((left, right) => left.title.localeCompare(right.title))
+      .map((course) => course.id);
+    const ids = [...validRanked, ...fallbackIds.filter((id) => !validRanked.includes(id))].slice(0, quota.options);
+    options[level] = ids.map((id, index) => ({...byId.get(id), recommendationRank: index + 1}));
+  }
+
+  return c.json({success: true, data: {careerId, goal: body.careerGoal, learnerStage, courses: options}});
+});
 
 catalogCoursesRoute.get('/:id/details', async (c) => {
   const courseId = c.req.param('id');

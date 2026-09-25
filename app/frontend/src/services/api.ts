@@ -229,6 +229,11 @@ export interface CatalogCoursesResponse {
 
 export const catalogCourseApi = {
   getAll: () => fetchApi<CatalogCoursesResponse>('/catalog-courses'),
+  recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string; catalogCourses: CatalogCourse[] }) =>
+    fetchApi<{success: boolean; data?: {careerId: string; goal: string; learnerStage: string; courses: Record<string, CatalogCourse[]>}; error?: string}>('/catalog-courses/recommend', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
   getByCareer: (careerId: string) =>
     fetchApi<CatalogCoursesResponse>(`/catalog-courses?careerId=${encodeURIComponent(careerId)}`),
   getDetails: (id: string) =>
