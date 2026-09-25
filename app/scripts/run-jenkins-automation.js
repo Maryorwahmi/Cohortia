@@ -84,7 +84,15 @@ console.log(`[jenkins-worker] Ready handshake acknowledged${ready?.data?.jobId ?
 let idleChecks = 0;
 while (idleChecks < maxIdleChecks) {
   console.log(`[jenkins-worker] Claiming queued job (check ${idleChecks + 1}/${maxIdleChecks}).`);
-  const payload = await request('/jobs/claim', { method: 'POST', body: '{}' });
+  let payload;
+  try {
+    payload = await request('/jobs/claim', { method: 'POST', body: '{}' });
+  } catch (error) {
+    console.error(`[jenkins-worker] Claim request failed: ${error.message}`);
+    console.log(`[jenkins-worker] Retrying after ${idleCheckIntervalMs / 1000}s.`);
+    await new Promise((resolve) => setTimeout(resolve, idleCheckIntervalMs));
+    continue;
+  }
   const job = payload?.data;
   if (!job) {
     idleChecks += 1;
