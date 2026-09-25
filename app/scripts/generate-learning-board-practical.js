@@ -1354,6 +1354,11 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
 
 2A. TEACHER-LED LEARNING PATH:
    Teach the supplied HANDS-ON ACTIVITY itself, not a generic substitute.
+   Assume the learner may be seeing the concept for the first time: define each
+   term before using it, show the smallest possible example, explain what the
+   learner should see on screen, then invite the learner to make one change.
+   Never replace teaching with phrases such as "follow the instructions" or
+   "observe the result" without explaining what to look for and why.
    Break it into CONNECT, OBSERVE, CHANGE, TEST, EXPLAIN, and EXTEND paths.
    Each task must include a worked example, a different real-world example,
    one warm teacher question, an expected observation, and an explicit pause
@@ -1374,9 +1379,16 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
 
 5. NARRATOR VOICE (~100 wpm, 250-350 words total per practical):
    - Sound like a patient, warm, interactive teacher, never a generic system message.
+   - Teach from first principles: name the goal, introduce the idea, model it,
+     check understanding, guide practice, then recap what was learned.
    - Explain WHY each step matters and refer to the exact activity.
    - Ask the learner to predict, pause, observe, and explain in their own words.
    - Preview the next change and use encouraging feedback such as "Good observation."
+   - When reading code aloud, pronounce language and punctuation deliberately:
+     say C as "see", printf as "print f", stdio dot h as "standard input output header",
+     and name symbols such as slash, backslash, hash, underscore, dot, comma,
+     open and close parenthesis, curly brace, and square bracket when they matter.
+     Never dump raw Markdown or a long code block into speech.
 
 6. TERMINAL VERIFICATION:
    For each task, include at least ONE test that shows observable proof of learning:

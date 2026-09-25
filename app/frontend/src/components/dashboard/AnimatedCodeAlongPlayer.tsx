@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep } from "../../services/learningBoardsApi";
+import { getAssignedVoiceForCourse, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
+import { SpeechNarrationQueue } from "../../lib/speechNarration";
 
 const SCENE_DURATION = 10;
 
@@ -10,6 +12,7 @@ interface AnimatedCodeAlongPlayerProps {
   files?: LearningBoardPracticalFile[];
   walkthrough?: CodeWalkthroughSegment[];
   category?: string | null;
+  courseId?: string | null;
   tasks?: LearningBoardPracticalTask[];
   narratorGuide?: string | null;
   checks?: Array<{ id: string; type?: string; expected?: unknown }>;
@@ -17,7 +20,7 @@ interface AnimatedCodeAlongPlayerProps {
   onOpenLab?: () => void;
 }
 
-export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], walkthrough = [], category, tasks = [], narratorGuide, checks = [], output = [], onOpenLab }: AnimatedCodeAlongPlayerProps) {
+export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], walkthrough = [], category, courseId, tasks = [], narratorGuide, checks = [], output = [], onOpenLab }: AnimatedCodeAlongPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -25,6 +28,8 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
   const requestRef = useRef<number | null>(null);
   const previousTimeRef = useRef<number | null>(null);
   const spokenLessonRef = useRef<string | null>(null);
+  const narratorVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  const narrationQueueRef = useRef(new SpeechNarrationQueue());
 
   const handleSeek = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -78,6 +83,25 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
   const executionPhaseIndex = Math.min(executionPhases.length - 1, Math.floor((currentTime / Math.max(activePlaylist.durationSeconds, 1)) * executionPhases.length));
 
   useEffect(() => {
+    if (!courseId || typeof window === "undefined" || !window.speechSynthesis) return;
+    let cancelled = false;
+    const applyVoice = () => {
+      const browserVoices = window.speechSynthesis.getVoices();
+      getAssignedVoiceForCourse(courseId).then((assigned) => {
+        if (!cancelled) narratorVoiceRef.current = assigned ? findBrowserVoiceByName(assigned.label, browserVoices) : null;
+      });
+    };
+    applyVoice();
+    window.speechSynthesis.addEventListener("voiceschanged", applyVoice);
+    return () => {
+      cancelled = true;
+      window.speechSynthesis.removeEventListener("voiceschanged", applyVoice);
+    };
+  }, [courseId]);
+
+  useEffect(() => () => narrationQueueRef.current.cancel(), []);
+
+  useEffect(() => {
     if (!isPlaying) {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       previousTimeRef.current = null;
@@ -106,20 +130,20 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
 
   const speakActiveLesson = () => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
     spokenLessonRef.current = null;
-    const speech = new SpeechSynthesisUtterance(activePlaylist.narratorScript);
-    speech.rate = 0.78;
-    speech.pitch = 1;
-    speech.onend = () => { spokenLessonRef.current = activePlaylist.id; };
-    window.speechSynthesis.speak(speech);
+    narrationQueueRef.current.play(activePlaylist.narratorScript, {
+      voice: narratorVoiceRef.current,
+      rate: 0.78,
+      pitch: 1,
+      onComplete: () => { spokenLessonRef.current = activePlaylist.id; },
+    });
   };
 
   useEffect(() => {
     if (!isPlaying || isMuted || typeof window === "undefined" || !window.speechSynthesis) return;
     if (spokenLessonRef.current === activePlaylist.id) return;
     speakActiveLesson();
-    return () => window.speechSynthesis.cancel();
+    return () => narrationQueueRef.current.cancel();
   }, [activePlaylist.id, activePlaylist.narratorScript, isMuted, isPlaying]);
 
   return (
@@ -179,9 +203,12 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
                   </div>
                   <div className="absolute bottom-3 left-3 right-3 rounded-lg border border-immersive-primary/20 bg-white/90 p-2.5 shadow-sm backdrop-blur">
                     <div className="mb-1 flex items-center justify-between gap-2"><span className="font-mono text-[8px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className="font-mono text-[8px] text-slate-500">Pause & predict</span></div>
-                    <p className="line-clamp-3 text-xs leading-relaxed text-slate-600">{activePlaylist.narratorScript}</p>
-                    <p className="mt-1 line-clamp-2 text-xs font-medium text-amber-700">Think first: {activePlaylist.learnerPrompt}</p>
-                    {activeTask?.teaching?.guidedSteps?.[0] && <p className="mt-1 line-clamp-2 text-xs text-emerald-700">Do now: {activeTask.teaching.guidedSteps[0]}</p>}
+                    <div className="max-h-48 overflow-y-auto pr-1">
+                      <p className="text-xs leading-relaxed text-slate-600">{activePlaylist.narratorScript}</p>
+                      <p className="mt-2 text-xs font-medium leading-relaxed text-amber-700">Think first: {activePlaylist.learnerPrompt}</p>
+                      {activeTask?.teaching?.guidedSteps?.map((step, index) => <p key={`${activeTask.id}-guided-${index}`} className="mt-2 text-xs leading-relaxed text-emerald-700">Do now: {step}</p>)}
+                      {activeTask?.instruction && <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-slate-700">{activeTask.instruction}</p>}
+                    </div>
                   </div>
                 </div>
               </div>

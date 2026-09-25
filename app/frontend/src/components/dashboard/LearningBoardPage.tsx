@@ -1364,6 +1364,7 @@ export default function LearningBoardPage({
                             files={activePractical?.files || []}
                             walkthrough={activePractical?.codeWalkthrough || []}
                             category={activePractical?.category}
+                            courseId={activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId}
                             tasks={activePractical?.tasks || []}
                             narratorGuide={activePractical?.narratorGuide}
                             checks={activePractical?.checks || []}
