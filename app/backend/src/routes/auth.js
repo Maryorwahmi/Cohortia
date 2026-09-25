@@ -35,15 +35,6 @@ function clearOAuthStateCookie(c) {
   );
 }
 
-function getCookie(c, name) {
-  const cookieHeader = c.req.header('Cookie') || '';
-  const cookie = cookieHeader
-    .split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`));
-  return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : '';
-}
-
 function googleRedirectUrl() {
   return process.env.GOOGLE_REDIRECT_URI
     || `${process.env.API_PUBLIC_URL || 'http://localhost:3000'}/api/v1/auth/google/callback`;
@@ -396,7 +387,11 @@ auth.get('/google', (c) => {
     }));
   }
 
-  const state = crypto.randomBytes(32).toString('base64url');
+  const state = jwt.sign(
+    { purpose: 'google_oauth', nonce: crypto.randomBytes(32).toString('base64url') },
+    jwtSecret(),
+    { expiresIn: '10m' }
+  );
   setOAuthStateCookie(c, state);
 
   const googleUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
@@ -416,11 +411,17 @@ auth.get('/google', (c) => {
 // Complete Google OAuth
 auth.get('/google/callback', async (c) => {
   const state = c.req.query('state');
-  const storedState = getCookie(c, 'cohortia_google_oauth_state');
   const code = c.req.query('code');
   clearOAuthStateCookie(c);
 
-  if (!state || !storedState || state !== storedState) {
+  let verifiedState;
+  try {
+    verifiedState = state ? jwt.verify(state, jwtSecret()) : null;
+  } catch {
+    verifiedState = null;
+  }
+
+  if (!verifiedState || typeof verifiedState !== 'object' || verifiedState.purpose !== 'google_oauth') {
     return c.redirect(redirectToFrontend('/login', {
       google_error: 'Google sign-in could not be verified. Please try again.',
     }));
