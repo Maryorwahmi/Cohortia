@@ -14,8 +14,8 @@ export interface RoadmapSelection {
   careerGoal: RoadmapGoal;
   learningStage: RoadmapLevel;
   selectedCareer: string;
-  selectedCourses: Record<RoadmapLevel, RoadmapCourseSelection[]>;
-  roadmapOrder: RoadmapCourseSelection[];
+  selectedCourses: Record<RoadmapLevel, string[]>;
+  roadmapOrder: string[];
 }
 
 export interface CohortTrack {
@@ -85,7 +85,16 @@ export function backendUserToPreferences(user: {
   let roadmapSelection: RoadmapSelection | undefined;
   try {
     const parsed = user.roadmapSelection ? JSON.parse(user.roadmapSelection) : null;
-    if (parsed?.roadmapOrder && parsed?.selectedCourses) roadmapSelection = parsed;
+    if (parsed?.roadmapOrder && parsed?.selectedCourses) {
+      const toId = (course: string | RoadmapCourseSelection) => typeof course === "string" ? course : course.id;
+      roadmapSelection = {
+        ...parsed,
+        selectedCourses: Object.fromEntries(
+          (Object.keys(parsed.selectedCourses) as RoadmapLevel[]).map((level) => [level, parsed.selectedCourses[level].map(toId)])
+        ) as Record<RoadmapLevel, string[]>,
+        roadmapOrder: parsed.roadmapOrder.map(toId),
+      };
+    }
   } catch {
     roadmapSelection = undefined;
   }

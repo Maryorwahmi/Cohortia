@@ -129,7 +129,7 @@ auth.post('/signup', async (c) => {
     }
 
     const selectedIds = Array.isArray(selection?.roadmapOrder) ? selection.roadmapOrder : [];
-    if (!selection?.careerGoal || !selection?.learningStage || !selection?.selectedCareer || !selectedIds.length) {
+    if (!selection?.careerGoal || !selection?.learningStage || !selection?.selectedCareer || !selectedIds.length || !selectedIds.every((id) => typeof id === 'string')) {
       return c.json({ success: false, error: 'A complete roadmap selection is required' }, 400);
     }
 
