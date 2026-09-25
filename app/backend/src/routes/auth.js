@@ -1,6 +1,6 @@
 import { db } from '../db/index.js';
-import { users, tracks, catalogCourses, enrollments } from '../db/schema.js';
-import { eq, inArray } from 'drizzle-orm';
+import { users, tracks, catalogCourses, catalogCourseCareers, enrollments } from '../db/schema.js';
+import { eq, and, inArray } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
@@ -128,8 +128,46 @@ auth.post('/signup', async (c) => {
       return c.json({ success: false, error: 'Roadmap selection must be valid JSON' }, 400);
     }
 
+    const limitsByGoal = {
+      'Pivot into a new career': { beginner: 2, intermediate: 2, advanced: 1 },
+      'Up-skill in my current role': { beginner: 2, intermediate: 1, advanced: 1 },
+      'Lead & Specialize': { intermediate: 1, advanced: 1 },
+    };
+    const stagesByGoal = {
+      'Pivot into a new career': ['beginner', 'intermediate', 'advanced'],
+      'Up-skill in my current role': ['beginner', 'intermediate', 'advanced'],
+      'Lead & Specialize': ['intermediate', 'advanced'],
+    };
     const selectedIds = Array.isArray(selection?.roadmapOrder) ? selection.roadmapOrder : [];
-    if (!selection?.careerGoal || !selection?.learningStage || !selection?.selectedCareer || !selectedIds.length || !selectedIds.every((id) => typeof id === 'string')) {
+    const selectedCourses = selection?.selectedCourses && typeof selection.selectedCourses === 'object'
+      ? selection.selectedCourses
+      : null;
+    const selectedLevels = selectedCourses ? Object.keys(selectedCourses) : [];
+    const allLevels = ['beginner', 'intermediate', 'advanced'];
+    const limits = limitsByGoal[selection?.careerGoal];
+    const expectedStages = stagesByGoal[selection?.careerGoal] || [];
+    const careerSlug = String(selection?.selectedCareer || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const validCareerSlugs = new Set([
+      'frontend-development', 'backend-development', 'data-analytics', 'data-science',
+      'ai-ml-engineering', 'cybersecurity', 'cloud-engineering', 'devops-engineering',
+      'ux-ui-design', 'qa-testing', 'product-management', 'full-stack-development',
+    ]);
+
+    if (!limits || !expectedStages.includes(String(selection?.learningStage || '').toLowerCase()) || !validCareerSlugs.has(careerSlug)) {
+      return c.json({ success: false, error: 'Roadmap goal, learning stage, or career is invalid' }, 400);
+    }
+    if (!selectedCourses || selectedLevels.some((level) => !allLevels.includes(level)) || !selectedLevels.every((level) => Array.isArray(selectedCourses[level]))) {
+      return c.json({ success: false, error: 'Roadmap course levels are invalid' }, 400);
+    }
+
+    const selectedByLevel = Object.fromEntries(allLevels.map((level) => [level, selectedCourses[level] || []]));
+    const selectedCourseIds = allLevels.flatMap((level) => selectedByLevel[level]);
+    const selectedIdSet = new Set(selectedCourseIds);
+    const roadmapIdSet = new Set(selectedIds);
+    if (!selectedIds.length || !selectedIds.every((id) => typeof id === 'string') ||
+      selectedCourseIds.some((id) => typeof id !== 'string') ||
+      selectedIdSet.size !== selectedCourseIds.length || roadmapIdSet.size !== selectedIds.length ||
+      selectedIdSet.size !== roadmapIdSet.size || [...selectedIdSet].some((id) => !roadmapIdSet.has(id))) {
       return c.json({ success: false, error: 'A complete roadmap selection is required' }, 400);
     }
 
@@ -138,17 +176,24 @@ auth.post('/signup', async (c) => {
       return c.json({ success: false, error: 'One or more selected roadmap courses are unavailable' }, 400);
     }
 
+    const careerLinks = await db.select({ courseId: catalogCourseCareers.courseId })
+      .from(catalogCourseCareers)
+      .where(and(eq(catalogCourseCareers.careerId, careerSlug), inArray(catalogCourseCareers.courseId, selectedIds)));
+    if (careerLinks.length !== selectedIds.length) {
+      return c.json({ success: false, error: 'One or more courses do not belong to the selected career' }, 400);
+    }
+
     const levelCounts = courses.reduce((counts, course) => {
       const level = String(course.level || '').toLowerCase();
       counts[level] = (counts[level] || 0) + 1;
       return counts;
     }, {});
-    const limits = {
-      'Pivot into a new career': { beginner: 2, intermediate: 2, advanced: 1 },
-      'Up-skill in my current role': { beginner: 2, intermediate: 1, advanced: 1 },
-      'Lead & Specialize': { beginner: 0, intermediate: 1, advanced: 1 },
-    }[selection.careerGoal];
-    if (!limits || Object.entries(limits).some(([level, max]) => (levelCounts[level] || 0) !== max)) {
+    const actualLevels = new Set(Object.keys(levelCounts));
+    const expectedLevels = new Set(Object.keys(limits));
+    const selectedLevelById = new Map(selectedCourseIds.map((id, index) => [id, allLevels.find((level) => selectedByLevel[level].includes(id)) || selectedIds[index]]));
+    const hasLevelMismatch = courses.some((course) => selectedLevelById.get(course.id) !== String(course.level || '').toLowerCase());
+    if ([...actualLevels].some((level) => !expectedLevels.has(level)) ||
+      Object.entries(limits).some(([level, max]) => levelCounts[level] !== max) || hasLevelMismatch) {
       return c.json({ success: false, error: 'Roadmap selection exceeds the allowed level limits' }, 400);
     }
   }
