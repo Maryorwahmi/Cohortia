@@ -106,6 +106,21 @@ embedded worker for local-only testing, set:
 AUTOMATION_WORKER_ENABLED=true
 ```
 
+### Learning board generation record
+
+Batch HTML generation keeps one durable progress record at:
+
+```text
+generated/learning-boards-html/record.json
+```
+
+The record contains a `courses` map with the completed and import-pending
+chapters for every course. New batch runs read and update this central file
+after each chapter, so the generated course folders, manifests, and HTML can
+be deleted without losing generation history. Existing per-course
+`<course-id>/record.json` files are migrated into the central record the next
+time the batch generator runs.
+
 ### Recovering after a Turso network failure
 
 Chapter generation writes the local manifest before the Turso import. If the

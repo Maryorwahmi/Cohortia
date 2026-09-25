@@ -4,6 +4,10 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import {
+  readCourseGenerationRecord,
+  writeCourseGenerationRecord,
+} from './lib/learning-board-record.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -157,18 +161,8 @@ async function listChapterSelectors(syllabusPath, requestedModule = null) {
   return chapters.sort((a, b) => a.moduleNumber - b.moduleNumber || a.chapterNumber - b.chapterNumber);
 }
 
-function recordPath(courseId) {
-  return path.join(generatedRoot, courseId, 'record.json');
-}
-
 async function readCourseRecord(courseId) {
-  try {
-    const record = JSON.parse(await fs.readFile(recordPath(courseId), 'utf8'));
-    return record && typeof record === 'object' ? record : {};
-  } catch (error) {
-    if (error.code !== 'ENOENT') console.warn(`Unable to read ${recordPath(courseId)}: ${error.message}`);
-    return {};
-  }
+  return readCourseGenerationRecord(generatedRoot, courseId);
 }
 
 function chapterManifestPath(courseId, moduleNumber, chapterNumber) {
@@ -198,19 +192,9 @@ async function waitBeforeImportRetry(attempt) {
 }
 
 async function writeCourseRecord(course, syllabusPath, record) {
-  const target = recordPath(course.id);
-  await fs.mkdir(path.dirname(target), { recursive: true });
-  const temporary = `${target}.tmp`;
-  const nextRecord = {
-    version: 1,
-    courseId: course.id,
-    courseTitle: course.title,
-    syllabusPath: path.relative(repoRoot, syllabusPath).replace(/\\/g, '/'),
-    updatedAt: new Date().toISOString(),
+  await writeCourseGenerationRecord(generatedRoot, course, syllabusPath, {
     completedChapters: record.completedChapters || {},
-  };
-  await fs.writeFile(temporary, `${JSON.stringify(nextRecord, null, 2)}\n`, 'utf8');
-  await fs.rename(temporary, target);
+  });
 }
 
 async function generateCourse(category, course, options) {

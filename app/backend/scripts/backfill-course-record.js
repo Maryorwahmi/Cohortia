@@ -2,12 +2,16 @@ import 'dotenv/config';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createClient } from '@libsql/client';
+import {
+  readCourseGenerationRecord,
+  writeCourseGenerationRecord,
+} from '../../scripts/lib/learning-board-record.js';
 
 const courseId = process.argv[2];
 if (!courseId) throw new Error('Usage: node scripts/backfill-course-record.js <course-id>');
 
 const generatedCourseRoot = path.resolve(import.meta.dirname, '../../generated/learning-boards-html', courseId);
-const recordFile = path.join(generatedCourseRoot, 'record.json');
+const generatedRoot = path.resolve(import.meta.dirname, '../../generated/learning-boards-html');
 const client = createClient({
   url: process.env.DATABASE_URL || 'file:./cohortia.db',
   authToken: process.env.DATABASE_AUTH_TOKEN,
@@ -27,8 +31,7 @@ async function findManifests(directory) {
   return manifests;
 }
 
-const existing = await fs.readFile(recordFile, 'utf8').catch(() => null);
-const record = existing ? JSON.parse(existing) : {};
+const record = await readCourseGenerationRecord(generatedRoot, courseId);
 const completedChapters = record.completedChapters || {};
 const manifests = await findManifests(generatedCourseRoot);
 let marked = 0;
@@ -99,14 +102,9 @@ for (const row of importedChapters.rows) {
   marked += 1;
 }
 
-const nextRecord = {
-  version: 1,
-  courseId,
-  courseTitle: manifests.length ? JSON.parse(await fs.readFile(manifests[0], 'utf8')).course : courseId,
-  updatedAt: new Date().toISOString(),
-  completedChapters,
-};
-await fs.mkdir(generatedCourseRoot, { recursive: true });
-await fs.writeFile(recordFile, `${JSON.stringify(nextRecord, null, 2)}\n`, 'utf8');
+await writeCourseGenerationRecord(generatedRoot, {
+  id: courseId,
+  title: manifests.length ? JSON.parse(await fs.readFile(manifests[0], 'utf8')).course : courseId,
+}, null, { completedChapters });
 console.log(`Backfilled ${marked} completed chapters for ${courseId}; left ${incomplete} incomplete.`);
-console.log(`Record: ${recordFile}`);
+console.log(`Record: ${path.join(generatedRoot, 'record.json')}`);
