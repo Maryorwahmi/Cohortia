@@ -12,6 +12,15 @@ const recommendationLimits = {
   'Up-skill in my current role': {beginner: {options: 3, choose: 2}, intermediate: {options: 2, choose: 1}, advanced: {options: 2, choose: 1}},
   'Lead & Specialize': {intermediate: {options: 2, choose: 1}, advanced: {options: 2, choose: 1}},
 };
+const recommendationResponseSchema = {
+  type: 'object',
+  properties: {
+    beginner: { type: 'array', items: { type: 'string' } },
+    intermediate: { type: 'array', items: { type: 'string' } },
+    advanced: { type: 'array', items: { type: 'string' } },
+  },
+  required: ['beginner', 'intermediate', 'advanced'],
+};
 
 const normalizeCareerId = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const bundledCourseDetailsPath = path.resolve(import.meta.dirname, '..', 'data', 'course-details.json');
@@ -246,6 +255,7 @@ Rank only IDs from the canonical metadata. Keep each level in sensible learning 
       userPrompt: prompt,
       maxTokens: 1800,
       maxContinuations: 1,
+      responseSchema: recommendationResponseSchema,
     });
     if (result.success && result.data && typeof result.data === 'object') {
       ranked = result.data;

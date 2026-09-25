@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { jsonrepair } from 'jsonrepair';
 
 /**
  * Collect all Gemini API keys from environment variables.
@@ -39,23 +40,49 @@ export function getGeminiModelCandidates() {
 export function extractJson(text) {
   if (!text) return null;
 
-  // Try fenced code block first
-  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch) {
+  const parseCandidate = (candidate) => {
+    const trimmed = candidate.trim();
+    if (!trimmed) return null;
+
     try {
-      return JSON.parse(fenceMatch[1].trim());
+      return JSON.parse(trimmed);
     } catch {
-      // continue to other strategies
+      try {
+        return JSON.parse(jsonrepair(trimmed));
+      } catch {
+        return null;
+      }
     }
+  };
+
+  const fencePattern = /```(?:json)?\s*([\s\S]*?)```/gi;
+  for (const match of text.matchAll(fencePattern)) {
+    const parsed = parseCandidate(match[1]);
+    if (parsed !== null) return parsed;
   }
 
-  // Try any braces block
-  const braceMatch = text.match(/\{[\s\S]*\}/);
-  if (braceMatch) {
-    try {
-      return JSON.parse(braceMatch[0]);
-    } catch {
-      // continue
+  for (let start = 0; start < text.length; start++) {
+    if (text[start] !== '{') continue;
+
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let end = start; end < text.length; end++) {
+      const character = text[end];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (character === '\\') escaped = true;
+        else if (character === '"') inString = false;
+        continue;
+      }
+
+      if (character === '"') inString = true;
+      else if (character === '{') depth++;
+      else if (character === '}' && --depth === 0) {
+        const parsed = parseCandidate(text.slice(start, end + 1));
+        if (parsed !== null) return parsed;
+        break;
+      }
     }
   }
 
@@ -356,7 +383,7 @@ export async function callGemini({ systemPrompt, userPrompt, maxTokens = 1500, j
 }
 
 /**
- * Generate a complete JSON response from Gemini, with continuation if truncated.
+ * Generate a complete JSON response from the configured AI provider, with continuation if truncated.
  */
 export async function generateCompleteJson({ systemPrompt, userPrompt, maxTokens = 4000, maxContinuations = 2, responseSchema = null }) {
   let fullText = '';
@@ -393,5 +420,5 @@ export async function generateCompleteJson({ systemPrompt, userPrompt, maxTokens
     return { success: true, data: parsed, raw: fullText };
   }
 
-  return { success: false, error: 'Could not parse valid JSON from Gemini response', raw: fullText };
+  return { success: false, error: 'Could not parse valid JSON from AI response', raw: fullText };
 }
