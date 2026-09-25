@@ -7,8 +7,53 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { Hono } from 'hono';
 import { logActivity } from '../lib/activity.js';
+import crypto from 'node:crypto';
 
 const auth = new Hono();
+const jwtSecret = () => process.env.JWT_SECRET || 'cohortia-dev-secret';
+const frontendUrl = () => (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
+
+function createToken(user) {
+  return jwt.sign(
+    { userId: user.id, email: user.email },
+    jwtSecret(),
+    { expiresIn: '7d' }
+  );
+}
+
+function setOAuthStateCookie(c, state) {
+  c.header(
+    'Set-Cookie',
+    `cohortia_google_oauth_state=${state}; Max-Age=600; Path=/api/v1/auth; HttpOnly; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+  );
+}
+
+function clearOAuthStateCookie(c) {
+  c.header(
+    'Set-Cookie',
+    'cohortia_google_oauth_state=; Max-Age=0; Path=/api/v1/auth; HttpOnly; SameSite=Lax'
+  );
+}
+
+function getCookie(c, name) {
+  const cookieHeader = c.req.header('Cookie') || '';
+  const cookie = cookieHeader
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`));
+  return cookie ? decodeURIComponent(cookie.slice(name.length + 1)) : '';
+}
+
+function googleRedirectUrl() {
+  return process.env.GOOGLE_REDIRECT_URI
+    || `${process.env.API_PUBLIC_URL || 'http://localhost:3000'}/api/v1/auth/google/callback`;
+}
+
+function redirectToFrontend(path, params = {}) {
+  const url = new URL(path, `${frontendUrl()}/`);
+  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+  return url.toString();
+}
 
 // Validation schemas
 const signupSchema = z.object({
@@ -129,7 +174,7 @@ auth.post('/signup', async (c) => {
   // Generate token
   const token = jwt.sign(
     { userId, email: data.email },
-    process.env.JWT_SECRET || 'cohortia-dev-secret',
+    jwtSecret(),
     { expiresIn: '7d' }
   );
 
@@ -219,7 +264,7 @@ auth.post('/login', async (c) => {
   // Generate token
   const token = jwt.sign(
     { userId: user.id, email: user.email },
-    process.env.JWT_SECRET || 'cohortia-dev-secret',
+    jwtSecret(),
     { expiresIn: '7d' }
   );
 
@@ -244,6 +289,133 @@ auth.post('/login', async (c) => {
   });
 });
 
+// Start Google OAuth
+auth.get('/google', (c) => {
+  const clientId = String(process.env.GOOGLE_CLIENT_ID || '').trim();
+  if (!clientId) {
+    return c.redirect(redirectToFrontend('/login', {
+      google_error: 'Google sign-in is not configured on the server.',
+    }));
+  }
+
+  const state = crypto.randomBytes(32).toString('base64url');
+  setOAuthStateCookie(c, state);
+
+  const googleUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  googleUrl.search = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: googleRedirectUrl(),
+    response_type: 'code',
+    scope: 'openid email profile',
+    state,
+    access_type: 'online',
+    prompt: 'select_account',
+  }).toString();
+
+  return c.redirect(googleUrl.toString());
+});
+
+// Complete Google OAuth
+auth.get('/google/callback', async (c) => {
+  const state = c.req.query('state');
+  const storedState = getCookie(c, 'cohortia_google_oauth_state');
+  const code = c.req.query('code');
+  clearOAuthStateCookie(c);
+
+  if (!state || !storedState || state !== storedState) {
+    return c.redirect(redirectToFrontend('/login', {
+      google_error: 'Google sign-in could not be verified. Please try again.',
+    }));
+  }
+
+  if (!code) {
+    return c.redirect(redirectToFrontend('/login', {
+      google_error: 'Google sign-in was cancelled.',
+    }));
+  }
+
+  const clientId = String(process.env.GOOGLE_CLIENT_ID || '').trim();
+  const clientSecret = String(process.env.GOOGLE_CLIENT_SECRET || '').trim();
+  if (!clientId || !clientSecret) {
+    return c.redirect(redirectToFrontend('/login', {
+      google_error: 'Google sign-in is not configured on the server.',
+    }));
+  }
+
+  try {
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: googleRedirectUrl(),
+        grant_type: 'authorization_code',
+      }),
+    });
+    const tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok || !tokenData.access_token) {
+      throw new Error('Google token exchange failed');
+    }
+
+    const profileResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const profile = await profileResponse.json();
+
+    if (!profileResponse.ok || profile.email_verified !== true || !profile.email) {
+      throw new Error('Google account email is not verified');
+    }
+
+    const email = String(profile.email).trim().toLowerCase();
+    const existingUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    let user = existingUsers[0];
+    const now = new Date().toISOString();
+
+    if (!user) {
+      user = {
+        id: uuidv4(),
+        name: String(profile.name || profile.email.split('@')[0]).trim(),
+        email,
+        role: 'career-starter',
+      };
+
+      await db.insert(users).values({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        password: await bcrypt.hash(uuidv4(), 12),
+        role: user.role,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      await logActivity({
+        userId: user.id,
+        activityType: 'signup',
+        entityId: user.id,
+        metadata: { source: 'google_oauth' },
+      });
+    }
+
+    return c.redirect(redirectToFrontend('/login', {
+      google_token: createToken(user),
+    }));
+  } catch (error) {
+    console.error('Google OAuth callback failed:', error);
+    return c.redirect(redirectToFrontend('/login', {
+      google_error: 'Google sign-in failed. Please try again.',
+    }));
+  }
+});
+
 // Get current user
 auth.get('/me', async (c) => {
   const token = c.req.header('Authorization')?.replace('Bearer ', '');
@@ -253,7 +425,7 @@ auth.get('/me', async (c) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'cohortia-dev-secret');
+    const decoded = jwt.verify(token, jwtSecret());
     const userResult = await db
       .select()
       .from(users)

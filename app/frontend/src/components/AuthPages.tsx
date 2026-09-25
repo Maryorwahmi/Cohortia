@@ -20,7 +20,7 @@ interface LocationState {
 export default function AuthPages({ initialTab }: AuthPagesProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, signup } = useAuth();
+  const { login, signup, completeExternalLogin } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"signup" | "login">(initialTab);
   const [step, setStep] = useState(1);
@@ -70,6 +70,32 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const googleToken = params.get("google_token");
+    const googleError = params.get("google_error");
+    if (!googleToken && !googleError) return;
+
+    navigate(location.pathname, { replace: true });
+    if (googleError) {
+      setErrorMsg(googleError);
+      return;
+    }
+
+    completeExternalLogin(googleToken)
+      .then((success) => {
+        if (success) {
+          setSuccessMsg("Welcome to Cohortia! Google sign-in was successful.");
+          setTimeout(() => navigate("/dashboard"), 500);
+        } else {
+          setErrorMsg("Google sign-in could not be completed. Please try again.");
+        }
+      })
+      .catch(() => {
+        setErrorMsg("Google sign-in could not be completed. Please try again.");
+      });
+  }, [completeExternalLogin, location.pathname, location.search, navigate]);
 
   const toggleLearningMethod = (method: string) => {
     if (learningMethods.includes(method)) {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { authApi, BackendUser, AuthResponse } from '../services/api.js';
 
 interface AuthState {
@@ -7,6 +7,7 @@ interface AuthState {
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   signup: (userData: Record<string, unknown>) => Promise<{ success: boolean; message?: string; details?: Record<string, string[]> }>;
+  completeExternalLogin: (token: string) => Promise<boolean>;
   logout: () => void;
   refreshUser: () => Promise<BackendUser | null>;
 }
@@ -85,6 +86,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('cohortia_token');
   };
 
+  const completeExternalLogin = useCallback(async (token: string) => {
+    localStorage.setItem('cohortia_token', token);
+    const res = await authApi.getMe();
+    if (res.success && res.data?.user) {
+      setUser(res.data.user);
+      return true;
+    }
+    localStorage.removeItem('cohortia_token');
+    return false;
+  }, []);
+
   const refreshUser = async () => {
     const token = localStorage.getItem('cohortia_token');
     if (!token) return null;
@@ -107,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     login,
     signup,
+    completeExternalLogin,
     logout,
     refreshUser,
   };
