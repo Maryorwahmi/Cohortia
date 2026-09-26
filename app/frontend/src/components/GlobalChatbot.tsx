@@ -90,7 +90,7 @@ export default function GlobalChatbot({ userProfile }: GlobalChatbotProps) {
         "public",
         "text",
         null,
-        { assistant: "public", page: "public assistant", path: window.location.pathname }
+        { page: `Public assistant on ${window.location.pathname}` }
       );
 
       const reply = res.success && res.data?.reply

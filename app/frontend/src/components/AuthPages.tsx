@@ -39,35 +39,16 @@ function readPendingSignupDraft(): SignupDraft | undefined {
 
 function RoadmapSignupSummary({selection}: {selection: RoadmapSelection}) {
   const courseInfo = new Map((selection.courseInfo || []).map((course) => [course.id, course]));
-  const levelById = new Map(
-    (Object.entries(selection.selectedCourses) as Array<[string, string[]]>)
-      .flatMap(([level, ids]) => ids.map((id) => [id, level] as const))
-  );
-
   return (
-    <section aria-label="Selected roadmap courses" className="rounded-2xl border border-immersive-border bg-immersive-card/60 p-4 space-y-3">
-      <div>
-        <h3 className="text-sm font-bold text-immersive-text-primary">{selection.selectedCareer} roadmap</h3>
-        <p className="text-xs text-immersive-text-secondary mt-1">{selection.careerGoal} · {selection.roadmapOrder.length} courses in progression order</p>
-        {selection.careerFocusLabel && <p className="text-xs text-immersive-text-secondary mt-1">Focus: {selection.careerFocusLabel}</p>}
-      </div>
-      <ol className="space-y-2">
-        {selection.roadmapOrder.map((id, index) => {
+    <section aria-label="Selected roadmap courses" className="rounded-2xl border border-immersive-border bg-immersive-card/60 p-4">
+      <ul className="space-y-2">
+        {selection.roadmapOrder.map((id) => {
           const course = courseInfo.get(id);
           return (
-            <li key={id} className="flex gap-3 rounded-xl border border-immersive-border p-3">
-              <span className="text-xs font-mono text-immersive-secondary shrink-0">0{index + 1}</span>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-immersive-text-primary">{course?.title || id}</p>
-                <p className="text-[10px] uppercase text-immersive-text-secondary mt-1">{course?.level || levelById.get(id)}</p>
-                {course?.description && <p className="text-xs text-immersive-text-secondary mt-1 line-clamp-2">{course.description}</p>}
-                {course?.skills?.length ? <p className="text-[10px] text-immersive-text-secondary mt-1"><strong>Skills:</strong> {course.skills.slice(0, 4).join(", ")}</p> : null}
-                {course?.outcomes?.length ? <p className="text-[10px] text-immersive-text-secondary mt-1"><strong>You’ll learn:</strong> {course.outcomes.slice(0, 2).join("; ")}</p> : null}
-              </div>
-            </li>
+            <li key={id} className="text-sm font-semibold text-immersive-text-primary">{course?.title || id}</li>
           );
         })}
-      </ol>
+      </ul>
     </section>
   );
 }

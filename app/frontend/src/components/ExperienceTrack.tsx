@@ -229,56 +229,11 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                 </div>
                 <div className="grid md:grid-cols-3 gap-4">
                   {goals.map((item) => (
-                    <button 
-                      key={item.id} 
-                      type="button" 
-                      aria-pressed={goal === item.id} 
-                      onClick={() => { setGoal(item.id); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} 
-                      className={`text-left p-5 sm:p-6 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
-                        goal === item.id 
-                          ? "border-[#FF4B3E] bg-[#FF4B3E]/10 ring-2 ring-[#FF4B3E]/20 shadow-lg shadow-[#FF4B3E]/10" 
-                          : "border-immersive-border hover:border-immersive-secondary/60 bg-immersive-card/50"
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#FF4B3E]/10 text-[#FF4B3E] uppercase tracking-wider">
-                            {item.badge}
-                          </span>
-                          <span className="text-xl font-black text-[#FF4B3E]">
-                            {item.price}
-                          </span>
-                        </div>
-
-                        <span className="text-base font-extrabold text-immersive-text-primary block">
-                          {item.title}
-                        </span>
-
-                        <span className="text-[11px] font-mono font-bold text-immersive-secondary block mt-1">
-                          {item.totalCourses}
-                        </span>
-
-                        <p className="text-xs text-immersive-text-secondary mt-2.5 leading-relaxed font-medium">
-                          {item.description}
-                        </p>
-
-                        <div className="mt-4 pt-3 border-t border-immersive-border/30 space-y-1.5 text-xs">
-                          <p className="text-immersive-text-primary font-medium">
-                            <strong className="text-immersive-text-secondary">Best for:</strong> {item.bestFor}
-                          </p>
-                          <p className="text-immersive-text-secondary">
-                            <strong>Includes:</strong> {item.outcome}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-5 pt-3">
-                        <span className={`w-full py-2 rounded-xl text-xs font-bold text-center block ${
-                          goal === item.id ? "bg-[#FF4B3E] text-white" : "bg-immersive-bg border border-immersive-border text-immersive-text-primary"
-                        }`}>
-                          {goal === item.id ? `Selected (${item.price})` : `Select Track (${item.price})`}
-                        </span>
-                      </div>
+                    <button key={item.id} type="button" aria-pressed={goal === item.id} onClick={() => { setGoal(item.id); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} className={`text-left p-5 rounded-2xl border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${goal === item.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}>
+                      <span className="text-sm font-bold text-immersive-text-primary">{item.title}</span>
+                      <p className="text-xs text-immersive-text-secondary mt-2 leading-relaxed">{item.description}</p>
+                      <p className="text-xs text-immersive-text-primary mt-4"><strong>Best for:</strong> {item.bestFor}</p>
+                      <p className="text-xs text-immersive-text-secondary mt-2"><strong>Path:</strong> {item.outcome}</p>
                     </button>
                   ))}
                 </div>
