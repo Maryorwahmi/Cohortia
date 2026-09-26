@@ -12,7 +12,7 @@ export default function DashboardLayout() {
 
       <div className={`flex min-h-screen min-w-0 flex-col relative transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
         <Header onOpenWizard={() => {}} />
-        <main className="min-h-[calc(100vh-80px)] flex flex-col">
+        <main className="min-h-[calc(100vh-80px)] flex flex-col pt-20 md:pt-0">
           <Outlet />
         </main>
       </div>

@@ -10,10 +10,46 @@ interface ExperienceTrackProps {
   onOpenWizard?: () => void;
 }
 
-const goals: Array<{ id: RoadmapGoal; title: string; description: string; bestFor: string; outcome: string }> = [
-  { id: "Pivot into a new career", title: "Pivot into a new career", description: "Build the foundations, proof, and confidence for a new role.", bestFor: "You are moving into a different field or starting from the beginning.", outcome: "A broad progression from beginner foundations to advanced practice." },
-  { id: "Up-skill in my current role", title: "Up-skill in my current role", description: "Sharpen the skills that make your current work more valuable.", bestFor: "You already work in this area and want to deepen practical skills.", outcome: "A focused progression that strengthens skills you can use at work." },
-  { id: "Lead & Specialize", title: "Lead & Specialize", description: "Move into advanced practice, ownership, and technical leadership.", bestFor: "You have experience and want to specialize or take on more ownership.", outcome: "An intermediate-to-advanced progression; beginner courses are not included." },
+const goals: Array<{ 
+  id: RoadmapGoal; 
+  title: string; 
+  price: string;
+  totalCourses: string;
+  description: string; 
+  bestFor: string; 
+  outcome: string;
+  badge: string;
+}> = [
+  { 
+    id: "Pivot into a new career", 
+    title: "Pivot into a new career", 
+    price: "$23",
+    totalCourses: "5 courses (2 Beg + 2 Int + 1 Adv)",
+    badge: "CAREER TRANSITION",
+    description: "Build the foundations, proof, and confidence for a new role. Structured pathway from Beginner → Intermediate → Advanced.", 
+    bestFor: "Moving into a completely new tech field or starting from the beginning.", 
+    outcome: "5 courses total, 500 AI credits, practical assistant, transition roadmap, and portfolio proof." 
+  },
+  { 
+    id: "Up-skill in my current role", 
+    title: "Up-skill in my current role", 
+    price: "$30",
+    totalCourses: "4 courses (2 Beg + 1 Int + 1 Adv)",
+    badge: "ROLE ACCELERATION",
+    description: "Sharpen skills that make your current work more valuable. Focuses on deepening existing skills rather than starting from zero.", 
+    bestFor: "Already working in this area and wanting to deepen practical skills for promotion.", 
+    outcome: "4 courses total, 500 AI credits, practical assistant, workplace simulations, and skills-gap analysis." 
+  },
+  { 
+    id: "Lead & Specialize", 
+    title: "Lead & Specialize", 
+    price: "$45",
+    totalCourses: "2 deep courses (1 Int + 1 Adv)",
+    badge: "SENIOR & SPECIALIST",
+    description: "Move into advanced expertise, technical leadership, and domain specialization. Cohortia's deepest career track.", 
+    bestFor: "Experienced engineers aiming for Tech Lead, Staff, or Specialized Domain Expert.", 
+    outcome: "2 deep courses, 500 AI credits, advanced assistant, leadership simulations, and capstone project." 
+  },
 ];
 
 const careers: Array<{
@@ -64,6 +100,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
   const [optionsByLevel, setOptionsByLevel] = useState<Record<RoadmapLevel, CatalogCourse[]>>({ beginner: [], intermediate: [], advanced: [] });
   const [selected, setSelected] = useState<Record<RoadmapLevel, CatalogCourse[]>>({ beginner: [], intermediate: [], advanced: [] });
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
+  const [expandedReadyCourseId, setExpandedReadyCourseId] = useState<string | null>(null);
   const [courseDetails, setCourseDetails] = useState<Record<string, {details?: CatalogCourseDetails; loading?: boolean; error?: string}>>({});
   const [recommending, setRecommending] = useState(false);
   const [rankingMethod, setRankingMethod] = useState<"ai" | "mixed" | "catalog-order" | null>(null);
@@ -177,7 +214,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
 
   return (
     <section id="experience-simulator" className="py-10 bg-immersive-bg relative">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="bg-immersive-card border border-immersive-border rounded-3xl overflow-hidden shadow-2xl shadow-immersive-shadow">
           <div className="px-5 py-4 border-b border-immersive-border flex items-center justify-between">
             <div className="flex items-center gap-3"><Route aria-hidden="true" className="w-4 h-4 text-immersive-secondary" /><span className="text-xs font-mono font-bold tracking-widest text-immersive-text-secondary">ROADMAP BUILDER / 0{step}</span></div>
@@ -190,13 +227,58 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                   <h3 className="text-2xl font-extrabold text-immersive-text-primary">What are you building toward?</h3>
                   <p className="mt-2 text-sm text-immersive-text-secondary">Choose the goal that best matches where you are now. This decides which levels and course mix you will see.</p>
                 </div>
-                <div className="grid md:grid-cols-3 gap-3">
+                <div className="grid md:grid-cols-3 gap-4">
                   {goals.map((item) => (
-                    <button key={item.id} type="button" aria-pressed={goal === item.id} onClick={() => { setGoal(item.id); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} className={`text-left p-5 rounded-2xl border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${goal === item.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}>
-                      <span className="text-sm font-bold text-immersive-text-primary">{item.title}</span>
-                      <p className="text-xs text-immersive-text-secondary mt-2 leading-relaxed">{item.description}</p>
-                      <p className="text-xs text-immersive-text-primary mt-4"><strong>Best for:</strong> {item.bestFor}</p>
-                      <p className="text-xs text-immersive-text-secondary mt-2"><strong>Path:</strong> {item.outcome}</p>
+                    <button 
+                      key={item.id} 
+                      type="button" 
+                      aria-pressed={goal === item.id} 
+                      onClick={() => { setGoal(item.id); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} 
+                      className={`text-left p-5 sm:p-6 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
+                        goal === item.id 
+                          ? "border-[#FF4B3E] bg-[#FF4B3E]/10 ring-2 ring-[#FF4B3E]/20 shadow-lg shadow-[#FF4B3E]/10" 
+                          : "border-immersive-border hover:border-immersive-secondary/60 bg-immersive-card/50"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#FF4B3E]/10 text-[#FF4B3E] uppercase tracking-wider">
+                            {item.badge}
+                          </span>
+                          <span className="text-xl font-black text-[#FF4B3E]">
+                            {item.price}
+                          </span>
+                        </div>
+
+                        <span className="text-base font-extrabold text-immersive-text-primary block">
+                          {item.title}
+                        </span>
+
+                        <span className="text-[11px] font-mono font-bold text-immersive-secondary block mt-1">
+                          {item.totalCourses}
+                        </span>
+
+                        <p className="text-xs text-immersive-text-secondary mt-2.5 leading-relaxed font-medium">
+                          {item.description}
+                        </p>
+
+                        <div className="mt-4 pt-3 border-t border-immersive-border/30 space-y-1.5 text-xs">
+                          <p className="text-immersive-text-primary font-medium">
+                            <strong className="text-immersive-text-secondary">Best for:</strong> {item.bestFor}
+                          </p>
+                          <p className="text-immersive-text-secondary">
+                            <strong>Includes:</strong> {item.outcome}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 pt-3">
+                        <span className={`w-full py-2 rounded-xl text-xs font-bold text-center block ${
+                          goal === item.id ? "bg-[#FF4B3E] text-white" : "bg-immersive-bg border border-immersive-border text-immersive-text-primary"
+                        }`}>
+                          {goal === item.id ? `Selected (${item.price})` : `Select Track (${item.price})`}
+                        </span>
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -212,8 +294,8 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {careers.map((item) => (
                     <button key={item.id} type="button" aria-pressed={career.id === item.id} onClick={() => { setCareer(item); setCareerFocusId(""); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} className={`p-4 rounded-xl border text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${career.id === item.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}>
-                      <span className="text-sm font-bold text-immersive-text-primary">{item.label}</span>
-                      <span className="block text-xs leading-relaxed text-immersive-text-secondary mt-2">{item.summary}</span>
+                      <span className="text-base font-bold text-immersive-text-primary">{item.label}</span>
+                      <span className="block text-sm leading-relaxed text-immersive-text-secondary mt-2">{item.summary}</span>
                     </button>
                   ))}
                 </div>
@@ -222,8 +304,8 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                   <div className="grid md:grid-cols-3 gap-2">
                     {career.focusOptions.map((option) => (
                       <button key={option.id} type="button" aria-pressed={careerFocusId === option.id} onClick={() => setCareerFocusId(option.id)} className={`rounded-xl border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${careerFocusId === option.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}>
-                        <span className="block text-xs font-bold text-immersive-text-primary">{option.label}</span>
-                        <span className="block text-xs text-immersive-text-secondary mt-1">{option.description}</span>
+                        <span className="block text-sm font-bold text-immersive-text-primary">{option.label}</span>
+                        <span className="block text-sm text-immersive-text-secondary mt-1">{option.description}</span>
                       </button>
                     ))}
                   </div>
@@ -243,14 +325,14 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                   </p>
                 </div>
                 {recommending ? (
-                  <div className="flex items-center gap-2 text-sm text-immersive-text-secondary">
+                  <div role="status" className="flex items-center gap-2 text-base text-immersive-text-secondary">
                     <LoaderCircle aria-hidden="true" className="w-4 h-4 animate-spin" />
                     Ranking career courses...
                   </div>
                 ) : (
                   <>
                     {recommendationError && (
-                      <div role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-200">
+                      <div role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
                         {recommendationError}
                         <button type="button" onClick={() => setRecommendationAttempt((attempt) => attempt + 1)} className="ml-2 underline">
                           Retry recommendations
@@ -258,15 +340,15 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                       </div>
                     )}
                     {rankingMethod && (
-                      <p className="text-xs text-immersive-text-secondary">
+                      <p className="text-sm text-immersive-text-secondary">
                         Recommendation source: {rankingMethod === "ai" ? "AI ranking" : rankingMethod === "mixed" ? "AI ranking with catalog-order fill-ins" : "catalog order"}.
                       </p>
                     )}
                     {activeLevels.map((level) => (
                       <div key={level} className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-sm font-bold uppercase tracking-widest text-immersive-text-primary">{level}</h4>
-                          <span className="text-xs text-immersive-secondary">Choose {quotas[goal][level]?.choose}</span>
+                          <h4 className="text-base font-bold uppercase tracking-widest text-immersive-text-primary">{level}</h4>
+                          <span className="text-sm text-immersive-secondary">Choose {quotas[goal][level]?.choose}</span>
                         </div>
                         <div className="grid md:grid-cols-2 gap-3">
                           {(optionsByLevel[level] || []).map((course) => {
@@ -274,7 +356,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                             const details = courseDetails[course.id];
                             const skills = details?.details?.skills?.length ? details.details.skills : parseCourseSkills(course.skills);
                             return (
-                              <article key={course.id} className={`p-4 rounded-xl border ${isSelected ? "border-emerald-400 bg-emerald-400/10" : "border-immersive-border"}`}>
+                              <article key={course.id} className={`p-5 rounded-xl border ${isSelected ? "border-emerald-400 bg-emerald-400/10" : "border-immersive-border"}`}>
                                 <button
                                   type="button"
                                   aria-pressed={isSelected}
@@ -282,19 +364,16 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                                   className="w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] rounded-lg"
                                 >
                                   <span className="flex justify-between gap-3">
-                                    <span className="text-sm font-bold text-immersive-text-primary min-w-0">{course.title}</span>
+                                    <span className="text-base font-bold text-immersive-text-primary min-w-0">{course.title}</span>
                                     {isSelected && <Check aria-hidden="true" className="w-4 h-4 text-emerald-400 shrink-0" />}
                                   </span>
-                                  <span className="mt-2 block text-xs text-immersive-text-secondary line-clamp-3">
-                                    {course.description || "Open the course overview to see topics and learning outcomes."}
-                                  </span>
-                                  <span className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-immersive-text-secondary">
+                                  <span className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-immersive-text-secondary">
                                     {course.provider && <span>{course.provider}</span>}
                                     {course.duration && <span className="inline-flex items-center gap-1"><Clock3 aria-hidden="true" className="w-3 h-3" />{course.duration}</span>}
                                   </span>
                                 </button>
                                 {skills.length > 0 && (
-                                  <p className="mt-3 text-xs text-immersive-text-secondary"><strong className="text-immersive-text-primary">Skills:</strong> {skills.slice(0, 4).join(", ")}</p>
+                                  <p className="mt-3 text-sm text-immersive-text-secondary"><strong className="text-immersive-text-primary">Skills:</strong> {skills.slice(0, 4).join(", ")}</p>
                                 )}
                                 <button
                                   type="button"
@@ -304,26 +383,22 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                                     setExpandedCourseId(isExpanded ? null : course.id);
                                     if (!isExpanded) void loadCourseDetails(course.id);
                                   }}
-                                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-immersive-secondary hover:text-immersive-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] rounded"
+                                  className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-immersive-secondary hover:text-immersive-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] rounded"
                                 >
                                   <BookOpen aria-hidden="true" className="w-3.5 h-3.5" />
                                   {expandedCourseId === course.id ? "Hide course details" : "What you’ll learn"}
                                   <ChevronDown aria-hidden="true" className={`w-3.5 h-3.5 transition-transform ${expandedCourseId === course.id ? "rotate-180" : ""}`} />
                                 </button>
                                 {expandedCourseId === course.id && (
-                                  <div className="mt-3 border-t border-immersive-border pt-3 text-xs text-immersive-text-secondary space-y-2">
+                                  <div className="mt-3 border-t border-immersive-border pt-3 text-sm text-immersive-text-secondary space-y-2">
                                     {details?.loading && <p role="status">Loading course details…</p>}
                                     {details?.error && <p role="alert">{details.error}</p>}
-                                    {details?.details?.overview && <p className="leading-relaxed">{details.details.overview}</p>}
                                     {details?.details?.outcomes?.length ? (
                                       <div>
                                         <p className="font-bold text-immersive-text-primary">By the end, you’ll be able to</p>
                                         <ul className="list-disc pl-5 mt-1 space-y-1">{details.details.outcomes.slice(0, 4).map((outcome) => <li key={outcome}>{outcome}</li>)}</ul>
                                       </div>
-                                    ) : null}
-                                    {details?.details?.keyConcepts?.length ? (
-                                      <p><strong className="text-immersive-text-primary">Topics:</strong> {details.details.keyConcepts.slice(0, 5).join(", ")}</p>
-                                    ) : null}
+                                    ) : !details?.loading && !details?.error ? <p>Learning outcomes aren’t available for this course yet.</p> : null}
                                   </div>
                                 )}
                               </article>
@@ -353,19 +428,59 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                   {activeLevels.flatMap((level) => selected[level].map((course) => ({level, course}))).map(({level, course}, index) => {
                     const details = courseDetails[course.id];
                     const outcomes = details?.details?.outcomes?.slice(0, 3) || [];
+                    const skills = details?.details?.skills?.length ? details.details.skills : parseCourseSkills(course.skills);
+                    const syllabus = details?.details?.syllabus || [];
+                    const isExpanded = expandedReadyCourseId === course.id;
                     return (
-                      <article key={course.id} className="flex gap-4 p-4 rounded-xl border border-immersive-border">
-                        <span className="text-xs font-mono text-immersive-secondary shrink-0">0{index + 1}</span>
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-immersive-text-primary">{course.title}</p>
-                          <p className="text-xs text-immersive-text-secondary uppercase mt-1">{level}</p>
-                          <p className="text-xs text-immersive-text-secondary mt-2 leading-relaxed">{details?.details?.overview || course.description || "A course selected for your career lane and learning goal."}</p>
-                          {course.duration && <p className="text-xs text-immersive-text-secondary mt-2">Estimated duration: {course.duration}</p>}
-                          {(details?.details?.skills?.length || parseCourseSkills(course.skills).length) > 0 && <p className="text-xs text-immersive-text-secondary mt-1"><strong className="text-immersive-text-primary">Skills:</strong> {(details?.details?.skills?.length ? details.details.skills : parseCourseSkills(course.skills)).slice(0, 5).join(", ")}</p>}
-                          {outcomes.length > 0 && <ul className="mt-2 list-disc pl-4 text-xs text-immersive-text-secondary space-y-1">{outcomes.map((outcome) => <li key={outcome}>{outcome}</li>)}</ul>}
-                          {details?.loading && <p role="status" className="mt-2 text-xs text-immersive-text-secondary">Loading course outcomes…</p>}
-                          {details?.error && <p role="alert" className="mt-2 text-xs text-amber-300">Detailed syllabus unavailable; you can still continue.</p>}
-                        </div>
+                      <article key={course.id} className="rounded-xl border border-immersive-border">
+                        <button
+                          type="button"
+                          aria-expanded={isExpanded}
+                          aria-controls={`ready-course-${course.id}`}
+                          onClick={() => setExpandedReadyCourseId(isExpanded ? null : course.id)}
+                          className="flex w-full items-center gap-4 p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] rounded-xl"
+                        >
+                          <span className="text-sm font-mono text-immersive-secondary shrink-0">0{index + 1}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-base font-bold text-immersive-text-primary">{course.title}</span>
+                            <span className="block text-sm text-immersive-text-secondary uppercase mt-1">{level}</span>
+                          </span>
+                          <ChevronDown aria-hidden="true" className={`w-4 h-4 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                        </button>
+                        {isExpanded && (
+                          <div id={`ready-course-${course.id}`} className="border-t border-immersive-border p-4 sm:p-5 text-sm text-immersive-text-secondary space-y-4">
+                            {details?.loading && <p role="status">Loading course details…</p>}
+                            {details?.error && <p role="alert" className="text-amber-300">Course details are unavailable right now.</p>}
+                            {!details?.loading && !details?.error && (
+                              <>
+                                <section>
+                                  <h4 className="font-bold text-immersive-text-primary">By the end, you’ll be able to</h4>
+                                  {outcomes.length > 0
+                                    ? <ul className="mt-2 list-disc pl-5 space-y-1">{outcomes.map((outcome) => <li key={outcome}>{outcome}</li>)}</ul>
+                                    : <p className="mt-1">Learning outcomes aren’t available for this course yet.</p>}
+                                </section>
+                                <section>
+                                  <h4 className="font-bold text-immersive-text-primary">Skills</h4>
+                                  <p className="mt-1">{skills.length ? skills.slice(0, 8).join(", ") : "Skills aren’t listed for this course yet."}</p>
+                                </section>
+                                <section>
+                                  <h4 className="font-bold text-immersive-text-primary">Syllabus Structure</h4>
+                                  {syllabus.length > 0 ? (
+                                    <ol className="mt-2 list-decimal pl-5 space-y-2">
+                                      {syllabus.map((module, moduleIndex) => (
+                                        <li key={`${module.module}-${moduleIndex}`}>
+                                          <span className="font-semibold text-immersive-text-primary">{module.module}</span>
+                                          {module.theme && <span> — {module.theme}</span>}
+                                          {module.chapters && <p className="mt-1">{module.chapters}</p>}
+                                        </li>
+                                      ))}
+                                    </ol>
+                                  ) : <p className="mt-1">Syllabus structure isn’t available for this course yet.</p>}
+                                </section>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </article>
                     );
                   })}

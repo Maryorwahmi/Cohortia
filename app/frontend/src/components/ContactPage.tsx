@@ -9,8 +9,8 @@ interface FAQItem {
 
 const INITIAL_FAQS: FAQItem[] = [
   {
-    q: "Do I need absolute coding or design experience to apply?",
-    a: "No! Our Foundation Track (Career Starter) is specifically structured with beginner-friendly explanations, small wins, and supportive mentorship. If you choose a more advanced track (like DevOps or AI Eng), we conduct brief skills assessments or suggest preparatory materials before launch.",
+    q: "Do I need absolute coding or computer science experience to apply?",
+    a: "No! Our Pivot into a New Career track ($23) is specifically structured from Beginner → Intermediate → Advanced with friendly explanations, guided practical exercises, and supportive AI mentorship. If you choose an advanced track (like Lead & Specialize $45), we provide senior-level architecture reviews and capstone challenges.",
     open: true
   },
   {

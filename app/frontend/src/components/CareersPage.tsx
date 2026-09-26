@@ -186,132 +186,165 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
       </div>
 
       {/* How You Grow Section */}
-      <section className="py-10 border-t border-b border-immersive-border/20 bg-immersive-card/30 relative">
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
+      <section className="py-12 border-t border-b border-immersive-border/20 bg-immersive-card/30 relative">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-2">
-              | CHOOSE YOUR TRACK
+              | CHOOSE YOUR CAREER TRACK
             </span>
             <h2 className="text-3xl sm:text-4xl font-sans font-extrabold text-immersive-text-primary">
               How You <span className="text-[#FF4B3E]">Grow</span>
             </h2>
             <p className="mt-3 text-sm text-immersive-text-secondary max-w-xl mx-auto">
-              Every career path on Cohortia fits into one of three learner journeys designed for your stage.
+              Cohortia offers three structured career-development paths tailored around your current stage and goal.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Foundation Track */}
-            <div className="bg-immersive-card border border-immersive-border/50 hover:border-immersive-secondary/50 rounded-2xl p-6 transition-all duration-300 shadow-md shadow-immersive-shadow hover:shadow-[0_4px_25px_var(--immersive-shadow)] flex flex-col justify-between group">
+            {/* Track 1: Pivot into a new career */}
+            <div className="bg-immersive-card border border-immersive-border/60 hover:border-[#FF4B3E]/50 rounded-3xl p-6 sm:p-7 transition-all duration-300 shadow-xl shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(255,75,62,0.12)] flex flex-col justify-between group">
               <div>
-                <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-[#FF4B3E]/10 text-[#FF4B3E] uppercase tracking-wider inline-block mb-4">
-                  FOUNDATION TRACK
-                </span>
-                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">Career Starter</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-500 uppercase tracking-wider inline-block">
+                    CAREER TRANSITION
+                  </span>
+                  <div className="text-right">
+                    <span className="text-2xl font-black text-[#FF4B3E]">$23</span>
+                    <span className="text-[10px] font-mono text-immersive-text-secondary block">total track</span>
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">
+                  Pivot into a new career
+                </h3>
                 <p className="text-xs text-immersive-text-secondary leading-relaxed mb-6 font-medium">
-                  A clear starting point with direction, structure, and confidence for people entering the workforce.
+                  For learners moving into a completely new field. Takes you from <strong>Beginner → Intermediate → Advanced</strong> with structured fundamentals, practical labs, and transition guidance.
                 </p>
-                <ul className="space-y-3 text-xs text-immersive-text-secondary mb-8 font-medium">
+
+                <ul className="space-y-2.5 text-xs text-immersive-text-secondary mb-8 font-medium">
                   <li className="flex items-start space-x-2.5">
                     <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>A simple roadmap path to begin</span>
+                    <span><strong>5 Courses:</strong> 2 Beginner + 2 Intermediate + 1 Advanced</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
                     <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>A supportive community</span>
+                    <span><strong>500 AI Credits:</strong> Mentorship & learning assistance</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
                     <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Beginner-friendly explanations</span>
+                    <span><strong>Practical Assistant:</strong> Projects, exercises & solutions</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
                     <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Small wins that build confidence</span>
+                    <span><strong>Career Transition:</strong> Resume roadmap & portfolio proof</span>
                   </li>
                 </ul>
               </div>
+
               <button 
                 onClick={onOpenWizard}
-                className="w-full py-3 px-4 rounded-xl text-xs font-bold text-[#FF4B3E] bg-[#FF4B3E]/5 border border-[#FF4B3E]/20 hover:bg-[#FF4B3E] hover:text-immersive-text-primary transition-all cursor-pointer flex items-center justify-center space-x-2"
+                className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-[#FF4B3E]/20 transition-all cursor-pointer flex items-center justify-center space-x-2"
               >
-                <span>Start this track</span>
+                <span>Enroll in Pivot Track ($23)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* Growth Track */}
-            <div className="bg-immersive-card border border-[#FF4B3E]/30 hover:border-[#FF4B3E] rounded-2xl p-6 transition-all duration-300 shadow-md shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(255,75,62,0.1)] flex flex-col justify-between relative overflow-hidden group">
+            {/* Track 2: Up-skill in my current role */}
+            <div className="bg-immersive-card border border-[#FF4B3E]/30 hover:border-[#FF4B3E] rounded-3xl p-6 sm:p-7 transition-all duration-300 shadow-xl shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(255,75,62,0.15)] flex flex-col justify-between relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF4B3E]/5 rounded-full blur-xl pointer-events-none" />
               <div>
-                <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-[#FF4B3E]/10 text-[#FF4B3E] uppercase tracking-wider inline-block mb-4">
-                  GROWTH TRACK
-                </span>
-                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">Level Up</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-blue-500/10 text-blue-500 uppercase tracking-wider inline-block">
+                    ROLE ACCELERATION
+                  </span>
+                  <div className="text-right">
+                    <span className="text-2xl font-black text-[#FF4B3E]">$30</span>
+                    <span className="text-[10px] font-mono text-immersive-text-secondary block">total track</span>
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">
+                  Up-skill in my current role
+                </h3>
                 <p className="text-xs text-immersive-text-secondary leading-relaxed mb-6 font-medium">
-                  A faster path to stronger skills, better roles, and better proof for professionals ready to grow.
+                  For professionals already in tech who want to sharpen existing skills, solve challenging workplace problems, and accelerate toward promotion.
                 </p>
-                <ul className="space-y-3 text-xs text-immersive-text-secondary mb-8 font-medium">
+
+                <ul className="space-y-2.5 text-xs text-immersive-text-secondary mb-8 font-medium">
                   <li className="flex items-start space-x-2.5">
                     <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>A roadmap that matches current skill</span>
+                    <span><strong>4 Courses:</strong> 2 Beginner + 1 Intermediate + 1 Advanced</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
                     <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Advanced practice and feedback</span>
+                    <span><strong>500 AI Credits:</strong> Professional problem-solving</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
                     <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Consistent accountability</span>
+                    <span><strong>Workplace Experience:</strong> Simulations & case studies</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
                     <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Career-focused outputs like projects</span>
+                    <span><strong>Growth Support:</strong> Skills-gap audit & promotion prep</span>
                   </li>
                 </ul>
               </div>
+
               <button 
                 onClick={onOpenWizard}
-                className="w-full py-3 px-4 rounded-xl text-xs font-bold text-immersive-text-primary bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-immersive-shadow shadow-[#FF4B3E]/20 transition-all cursor-pointer flex items-center justify-center space-x-2"
+                className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-[#FF4B3E]/20 transition-all cursor-pointer flex items-center justify-center space-x-2"
               >
-                <span>Start this track</span>
+                <span>Enroll in Upskill Track ($30)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* Experience Track */}
-            <div className="bg-immersive-card border border-immersive-border/50 hover:border-immersive-secondary/50 rounded-2xl p-6 transition-all duration-300 shadow-md shadow-immersive-shadow hover:shadow-[0_4px_25px_var(--immersive-shadow)] flex flex-col justify-between group">
+            {/* Track 3: Lead & Specialize */}
+            <div className="bg-immersive-card border border-purple-500/30 hover:border-purple-500 rounded-3xl p-6 sm:p-7 transition-all duration-300 shadow-xl shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(168,85,247,0.15)] flex flex-col justify-between group">
               <div>
-                <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-[#FF4B3E]/10 text-[#FF4B3E] uppercase tracking-wider inline-block mb-4">
-                  INTERNSHIP / MENTORSHIP
-                </span>
-                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">Experience Track</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-purple-500/10 text-purple-400 uppercase tracking-wider inline-block">
+                    SENIOR & SPECIALIST
+                  </span>
+                  <div className="text-right">
+                    <span className="text-2xl font-black text-[#FF4B3E]">$45</span>
+                    <span className="text-[10px] font-mono text-immersive-text-secondary block">total track</span>
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">
+                  Lead & Specialize
+                </h3>
                 <p className="text-xs text-immersive-text-secondary leading-relaxed mb-6 font-medium">
-                  Work-like experience, feedback, and portfolio-ready output through internship-style briefs.
+                  For experienced builders aiming for Tech Lead, Staff, or Domain Specialist. Focused on architecture depth, capstone deliverables, and leadership simulations.
                 </p>
-                <ul className="space-y-3 text-xs text-immersive-text-secondary mb-8 font-medium">
+
+                <ul className="space-y-2.5 text-xs text-immersive-text-secondary mb-8 font-medium">
                   <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Structured internship-style tasks</span>
+                    <CheckCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <span><strong>2 Deep Courses:</strong> 1 Intermediate + 1 Advanced</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Deadlines and milestones</span>
+                    <CheckCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <span><strong>Advanced Assistant:</strong> Architecture & strategic reviews</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Feedback on deliverables</span>
+                    <CheckCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <span><strong>Portfolio Capstone:</strong> Production-defining deliverables</span>
                   </li>
                   <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span>Proof of experience at the end</span>
+                    <CheckCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <span><strong>Leadership Readiness:</strong> Senior interview & team coaching</span>
                   </li>
                 </ul>
               </div>
+
               <button 
                 onClick={onOpenWizard}
-                className="w-full py-3 px-4 rounded-xl text-xs font-bold text-[#FF4B3E] bg-[#FF4B3E]/5 border border-[#FF4B3E]/20 hover:bg-[#FF4B3E] hover:text-immersive-text-primary transition-all cursor-pointer flex items-center justify-center space-x-2"
+                className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-purple-600 hover:brightness-110 shadow-lg shadow-purple-600/20 transition-all cursor-pointer flex items-center justify-center space-x-2"
               >
-                <span>Start this track</span>
+                <span>Enroll in Lead & Specialize ($45)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -319,22 +352,10 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
         </div>
       </section>
 
-      {/* Catalog Search & Filters */}
+      {/* Catalog Search & Filters (Clean without duplicate heading) */}
       <section className="py-12">
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-2">
-              | COURSE CATALOG
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-sans font-extrabold text-immersive-text-primary">
-              Explore Major <span className="text-[#FF4B3E]">Courses</span>
-            </h2>
-            <p className="mt-3 text-sm text-immersive-text-secondary">
-              Choose one of our 12 covered fields to browse its course catalog.
-            </p>
-          </div>
-
           {/* Search Box */}
           <div className="max-w-xl mx-auto mb-10 relative">
             <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">

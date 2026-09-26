@@ -44,7 +44,7 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
 
               {userProfile ? (
                 <div className="space-y-2 animate-in fade-in slide-in-from-left duration-300">
-                  <h1 className="text-4xl sm:text-6xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.1]">
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.1]">
                     Welcome Back, <span className="bg-immersive-primary bg-clip-text text-transparent">{userProfile.name}</span>.<br />
                     Accelerate Your <span className="text-immersive-secondary">Career</span>.
                   </h1>
@@ -54,7 +54,7 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
                   </div>
                 </div>
               ) : (
-                <h1 className="text-5xl sm:text-7xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.05]">
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.08]">
                   Build Skills.<br />
                   Gain <span className="bg-immersive-primary bg-clip-text text-transparent">Experience.</span><br />
                   Move Forward.

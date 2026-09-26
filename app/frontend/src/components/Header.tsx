@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { User, Menu, X, Sparkles, ChevronDown, LogOut, BookOpen, Trophy, Activity } from "lucide-react";
+import { User, Menu, X, Sparkles, ChevronDown, LogOut, BookOpen, Trophy, Activity, Sun, Moon } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { backendUserToPreferences } from "../types";
 import Logo from "./Logo";
 
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 export default function Header({ onOpenWizard }: HeaderProps) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -136,7 +138,21 @@ export default function Header({ onOpenWizard }: HeaderProps) {
           </nav>
 
           {/* Action buttons / Dynamic Profile */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl bg-immersive-card border border-immersive-border hover:border-immersive-secondary/40 text-immersive-text-secondary hover:text-immersive-text-primary transition-all duration-200 cursor-pointer h-11 w-11 flex items-center justify-center shadow-sm"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label="Toggle dark/light mode"
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-700" />
+              )}
+            </button>
+
             {userProfile ? (
               <div id="user-profile-dropdown-container" className={`relative flex items-center space-x-2 ${isDashboard ? "md:hidden" : ""}`}>
                 {/* User Dropdown Trigger Button */}
@@ -272,7 +288,19 @@ export default function Header({ onOpenWizard }: HeaderProps) {
           </div>
 
           {/* Mobile Menu Row */}
-          <div className="lg:hidden flex items-center space-x-3">
+          <div className="lg:hidden flex items-center space-x-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-immersive-text-secondary hover:text-immersive-text-primary rounded-lg bg-immersive-card border border-immersive-border hover:bg-immersive-card-hover cursor-pointer"
+              aria-label="Toggle Theme"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? (
+                <Sun className="w-5 h-5 text-amber-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-slate-700" />
+              )}
+            </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-immersive-text-secondary hover:text-immersive-text-primary rounded-lg bg-immersive-card border border-immersive-border hover:bg-immersive-card-hover cursor-pointer"

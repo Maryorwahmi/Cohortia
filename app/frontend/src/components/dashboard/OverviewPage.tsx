@@ -10,6 +10,7 @@ import DailyHabitTracker from "./DailyHabitTracker";
 import HabitLogger from "./HabitLogger";
 import SkeletonLoader from "./SkeletonLoader";
 import RoadmapSummary from "./RoadmapSummary";
+import RecentActivity from "./RecentActivity";
 
 interface OverviewPageProps {
   userProfile: UserPreferences;
@@ -541,6 +542,9 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
                 )}
               </div>
             )}
+
+            {/* Recent Activity Feed */}
+            <RecentActivity userProfile={userProfile} onNavigate={onChangePage} />
 
           </div>
 

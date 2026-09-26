@@ -11,10 +11,13 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import {CohortTrackId} from '../../types';
 import {TRACK_CURRICULA} from '../../data/dashboardData';
 import {useAuth} from '../../context/AuthContext';
+import {useTheme} from '../../context/ThemeContext';
 import {backendUserToPreferences} from '../../types';
 import Logo from '../Logo';
 
@@ -25,6 +28,7 @@ interface DashboardSidebarProps {
 
 export default function DashboardSidebar({ isCollapsed = false, onToggleCollapse }: DashboardSidebarProps) {
   const {user, logout} = useAuth();
+  const {theme, toggleTheme} = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [localCollapsed, setLocalCollapsed] = useState(false);
@@ -267,6 +271,19 @@ export default function DashboardSidebar({ isCollapsed = false, onToggleCollapse
 
         {/* Action Buttons Row */}
         <div className={`flex ${collapsed ? 'flex-col w-full' : 'items-center'} justify-between gap-2 pt-1`}>
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-immersive-card border border-immersive-border hover:border-immersive-secondary/40 text-immersive-text-secondary hover:text-immersive-text-primary transition-all duration-200 flex items-center justify-center cursor-pointer h-9 w-9 shrink-0 hover:scale-105 active:scale-95"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label="Toggle dark/light mode"
+          >
+            {theme === "dark" ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-slate-700" />
+            )}
+          </button>
 
           {/* Sign Out inside Sidebar */}
           <button

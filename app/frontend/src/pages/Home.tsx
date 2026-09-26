@@ -3,8 +3,7 @@ import Hero from '../components/Hero';
 import LiveTicker from '../components/LiveTicker';
 import ProductDemoSection from '../components/ProductDemoSection';
 import CareersExplorer from '../components/CareersExplorer';
-import FeatureCards from '../components/FeatureCards';
-import SuccessStories from '../components/SuccessStories';
+import ExperienceTrackSimulator from '../components/ExperienceTrackSimulator';
 import AboutUs from '../components/AboutUs';
 import {useAuth} from '../context/AuthContext';
 import {backendUserToPreferences} from '../types';
@@ -24,8 +23,7 @@ export default function Home() {
       <LiveTicker />
       <ProductDemoSection />
       <CareersExplorer onOpenWizard={openWizard} />
-      <FeatureCards userProfile={userProfile} onOpenWizard={openWizard} />
-      <SuccessStories />
+      <ExperienceTrackSimulator userProfile={userProfile} onOpenWizard={openWizard} />
       <AboutUs />
     </>
   );
