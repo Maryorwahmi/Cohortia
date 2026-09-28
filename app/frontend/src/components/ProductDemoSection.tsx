@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
   Play, 
   Pause, 
@@ -10,20 +10,18 @@ import {
   Terminal, 
   Sparkles, 
   Award, 
-  CheckCircle2, 
   Lock, 
   Unlock, 
   Radio, 
   GraduationCap, 
   MessageSquareQuote,
-  Eye,
-  Check,
   AlertCircle,
   FileText,
   Sliders,
-  Sparkle
+  ChevronDown,
+  ChevronUp,
+  FileCheck
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "../context/ThemeContext";
 
 interface CodeLine {
@@ -56,7 +54,7 @@ interface PracticalPhase {
   keyTakeaway: string;
 }
 
-const TOTAL_DURATION = 270; // 4 minutes and 30 seconds (Intensive Masterclass)
+const TOTAL_DURATION = 270; // 4 minutes and 30 seconds (Intensive Masterclass Simulation)
 
 const PHASES: PracticalPhase[] = [
   {
@@ -69,12 +67,12 @@ const PHASES: PracticalPhase[] = [
     icon: Code,
     badge: "00:00 - 00:54",
     accessRule: "Protected Member Invariance",
-    spokenScript: "Welcome to Cohortia! I'm thrilled to guide you through your C++ Certified Professional Programmer masterclass. Today, we're designing an enterprise-grade hierarchical logging system from scratch. In step one, we construct our base Logger class. Notice how we designate the log level as protected. In modern C++, protected members are accessible to derived subclasses, while remaining completely shielded from external callers. We also provide a public log method to give callers a clean, standardized printing interface.",
+    spokenScript: "Welcome to Cohortia! I'm thrilled to guide you through this interactive preview of our C++ Certified Professional Programmer masterclass. Today, we're designing an enterprise-grade hierarchical logging system. In step one, we construct our base Logger class. Notice how we designate the log level as protected. In modern C++, protected members are accessible to derived subclasses, while remaining completely shielded from external callers. We also provide a public log method to give callers a clean, standardized printing interface.",
     subtitles: [
-      "Welcome to Cohortia's C++ Certified Professional Programmer masterclass!",
-      "Today, we are building a hierarchical logging system with robust encapsulation.",
+      "Welcome to this interactive preview of Cohortia's C++ Certified Professional Programmer curriculum.",
+      "Today, we are walking through the design of a hierarchical logging system with robust encapsulation.",
       "Step one: We declare the base Logger class with a protected logLevel variable.",
-      "Protected members can be accessed by child classes, but are shielded from the outside world.",
+      "Protected members can be accessed by child classes, but are shielded from outside callers.",
       "We provide a public log method so callers receive a consistent message output format."
     ],
     codeLines: [
@@ -94,15 +92,15 @@ const PHASES: PracticalPhase[] = [
     ],
     terminalContent: {
       command: "clang++ -std=c++20 -Wall -Wextra -c Logger.cpp -o Logger.o",
-      status: "COMPILATION SUCCESSFUL (0 WARNINGS)",
+      status: "SIMULATED COMPILATION (0 WARNINGS)",
       lines: [
-        { text: "Parsing translation unit: Logger.cpp...", type: "cmd" },
+        { text: "[SIMULATION] Parsing translation unit: Logger.cpp...", type: "cmd" },
         { text: "Verifying access specifiers: 'protected int logLevel' registered in class table.", type: "info" },
         { text: "Verifying method signature: 'void Logger::log(const std::string&)' in public vtable.", type: "info" },
         { text: "Inlining default constructor: Logger(int level = 0) with member initializer.", type: "info" },
-        { text: "==> Built Logger.o target cleanly (binary size: 3.4 KB).", type: "success" }
+        { text: "==> Simulated build target Logger.o generated cleanly (illustrative result).", type: "success" }
       ],
-      summary: "Protected member invariance satisfied. Base translation unit ready for specialization."
+      summary: "Illustrative simulation: Protected member invariance satisfied. Base translation unit ready for specialization."
     },
     keyTakeaway: "Use 'protected' when derived classes must inspect or adjust internal state without exposing it to client code."
   },
@@ -142,16 +140,16 @@ const PHASES: PracticalPhase[] = [
     ],
     terminalContent: {
       command: "./test_console_logger",
-      status: "EXECUTION PASSED (RETURN CODE 0)",
+      status: "SIMULATED TEST PASSED (RETURN CODE 0)",
       lines: [
-        { text: "Executing test suite for ConsoleLogger specialization...", type: "cmd" },
+        { text: "[SIMULATION] Executing test suite for ConsoleLogger specialization...", type: "cmd" },
         { text: "[RUN ] ConsoleLoggerTest.PublicInheritanceCall", type: "info" },
         { text: "[Level 1] This is a console message.", type: "success" },
         { text: "[RUN ] ConsoleLoggerTest.ProtectedMemberReadWrite", type: "info" },
         { text: "ConsoleLogger can access protected logLevel: 1", type: "success" },
-        { text: "==> Assertion passed: Base class log() and protected logLevel accessible.", type: "success" }
+        { text: "==> Simulated assertion: Base class log() and protected logLevel accessible.", type: "success" }
       ],
-      summary: "Public inheritance maintains the base class interface, enabling clean polymorphism."
+      summary: "Illustrative simulation: Public inheritance maintains base class interface, enabling clean polymorphism."
     },
     keyTakeaway: "Public inheritance preserves access tiers: public remains public, and protected remains protected."
   },
@@ -164,7 +162,7 @@ const PHASES: PracticalPhase[] = [
     duration: 54,
     icon: Lock,
     badge: "01:48 - 02:42",
-    accessRule: "Private Inheritance (has-a / implementation)",
+    accessRule: "Private Inheritance (implemented-in-terms-of)",
     spokenScript: "Now we arrive at one of the most powerful and misunderstood features in C++: private inheritance. Here, FileLogger privately inherits from Logger. This represents an implemented-in-terms-of relationship. Everything that was public or protected in Logger now becomes completely private inside FileLogger! Callers can no longer see the base log method. Inside writeLogToFile, we set the private log level to five, open a file stream to app.log, and write our record to disk safely.",
     subtitles: [
       "Step three: We implement FileLogger using private inheritance from Logger.",
@@ -194,16 +192,16 @@ const PHASES: PracticalPhase[] = [
     ],
     terminalContent: {
       command: "./test_file_logger && ls -l app.log",
-      status: "DISK WRITE VERIFIED (24 BYTES)",
+      status: "SIMULATED DISK WRITE (24 BYTES)",
       lines: [
-        { text: "Executing test suite for FileLogger disk streaming...", type: "cmd" },
+        { text: "[SIMULATION] Executing test suite for FileLogger disk streaming...", type: "cmd" },
         { text: "Opening file handle: app.log (mode: std::ios_base::app)", type: "info" },
         { text: "Logged to file: app.log", type: "success" },
         { text: "-rw-r--r-- 1 student staff 38 Sep 28 app.log", type: "info" },
         { text: "Payload content: '[File Log Level 5] This is a file message.'", type: "success" },
-        { text: "==> Testing encapsulation: fl.log() rejected from main driver as expected.", type: "success" }
+        { text: "==> Simulated encapsulation check: fl.log() rejected from main driver as expected.", type: "success" }
       ],
-      summary: "Private inheritance seals the base class interface. All base methods are now internal."
+      summary: "Illustrative simulation: Private inheritance seals the base class interface. All base methods are now internal."
     },
     keyTakeaway: "Use private inheritance when you want to reuse implementation details without exposing base methods."
   },
@@ -222,7 +220,7 @@ const PHASES: PracticalPhase[] = [
       "Step four: We build SecureFileLogger, inheriting publicly from FileLogger.",
       "Attempting to write 'logLevel = 10' or call 'log()' triggers immediate compiler errors!",
       "Why? Because FileLogger inherited them privately, cutting off derived subclasses.",
-      "This compiler diagnostic proves that private inheritance prevents unintended leakage.",
+      "This illustrative compiler diagnostic proves that private inheritance prevents unintended leakage.",
       "To resolve this cleanly, we use FileLogger's public interface to stream encrypted data."
     ],
     codeLines: [
@@ -241,16 +239,16 @@ const PHASES: PracticalPhase[] = [
     ],
     terminalContent: {
       command: "clang++ -std=c++20 SecureFileLogger.cpp -c",
-      status: "CLANG ACCESS DIAGNOSTIC & FIX",
+      status: "SIMULATED CLANG DIAGNOSTIC & FIX",
       lines: [
-        { text: "Analyzing access control in SecureFileLogger::encryptAndWrite...", type: "cmd" },
+        { text: "[SIMULATION] Analyzing access control in SecureFileLogger::encryptAndWrite...", type: "cmd" },
         { text: "SecureFileLogger.cpp:14:9: error: 'logLevel' is a private member of 'Logger'", type: "error" },
         { text: "  Candidate declared private due to 'class FileLogger : private Logger'", type: "warn" },
         { text: "SecureFileLogger.cpp:15:9: error: 'log' is a private member of 'Logger'", type: "error" },
         { text: "Applying pedagogical fix: Delegating through FileLogger::writeLogToFile()...", type: "info" },
-        { text: "==> Compilation succeeded after applying encapsulation pattern.", type: "success" }
+        { text: "==> Compilation simulation succeeded after applying encapsulation pattern.", type: "success" }
       ],
-      summary: "Private inheritance successfully prevented subclasses from tampering with base logging levels."
+      summary: "Illustrative simulation: Private inheritance successfully prevented subclasses from tampering with base logging levels."
     },
     keyTakeaway: "Subclasses cannot penetrate private inheritance. You must interact through the public API."
   },
@@ -264,13 +262,13 @@ const PHASES: PracticalPhase[] = [
     icon: Award,
     badge: "03:36 - 04:30",
     accessRule: "Production Verification (Zero Leaks)",
-    spokenScript: "Now let's bring our entire architecture together in main! We instantiate our ConsoleLogger, our FileLogger, and our SecureFileLogger. Watch our terminal run: the console outputs formatted alerts, FileLogger writes app.log, and SecureFileLogger successfully encrypts sensitive records. All automated assertions pass, and Valgrind confirms zero memory leaks. Congratulations! You've just designed an enterprise-grade C++ logging hierarchy. Welcome to Cohortia, where you master software engineering by building real systems.",
+    spokenScript: "Now let's bring our entire architecture together in main! We instantiate our ConsoleLogger, our FileLogger, and our SecureFileLogger. Watch our terminal simulation run: the console outputs formatted alerts, FileLogger writes app.log, and SecureFileLogger successfully encrypts sensitive records. All simulated assertions pass, and Valgrind confirms zero memory leaks. Congratulations! You've just explored an enterprise-grade C++ logging hierarchy. Welcome to Cohortia, where you master software engineering by building real systems.",
     subtitles: [
       "Step five: We bring our complete architecture together in the main() driver.",
       "We instantiate ConsoleLogger, FileLogger, and SecureFileLogger instances.",
       "Notice how attempting illegal access from main() is caught at compile time.",
-      "All unit tests pass, and Valgrind confirms zero memory leaks or dangling pointers.",
-      "Congratulations! You've earned 250 XP and unlocked your Verified CPP Capstone badge."
+      "All unit tests pass in this simulation, modeling zero memory leaks or dangling pointers.",
+      "Congratulations! You've previewed the curriculum and explored verified CPP Capstone standards."
     ],
     codeLines: [
       { text: "int main() {" },
@@ -291,45 +289,73 @@ const PHASES: PracticalPhase[] = [
     ],
     terminalContent: {
       command: "./logger_master_suite && valgrind --leak-check=full ./logger_master_suite",
-      status: "ALL TESTS PASSED • VALGRIND CLEAN",
+      status: "SIMULATED SUITE PASSED • VALGRIND CLEAN",
       lines: [
-        { text: "[RUN ] TestSuite.ConsoleLoggerDispatch ==> [Level 1] This is a console message.", type: "success" },
-        { text: "[RUN ] TestSuite.FileLoggerPersistence ==> app.log created with level 5 formatting.", type: "success" },
-        { text: "[RUN ] TestSuite.SecureFileLoggerEncryption ==> [ENCRYPTED] payload written safely.", type: "success" },
-        { text: "==54902== Memcheck: a memory error detector", type: "info" },
+        { text: "[SIMULATION] TestSuite.ConsoleLoggerDispatch ==> [Level 1] This is a console message.", type: "success" },
+        { text: "[SIMULATION] TestSuite.FileLoggerPersistence ==> app.log created with level 5 formatting.", type: "success" },
+        { text: "[SIMULATION] TestSuite.SecureFileLoggerEncryption ==> [ENCRYPTED] payload written safely.", type: "success" },
+        { text: "==54902== Memcheck: a memory error detector (simulated model)", type: "info" },
         { text: "==54902== HEAP SUMMARY: in use at exit: 0 bytes in 0 blocks", type: "success" },
         { text: "==54902== All heap blocks were freed -- no leaks are possible", type: "success" },
         { text: "==> Milestone 04 Complete: Grade A+ (100% Spec Compliance).", type: "success" }
       ],
-      summary: "Enterprise C++ Logging Architecture verified. Ready for portfolio showcase and recruiter review."
+      summary: "Illustrative simulation: Enterprise C++ Logging Architecture verified. Ready for portfolio showcase."
     },
-    keyTakeaway: "Congratulations! You've mastered public vs private inheritance and memory safety in C++."
+    keyTakeaway: "Congratulations! You've explored public vs private inheritance and memory safety in C++."
   }
 ];
 
 export default function ProductDemoSection() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [isPlaying, setIsPlaying] = useState(true);
+
+  // Start PAUSED by default - do not autoplay motion or audio on page load
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [hasStartedByUser, setHasStartedByUser] = useState(false);
   const [currentTime, setCurrentTime] = useState(0); // in seconds (0 to 270)
   const [isVoiceMuted, setIsVoiceMuted] = useState(false);
   const [activeTab, setActiveTab] = useState<"code" | "terminal" | "spec">("code");
-  const [avaVoiceFound, setAvaVoiceFound] = useState(false);
+  const [showFullTranscript, setShowFullTranscript] = useState(false);
+
+  // Accurate voice state
+  const [voiceDisplayName, setVoiceDisplayName] = useState<string>("Detecting browser voice...");
+  const [speechSynthesisAvailable, setSpeechSynthesisAvailable] = useState<boolean>(true);
+
+  // Check prefers-reduced-motion
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   const requestRef = useRef<number | null>(null);
   const previousTimeRef = useRef<number | null>(null);
   const currentSpokenPhaseRef = useRef<number | null>(null);
   const voiceInstanceRef = useRef<SpeechSynthesisVoice | null>(null);
 
-  // Initialize and prioritize Microsoft Ava Voice
+  // Detect reduced motion preferences
   useEffect(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    if (typeof window !== "undefined" && window.matchMedia) {
+      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      setPrefersReducedMotion(mediaQuery.matches);
+      const listener = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+      mediaQuery.addEventListener("change", listener);
+      return () => mediaQuery.removeEventListener("change", listener);
+    }
+  }, []);
 
-    const findBestVoice = () => {
+  // Voice detection: accurate label without false claims
+  useEffect(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      setSpeechSynthesisAvailable(false);
+      setVoiceDisplayName("Speech synthesis not supported (Subtitles only)");
+      return;
+    }
+
+    const selectVoice = () => {
       const voices = window.speechSynthesis.getVoices();
-      if (!voices || voices.length === 0) return;
+      if (!voices || voices.length === 0) {
+        setVoiceDisplayName("Default Browser Voice");
+        return;
+      }
 
-      // Specifically search for Microsoft Ava
+      // 1. Try to find Microsoft Ava
       const ava = voices.find((v) => 
         v.name.toLowerCase().includes("ava") || 
         v.name.toLowerCase().includes("microsoft ava")
@@ -337,24 +363,37 @@ export default function ProductDemoSection() {
 
       if (ava) {
         voiceInstanceRef.current = ava;
-        setAvaVoiceFound(true);
+        setVoiceDisplayName("Microsoft Ava (Online Natural)");
         return;
       }
 
-      // Fallback to high quality natural English voice
-      const naturalEnglish = voices.find((v) => 
-        (v.name.includes("Natural") || v.name.includes("Online") || v.name.includes("Neural")) && 
+      // 2. Try to find other high-quality natural voices
+      const natural = voices.find((v) => 
+        (v.name.includes("Natural") || v.name.includes("Neural")) && 
         v.lang.startsWith("en")
-      ) || voices.find((v) => (v.name.includes("Google") || v.name.includes("Samantha")) && v.lang.startsWith("en"))
-        || voices.find((v) => v.lang.startsWith("en"));
+      );
 
-      if (naturalEnglish) {
-        voiceInstanceRef.current = naturalEnglish;
+      if (natural) {
+        voiceInstanceRef.current = natural;
+        setVoiceDisplayName(`${natural.name}`);
+        return;
+      }
+
+      // 3. Fallback to standard English voice
+      const englishVoice = voices.find((v) => 
+        (v.name.includes("Google") || v.name.includes("Samantha")) && v.lang.startsWith("en")
+      ) || voices.find((v) => v.lang.startsWith("en")) || voices[0];
+
+      if (englishVoice) {
+        voiceInstanceRef.current = englishVoice;
+        setVoiceDisplayName(`${englishVoice.name}`);
+      } else {
+        setVoiceDisplayName("System Default Voice");
       }
     };
 
-    findBestVoice();
-    window.speechSynthesis.onvoiceschanged = findBestVoice;
+    selectVoice();
+    window.speechSynthesis.onvoiceschanged = selectVoice;
 
     return () => {
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -377,7 +416,7 @@ export default function ProductDemoSection() {
   const phaseElapsed = currentTime - activePhase.startSec;
   const activePhaseProgress = Math.min(1, Math.max(0, phaseElapsed / activePhase.duration));
 
-  // Determine current active subtitle index (5 subtitles per 54-second phase)
+  // Determine current active subtitle index
   const currentSubtitleIndex = Math.min(
     activePhase.subtitles.length - 1,
     Math.floor(activePhaseProgress * activePhase.subtitles.length)
@@ -386,17 +425,18 @@ export default function ProductDemoSection() {
 
   // Animated line-by-line typing count
   const totalLines = activePhase.codeLines.length;
-  // Let the lines type out smoothly across the first 75% of the phase
-  const typedLineCount = Math.min(
-    totalLines,
-    Math.max(1, Math.floor((activePhaseProgress / 0.8) * totalLines))
-  );
+  // If user prefers reduced motion, show all lines immediately; otherwise animate smoothly
+  const typedLineCount = prefersReducedMotion
+    ? totalLines
+    : Math.min(
+        totalLines,
+        Math.max(1, Math.floor((activePhaseProgress / 0.8) * totalLines))
+      );
 
   // Warm voice narration execution
   const speakPhaseNarration = useCallback((phaseIndex: number) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
-    if (isVoiceMuted) {
+    if (isVoiceMuted || !hasStartedByUser) {
       window.speechSynthesis.cancel();
       return;
     }
@@ -407,8 +447,8 @@ export default function ProductDemoSection() {
     const utterance = new SpeechSynthesisUtterance(phase.spokenScript);
     
     // Warm teacher speech settings
-    utterance.rate = 1.0; // Friendly, natural conversational pacing
-    utterance.pitch = 1.05; // Friendly, warm vocal pitch
+    utterance.rate = 1.0;
+    utterance.pitch = 1.05;
     utterance.lang = "en-US";
 
     if (voiceInstanceRef.current) {
@@ -416,16 +456,16 @@ export default function ProductDemoSection() {
     }
 
     utterance.onerror = () => {
-      // Graceful fallback for browser autoplay policies
+      // Graceful fallback for browser autoplay or user cancellation
     };
 
     window.speechSynthesis.speak(utterance);
     currentSpokenPhaseRef.current = phaseIndex;
-  }, [isVoiceMuted]);
+  }, [isVoiceMuted, hasStartedByUser]);
 
-  // Synchronize narration with phase transitions
+  // Synchronize narration with phase transitions ONLY when playing and started by user
   useEffect(() => {
-    if (!isPlaying || isVoiceMuted) {
+    if (!isPlaying || isVoiceMuted || !hasStartedByUser) {
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
@@ -435,9 +475,9 @@ export default function ProductDemoSection() {
     if (currentSpokenPhaseRef.current !== activePhaseIndex) {
       speakPhaseNarration(activePhaseIndex);
     }
-  }, [activePhaseIndex, isPlaying, isVoiceMuted, speakPhaseNarration]);
+  }, [activePhaseIndex, isPlaying, isVoiceMuted, hasStartedByUser, speakPhaseNarration]);
 
-  // Master Animation Loop (4.5 Minutes = 270 seconds)
+  // Master Animation Loop (270 seconds)
   useEffect(() => {
     if (!isPlaying) {
       if (requestRef.current) {
@@ -454,7 +494,7 @@ export default function ProductDemoSection() {
         setCurrentTime((prev) => {
           const next = prev + deltaTime;
           if (next >= TOTAL_DURATION) {
-            return 0; // Seamless loop back to Step 1
+            return 0; // Loop back
           }
           return next;
         });
@@ -476,27 +516,47 @@ export default function ProductDemoSection() {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const width = rect.width;
-    const ratio = Math.max(0, Math.min(1, clickX / width));
-    const targetSec = ratio * TOTAL_DURATION;
+  const handleSeekRange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const targetSec = Number(e.target.value);
     setCurrentTime(targetSec);
     currentSpokenPhaseRef.current = null;
+    if (isPlaying && !isVoiceMuted && hasStartedByUser) {
+      // Speak for new phase if changed
+      let newPhaseIdx = 0;
+      for (let i = 0; i < PHASES.length; i++) {
+        if (targetSec >= PHASES[i].startSec && targetSec < PHASES[i].startSec + PHASES[i].duration) {
+          newPhaseIdx = i;
+          break;
+        }
+      }
+      speakPhaseNarration(newPhaseIdx);
+    }
   };
 
   const jumpToPhase = (phaseIndex: number) => {
     setCurrentTime(PHASES[phaseIndex].startSec);
     currentSpokenPhaseRef.current = null;
-    if (isPlaying && !isVoiceMuted) {
+    if (isPlaying && !isVoiceMuted && hasStartedByUser) {
       speakPhaseNarration(phaseIndex);
     }
   };
 
+  const togglePlay = () => {
+    const nextPlay = !isPlaying;
+    setIsPlaying(nextPlay);
+    setHasStartedByUser(true);
+    if (nextPlay) {
+      speakPhaseNarration(activePhaseIndex);
+    } else {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+  };
+
   const playerShellClass = isDark
-    ? "relative min-h-[500px] sm:min-h-[560px] w-full rounded-3xl bg-[#090a10] border border-immersive-border/60 shadow-2xl shadow-immersive-shadow overflow-hidden group flex flex-col justify-between"
-    : "relative min-h-[500px] sm:min-h-[560px] w-full rounded-3xl bg-white border border-slate-200 shadow-2xl shadow-slate-200/60 overflow-hidden group flex flex-col justify-between";
+    ? "relative min-h-[520px] w-full rounded-3xl bg-[#090a10] border border-immersive-border/60 shadow-2xl shadow-immersive-shadow overflow-hidden flex flex-col justify-between"
+    : "relative min-h-[520px] w-full rounded-3xl bg-white border border-slate-200 shadow-2xl shadow-slate-200/60 overflow-hidden flex flex-col justify-between";
 
   const codePaneClass = isDark ? "bg-[#06080e] border-white/10" : "bg-slate-900 border-slate-700";
 
@@ -506,14 +566,14 @@ export default function ProductDemoSection() {
       <div className="absolute top-10 left-10 w-[550px] h-[550px] bg-[#FF4B3E]/5 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-[550px] h-[550px] bg-blue-500/5 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-4">
+        {/* Section Header: Clarified as an illustrative simulation */}
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 space-y-4">
           <div className="flex flex-wrap items-center justify-center gap-2">
             <span className="text-xs font-mono font-bold text-[#FF4B3E] uppercase tracking-widest px-3.5 py-1.5 rounded-full bg-[#FF4B3E]/10 border border-[#FF4B3E]/20 inline-flex items-center gap-2">
               <Terminal className="w-3.5 h-3.5" />
-              <span>INTERACTIVE PRACTICAL LEARNING BOARD • 4.5 MINUTE MASTERCLASS</span>
+              <span>INTERACTIVE BOARD SIMULATION • 4.5-MINUTE CURRICULUM PREVIEW</span>
             </span>
             <span className="text-xs font-mono font-bold text-blue-400 uppercase tracking-widest px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 inline-flex items-center gap-1.5">
               <GraduationCap className="w-3.5 h-3.5" />
@@ -522,473 +582,549 @@ export default function ProductDemoSection() {
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-tight">
-            Take a 4.5-Minute <span className="text-[#FF4B3E]">Practical Experience</span> Tour
+            Explore the <span className="text-[#FF4B3E]">Practical Learning Board</span> Simulation
           </h2>
           
           <p className="text-sm sm:text-base text-immersive-text-secondary font-medium leading-relaxed max-w-2xl mx-auto">
-            Experience the real <strong>Cohortia Practical Learning Board</strong>. Step inside our hands-on activity on <strong>Designing a Hierarchical Logging System</strong>, taught line-by-line with real-time C++ compilation, per-step terminal diagnostics, and warm pedagogical voice narration.
+            This interactive walkthrough illustrates how Cohortia's <strong>Practical Learning Board</strong> guides you through hands-on activities. Experience an illustrative simulation of <strong>Designing a Hierarchical Logging System</strong> with step-by-step code construction, simulated compiler diagnostics, and warm pedagogical voice narration.
           </p>
+
+          {/* Quick Notice Pill clarifying simulation status */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] text-slate-400 font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span>Illustrative simulation: Pre-rendered walkthrough showcasing curriculum structure</span>
+          </div>
         </div>
 
-        {/* Main Board & Playlist Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          
-          {/* Left Column: Interactive 4.5m Board */}
-          <div className="lg:col-span-8 flex flex-col justify-between">
-            <div className={playerShellClass}>
-              
-              {/* TOP HEADER: File tabs, live mode switch & voice badge */}
-              <div className="p-3.5 sm:p-4 border-b border-white/10 bg-black/50 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 select-none">
-                <div className="flex items-center space-x-2.5">
-                  <div className="flex space-x-1.5">
-                    <span className="w-2.5 h-2.5 bg-rose-500 rounded-full" />
-                    <span className="w-2.5 h-2.5 bg-amber-500 rounded-full" />
-                    <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
-                  </div>
-                  <div className="h-4 w-px bg-white/20" />
-                  <span className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-[#FF4B3E]" />
-                    <span>HierarchicalLoggingSystem.cpp</span>
+        {/* TOP STEP NAVIGATION PILLS (Replaces the sidebar so the simulator is full-width!) */}
+        <div className="mb-6 flex items-center justify-between gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {PHASES.map((phase, index) => {
+            const isSelected = activePhaseIndex === index;
+            const Icon = phase.icon;
+            return (
+              <button
+                key={phase.id}
+                onClick={() => jumpToPhase(index)}
+                aria-label={`Jump to ${phase.stepNumber}: ${phase.title}`}
+                className={`flex-1 min-w-[200px] p-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
+                  isSelected
+                    ? "bg-[#FF4B3E]/10 border-[#FF4B3E] shadow-lg shadow-[#FF4B3E]/10"
+                    : "bg-immersive-card border-immersive-border/60 hover:border-immersive-border hover:bg-immersive-card-hover"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-[10px] font-mono font-bold uppercase ${isSelected ? "text-[#FF4B3E]" : "text-slate-400"}`}>
+                    {phase.stepNumber}
+                  </span>
+                  <span className="text-[9px] font-mono text-slate-500">
+                    {phase.badge}
                   </span>
                 </div>
-
-                {/* View switcher tabs */}
-                <div className="flex items-center space-x-1 bg-white/[0.06] p-1 rounded-xl border border-white/10 text-[11px] font-mono font-semibold">
-                  <button
-                    onClick={() => setActiveTab("code")}
-                    className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                      activeTab === "code" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <Code className="w-3 h-3" />
-                    <span>Live Code Simulator</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveTab("terminal")}
-                    className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                      activeTab === "terminal" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <Terminal className="w-3 h-3" />
-                    <span>Step Terminal Screen</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveTab("spec")}
-                    className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                      activeTab === "spec" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    <Sliders className="w-3 h-3" />
-                    <span>Access Spec Matrix</span>
-                  </button>
-                </div>
-
-                {/* Step badge */}
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono bg-[#FF4B3E]/10 text-[#FF4B3E] border border-[#FF4B3E]/30 px-2.5 py-1 rounded-full font-bold">
-                    {activePhase.stepNumber}: {activePhase.accessRule}
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? "text-[#FF4B3E]" : "text-slate-400"}`} />
+                  <span className={`text-xs font-bold truncate ${isSelected ? "text-immersive-text-primary" : "text-immersive-text-secondary"}`}>
+                    {phase.title}
                   </span>
                 </div>
-              </div>
+              </button>
+            );
+          })}
+        </div>
 
-              {/* CENTER WORKSPACE PANE */}
-              <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between overflow-hidden relative">
-                
-                {/* 1. CODE SIMULATOR TAB (Line-by-Line Animated Typing) */}
-                {activeTab === "code" && (
-                  <div className="flex-1 min-h-0 flex flex-col justify-between">
-                    <div className={`${codePaneClass} rounded-2xl p-4 flex-1 font-mono text-[11px] sm:text-xs leading-relaxed text-slate-300 overflow-y-auto max-h-[360px] border border-white/10 relative shadow-inner space-y-1`}>
-                      
-                      {/* Active Step Banner inside Editor */}
-                      <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
-                        <span className="text-[10px] font-mono text-[#FF4B3E] font-bold uppercase tracking-wider">
-                          ▶ {activePhase.stepNumber}: {activePhase.title}
-                        </span>
-                        <span className="text-[10px] font-mono text-slate-400">
-                          Typing: Line {typedLineCount} of {totalLines}
-                        </span>
-                      </div>
-
-                      {/* Line by line display */}
-                      {activePhase.codeLines.slice(0, typedLineCount).map((line, idx) => {
-                        const isCurrentActiveLine = idx === typedLineCount - 1;
-                        const indentClass = line.isIndent === 1 
-                          ? "pl-4" 
-                          : line.isIndent === 2 
-                            ? "pl-8" 
-                            : line.isIndent === 3 
-                              ? "pl-12" 
-                              : line.isIndent === 4 
-                                ? "pl-16" 
-                                : "";
-
-                        return (
-                          <div
-                            key={idx}
-                            className={`flex items-start group rounded transition-colors ${indentClass} ${
-                              line.highlight ? "bg-blue-500/10 text-white font-semibold" : ""
-                            } ${line.errorLine ? "text-rose-400 bg-rose-950/20" : ""}`}
-                          >
-                            <span className="text-slate-600 text-[10px] select-none w-7 shrink-0 font-mono text-right pr-3">
-                              {idx + 1}
-                            </span>
-                            
-                            <span className="flex-1 min-w-0">
-                              {line.text}
-                              {isCurrentActiveLine && isPlaying && (
-                                <span className="inline-block w-2 h-3.5 bg-[#FF4B3E] ml-1 animate-pulse align-middle" />
-                              )}
-                              {line.comment && (
-                                <span className="text-slate-500 ml-2 italic text-[10px]">
-                                  {line.comment}
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                        );
-                      })}
-
-                      {/* Live In-line Teacher Annotation Callout */}
-                      <div className="mt-4 p-3 bg-gradient-to-r from-blue-950/30 to-purple-950/30 border border-blue-500/30 rounded-xl flex items-start gap-2.5 text-xs font-sans text-slate-200">
-                        <Sparkles className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                        <div>
-                          <strong className="text-blue-300 font-mono text-[10px] uppercase block">
-                            TEACHER'S ARCHITECTURAL NOTE
-                          </strong>
-                          <p className="mt-0.5 text-xs text-slate-300 leading-relaxed">
-                            {activePhase.keyTakeaway}
-                          </p>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-
-                {/* 2. DEDICATED PER-STEP TERMINAL SCREEN (Clean, No Cluttered Scrolling) */}
-                {activeTab === "terminal" && (
-                  <div className="bg-[#04060c] border border-blue-500/25 rounded-2xl p-5 font-mono text-xs text-slate-300 flex-1 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-                    <div className="space-y-3">
-                      {/* Terminal prompt bar */}
-                      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping" />
-                          <span className="text-emerald-400 font-bold">cohortia-cpp-box:~$ {activePhase.terminalContent.command}</span>
-                        </div>
-                        <span className="text-[10px] font-mono text-slate-400 bg-white/[0.05] px-2 py-0.5 rounded">
-                          Screen {activePhaseIndex + 1} of 5
-                        </span>
-                      </div>
-
-                      {/* Status pill */}
-                      <div className="p-2.5 bg-white/[0.03] border border-white/5 rounded-xl flex items-center justify-between text-[11px]">
-                        <span className="text-slate-400">Step Status:</span>
-                        <span className="font-bold text-emerald-400">
-                          {activePhase.terminalContent.status}
-                        </span>
-                      </div>
-
-                      {/* Clean step lines */}
-                      <div className="space-y-2 pt-1 font-mono text-xs">
-                        {activePhase.terminalContent.lines.map((line, idx) => (
-                          <div 
-                            key={idx} 
-                            className={`flex items-start gap-2 ${
-                              line.type === "error" 
-                                ? "text-rose-400 bg-rose-950/30 p-2 rounded-lg border border-rose-500/30" 
-                                : line.type === "warn" 
-                                  ? "text-amber-300" 
-                                  : line.type === "success" 
-                                    ? "text-emerald-300 font-medium" 
-                                    : "text-slate-300"
-                            }`}
-                          >
-                            <span className="text-slate-500 select-none">▶</span>
-                            <span>{line.text}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Step summary footer */}
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
-                      <span className="text-blue-300 font-sans font-medium">
-                        ✓ {activePhase.terminalContent.summary}
-                      </span>
-                      <span className="text-emerald-400 font-mono font-bold">
-                        Phase {activePhaseIndex + 1} Validated
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* 3. ACCESS SPEC MATRIX TAB */}
-                {activeTab === "spec" && (
-                  <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-[#0b0f1d] border border-white/10 rounded-2xl p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
-                        <span className="text-xs font-mono uppercase text-white font-bold">
-                          C++ INHERITANCE ACCESS MATRIX FOR THIS LESSON
-                        </span>
-                        <span className="text-[10px] font-mono text-[#FF4B3E] font-bold bg-[#FF4B3E]/10 px-2 py-0.5 rounded">
-                          CPP CORE STANDARD
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs font-mono">
-                        <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
-                          <span className="text-[#FF4B3E] font-bold block">1. Base Logger</span>
-                          <span className="text-slate-400 text-[11px] block">logLevel: <strong className="text-rose-400">protected</strong></span>
-                          <span className="text-slate-400 text-[11px] block">log(): <strong className="text-emerald-400">public</strong></span>
-                          <p className="text-[10px] text-slate-500 pt-1 border-t border-white/5 font-sans">
-                            Directly readable by derived classes, hidden from outside callers.
-                          </p>
-                        </div>
-
-                        <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-emerald-500/30 space-y-1.5">
-                          <span className="text-emerald-400 font-bold block">2. public Logger</span>
-                          <span className="text-slate-200 text-[11px] block font-bold">ConsoleLogger</span>
-                          <span className="text-slate-400 text-[11px] block">public ➔ public</span>
-                          <span className="text-slate-400 text-[11px] block">protected ➔ protected</span>
-                          <p className="text-[10px] text-slate-500 pt-1 border-t border-white/5 font-sans">
-                            Subclass preserves interface for console streaming.
-                          </p>
-                        </div>
-
-                        <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-rose-500/30 space-y-1.5">
-                          <span className="text-rose-400 font-bold block">3. private Logger</span>
-                          <span className="text-slate-200 text-[11px] block font-bold">FileLogger</span>
-                          <span className="text-rose-300 text-[11px] block">all members ➔ PRIVATE</span>
-                          <p className="text-[10px] text-slate-500 pt-1 border-t border-white/5 font-sans">
-                            Privatizes base features; SecureFileLogger cannot reach base logLevel.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 bg-purple-500/10 border border-purple-500/30 rounded-xl flex items-center justify-between text-xs text-purple-300 font-sans">
-                      <span>Pro-tip: Prefer private inheritance when you want implementation reuse without subtype polymorphism.</span>
-                      <span className="font-mono text-[10px] bg-purple-500/20 px-2 py-0.5 rounded font-bold">CPP-CORE-I2</span>
-                    </div>
-                  </div>
-                )}
-
-              </div>
-
-              {/* NARRATOR'S VOICE SUBTITLE & CLOSED CAPTIONS BAR */}
-              <div className="p-3.5 sm:p-4 bg-gradient-to-r from-slate-900/95 via-black to-slate-900/95 border-t border-white/10 flex items-center gap-3">
-                
-                {/* Voice Avatar Badge */}
-                <div className="flex items-center gap-2.5 shrink-0">
-                  <div className="w-9 h-9 rounded-2xl bg-[#FF4B3E]/20 border border-[#FF4B3E]/40 text-[#FF4B3E] flex items-center justify-center text-sm shadow-md shadow-[#FF4B3E]/20">
-                    <Radio className="w-4 h-4 animate-pulse" />
-                  </div>
-                  <div className="hidden sm:block">
-                    <span className="text-xs font-mono font-extrabold text-white block uppercase leading-tight">
-                      Microsoft Ava Voice
-                    </span>
-                    <span className="text-[10px] font-mono text-[#FF4B3E] font-semibold">
-                      {avaVoiceFound ? "Interactive Ava Profile" : "Warm Pedagogical Voice"}
-                    </span>
-                  </div>
+        {/* FULL WIDTH PRACTICAL LEARNING BOARD CONTAINER */}
+        <div className="w-full">
+          <div className={playerShellClass}>
+            
+            {/* TOP HEADER: File tab, live mode switches & accurate voice status */}
+            <div className="p-3.5 sm:p-4 border-b border-white/10 bg-black/50 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 select-none">
+              <div className="flex items-center space-x-2.5">
+                <div className="flex space-x-1.5" aria-hidden="true">
+                  <span className="w-2.5 h-2.5 bg-rose-500 rounded-full" />
+                  <span className="w-2.5 h-2.5 bg-amber-500 rounded-full" />
+                  <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
                 </div>
+                <div className="h-4 w-px bg-white/20" />
+                <span className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-[#FF4B3E]" />
+                  <span>HierarchicalLoggingSystem.cpp</span>
+                </span>
+                <span className="text-[9px] font-mono text-slate-400 bg-white/[0.06] px-2 py-0.5 rounded border border-white/10">
+                  Simulation Preview
+                </span>
+              </div>
 
-                {/* Subtitle / Closed Caption Box */}
-                <div className="flex-1 min-w-0 bg-white/[0.04] border border-white/10 rounded-2xl px-3.5 py-2 flex items-center gap-2.5">
-                  <MessageSquareQuote className="w-4 h-4 text-[#FF4B3E] shrink-0" />
-                  <p className="text-xs sm:text-[13px] text-slate-200 truncate sm:text-clip font-medium leading-relaxed">
-                    <strong className="text-[#FF4B3E] font-mono mr-1.5">{activePhase.stepNumber}:</strong>
-                    <span>"{currentSubtitle}"</span>
+              {/* View switcher tabs with accessible ARIA labels & focus styles */}
+              <div 
+                role="tablist" 
+                aria-label="Simulation display modes" 
+                className="flex items-center space-x-1 bg-white/[0.06] p-1 rounded-xl border border-white/10 text-[11px] font-mono font-semibold"
+              >
+                <button
+                  role="tab"
+                  aria-selected={activeTab === "code"}
+                  aria-label="Switch to Live Code Simulator"
+                  onClick={() => setActiveTab("code")}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
+                    activeTab === "code" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  <span>Code Simulator</span>
+                </button>
+
+                <button
+                  role="tab"
+                  aria-selected={activeTab === "terminal"}
+                  aria-label="Switch to Step Terminal Screen"
+                  onClick={() => setActiveTab("terminal")}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
+                    activeTab === "terminal" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span>Terminal Simulation</span>
+                </button>
+
+                <button
+                  role="tab"
+                  aria-selected={activeTab === "spec"}
+                  aria-label="Switch to Inheritance Access Matrix"
+                  onClick={() => setActiveTab("spec")}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
+                    activeTab === "spec" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>Access Matrix</span>
+                </button>
+              </div>
+
+              {/* Step & Access rule badge */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono bg-[#FF4B3E]/10 text-[#FF4B3E] border border-[#FF4B3E]/30 px-2.5 py-1 rounded-full font-bold">
+                  {activePhase.stepNumber}: {activePhase.accessRule}
+                </span>
+              </div>
+            </div>
+
+            {/* CENTER WORKSPACE PANE (Spacious Full Width!) */}
+            <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between overflow-hidden relative">
+              
+              {/* Unstarted Overlay: If user hasn't clicked play yet, provide an inviting start prompt */}
+              {!hasStartedByUser && !isPlaying && (
+                <div className="absolute inset-0 z-20 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+                  <div className="w-16 h-16 rounded-3xl bg-[#FF4B3E] text-white flex items-center justify-center mb-4 shadow-xl shadow-[#FF4B3E]/30 animate-bounce">
+                    <Play className="w-8 h-8 ml-1" />
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                    Start the 4.5-Minute Masterclass Walkthrough
+                  </h3>
+                  <p className="mt-2 text-sm text-slate-300 max-w-md">
+                    Click to launch the interactive simulation with step-by-step code construction and teacher audio narration.
                   </p>
-                </div>
-
-                {/* Narrator Voice Mute / Unmute Button */}
-                <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={() => {
-                      const nextMute = !isVoiceMuted;
-                      setIsVoiceMuted(nextMute);
-                      if (!nextMute) {
-                        speakPhaseNarration(activePhaseIndex);
-                      } else {
-                        if (typeof window !== "undefined" && "speechSynthesis" in window) {
-                          window.speechSynthesis.cancel();
-                        }
-                      }
-                    }}
-                    className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      isVoiceMuted 
-                        ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20" 
-                        : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
-                    }`}
-                    title={isVoiceMuted ? "Unmute Teacher Voice" : "Mute Teacher Voice"}
+                    onClick={togglePlay}
+                    aria-label="Start Interactive Simulation Tour"
+                    className="mt-5 px-6 py-2.5 rounded-2xl bg-[#FF4B3E] hover:brightness-110 text-white font-bold text-sm transition-all shadow-lg shadow-[#FF4B3E]/25 flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                   >
-                    {isVoiceMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span className="hidden md:inline">{isVoiceMuted ? "Voice Muted" : "Ava Active"}</span>
+                    <Play className="w-4 h-4 fill-white" />
+                    <span>Begin Tour</span>
                   </button>
                 </div>
-              </div>
+              )}
+
+              {/* 1. CODE SIMULATOR TAB (Line-by-Line Animated Typing) */}
+              {activeTab === "code" && (
+                <div className="flex-1 min-h-0 flex flex-col justify-between">
+                  <div className={`${codePaneClass} rounded-2xl p-5 flex-1 font-mono text-xs sm:text-[13px] leading-relaxed text-slate-300 overflow-y-auto max-h-[380px] border border-white/10 relative shadow-inner space-y-1`}>
+                    
+                    {/* Header inside Editor */}
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                      <span className="text-[11px] font-mono text-[#FF4B3E] font-bold uppercase tracking-wider">
+                        ▶ {activePhase.stepNumber}: {activePhase.title}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-400">
+                        {prefersReducedMotion ? "Reduced Motion Mode" : `Typing: Line ${typedLineCount} of ${totalLines}`}
+                      </span>
+                    </div>
+
+                    {/* Line by line display */}
+                    {activePhase.codeLines.slice(0, typedLineCount).map((line, idx) => {
+                      const isCurrentActiveLine = idx === typedLineCount - 1;
+                      const indentClass = line.isIndent === 1 
+                        ? "pl-5" 
+                        : line.isIndent === 2 
+                          ? "pl-10" 
+                          : line.isIndent === 3 
+                            ? "pl-14" 
+                            : line.isIndent === 4 
+                              ? "pl-20" 
+                              : "";
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-start group rounded transition-colors ${indentClass} ${
+                            line.highlight ? "bg-blue-500/10 text-white font-semibold" : ""
+                          } ${line.errorLine ? "text-rose-400 bg-rose-950/20" : ""}`}
+                        >
+                          <span className="text-slate-600 text-[11px] select-none w-8 shrink-0 font-mono text-right pr-3" aria-hidden="true">
+                            {idx + 1}
+                          </span>
+                          
+                          <span className="flex-1 min-w-0">
+                            {line.text}
+                            {isCurrentActiveLine && isPlaying && !prefersReducedMotion && (
+                              <span className="inline-block w-2 h-4 bg-[#FF4B3E] ml-1 animate-pulse align-middle" aria-hidden="true" />
+                            )}
+                            {line.comment && (
+                              <span className="text-slate-500 ml-2 italic text-[11px]">
+                                {line.comment}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
+
+                    {/* Teacher Annotation Callout */}
+                    <div className="mt-4 p-3.5 bg-gradient-to-r from-blue-950/30 to-purple-950/30 border border-blue-500/30 rounded-xl flex items-start gap-3 text-xs font-sans text-slate-200">
+                      <Sparkles className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-blue-300 font-mono text-[11px] uppercase block">
+                          TEACHER'S ARCHITECTURAL NOTE
+                        </strong>
+                        <p className="mt-0.5 text-xs text-slate-300 leading-relaxed font-medium">
+                          {activePhase.keyTakeaway}
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+              {/* 2. DEDICATED PER-STEP TERMINAL SCREEN (Clear simulated screen) */}
+              {activeTab === "terminal" && (
+                <div className="bg-[#04060c] border border-blue-500/25 rounded-2xl p-5 font-mono text-xs sm:text-[13px] text-slate-300 flex-1 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                  <div className="space-y-3">
+                    {/* Terminal prompt bar */}
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full" aria-hidden="true" />
+                        <span className="text-emerald-400 font-bold">simulated-runner@cohortia-cpp-box:~$ {activePhase.terminalContent.command}</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400 bg-white/[0.05] px-2 py-0.5 rounded">
+                        Simulated Screen {activePhaseIndex + 1} of 5
+                      </span>
+                    </div>
+
+                    {/* Status pill */}
+                    <div className="p-2.5 bg-white/[0.03] border border-white/5 rounded-xl flex items-center justify-between text-xs">
+                      <span className="text-slate-400">Simulation Status:</span>
+                      <span className="font-bold text-emerald-400">
+                        {activePhase.terminalContent.status}
+                      </span>
+                    </div>
+
+                    {/* Step lines */}
+                    <div className="space-y-2 pt-1 font-mono text-xs sm:text-[13px]">
+                      {activePhase.terminalContent.lines.map((line, idx) => (
+                        <div 
+                          key={idx} 
+                          className={`flex items-start gap-2.5 ${
+                            line.type === "error" 
+                              ? "text-rose-400 bg-rose-950/30 p-2.5 rounded-lg border border-rose-500/30" 
+                              : line.type === "warn" 
+                                ? "text-amber-300" 
+                                : line.type === "success" 
+                                  ? "text-emerald-300 font-medium" 
+                                  : "text-slate-300"
+                          }`}
+                        >
+                          <span className="text-slate-500 select-none" aria-hidden="true">▶</span>
+                          <span>{line.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Step summary footer with explicit simulation label */}
+                  <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+                    <span className="text-blue-300 font-sans font-medium">
+                      ✓ {activePhase.terminalContent.summary}
+                    </span>
+                    <span className="text-emerald-400 font-mono font-bold">
+                      [SIMULATION] Step {activePhaseIndex + 1} Verified
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. ACCESS SPEC MATRIX TAB */}
+              {activeTab === "spec" && (
+                <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-[#0b0f1d] border border-white/10 rounded-2xl p-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+                      <span className="text-xs sm:text-sm font-mono uppercase text-white font-bold">
+                        C++ INHERITANCE ACCESS MATRIX (STANDARDIZED TERMINOLOGY)
+                      </span>
+                      <span className="text-[10px] font-mono text-[#FF4B3E] font-bold bg-[#FF4B3E]/10 px-2 py-0.5 rounded">
+                        CPP CORE RULES
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
+                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
+                        <span className="text-[#FF4B3E] font-bold block text-sm">1. Base Logger</span>
+                        <span className="text-slate-400 text-xs block">logLevel: <strong className="text-rose-400">protected</strong></span>
+                        <span className="text-slate-400 text-xs block">log(): <strong className="text-emerald-400">public</strong></span>
+                        <p className="text-[11px] text-slate-400 pt-2 border-t border-white/5 font-sans leading-relaxed">
+                          Accessible to derived subclasses; invisible to outside client code.
+                        </p>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-emerald-500/30 space-y-2">
+                        <span className="text-emerald-400 font-bold block text-sm">2. public Logger (is-a)</span>
+                        <span className="text-slate-200 text-xs block font-bold">ConsoleLogger</span>
+                        <span className="text-slate-300 text-xs block">public ➔ public</span>
+                        <span className="text-slate-300 text-xs block">protected ➔ protected</span>
+                        <p className="text-[11px] text-slate-400 pt-2 border-t border-white/5 font-sans leading-relaxed">
+                          Preserves base interface for polymorphic console logging.
+                        </p>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-rose-500/30 space-y-2">
+                        <span className="text-rose-400 font-bold block text-sm">3. private Logger</span>
+                        <span className="text-slate-200 text-xs block font-bold">FileLogger (implemented-in-terms-of)</span>
+                        <span className="text-rose-300 text-xs block">all base members ➔ PRIVATE</span>
+                        <p className="text-[11px] text-slate-400 pt-2 border-t border-white/5 font-sans leading-relaxed">
+                          Reuses base code as private implementation. Subclasses cannot access base members.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-purple-500/10 border border-purple-500/30 rounded-xl flex items-center justify-between text-xs text-purple-300 font-sans">
+                    <span>Modern C++ Guideline: Private inheritance means 'is-implemented-in-terms-of', whereas composition describes 'has-a'.</span>
+                    <span className="font-mono text-[10px] bg-purple-500/20 px-2 py-0.5 rounded font-bold">CORE-I2</span>
+                  </div>
+                </div>
+              )}
 
             </div>
 
-            {/* MASTER 4.5 MINUTE CONTROLS BAR BELOW BOARD */}
-            <div className={`mt-3.5 bg-immersive-card border border-immersive-border/60 rounded-2xl p-4 flex flex-col space-y-3.5 shadow-md shadow-immersive-shadow`}>
+            {/* NARRATOR'S VOICE SUBTITLE & CLOSED CAPTIONS BAR */}
+            <div className="p-3.5 sm:p-4 bg-gradient-to-r from-slate-900/95 via-black to-slate-900/95 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
               
-              {/* Progress Slider Track (0 to 270s) */}
+              {/* Voice Info Badge: Accurate name display */}
+              <div className="flex items-center gap-2.5 shrink-0">
+                <div className="w-9 h-9 rounded-2xl bg-[#FF4B3E]/20 border border-[#FF4B3E]/40 text-[#FF4B3E] flex items-center justify-center text-sm shadow-md shadow-[#FF4B3E]/20">
+                  <Radio className={`w-4 h-4 ${isPlaying && !isVoiceMuted ? "animate-pulse text-[#FF4B3E]" : "text-slate-400"}`} />
+                </div>
+                <div>
+                  <span className="text-xs font-mono font-extrabold text-white block leading-tight">
+                    {voiceDisplayName}
+                  </span>
+                  <span className="text-[10px] font-mono text-[#FF4B3E] font-semibold">
+                    {speechSynthesisAvailable ? (isVoiceMuted ? "Voice Muted (Subtitles Active)" : "Teacher Audio Active") : "Subtitles Only"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Subtitle / Closed Caption Box with aria-live for assistive technology */}
               <div 
-                className={`w-full h-2.5 rounded-full cursor-pointer relative overflow-hidden ${isDark ? "bg-slate-800" : "bg-slate-200"}`}
-                onClick={handleSeek}
+                role="region"
+                aria-label="Current lesson subtitles"
+                aria-live="polite" 
+                aria-atomic="true"
+                className="flex-1 min-w-[260px] bg-white/[0.04] border border-white/10 rounded-2xl px-3.5 py-2 flex items-center gap-2.5"
+              >
+                <MessageSquareQuote className="w-4 h-4 text-[#FF4B3E] shrink-0" aria-hidden="true" />
+                <p className="text-xs sm:text-[13px] text-slate-200 font-medium leading-relaxed break-words">
+                  <strong className="text-[#FF4B3E] font-mono mr-1.5">{activePhase.stepNumber}:</strong>
+                  <span>"{currentSubtitle}"</span>
+                </p>
+              </div>
+
+              {/* Control action buttons */}
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Full Transcript Toggle */}
+                <button
+                  onClick={() => setShowFullTranscript(!showFullTranscript)}
+                  aria-expanded={showFullTranscript}
+                  aria-label={showFullTranscript ? "Hide lesson transcript" : "Show full lesson transcript"}
+                  className="px-3 py-2 rounded-xl border border-white/10 bg-white/[0.05] hover:bg-white/[0.1] text-xs font-mono font-bold text-slate-300 transition-all flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E]"
+                >
+                  <FileCheck className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Transcript</span>
+                  {showFullTranscript ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+
+                {/* Voice Mute / Unmute Button */}
+                <button
+                  onClick={() => {
+                    const nextMute = !isVoiceMuted;
+                    setIsVoiceMuted(nextMute);
+                    if (!nextMute && isPlaying && hasStartedByUser) {
+                      speakPhaseNarration(activePhaseIndex);
+                    } else {
+                      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+                        window.speechSynthesis.cancel();
+                      }
+                    }
+                  }}
+                  aria-label={isVoiceMuted ? "Unmute narrator audio" : "Mute narrator audio"}
+                  className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
+                    isVoiceMuted 
+                      ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20" 
+                      : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
+                  }`}
+                >
+                  {isVoiceMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  <span className="hidden md:inline">{isVoiceMuted ? "Unmute" : "Voice On"}</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          {/* EXPANDABLE FULL LESSON TRANSCRIPT PANEL */}
+          {showFullTranscript && (
+            <div 
+              role="region" 
+              aria-label="Complete lesson transcript"
+              className="mt-3.5 bg-immersive-card border border-immersive-border/80 rounded-2xl p-5 space-y-4 shadow-xl"
+            >
+              <div className="flex items-center justify-between border-b border-immersive-border/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[#FF4B3E]" />
+                  <h3 className="text-sm font-bold text-immersive-text-primary uppercase tracking-wider font-mono">
+                    Full Lesson Transcript & Pedagogical Script
+                  </h3>
+                </div>
+                <span className="text-xs font-mono text-slate-400">
+                  Total Duration: 4m 30s
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
+                {PHASES.map((phase) => (
+                  <div 
+                    key={phase.id} 
+                    className="p-3.5 rounded-xl bg-immersive-bg border border-immersive-border space-y-2 text-xs"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-[#FF4B3E]">
+                        {phase.stepNumber}: {phase.title}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-400">
+                        {phase.badge}
+                      </span>
+                    </div>
+                    <p className="text-immersive-text-secondary leading-relaxed font-medium">
+                      {phase.spokenScript}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ACCESSIBLE SLIDER & CONTROLS BAR BELOW BOARD */}
+          <div className="mt-3.5 bg-immersive-card border border-immersive-border/60 rounded-2xl p-4 flex flex-col space-y-3.5 shadow-md shadow-immersive-shadow">
+            
+            {/* Accessible Progress Slider Track using native range input semantics */}
+            <div className="relative w-full flex items-center">
+              <input
+                type="range"
+                min={0}
+                max={TOTAL_DURATION}
+                step={1}
+                value={Math.round(currentTime)}
+                onChange={handleSeekRange}
+                aria-label="Simulation progress"
+                aria-valuemin={0}
+                aria-valuemax={TOTAL_DURATION}
+                aria-valuenow={Math.round(currentTime)}
+                aria-valuetext={`${formatTime(currentTime)} of ${formatTime(TOTAL_DURATION)}: ${activePhase.stepNumber} ${activePhase.title}`}
+                className="w-full h-3 appearance-none bg-transparent cursor-pointer relative z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] rounded-full"
+              />
+              
+              {/* Visual custom gradient bar behind input */}
+              <div 
+                className={`absolute top-0 left-0 w-full h-2.5 rounded-full pointer-events-none overflow-hidden ${isDark ? "bg-slate-800" : "bg-slate-200"}`}
+                aria-hidden="true"
               >
                 <div 
-                  className="h-full bg-gradient-to-r from-[#FF4B3E] via-purple-500 to-emerald-400 rounded-full relative transition-all duration-75"
+                  className="h-full bg-gradient-to-r from-[#FF4B3E] via-purple-500 to-emerald-400 rounded-full transition-all duration-75"
                   style={{ width: `${(currentTime / TOTAL_DURATION) * 100}%` }}
                 />
               </div>
-
-              <div className="flex items-center justify-between">
-                
-                {/* Left Controls: Play / Pause, Reset, Timestamp */}
-                <div className="flex items-center space-x-3 text-immersive-text-secondary">
-                  <button
-                    onClick={() => {
-                      const nextPlay = !isPlaying;
-                      setIsPlaying(nextPlay);
-                      if (nextPlay) {
-                        speakPhaseNarration(activePhaseIndex);
-                      } else {
-                        if (typeof window !== "undefined" && "speechSynthesis" in window) {
-                          window.speechSynthesis.cancel();
-                        }
-                      }
-                    }}
-                    className="p-2.5 rounded-xl bg-immersive-bg hover:bg-immersive-card-hover border border-immersive-border text-immersive-text-primary transition-all cursor-pointer"
-                    title={isPlaying ? "Pause Masterclass" : "Resume Masterclass"}
-                  >
-                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setCurrentTime(0);
-                      currentSpokenPhaseRef.current = null;
-                      if (isPlaying && !isVoiceMuted) speakPhaseNarration(0);
-                    }}
-                    className="p-2.5 rounded-xl bg-immersive-bg hover:bg-immersive-card-hover border border-immersive-border text-immersive-text-secondary hover:text-immersive-text-primary transition-all cursor-pointer"
-                    title="Restart Masterclass from Step 1"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-
-                  <span className="text-xs font-mono font-bold select-none text-immersive-text-primary">
-                    {formatTime(currentTime)} <span className="text-slate-500">/</span> {formatTime(TOTAL_DURATION)}
-                  </span>
-                </div>
-
-                {/* Center Title Indicator */}
-                <span className="hidden sm:inline text-xs font-bold text-[#FF4B3E] font-mono uppercase tracking-wider animate-pulse">
-                  ⚡ {activePhase.title}
-                </span>
-
-                {/* Right: Step Indicator */}
-                <div className="flex items-center space-x-2 text-xs font-mono text-immersive-text-secondary">
-                  <span className="hidden md:inline font-bold">Phase {activePhaseIndex + 1} of 5</span>
-                  <span className="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                    ● Hands-On Active
-                  </span>
-                </div>
-              </div>
             </div>
 
+            <div className="flex items-center justify-between">
+              
+              {/* Left Controls: Play / Pause, Reset, Timestamp */}
+              <div className="flex items-center space-x-3 text-immersive-text-secondary">
+                <button
+                  onClick={togglePlay}
+                  aria-label={isPlaying ? "Pause simulation tour" : "Play simulation tour"}
+                  className="p-2.5 rounded-xl bg-immersive-bg hover:bg-immersive-card-hover border border-immersive-border text-immersive-text-primary transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E]"
+                >
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+                </button>
+
+                <button
+                  onClick={() => {
+                    setCurrentTime(0);
+                    currentSpokenPhaseRef.current = null;
+                    if (isPlaying && !isVoiceMuted && hasStartedByUser) speakPhaseNarration(0);
+                  }}
+                  aria-label="Restart simulation from Step 1"
+                  className="p-2.5 rounded-xl bg-immersive-bg hover:bg-immersive-card-hover border border-immersive-border text-immersive-text-secondary hover:text-immersive-text-primary transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E]"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+
+                <span className="text-xs font-mono font-bold select-none text-immersive-text-primary">
+                  {formatTime(currentTime)} <span className="text-slate-500">/</span> {formatTime(TOTAL_DURATION)}
+                </span>
+              </div>
+
+              {/* Center Title Indicator */}
+              <span className="hidden sm:inline text-xs font-bold text-[#FF4B3E] font-mono uppercase tracking-wider">
+                ⚡ {activePhase.title}
+              </span>
+
+              {/* Right: Step Indicator */}
+              <div className="flex items-center space-x-2 text-xs font-mono text-immersive-text-secondary">
+                <span className="hidden md:inline font-bold">Phase {activePhaseIndex + 1} of 5</span>
+                <span className="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  ● Simulation Active
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Right Column: 5 Masterclass Steps Playlist */}
-          <div className="lg:col-span-4 flex flex-col justify-between space-y-4">
-            
-            <div>
-              <div className="flex items-center justify-between mb-3 px-1">
-                <p className="text-[11px] font-mono font-bold text-[#FF4B3E] uppercase tracking-widest text-left">
-                  PRACTICAL LEARNING BOARD CURRICULUM
+          {/* Scenario Brief below the simulator */}
+          <div className="mt-4 bg-immersive-card/60 border border-immersive-border rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
+            <div className="flex items-start gap-2.5">
+              <Shield className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <div>
+                <span className="text-[11px] font-mono font-bold uppercase text-emerald-500 block">
+                  SCENARIO BRIEF: ENTERPRISE HIERARCHICAL LOGGING
+                </span>
+                <p className="text-xs text-immersive-text-secondary font-medium leading-relaxed mt-0.5">
+                  Design an enterprise logging architecture using C++ access specifiers. Protect internal log levels from external modification while providing specialized console and encrypted file streams.
                 </p>
-                <span className="text-[10px] font-mono text-immersive-text-secondary font-bold">
-                  5 INTENSIVE PHASES
-                </span>
-              </div>
-
-              {/* 5 Practical Steps List */}
-              <div className="flex flex-col space-y-2.5">
-                {PHASES.map((phase, index) => {
-                  const isSelected = activePhaseIndex === index;
-                  const Icon = phase.icon;
-                  
-                  return (
-                    <button
-                      key={phase.id}
-                      onClick={() => jumpToPhase(index)}
-                      className={`flex items-start space-x-3 w-full p-3.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer ${
-                        isSelected 
-                          ? "bg-[#FF4B3E]/10 border-[#FF4B3E] shadow-lg shadow-[#FF4B3E]/10" 
-                          : "bg-immersive-card border-immersive-border/60 hover:border-immersive-border hover:bg-immersive-card-hover"
-                      }`}
-                    >
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
-                        isSelected 
-                          ? "bg-[#FF4B3E] border-[#FF4B3E] text-white" 
-                          : "bg-immersive-bg border-immersive-border text-immersive-text-secondary"
-                      }`}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className={`text-xs font-bold truncate ${isSelected ? "text-[#FF4B3E]" : "text-immersive-text-primary"}`}>
-                            {phase.stepNumber}: {phase.title}
-                          </span>
-                          <span className="text-[9px] font-mono text-immersive-text-secondary font-semibold ml-1 shrink-0">
-                            {phase.badge}
-                          </span>
-                        </div>
-                        
-                        <p className="text-[11px] text-immersive-text-secondary leading-normal mt-1 font-medium line-clamp-2">
-                          {phase.subtitle}
-                        </p>
-
-                        {/* Mini running progress bar */}
-                        {isSelected && (
-                          <div className={`w-full h-1 rounded-full mt-2.5 overflow-hidden ${isDark ? "bg-slate-800" : "bg-slate-200"}`}>
-                            <div 
-                              className="h-full bg-[#FF4B3E] transition-all duration-75" 
-                              style={{ width: `${activePhaseProgress * 100}%` }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
               </div>
             </div>
-
-            {/* Course Scenario Specification Box */}
-            <div className="bg-immersive-card/70 border border-immersive-border rounded-2xl p-4 space-y-2.5 text-left shadow-sm">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span className="text-[10px] font-mono font-bold uppercase text-emerald-500">
-                    REAL ENTERPRISE SCENARIO
-                  </span>
-                </div>
-                <span className="text-[9px] font-mono text-slate-400">
-                  CPP CAPSTONE #4
-                </span>
-              </div>
-              <p className="text-xs text-immersive-text-secondary leading-relaxed font-medium">
-                You are designing an enterprise logging subsystem with varied access tiers. By enforcing strict C++ inheritance access specifiers, callers cannot corrupt internal log levels while specialized console and encrypted file outputs are guaranteed.
-              </p>
-            </div>
-
+            <span className="text-[10px] font-mono text-slate-400 bg-white/[0.05] border border-white/10 px-2.5 py-1 rounded-full shrink-0">
+              CPP Capstone #4
+            </span>
           </div>
+
         </div>
 
       </div>
