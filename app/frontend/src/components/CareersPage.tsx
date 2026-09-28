@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Sliders, ChevronRight, GraduationCap, TrendingUp, Sparkles, Compass, Shield, ArrowRight, Star, ArrowUpRight, CheckCircle } from "lucide-react";
+import { Search, Sliders, ChevronRight, GraduationCap, TrendingUp, Sparkles, Compass, Shield, ArrowRight, Star, ArrowUpRight, CheckCircle, Flame, BookOpen, Zap } from "lucide-react";
 import { careerApi, Career, catalogCourseApi, CatalogCourse } from "../services/api";
 
 interface CareerPath extends Career {
@@ -12,6 +12,93 @@ interface CoveredCategory {
   name: string;
   careerIds: string[];
 }
+
+const POPULAR_FLAGSHIP_COURSES = [
+  {
+    number: 1,
+    title: "IBM Full-Stack Software Developer Professional Certificate",
+    provider: "IBM",
+    badge: "CAREER-TRANSITION ANCHOR",
+    accent: "border-blue-500/40 bg-blue-500/10 text-blue-400",
+    description: "Broad full-stack foundation covering front-end, back-end, databases, APIs, Git, containers and development workflows. Very useful as a career-transition anchor.",
+    skills: ["Front-End & React", "Back-End & Node.js", "Databases & APIs", "Git & Containers", "Dev Workflows"],
+    rating: 4.9,
+    enrolled: "28.4k learners",
+    level: "Beginner → Intermediate"
+  },
+  {
+    number: 2,
+    title: "Meta Back-End Developer Professional Certificate",
+    provider: "Meta",
+    badge: "BACKEND SPECIALIZATION",
+    accent: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
+    description: "Strong specialization for backend careers, with practical backend technologies and development concepts.",
+    skills: ["Python & Django", "RESTful APIs", "Database Tuning & SQL", "Linux & Git", "Microservices"],
+    rating: 4.8,
+    enrolled: "19.2k learners",
+    level: "Intermediate"
+  },
+  {
+    number: 3,
+    title: "Meta Front-End Developer Professional Certificate",
+    provider: "Meta",
+    badge: "TOP FRONTEND ENTRY",
+    accent: "border-sky-500/40 bg-sky-500/10 text-sky-400",
+    description: "Strong entry point into modern frontend development and suitable for learners building toward professional frontend roles.",
+    skills: ["React & JavaScript", "HTML5 & Modern CSS", "UI/UX & Accessibility", "Jest Testing", "Client State"],
+    rating: 4.9,
+    enrolled: "34.1k learners",
+    level: "Beginner → Intermediate"
+  },
+  {
+    number: 4,
+    title: "Meta Full-Stack Developer: Front-End & Back-End from Scratch Specialization",
+    provider: "Meta",
+    badge: "END-TO-END DEVELOPMENT",
+    accent: "border-purple-500/40 bg-purple-500/10 text-purple-400",
+    description: "Particularly valuable for learners who want an end-to-end development path rather than specializing immediately.",
+    skills: ["Full-Stack Architecture", "React & Django/Node", "System Design", "Cloud Deployment", "Capstone Lab"],
+    rating: 4.9,
+    enrolled: "22.8k learners",
+    level: "Beginner → Advanced"
+  },
+  {
+    number: 5,
+    title: "Python for Everybody Specialization",
+    provider: "University of Michigan",
+    badge: "EXTREMELY ACCESSIBLE ENTRY",
+    accent: "border-amber-500/40 bg-amber-500/10 text-amber-400",
+    description: "Extremely accessible entry point into programming and Python, making it useful for beginners and career pivots into technical/data-related fields.",
+    skills: ["Python Logic", "Data Structures", "Web Scraping", "Databases & SQL", "Data Automation"],
+    rating: 4.9,
+    enrolled: "115k learners",
+    level: "Beginner"
+  },
+  {
+    number: 6,
+    title: "JavaScript Algorithms and Data Structures",
+    provider: "FreeCodeCamp",
+    badge: "TECHNICAL INTERVIEW ANCHOR",
+    accent: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
+    description: "Builds a fundamental programming skill that supports frontend, backend and full-stack development.",
+    skills: ["Big-O Complexity", "Sorting & Searching", "Graphs & Trees", "Recursion", "Problem Solving"],
+    rating: 4.8,
+    enrolled: "68k learners",
+    level: "Intermediate"
+  },
+  {
+    number: 7,
+    title: "CS50's Introduction to Computer Science",
+    provider: "Harvard University",
+    badge: "GOLD STANDARD CS FOUNDATION",
+    accent: "border-rose-500/40 bg-rose-500/10 text-rose-400",
+    description: "Excellent broad computer-science foundation. Particularly useful for someone entering technology without a strong technical background.",
+    skills: ["C & Low-Level Memory", "Algorithms & Pointers", "Python & SQL", "HTML/CSS/JS", "Computational Logic"],
+    rating: 5.0,
+    enrolled: "142k learners",
+    level: "Beginner → Intermediate"
+  }
+];
 
 const COVERED_CATEGORIES: CoveredCategory[] = [
   {id: "frontend-development", name: "Frontend Development", careerIds: ["frontend-development"]},
@@ -184,6 +271,98 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
           Curated, in-demand paths with clear roadmaps, hands-on projects, and mentor support. Use the search below to find the track that matches your goal.
         </p>
       </div>
+
+      {/* NEW & POPULAR: Trending Flagship Professional Certificates */}
+      <section className="py-12 border-t border-immersive-border/20 relative">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 text-left">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+              <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase bg-[#FF4B3E]/10 border border-[#FF4B3E]/20 px-3 py-1 rounded-full inline-flex items-center gap-1.5 mb-2">
+                <Flame className="w-3.5 h-3.5 text-[#FF4B3E]" />
+                <span>NEW & POPULAR FLAGSHIP CURRICULA</span>
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-immersive-text-primary tracking-tight">
+                Trending Courses & <span className="text-[#FF4B3E]">Professional Certificates</span>
+              </h2>
+              <p className="mt-2 text-xs sm:text-sm text-immersive-text-secondary max-w-2xl">
+                These globally accredited programs from Meta, IBM, and Harvard anchor Cohortia's practical tracks ($23 Pivot, $30 Upskill, $45 Lead).
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+                7 Accredited Pathways
+              </span>
+            </div>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {POPULAR_FLAGSHIP_COURSES.map((course) => (
+              <div
+                key={course.number}
+                className="bg-immersive-card border border-immersive-border/60 hover:border-[#FF4B3E]/40 rounded-3xl p-6 transition-all duration-300 shadow-xl shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(255,75,62,0.12)] flex flex-col justify-between group"
+              >
+                <div className="space-y-3.5">
+                  {/* Top Badge & Rating Row */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`text-[9px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${course.accent}`}>
+                      {course.badge}
+                    </span>
+                    <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      <span>{course.rating}</span>
+                      <span className="text-[10px] text-immersive-text-secondary font-mono font-normal">
+                        ({course.enrolled})
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Title & Provider */}
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-immersive-secondary block uppercase">
+                      {course.provider} • {course.level}
+                    </span>
+                    <h3 className="text-base sm:text-lg font-extrabold text-immersive-text-primary leading-snug group-hover:text-[#FF4B3E] transition-colors mt-0.5">
+                      {course.title}
+                    </h3>
+                  </div>
+
+                  {/* Description & Impact */}
+                  <p className="text-xs text-immersive-text-secondary leading-relaxed font-medium">
+                    {course.description}
+                  </p>
+
+                  {/* Skills tags */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {course.skills.map(s => (
+                      <span key={s} className="text-[10px] font-medium bg-immersive-bg border border-immersive-border px-2 py-0.5 rounded text-immersive-text-secondary">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bottom Action */}
+                <div className="pt-4 mt-4 border-t border-immersive-border/40 flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-emerald-500 font-bold">
+                    ✓ Available in Tracks
+                  </span>
+                  <button
+                    onClick={onOpenWizard}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-md shadow-[#FF4B3E]/20 transition-all flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Start in Track</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
 
       {/* How You Grow Section */}
       <section className="py-12 border-t border-b border-immersive-border/20 bg-immersive-card/30 relative">
