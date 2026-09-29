@@ -11,6 +11,7 @@ import { TRACK_CURRICULA, DashboardMilestone, DashboardLesson } from "../../data
 import { CPP_LESSONS_DETAILS } from "../../data/cppLessonsData";
 import InteractiveSandbox from "./InteractiveSandbox";
 import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
+import PracticalLearningBoardSimulation from "../../pages/dashboard/PracticalLearningBoardSimulation";
 import AssessmentEngine from "./AssessmentEngine";
 import { chatApi } from "../../services/api";
 import LessonScenePlayer from "./LessonScenePlayer";
@@ -364,9 +365,9 @@ export default function LearningBoardPage({
   // Active visual layout mode: "video" | "practical" | "assessment" | "complete"
   const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">("video");
   const [practicalCompleted, setPracticalCompleted] = useState(false);
-  // Start practical mode in the manifest-backed workspace. Learners can still
-  // switch to the guided simulation when they want a walkthrough first.
-  const [showPracticalSimulation, setShowPracticalSimulation] = useState(false);
+  // Default to the guided simulation in practical mode for the new hands-on path,
+  // while keeping the legacy interactive sandbox available as a safe fallback.
+  const [showPracticalSimulation, setShowPracticalSimulation] = useState(true);
   
   // Fetch the imported chapter whenever either viewer needs it. Practical mode
   // must not depend on read-mode having been opened first.
@@ -1359,37 +1360,46 @@ export default function LearningBoardPage({
 
                       <div className="relative min-h-0 min-w-0 flex-1">
                         {showPracticalSimulation ? (
-                          <AnimatedCodeAlongPlayer
-                            playlist={activePractical?.teachingPlaylist || []}
-                            files={activePractical?.files || []}
-                            walkthrough={activePractical?.codeWalkthrough || []}
-                            category={activePractical?.category}
-                            courseId={activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId}
-                            tasks={activePractical?.tasks || []}
-                            narratorGuide={activePractical?.narratorGuide}
-                            checks={activePractical?.checks || []}
-                            onOpenLab={() => setShowPracticalSimulation(false)}
+                          <PracticalLearningBoardSimulation
+                            aspectRatio="16:9"
+                            onComplete={handlePracticalCompleted}
+                            isCompleted={practicalCompleted}
+                            showHeaderPills={false}
                           />
                         ) : (
-                          <InteractiveSandbox
-                            userProfile={userProfile}
-                            selectedLesson={selectedLesson}
-                            handsOnActivities={activePractical?.tasks?.map((task) => task.instruction) || details.summary.takeaways}
-                            practical={activePractical}
-                            learningContext={{
-                              courseId: activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId,
-                              courseTitle: generatedPreview?.course || courseCatalog?.course || courseTitle,
-                              courseCategory: activePractical?.category || undefined,
-                              module: activePractical?.module ?? generatedPreview?.module,
-                              chapter: activePractical?.chapter ?? generatedPreview?.chapter,
-                              moduleTitle: generatedPreview?.moduleTitle || curriculum[activeMilestoneIndex]?.title,
-                              chapterTitle: generatedPreview?.chapterTitle,
-                              lessonTitle: selectedLesson.title,
-                              lessonContent: courseLessons?.[selectedLesson.id],
-                              page: "learning board",
-                            }}
-                            onComplete={handlePracticalCompleted}
-                          />
+                          activePractical ? (
+                            <AnimatedCodeAlongPlayer
+                              playlist={activePractical?.teachingPlaylist || []}
+                              files={activePractical?.files || []}
+                              walkthrough={activePractical?.codeWalkthrough || []}
+                              category={activePractical?.category}
+                              courseId={activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId}
+                              tasks={activePractical?.tasks || []}
+                              narratorGuide={activePractical?.narratorGuide}
+                              checks={activePractical?.checks || []}
+                              onOpenLab={() => setShowPracticalSimulation(true)}
+                            />
+                          ) : (
+                            <InteractiveSandbox
+                              userProfile={userProfile}
+                              selectedLesson={selectedLesson}
+                              handsOnActivities={details.summary.takeaways}
+                              practical={activePractical}
+                              learningContext={{
+                                courseId: activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId,
+                                courseTitle: generatedPreview?.course || courseCatalog?.course || courseTitle,
+                                courseCategory: activePractical?.category || undefined,
+                                module: activePractical?.module ?? generatedPreview?.module,
+                                chapter: activePractical?.chapter ?? generatedPreview?.chapter,
+                                moduleTitle: generatedPreview?.moduleTitle || curriculum[activeMilestoneIndex]?.title,
+                                chapterTitle: generatedPreview?.chapterTitle,
+                                lessonTitle: selectedLesson.title,
+                                lessonContent: courseLessons?.[selectedLesson.id],
+                                page: "learning board",
+                              }}
+                              onComplete={handlePracticalCompleted}
+                            />
+                          )
                         )}
                       </div>
                     </div>
