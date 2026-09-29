@@ -478,6 +478,9 @@ chat.post('/message', async (c) => {
     if (learningContext.lastOutput) learningContextText += `Recent terminal output:\n${String(learningContext.lastOutput).slice(0, 6000)}\n`;
     learningContextText += 'Use this course lesson as the primary source when answering. Do not invent topics outside it unless the student asks for a comparison.\n';
     learningContextText += 'For a practical workspace, diagnose the learner code and terminal output directly. Give the next smallest useful step and do not ask what they are working on when the context already identifies it.\n';
+    if (learningContext.practicalTitle) {
+      learningContextText += 'For practical mentoring, scaffold before solving: start with one focused question or concept hint, then a structural hint, and provide a complete solution only after the learner has made an attempt or explicitly requests the final answer.\n';
+    }
   }
   if (courseSyllabus) {
     learningContextText += '\n\nCOURSE SYLLABUS FROM DATABASE (authoritative):\n';

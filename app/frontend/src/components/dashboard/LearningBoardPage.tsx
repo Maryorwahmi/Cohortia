@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { 
   Play, Pause, RotateCw, Volume2, VolumeX, Maximize2, 
   ChevronRight, ChevronDown, CheckCircle, Lock, BookOpen, 
@@ -9,11 +9,10 @@ import {
 import { UserPreferences, CohortTrackId } from "../../types";
 import { TRACK_CURRICULA, DashboardMilestone, DashboardLesson } from "../../data/dashboardData";
 import { CPP_LESSONS_DETAILS } from "../../data/cppLessonsData";
-import InteractiveSandbox from "./InteractiveSandbox";
-import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
 import PracticalLearningBoardSimulation from "../../pages/dashboard/PracticalLearningBoardSimulation";
 import AssessmentEngine from "./AssessmentEngine";
 import { chatApi } from "../../services/api";
+import type { ChatLearningContext } from "../../services/api";
 import LessonScenePlayer from "./LessonScenePlayer";
 import ManifestLessonPlayer from "./ManifestLessonPlayer";
 import { generateGenericScenes } from "../../lib/lessonSceneGenerator";
@@ -213,7 +212,7 @@ function getSimulatedCode(trackId: string, title: string, progress: number): { c
   } else if (trackId === "frontend") {
     files = ["src/App.tsx", "src/types.ts", "package.json", "tailwind.config.js"];
     rightTitle = "Vite Browser Preview";
-    const fullCode = `import React, { useState } from 'react';\nimport { Sparkles } from 'lucide-react';\n\nexport default function SandboxApp() {\n  const [count, setCount] = useState(0);\n  \n  return (\n    <div className="p-6 bg-slate-950 border border-white/5 rounded-2xl space-y-4 text-center">\n      <h3 className="text-sm font-bold text-white tracking-tight">Telemetry Grid Interface</h3>\n      <p className="text-xs text-slate-400">Interactive live components verified.</p>\n      <button \n        onClick={() => setCount(c => c + 1)}\n        className="px-4 py-2 bg-[#FF4B3E] hover:bg-[#FF4B3E]/80 text-white font-bold text-xs rounded-xl shadow-lg shadow-[#FF4B3E]/20 transition-all"\n      >\n        Trigger Pulse: {count}\n      </button>\n    </div>\n  );\n}`;
+    const fullCode = `import React, { useState } from 'react';\nimport { Sparkles } from 'lucide-react';\n\nexport default function TelemetryApp() {\n  const [count, setCount] = useState(0);\n  \n  return (\n    <div className="p-6 bg-slate-950 border border-white/5 rounded-2xl space-y-4 text-center">\n      <h3 className="text-sm font-bold text-white tracking-tight">Telemetry Grid Interface</h3>\n      <p className="text-xs text-slate-400">Interactive live components verified.</p>\n      <button \n        onClick={() => setCount(c => c + 1)}\n        className="px-4 py-2 bg-[#FF4B3E] hover:bg-[#FF4B3E]/80 text-white font-bold text-xs rounded-xl shadow-lg shadow-[#FF4B3E]/20 transition-all"\n      >\n        Trigger Pulse: {count}\n      </button>\n    </div>\n  );\n}`;
 
     if (progress < 25) {
       codeStr = "// Connecting local dev server...\n// Press PLAY to build and start server.";
@@ -281,7 +280,7 @@ function getSimulatedCode(trackId: string, title: string, progress: number): { c
   } else {
     files = ["specs/ProductBrief.md", "backlog/JiraSprint.json", "roadmap/Milestones.md"];
     rightTitle = "Workspace Kanban Board";
-    const fullCode = `# COHORTIA ENTERPRISE REQUIREMENTS BRIEF\n\n## 1. Executive Summary\nBuilding scalable interface systems for telemetry feedback loops.\n\n## 2. Technical Scope\n- Implement 12-column responsive layout grids.\n- Leverage local storage for study scratchpads.\n- Connect client-side inputs to secure server proxies.\n\n## 3. Sprint Timelines & KPIs\n- Cohort Verification: Sprint 01 (Status: COMPLETED)\n- Workspace Sandbox: Sprint 02 (Status: ACTIVE)\n- Live Certification: Sprint 03 (Status: IN_QUEUE)`;
+    const fullCode = `# COHORTIA ENTERPRISE REQUIREMENTS BRIEF\n\n## 1. Executive Summary\nBuilding scalable interface systems for telemetry feedback loops.\n\n## 2. Technical Scope\n- Implement 12-column responsive layout grids.\n- Leverage local storage for study scratchpads.\n- Connect client-side inputs to secure server proxies.\n\n## 3. Sprint Timelines & KPIs\n- Cohort Verification: Sprint 01 (Status: COMPLETED)\n- Workspace Setup: Sprint 02 (Status: ACTIVE)\n- Live Certification: Sprint 03 (Status: IN_QUEUE)`;
 
     if (progress < 25) {
       codeStr = "# Initializing product brief template...\n# Press PLAY to generate backlog milestones.";
@@ -365,9 +364,7 @@ export default function LearningBoardPage({
   // Active visual layout mode: "video" | "practical" | "assessment" | "complete"
   const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">("video");
   const [practicalCompleted, setPracticalCompleted] = useState(false);
-  // Default to the guided simulation in practical mode for the new hands-on path,
-  // while keeping the legacy interactive sandbox available as a safe fallback.
-  const [showPracticalSimulation, setShowPracticalSimulation] = useState(true);
+  // Practical mode is always the manifest-driven guided learning board.
   
   // Fetch the imported chapter whenever either viewer needs it. Practical mode
   // must not depend on read-mode having been opened first.
@@ -572,6 +569,10 @@ export default function LearningBoardPage({
   const [mentorInput, setMentorInput] = useState("");
   const [isMentorTyping, setIsMentorTyping] = useState(false);
   const mentorChatEndRef = useRef<HTMLDivElement>(null);
+  const practicalMentorContextRef = useRef<(() => ChatLearningContext) | null>(null);
+  const registerPracticalMentorContext = useCallback((provider: (() => ChatLearningContext) | null) => {
+    practicalMentorContextRef.current = provider;
+  }, []);
 
   // Load the persisted chapter state whenever the database chapter changes.
   useEffect(() => {
@@ -763,7 +764,7 @@ export default function LearningBoardPage({
     }, 500);
   };
 
-  // Simulated AI Chat
+  // Send course- and practical-aware guidance to the AI mentor.
   const handleSendMentorMessage = async (msgText: string) => {
     if (!msgText.trim()) return;
 
@@ -795,6 +796,7 @@ export default function LearningBoardPage({
           moduleTitle: curriculum[activeMilestoneIndex]?.title,
           lessonTitle: selectedLesson.title,
           lessonContent: courseLessons?.[selectedLesson.id],
+          ...practicalMentorContextRef.current?.(),
         }
       );
 
@@ -1342,64 +1344,24 @@ export default function LearningBoardPage({
                   )
                 )}
 
-                {/* 3. ADAPTIVE INTERACTIVE SANDBOX PLAYGROUND (Split View) */}
+                {/* 3. GUIDED PRACTICAL LEARNING BOARD */}
                 {!devPreviewEnabled && viewerMode === "practical" && (
                   <div className="absolute inset-0 flex min-h-0 flex-col">
                     <div className="flex min-h-0 flex-1 flex-col">
-                      <div className="flex shrink-0 items-center justify-end gap-2 border-b border-immersive-border/60 bg-immersive-bg/60 px-4 py-2">
-                        <button
-                          onClick={() => setShowPracticalSimulation((visible) => !visible)}
-                          className="rounded-lg border border-immersive-border bg-immersive-card px-3 py-2 text-xs font-bold text-immersive-text-primary transition-colors hover:border-immersive-secondary/50"
-                        >
-                          {showPracticalSimulation ? "Open interactive sandbox" : "Watch guided simulation"}
-                        </button>
-                        <button onClick={handlePracticalCompleted} className="rounded-lg bg-[#FF4B3E] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#e33d32]">
-                          Finish practical
-                        </button>
-                      </div>
-
                       <div className="relative min-h-0 min-w-0 flex-1">
-                        {showPracticalSimulation ? (
+                        {activePractical ? (
                           <PracticalLearningBoardSimulation
                             aspectRatio="16:9"
                             onComplete={handlePracticalCompleted}
                             isCompleted={practicalCompleted}
                             showHeaderPills={false}
+                            practical={activePractical}
+                            onMentorContextReady={registerPracticalMentorContext}
                           />
                         ) : (
-                          activePractical ? (
-                            <AnimatedCodeAlongPlayer
-                              playlist={activePractical?.teachingPlaylist || []}
-                              files={activePractical?.files || []}
-                              walkthrough={activePractical?.codeWalkthrough || []}
-                              category={activePractical?.category}
-                              courseId={activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId}
-                              tasks={activePractical?.tasks || []}
-                              narratorGuide={activePractical?.narratorGuide}
-                              checks={activePractical?.checks || []}
-                              onOpenLab={() => setShowPracticalSimulation(true)}
-                            />
-                          ) : (
-                            <InteractiveSandbox
-                              userProfile={userProfile}
-                              selectedLesson={selectedLesson}
-                              handsOnActivities={details.summary.takeaways}
-                              practical={activePractical}
-                              learningContext={{
-                                courseId: activePractical?.courseId || generatedPreview?.courseId || previewCourseId || courseId,
-                                courseTitle: generatedPreview?.course || courseCatalog?.course || courseTitle,
-                                courseCategory: activePractical?.category || undefined,
-                                module: activePractical?.module ?? generatedPreview?.module,
-                                chapter: activePractical?.chapter ?? generatedPreview?.chapter,
-                                moduleTitle: generatedPreview?.moduleTitle || curriculum[activeMilestoneIndex]?.title,
-                                chapterTitle: generatedPreview?.chapterTitle,
-                                lessonTitle: selectedLesson.title,
-                                lessonContent: courseLessons?.[selectedLesson.id],
-                                page: "learning board",
-                              }}
-                              onComplete={handlePracticalCompleted}
-                            />
-                          )
+                          <div className="flex h-full items-center justify-center rounded-2xl border border-immersive-border bg-immersive-card p-6 text-center text-sm text-immersive-text-secondary">
+                            This chapter does not have a published practical yet.
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1928,7 +1890,7 @@ function getLessonDetails(lesson: DashboardLesson, track: CohortTrackId): Custom
       objectives: [
         `Identify the core structures and architecture constraints of "${lesson.title}".`,
         "Examine professional production checklists and design matrices.",
-        "Establish secure sandbox workspaces to simulate actual client workflows."
+        "Set up a practical workspace to model actual client workflows."
       ],
       takeaways: [
         "A completed experiential lab workbook summarizing your answers.",
@@ -1963,7 +1925,7 @@ function getLessonDetails(lesson: DashboardLesson, track: CohortTrackId): Custom
         points: [
           "Task: Rebuild the client briefing elements to conform to the responsive layout guidelines.",
           "Verify visual rhythm, responsive auto-layout setups, and color application rules.",
-          "Once complete, utilize the sandbox console to audit performance and check formatting.",
+          "Once complete, utilize the workspace console to audit performance and check formatting.",
           "Mark this step complete inside your Cohortia study board to unlock subsequent modules."
         ]
       }

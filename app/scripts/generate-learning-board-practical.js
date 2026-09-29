@@ -36,7 +36,7 @@ import { profileFor, profileSchema } from "./lib/practical-experience-profiles.j
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GENERATOR_VERSION = "phase5.0-experience-profiles";
+const GENERATOR_VERSION = "phase5.1-guided-manifest-verification";
 const CLASSIFIER_VERSION = "phase3.1";
 const SOURCE_CATEGORIES = [
   "Cloud Console Lab",
@@ -142,14 +142,33 @@ const PRACTICAL_SCHEMA = {
               walkthrough: { type: "string", description: "Tier 3: Concrete structural hint or code outline" }
             }
           },
+          inlineSuggestions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                label: { type: "string" },
+                text: { type: "string", description: "Static coaching text shown without an AI request" },
+                insertionText: { type: "string", description: "Optional small code fragment the learner may insert" }
+              },
+              required: ["id", "label", "text"]
+            },
+            description: "Pre-authored task guidance bundled with the practical. Never include a full solution."
+          },
           tests: {
             type: "array",
             minItems: 1,
             items: {
               type: "object",
               properties: {
-                type: { type: "string", enum: ["syntax", "runtime", "output", "file_exists", "integration"], description: "Test type" },
+                type: { type: "string", enum: ["syntax", "runtime", "output", "file_exists", "file_contents", "compile_probe", "sanitizer", "integration"], description: "Test type" },
                 expected: { type: "string", description: "Expected result or substring" },
+                path: { type: "string", description: "Relative output-file path to verify" },
+                contents: { type: "string", description: "Expected output-file contents for file_contents checks" },
+                probeSource: { type: "string", description: "Small, compilable C++ probe translation unit for an access-control test" },
+                expectCompileSuccess: { type: "boolean", description: "Whether the C++ probe is expected to compile" },
+                expectedDiagnostic: { type: "string", description: "Required compiler diagnostic substring for a rejected probe" },
                 matchMode: { type: "string", enum: ["contains", "exact", "regex", "exit_code_zero", "variable_state"], description: "How to evaluate test" },
                 data: { type: "string", description: "Test data, command, or expression" },
                 explanation: { type: "string", description: "What this test verifies" }
@@ -602,14 +621,8 @@ SELECT id, title, department, credits FROM courses ORDER BY id;`;
 }
 
 function fallbackChecks(labType, language, files) {
-  const file = files[0];
   if (labType === "database") {
     return [
-      {
-        id: "starter-sql-present",
-        type: "file_exists",
-        explanation: "The learner has a SQL starter script in the workspace.",
-      },
       {
         id: "database-schema-and-data",
         type: "sql",
@@ -620,15 +633,11 @@ function fallbackChecks(labType, language, files) {
       },
     ];
   }
+  const file = files[0];
   const output = /printf\s*\(\s*"([^"]+)/i.exec(file.content)?.[1]
     || /print(?:ln)?\s*\(\s*["']([^"']+)/i.exec(file.content)?.[1]
     || "Cohortia practical ready";
   return [
-    {
-      id: "starter-file-present",
-      type: "file_exists",
-      explanation: `The learner has edited ${file.path}.`,
-    },
     {
       id: "program-runs",
       type: "command",
@@ -672,10 +681,13 @@ function checkTypeFor(test) {
     syntax: "command",
     runtime: "command",
     output: "output",
-    file_exists: "file",
+    file_exists: "file_exists",
+    file_contents: "file_contents",
+    compile_probe: "compile_probe",
+    sanitizer: "sanitizer",
     integration: "manual",
   };
-  return mapping[test.type] || (["command", "file", "output", "sql", "http", "manual", "simulation"].includes(test.type)
+  return mapping[test.type] || (["command", "file", "file_exists", "file_contents", "compile_probe", "output", "sql", "http", "manual", "simulation", "sanitizer"].includes(test.type)
     ? test.type
     : "manual");
 }
@@ -694,7 +706,17 @@ function checkFromTest(test, id, labType) {
   const command = test.command || (typeof test.data === "string" ? test.data : null);
   if (command && ["command", "output", "sql", "http"].includes(type)) check.command = command;
   if (typeof test.workingDirectory === "string") check.workingDirectory = "/workspace";
-  if (test.passCondition && typeof test.passCondition === "object") {
+  if (test.type === "file_exists" && typeof test.path === "string") {
+    check.passCondition = { path: test.path };
+  } else if (test.type === "file_contents" && typeof test.path === "string") {
+    check.passCondition = { path: test.path, contents: test.contents || test.expected || "" };
+  } else if (test.type === "compile_probe" && typeof test.probeSource === "string") {
+    check.passCondition = {
+      source: test.probeSource,
+      expectCompileSuccess: test.expectCompileSuccess === true,
+      ...(typeof test.expectedDiagnostic === "string" ? { expectedDiagnostic: test.expectedDiagnostic } : {}),
+    };
+  } else if (test.passCondition && typeof test.passCondition === "object") {
     check.passCondition = test.passCondition;
   } else if (test.expected !== undefined) {
     check.passCondition = { expected: String(test.expected) };
@@ -848,6 +870,19 @@ function normalizePractical(raw, sourceContext, metadata) {
       stepType: ["observe", "modify", "experiment", "verify"].includes(task.stepType) ? task.stepType : undefined,
       requiredConcepts: asStringArray(task.requiredConcepts),
       hints: asStringArray(task.hints),
+      inlineSuggestions: Array.isArray(task.inlineSuggestions)
+        ? task.inlineSuggestions
+            .filter((suggestion) => suggestion && typeof suggestion === "object")
+            .map((suggestion, suggestionIndex) => ({
+              id: normalizeId(suggestion.id, `suggestion-${index + 1}-${suggestionIndex + 1}`),
+              label: asStringText(suggestion.label) || `Suggestion ${suggestionIndex + 1}`,
+              text: asStringText(suggestion.text),
+              ...(typeof suggestion.insertionText === "string" && suggestion.insertionText.length > 0
+                ? { insertionText: suggestion.insertionText }
+                : {}),
+            }))
+            .filter((suggestion) => suggestion.text.length > 0)
+        : [],
       structuredHints: task.structuredHints && typeof task.structuredHints === "object" ? task.structuredHints : undefined,
       checkIds: taskCheckIds,
     };
@@ -1394,6 +1429,7 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
    - nudge: "What would happen if you changed X to Y?"
    - concept: "In programming, [principle]. That means..."
    - walkthrough: "Here's the code structure: [pseudocode]"
+   - inlineSuggestions: add 1–3 static, task-specific coaching suggestions to the manifest. Optional insertionText must be a small fragment, never the full answer; these suggestions are shown without requesting AI.
 
 5. NARRATOR VOICE (~100 wpm, 250-350 words total per practical):
    - Sound like a patient, warm, interactive teacher, never a generic system message.
@@ -1408,9 +1444,14 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
      open and close parenthesis, curly brace, and square bracket when they matter.
      Never dump raw Markdown or a long code block into speech.
 
-6. TERMINAL VERIFICATION:
-   For each task, include at least ONE test that shows observable proof of learning:
-   - NOT just syntax checks
+6. BEHAVIORAL VERIFICATION:
+   For each task, include tests that prove the required behavior, not merely source text or successful compilation:
+   - Use runtime output, file contents, query results, or compile probes for access-control rules.
+   - For access control, test that derived code can access the member and an external caller cannot.
+   - C++ file-writing activities must use std::ofstream and verify produced output-file artifacts, including path, content, and append behavior where relevant.
+   - Never describe a marker or prefix as encryption. Never claim memory safety or zero leaks unless a sanitizer check runs AddressSanitizer and UndefinedBehaviorSanitizer successfully.
+   - Use file_exists checks with the exact relative output path; file_contents checks must include both path and expected content; sanitizer checks must be explicit.
+   - A compile_probe check must provide probeSource and expectCompileSuccess. Rejected probes must also provide expectedDiagnostic (such as "protected" or "private") so unrelated syntax errors cannot pass. To test a learner translation unit, rename main before including it (for example, #define main cohortia_student_main, #include "main.cpp", #undef main), then define the probe's own main. Do not make a probe fail for any reason except the intended access rule.
    - Real OUTPUT verification: "Program prints X", "File contains Y", "Query returns Z rows"
    - For Terminal Coding Lab and database labs, NEVER return an empty files array or empty tests array.
    - Every executable practical must include at least one runnable starter file and at least two checks.

@@ -7,24 +7,90 @@ import { sql } from 'drizzle-orm';
 import { authMiddleware } from '../middleware/auth.js';
 import { logActivity } from '../lib/activity.js';
 import { evaluateAssessmentAnswer } from '../lib/deterministicAssessment.js';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
 const learning = new Hono();
 
 const MAX_SOURCE_BYTES = 128 * 1024;
 const MAX_OUTPUT_BYTES = 64 * 1024;
+const APP_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const GENERATED_PRACTICALS_ROOT = path.resolve(
+  APP_ROOT,
+  process.env.COHORTIA_PRACTICALS_DIR || 'generated/learning-board-practicals',
+);
 const BOARD_CACHE_TTL_MS = 60_000;
 let boardsCache = null;
 let boardsCacheExpiresAt = 0;
 let boardsLoadPromise = null;
+const generatedCourseManifestCache = new Map();
+
+async function readGeneratedCourseManifest(courseId) {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(courseId)) return null;
+  const manifestPath = path.join(GENERATED_PRACTICALS_ROOT, courseId, 'course-manifest.json');
+  let fileStats;
+  try {
+    fileStats = await stat(manifestPath);
+  } catch (error) {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  }
+  const cached = generatedCourseManifestCache.get(courseId);
+  if (cached && cached.modifiedAt === fileStats.mtimeMs && cached.size === fileStats.size) return cached.manifest;
+
+  let contents;
+  try {
+    contents = await readFile(manifestPath, 'utf8');
+  } catch (error) {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  }
+
+  const manifest = JSON.parse(contents);
+  if (manifest.schemaVersion !== 1 || manifest.courseId !== courseId || !Array.isArray(manifest.practicals)) {
+    throw new Error(`Generated practical course manifest is invalid for ${courseId}.`);
+  }
+  generatedCourseManifestCache.set(courseId, {
+    manifest,
+    modifiedAt: fileStats.mtimeMs,
+    size: fileStats.size,
+  });
+  return manifest;
+}
+
+async function listGeneratedCourseManifests() {
+  let entries;
+  try {
+    entries = await readdir(GENERATED_PRACTICALS_ROOT, { withFileTypes: true });
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+
+  const manifests = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !/^[a-z0-9][a-z0-9-]*$/.test(entry.name)) continue;
+    const manifest = await readGeneratedCourseManifest(entry.name);
+    if (manifest) manifests.push(manifest);
+  }
+  return manifests;
+}
+
+function findGeneratedCoursePractical(manifest, moduleNumber, chapterNumber) {
+  if (!manifest) return null;
+  const entry = manifest.practicals.find((item) => (
+    item?.moduleNumber === moduleNumber && item?.chapterNumber === chapterNumber
+  ));
+  return entry?.practical && typeof entry.practical === 'object' ? entry.practical : null;
+}
 
 function runProcess(command, args, options = {}) {
-  const { cwd, input = '', timeoutMs = 15000 } = options;
+  const { cwd, input = '', timeoutMs = 15000, env } = options;
   return new Promise((resolve) => {
-    const child = spawn(command, args, { cwd, shell: false, windowsHide: true });
+    const child = spawn(command, args, { cwd, env, shell: false, windowsHide: true });
     let stdout = '';
     let stderr = '';
     let settled = false;
@@ -51,6 +117,41 @@ function runProcess(command, args, options = {}) {
   });
 }
 
+async function collectExecutionArtifacts(workspace, outputPath, originalFiles) {
+  const artifacts = {};
+  let totalBytes = 0;
+  let scannedFiles = 0;
+  const outputRelativePath = path.relative(workspace, outputPath);
+
+  async function visit(directory, depth = 0) {
+    if (depth > 8 || scannedFiles >= 100) return;
+    const entries = await readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      if (Object.keys(artifacts).length >= 20 || totalBytes >= MAX_OUTPUT_BYTES || scannedFiles >= 100) return;
+      scannedFiles += 1;
+      const filePath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await visit(filePath, depth + 1);
+        continue;
+      }
+      if (!entry.isFile() || path.relative(workspace, filePath) === outputRelativePath) continue;
+
+      const relativePath = path.relative(workspace, filePath).replaceAll('\\', '/');
+      const fileStats = await stat(filePath);
+      if (fileStats.size > MAX_SOURCE_BYTES) continue;
+      const content = await readFile(filePath);
+      if (content.includes(0)) continue;
+      const text = content.toString('utf8');
+      if (originalFiles[relativePath] === text) continue;
+      totalBytes += content.length;
+      if (totalBytes <= MAX_OUTPUT_BYTES) artifacts[relativePath] = text;
+    }
+  }
+
+  await visit(workspace);
+  return artifacts;
+}
+
 function safeWorkspacePath(workspace, relativePath) {
   const normalized = String(relativePath || '').replaceAll('\\', '/');
   if (!normalized || normalized.startsWith('/') || normalized.includes('..')) return null;
@@ -58,7 +159,14 @@ function safeWorkspacePath(workspace, relativePath) {
   return target.startsWith(`${path.resolve(workspace)}${path.sep}`) ? target : null;
 }
 
-async function executeNativeC({ files, activeFilePath, stdin = '', language = 'C' }) {
+async function executeNativeC({
+  files,
+  activeFilePath,
+  stdin = '',
+  language = 'C',
+  enableSanitizers = false,
+  compileProbes = [],
+}) {
   if (!['c', 'cpp', 'c++'].includes(String(language).toLowerCase())) {
     return { ok: false, error: `Native ${language} execution is not supported yet.` };
   }
@@ -68,12 +176,26 @@ async function executeNativeC({ files, activeFilePath, stdin = '', language = 'C
   if (entries.some(([, content]) => typeof content !== 'string' || Buffer.byteLength(content, 'utf8') > MAX_SOURCE_BYTES)) {
     return { ok: false, error: 'A source file is too large to execute.' };
   }
+  if (!Array.isArray(compileProbes) || compileProbes.length > 8 || compileProbes.some((probe) => (
+    !probe
+      || typeof probe.id !== 'string'
+      || !/^[a-z0-9][a-z0-9_-]{0,63}$/i.test(probe.id)
+      || typeof probe.source !== 'string'
+      || Buffer.byteLength(probe.source, 'utf8') > MAX_SOURCE_BYTES
+      || typeof probe.expectCompileSuccess !== 'boolean'
+      || (probe.expectedDiagnostic !== undefined
+        && (typeof probe.expectedDiagnostic !== 'string' || probe.expectedDiagnostic.length > 200))
+      || (!probe.expectCompileSuccess && !probe.expectedDiagnostic)
+  ))) {
+    return { ok: false, error: 'Compile probes must include a safe id, source, and expected compile result.' };
+  }
 
   const workspace = await mkdtemp(path.join(tmpdir(), 'cohortia-c-'));
   try {
     for (const [relativePath, content] of entries) {
       const target = safeWorkspacePath(workspace, relativePath);
       if (!target) return { ok: false, error: 'Invalid workspace file path.' };
+      await mkdir(path.dirname(target), { recursive: true });
       await writeFile(target, content, 'utf8');
     }
 
@@ -81,6 +203,12 @@ async function executeNativeC({ files, activeFilePath, stdin = '', language = 'C
     if (!sourcePath) return { ok: false, error: 'The active source file is invalid.' };
     const outputPath = path.join(workspace, process.platform === 'win32' ? 'program.exe' : 'program');
     const isCpp = ['cpp', 'c++'].includes(String(language).toLowerCase()) || /\.(cpp|cc|cxx)$/i.test(sourcePath);
+    const sourceExtensions = isCpp ? /\.(cpp|cc|cxx)$/i : /\.c$/i;
+    const sourcePaths = entries
+      .map(([relativePath]) => safeWorkspacePath(workspace, relativePath))
+      .filter((filePath) => filePath && sourceExtensions.test(filePath));
+    if (!sourcePaths.includes(sourcePath) && sourceExtensions.test(sourcePath)) sourcePaths.push(sourcePath);
+    if (!sourcePaths.length) return { ok: false, error: `No ${isCpp ? 'C++' : 'C'} source files are available to compile.` };
     const compilerNames = isCpp
       ? (process.env.COHORTIA_CPP_COMPILER ? [process.env.COHORTIA_CPP_COMPILER] : ['g++', 'clang++', 'c++'])
       : (process.env.COHORTIA_C_COMPILER
@@ -89,18 +217,88 @@ async function executeNativeC({ files, activeFilePath, stdin = '', language = 'C
           ? ['C:\\Program Files\\LLVM\\bin\\clang.exe', 'clang', 'gcc', 'cc']
           : ['gcc', 'clang', 'cc']);
     const standardFlag = isCpp ? '-std=c++20' : '-std=c17';
+    const sanitizerFlags = enableSanitizers ? ['-fsanitize=address,undefined', '-fno-omit-frame-pointer'] : [];
     let compile = null;
+    let compilerUsed = null;
     for (const compiler of compilerNames) {
-      compile = await runProcess(compiler, [sourcePath, standardFlag, '-O0', '-Wall', '-Wextra', '-o', outputPath], { cwd: workspace, timeoutMs: 15000 });
-      if (!compile.unavailable) break;
+      compile = await runProcess(compiler, [...sourcePaths, standardFlag, '-O0', '-Wall', '-Wextra', ...sanitizerFlags, '-o', outputPath], { cwd: workspace, timeoutMs: 15000 });
+      if (!compile.unavailable) {
+        compilerUsed = compiler;
+        break;
+      }
     }
     if (!compile || compile.unavailable) {
-      return { ok: false, compilerUnavailable: true, error: 'No C compiler is installed on the backend host. Install Clang or GCC, then restart the backend.' };
+      return { ok: false, compilerUnavailable: true, error: `No ${isCpp ? 'C++' : 'C'} compiler is installed on the backend host.` };
     }
     if (!compile.ok) return { ok: false, phase: 'compile', ...compile };
 
-    const result = await runProcess(outputPath, [], { cwd: workspace, input: String(stdin).slice(0, 4096), timeoutMs: 5000 });
-    return { ...result, phase: 'run', compiler: compile.command || compilerNames[0] };
+    const runtimeEnv = enableSanitizers
+      ? {
+          ...process.env,
+          ASAN_OPTIONS: [process.env.ASAN_OPTIONS, 'detect_leaks=1:halt_on_error=1'].filter(Boolean).join(':'),
+          UBSAN_OPTIONS: [process.env.UBSAN_OPTIONS, 'print_stacktrace=1:halt_on_error=1'].filter(Boolean).join(':'),
+        }
+      : process.env;
+    const result = await runProcess(outputPath, [], {
+      cwd: workspace,
+      env: runtimeEnv,
+      input: String(stdin).slice(0, 4096),
+      timeoutMs: 5000,
+    });
+    const compileProbeResults = [];
+    for (const probe of compileProbes) {
+      if (!isCpp) {
+        compileProbeResults.push({
+          id: probe.id,
+          passed: false,
+          message: 'Compile probes for C++ access control require a C++ practical.',
+        });
+        continue;
+      }
+      const probeSourcePath = safeWorkspacePath(workspace, `_cohortia-probe-${probe.id}.cpp`);
+      const probeOutputPath = path.join(workspace, `_cohortia-probe-${probe.id}${process.platform === 'win32' ? '.exe' : ''}`);
+      await writeFile(probeSourcePath, probe.source, 'utf8');
+      const probeCompile = await runProcess(compilerUsed, [
+        probeSourcePath,
+        standardFlag,
+        '-O0',
+        '-Wall',
+        '-Wextra',
+        '-o',
+        probeOutputPath,
+      ], { cwd: workspace, timeoutMs: 15000 });
+      const diagnosticMatched = probe.expectCompileSuccess
+        || (Boolean(probe.expectedDiagnostic)
+          && probeCompile.stderr.toLowerCase().includes(probe.expectedDiagnostic.toLowerCase()));
+      const compiledAsExpected = probeCompile.ok === probe.expectCompileSuccess
+        && !probeCompile.unavailable
+        && !probeCompile.timedOut;
+      compileProbeResults.push({
+        id: probe.id,
+        passed: compiledAsExpected && diagnosticMatched,
+        compileSuccess: probeCompile.ok,
+        expectedCompileSuccess: probe.expectCompileSuccess,
+        message: !compiledAsExpected
+          ? `Compile probe expected ${probe.expectCompileSuccess ? 'success' : 'rejection'} but the compiler result was unavailable, timed out, or differed.`
+          : !diagnosticMatched
+            ? `Compile probe was rejected without the expected "${probe.expectedDiagnostic}" diagnostic.`
+            : `Compile probe matched the expected ${probe.expectCompileSuccess ? 'success' : 'access-rule rejection'}.`,
+      });
+    }
+    const originalFiles = Object.fromEntries(entries.map(([filePath, content]) => [
+      filePath.replaceAll('\\', '/'),
+      content,
+    ]));
+    for (const probe of compileProbes) originalFiles[`_cohortia-probe-${probe.id}.cpp`] = probe.source;
+    const artifacts = await collectExecutionArtifacts(workspace, outputPath, originalFiles);
+    return {
+      ...result,
+      phase: 'run',
+      compiler: compilerUsed,
+      sanitizers: enableSanitizers ? ['address', 'undefined'] : [],
+      artifacts,
+      compileProbes: compileProbeResults,
+    };
   } finally {
     await rm(workspace, { recursive: true, force: true });
   }
@@ -403,7 +601,7 @@ learning.get('/boards', async (c) => {
 
   if (!boardsLoadPromise) {
     boardsLoadPromise = (async () => {
-      const [courseRows, practicalRows] = await Promise.all([
+      const [courseRows, practicalRows, generatedManifests] = await Promise.all([
         db.select().from(learningBoardCourses),
         db.select({
           courseId: learningBoardPracticals.courseId,
@@ -413,6 +611,7 @@ learning.get('/boards', async (c) => {
           createdAt: learningBoardPracticals.createdAt,
           updatedAt: learningBoardPracticals.updatedAt,
         }).from(learningBoardPracticals),
+        listGeneratedCourseManifests(),
       ]);
       const coursesById = new Map(courseRows.map((course) => [course.courseId, course]));
       const practicalsByCourse = new Map();
@@ -432,6 +631,27 @@ learning.get('/boards', async (c) => {
         }
       }
 
+      for (const manifest of generatedManifests) {
+        const existingCourse = coursesById.get(manifest.courseId);
+        const moduleCount = Math.max(0, ...(manifest.modules || []).map((item) => Number(item.moduleNumber) || 0));
+        if (existingCourse) {
+          existingCourse.course = manifest.courseTitle || existingCourse.course;
+          existingCourse.totalModules = Math.max(existingCourse.totalModules || 0, moduleCount);
+          existingCourse.updatedAt = manifest.generatedAt || existingCourse.updatedAt;
+        } else {
+          coursesById.set(manifest.courseId, {
+            id: `practical-course-${manifest.courseId}`,
+            courseId: manifest.courseId,
+            course: manifest.courseTitle || manifest.courseId,
+            courseLevel: null,
+            description: null,
+            totalModules: moduleCount,
+            createdAt: manifest.generatedAt || new Date(0).toISOString(),
+            updatedAt: manifest.generatedAt || new Date(0).toISOString(),
+          });
+        }
+      }
+
       const courses = Array.from(coursesById.values()).sort((left, right) => left.course.localeCompare(right.course));
       boardsCache = courses;
       boardsCacheExpiresAt = Date.now() + BOARD_CACHE_TTL_MS;
@@ -448,6 +668,13 @@ learning.get('/boards', async (c) => {
 // Get learning board course by ID
 learning.get('/boards/:courseId', async (c) => {
   const courseId = c.req.param('courseId');
+  let courseManifest = null;
+  try {
+    courseManifest = await readGeneratedCourseManifest(courseId);
+  } catch (error) {
+    console.error(`Could not load generated practical manifest for ${courseId}:`, error);
+    return c.json({ success: false, error: 'The generated course practical manifest is invalid.' }, 500);
+  }
 
   const [courseRows, chapterRows, practicalRows] = await Promise.all([
     db
@@ -465,15 +692,54 @@ learning.get('/boards/:courseId', async (c) => {
       .where(eq(learningBoardPracticals.courseId, courseId)),
   ]);
 
-  if (courseRows.length === 0 && practicalRows.length === 0) {
+  if (courseRows.length === 0 && practicalRows.length === 0 && !courseManifest) {
     return c.json({ success: false, error: 'Course not found' }, 404);
   }
 
-  const course = courseRows[0] || courseFromPracticalRows(courseId, practicalRows);
+  const course = courseRows[0] || (practicalRows.length > 0
+    ? courseFromPracticalRows(courseId, practicalRows)
+    : {
+        id: `practical-course-${courseId}`,
+        courseId,
+        course: courseManifest.courseTitle || courseId,
+        courseLevel: null,
+        description: null,
+        totalModules: 0,
+        createdAt: courseManifest.generatedAt || new Date(0).toISOString(),
+        updatedAt: courseManifest.generatedAt || new Date(0).toISOString(),
+      });
   if (courseRows[0] && practicalRows.length > 0) {
     course.totalModules = Math.max(course.totalModules, ...practicalRows.map((row) => row.module));
   }
+  if (courseManifest) {
+    course.course = courseManifest.courseTitle || course.course;
+    course.totalModules = Math.max(
+      course.totalModules || 0,
+      ...((courseManifest.modules || []).map((item) => Number(item.moduleNumber) || 0)),
+    );
+  }
   const chapters = mergePracticalChapters(chapterRows, practicalRows);
+  for (const item of courseManifest?.practicals || []) {
+    if (!Number.isInteger(item.moduleNumber) || !Number.isInteger(item.chapterNumber)) continue;
+    if (chapters.some((chapter) => chapter.module === item.moduleNumber && chapter.chapter === item.chapterNumber)) continue;
+    chapters.push({
+      id: `practical-chapter-${courseId}-m${item.moduleNumber}-c${item.chapterNumber}`,
+      courseId,
+      module: item.moduleNumber,
+      chapter: item.chapterNumber,
+      moduleTitle: item.moduleTitle || `Module ${item.moduleNumber}`,
+      chapterTitle: item.chapterTitle || item.practical?.title || `Chapter ${item.chapterNumber}`,
+      presentationMode: 'practical_source',
+      screensCount: 0,
+      createdAt: courseManifest.generatedAt,
+      updatedAt: courseManifest.generatedAt,
+      practicalId: item.practical?.id || null,
+      practicalCategory: item.practical?.category || null,
+      practicalStatus: 'published',
+      source: 'course_manifest',
+    });
+  }
+  chapters.sort((left, right) => left.module - right.module || left.chapter - right.chapter);
   const publicChapters = chapters.map(({ assessmentData, ...chapter }) => chapter);
 
   return c.json({ success: true, data: { course, chapters: publicChapters } });
@@ -487,6 +753,17 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
   const chapter = c.req.param('chapter');
   const moduleNum = parseInt(module, 10);
   const chapterNum = parseInt(chapter, 10);
+  let courseManifest = null;
+  try {
+    courseManifest = await readGeneratedCourseManifest(courseId);
+  } catch (error) {
+    console.error(`Could not load generated practical manifest for ${courseId}:`, error);
+    return c.json({ success: false, error: 'The generated course practical manifest is invalid.' }, 500);
+  }
+  const courseManifestPractical = findGeneratedCoursePractical(courseManifest, moduleNum, chapterNum);
+  const courseManifestEntry = courseManifest?.practicals?.find((item) => (
+    item?.moduleNumber === moduleNum && item?.chapterNumber === chapterNum
+  ));
 
   const chapterData = await db
     .select()
@@ -510,7 +787,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
     ))
     .limit(1);
 
-  if (chapterData.length === 0 && practicalRows.length === 0) {
+  if (chapterData.length === 0 && practicalRows.length === 0 && !courseManifestPractical) {
     return c.json({ success: false, error: 'Chapter not found' }, 404);
   }
 
@@ -597,6 +874,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
             teaching: metadataTask.teaching && typeof metadataTask.teaching === 'object' ? metadataTask.teaching : null,
             requiredConcepts: Array.isArray(requiredConcepts) ? requiredConcepts : [],
             hints: Array.isArray(hints) ? hints : [],
+            inlineSuggestions: Array.isArray(metadataTask.inlineSuggestions) ? metadataTask.inlineSuggestions : [],
             tests: testsByTaskId.get(task.id) || (Array.isArray(metadataTask.tests) ? metadataTask.tests : []),
             checkIds: Array.isArray(metadataTask.checkIds)
               ? metadataTask.checkIds
@@ -611,6 +889,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
           teaching: task.teaching && typeof task.teaching === 'object' ? task.teaching : null,
           requiredConcepts: Array.isArray(task.requiredConcepts) ? task.requiredConcepts : [],
           hints: Array.isArray(task.hints) ? task.hints : [],
+          inlineSuggestions: Array.isArray(task.inlineSuggestions) ? task.inlineSuggestions : [],
           tests: Array.isArray(task.tests) ? task.tests : [],
           checkIds: Array.isArray(task.checkIds) ? task.checkIds : [],
         }));
@@ -715,19 +994,32 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
   }
   const objectiveScreen = manifest?.screens?.find((screen) => screen.type === 'learning_objectives');
   const conceptScreen = manifest?.screens?.find((screen) => screen.type === 'key_concepts');
-  const learningObjectives = manifest?.learningObjectives || (objectiveScreen ? [
+  const learningObjectives = manifest?.learningObjectives || courseManifestPractical?.objectives || (objectiveScreen ? [
     objectiveScreen.keyIdea?.text || objectiveScreen.narration?.text || objectiveScreen.narratorSegment,
   ].filter(Boolean) : []);
   const keyConcepts = manifest?.keyConcepts || (conceptScreen ? [
     conceptScreen.keyIdea?.text || conceptScreen.narration?.text || conceptScreen.narratorSegment,
   ].filter(Boolean) : []);
-  const handsOn = manifest?.handsOn || (manifest?.practical ? {
-    title: manifest.practical.title,
-    instructions: manifest.practical.instructions || '',
-    checklist: manifest.practical.tasks?.map((task) => task.instruction) || [],
+  const manifestPractical = courseManifestPractical || manifest?.practical || null;
+  const handsOn = manifest?.handsOn || (manifestPractical ? {
+    title: manifestPractical.title,
+    instructions: manifestPractical.instructions || '',
+    checklist: manifestPractical.tasks?.map((task) => task.instruction) || [],
   } : null);
-  const manifestPractical = manifest?.practical || null;
-  const practical = databasePractical?.publicationStatus === 'published'
+  const practical = courseManifestPractical
+    ? {
+        ...courseManifestPractical,
+        id: courseManifestPractical.id || courseManifestPractical.practicalId,
+        sourceDetails: courseManifestPractical.source,
+        courseId,
+        module: moduleNum,
+        chapter: chapterNum,
+        origin: 'course_manifest',
+        publicationStatus: 'published',
+        source: 'course_manifest',
+        status: 'published',
+      }
+    : databasePractical?.publicationStatus === 'published'
     ? databasePractical
     : manifestPractical
       ? {
@@ -780,11 +1072,11 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
     success: true,
     data: {
       courseId,
-      course: manifest?.course || sourceMetadata.course || courseId,
+      course: manifest?.course || sourceMetadata.course || courseManifest?.courseTitle || courseId,
       module: moduleNum,
-      moduleTitle: manifest?.moduleTitle || sourceMetadata.moduleTitle,
+      moduleTitle: manifest?.moduleTitle || sourceMetadata.moduleTitle || courseManifestEntry?.moduleTitle,
       chapter: chapterNum,
-      chapterTitle: manifest?.chapterTitle || sourceMetadata.chapterTitle || databasePractical?.title || `Chapter ${moduleNum}.${chapterNum}`,
+      chapterTitle: manifest?.chapterTitle || sourceMetadata.chapterTitle || courseManifestEntry?.chapterTitle || databasePractical?.title || `Chapter ${moduleNum}.${chapterNum}`,
       learningObjectives,
       keyConcepts,
       handsOn,
@@ -891,7 +1183,11 @@ learning.patch('/board-progress/:courseId/:module/:chapter', async (c) => {
 learning.post('/practical-execute', authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
-    const result = await executeNativeC(body || {});
+    const request = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
+    const result = await executeNativeC({
+      ...request,
+      enableSanitizers: request.enableSanitizers === true,
+    });
     return c.json({ success: result.ok, data: result, error: result.ok ? undefined : result.error }, result.ok ? 200 : 400);
   } catch (error) {
     console.error('Native practical execution failed:', error);

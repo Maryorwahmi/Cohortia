@@ -84,13 +84,12 @@ function parseChapterNumbers(value, moduleNumber) {
     .map((chapter) => ({ module: moduleNumber, chapter }));
 }
 
-function extractModuleChapters(markdown, moduleNumber) {
+function extractCourseChapters(markdown) {
   const headingRegex = /^(#{2,4})\s*Chapter\s+(\d+)\.(\d+)[ \t]*(?:[-—–:][ \t]*)?([^\r\n]*)$/gm;
   const chapters = new Map();
   for (const match of markdown.matchAll(headingRegex)) {
     const chapterModule = Number.parseInt(match[2], 10);
     const chapter = Number.parseInt(match[3], 10);
-    if (chapterModule !== moduleNumber) continue;
     const key = `${chapterModule}.${chapter}`;
     const existing = chapters.get(key);
     if (!existing || match[1].length >= existing.headingLevel) {
@@ -102,7 +101,13 @@ function extractModuleChapters(markdown, moduleNumber) {
       });
     }
   }
-  return [...chapters.values()].sort((left, right) => left.chapter - right.chapter);
+  return [...chapters.values()].sort((left, right) => (
+    left.module - right.module || left.chapter - right.chapter
+  ));
+}
+
+function extractModuleChapters(markdown, moduleNumber) {
+  return extractCourseChapters(markdown).filter((chapter) => chapter.module === moduleNumber);
 }
 
 function isPathLike(value) {
@@ -159,7 +164,12 @@ REQUIREMENTS:
        # STEP 2: Modify the logic to achieve the milestone
        # STEP 3: Experiment with an edge case
      * DO NOT provide empty files or single '# TODO' lines.
-     * Ensure tests use 'contains' matching or check for key conceptual outputs rather than failing on tiny formatting differences.
+     * Test observable behavior and edge cases; do not pass a task only because source text matches a regular expression.
+     * Where compile-time access rules matter, include compile_probe tests for both permitted and rejected access. Each must provide probeSource plus expectCompileSuccess; rejected probes must also require an expectedDiagnostic such as "protected" or "private". Rename main before including the learner's C++ source, then define a probe main.
+     * C++ file-writing activities must use std::ofstream and verify real output-file paths, contents, and append behavior where relevant.
+     * Never call a marker or prefix encryption. Only claim memory safety when an explicit sanitizer check runs successfully.
+     * Use file_exists checks for generated artifacts with an exact relative path; file_contents checks must include a path and expected content.
+     * Never describe this backend process runner as an OS-isolated sandbox.
    - Scenario & Design:
      * If the activity covers binary conversions, bits, or number systems, set widgetType to "binary_converter".
      * If algorithmic, break into structured design steps (inputs/outputs, step-by-step logic, edge case analysis).
@@ -173,6 +183,7 @@ REQUIREMENTS:
    - The task narrator guide should explain the 'why' behind the code, use analogies to make it real, and offer encouraging hints about what to observe in the output.
    - Assign stepType ("observe", "modify", "experiment", "verify") to each task.
    - Provide 3-tier progressive hints (nudge, concept, walkthrough) in structuredHints and as hints array.
+   - Provide 1–3 task-specific inlineSuggestions with concise coaching and optional small insertionText fragments. These are static manifest content, never runtime AI responses, and must not reveal a complete solution.
 5. Overall Narrator Guide (~300–500 words):
    - Warm, masterclass educator voice (~100 wpm). Greet the learner, set the thematic context (make it feel like a real mission), preview milestones, and emphasize that errors are part of the discovery process.
 6. Synchronized Animated CodeWalkthrough (CRITICAL FOR ANIMATED CLASSROOM MODE):
@@ -299,6 +310,8 @@ async function buildModuleEntries({
   lessonSourcePath,
   category,
   model,
+  skipWithoutActivity = false,
+  skippedChapters = [],
 }) {
   const syllabusMarkdown = await fs.readFile(syllabusPath, "utf8");
   const discoveredChapters = extractModuleChapters(syllabusMarkdown, moduleNumber);
@@ -327,6 +340,15 @@ async function buildModuleEntries({
       category,
     });
     if (!sourceContext.activityChapter.handsOnActivity) {
+      if (skipWithoutActivity) {
+        skippedChapters.push({
+          moduleNumber: chapter.module,
+          chapterNumber: chapter.chapter,
+          chapterTitle: chapter.title,
+          reason: "No hands-on activity was found in the syllabus source.",
+        });
+        continue;
+      }
       throw new Error(`Chapter ${chapter.module}.${chapter.chapter} has no hands-on activity.`);
     }
     entries.push({
@@ -343,6 +365,9 @@ async function buildModuleEntries({
         lessonHash: sourceContext.lessonHash,
       },
     });
+  }
+  if (!entries.length && !skipWithoutActivity) {
+    throw new Error(`No chapters with hands-on activities were found for module ${moduleNumber}.`);
   }
   return entries;
 }
@@ -483,8 +508,10 @@ export {
   MODULE_RESPONSE_SCHEMA,
   buildModuleEntries,
   buildModulePrompt,
+  extractCourseChapters,
   extractModuleChapters,
   generateModule,
   normalizeModuleResponse,
   parseOptions,
+  resolveSyllabusPath,
 };

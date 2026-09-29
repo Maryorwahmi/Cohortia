@@ -154,6 +154,9 @@ export interface LearningBoardPracticalTest {
   type: string;
   expected?: string | null;
   explanation?: string | null;
+  passCondition?: unknown;
+  matchMode?: string;
+  command?: string;
   testData?: Record<string, unknown>;
 }
 
@@ -211,6 +214,13 @@ export interface PracticalTeaching {
   estimatedMinutes?: number;
 }
 
+export interface PracticalInlineSuggestion {
+  id: string;
+  label: string;
+  text: string;
+  insertionText?: string;
+}
+
 export interface LearningBoardPracticalTask {
   id: string;
   databaseId?: string;
@@ -220,6 +230,7 @@ export interface LearningBoardPracticalTask {
   teaching?: PracticalTeaching | null;
   requiredConcepts: string[];
   hints: string[];
+  inlineSuggestions?: PracticalInlineSuggestion[];
   tests: LearningBoardPracticalTest[];
   checkIds?: string[];
 }
@@ -264,7 +275,8 @@ export interface LearningBoardPractical {
   metadata?: Record<string, unknown>;
   origin?: 'source' | 'manifest' | 'generated' | string;
   publicationStatus?: 'source_only' | 'compatibility_fallback' | 'published' | string;
-  source?: 'database' | 'manifest' | string;
+  source?: string;
+  sourceDetails?: Record<string, unknown>;
   status?: 'source_only' | 'compatibility_fallback' | 'published' | string;
   version?: number | string | null;
   schemaVersion?: number | string | null;
@@ -387,7 +399,7 @@ class LearningBoardsApiService {
   async recordPracticalAttempt(
     practicalId: string,
     files: Record<string, string>,
-    status: "started" | "in_progress" | "passed" | "failed",
+    status: "started" | "in_progress" | "passed" | "failed" | "submitted",
     output: string
   ): Promise<{ id: string; status: string }> {
     const response = await fetch(`${API_ROOT}/learning/practical-attempts`, {
@@ -407,6 +419,8 @@ class LearningBoardsApiService {
     activeFilePath: string,
     language: string,
     stdin = '',
+    enableSanitizers = false,
+    compileProbes: Array<{ id: string; source: string; expectCompileSuccess: boolean; expectedDiagnostic?: string }> = [],
   ): Promise<{
     ok: boolean;
     stdout?: string;
@@ -414,20 +428,24 @@ class LearningBoardsApiService {
     phase?: string;
     exitCode?: number | null;
     compilerUnavailable?: boolean;
+    sanitizers?: string[];
+    artifacts?: Record<string, string>;
+    compileProbes?: Array<{ id: string; passed: boolean; message: string }>;
     error?: string;
   }> {
     const response = await fetch(`${API_ROOT}/learning/practical-execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({ files, activeFilePath, language, stdin }),
+      body: JSON.stringify({ files, activeFilePath, language, stdin, enableSanitizers, compileProbes }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data.success) {
-      const error = new Error(data.error || 'Native practical execution failed') as Error & { data?: Record<string, unknown> };
-      error.data = data;
-      throw error;
+    if (data.data && typeof data.data === "object" && typeof data.data.ok === "boolean") {
+      return data.data;
     }
-    return data.data;
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Native practical execution failed');
+    }
+    throw new Error('Native practical execution returned an invalid response.');
   }
 
   /**
