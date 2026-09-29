@@ -14,6 +14,7 @@ import {
   parseOptions,
   resolveSyllabusPath,
 } from "./generate-learning-board-practical-module.js";
+import { assertValidPractical } from "./generate-learning-board-practical.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -37,6 +38,51 @@ function moduleTitleFrom(markdown, moduleNumber) {
 
 function chapterTitleFrom(chapters, chapterNumber) {
   return chapters.find((chapter) => chapter.chapter === chapterNumber)?.title || `Chapter ${chapterNumber}`;
+}
+
+function practicalManifestPath(outputRoot, courseId, moduleNumber, chapterNumber) {
+  return path.join(
+    outputRoot,
+    courseId,
+    `m${moduleNumber}-c${chapterNumber}`,
+    "practical.json"
+  );
+}
+
+async function readExistingPractical(outputRoot, courseId, entry) {
+  const manifestPath = practicalManifestPath(
+    outputRoot,
+    courseId,
+    entry.metadata.moduleNumber,
+    entry.metadata.chapterNumber,
+  );
+  let contents;
+  try {
+    contents = await fs.readFile(manifestPath, "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+
+  let manifest;
+  try {
+    manifest = JSON.parse(contents);
+  } catch (error) {
+    throw new Error(`Existing practical manifest is invalid JSON at ${manifestPath}: ${error.message}`);
+  }
+
+  if (manifest.courseId !== courseId
+    || manifest.moduleNumber !== entry.metadata.moduleNumber
+    || manifest.chapterNumber !== entry.metadata.chapterNumber
+    || !manifest.practical
+    || typeof manifest.practical !== "object") {
+    throw new Error(`Existing practical manifest has mismatched chapter identity: ${manifestPath}`);
+  }
+  assertValidPractical(manifest.practical);
+  if (manifest.practical.source?.sourceHash !== entry.sourceContext.source.sourceHash) {
+    return null;
+  }
+  return manifest.practical;
 }
 
 function parseCourseOptions(argv) {
@@ -88,6 +134,7 @@ async function generateCourse(options) {
   const skippedChapters = [];
   const modules = [];
   const dryRuns = [];
+  const reusedChapters = [];
   let resolvedCourseId = courseId;
   const discoveredModules = [...new Set(chapters.map((chapter) => chapter.module))]
     .filter((moduleNumber) => requestedModule === null || moduleNumber === requestedModule)
@@ -118,54 +165,48 @@ async function generateCourse(options) {
 
     if (!validEntries.length) continue;
     resolvedCourseId ||= validEntries[0].sourceContext.courseId;
-    const validChapterNumbers = validEntries.map((entry) => entry.metadata.chapterNumber);
-    const result = await generateModule({
-      ...options,
-      course: undefined,
-      "course-id": resolvedCourseId,
-      "repo-root": repoRoot,
-      syllabus: syllabusPath,
-      module: String(moduleNumber),
-      chapters: validChapterNumbers.join(","),
-      output: outputRoot,
-      model,
-    });
+    const existingByChapter = new Map();
+    if (options["dry-run"] !== true && options.force !== true) {
+      for (const entry of validEntries) {
+        const existing = await readExistingPractical(outputRoot, resolvedCourseId, entry);
+        if (existing) {
+          existingByChapter.set(entry.metadata.chapterNumber, existing);
+          reusedChapters.push(`${moduleNumber}.${entry.metadata.chapterNumber}`);
+        }
+      }
+    }
+    const pendingEntries = validEntries.filter((entry) => !existingByChapter.has(entry.metadata.chapterNumber));
+    if (options["dry-run"] === true || pendingEntries.length > 0) {
+      const result = await generateModule({
+        ...options,
+        course: undefined,
+        "course-id": resolvedCourseId,
+        "repo-root": repoRoot,
+        syllabus: syllabusPath,
+        module: String(moduleNumber),
+        chapters: pendingEntries.length
+          ? pendingEntries.map((entry) => entry.metadata.chapterNumber).join(",")
+          : validEntries.map((entry) => entry.metadata.chapterNumber).join(","),
+        output: outputRoot,
+        model,
+      });
 
-    if (result.status === "dry-run") {
-      dryRuns.push({
-        moduleNumber,
-        title: moduleTitleFrom(markdown, moduleNumber),
-        chapters: result.chapters.map((chapter) => chapter.chapterNumber),
-        promptCharacters: result.promptCharacters,
-      });
-      modules.push({
-        moduleNumber,
-        title: moduleTitleFrom(markdown, moduleNumber),
-        chapters: validEntries.map((entry) => ({
-          chapterNumber: entry.metadata.chapterNumber,
-          title: chapterTitleFrom(moduleChapters, entry.metadata.chapterNumber),
-        })),
-      });
-      continue;
+      if (result.status === "dry-run") {
+        dryRuns.push({
+          moduleNumber,
+          title: moduleTitleFrom(markdown, moduleNumber),
+          chapters: result.chapters.map((chapter) => chapter.chapterNumber),
+          promptCharacters: result.promptCharacters,
+        });
+      }
     }
 
-    const generatedChapters = [];
-    for (const target of result.targets) {
-      const generatedFile = JSON.parse(await fs.readFile(target, "utf8"));
-      const chapterNumber = generatedFile.chapterNumber;
-      generatedChapters.push({
-        moduleNumber,
-        chapterNumber,
-        chapterTitle: chapterTitleFrom(moduleChapters, chapterNumber),
-        practical: generatedFile.practical,
-      });
-    }
     modules.push({
       moduleNumber,
       title: moduleTitleFrom(markdown, moduleNumber),
-      chapters: generatedChapters.map((chapter) => ({
-        chapterNumber: chapter.chapterNumber,
-        title: chapter.chapterTitle,
+      chapters: validEntries.map((entry) => ({
+        chapterNumber: entry.metadata.chapterNumber,
+        title: chapterTitleFrom(moduleChapters, entry.metadata.chapterNumber),
       })),
     });
   }
@@ -179,6 +220,7 @@ async function generateCourse(options) {
       modules: dryRuns,
       skippedChapters,
       chapterCount: dryRuns.reduce((count, item) => count + item.chapters.length, 0),
+      reusedChapters: [],
     };
   }
 
@@ -189,8 +231,20 @@ async function generateCourse(options) {
   const practicals = [];
   for (const module of modules) {
     for (const chapter of module.chapters) {
-      const generatedFile = path.join(outputRoot, resolvedCourseId, `m${module.moduleNumber}-c${chapter.chapterNumber}`, "practical.json");
-      const parsed = JSON.parse(await fs.readFile(generatedFile, "utf8"));
+      const generatedFile = practicalManifestPath(outputRoot, resolvedCourseId, module.moduleNumber, chapter.chapterNumber);
+      let parsed;
+      try {
+        parsed = JSON.parse(await fs.readFile(generatedFile, "utf8"));
+      } catch (error) {
+        throw new Error(`Could not load generated chapter practical at ${generatedFile}: ${error.message}`);
+      }
+      if (parsed.courseId !== resolvedCourseId
+        || parsed.moduleNumber !== module.moduleNumber
+        || parsed.chapterNumber !== chapter.chapterNumber
+        || !parsed.practical
+        || typeof parsed.practical !== "object") {
+        throw new Error(`Generated chapter practical has mismatched identity at ${generatedFile}`);
+      }
       practicals.push({
         moduleNumber: module.moduleNumber,
         chapterNumber: chapter.chapterNumber,
@@ -213,6 +267,7 @@ async function generateCourse(options) {
     sourceSyllabus: path.relative(repoRoot, syllabusPath).replaceAll("\\", "/"),
     chapterCount: practicals.length,
     skippedChapters,
+    reusedChapters,
     modules,
     practicals,
   };
@@ -230,6 +285,7 @@ async function generateCourse(options) {
     manifestPath,
     chapterCount: practicals.length,
     skippedChapters,
+    reusedChapters,
   };
 }
 
@@ -242,6 +298,7 @@ function usage() {
     "The generator creates one practical per chapter with a hands-on activity,",
     "then writes course-manifest.json for the Learning Board API to serve.",
     "Chapters without a hands-on activity are listed as skipped.",
+    "Matching existing chapter practicals are reused by source hash; use --force to regenerate them.",
     "Use --module and --chapters to generate a small test subset; the resulting course manifest contains only that selected subset.",
     "Use the default output directory, or set COHORTIA_PRACTICALS_DIR consistently",
     "for both the generator and backend when using a custom output location.",
