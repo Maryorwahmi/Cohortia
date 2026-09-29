@@ -31,7 +31,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function normalizeChecks(practical: LearningBoardPractical): CheckDefinition[] {
   const declaredChecks = Array.isArray(practical.checks) ? practical.checks : [];
   const taskChecks = (Array.isArray(practical.tasks) ? practical.tasks : []).flatMap((task) =>
-    task.tests.map((test, index) => ({
+    (Array.isArray(task.tests) ? task.tests : []).map((test, index) => ({
       ...test,
       id: test.id || `${task.id}-test-${index + 1}`,
     }))
