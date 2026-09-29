@@ -80,14 +80,18 @@ async function executeNativeC({ files, activeFilePath, stdin = '', language = 'C
     const sourcePath = safeWorkspacePath(workspace, activeFilePath || entries[0][0]);
     if (!sourcePath) return { ok: false, error: 'The active source file is invalid.' };
     const outputPath = path.join(workspace, process.platform === 'win32' ? 'program.exe' : 'program');
-    const compilerNames = process.env.COHORTIA_C_COMPILER
-      ? [process.env.COHORTIA_C_COMPILER]
-      : process.platform === 'win32'
-        ? ['C:\\Program Files\\LLVM\\bin\\clang.exe', 'clang', 'gcc', 'cc']
-        : ['clang', 'gcc', 'cc'];
+    const isCpp = ['cpp', 'c++'].includes(String(language).toLowerCase()) || /\.(cpp|cc|cxx)$/i.test(sourcePath);
+    const compilerNames = isCpp
+      ? (process.env.COHORTIA_CPP_COMPILER ? [process.env.COHORTIA_CPP_COMPILER] : ['g++', 'clang++', 'c++'])
+      : (process.env.COHORTIA_C_COMPILER
+        ? [process.env.COHORTIA_C_COMPILER]
+        : process.platform === 'win32'
+          ? ['C:\\Program Files\\LLVM\\bin\\clang.exe', 'clang', 'gcc', 'cc']
+          : ['gcc', 'clang', 'cc']);
+    const standardFlag = isCpp ? '-std=c++20' : '-std=c17';
     let compile = null;
     for (const compiler of compilerNames) {
-      compile = await runProcess(compiler, [sourcePath, '-std=c17', '-O0', '-Wall', '-Wextra', '-o', outputPath], { cwd: workspace, timeoutMs: 15000 });
+      compile = await runProcess(compiler, [sourcePath, standardFlag, '-O0', '-Wall', '-Wextra', '-o', outputPath], { cwd: workspace, timeoutMs: 15000 });
       if (!compile.unavailable) break;
     }
     if (!compile || compile.unavailable) {
