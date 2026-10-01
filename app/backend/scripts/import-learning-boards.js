@@ -3,6 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createClient } from '@libsql/client';
+import { buildLearningBoardScreenUpsert } from '../src/lib/learningBoardScreenUpsert.js';
 import { v4 as uuidv4 } from 'uuid';
 import { parseAssessmentQuestions } from '../src/lib/assessmentParser.js';
 import { practicalVersionIdFor, sourceKeyFor } from '../src/lib/practicalIdentity.js';
@@ -751,57 +752,29 @@ try {
       const narration = screen.narration || {};
       const content = screen.content || {};
       
-      // First check if screen exists
-      const existing = await client.execute({
-        sql: 'SELECT id FROM learning_board_screens WHERE course_id = ? AND module = ? AND chapter = ? AND screen = ?',
-        args: [courseId, manifest.module, manifest.chapter, screen.screen],
-      });
-
-      if (existing.rows.length > 0) {
-        // Update existing screen
-        await client.execute({
-          sql: `
-            UPDATE learning_board_screens SET
-              title = ?, type = ?, template = ?, eyebrow = ?,
-              duration_seconds = ?, narrator_segment = ?, narrator_text = ?, narrator_duration = ?,
-              key_idea_title = ?, key_idea_text = ?,
-              content_html = ?, content_css = ?, content_json = ?,
-              updated_at = ?
-            WHERE course_id = ? AND module = ? AND chapter = ? AND screen = ?
-          `,
-          args: [
-            screen.title, screen.type, screen.template, screen.eyebrow,
-            screen.durationSeconds, screen.narratorSegment, narration.text, narration.durationSeconds,
-            keyIdea.title, keyIdea.text,
-            content.html, content.css, JSON.stringify(screen.content || {}),
-            now,
-            courseId, manifest.module, manifest.chapter, screen.screen
-          ],
-        });
-      } else {
-        // Insert new screen
-        await client.execute({
-          sql: `
-            INSERT INTO learning_board_screens (
-              id, course_id, chapter_id, module, chapter, screen,
-              title, type, template, eyebrow,
-              duration_seconds, narrator_segment, narrator_text, narrator_duration,
-              key_idea_title, key_idea_text,
-              content_html, content_css, content_json,
-              created_at, updated_at
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `,
-          args: [
-            screenId, courseId, chapterId, manifest.module, manifest.chapter, screen.screen,
-            screen.title, screen.type, screen.template, screen.eyebrow,
-            screen.durationSeconds, screen.narratorSegment, narration.text, narration.durationSeconds,
-            keyIdea.title, keyIdea.text,
-            content.html, content.css, JSON.stringify(screen.content || {}),
-            now, now
-          ],
-        });
-      }
+      await client.execute(buildLearningBoardScreenUpsert({
+        id: screenId,
+        courseId,
+        chapterId,
+        module: manifest.module,
+        chapter: manifest.chapter,
+        screen: screen.screen,
+        title: screen.title,
+        type: screen.type,
+        template: screen.template,
+        eyebrow: screen.eyebrow,
+        durationSeconds: screen.durationSeconds,
+        narratorSegment: screen.narratorSegment,
+        narratorText: narration.text,
+        narratorDuration: narration.durationSeconds,
+        keyIdeaTitle: keyIdea.title,
+        keyIdeaText: keyIdea.text,
+        contentHtml: content.html,
+        contentCss: content.css,
+        contentJSON: JSON.stringify(screen.content || {}),
+        createdAt: now,
+        updatedAt: now,
+      }));
       
       totalScreensImported++;
     }

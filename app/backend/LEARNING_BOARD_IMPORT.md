@@ -41,6 +41,19 @@ This will create/migrate:
 - `learning_board_chapters`
 - `learning_board_screens`
 
+For existing databases, create the indexed screen identity used by idempotent
+screen upserts:
+
+```bash
+npm run db:migrate-learning-board-screen-index
+```
+
+The migration checks for duplicate `(course_id, module, chapter, screen)`
+identities and stops without modifying rows if any are found. Resolve reported
+duplicates before rerunning it. Index creation scans existing screen rows, so
+run it once during a suitable maintenance window; later screen imports use the
+unique index rather than issuing an existence query for every screen.
+
 ### 2. Import All Generated Courses
 
 ```bash

@@ -492,6 +492,9 @@ export const learningBoardScreens = sqliteTable('learning_board_screens', {
   contentJSON: text('content_json'), // Metadata and structured content
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  courseModuleChapterScreenUnique: uniqueIndex('learning_board_screens_course_module_chapter_screen_unique')
+    .on(table.courseId, table.module, table.chapter, table.screen),
 });
 
 // Per-user chapter state for the database-backed learning board.
