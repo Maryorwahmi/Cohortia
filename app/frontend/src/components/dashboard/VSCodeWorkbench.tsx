@@ -176,14 +176,14 @@ export default function VSCodeWorkbench({
               onClick={() => setActiveViewMode("code_along")}
               className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded text-slate-600 hover:text-slate-900 cursor-pointer"
             >
-              <PlayCircle className="h-3 w-3 text-blue-600" />
+              <PlayCircle className="h-3 w-3 text-[#ff4b3e]" />
               <span>📼 Code-Along</span>
             </button>
           )}
           <button
             type="button"
             onClick={() => setActiveViewMode("sandbox")}
-            className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded bg-[#2563eb] text-white shadow-sm cursor-pointer"
+            className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded bg-[#ff4b3e] text-white shadow-sm cursor-pointer"
           >
             <Terminal className="h-3 w-3" />
             <span>{supportsCodeAlong ? "💻 Sandbox" : "🧭 Workspace"}</span>
@@ -191,7 +191,7 @@ export default function VSCodeWorkbench({
         </div>
         {mode && (
           <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-            isNonCode ? "bg-blue-100 text-[#2563eb] border border-blue-200" : "bg-emerald-100 text-[#159570] border border-emerald-200"
+            isNonCode ? "bg-[#fff1ee] text-[#ff4b3e] border border-[#ffd2ca]" : "bg-emerald-100 text-[#159570] border border-emerald-200"
           }`}>
             {modeLabel}
           </span>
@@ -207,19 +207,19 @@ export default function VSCodeWorkbench({
           <button
             type="button"
             onClick={() => onPlayNarration?.()}
-            className="flex items-center gap-1 rounded-md border border-[#cfd8e8] bg-white px-2 py-1 font-sans text-[10px] font-semibold text-[#46536a] hover:border-[#2563eb] shadow-sm transition-all active:scale-95"
+            className="flex items-center gap-1 rounded-md border border-[#cfd8e8] bg-white px-2 py-1 font-sans text-[10px] font-semibold text-[#46536a] hover:border-[#ff4b3e] shadow-sm transition-all active:scale-95"
           >
-            <Volume2 className={`h-3 w-3 ${isNarrating ? "animate-pulse text-[#2563eb]" : "text-[#ff4b3e]"}`} /> {isNarrating ? "Teacher Speaking..." : "Hear the brief"}
+            <Volume2 className={`h-3 w-3 ${isNarrating ? "animate-pulse text-[#ff4b3e]" : "text-[#ff4b3e]"}`} /> {isNarrating ? "Teacher Speaking..." : "Hear the brief"}
           </button>
         )}
-        <span className="ml-auto flex items-center gap-2 text-[10px] uppercase tracking-wider text-[#2563eb]">
+        <span className="ml-auto flex items-center gap-2 text-[10px] uppercase tracking-wider text-[#ff4b3e]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#22c55e]" /> Live workspace
         </span>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <aside className="hidden w-12 shrink-0 flex-col items-center gap-5 border-r border-[#d8deea] bg-[#eef2f8] py-4 text-[#71809a] sm:flex">
-          <FileCode2 className="h-5 w-5 text-[#2563eb]" />
+          <FileCode2 className="h-5 w-5 text-[#ff4b3e]" />
           <Search className="h-5 w-5" />
           <GitBranch className="h-5 w-5" />
           <Settings className="mt-auto h-5 w-5" />
@@ -227,13 +227,13 @@ export default function VSCodeWorkbench({
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="flex h-10 shrink-0 items-center border-b border-[#d8deea] bg-[#f9fbfe] px-4 text-[10px] font-mono text-[#68758b]">
-            <Folder className="mr-2 h-3.5 w-3.5 text-[#2563eb]" /> cohortia-lab <span className="mx-2 text-[#aab3c2]">/</span> <span className="text-[#172033]">{fileName}</span>
+            <Folder className="mr-2 h-3.5 w-3.5 text-[#ff4b3e]" /> cohortia-lab <span className="mx-2 text-[#aab3c2]">/</span> <span className="text-[#172033]">{fileName}</span>
             <div className="ml-auto flex gap-2">
-              <button type="button" onClick={onSave} className="flex items-center gap-1 rounded-md border border-[#cfd8e8] bg-white px-2 py-1 font-sans font-semibold text-[#46536a] hover:border-[#2563eb]">
+              <button type="button" onClick={onSave} className="flex items-center gap-1 rounded-md border border-[#cfd8e8] bg-white px-2 py-1 font-sans font-semibold text-[#46536a] hover:border-[#ff4b3e]">
                 <Save className="h-3 w-3 text-[#ff4b3e]" /> {isSaved ? "Saved" : "Save"}
               </button>
-              <button type="button" onClick={onDownload} className="hidden items-center gap-1 rounded-md border border-[#cfd8e8] bg-white px-2 py-1 font-sans font-semibold text-[#46536a] hover:border-[#2563eb] sm:flex">
-                <Download className="h-3 w-3 text-[#2563eb]" /> Download
+              <button type="button" onClick={onDownload} className="hidden items-center gap-1 rounded-md border border-[#cfd8e8] bg-white px-2 py-1 font-sans font-semibold text-[#46536a] hover:border-[#ff4b3e] sm:flex">
+                <Download className="h-3 w-3 text-[#ff4b3e]" /> Download
               </button>
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function VSCodeWorkbench({
             <div className="flex h-9 shrink-0 items-center gap-1 overflow-x-auto border-b border-[#d8deea] bg-[#f1f4f9] px-2">
               {files.map((file) => {
                 const isActive = file.path === activeFilePath;
-                return <button key={file.path} type="button" onClick={() => onFileSelect?.(file.path)} className={`flex shrink-0 items-center gap-1.5 border-r border-[#d8deea] px-3 py-2 text-[10px] font-mono ${isActive ? "border-t-2 border-t-[#ff4b3e] bg-white font-semibold text-[#172033]" : "text-[#68758b] hover:bg-white"}`}><FileCode2 className={`h-3 w-3 ${isActive ? "text-[#2563eb]" : "text-[#8995a8]"}`} />{file.path}</button>;
+                return <button key={file.path} type="button" onClick={() => onFileSelect?.(file.path)} className={`flex shrink-0 items-center gap-1.5 border-r border-[#d8deea] px-3 py-2 text-[10px] font-mono ${isActive ? "border-t-2 border-t-[#ff4b3e] bg-white font-semibold text-[#172033]" : "text-[#68758b] hover:bg-white"}`}><FileCode2 className={`h-3 w-3 ${isActive ? "text-[#ff4b3e]" : "text-[#8995a8]"}`} />{file.path}</button>;
               })}
             </div>
           )}
@@ -345,13 +345,13 @@ export default function VSCodeWorkbench({
                           key={task.id} 
                           onClick={() => onTaskSelect?.(idx)}
                           className={`group space-y-3 bg-white p-6 rounded-2xl border transition-all duration-200 cursor-pointer ${
-                            activeTaskIndex === idx ? "border-[#2563eb] shadow-lg ring-1 ring-[#2563eb]/10" : "border-[#d8deea] hover:border-[#2563eb]/30 shadow-sm"
+                            activeTaskIndex === idx ? "border-[#ff4b3e] shadow-lg ring-1 ring-[#ff4b3e]/10" : "border-[#d8deea] hover:border-[#ff4b3e]/30 shadow-sm"
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-                                activeTaskIndex === idx ? "bg-[#2563eb] text-white" : "bg-[#f1f5f9] text-[#64748b]"
+                                activeTaskIndex === idx ? "bg-[#ff4b3e] text-white" : "bg-[#f1f5f9] text-[#64748b]"
                               }`}>
                                 {idx + 1}
                               </span>
@@ -360,7 +360,7 @@ export default function VSCodeWorkbench({
                             {(task as any).narratorGuide && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); onPlayNarration?.((task as any).narratorGuide); }}
-                                className={`p-1.5 rounded-lg transition-colors ${activeTaskIndex === idx ? "bg-blue-50 text-blue-600 hover:bg-blue-100" : "text-slate-300 hover:text-slate-500 hover:bg-slate-50"}`}
+                                className={`p-1.5 rounded-lg transition-colors ${activeTaskIndex === idx ? "bg-[#fff1ee] text-[#ff4b3e] hover:bg-[#ffe6e1]" : "text-slate-300 hover:text-slate-500 hover:bg-slate-50"}`}
                               >
                                 <Volume2 className="h-3.5 w-3.5" />
                               </button>
@@ -397,8 +397,8 @@ export default function VSCodeWorkbench({
                  <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-4 shadow-sm">
                    <div className="flex items-center gap-3 mb-2">
                      <div className="flex items-center gap-2">
-                       <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
-                       <span className="text-xs font-mono text-blue-600">INTERACTIVE LAB</span>
+                       <div className="w-3 h-3 rounded-full bg-[#fff1ee]0 animate-pulse" />
+                       <span className="text-xs font-mono text-[#ff4b3e]">INTERACTIVE LAB</span>
                        <span className="text-sm font-semibold text-slate-700">Learning Laboratory</span>
                      </div>
                      <div className="ml-auto">
@@ -584,7 +584,7 @@ export default function VSCodeWorkbench({
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); onRevealHint?.(task.id); }}
-                                  className="mt-1.5 flex items-center gap-1 text-[9px] font-bold text-[#2563eb] hover:underline"
+                                  className="mt-1.5 flex items-center gap-1 text-[9px] font-bold text-[#ff4b3e] hover:underline"
                                 >
                                   <Lightbulb className="h-2.5 w-2.5" />
                                   {revealedHints === 0 ? "Unlock Hint" : `Hint ${revealedHints}/${task.hints.length}`}
@@ -616,13 +616,13 @@ export default function VSCodeWorkbench({
                   onChange={(e) => onChatInputChange(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && onChatSubmit()}
                   placeholder="Ask your mentor..."
-                  className="w-full rounded-xl border border-[#d8deea] bg-[#f9fbfe] px-4 py-2.5 pr-10 text-xs focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] outline-none transition-all placeholder:text-slate-400"
+                  className="w-full rounded-xl border border-[#d8deea] bg-[#f9fbfe] px-4 py-2.5 pr-10 text-xs focus:border-[#ff4b3e] focus:ring-1 focus:ring-[#ff4b3e]/20 outline-none transition-all placeholder:text-slate-400"
                 />
                 <button
                   type="button"
                   onClick={onChatSubmit}
                   disabled={!chatInput.trim() || isChatTyping}
-                  className="absolute right-2 top-1.5 rounded-lg bg-white p-1 text-[#2563eb] hover:bg-slate-100 disabled:opacity-40 transition-colors"
+                  className="absolute right-2 top-1.5 rounded-lg bg-white p-1 text-[#ff4b3e] hover:bg-slate-100 disabled:opacity-40 transition-colors"
                 >
                   <Send className="h-4 w-4" />
                 </button>

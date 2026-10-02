@@ -260,7 +260,7 @@ export default function ProgressPage({ userProfile, analytics }: ProgressPagePro
                 />
                 <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 600, paddingTop: '10px' }} />
                 {Object.keys(skillGrowthData[0] || {}).filter(k => k !== "name").map((key, idx) => {
-                  const colors = ["#FF4B3E", "#FF9F1C", "#2563eb", "#10B981"];
+                  const colors = ["#FF4B3E", "#FF9F1C", "#FF7A6B", "#10B981"];
                   return (
                     <Line 
                       key={key} 

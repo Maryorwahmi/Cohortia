@@ -359,9 +359,9 @@ Keep your feedback professional, realistic, and warm.`;
                       strokeColor = "#10B981";
                       strokeDash = "0";
                     } else if (status === "ACTIVE") {
-                      barColor = "#3b82f6";
+                      barColor = "#FF4B3E";
                       barOpacity = "0.5";
-                      strokeColor = "#3b82f6";
+                      strokeColor = "#FF4B3E";
                       strokeDash = "0";
                     }
 
