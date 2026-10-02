@@ -3,6 +3,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   Award,
+  BookOpen,
   BriefcaseBusiness,
   Check,
   ChevronDown,
@@ -493,6 +494,129 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
         </div>
       </section>
 
+      <section className="mx-auto w-full max-w-[1600px] px-3 pb-8 pt-2 sm:px-4 sm:pb-10 lg:px-6" aria-labelledby="starter-courses-title">
+        <div className="grid gap-5 xl:grid-cols-[minmax(250px,0.72fr)_minmax(0,2.28fr)]">
+          <div className="rounded-2xl border border-immersive-border bg-immersive-card p-4 shadow-sm shadow-immersive-shadow sm:p-5">
+            <div className="mb-4">
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-immersive-primary">Explore Cohortia</p>
+              <h2 className="mt-1 text-lg font-bold text-immersive-text-primary">Learning at a glance</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'Courses', value: allCoursesLoading || allCoursesError ? '—' : allCourses.length, icon: BookOpen },
+                { label: 'Career paths', value: careersLoading || careersError ? '—' : careers.length, icon: Compass },
+                { label: 'Course sources', value: allCoursesLoading || allCoursesError ? '—' : providers, icon: Layers3 },
+                { label: 'Certificate courses', value: allCoursesLoading || allCoursesError ? '—' : allCourses.filter((course) => Boolean(course.certification)).length, icon: Award },
+              ].map(({ label, value, icon: Icon }) => (
+                <div key={label} className="min-h-[94px] rounded-xl border border-immersive-border/70 bg-immersive-bg/65 p-3 sm:p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-immersive-primary/10 text-immersive-primary">
+                      <Icon size={15} aria-hidden="true" />
+                    </span>
+                    <span className="text-lg font-bold tabular-nums text-immersive-text-primary">{value}</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-4 text-immersive-text-secondary">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-w-0 rounded-2xl border border-immersive-border bg-immersive-card p-4 shadow-sm shadow-immersive-shadow sm:p-5">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.15em] text-immersive-primary">Learn from real providers</p>
+                <h2 id="starter-courses-title" className="mt-1 text-lg font-bold text-immersive-text-primary sm:text-xl">
+                  Courses to help you get started
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={scrollToCatalog}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold text-immersive-secondary transition hover:bg-immersive-primary/5 hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary sm:text-sm"
+              >
+                View all <ArrowRight size={14} aria-hidden="true" />
+              </button>
+            </div>
+
+            {allCoursesLoading ? (
+              <div className="grid gap-3 md:grid-cols-3" aria-label="Loading featured courses">
+                {[0, 1, 2].map((item) => (
+                  <div key={item} className="h-40 animate-pulse rounded-xl border border-immersive-border bg-immersive-bg p-3">
+                    <div className="h-10 w-10 rounded-lg bg-slate-200 dark:bg-slate-700" />
+                    <div className="mt-4 h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="mt-2 h-3 w-full rounded bg-slate-100 dark:bg-slate-800" />
+                  </div>
+                ))}
+              </div>
+            ) : allCoursesError ? (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200" role="alert">
+                <p className="font-semibold">Featured courses are unavailable.</p>
+                <p className="mt-1">{allCoursesError}</p>
+                <button
+                  type="button"
+                  onClick={() => setRetryKey((key) => key + 1)}
+                  className="mt-3 rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-semibold dark:border-rose-800"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : featuredCourses.length === 0 ? (
+              <div className="rounded-xl border border-immersive-border bg-immersive-bg p-8 text-center text-sm text-immersive-text-secondary">
+                No courses are available in the catalog yet.
+              </div>
+            ) : (
+              <div className="grid items-stretch gap-3 md:grid-cols-3">
+                {featuredCourses.map((course) => (
+                  <article key={course.id} className="group flex min-w-0 flex-col rounded-xl border border-immersive-border bg-immersive-bg/55 p-3 transition hover:border-immersive-primary/35 hover:bg-immersive-card-hover">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-immersive-border bg-immersive-card text-immersive-primary">
+                        {course.image ? (
+                          <img
+                            src={course.image}
+                            alt=""
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                            onError={(event) => event.currentTarget.remove()}
+                          />
+                        ) : (
+                          <GraduationCap size={20} aria-hidden="true" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="inline-flex max-w-full truncate rounded-full bg-immersive-primary/10 px-2 py-0.5 text-[10px] font-semibold text-immersive-primary">
+                          {course.category || course.level || 'Course'}
+                        </span>
+                        <h3 className="mt-1.5 line-clamp-2 min-h-10 text-xs font-bold leading-5 text-immersive-text-primary sm:text-sm">
+                          {course.title}
+                        </h3>
+                      </div>
+                    </div>
+                    <p className="mt-2 truncate text-[11px] font-medium text-immersive-text-secondary">
+                      {course.provider || course.platform || 'Course catalog'}
+                    </p>
+                    <div className="mt-2 flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-immersive-text-secondary">
+                      {course.certification && (
+                        <span className="inline-flex items-center gap-1 text-immersive-secondary">
+                          <Award size={12} aria-hidden="true" /> Certificate
+                        </span>
+                      )}
+                      {course.duration && <span>{course.duration}</span>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onSelectTrack(course.id)}
+                      className="mt-auto inline-flex min-h-8 items-center gap-1 pt-3 text-xs font-semibold text-immersive-secondary transition hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
+                    >
+                      Explore course <ArrowRight size={13} aria-hidden="true" />
+                    </button>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto w-full max-w-[1600px] px-3 py-16 sm:px-4 sm:py-20 lg:px-6">
         <div className="mb-9 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
@@ -572,37 +696,6 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                 </article>
               );
             })}
-          </div>
-        )}
-      </section>
-
-      <section className="mx-auto w-full max-w-[1600px] px-3 py-16 sm:px-4 sm:py-20 lg:px-6">
-        <div className="mb-9 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-immersive-primary">Learn from real providers</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-immersive-text-primary sm:text-4xl">Courses to help you get started</h2>
-          <p className="mt-3 leading-7 text-immersive-text-secondary">A look at courses currently available in the Cohortia catalog. Course details come from their providers.</p>
-        </div>
-        {allCoursesLoading ? (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {[0, 1, 2].map((item) => <CourseCardSkeleton key={item} />)}
-          </div>
-        ) : allCoursesError ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200" role="alert">
-            <p className="font-semibold">The course catalog is unavailable right now.</p>
-            <p className="mt-1">{allCoursesError}</p>
-            <button
-              type="button"
-              onClick={() => setRetryKey((key) => key + 1)}
-              className="mt-4 rounded-lg border border-rose-300 px-4 py-2 font-semibold transition hover:bg-white dark:border-rose-800 dark:hover:bg-rose-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
-            >
-              Try again
-            </button>
-          </div>
-        ) : allCourses.length === 0 ? (
-          <div className="rounded-2xl border border-immersive-border bg-immersive-card p-8 text-center text-immersive-text-secondary">No courses are available in the catalog yet.</div>
-        ) : (
-          <div className="grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {featuredCourses.map((course) => <CourseCard key={course.id} course={course} onSelect={onSelectTrack} />)}
           </div>
         )}
       </section>
