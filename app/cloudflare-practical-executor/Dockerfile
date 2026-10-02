@@ -1,4 +1,4 @@
-FROM cloudflare/sandbox:1.0.0
+FROM cloudflare/sandbox:0.12.4
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends clang g++ coreutils \
