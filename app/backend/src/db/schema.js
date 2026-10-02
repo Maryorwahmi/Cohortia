@@ -495,7 +495,7 @@ export const learningBoardScreens = sqliteTable('learning_board_screens', {
 }, (table) => ({
   courseModuleChapterScreenUnique: uniqueIndex('learning_board_screens_course_module_chapter_screen_unique')
     .on(table.courseId, table.module, table.chapter, table.screen),
-});
+}));
 
 // Per-user chapter state for the database-backed learning board.
 export const learningBoardProgress = sqliteTable('learning_board_progress', {
