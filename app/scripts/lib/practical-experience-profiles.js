@@ -10,7 +10,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "editor_terminal",
     learnerArtifact: "working code and verified output",
     requiredUi: ["mission", "editor", "terminal", "automated_checks"],
-    prompt: `Build an executable coding lab. Provide small editable starter files, 3-5 progressive milestones, and checks that diagnose the learner's mistake. Each task must move through predict, change, run, and explain. Never invent unavailable services or credentials.`,
+    prompt: `Build an executable coding lab with two explicit phases: teach mode, then practice mode. Teach mode must contain 4-8 atomic codeWalkthrough steps with a real file, exact codeLine, rich speakerText, duration, explanation, and a learner prediction checkpoint. Practice mode must provide small editable starter files, 3-5 progressive milestones, and checks that diagnose the learner's mistake. Each task must move through predict, change, run, and explain. Never invent unavailable services, credentials, or unsupported runtimes.`,
   },
   research_evidence_lab: {
     category: "Research & Analysis",

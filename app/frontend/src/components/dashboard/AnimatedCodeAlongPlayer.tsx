@@ -44,6 +44,34 @@ function taskNarration(task: LearningBoardPracticalTask | undefined, fallback?: 
   return `Let’s focus on ${focus}. Watch the code change, then compare the result with your prediction.`;
 }
 
+function narrationDuration(text: string): number {
+  return Math.max(3, Math.ceil(estimateSpeechDurationSeconds(text, TEACHER_SPEECH_RATE)));
+}
+
+function revealWalkthroughCode(steps: CodeWalkthroughSegment[], elapsedSeconds: number): {
+  code: string;
+  activeStep?: CodeWalkthroughSegment;
+  progress: number;
+} {
+  let elapsed = 0;
+  const chunks: string[] = [];
+  for (const step of steps) {
+    const duration = narrationDuration(step.speakerText || step.explanation || step.codeLine);
+    if (elapsedSeconds >= elapsed + duration) {
+      chunks.push(step.codeLine);
+      elapsed += duration;
+      continue;
+    }
+    if (elapsedSeconds >= elapsed) {
+      const progress = Math.max(0, Math.min(1, (elapsedSeconds - elapsed) / duration));
+      chunks.push(step.codeLine.slice(0, Math.ceil(step.codeLine.length * progress)));
+      return { code: chunks.filter(Boolean).join("\n"), activeStep: step, progress };
+    }
+    return { code: chunks.filter(Boolean).join("\n"), activeStep: step, progress: 0 };
+  }
+  return { code: chunks.filter(Boolean).join("\n"), progress: 1 };
+}
+
 export default function AnimatedCodeAlongPlayer({
   playlist = [],
   files = [],
@@ -70,7 +98,7 @@ export default function AnimatedCodeAlongPlayer({
   const narrationQueueRef = useRef(new SpeechNarrationQueue());
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
-  const lessonDuration = (script: string) => Math.ceil(estimateSpeechDurationSeconds(script, TEACHER_SPEECH_RATE) + 6);
+  const lessonDuration = (script: string) => narrationDuration(script) + 3;
   const fallbackPlaylist: PracticalTeachingPlaylistStep[] = tasks.length
     ? tasks.map((task, index) => ({
         id: `generated-task-${task.id}`,
@@ -109,12 +137,24 @@ export default function AnimatedCodeAlongPlayer({
       }))
     : fallbackPlaylist;
   const activePlaylist = teachingPlaylist[Math.min(activePlaylistIndex, teachingPlaylist.length - 1)];
-  const activeDurationSeconds = lessonDuration(activePlaylist.narratorScript);
-  const activeWalkthrough = walkthrough.filter((step) => activePlaylist.codeSteps.includes(step.stepNumber));
+  const activeWalkthrough = walkthrough
+    .filter((step) => activePlaylist.codeSteps.includes(step.stepNumber))
+    .sort((left, right) => left.stepNumber - right.stepNumber);
+  const activeNarrationScript = activeWalkthrough.length
+    ? activeWalkthrough.map((step) => step.speakerText).filter(Boolean).join(" ")
+    : activePlaylist.narratorScript;
+  const activeDurationSeconds = activeWalkthrough.length
+    ? activeWalkthrough.reduce((total, step) => total + narrationDuration(step.speakerText || step.explanation || step.codeLine), 0)
+    : lessonDuration(activeNarrationScript);
   const activeFile = activeWalkthrough.find((step) => step.file)?.file || files[0]?.path || "workspace";
   const activeFileContent = files.find((file) => file.path === activeFile)?.content || files[0]?.content || "";
-  const walkthroughCode = activeWalkthrough.map((step) => step.codeLine).filter(Boolean).join("\n");
-  const displayedCode = activeFileContent || walkthroughCode || "// No starter code was provided for this practical.";
+  const priorWalkthrough = walkthrough
+    .filter((step) => step.file === activeFile && step.stepNumber < (activeWalkthrough[0]?.stepNumber || 0))
+    .sort((left, right) => left.stepNumber - right.stepNumber);
+  const codeReveal = revealWalkthroughCode(activeWalkthrough, currentTime);
+  const displayedCode = activeWalkthrough.length
+    ? [...priorWalkthrough.map((step) => step.codeLine), codeReveal.code].filter(Boolean).join("\n")
+    : activeFileContent || "// No starter code was provided for this practical.";
   const activeTask = tasks.length ? tasks[Math.min(activePlaylistIndex, tasks.length - 1)] : undefined;
   const isCodeLab = category === "Terminal Coding Lab" || files.some((file) => /\.(c|h|cpp|cc|cxx|hpp|py|js|ts|sql)$/i.test(file.path));
   const experienceLabel = category === "Research & Analysis" ? "Evidence lab" : category === "Cloud Console Lab" ? "Cloud mission" : category === "Scenario & Design Exercise" ? "Decision simulator" : "Coding lab";
@@ -181,7 +221,7 @@ export default function AnimatedCodeAlongPlayer({
   const speakActiveLesson = () => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     spokenLessonRef.current = null;
-    narrationQueueRef.current.play(activePlaylist.narratorScript, {
+    narrationQueueRef.current.play(activeNarrationScript, {
       voice: narratorVoiceRef.current,
       rate: TEACHER_SPEECH_RATE,
       pitch: 1.02,
@@ -195,7 +235,7 @@ export default function AnimatedCodeAlongPlayer({
     if (spokenLessonRef.current === activePlaylist.id) return;
     speakActiveLesson();
     return () => narrationQueueRef.current.cancel();
-  }, [activePlaylist.id, activePlaylist.narratorScript, isMuted, isPlaying]);
+  }, [activePlaylist.id, activeNarrationScript, isMuted, isPlaying]);
 
   return (
     <div className="h-full min-h-0 w-full overflow-hidden bg-immersive-bg">
@@ -224,7 +264,8 @@ export default function AnimatedCodeAlongPlayer({
                     {isCodeLab ? (
                       <>
                         <p className="mb-2 text-xs font-bold text-immersive-primary">{activeFile}</p>
-                        <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-950 p-3 font-mono text-xs leading-6 text-emerald-200">{displayedCode}</pre>
+                        <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-950 p-3 font-mono text-xs leading-6 text-emerald-200">{displayedCode}{activeWalkthrough.length > 0 && codeReveal.progress < 1 ? <span className="animate-pulse text-amber-300">▌</span> : null}</pre>
+                        {codeReveal.activeStep && <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] leading-relaxed text-amber-900">Line {codeReveal.activeStep.stepNumber}: {codeReveal.activeStep.explanation || codeReveal.activeStep.speakerText}</p>}
                       </>
                     ) : (
                       <div className="grid gap-2 font-sans text-left sm:grid-cols-2">
@@ -238,7 +279,7 @@ export default function AnimatedCodeAlongPlayer({
                   <div className="mt-3 max-h-32 shrink-0 overflow-y-auto rounded-lg border border-immersive-primary/20 bg-white p-3 shadow-sm">
                     <div className="mb-1 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-[9px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className="font-mono text-[9px] text-slate-500">Pause & predict</span></div>
                     <div>
-                      <p className="text-xs leading-relaxed text-slate-600">{activePlaylist.narratorScript}</p>
+                      <p className="text-xs leading-relaxed text-slate-600">{codeReveal.activeStep?.speakerText || activeNarrationScript}</p>
                       <p className="mt-2 text-xs font-medium leading-relaxed text-amber-700">Think first: {activePlaylist.learnerPrompt}</p>
                       {activeTask?.teaching?.learningGoal && <p className="mt-2 text-xs leading-relaxed text-emerald-700">Focus: {activeTask.teaching.learningGoal}</p>}
                     </div>

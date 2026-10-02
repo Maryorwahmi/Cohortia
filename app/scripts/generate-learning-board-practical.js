@@ -1041,6 +1041,21 @@ function normalizePractical(raw, sourceContext, metadata) {
           waitForLearner: true,
         },
   }));
+  const codeWalkthrough = (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
+    stepNumber: Number.isInteger(Number(seg.stepNumber)) ? Number(seg.stepNumber) : idx + 1,
+    speakerText: asStringText(seg.speakerText || seg.text || seg.narration || seg.explanation),
+    codeLine: typeof seg.codeLine === "string" ? seg.codeLine : (typeof seg.code === "string" ? seg.code : ""),
+    file: typeof seg.file === "string" ? seg.file : undefined,
+    explanation: asStringText(seg.explanation || seg.annotation),
+    durationSeconds: clampInteger(seg.durationSeconds, 8, 3, 90),
+  })).filter((seg) => seg.speakerText || seg.codeLine).sort((left, right) => left.stepNumber - right.stepNumber);
+  const walkthroughStepNumbers = codeWalkthrough.map((step) => step.stepNumber);
+  const stepsForTask = (taskIndex) => {
+    if (!walkthroughStepNumbers.length) return [];
+    const chunkSize = Math.ceil(walkthroughStepNumbers.length / Math.max(tasks.length, 1));
+    return walkthroughStepNumbers.slice(taskIndex * chunkSize, (taskIndex + 1) * chunkSize);
+  };
+
   const rawTeachingPlaylist = (Array.isArray(raw.teachingPlaylist) && raw.teachingPlaylist.length
     ? raw.teachingPlaylist
     : tasks.map((task, index) => ({
@@ -1056,7 +1071,7 @@ function normalizePractical(raw, sourceContext, metadata) {
         learnerPrompt: task.teaching?.questions?.[0] || "What do you predict will happen next?",
         commonMistake: task.teaching?.feedback?.misconception || "Do not skip checking the result.",
         recap: task.teaching?.recap || task.instruction,
-        codeSteps: [index + 1],
+        codeSteps: stepsForTask(index),
       })));
   const teachingPlaylist = tasks.map((task, index) => {
     const step = rawTeachingPlaylist[index] || {
@@ -1072,13 +1087,13 @@ function normalizePractical(raw, sourceContext, metadata) {
       learnerPrompt: task.teaching?.questions?.[0] || "What do you predict will happen next?",
       commonMistake: task.teaching?.feedback?.misconception || "Do not skip checking the result.",
       recap: task.teaching?.recap || task.instruction,
-      codeSteps: [index + 1],
+      codeSteps: stepsForTask(index),
     };
     return {
         ...step,
         id: normalizeId(step.id, `path-${index + 1}`),
         durationSeconds: clampInteger(step.durationSeconds, 90, 45, 240),
-        codeSteps: Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : [index + 1],
+        codeSteps: Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : stepsForTask(index),
       };
   });
   const completionRules = {
@@ -1139,14 +1154,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       ],
     },
     teachingPlaylist,
-    codeWalkthrough: (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
-      stepNumber: Number.isInteger(Number(seg.stepNumber)) ? Number(seg.stepNumber) : idx + 1,
-      speakerText: asStringText(seg.speakerText || seg.text || seg.narration || seg.explanation),
-      codeLine: typeof seg.codeLine === "string" ? seg.codeLine : (typeof seg.code === "string" ? seg.code : ""),
-      file: typeof seg.file === "string" ? seg.file : undefined,
-      explanation: asStringText(seg.explanation || seg.annotation),
-      durationSeconds: typeof seg.durationSeconds === "number" ? seg.durationSeconds : 8,
-    })).filter((seg) => seg.speakerText || seg.codeLine),
+    codeWalkthrough,
     completionRule: ["all_tests_pass", "any_test_pass", "learner_submission"].includes(raw.completionRule)
       ? raw.completionRule
       : "all_tests_pass",
@@ -1339,6 +1347,25 @@ function validatePractical(practical) {
         errors.push(`executable task ${task.id} must reference at least one check`);
       }
     }
+  }
+
+  if (practical.category === "Terminal Coding Lab") {
+    const walkthrough = Array.isArray(practical.codeWalkthrough) ? practical.codeWalkthrough : [];
+    if (walkthrough.length < 4) errors.push("Terminal Coding Lab must include at least 4 codeWalkthrough steps");
+    const knownFiles = new Set((practical.files || []).map((file) => file.path));
+    const seenSteps = new Set();
+    for (const step of walkthrough) {
+      if (!Number.isInteger(step.stepNumber) || step.stepNumber < 1 || seenSteps.has(step.stepNumber)) {
+        errors.push("codeWalkthrough stepNumber values must be unique positive integers");
+      }
+      seenSteps.add(step.stepNumber);
+      if (typeof step.speakerText !== "string" || step.speakerText.trim().length < 40) errors.push(`codeWalkthrough step ${step.stepNumber} needs meaningful teacher narration`);
+      if (typeof step.codeLine !== "string" || !step.codeLine.trim()) errors.push(`codeWalkthrough step ${step.stepNumber} needs codeLine`);
+      if (typeof step.file !== "string" || !knownFiles.has(step.file)) errors.push(`codeWalkthrough step ${step.stepNumber} must reference a practical file`);
+      if (!Number.isFinite(step.durationSeconds) || step.durationSeconds < 3 || step.durationSeconds > 90) errors.push(`codeWalkthrough step ${step.stepNumber} has invalid durationSeconds`);
+    }
+    const playlistSteps = new Set((practical.teachingPlaylist || []).flatMap((item) => Array.isArray(item.codeSteps) ? item.codeSteps : []));
+    for (const step of walkthrough) if (!playlistSteps.has(step.stepNumber)) errors.push(`codeWalkthrough step ${step.stepNumber} is not assigned to a teaching playlist item`);
   }
 
   const environment = practical.environment;

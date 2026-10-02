@@ -1196,6 +1196,12 @@ learning.patch('/board-progress/:courseId/:module/:chapter', async (c) => {
 // Execute native C/C++ practical code with a fixed, non-shell compiler command.
 learning.post('/practical-execute', authMiddleware, async (c) => {
   try {
+    if (process.env.COHORTIA_ALLOW_UNSANDBOXED_NATIVE_EXECUTION !== 'true') {
+      return c.json({
+        success: false,
+        error: 'Native execution is disabled until an isolated sandbox executor is configured. Python practicals continue to run in the browser.',
+      }, 503);
+    }
     const body = await c.req.json();
     const request = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
     const result = await executeNativeC({

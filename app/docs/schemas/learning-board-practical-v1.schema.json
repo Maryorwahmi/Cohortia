@@ -103,6 +103,18 @@
     "narratorGuide": {
       "type": "string"
     },
+    "teachingPlaylist": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/teachingPlaylistStep"
+      }
+    },
+    "codeWalkthrough": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/codeWalkthroughStep"
+      }
+    },
     "completionRule": {
       "type": "string",
       "enum": [
@@ -166,6 +178,39 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "codeWalkthroughStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stepNumber", "speakerText", "codeLine", "file", "durationSeconds"],
+      "properties": {
+        "stepNumber": { "type": "integer", "minimum": 1 },
+        "speakerText": { "type": "string", "minLength": 40 },
+        "codeLine": { "type": "string", "minLength": 1 },
+        "file": { "type": "string", "minLength": 1 },
+        "explanation": { "type": "string" },
+        "durationSeconds": { "type": "number", "minimum": 3, "maximum": 90 }
+      }
+    },
+    "teachingPlaylistStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "narratorScript", "learningGoal", "codeSteps"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "durationSeconds": { "type": "integer", "minimum": 3, "maximum": 240 },
+        "learningGoal": { "type": "string", "minLength": 1 },
+        "narratorScript": { "type": "string", "minLength": 40 },
+        "workedExample": { "type": "string" },
+        "scenario": { "type": "string" },
+        "learnerPrompt": { "type": "string" },
+        "commonMistake": { "type": "string" },
+        "recap": { "type": "string" },
+        "codeSteps": { "type": "array", "items": { "type": "integer", "minimum": 1 } }
       }
     },
     "source": {

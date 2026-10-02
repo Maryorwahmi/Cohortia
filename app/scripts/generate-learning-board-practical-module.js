@@ -374,6 +374,13 @@ async function buildModuleEntries({
 
 async function generateModule(options) {
   const repoRoot = path.resolve(options["repo-root"] || REPOSITORY_ROOT);
+  if (options.provider) {
+    const provider = String(options.provider).trim().toLowerCase();
+    if (!['azure', 'gemini'].includes(provider)) {
+      throw new Error(`Unsupported provider "${options.provider}". Use --provider azure or --provider gemini.`);
+    }
+    process.env.AI_PROVIDER = provider;
+  }
   const courseId = options["course-id"] || (!isPathLike(options.course) ? options.course : undefined);
   const requestedSyllabus = await resolveSyllabusPath(options, courseId);
   if (!requestedSyllabus) throw new Error("Pass --course <course id or syllabus path>, --course-id, or --syllabus.");
