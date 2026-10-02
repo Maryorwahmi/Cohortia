@@ -183,10 +183,10 @@ export interface Career {
   difficulty: string;
   category: string;
   image?: string;
-  extensions?: string;
-  skills?: string;
-  aiLearning?: string;
-  roles?: string;
+  extensions?: string[] | string;
+  skills?: string[] | string;
+  aiLearning?: string[] | string;
+  roles?: string[] | string;
 }
 
 export interface CareersResponse {
@@ -211,10 +211,10 @@ export interface CatalogCourse {
   level?: string | null;
   type?: string | null;
   duration?: string | null;
-  cost?: string | null;
+  cost?: string | number | null;
   url?: string | null;
   image?: string | null;
-  skills?: string | null;
+  skills?: string[] | string | null;
   certification?: string | null;
   description?: string | null;
   category: string;

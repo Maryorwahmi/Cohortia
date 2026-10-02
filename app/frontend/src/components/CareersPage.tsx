@@ -1,830 +1,765 @@
-import { useState, useMemo, useEffect } from "react";
-import { Search, Sliders, ChevronRight, GraduationCap, TrendingUp, Sparkles, Compass, Shield, ArrowRight, Star, ArrowUpRight, CheckCircle, Flame, BookOpen, Zap } from "lucide-react";
-import { careerApi, Career, catalogCourseApi, CatalogCourse } from "../services/api";
-
-interface CareerPath extends Career {
-  tags: string[];
-  image: string;
-}
-
-interface CoveredCategory {
-  id: string;
-  name: string;
-  careerIds: string[];
-}
-
-const POPULAR_FLAGSHIP_COURSES = [
-  {
-    number: 1,
-    title: "IBM Full-Stack Software Developer Professional Certificate",
-    provider: "IBM",
-    badge: "CAREER-TRANSITION ANCHOR",
-    accent: "border-blue-500/40 bg-blue-500/10 text-blue-400",
-    description: "Broad full-stack foundation covering front-end, back-end, databases, APIs, Git, containers and development workflows. Very useful as a career-transition anchor.",
-    skills: ["Front-End & React", "Back-End & Node.js", "Databases & APIs", "Git & Containers", "Dev Workflows"],
-    rating: 4.9,
-    enrolled: "28.4k learners",
-    level: "Beginner → Intermediate"
-  },
-  {
-    number: 2,
-    title: "Meta Back-End Developer Professional Certificate",
-    provider: "Meta",
-    badge: "BACKEND SPECIALIZATION",
-    accent: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
-    description: "Strong specialization for backend careers, with practical backend technologies and development concepts.",
-    skills: ["Python & Django", "RESTful APIs", "Database Tuning & SQL", "Linux & Git", "Microservices"],
-    rating: 4.8,
-    enrolled: "19.2k learners",
-    level: "Intermediate"
-  },
-  {
-    number: 3,
-    title: "Meta Front-End Developer Professional Certificate",
-    provider: "Meta",
-    badge: "TOP FRONTEND ENTRY",
-    accent: "border-sky-500/40 bg-sky-500/10 text-sky-400",
-    description: "Strong entry point into modern frontend development and suitable for learners building toward professional frontend roles.",
-    skills: ["React & JavaScript", "HTML5 & Modern CSS", "UI/UX & Accessibility", "Jest Testing", "Client State"],
-    rating: 4.9,
-    enrolled: "34.1k learners",
-    level: "Beginner → Intermediate"
-  },
-  {
-    number: 4,
-    title: "Meta Full-Stack Developer: Front-End & Back-End from Scratch Specialization",
-    provider: "Meta",
-    badge: "END-TO-END DEVELOPMENT",
-    accent: "border-purple-500/40 bg-purple-500/10 text-purple-400",
-    description: "Particularly valuable for learners who want an end-to-end development path rather than specializing immediately.",
-    skills: ["Full-Stack Architecture", "React & Django/Node", "System Design", "Cloud Deployment", "Capstone Lab"],
-    rating: 4.9,
-    enrolled: "22.8k learners",
-    level: "Beginner → Advanced"
-  },
-  {
-    number: 5,
-    title: "Python for Everybody Specialization",
-    provider: "University of Michigan",
-    badge: "EXTREMELY ACCESSIBLE ENTRY",
-    accent: "border-amber-500/40 bg-amber-500/10 text-amber-400",
-    description: "Extremely accessible entry point into programming and Python, making it useful for beginners and career pivots into technical/data-related fields.",
-    skills: ["Python Logic", "Data Structures", "Web Scraping", "Databases & SQL", "Data Automation"],
-    rating: 4.9,
-    enrolled: "115k learners",
-    level: "Beginner"
-  },
-  {
-    number: 6,
-    title: "JavaScript Algorithms and Data Structures",
-    provider: "FreeCodeCamp",
-    badge: "TECHNICAL INTERVIEW ANCHOR",
-    accent: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
-    description: "Builds a fundamental programming skill that supports frontend, backend and full-stack development.",
-    skills: ["Big-O Complexity", "Sorting & Searching", "Graphs & Trees", "Recursion", "Problem Solving"],
-    rating: 4.8,
-    enrolled: "68k learners",
-    level: "Intermediate"
-  },
-  {
-    number: 7,
-    title: "CS50's Introduction to Computer Science",
-    provider: "Harvard University",
-    badge: "GOLD STANDARD CS FOUNDATION",
-    accent: "border-rose-500/40 bg-rose-500/10 text-rose-400",
-    description: "Excellent broad computer-science foundation. Particularly useful for someone entering technology without a strong technical background.",
-    skills: ["C & Low-Level Memory", "Algorithms & Pointers", "Python & SQL", "HTML/CSS/JS", "Computational Logic"],
-    rating: 5.0,
-    enrolled: "142k learners",
-    level: "Beginner → Intermediate"
-  }
-];
-
-const COVERED_CATEGORIES: CoveredCategory[] = [
-  {id: "frontend-development", name: "Frontend Development", careerIds: ["frontend-development"]},
-  {id: "backend-development", name: "Backend Development", careerIds: ["backend-development"]},
-  {id: "data-analytics", name: "Data Analytics", careerIds: ["data-analytics"]},
-  {id: "data-science", name: "Data Science", careerIds: ["data-science"]},
-  {id: "ai-ml-engineering", name: "AI/ML Engineering", careerIds: ["ai-ml-engineering"]},
-  {id: "cybersecurity", name: "Cybersecurity", careerIds: ["cybersecurity"]},
-  {id: "cloud-engineering", name: "Cloud Engineering", careerIds: ["cloud-engineering"]},
-  {id: "devops-engineering", name: "DevOps Engineering", careerIds: ["devops-engineering"]},
-  {id: "ux-ui-design", name: "UX/UI Design", careerIds: ["ux-ui-design"]},
-  {id: "qa-testing", name: "QA/Testing", careerIds: ["qa-testing"]},
-  {id: "product-management", name: "Product Management", careerIds: ["product-management"]},
-  {id: "full-stack-development", name: "Full-Stack Development", careerIds: ["full-stack-development"]},
-];
-
-const FALLBACK_CAREERS: CareerPath[] = [
-  {
-    id: "frontend",
-    title: "Frontend Development",
-    category: "Technology & Engineering",
-    difficulty: "Beginner",
-    description: "Build fast, accessible, and beautiful web interfaces.",
-    tags: ["HTML/CSS", "JavaScript", "React"],
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&auto=format&fit=crop&q=80"
-  },
-  {
-    id: "data-analytics",
-    title: "Data Analytics",
-    category: "Data & Intelligence",
-    difficulty: "Beginner",
-    description: "Turn raw data into actionable business insights.",
-    tags: ["SQL", "Excel / Sheets", "Data Visualization"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&auto=format&fit=crop&q=80"
-  },
-  {
-    id: "cybersecurity",
-    title: "Cybersecurity",
-    category: "Technology & Engineering",
-    difficulty: "Advanced",
-    description: "Protect systems, networks, and data from threats.",
-    tags: ["Networking", "Risk Assessment", "Threat Analysis"],
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500&auto=format&fit=crop&q=80"
-  }
-];
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  "Technology & Engineering": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&auto=format&fit=crop&q=80",
-  "Data & Intelligence": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&auto=format&fit=crop&q=80",
-  "Design & Creative": "https://images.unsplash.com/photo-1581291518655-9523c932dedf?w=500&auto=format&fit=crop&q=80",
-  "Marketing & Content": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&auto=format&fit=crop&q=80",
-  "Product & Strategy": "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=500&auto=format&fit=crop&q=80",
-  "People & Operations": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&fit=crop&q=80",
-};
-
-function mapCareer(career: Career): CareerPath {
-  let skills: string[] = [];
-  try {
-    skills = career.skills ? JSON.parse(career.skills) : [];
-  } catch {
-    skills = [];
-  }
-
-  return {
-    ...career,
-    tags: skills.length ? skills.slice(0, 3) : ["Self-paced", "Project-based", "Mentored"],
-    image: career.image || CATEGORY_IMAGES[career.category] || CATEGORY_IMAGES["Technology & Engineering"],
-  };
-}
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BookOpen,
+  Check,
+  ChevronDown,
+  Clock3,
+  Code2,
+  Compass,
+  GraduationCap,
+  Layers3,
+  LoaderCircle,
+  Search,
+  Sparkles,
+  Target,
+} from 'lucide-react';
+import type { Career, CatalogCourse } from '../services/api';
+import { careerApi, catalogCourseApi } from '../services/api';
 
 interface CareersPageProps {
   onOpenWizard: () => void;
   onSelectTrack: (trackId: string) => void;
 }
 
+interface CareerPath extends Career {
+  tags: string[];
+}
+
+const growOptions = [
+  {
+    title: 'Explore',
+    subtitle: 'Find your direction',
+    description: 'Get a clearer picture of the careers and skills that match your interests.',
+    icon: Compass,
+    tone: 'bg-[#e8f1ff] text-[#2865c5]',
+  },
+  {
+    title: 'Learn',
+    subtitle: 'Build practical skills',
+    description: 'Follow a structured path and learn with courses from the catalog.',
+    icon: BookOpen,
+    tone: 'bg-[#e9f7ef] text-[#218455]',
+  },
+  {
+    title: 'Grow',
+    subtitle: 'Keep moving forward',
+    description: 'Track your progress and take the next step toward your career goals.',
+    icon: Target,
+    tone: 'bg-[#fff1e5] text-[#c16a25]',
+  },
+];
+
+function readList(value?: string | string[] | null): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+  }
+
+  if (typeof value !== 'string' || !value.trim()) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+    }
+    return [];
+  } catch {
+    if (value.trimStart().startsWith('[') || value.trimStart().startsWith('{')) return [];
+    return value.split(',').map((item) => item.trim()).filter(Boolean);
+  }
+}
+
+function getCourseSkills(course: CatalogCourse): string[] {
+  return readList(course.skills);
+}
+
+function CourseCard({
+  course,
+  onSelect,
+}: {
+  key?: string;
+  course: CatalogCourse;
+  onSelect: (courseId: string) => void;
+}) {
+  const skills = getCourseSkills(course).slice(0, 3);
+  const metadata = [course.platform, course.level, course.duration].filter(Boolean);
+  const cost = course.cost === null || course.cost === undefined || String(course.cost).trim() === ''
+    ? null
+    : String(course.cost);
+
+  return (
+    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white shadow-[0_8px_30px_rgba(26,45,78,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(26,45,78,0.12)]">
+      <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-[#dce9ff] via-[#eef3fb] to-[#d7f1ec]">
+        {course.image && (
+          <img
+            src={course.image}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+            onError={(event) => event.currentTarget.remove()}
+          />
+        )}
+        <div className="absolute left-4 top-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
+          {course.category && (
+            <span className="rounded-full border border-white/70 bg-white/90 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur">
+              {course.category}
+            </span>
+          )}
+          {course.certification && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#173f79] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
+              <Check size={12} aria-hidden="true" />
+              Certificate
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <div className="mb-3 flex min-h-5 items-center justify-between gap-3">
+          <span className="truncate text-xs font-semibold uppercase tracking-[0.12em] text-[#34705c]">
+            {course.provider || course.platform || 'Course catalog'}
+          </span>
+          {course.type && <span className="shrink-0 text-xs text-slate-500">{course.type}</span>}
+        </div>
+        <h3 className="line-clamp-2 min-h-[3.5rem] text-lg font-bold leading-7 tracking-[-0.02em] text-[#17314f]">
+          {course.title}
+        </h3>
+        <p className="mt-2 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-slate-600">
+          {course.description?.trim() || 'A course description has not been provided by the course provider.'}
+        </p>
+
+        {skills.length > 0 && (
+          <div className="mt-4 flex min-h-7 flex-wrap gap-2">
+            {skills.map((skill) => (
+              <span key={skill} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                {skill}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-auto pt-5">
+          {(metadata.length > 0 || cost) && (
+            <div className="mb-4 flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+              {metadata.map((item, index) => (
+                <span key={`${item}-${index}`} className="inline-flex items-center gap-1.5">
+                  {index === 2 ? <Clock3 size={13} aria-hidden="true" /> : <Layers3 size={13} aria-hidden="true" />}
+                  {item}
+                </span>
+              ))}
+              {cost && <span>Cost: {cost}</span>}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => onSelect(course.id)}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#173f79] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#102f5d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] focus-visible:ring-offset-2"
+          >
+            Explore learning path
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function CourseCardSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white">
+      <div className="aspect-[16/9] animate-pulse bg-slate-200" />
+      <div className="space-y-3 p-6">
+        <div className="h-3 w-1/3 animate-pulse rounded bg-slate-200" />
+        <div className="h-6 w-4/5 animate-pulse rounded bg-slate-200" />
+        <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
+        <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100" />
+        <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200" />
+      </div>
+    </div>
+  );
+}
+
 export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPageProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(COVERED_CATEGORIES[0].id);
-  const [selectedTrackDetails, setSelectedTrackDetails] = useState<CareerPath | null>(null);
-  const [backendCareers, setBackendCareers] = useState<Career[]>([]);
+  const [careers, setCareers] = useState<CareerPath[]>([]);
   const [careersLoading, setCareersLoading] = useState(true);
-  const [selectedCareerCourses, setSelectedCareerCourses] = useState<CatalogCourse[]>([]);
-  const [allCatalogCourses, setAllCatalogCourses] = useState<CatalogCourse[]>([]);
-  const [coursesLoading, setCoursesLoading] = useState(false);
-
-  const selectedCoveredCategory = COVERED_CATEGORIES.find((category) => category.id === selectedCategory) || COVERED_CATEGORIES[0];
-
-  useEffect(() => {
-    setCareersLoading(true);
-    careerApi.getAll()
-      .then((res) => {
-        setBackendCareers(res.data?.careers || []);
-      })
-      .catch(() => {})
-      .finally(() => setCareersLoading(false));
-  }, []);
+  const [careersError, setCareersError] = useState<string | null>(null);
+  const [allCourses, setAllCourses] = useState<CatalogCourse[]>([]);
+  const [allCoursesLoading, setAllCoursesLoading] = useState(true);
+  const [allCoursesError, setAllCoursesError] = useState<string | null>(null);
+  const [selectedCareerId, setSelectedCareerId] = useState('all');
+  const [careerCourses, setCareerCourses] = useState<CatalogCourse[]>([]);
+  const [careerCoursesLoading, setCareerCoursesLoading] = useState(false);
+  const [careerCoursesError, setCareerCoursesError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+  const [visibleLimit, setVisibleLimit] = useState(12);
+  const [retryKey, setRetryKey] = useState(0);
+  const requestId = useRef(0);
 
   useEffect(() => {
-    catalogCourseApi.getAll()
-      .then((response) => setAllCatalogCourses(response.data?.courses || []))
-      .catch(() => setAllCatalogCourses([]));
-  }, []);
+    let active = true;
 
-  const careersData = useMemo<CareerPath[]>(() => {
-    if (backendCareers.length === 0) return FALLBACK_CAREERS;
-    return backendCareers.map(mapCareer);
-  }, [backendCareers]);
+    const loadCareers = async () => {
+      setCareersLoading(true);
+      setCareersError(null);
+      try {
+        const response = await careerApi.getAll();
+        if (!response.success || !response.data?.careers) {
+          throw new Error(response.error || 'The career paths could not be loaded.');
+        }
+        if (active) {
+          setCareers(response.data.careers.map((career) => ({
+            ...career,
+            tags: readList(career.skills),
+          })));
+        }
+      } catch (error) {
+        if (active) {
+          setCareersError(error instanceof Error ? error.message : 'The career paths could not be loaded.');
+        }
+      } finally {
+        if (active) setCareersLoading(false);
+      }
+    };
 
-  // Filters calculation
-  const filteredCareers = useMemo(() => {
-    return careersData.filter((item) => {
-      const matchesCategory = selectedCategory === "All" || item.id === selectedCategory;
-      const cleanSearch = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        cleanSearch === "" ||
-        item.title.toLowerCase().includes(cleanSearch) ||
-        item.description.toLowerCase().includes(cleanSearch) ||
-        item.category.toLowerCase().includes(cleanSearch) ||
-        item.tags.some((t) => t.toLowerCase().includes(cleanSearch));
-      return matchesCategory && matchesSearch;
-    });
-  }, [careersData, searchQuery, selectedCategory]);
+    const loadCourses = async () => {
+      setAllCoursesLoading(true);
+      setAllCoursesError(null);
+      try {
+        const response = await catalogCourseApi.getAll();
+        if (!response.success || !response.data?.courses) {
+          throw new Error(response.error || 'The course catalog could not be loaded.');
+        }
+        if (active) setAllCourses(response.data.courses);
+      } catch (error) {
+        if (active) {
+          setAllCoursesError(error instanceof Error ? error.message : 'The course catalog could not be loaded.');
+        }
+      } finally {
+        if (active) setAllCoursesLoading(false);
+      }
+    };
 
-  const visibleCourses = useMemo(() => {
-    const query = searchQuery.toLowerCase().trim();
-    const courses = query ? allCatalogCourses : selectedCareerCourses;
-    return courses.filter((course) => {
-      if (!query) return true;
-      return [course.title, course.provider, course.description, course.subcategory, course.category, course.skills]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(query);
-    });
-  }, [allCatalogCourses, selectedCareerCourses, searchQuery]);
+    void loadCareers();
+    void loadCourses();
 
-  const selectCategory = async (category: CoveredCategory) => {
-    setSelectedCategory(category.id);
-    setCoursesLoading(true);
+    return () => {
+      active = false;
+    };
+  }, [retryKey]);
+
+  const levels = useMemo(
+    () => [...new Set(allCourses.map((course) => course.level).filter((level): level is string => Boolean(level)))].sort(),
+    [allCourses],
+  );
+  const providers = useMemo(
+    () => new Set(allCourses.map((course) => course.provider || course.platform).filter(Boolean)).size,
+    [allCourses],
+  );
+  const featuredCourses = allCourses.slice(0, 3);
+  const leadCourse = featuredCourses[0];
+
+  const loadCareerCourses = async (careerId: string) => {
+    const currentRequest = ++requestId.current;
+    setSelectedCareerId(careerId);
+    setCareerCoursesError(null);
+    setCareerCourses([]);
+
+    if (careerId === 'all') {
+      setCareerCoursesLoading(false);
+      return;
+    }
+
+    setCareerCoursesLoading(true);
     try {
-      const responses = await Promise.all(category.careerIds.map((careerId) => catalogCourseApi.getByCareer(careerId)));
-      const courses = responses.flatMap((response) => response.data?.courses || []);
-      setSelectedCareerCourses(Array.from(new Map(courses.map((course) => [course.id, course])).values()));
-    } catch {
-      setSelectedCareerCourses([]);
+      const response = await catalogCourseApi.getByCareer(careerId);
+      if (!response.success || !response.data?.courses) {
+        throw new Error(response.error || 'Courses for this career could not be loaded.');
+      }
+      if (requestId.current === currentRequest) setCareerCourses(response.data.courses);
+    } catch (error) {
+      if (requestId.current === currentRequest) {
+        setCareerCoursesError(error instanceof Error ? error.message : 'Courses for this career could not be loaded.');
+      }
     } finally {
-      setCoursesLoading(false);
+      if (requestId.current === currentRequest) setCareerCoursesLoading(false);
     }
   };
 
+  const selectedCareer = careers.find((career) => career.id === selectedCareerId);
+  const sourceCourses = selectedCareerId === 'all' || searchQuery.trim()
+    ? allCourses
+    : careerCourses;
+  const visibleCourses = sourceCourses.filter((course) => {
+    const query = searchQuery.trim().toLowerCase();
+    const searchable = [
+      course.title,
+      course.description,
+      course.provider,
+      course.platform,
+      course.category,
+      course.subcategory,
+      ...getCourseSkills(course),
+    ].filter(Boolean).join(' ').toLowerCase();
+    return (!query || searchable.includes(query)) && (selectedLevel === 'all' || course.level === selectedLevel);
+  });
+  const coursesToRender = visibleCourses.slice(0, visibleLimit);
+  const courseLoadError = searchQuery.trim() || selectedCareerId === 'all'
+    ? allCoursesError
+    : careerCoursesError;
+  const courseLoading = selectedCareerId !== 'all' && !searchQuery.trim()
+    ? careerCoursesLoading
+    : allCoursesLoading;
+
   useEffect(() => {
-    selectCategory(COVERED_CATEGORIES[0]);
-  }, []);
+    setVisibleLimit(12);
+  }, [selectedCareerId, searchQuery, selectedLevel]);
+
+  const scrollToCatalog = () => {
+    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+    document.getElementById('course-catalog')?.scrollIntoView({ behavior, block: 'start' });
+  };
 
   return (
-    <div className="pt-20 pb-8 min-h-screen bg-immersive-bg relative">
-      {/* Background Graphic Accents */}
-      <div className="absolute top-10 left-10 w-[400px] h-[400px] bg-red-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 right-10 w-[500px] h-[500px] bg-immersive-secondary/5 rounded-full blur-3xl pointer-events-none" />
+    <main className="min-h-screen overflow-hidden bg-[#f7f9fc] text-[#17314f]">
+      <section className="relative isolate overflow-hidden bg-[#f7f9fc]">
+        <div className="pointer-events-none absolute -right-28 -top-32 -z-10 h-[34rem] w-[34rem] rounded-full bg-[#dcecf1] opacity-70 blur-3xl" />
+        <div className="pointer-events-none absolute -left-40 top-40 -z-10 h-[28rem] w-[28rem] rounded-full bg-[#e8eaff] opacity-70 blur-3xl" />
+        <div className="mx-auto grid w-full max-w-[1480px] items-center gap-12 px-5 pb-16 pt-14 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16 lg:px-12 lg:pb-24 lg:pt-24">
+          <div className="max-w-2xl">
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#d8e6e2] bg-white/80 px-4 py-2 text-sm font-semibold text-[#34705c] shadow-sm">
+              <Sparkles size={16} aria-hidden="true" />
+              Your next chapter starts here
+            </div>
+            <h1 className="max-w-2xl text-4xl font-bold leading-[1.1] tracking-[-0.045em] text-[#17314f] sm:text-5xl lg:text-[4.25rem]">
+              Find a career path that
+              <span className="text-[#34705c]"> moves you forward.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+              Explore real career paths and courses from the Cohortia catalog. Start with an area that interests you, then find a learning path that fits.
+            </p>
 
-      {/* Hero Headline Section */}
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 text-center mt-6 mb-10">
-        <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-3">
-          | CAREER GROWTH
-        </span>
-        <h1 className="text-4xl sm:text-6xl font-sans font-extrabold text-immersive-text-primary tracking-tight max-w-4xl mx-auto leading-tight">
-          Explore Major <span className="text-[#FF4B3E]">Careers</span>
-        </h1>
-        <p className="mt-6 text-lg sm:text-xl text-immersive-text-secondary max-w-2xl mx-auto font-medium leading-relaxed">
-          Curated, in-demand paths with clear roadmaps, hands-on projects, and mentor support. Use the search below to find the track that matches your goal.
-        </p>
-      </div>
-
-      {/* NEW & POPULAR: Trending Flagship Professional Certificates */}
-      <section className="py-12 border-t border-immersive-border/20 relative">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 text-left">
-          
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-            <div>
-              <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase bg-[#FF4B3E]/10 border border-[#FF4B3E]/20 px-3 py-1 rounded-full inline-flex items-center gap-1.5 mb-2">
-                <Flame className="w-3.5 h-3.5 text-[#FF4B3E]" />
-                <span>NEW & POPULAR FLAGSHIP CURRICULA</span>
-              </span>
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-immersive-text-primary tracking-tight">
-                Trending Courses & <span className="text-[#FF4B3E]">Professional Certificates</span>
-              </h2>
-              <p className="mt-2 text-xs sm:text-sm text-immersive-text-secondary max-w-2xl">
-                These globally accredited programs from Meta, IBM, and Harvard anchor Cohortia's practical tracks ($23 Pivot, $30 Upskill, $45 Lead).
-              </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={scrollToCatalog}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#173f79] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#173f79]/15 transition hover:-translate-y-0.5 hover:bg-[#102f5d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] focus-visible:ring-offset-2"
+              >
+                Explore courses
+                <ArrowRight size={17} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={onOpenWizard}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-[#17314f] transition hover:border-[#34705c] hover:bg-[#f3f8f6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] focus-visible:ring-offset-2"
+              >
+                Help me choose
+                <Compass size={17} aria-hidden="true" />
+              </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
-                7 Accredited Pathways
-              </span>
+            <div className="mt-10 grid max-w-lg grid-cols-3 divide-x divide-slate-200 rounded-2xl border border-slate-200/80 bg-white/75 px-2 py-4 shadow-sm backdrop-blur">
+              <div className="px-3 text-center">
+                <p className="text-2xl font-bold tracking-tight text-[#17314f]">
+                  {allCoursesLoading ? '—' : allCourses.length}
+                </p>
+                <p className="mt-1 text-xs text-slate-500 sm:text-sm">catalog courses</p>
+              </div>
+              <div className="px-3 text-center">
+                <p className="text-2xl font-bold tracking-tight text-[#17314f]">
+                  {careersLoading ? '—' : careers.length}
+                </p>
+                <p className="mt-1 text-xs text-slate-500 sm:text-sm">career paths</p>
+              </div>
+              <div className="px-3 text-center">
+                <p className="text-2xl font-bold tracking-tight text-[#17314f]">
+                  {allCoursesLoading ? '—' : providers}
+                </p>
+                <p className="mt-1 text-xs text-slate-500 sm:text-sm">course sources</p>
+              </div>
             </div>
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {POPULAR_FLAGSHIP_COURSES.map((course) => (
-              <div
-                key={course.number}
-                className="bg-immersive-card border border-immersive-border/60 hover:border-[#FF4B3E]/40 rounded-3xl p-6 transition-all duration-300 shadow-xl shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(255,75,62,0.12)] flex flex-col justify-between group"
-              >
-                <div className="space-y-3.5">
-                  {/* Top Badge & Rating Row */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className={`text-[9px] font-mono font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${course.accent}`}>
-                      {course.badge}
-                    </span>
-                    <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
-                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                      <span>{course.rating}</span>
-                      <span className="text-[10px] text-immersive-text-secondary font-mono font-normal">
-                        ({course.enrolled})
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Title & Provider */}
-                  <div>
-                    <span className="text-[10px] font-mono font-bold text-immersive-secondary block uppercase">
-                      {course.provider} • {course.level}
-                    </span>
-                    <h3 className="text-base sm:text-lg font-extrabold text-immersive-text-primary leading-snug group-hover:text-[#FF4B3E] transition-colors mt-0.5">
-                      {course.title}
-                    </h3>
-                  </div>
-
-                  {/* Description & Impact */}
-                  <p className="text-xs text-immersive-text-secondary leading-relaxed font-medium">
-                    {course.description}
+          <div className="relative mx-auto w-full max-w-[620px] lg:ml-auto">
+            <div className="absolute -inset-4 -rotate-2 rounded-[2.25rem] bg-gradient-to-br from-[#d9eee5] via-[#e7edfb] to-[#f6e7d8]" />
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/80 bg-white p-3 shadow-[0_30px_80px_rgba(22,48,82,0.16)]">
+              <div className="relative aspect-[1.24/1] overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-[#dce9ff] via-[#eff4f7] to-[#d9efe5]">
+                {leadCourse?.image && (
+                  <img
+                    src={leadCourse.image}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover"
+                    onError={(event) => event.currentTarget.remove()}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#102541]/85 via-[#102541]/10 to-transparent" />
+                <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-white/90 px-3.5 py-2 text-xs font-semibold text-[#17314f] shadow-sm backdrop-blur">
+                  <GraduationCap size={15} aria-hidden="true" />
+                  From the course catalog
+                </div>
+                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#c8ebdb]">
+                    {leadCourse?.provider || leadCourse?.platform || 'Explore learning'}
                   </p>
-
-                  {/* Skills tags */}
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {course.skills.map(s => (
-                      <span key={s} className="text-[10px] font-medium bg-immersive-bg border border-immersive-border px-2 py-0.5 rounded text-immersive-text-secondary">
-                        {s}
+                  <h2 className="max-w-lg text-2xl font-bold leading-tight tracking-[-0.03em] text-white sm:text-3xl">
+                    {leadCourse?.title || 'Explore courses for your next step'}
+                  </h2>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {[leadCourse?.level, leadCourse?.duration, leadCourse?.category].filter(Boolean).map((item) => (
+                      <span key={item} className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
+                        {item}
                       </span>
                     ))}
                   </div>
                 </div>
-
-                {/* Bottom Action */}
-                <div className="pt-4 mt-4 border-t border-immersive-border/40 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-emerald-500 font-bold">
-                    ✓ Available in Tracks
-                  </span>
+              </div>
+              {leadCourse && (
+                <div className="flex items-center justify-between gap-4 px-3 pb-1 pt-4 sm:px-4">
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-500">A real course in the catalog</p>
+                    <p className="mt-1 truncate text-sm font-semibold text-[#17314f]">{leadCourse.title}</p>
+                  </div>
                   <button
-                    onClick={onOpenWizard}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-md shadow-[#FF4B3E]/20 transition-all flex items-center gap-1 cursor-pointer"
+                    type="button"
+                    onClick={() => onSelectTrack(leadCourse.id)}
+                    aria-label={`Explore learning path for ${leadCourse.title}`}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eaf2f0] text-[#34705c] transition hover:bg-[#dcebe5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] focus-visible:ring-offset-2"
                   >
-                    <span>Start in Track</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <ArrowUpRight size={19} aria-hidden="true" />
                   </button>
                 </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* How You Grow Section */}
-      <section className="py-12 border-t border-b border-immersive-border/20 bg-immersive-card/30 relative">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-2">
-              | CHOOSE YOUR CAREER TRACK
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-sans font-extrabold text-immersive-text-primary">
-              How You <span className="text-[#FF4B3E]">Grow</span>
-            </h2>
-            <p className="mt-3 text-sm text-immersive-text-secondary max-w-xl mx-auto">
-              Cohortia offers three structured career-development paths tailored around your current stage and goal.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Track 1: Pivot into a new career */}
-            <div className="bg-immersive-card border border-immersive-border/60 hover:border-[#FF4B3E]/50 rounded-3xl p-6 sm:p-7 transition-all duration-300 shadow-xl shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(255,75,62,0.12)] flex flex-col justify-between group">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-500 uppercase tracking-wider inline-block">
-                    CAREER TRANSITION
-                  </span>
-                  <div className="text-right">
-                    <span className="text-2xl font-black text-[#FF4B3E]">$23</span>
-                    <span className="text-[10px] font-mono text-immersive-text-secondary block">total track</span>
-                  </div>
+              )}
+              {!leadCourse && allCoursesLoading && (
+                <div className="flex h-16 items-center justify-center gap-2 text-sm text-slate-500" role="status">
+                  <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />
+                  Loading the course catalog…
                 </div>
-
-                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">
-                  Pivot into a new career
-                </h3>
-                <p className="text-xs text-immersive-text-secondary leading-relaxed mb-6 font-medium">
-                  For learners moving into a completely new field. Takes you from <strong>Beginner → Intermediate → Advanced</strong> with structured fundamentals, practical labs, and transition guidance.
-                </p>
-
-                <ul className="space-y-2.5 text-xs text-immersive-text-secondary mb-8 font-medium">
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span><strong>5 Courses:</strong> 2 Beginner + 2 Intermediate + 1 Advanced</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span><strong>500 AI Credits:</strong> Mentorship & learning assistance</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span><strong>Practical Assistant:</strong> Projects, exercises & solutions</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span><strong>Career Transition:</strong> Resume roadmap & portfolio proof</span>
-                  </li>
-                </ul>
-              </div>
-
-              <button 
-                onClick={onOpenWizard}
-                className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-[#FF4B3E]/20 transition-all cursor-pointer flex items-center justify-center space-x-2"
-              >
-                <span>Enroll in Pivot Track ($23)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              )}
+              {!leadCourse && allCoursesError && (
+                <p className="p-5 text-sm text-rose-700" role="alert">{allCoursesError}</p>
+              )}
             </div>
-
-            {/* Track 2: Up-skill in my current role */}
-            <div className="bg-immersive-card border border-[#FF4B3E]/30 hover:border-[#FF4B3E] rounded-3xl p-6 sm:p-7 transition-all duration-300 shadow-xl shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(255,75,62,0.15)] flex flex-col justify-between relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF4B3E]/5 rounded-full blur-xl pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-blue-500/10 text-blue-500 uppercase tracking-wider inline-block">
-                    ROLE ACCELERATION
-                  </span>
-                  <div className="text-right">
-                    <span className="text-2xl font-black text-[#FF4B3E]">$30</span>
-                    <span className="text-[10px] font-mono text-immersive-text-secondary block">total track</span>
-                  </div>
-                </div>
-
-                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">
-                  Up-skill in my current role
-                </h3>
-                <p className="text-xs text-immersive-text-secondary leading-relaxed mb-6 font-medium">
-                  For professionals already in tech who want to sharpen existing skills, solve challenging workplace problems, and accelerate toward promotion.
-                </p>
-
-                <ul className="space-y-2.5 text-xs text-immersive-text-secondary mb-8 font-medium">
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span><strong>4 Courses:</strong> 2 Beginner + 1 Intermediate + 1 Advanced</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span><strong>500 AI Credits:</strong> Professional problem-solving</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span><strong>Workplace Experience:</strong> Simulations & case studies</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#FF4B3E] shrink-0 mt-0.5" />
-                    <span><strong>Growth Support:</strong> Skills-gap audit & promotion prep</span>
-                  </li>
-                </ul>
-              </div>
-
-              <button 
-                onClick={onOpenWizard}
-                className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-[#FF4B3E]/20 transition-all cursor-pointer flex items-center justify-center space-x-2"
-              >
-                <span>Enroll in Upskill Track ($30)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Track 3: Lead & Specialize */}
-            <div className="bg-immersive-card border border-purple-500/30 hover:border-purple-500 rounded-3xl p-6 sm:p-7 transition-all duration-300 shadow-xl shadow-immersive-shadow hover:shadow-[0_4px_30px_rgba(168,85,247,0.15)] flex flex-col justify-between group">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-mono font-extrabold px-2.5 py-1 rounded bg-purple-500/10 text-purple-400 uppercase tracking-wider inline-block">
-                    SENIOR & SPECIALIST
-                  </span>
-                  <div className="text-right">
-                    <span className="text-2xl font-black text-[#FF4B3E]">$45</span>
-                    <span className="text-[10px] font-mono text-immersive-text-secondary block">total track</span>
-                  </div>
-                </div>
-
-                <h3 className="text-xl font-bold text-immersive-text-primary mb-2">
-                  Lead & Specialize
-                </h3>
-                <p className="text-xs text-immersive-text-secondary leading-relaxed mb-6 font-medium">
-                  For experienced builders aiming for Tech Lead, Staff, or Domain Specialist. Focused on architecture depth, capstone deliverables, and leadership simulations.
-                </p>
-
-                <ul className="space-y-2.5 text-xs text-immersive-text-secondary mb-8 font-medium">
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                    <span><strong>2 Deep Courses:</strong> 1 Intermediate + 1 Advanced</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                    <span><strong>Advanced Assistant:</strong> Architecture & strategic reviews</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                    <span><strong>Portfolio Capstone:</strong> Production-defining deliverables</span>
-                  </li>
-                  <li className="flex items-start space-x-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                    <span><strong>Leadership Readiness:</strong> Senior interview & team coaching</span>
-                  </li>
-                </ul>
-              </div>
-
-              <button 
-                onClick={onOpenWizard}
-                className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-purple-600 hover:brightness-110 shadow-lg shadow-purple-600/20 transition-all cursor-pointer flex items-center justify-center space-x-2"
-              >
-                <span>Enroll in Lead & Specialize ($45)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+            <div className="absolute -bottom-5 -left-3 hidden items-center gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-xl sm:flex">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e9f7ef] text-[#218455]">
+                <Code2 size={20} aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block text-xs text-slate-500">Learn with purpose</span>
+                <span className="block text-sm font-semibold text-[#17314f]">One step at a time</span>
+              </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Catalog Search & Filters (Clean without duplicate heading) */}
-      <section className="py-12">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Search Box */}
-          <div className="max-w-xl mx-auto mb-10 relative">
-            <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-immersive-text-secondary" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search courses, providers, or skills..."
-              className="w-full pl-12 pr-4 py-4 bg-immersive-card border border-immersive-border hover:border-immersive-secondary/40 focus:border-immersive-secondary rounded-2xl text-sm font-medium text-immersive-text-primary placeholder:text-immersive-text-secondary/60 focus:outline-none shadow-[0_4px_20px_var(--immersive-shadow)] transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-mono text-immersive-text-secondary hover:text-immersive-text-primary"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 mb-12 max-w-5xl mx-auto">
-            {COVERED_CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => selectCategory(cat)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? "bg-[#FF4B3E] text-immersive-text-primary shadow-[0_4px_15px_rgba(255,75,62,0.25)]"
-                    : "bg-immersive-card border border-immersive-border hover:border-[#FF4B3E]/30 text-immersive-text-secondary hover:text-immersive-text-primary"
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between max-w-[1600px] mx-auto mb-5">
-            <div>
-              <span className="text-[10px] font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">SELECTED FIELD</span>
-              <h3 className="text-2xl font-extrabold text-immersive-text-primary mt-1">{selectedCoveredCategory.name}</h3>
-            </div>
-            <span className="text-xs text-immersive-text-secondary">{visibleCourses.length} {searchQuery.trim() ? "matching courses" : "connected courses"}</span>
-          </div>
-
-          {/* Careers Grid */}
-          {careersLoading || coursesLoading ? (
-            <div className="text-center py-16">
-              <div className="animate-pulse text-immersive-secondary font-mono text-sm">Loading courses...</div>
-            </div>
-          ) : visibleCourses.length === 0 ? (
-            <div className="text-center py-16 bg-immersive-card border border-immersive-border/40 rounded-3xl max-w-3xl mx-auto">
-              <Compass className="w-12 h-12 text-[#FF4B3E]/40 mx-auto mb-4 animate-pulse" />
-              <h3 className="text-lg font-bold text-immersive-text-primary">No career paths found</h3>
-              <p className="text-xs text-immersive-text-secondary mt-1.5 max-w-md mx-auto">
-                No courses matched your search query "{searchQuery}" in this field.
-              </p>
-              <button
-                onClick={() => {
-                  setSearchQuery("");
-                }}
-                className="mt-6 px-5 py-2.5 rounded-xl text-xs font-bold bg-[#FF4B3E]/10 text-[#FF4B3E] hover:bg-[#FF4B3E] hover:text-immersive-text-primary transition-all cursor-pointer"
-              >
-                Reset Filters
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {visibleCourses.map((course) => {
-                let tags: string[] = [];
-                try { tags = course.skills ? JSON.parse(course.skills) : []; } catch { tags = []; }
-                return (
-                  <div
-                    key={course.id}
-                    className="group bg-immersive-card border border-immersive-border/65 hover:border-[#FF4B3E]/40 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_var(--immersive-shadow)] flex flex-col justify-between relative overflow-hidden text-left"
-                  >
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-[#FF4B3E]/2.5 rounded-full blur-xl group-hover:bg-[#FF4B3E]/5 transition-all duration-500 pointer-events-none" />
-                    
-                    <div>
-                      {/* Career Card Thumbnail Image */}
-                      <div className="relative h-36 w-full mb-4 overflow-hidden rounded-xl border border-immersive-border/40 bg-immersive-bg">
-                        <img 
-                          src={course.image || CATEGORY_IMAGES[course.subcategory] || CATEGORY_IMAGES["Technology & Engineering"]} 
-                          alt={course.title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c14]/40 to-transparent" />
-                      </div>
-
-                      {/* Top Header Badge Row */}
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-[9px] font-mono font-extrabold text-[#FF4B3E]/90 bg-[#FF4B3E]/10 border border-[#FF4B3E]/20 px-2 py-0.5 rounded uppercase tracking-wider">
-                          {course.level || course.type || "COURSE"}
-                        </span>
-                        <span className="text-[10px] font-mono text-immersive-text-secondary/60 font-semibold truncate max-w-[120px]">
-                          {course.provider || course.subcategory}
-                        </span>
-                      </div>
-
-                      {/* Title */}
-                      <h3 className="text-lg font-bold text-immersive-text-primary group-hover:text-[#FF4B3E] transition-colors line-clamp-1 mb-2.5">
-                        {course.title}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-xs text-immersive-text-secondary/85 leading-relaxed mb-6 font-medium line-clamp-3">
-                        {course.description || `${course.title} from ${course.provider || "an external provider"}.`}
-                      </p>
-                    </div>
-
-                    <div>
-                      {/* Skill tags */}
-                      <div className="flex flex-wrap gap-1.5 mb-5.5">
-                        {tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] font-medium bg-immersive-bg border border-immersive-border px-2 py-0.5 rounded text-immersive-text-secondary hover:text-immersive-text-primary transition-colors"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Bottom action */}
-                      <button
-                        onClick={() => onSelectTrack(course.id)}
-                        className="text-xs font-bold text-[#FF4B3E] hover:text-[#FF4B3E]/85 transition-colors inline-flex items-center space-x-1 cursor-pointer"
-                      >
-                        <span>View course</span>
-                        <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Help / Callout Guidance Banner */}
-      <section className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 py-8">
-        <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-10 flex flex-col md:flex-row justify-between items-center text-center md:text-left relative overflow-hidden shadow-2xl shadow-immersive-shadow">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-immersive-primary/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="space-y-2 max-w-xl z-10">
-            <h3 className="text-2xl font-extrabold text-immersive-text-primary">Not sure which career fits you?</h3>
-            <p className="text-xs text-immersive-text-secondary font-medium">
-              Sign up and our Cohortia mentor will help you pick the right track. Find perfect alignments using our system checks.
-            </p>
+      <section className="mx-auto w-full max-w-[1480px] px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+        <div className="mb-9 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#34705c]">Start with a direction</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-[#17314f] sm:text-4xl">Explore career paths</h2>
+            <p className="mt-3 max-w-2xl text-slate-600">Browse the career paths available in Cohortia, then explore courses connected to the path you choose.</p>
           </div>
           <button
-            onClick={onOpenWizard}
-            className="mt-6 md:mt-0 px-6 py-3.5 rounded-xl text-sm font-bold text-immersive-text-primary bg-immersive-primary hover:brightness-110 shadow-lg shadow-immersive-shadow shadow-immersive-primary/20 hover:-translate-y-0.5 transition-all flex items-center space-x-2 shrink-0 cursor-pointer"
+            type="button"
+            onClick={scrollToCatalog}
+            className="inline-flex min-h-10 items-center gap-2 self-start text-sm font-semibold text-[#2865c5] transition hover:text-[#173f79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] focus-visible:ring-offset-4 sm:self-auto"
           >
-            <span>Get Guidance</span>
-            <ArrowRight className="w-4 h-4" />
+            Browse all courses <ArrowRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+
+        {careersLoading ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading career paths">
+            {[0, 1, 2, 3, 4, 5].map((item) => <div key={item} className="h-56 animate-pulse rounded-2xl bg-slate-200" />)}
+          </div>
+        ) : careersError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-800" role="alert">
+            <p className="font-semibold">Career paths are unavailable right now.</p>
+            <p className="mt-1">{careersError}</p>
+            <button
+              type="button"
+              onClick={() => setRetryKey((key) => key + 1)}
+              className="mt-4 rounded-lg border border-rose-300 px-4 py-2 font-semibold transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+            >
+              Try again
+            </button>
+          </div>
+        ) : careers.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">
+            No career paths are available in the catalog yet.
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {careers.map((career, index) => {
+              const accents = [
+                'from-[#e1edff] to-[#edf3fd]',
+                'from-[#e2f2eb] to-[#f0f7f3]',
+                'from-[#f7e9db] to-[#fcf4eb]',
+                'from-[#e9e6fb] to-[#f4f2fb]',
+                'from-[#e1f0f1] to-[#eff7f7]',
+                'from-[#f3e6ee] to-[#faf2f6]',
+              ];
+              return (
+                <article key={career.id} className="group flex min-h-[220px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-1 hover:border-[#c9ded7] hover:shadow-[0_15px_40px_rgba(26,45,78,0.09)]">
+                  <div className={`relative flex h-24 items-center justify-between overflow-hidden bg-gradient-to-br ${accents[index % accents.length]} px-6`}>
+                    <span className="absolute -right-4 -top-10 h-36 w-36 rounded-full border-[22px] border-white/30" />
+                    <span className="absolute -right-1 -bottom-12 h-28 w-28 rounded-full bg-white/25" />
+                    <span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-white/75 text-[#2865c5] shadow-sm">
+                      <GraduationCap size={24} aria-hidden="true" />
+                    </span>
+                    {career.category && (
+                      <span className="relative rounded-full border border-white/70 bg-white/65 px-3 py-1 text-xs font-semibold text-slate-700">
+                        {career.category}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="text-lg font-bold tracking-[-0.02em] text-[#17314f]">{career.title}</h3>
+                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
+                      {career.description?.trim() || 'Explore this career path and the skills associated with it.'}
+                    </p>
+                    {career.tags.length > 0 && (
+                      <div className="mt-auto flex flex-wrap gap-2 pt-4">
+                        {career.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">{tag}</span>
+                        ))}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void loadCareerCourses(career.id);
+                        scrollToCatalog();
+                      }}
+                      className="mt-4 inline-flex items-center gap-2 self-start text-sm font-semibold text-[#2865c5] hover:text-[#173f79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] focus-visible:ring-offset-2"
+                    >
+                      Explore related courses <ArrowRight size={15} aria-hidden="true" />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="border-y border-[#e5eaf0] bg-white">
+        <div className="mx-auto w-full max-w-[1480px] px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+          <div className="mx-auto mb-11 max-w-2xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#34705c]">A clearer way forward</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-[#17314f] sm:text-4xl">How you grow with Cohortia</h2>
+            <p className="mt-4 leading-7 text-slate-600">Move from exploring your options to building skills and keeping your momentum.</p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {growOptions.map(({ title, subtitle, description, icon: Icon, tone }, index) => (
+              <article key={title} className="relative rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+                {index < growOptions.length - 1 && <div className="absolute -right-4 top-12 z-10 hidden h-px w-8 bg-slate-300 md:block" />}
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${tone}`}>
+                  <Icon size={22} aria-hidden="true" />
+                </div>
+                <p className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">0{index + 1} · {subtitle}</p>
+                <h3 className="mt-2 text-xl font-bold text-[#17314f]">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1480px] px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+        <div className="mb-9 max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#34705c]">Learn from real providers</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-[#17314f] sm:text-4xl">Courses to help you get started</h2>
+          <p className="mt-3 leading-7 text-slate-600">A look at courses currently available in the Cohortia catalog. Course details come from their providers.</p>
+        </div>
+        {allCoursesLoading ? (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((item) => <CourseCardSkeleton key={item} />)}
+          </div>
+        ) : allCoursesError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-800" role="alert">
+            <p className="font-semibold">The course catalog is unavailable right now.</p>
+            <p className="mt-1">{allCoursesError}</p>
+            <button
+              type="button"
+              onClick={() => setRetryKey((key) => key + 1)}
+              className="mt-4 rounded-lg border border-rose-300 px-4 py-2 font-semibold transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+            >
+              Try again
+            </button>
+          </div>
+        ) : allCourses.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">No courses are available in the catalog yet.</div>
+        ) : (
+          <div className="grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {featuredCourses.map((course) => <CourseCard key={course.id} course={course} onSelect={onSelectTrack} />)}
+          </div>
+        )}
+      </section>
+
+      <section id="course-catalog" className="scroll-mt-8 bg-[#edf2f7]">
+        <div className="mx-auto w-full max-w-[1480px] px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+          <div className="mb-9 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#34705c]">The catalog</p>
+              <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-[#17314f] sm:text-4xl">Find your next course</h2>
+              <p className="mt-3 max-w-2xl leading-7 text-slate-600">Search real courses and narrow the catalog by career path or course level.</p>
+            </div>
+            <label className="relative block w-full lg:max-w-sm">
+              <span className="sr-only">Search courses</span>
+              <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search courses, skills, providers…"
+                className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-11 pr-4 text-sm text-[#17314f] outline-none transition placeholder:text-slate-400 focus:border-[#34705c] focus:ring-2 focus:ring-[#34705c]/15"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-7 lg:grid-cols-[260px_minmax(0,1fr)]">
+            <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="mb-4 flex items-center gap-2 text-sm font-bold text-[#17314f]">
+                <Layers3 size={17} aria-hidden="true" />
+                Career paths
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0">
+                <button
+                  type="button"
+                  onClick={() => void loadCareerCourses('all')}
+                  aria-pressed={selectedCareerId === 'all'}
+                  className={`shrink-0 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] ${selectedCareerId === 'all' ? 'bg-[#eaf2f0] text-[#245d4b]' : 'text-slate-600 hover:bg-slate-50 hover:text-[#17314f]'}`}
+                >
+                  All courses
+                </button>
+                {careers.map((career) => (
+                  <button
+                    type="button"
+                    key={career.id}
+                    onClick={() => void loadCareerCourses(career.id)}
+                    aria-pressed={selectedCareerId === career.id}
+                    className={`shrink-0 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] lg:shrink ${selectedCareerId === career.id ? 'bg-[#eaf2f0] text-[#245d4b]' : 'text-slate-600 hover:bg-slate-50 hover:text-[#17314f]'}`}
+                  >
+                    {career.title}
+                  </button>
+                ))}
+              </div>
+
+              <div className="my-5 border-t border-slate-200" />
+              <label className="block text-sm font-bold text-[#17314f]" htmlFor="course-level">
+                Course level
+              </label>
+              <div className="relative mt-3">
+                <select
+                  id="course-level"
+                  value={selectedLevel}
+                  onChange={(event) => setSelectedLevel(event.target.value)}
+                  className="h-11 w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 pr-9 text-sm text-slate-700 outline-none focus:border-[#34705c] focus:ring-2 focus:ring-[#34705c]/15"
+                >
+                  <option value="all">All levels</option>
+                  {levels.map((level) => <option key={level} value={level}>{level}</option>)}
+                </select>
+                <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              </div>
+              {selectedCareer && (
+                <p className="mt-4 text-xs leading-5 text-slate-500">
+                  Showing courses connected to <span className="font-semibold text-slate-700">{selectedCareer.title}</span>.
+                </p>
+              )}
+            </aside>
+
+            <div className="min-w-0">
+              <div className="mb-5 flex min-h-7 items-center justify-between gap-4">
+                <p className="text-sm font-medium text-slate-600" aria-live="polite">
+                  {courseLoading ? 'Loading courses…' : `${visibleCourses.length} ${visibleCourses.length === 1 ? 'course' : 'courses'}`}
+                  {searchQuery.trim() && !courseLoading ? ' found' : ''}
+                </p>
+                {(searchQuery || selectedCareerId !== 'all' || selectedLevel !== 'all') && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedLevel('all');
+                      void loadCareerCourses('all');
+                    }}
+                    className="text-sm font-semibold text-[#2865c5] hover:text-[#173f79] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] focus-visible:ring-offset-2"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+
+              {courseLoading ? (
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-label="Loading courses">
+                  {[0, 1, 2].map((item) => <CourseCardSkeleton key={item} />)}
+                </div>
+              ) : courseLoadError ? (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-800" role="alert">
+                  <p className="font-semibold">Courses could not be loaded.</p>
+                  <p className="mt-1">{courseLoadError}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedCareerId === 'all' || searchQuery.trim()) {
+                        setRetryKey((key) => key + 1);
+                      } else {
+                        void loadCareerCourses(selectedCareerId);
+                      }
+                    }}
+                    className="mt-4 rounded-lg border border-rose-300 px-4 py-2 font-semibold transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                  >
+                    Try again
+                  </button>
+                </div>
+              ) : visibleCourses.length === 0 ? (
+                <div className="rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center">
+                  <Search size={26} className="mx-auto text-slate-400" aria-hidden="true" />
+                  <h3 className="mt-4 font-semibold text-[#17314f]">No matching courses</h3>
+                  <p className="mt-2 text-sm text-slate-500">Try another search or clear one of your filters.</p>
+                </div>
+              ) : (
+                <div className="grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  {coursesToRender.map((course) => <CourseCard key={course.id} course={course} onSelect={onSelectTrack} />)}
+                </div>
+              )}
+              {!courseLoading && !courseLoadError && visibleCourses.length > visibleLimit && (
+                <div className="mt-8 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleLimit((limit) => limit + 12)}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-[#17314f] transition hover:border-[#34705c] hover:bg-[#f3f8f6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34705c] focus-visible:ring-offset-2"
+                  >
+                    Show more courses
+                    <span className="text-slate-500">({visibleCourses.length - visibleLimit} remaining)</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1480px] px-5 pb-16 sm:px-8 sm:pb-20 lg:px-12">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[#173f79] px-6 py-10 text-white sm:px-10 sm:py-12 lg:flex lg:items-center lg:justify-between lg:px-14">
+          <div className="pointer-events-none absolute -right-10 -top-20 h-72 w-72 rounded-full border-[44px] border-white/5" />
+          <div className="relative max-w-2xl">
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#c8ebdb]">
+              <Sparkles size={16} aria-hidden="true" /> Make your next move
+            </span>
+            <h2 className="mt-4 text-3xl font-bold tracking-[-0.035em] sm:text-4xl">Not sure where to begin?</h2>
+            <p className="mt-3 max-w-xl leading-7 text-blue-100">Explore career options with a little guidance and find a direction that feels right for you.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenWizard}
+            className="relative mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-[#173f79] transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#173f79] lg:mt-0"
+          >
+            Explore your options <ArrowRight size={17} aria-hidden="true" />
           </button>
         </div>
       </section>
-
-      {/* Individual Track Modal Dialog details */}
-      {selectedTrackDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-immersive-bg/75 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-immersive-card border border-immersive-border rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl shadow-immersive-shadow relative text-left animate-in zoom-in-95 duration-300">
-            {/* Image mock at top */}
-            <div className="h-44 bg-gradient-to-r from-immersive-primary/40 via-[#FF4B3E]/30 to-immersive-secondary/40 relative flex items-end p-6">
-              <div className="absolute inset-0 bg-immersive-bg/20" />
-              <div className="z-10">
-                <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-immersive-bg/40 text-[#FF4B3E] uppercase tracking-wider inline-block border border-[#FF4B3E]/20">
-                  {selectedTrackDetails.difficulty} Level
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-immersive-text-primary tracking-tight mt-2">
-                  {selectedTrackDetails.title}
-                </h2>
-              </div>
-              <button
-                onClick={() => setSelectedTrackDetails(null)}
-                className="absolute top-4 right-4 bg-immersive-bg/40 hover:bg-immersive-bg/60 border border-white/10 text-immersive-text-primary/80 hover:text-immersive-text-primary rounded-full p-2 text-xs font-mono focus:outline-none"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Content area */}
-            <div className="p-6 sm:p-8 space-y-6">
-              <div className="space-y-2">
-                <h4 className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest">
-                  TRACK OVERVIEW
-                </h4>
-                <p className="text-sm text-immersive-text-secondary leading-relaxed">
-                  {selectedTrackDetails.description} This track offers direct mentorship-based training inside simulated enterprise cohorts. Acquire professional work logs, solve structured business problems, and interface directly with recruiter placement pools.
-                </p>
-              </div>
-
-              {/* Curriculum items */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-immersive-bg border border-immersive-border rounded-2xl p-4">
-                  <div className="text-xs font-mono font-bold text-[#FF4B3E] uppercase tracking-wider mb-2">
-                    CORE SKILLS YOU ACQUIRE:
-                  </div>
-                  <ul className="space-y-1.5 text-xs text-immersive-text-secondary font-medium">
-                    {selectedTrackDetails.tags.map((skill) => (
-                      <li key={skill} className="flex items-center space-x-1.5">
-                        <CheckCircle className="w-3.5 h-3.5 text-immersive-secondary" />
-                        <span>{skill}</span>
-                      </li>
-                    ))}
-                    <li className="flex items-center space-x-1.5">
-                      <CheckCircle className="w-3.5 h-3.5 text-immersive-secondary" />
-                      <span>Team Agile Collaboration</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-immersive-bg border border-immersive-border rounded-2xl p-4 flex flex-col justify-between">
-                  <div>
-                    <div className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-wider mb-2">
-                      ESTIMATED VELOCITY:
-                    </div>
-                    <div className="text-sm font-bold text-immersive-text-primary mb-1">
-                      8-Week Immersive Track
-                    </div>
-                    <div className="text-xs text-immersive-text-secondary">
-                      OR 16-Week Flex Part-time
-                    </div>
-                  </div>
-                  <div className="text-xs text-[#FF4B3E] font-bold mt-2">
-                    100% Refundable up to 14 days
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest">
-                    COURSES IN THIS CAREER PATH
-                  </h4>
-                  <span className="text-[11px] text-immersive-text-secondary">
-                    {coursesLoading ? "Loading..." : `${selectedCareerCourses.length} courses`}
-                  </span>
-                </div>
-                <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
-                  {coursesLoading ? (
-                    <p className="text-xs text-immersive-text-secondary">Loading connected courses...</p>
-                  ) : selectedCareerCourses.length === 0 ? (
-                    <p className="text-xs text-immersive-text-secondary">No catalog courses are connected yet.</p>
-                  ) : (
-                    selectedCareerCourses.map((course) => (
-                      <div key={course.id} className="bg-immersive-bg border border-immersive-border rounded-xl p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-bold text-immersive-text-primary">{course.title}</p>
-                            <p className="text-[11px] text-immersive-text-secondary mt-1">
-                              {[course.provider, course.level, course.duration].filter(Boolean).join(" | ") || "Course details available"}
-                            </p>
-                          </div>
-                          <span className="text-[10px] font-mono text-[#FF4B3E] shrink-0">{course.id}</span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              {/* Actions row */}
-              <div className="pt-4 border-t border-immersive-border flex flex-col sm:flex-row justify-end gap-3">
-                <button
-                  onClick={() => setSelectedTrackDetails(null)}
-                  className="px-5 py-3 rounded-xl text-xs font-bold text-immersive-text-secondary hover:text-immersive-text-primary border border-immersive-border hover:bg-immersive-card-hover transition-all cursor-pointer"
-                >
-                  Close details
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedTrackDetails(null);
-                    onOpenWizard();
-                  }}
-                  className="px-6 py-3 rounded-xl text-xs font-bold text-immersive-text-primary bg-immersive-primary hover:brightness-110 shadow-lg shadow-immersive-shadow shadow-immersive-primary/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
-                >
-                  <span>Apply for this cohort</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </main>
   );
 }
