@@ -349,6 +349,7 @@ async function importPractical(practicalData) {
     const referencedTaskIds = new Set(progressResult.rows.map((row) => row.task_id));
     const importedTaskKeys = new Set();
     const importedTaskIds = new Set();
+    let importedTestCount = 0;
     const tasks = Array.isArray(practical.tasks) ? practical.tasks : [];
     for (let taskIndex = 0; taskIndex < tasks.length; taskIndex++) {
       const task = tasks[taskIndex];
@@ -399,6 +400,7 @@ async function importPractical(practicalData) {
       const tests = Array.isArray(task.tests)
         ? task.tests
         : (Array.isArray(task.checkIds) ? task.checkIds.map((checkId) => declaredChecks.get(checkId)).filter(Boolean) : []);
+      importedTestCount += tests.length;
       for (let testIndex = 0; testIndex < tests.length; testIndex++) {
         const test = tests[testIndex];
         const existingTest = existingTestsResult.rows[testIndex];
@@ -441,7 +443,7 @@ async function importPractical(practicalData) {
       });
     }
 
-    console.log(`  + ${tasks.length} tasks with ${tasks.reduce((sum, task) => sum + (task.tests?.length || 0), 0)} tests`);
+    console.log(`  + ${tasks.length} tasks with ${importedTestCount} tests`);
 
     return practicalId;
   } catch (error) {

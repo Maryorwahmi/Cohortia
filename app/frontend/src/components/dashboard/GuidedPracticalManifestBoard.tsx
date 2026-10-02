@@ -102,7 +102,7 @@ export default function GuidedPracticalManifestBoard({
   const currentCode = files[activeFilePath] ?? "";
   const completedCount = tasks.filter((task) => completedTasks[task.id]).length;
   const displayTitle = /^practical\s+[\w-]+\/\d+\/\d+$/i.test(practical.title.trim())
-    ? "Guided practical"
+    ? tasks[0]?.title || "Guided practical"
     : practical.title;
   const language = languageForFile(activeFilePath, practical.language);
   const codeMode = ["code_lab", "terminal_lab", "database_lab"].includes(practical.mode)
@@ -358,7 +358,7 @@ export default function GuidedPracticalManifestBoard({
           <p className={`mt-1 text-xs ${mutedText}`}>
             {isWorkspaceOpen
               ? "Predict → do → run → debug → reflect"
-              : "Follow the narrated code walkthrough; the workspace opens when it finishes. Use Hear teacher if audio is blocked."}
+              : "The walkthrough starts first. Join the practical whenever you’re ready to edit, run, and test. Use Hear teacher if audio is blocked."}
           </p>
         </div>
         <div className={`text-xs font-semibold ${mutedText}`}>{completedCount} / {tasks.length} tasks passed</div>
@@ -378,7 +378,7 @@ export default function GuidedPracticalManifestBoard({
           tasks={tasks}
           narratorGuide={practical.narratorGuide}
           onOpenLab={handleJoinPractical}
-          showJoinButtonWhenComplete
+          openButtonLabel="Join practical"
           isActive={!isWorkspaceOpen}
         />
       </div>

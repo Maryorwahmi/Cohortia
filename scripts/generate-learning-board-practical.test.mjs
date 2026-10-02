@@ -6,6 +6,10 @@ import {
   normalizePractical,
   validatePractical,
 } from "./generate-learning-board-practical.js";
+import {
+  normalizePractical as normalizeAppPractical,
+  validatePractical as validateAppPractical,
+} from "../app/scripts/generate-learning-board-practical.js";
 
 const sourceActivity = [
   "**Hands-on activity:**",
@@ -114,10 +118,38 @@ test("the default generation prompt enforces the same teaching standard with cus
   assert.match(prompt, /research, data, network, design, and simulation activities/);
 });
 
-test("category inference covers cloud, scenario, research, and coding activities", () => {
+test("short model responses are expanded into five learner scenes with checks linked", () => {
   assert.equal(inferActivityCategory("Use AWS IAM and deploy the sample service."), "Cloud Console Lab");
   assert.equal(inferActivityCategory("Analyze this ethical dilemma and justify your decision."), "Scenario & Design Exercise");
   assert.equal(inferActivityCategory("Investigate the hypothesis and evaluate the evidence."), "Research & Analysis");
   assert.equal(inferActivityCategory("Compile and run the Python program."), "Terminal Coding Lab");
   assert.equal(inferActivityCategory("Reflect on your learning journal."), null);
+});
+
+test("short app-generator responses are expanded into five learner scenes with checks linked", () => {
+  const context = makeContext("Terminal Coding Lab");
+  const response = makeGeneratedResponse();
+  response.tasks = response.tasks.slice(0, 1);
+  response.checks = [
+    { id: "starter-file", type: "file_exists", path: "result.txt", adapter: "code-sandbox", timeoutSeconds: 30 },
+    { id: "result-content", type: "file_contents", path: "result.txt", contents: "ready", adapter: "code-sandbox", timeoutSeconds: 30 },
+    { id: "compile-probe", type: "compile_probe", probeSource: "int main(void) { return 0; }", adapter: "code-sandbox", timeoutSeconds: 30 },
+    { id: "sanitizer-check", type: "sanitizer", adapter: "code-sandbox", timeoutSeconds: 30 },
+  ];
+
+  const practical = normalizeAppPractical(
+    response,
+    context,
+    { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+  );
+
+  assert.equal(practical.tasks.length, 5);
+  assert.equal(practical.teachingPlaylist.length, 5);
+  assert.ok(practical.tasks.every((task) => task.checkIds.length > 0));
+  assert.deepEqual(
+    practical.checks.map((check) => check.type),
+    ["file_exists", "file_contents", "compile_probe", "sanitizer"],
+  );
+  assert.ok(practical.tasks.flatMap((task) => task.checkIds).includes("result-content"));
+  assert.deepEqual(validateAppPractical(practical), []);
 });

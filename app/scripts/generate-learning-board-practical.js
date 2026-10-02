@@ -909,12 +909,111 @@ function normalizePractical(raw, sourceContext, metadata) {
       addCheck(fallback, fallback.id);
     }
   }
-  if (executableLab && checks.length > 0) {
-    const checkIdList = checks.map((check) => check.id);
-    tasks = tasks.map((task, index) => {
-      if (task.checkIds.length > 0 || task.required === false) return task;
-      return { ...task, checkIds: [checkIdList[index % checkIdList.length]] };
+
+  const progressiveStages = [
+    {
+      id: "observe",
+      title: "Observe & predict",
+      instruction: `Inspect the starter material for ${title}. Identify its main parts and record what you expect to happen before making a change.`,
+      learningGoal: "Build a clear baseline before changing the practical.",
+      question: "What do you expect to happen, and what evidence will you look for?",
+    },
+    {
+      id: "modify",
+      title: "Make one deliberate change",
+      instruction: `Make one small change that advances ${title}. Explain which part you changed and why that change should affect the result.`,
+      learningGoal: "Connect one intentional change to its observable effect.",
+      question: "Which single change did you make, and what result should it cause?",
+    },
+    {
+      id: "experiment",
+      title: "Experiment & compare",
+      instruction: `Vary one input, condition, or design choice in ${title}. Compare the new result with your baseline and explain what caused the difference.`,
+      learningGoal: "Use a controlled experiment to test an idea rather than guessing.",
+      question: "What did you vary, what stayed the same, and what changed?",
+    },
+    {
+      id: "verify",
+      title: "Verify & troubleshoot",
+      instruction: `Run the available checks for ${title}. If a result differs from your prediction, inspect the evidence, make one correction, and test again.`,
+      learningGoal: "Use checks and observed evidence to verify or troubleshoot the solution.",
+      question: "Which check supports your conclusion, and what would a failure tell you?",
+    },
+    {
+      id: "reflect",
+      title: "Explain & transfer",
+      instruction: `Summarize how your solution to ${title} works. Identify one limitation and describe how you would apply the same idea to a new problem.`,
+      learningGoal: "Explain the practical in your own words and transfer its central idea.",
+      question: "What principle did you learn, and where else could you use it?",
+    },
+  ];
+  if (tasks.length < progressiveStages.length) {
+    tasks = progressiveStages.map((stage, index) => {
+      const existing = tasks[index];
+      if (existing) {
+        if (/^(?:practical|task)\b/i.test(existing.title || "")) {
+          return {
+            ...existing,
+            title: `Scene ${index + 1} — ${stage.title}`,
+            instruction: stage.instruction,
+          };
+        }
+        return existing;
+      }
+      const narratorGuide = `Let’s ${stage.id} ${title}. ${stage.instruction} Take this one step at a time, compare what you observe with your prediction, and explain the evidence before moving on.`;
+      return {
+        id: normalizeId(`scene-${index + 1}-${stage.id}`, `scene-${index + 1}`),
+        title: `Scene ${index + 1} — ${stage.title}`,
+        instruction: stage.instruction,
+        narratorGuide,
+        teaching: {
+          learningGoal: stage.learningGoal,
+          teacherTalk: narratorGuide,
+          realWorldExample: `A practitioner working on ${title} makes small, testable changes and checks their effect before relying on the result.`,
+          guidedSteps: [
+            stage.instruction,
+            "Record the result you observe and compare it with your prediction.",
+            "Explain what the evidence supports and what you would investigate next.",
+          ],
+          questions: [stage.question],
+          expectedObservations: ["A result that can be compared with the learner's prediction."],
+          feedback: {
+            success: "Good evidence. Explain why it supports your conclusion.",
+            misconception: "Compare the observed result with your prediction and identify one possible cause.",
+            retry: "Change one thing at a time, then run the check again.",
+          },
+          recap: stage.learningGoal,
+          waitForLearner: true,
+          estimatedMinutes: 3,
+        },
+        required: true,
+        requiredConcepts: [],
+        hints: ["Start with one small step.", "Compare the result with your prediction before changing anything else."],
+        inlineSuggestions: [],
+        structuredHints: undefined,
+        checkIds: [],
+      };
     });
+  }
+
+  if (executableLab && checks.length > 0) {
+    const checkIds = checks.map((check) => check.id);
+    for (let index = 0; index < tasks.length; index += 1) {
+      if (tasks[index].checkIds.length === 0 && tasks[index].required !== false) {
+        tasks[index] = { ...tasks[index], checkIds: [checkIds[index % checkIds.length]] };
+      }
+    }
+    const assignedChecks = new Set(tasks.flatMap((task) => task.checkIds));
+    const orphanedChecks = checkIds.filter((id) => !assignedChecks.has(id));
+    for (const checkId of orphanedChecks) {
+      const targetIndex = tasks.reduce((best, task, index, all) => (
+        task.checkIds.length < all[best].checkIds.length ? index : best
+      ), 0);
+      tasks[targetIndex] = {
+        ...tasks[targetIndex],
+        checkIds: [...tasks[targetIndex].checkIds, checkId],
+      };
+    }
   }
 
   const safety = normalizeSafety(raw.safety, labType, sourceContext);
@@ -942,7 +1041,7 @@ function normalizePractical(raw, sourceContext, metadata) {
           waitForLearner: true,
         },
   }));
-  const teachingPlaylist = (Array.isArray(raw.teachingPlaylist) && raw.teachingPlaylist.length
+  const rawTeachingPlaylist = (Array.isArray(raw.teachingPlaylist) && raw.teachingPlaylist.length
     ? raw.teachingPlaylist
     : tasks.map((task, index) => ({
         id: `path-${task.id}`,
@@ -953,17 +1052,35 @@ function normalizePractical(raw, sourceContext, metadata) {
         learningGoal: task.teaching?.learningGoal || `Understand ${task.title || "this step"}.`,
         narratorScript: task.narratorGuide,
         workedExample: task.teaching?.guidedSteps?.[0] || task.instruction,
-        scenario: task.teaching?.realWorldExample || `Apply ${task.title || "the idea"} in a real program.`,
+        scenario: task.teaching?.realWorldExample || `Apply ${task.title || "the idea"} in a real project.`,
         learnerPrompt: task.teaching?.questions?.[0] || "What do you predict will happen next?",
         commonMistake: task.teaching?.feedback?.misconception || "Do not skip checking the result.",
         recap: task.teaching?.recap || task.instruction,
         codeSteps: [index + 1],
-      }))).map((step, index) => ({
+      })));
+  const teachingPlaylist = tasks.map((task, index) => {
+    const step = rawTeachingPlaylist[index] || {
+      id: `path-${task.id}`,
+      title: task.title || `Learning path ${index + 1}`,
+      category: sourceContext.source.category,
+      description: task.instruction,
+      durationSeconds: 120,
+      learningGoal: task.teaching?.learningGoal || `Understand ${task.title || "this step"}.`,
+      narratorScript: task.narratorGuide,
+      workedExample: task.teaching?.guidedSteps?.[0] || task.instruction,
+      scenario: task.teaching?.realWorldExample || `Apply ${task.title || "the idea"} in a real project.`,
+      learnerPrompt: task.teaching?.questions?.[0] || "What do you predict will happen next?",
+      commonMistake: task.teaching?.feedback?.misconception || "Do not skip checking the result.",
+      recap: task.teaching?.recap || task.instruction,
+      codeSteps: [index + 1],
+    };
+    return {
         ...step,
         id: normalizeId(step.id, `path-${index + 1}`),
         durationSeconds: clampInteger(step.durationSeconds, 90, 45, 240),
         codeSteps: Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : [index + 1],
-      }));
+      };
+  });
   const completionRules = {
     requiredChecks: checks.map((check) => check.id),
     minimumScore: typeof raw.completionRules?.minimumScore === "number" && raw.completionRules.minimumScore >= 0
@@ -1204,7 +1321,7 @@ function validatePractical(practical) {
   if (!Array.isArray(practical.checks)) errors.push("checks must be an array");
   for (const check of checks) {
     if (!check.id || !check.type || !check.adapter) errors.push(`check ${check.id || "unknown"} is missing identity or adapter`);
-    if (!["command", "file", "output", "sql", "http", "manual", "simulation"].includes(check.type)) errors.push(`check ${check.id} has invalid type`);
+    if (!["command", "file", "file_exists", "file_contents", "output", "sql", "http", "manual", "simulation", "compile_probe", "sanitizer"].includes(check.type)) errors.push(`check ${check.id} has invalid type`);
     if (!Number.isInteger(check.timeoutSeconds) || check.timeoutSeconds < 1 || check.timeoutSeconds > 300) errors.push(`check ${check.id} has invalid timeoutSeconds`);
   }
 

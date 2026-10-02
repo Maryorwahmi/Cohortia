@@ -17,7 +17,7 @@ interface AnimatedCodeAlongPlayerProps {
   narratorGuide?: string | null;
   output?: string[];
   onOpenLab?: () => void;
-  showJoinButtonWhenComplete?: boolean;
+  openButtonLabel?: string;
   isActive?: boolean;
 }
 
@@ -54,7 +54,7 @@ export default function AnimatedCodeAlongPlayer({
   narratorGuide,
   output = [],
   onOpenLab,
-  showJoinButtonWhenComplete = false,
+  openButtonLabel,
   isActive = true,
 }: AnimatedCodeAlongPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -151,6 +151,7 @@ export default function AnimatedCodeAlongPlayer({
     if (!isPlaying) {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       previousTimeRef.current = null;
+      setIsNarrating(false);
       return;
     }
     const animate = (time: number) => {
@@ -290,7 +291,7 @@ export default function AnimatedCodeAlongPlayer({
               <span className="shrink-0 rounded-full bg-immersive-primary/10 px-2 py-0.5 font-mono text-[9px] font-bold text-immersive-primary">{activeDurationSeconds}s</span>
             </div>
             <div className="flex items-center gap-1">
-              {onOpenLab && (!showJoinButtonWhenComplete || walkthroughComplete) && <button type="button" onClick={onOpenLab} className="rounded-lg bg-immersive-primary px-2 py-1 font-mono text-[9px] font-bold text-white hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500">{showJoinButtonWhenComplete ? "Join practical" : `Open ${experienceLabel}`}</button>}
+              {onOpenLab && <button type="button" onClick={onOpenLab} className="rounded-lg bg-immersive-primary px-2 py-1 font-mono text-[9px] font-bold text-white hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500">{openButtonLabel || `Open ${experienceLabel}`}</button>}
               <button type="button" onClick={speakActiveLesson} className="flex items-center gap-1 rounded-lg border border-immersive-primary/30 bg-immersive-primary/10 px-2 py-1 font-mono text-[9px] font-bold text-immersive-primary transition-colors hover:bg-immersive-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title="Hear this lesson" aria-label={isNarrating ? "Teacher is speaking" : "Hear teacher"}><Volume2 className="h-3.5 w-3.5" /> {isNarrating ? "Teacher speaking" : "Hear teacher"}</button>
               <button type="button" onClick={() => setIsMuted((muted) => !muted)} className="cursor-pointer rounded-lg p-1.5 text-immersive-text-secondary transition-colors hover:bg-white/5 hover:text-immersive-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title={isMuted ? "Turn voice back on" : "Mute automatic voice"} aria-label={isMuted ? "Turn voice back on" : "Mute automatic voice"}>{isMuted ? <VolumeX className="h-4.5 w-4.5" /> : <Volume2 className="h-4.5 w-4.5" />}</button>
             </div>
