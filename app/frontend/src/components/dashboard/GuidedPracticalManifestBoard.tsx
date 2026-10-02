@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Lightbulb, LoaderCircle, Play, RotateCcw, Volume2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CheckCircle2, Lightbulb, LoaderCircle, Play, RotateCcw } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import type { ChatLearningContext } from "../../services/api";
 import { learningBoardsApi, type LearningBoardPractical, type LearningBoardPracticalTask } from "../../services/learningBoardsApi";
 import { executePython } from "../../services/pyodideRunner";
 import { evaluatePracticalChecks } from "../../lib/practicalCheckEvaluator";
+import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
 
 interface GuidedPracticalManifestBoardProps {
   practical: LearningBoardPractical;
@@ -93,12 +94,16 @@ export default function GuidedPracticalManifestBoard({
   const [checkResults, setCheckResults] = useState<Record<string, boolean>>({});
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
-  const [isNarrating, setIsNarrating] = useState(false);
+  const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
+  const workspaceRef = useRef<HTMLElement>(null);
   const tasks = Array.isArray(practical.tasks) ? practical.tasks : [];
   const activeTask = tasks[activeTaskIndex];
   const checks = useMemo(() => normalizeChecks(practical), [practical]);
   const currentCode = files[activeFilePath] ?? "";
   const completedCount = tasks.filter((task) => completedTasks[task.id]).length;
+  const displayTitle = /^practical\s+[\w-]+\/\d+\/\d+$/i.test(practical.title.trim())
+    ? "Guided practical"
+    : practical.title;
   const language = languageForFile(activeFilePath, practical.language);
   const codeMode = ["code_lab", "terminal_lab", "database_lab"].includes(practical.mode)
     && ["python", "c", "cpp", "c++"].includes(language.toLowerCase());
@@ -107,6 +112,10 @@ export default function GuidedPracticalManifestBoard({
   const surface = isDark ? "border-white/10 bg-[#11131b]" : "border-slate-200 bg-white";
   const accentText = isDark ? "text-[#FF6B60]" : "text-[#B83227]";
   const accentBackground = isDark ? "bg-[#FF4B3E]" : "bg-[#B83227]";
+  const handleJoinPractical = useCallback(() => {
+    setIsWorkspaceOpen(true);
+    window.requestAnimationFrame(() => workspaceRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }, []);
 
   useEffect(() => {
     setActiveTaskIndex(0);
@@ -118,6 +127,7 @@ export default function GuidedPracticalManifestBoard({
     setCompletedTasks({});
     setCheckResults({});
     setOutput("");
+    setIsWorkspaceOpen(false);
   }, [practical.id, practicalFiles]);
 
   useEffect(() => {
@@ -153,28 +163,6 @@ export default function GuidedPracticalManifestBoard({
     setCompletedTasks(nextCompleted);
     if (tasks.every((item) => nextCompleted[item.id])) await onComplete?.();
   };
-
-  const speakTeacher = () => {
-    if (!("speechSynthesis" in window)) {
-      setOutput("Narration is not available in this browser. The written teacher guidance remains available.");
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const script = activeTask.narratorGuide
-      || activeTask.teaching?.teacherTalk
-      || practical.narratorGuide
-      || activeTask.instruction;
-    const utterance = new SpeechSynthesisUtterance(script);
-    utterance.lang = "en-US";
-    utterance.onstart = () => setIsNarrating(true);
-    utterance.onend = () => setIsNarrating(false);
-    utterance.onerror = () => setIsNarrating(false);
-    window.speechSynthesis.speak(utterance);
-  };
-
-  useEffect(() => () => {
-    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  }, []);
 
   useEffect(() => {
     if (!onMentorContextReady) return;
@@ -366,47 +354,66 @@ export default function GuidedPracticalManifestBoard({
       <header className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${surface}`}>
         <div className="min-w-0">
           <p className={`text-[10px] font-bold uppercase tracking-widest ${accentText}`}>Cohortia Practical Learning Board</p>
-          <h2 className={`mt-1 truncate text-lg font-bold ${darkText}`}>{practical.title}</h2>
-          <p className={`mt-1 text-xs ${mutedText}`}>Predict → do → run → debug → reflect</p>
+          <h2 className={`mt-1 truncate text-lg font-bold ${darkText}`}>{displayTitle}</h2>
+          <p className={`mt-1 text-xs ${mutedText}`}>
+            {isWorkspaceOpen
+              ? "Predict → do → run → debug → reflect"
+              : "Follow the narrated code walkthrough; the workspace opens when it finishes. Use Hear teacher if audio is blocked."}
+          </p>
         </div>
         <div className={`text-xs font-semibold ${mutedText}`}>{completedCount} / {tasks.length} tasks passed</div>
       </header>
 
-      <nav aria-label="Practical tasks" className="flex gap-2 overflow-x-auto pb-1">
-        {tasks.map((task, index) => (
-          <button
-            key={task.id}
-            type="button"
-            onClick={() => { setActiveTaskIndex(index); setPrediction(""); }}
-            className={`shrink-0 rounded-lg border px-3 py-2 text-left text-xs font-semibold ${
-              activeTaskIndex === index
-                ? `border-[#FF4B3E] bg-[#FF4B3E]/10 ${accentText}`
-                : completedTasks[task.id]
-                  ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600"
-                  : `${surface} ${mutedText}`
-            }`}
-          >
-            {completedTasks[task.id] ? "✓ " : ""}{task.title || `Task ${index + 1}`}
-          </button>
-        ))}
-      </nav>
+      <div key={practical.id || practical.title} className="h-[min(58vh,520px)] min-h-[360px] shrink-0 overflow-hidden rounded-xl">
+        <AnimatedCodeAlongPlayer
+          playlist={practical.teachingPlaylist}
+          files={practicalFiles}
+          walkthrough={practical.codeWalkthrough}
+          category={practical.category}
+          courseId={practical.courseId}
+          tasks={tasks}
+          narratorGuide={practical.narratorGuide}
+          checks={checks.map(({ id, type, expected }) => ({ id, type, expected }))}
+          onOpenLab={handleJoinPractical}
+          showJoinButtonWhenComplete
+        />
+      </div>
 
-      <section className={`rounded-xl border p-4 ${surface}`}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className={`text-xs font-bold ${darkText}`}>{activeTask.title || `Task ${activeTaskIndex + 1}`}</p>
-            <p className={`mt-2 whitespace-pre-wrap text-sm leading-relaxed ${mutedText}`}>{activeTask.instruction}</p>
+      {isWorkspaceOpen && (
+      <section ref={workspaceRef} className="flex min-h-0 flex-1 flex-col gap-3 scroll-mt-4">
+        <nav aria-label="Practical tasks" className="flex gap-2 overflow-x-auto pb-1">
+          {tasks.map((task, index) => (
+            <button
+              key={task.id}
+              type="button"
+              onClick={() => { setActiveTaskIndex(index); setPrediction(""); }}
+              className={`shrink-0 rounded-lg border px-3 py-2 text-left text-xs font-semibold ${
+                activeTaskIndex === index
+                  ? `border-[#FF4B3E] bg-[#FF4B3E]/10 ${accentText}`
+                  : completedTasks[task.id]
+                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600"
+                    : `${surface} ${mutedText}`
+              }`}
+            >
+              {completedTasks[task.id] ? "✓ " : ""}{task.title || `Task ${index + 1}`}
+            </button>
+          ))}
+        </nav>
+
+        <section className={`rounded-xl border p-4 ${surface}`}>
+          <div className="min-w-0">
+            <p className={`text-[10px] font-bold uppercase tracking-widest ${accentText}`}>Your turn · Step {activeTaskIndex + 1}</p>
+            <h3 className={`mt-1 text-sm font-bold ${darkText}`}>{activeTask.title || `Task ${activeTaskIndex + 1}`}</h3>
+            <p className={`mt-2 text-sm leading-relaxed ${mutedText}`}>
+              {activeTask.teaching?.learningGoal || "Use the starter file to complete this step, then run the checks to verify your work."}
+            </p>
+            {activeTask.teaching?.questions?.[0] && (
+              <p className={`mt-2 border-l-2 border-[#FF4B3E] pl-3 text-xs leading-relaxed ${mutedText}`}>
+                Think about: {activeTask.teaching.questions[0]}
+              </p>
+            )}
           </div>
-          <button type="button" onClick={speakTeacher} className={`inline-flex items-center gap-1.5 rounded-lg border border-[#FF4B3E]/30 px-3 py-2 text-xs font-semibold ${accentText}`}>
-            <Volume2 className="h-3.5 w-3.5" /> {isNarrating ? "Teacher speaking" : "Hear teacher"}
-          </button>
-        </div>
-        {(activeTask.narratorGuide || activeTask.teaching?.teacherTalk || practical.narratorGuide) && (
-          <p className={`mt-3 border-l-2 border-[#FF4B3E] pl-3 text-xs leading-relaxed ${mutedText}`}>
-            {activeTask.narratorGuide || activeTask.teaching?.teacherTalk || practical.narratorGuide}
-          </p>
-        )}
-      </section>
+        </section>
 
       <section className={`grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.7fr)]`}>
         <div className={`flex min-h-[300px] min-w-0 flex-col rounded-xl border p-3 ${surface}`}>
@@ -531,9 +538,11 @@ export default function GuidedPracticalManifestBoard({
       </section>
 
       <footer className={`flex items-center justify-between rounded-xl border px-4 py-3 text-xs ${surface} ${mutedText}`}>
-        <span>{practical.instructions}</span>
+        <span>Make a change, predict the result, and run the practical checks.</span>
         <span className="shrink-0 font-semibold">{completedCount} of {tasks.length} complete</span>
       </footer>
+      </section>
+      )}
     </div>
   );
 }

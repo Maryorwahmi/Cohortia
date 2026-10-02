@@ -3,7 +3,6 @@ import type { LearningBoardPracticalTask } from "../../services/learningBoardsAp
 
 interface PracticalMissionPanelProps {
   title: string;
-  instructions?: string | null;
   objectives?: string[];
   tasks?: LearningBoardPracticalTask[];
   activeTaskIndex: number;
@@ -17,7 +16,7 @@ interface PracticalMissionPanelProps {
 
 /** Learner-facing control surface shared by every practical workspace. */
 export default function PracticalMissionPanel({
-  title, instructions, objectives = [], tasks = [], activeTaskIndex, checkedItems,
+  title, objectives = [], tasks = [], activeTaskIndex, checkedItems,
   revealedHintCount, onTaskSelect, onCheckItem, onRevealHint, onPlayNarration,
 }: PracticalMissionPanelProps) {
   const activeTask = tasks[activeTaskIndex];
@@ -33,7 +32,7 @@ export default function PracticalMissionPanel({
             <Target className="h-3.5 w-3.5" /> Your mission
           </div>
           <h2 className="truncate text-sm font-bold sm:text-base">{activeTask?.title || title}</h2>
-          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-300">{activeTask?.instruction || instructions || "Follow the practical steps, test your work, and explain what you observed."}</p>
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-300">{activeTask?.teaching?.learningGoal || "Try this step in the workspace, run the checks, and explain what you observed."}</p>
           {objectives.length > 0 && (
             <div className="mt-2 hidden flex-wrap gap-1.5 sm:flex">
               {objectives.slice(0, 3).map((objective) => <span key={objective} className="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[9px] text-slate-200">{objective}</span>)}

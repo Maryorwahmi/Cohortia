@@ -162,6 +162,7 @@ export interface LearningBoardPracticalTest {
 }
 
 export interface CodeWalkthroughSegment {
+  taskId?: string;
   stepNumber: number;
   speakerText: string;
   codeLine: string;

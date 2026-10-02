@@ -51,7 +51,6 @@ interface VSCodeWorkbenchProps {
   executionEngine?: string | null;
   practicalStatus?: string | null;
   practicalSource?: string | null;
-  practicalInstructions?: string | null;
   objectives?: string[];
   language?: string | null;
   checks?: PracticalCheck[];
@@ -98,7 +97,6 @@ export default function VSCodeWorkbench({
   executionEngine,
   practicalStatus,
   practicalSource,
-  practicalInstructions,
   objectives,
   language,
   checks = [],
@@ -242,7 +240,6 @@ export default function VSCodeWorkbench({
 
           <PracticalMissionPanel
             title={selectedLesson.title}
-            instructions={practicalInstructions}
             objectives={objectives}
             tasks={tasks}
             activeTaskIndex={activeTaskIndex}
@@ -312,7 +309,7 @@ export default function VSCodeWorkbench({
                           )}
                         </div>
                         <div className="ml-12 space-y-4">
-                          <p className="text-sm leading-relaxed text-[#4a5568] border-l-4 border-slate-100 pl-4 py-1">{task.instruction}</p>
+                          <p className="text-sm leading-relaxed text-[#4a5568] border-l-4 border-slate-100 pl-4 py-1">{task.teaching?.learningGoal || "Work through this step in the interactive workspace and verify your result."}</p>
                           <div className="relative group">
                             <textarea
                               className="w-full min-h-[160px] rounded-xl border border-[#e2e8f0] bg-white p-4 text-sm font-sans focus:border-purple-400 focus:ring-4 focus:ring-purple-50 outline-none transition-all resize-none shadow-sm"
@@ -342,8 +339,6 @@ export default function VSCodeWorkbench({
                       <p className="text-sm text-[#526078]">{isSimulationMode ? "Record the expected state changes and review the declared scenario checks." : isCloudMode ? "Execute the required CLI commands and verify cloud infrastructure status." : "Apply your critical thinking to analyze this scenario and document your strategy below."}</p>
                     </div>
 
-                    {practicalInstructions && <div className="rounded-lg border border-[#f3c7a8] bg-[#fff7ed] p-4 text-xs leading-relaxed text-[#7c4a1d] shadow-sm"><strong className="font-semibold block mb-2 text-[#9a3412] uppercase tracking-wider text-[10px]">Practical mission</strong><p className="whitespace-pre-wrap">{practicalInstructions}</p></div>}
-
                     {tasks && tasks.length > 0 ? (
                       tasks.map((task, idx) => (
                         <div 
@@ -371,7 +366,7 @@ export default function VSCodeWorkbench({
                               </button>
                             )}
                           </div>
-                          <p className="ml-9 text-xs leading-relaxed text-[#526078]">{task.instruction}</p>
+                          <p className="ml-9 text-xs leading-relaxed text-[#526078]">{task.teaching?.learningGoal || "Complete this step in the workspace, then run the practical checks."}</p>
                           <div className="ml-9 relative">
                             <textarea
                               className={`w-full min-h-[120px] rounded-xl border p-4 text-xs font-sans outline-none transition-all resize-none ${
@@ -411,9 +406,7 @@ export default function VSCodeWorkbench({
                      </div>
                    </div>
                    <h3 className="text-lg font-bold text-slate-900">{selectedLesson.title}</h3>
-                   {practicalInstructions && (
-                     <p className="text-xs text-slate-600 mt-1 line-clamp-1">{practicalInstructions}</p>
-                   )}
+                   <p className="text-xs text-slate-600 mt-1 line-clamp-1">{objectives?.[0] || "Follow the guided walkthrough, make a change, and run the practical checks."}</p>
                  </div>
 
                  {/* Main Content Area - Split Code & Terminal */}

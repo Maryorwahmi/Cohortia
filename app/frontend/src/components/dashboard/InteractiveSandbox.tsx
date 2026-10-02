@@ -774,7 +774,6 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
         : "Live Laboratory"}
     practicalStatus={practical?.publicationStatus}
     practicalSource={practical?.source}
-    practicalInstructions={practical?.instructions}
     objectives={practical?.objectives}
     language={practical?.language}
     checks={practical?.checks}

@@ -12,7 +12,7 @@
  */
 
 import { jsonrepair } from 'jsonrepair';
-import { loadRepositoryEnv } from './repository-paths.js';
+import { loadRepositoryEnv } from '../../app/scripts/lib/repository-paths.js';
 
 loadRepositoryEnv();
 

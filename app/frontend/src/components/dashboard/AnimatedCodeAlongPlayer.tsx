@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep } from "../../services/learningBoardsApi";
 import { getAssignedVoiceForCourse, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
-import { SpeechNarrationQueue } from "../../lib/speechNarration";
+import { estimateSpeechDurationSeconds, SpeechNarrationQueue } from "../../lib/speechNarration";
 
-const SCENE_DURATION = 10;
+const TEACHER_SPEECH_RATE = 0.68;
 
 /** Mirrors the homepage's simulated IDE scene for every practical code-along. */
 interface AnimatedCodeAlongPlayerProps {
@@ -18,48 +18,80 @@ interface AnimatedCodeAlongPlayerProps {
   checks?: Array<{ id: string; type?: string; expected?: unknown }>;
   output?: string[];
   onOpenLab?: () => void;
+  showJoinButtonWhenComplete?: boolean;
 }
 
-export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], walkthrough = [], category, courseId, tasks = [], narratorGuide, checks = [], output = [], onOpenLab }: AnimatedCodeAlongPlayerProps) {
+function hasReadableNarration(
+  value: string | null | undefined,
+  sourceInstructions?: string | null,
+): value is string {
+  const text = value?.trim();
+  const normalizedText = text?.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() || "";
+  const normalizedSource = sourceInstructions?.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() || "";
+  const repeatsSource = normalizedSource.length >= 80 && normalizedText.includes(normalizedSource);
+  return Boolean(text && text.length <= 1800 && !repeatsSource && !/```|(?:^|\n)\s*(?:\d+[.)]|[-*])\s/m.test(text));
+}
+
+function taskNarration(task: LearningBoardPracticalTask | undefined, fallback?: string | null): string {
+  const candidate = [
+    task?.narratorGuide,
+    task?.teaching?.teacherTalk,
+    fallback,
+  ].find((candidate) => hasReadableNarration(candidate, task?.instruction));
+  if (candidate) return candidate;
+
+  const focus = task?.teaching?.learningGoal || task?.title || "the practical";
+  return `Let’s focus on ${focus}. Watch the code change, then compare the result with your prediction.`;
+}
+
+export default function AnimatedCodeAlongPlayer({
+  playlist = [],
+  files = [],
+  walkthrough = [],
+  category,
+  courseId,
+  tasks = [],
+  narratorGuide,
+  checks = [],
+  output = [],
+  onOpenLab,
+  showJoinButtonWhenComplete = false,
+}: AnimatedCodeAlongPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+  const [isNarrating, setIsNarrating] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [activePlaylistIndex, setActivePlaylistIndex] = useState(0);
+  const [furthestPlaylistIndex, setFurthestPlaylistIndex] = useState(0);
   const requestRef = useRef<number | null>(null);
   const previousTimeRef = useRef<number | null>(null);
   const spokenLessonRef = useRef<string | null>(null);
   const narratorVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
   const narrationQueueRef = useRef(new SpeechNarrationQueue());
 
-  const handleSeek = (event: React.MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-    setCurrentTime(ratio * activePlaylist.durationSeconds);
-  };
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
-  const sceneProgress = (currentTime % SCENE_DURATION) / SCENE_DURATION;
   const fallbackPlaylist: PracticalTeachingPlaylistStep[] = tasks.length
     ? tasks.map((task, index) => ({
         id: `generated-task-${task.id}`,
         title: task.title || `Practical step ${index + 1}`,
         category: category || "Practical learning",
-        description: task.instruction,
-        durationSeconds: Math.max(45, Math.min(120, Math.ceil((task.narratorGuide || narratorGuide || task.instruction).length / 11))),
+        description: task.teaching?.learningGoal || task.title || "Follow the guided practical.",
+        durationSeconds: Math.ceil(estimateSpeechDurationSeconds(taskNarration(task, narratorGuide), TEACHER_SPEECH_RATE) + 12),
         learningGoal: task.requiredConcepts?.join(", ") || "Understand and apply the practical concept.",
-        narratorScript: task.narratorGuide || narratorGuide || task.instruction,
-        workedExample: task.instruction,
+        narratorScript: taskNarration(task, narratorGuide),
+        workedExample: task.teaching?.learningGoal || task.title || "Follow the guided practical.",
         scenario: task.requiredConcepts?.join(", ") || "Apply the idea to the current practical.",
-        learnerPrompt: task.hints?.[0] || "What do you predict will happen next?",
+        learnerPrompt: task.teaching?.questions?.[0] || "What do you predict will happen next?",
         commonMistake: task.hints?.[1] || "Do not skip checking the result.",
-        recap: task.narratorGuide || task.instruction,
+        recap: task.teaching?.recap || task.title || "Explain the key idea in your own words.",
         codeSteps: [index + 1],
       }))
     : [{
         id: "guided-practical", title: "Guided practical", category: "Practical learning",
         description: "Build the solution with a warm, teacher-led explanation.",
-        durationSeconds: Math.max(60, Math.ceil((narratorGuide || "").length / 11)),
+        durationSeconds: Math.ceil(estimateSpeechDurationSeconds(taskNarration(undefined, narratorGuide), TEACHER_SPEECH_RATE) + 12),
         learningGoal: "Understand the practical through guided action.",
-        narratorScript: narratorGuide || "This practical is still loading. Once the imported lesson arrives, I will guide you through each step.",
+        narratorScript: taskNarration(undefined, narratorGuide),
         workedExample: "The imported starter file will appear here.",
         scenario: "The imported practical will connect this idea to a realistic task.",
         learnerPrompt: "What do you predict will happen next?",
@@ -67,12 +99,28 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
         recap: "Explain the key idea in your own words.",
         codeSteps: [1],
       }];
-  const teachingPlaylist = playlist.length ? playlist : fallbackPlaylist;
+  const teachingPlaylist = playlist.length
+    ? playlist.map((step, index) => ({
+        ...step,
+        narratorScript: hasReadableNarration(step.narratorScript, tasks[index]?.instruction)
+          ? step.narratorScript
+          : taskNarration(tasks[index], narratorGuide),
+      }))
+    : fallbackPlaylist;
   const activePlaylist = teachingPlaylist[Math.min(activePlaylistIndex, teachingPlaylist.length - 1)];
+  const activeDurationSeconds = Math.max(
+    activePlaylist.durationSeconds,
+    estimateSpeechDurationSeconds(activePlaylist.narratorScript, TEACHER_SPEECH_RATE) + 12,
+  );
   const activeWalkthrough = walkthrough.filter((step) => activePlaylist.codeSteps.includes(step.stepNumber));
-  const displayedCode = activeWalkthrough.length
+  const codeToReveal = activeWalkthrough.length
     ? activeWalkthrough.map((step) => step.codeLine).join("\n")
-    : files[0]?.content || "// Waiting for the imported practical file...";
+    : files.find((file) => file.path === activeWalkthrough[0]?.file)?.content
+      || files[0]?.content
+      || "// Waiting for the imported practical file...";
+  const codeLines = codeToReveal.split("\n");
+  const sceneProgress = Math.min(1, currentTime / activeDurationSeconds);
+  const displayedCode = codeLines.slice(0, Math.max(1, Math.ceil(codeLines.length * sceneProgress))).join("\n");
   const activeFile = activeWalkthrough[0]?.file || files[0]?.path || "workspace";
   const activeTask = tasks.length ? tasks[Math.min(activePlaylistIndex, tasks.length - 1)] : undefined;
   const activeCheckIds = activeTask?.checkIds || [];
@@ -80,7 +128,10 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
   const isCodeLab = category === "Terminal Coding Lab";
   const experienceLabel = category === "Research & Analysis" ? "Evidence lab" : category === "Cloud Console Lab" ? "Cloud mission" : category === "Scenario & Design Exercise" ? "Decision simulator" : "Coding lab";
   const executionPhases = ["Prepare", "Compile", "Run", "Verify"];
-  const executionPhaseIndex = Math.min(executionPhases.length - 1, Math.floor((currentTime / Math.max(activePlaylist.durationSeconds, 1)) * executionPhases.length));
+  const executionPhaseIndex = Math.min(executionPhases.length - 1, Math.floor((currentTime / activeDurationSeconds) * executionPhases.length));
+  const walkthroughComplete = !isPlaying
+    && activePlaylistIndex === teachingPlaylist.length - 1
+    && currentTime >= activeDurationSeconds;
 
   useEffect(() => {
     if (!courseId || typeof window === "undefined" || !window.speechSynthesis) return;
@@ -110,31 +161,35 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
     const animate = (time: number) => {
       if (previousTimeRef.current !== null) {
         const delta = (time - previousTimeRef.current) / 1000;
-        setCurrentTime((previous) => {
-          const nextTime = previous + delta;
-          if (nextTime < activePlaylist.durationSeconds) return nextTime;
-          if (activePlaylistIndex < teachingPlaylist.length - 1) {
-            setActivePlaylistIndex((index) => index + 1);
-            return 0;
-          }
-          setIsPlaying(false);
-          return activePlaylist.durationSeconds;
-        });
+        setCurrentTime((previous) => Math.min(previous + delta, activeDurationSeconds));
       }
       previousTimeRef.current = time;
       requestRef.current = requestAnimationFrame(animate);
     };
     requestRef.current = requestAnimationFrame(animate);
     return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current); };
-  }, [isPlaying, activePlaylist.durationSeconds, activePlaylistIndex, teachingPlaylist.length]);
+  }, [isPlaying, activeDurationSeconds, activePlaylistIndex, teachingPlaylist.length]);
+
+  useEffect(() => {
+    if (!isPlaying || currentTime < activeDurationSeconds) return;
+    if (activePlaylistIndex < teachingPlaylist.length - 1) {
+      const nextIndex = activePlaylistIndex + 1;
+      setActivePlaylistIndex(nextIndex);
+      setFurthestPlaylistIndex((furthest) => Math.max(furthest, nextIndex));
+      setCurrentTime(0);
+      return;
+    }
+    setIsPlaying(false);
+  }, [activeDurationSeconds, activePlaylistIndex, currentTime, isPlaying, teachingPlaylist.length]);
 
   const speakActiveLesson = () => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     spokenLessonRef.current = null;
     narrationQueueRef.current.play(activePlaylist.narratorScript, {
       voice: narratorVoiceRef.current,
-      rate: 0.78,
-      pitch: 1,
+      rate: TEACHER_SPEECH_RATE,
+      pitch: 1.02,
+      onSpeakingChange: setIsNarrating,
       onComplete: () => { spokenLessonRef.current = activePlaylist.id; },
     });
   };
@@ -206,8 +261,7 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
                     <div className="max-h-48 overflow-y-auto pr-1">
                       <p className="text-xs leading-relaxed text-slate-600">{activePlaylist.narratorScript}</p>
                       <p className="mt-2 text-xs font-medium leading-relaxed text-amber-700">Think first: {activePlaylist.learnerPrompt}</p>
-                      {activeTask?.teaching?.guidedSteps?.map((step, index) => <p key={`${activeTask.id}-guided-${index}`} className="mt-2 text-xs leading-relaxed text-emerald-700">Do now: {step}</p>)}
-                      {activeTask?.instruction && <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-slate-700">{activeTask.instruction}</p>}
+                      {activeTask?.teaching?.learningGoal && <p className="mt-2 text-xs leading-relaxed text-emerald-700">Focus: {activeTask.teaching.learningGoal}</p>}
                     </div>
                   </div>
                 </div>
@@ -224,7 +278,9 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
                 key={lesson.id}
                 type="button"
                 onClick={() => { setActivePlaylistIndex(index); setCurrentTime(0); setIsPlaying(true); }}
-                className={`min-w-[190px] rounded-xl border p-2 text-left transition-colors ${index === activePlaylistIndex ? "border-immersive-primary/50 bg-immersive-primary/10" : "border-immersive-border bg-immersive-card hover:bg-immersive-card-hover"}`}
+                disabled={index > furthestPlaylistIndex}
+                aria-label={`Play lesson ${index + 1}: ${lesson.title}`}
+                className={`min-w-[190px] rounded-xl border p-2 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 disabled:cursor-not-allowed disabled:opacity-50 ${index === activePlaylistIndex ? "border-immersive-primary/50 bg-immersive-primary/10" : "border-immersive-border bg-immersive-card hover:bg-immersive-card-hover"}`}
               >
                 <span className="block font-mono text-[9px] font-bold uppercase text-immersive-secondary">Lesson {index + 1} · {lesson.durationSeconds}s</span>
                 <span className="mt-0.5 block truncate text-[11px] font-bold text-immersive-text-primary">{lesson.title}</span>
@@ -233,21 +289,32 @@ export default function AnimatedCodeAlongPlayer({ playlist = [], files = [], wal
           </div>
         )}
         <div className="mt-3.5 flex flex-col space-y-3 rounded-2xl border border-immersive-border/60 bg-immersive-card p-3.5 shadow-md shadow-immersive-shadow backdrop-blur-md">
-          <div onClick={handleSeek} className="relative h-1.5 w-full cursor-pointer overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-gradient-to-r from-immersive-primary to-immersive-secondary transition-all duration-75" style={{ width: `${(currentTime / Math.max(activePlaylist.durationSeconds, 1)) * 100}%` }} /></div>
+          <label className="sr-only" htmlFor="practical-walkthrough-progress">Walkthrough progress</label>
+          <input
+            id="practical-walkthrough-progress"
+            type="range"
+            min={0}
+            max={activeDurationSeconds}
+            step={0.1}
+            value={Math.min(currentTime, activeDurationSeconds)}
+            onChange={(event) => setCurrentTime(Number(event.target.value))}
+            aria-label="Walkthrough progress"
+            className="h-1.5 w-full cursor-pointer accent-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500"
+          />
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 text-immersive-text-secondary">
-              <button onClick={() => setIsPlaying((playing) => !playing)} className="cursor-pointer rounded-lg p-1.5 transition-all hover:bg-white/5 hover:text-immersive-text-primary" title={isPlaying ? "Pause Tour" : "Play Tour"}>{isPlaying ? <Pause className="h-4.5 w-4.5" /> : <Play className="h-4.5 w-4.5" />}</button>
-              <button onClick={() => { setCurrentTime(0); setIsPlaying(true); }} className="cursor-pointer rounded-lg p-1.5 transition-all hover:bg-white/5 hover:text-immersive-text-primary" title="Reset Timeline"><RotateCcw className="h-4.5 w-4.5" /></button>
-              <span className="select-none font-mono text-[11px] font-bold text-immersive-text-primary/80">{formatTime(currentTime)} <span className="text-slate-600">/</span> {formatTime(activePlaylist.durationSeconds)}</span>
+              <button type="button" onClick={() => { if (walkthroughComplete) { setActivePlaylistIndex(0); setCurrentTime(0); } setIsPlaying((playing) => !playing); }} className="cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-white/5 hover:text-immersive-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title={isPlaying ? "Pause walkthrough" : "Play walkthrough"} aria-label={isPlaying ? "Pause walkthrough" : "Play walkthrough"}>{isPlaying ? <Pause className="h-4.5 w-4.5" /> : <Play className="h-4.5 w-4.5" />}</button>
+              <button type="button" onClick={() => { setActivePlaylistIndex(0); setFurthestPlaylistIndex(0); setCurrentTime(0); setIsPlaying(true); }} className="cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-white/5 hover:text-immersive-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title="Restart walkthrough" aria-label="Restart walkthrough"><RotateCcw className="h-4.5 w-4.5" /></button>
+              <span className="select-none font-mono text-[11px] font-bold text-immersive-text-primary/80">{formatTime(currentTime)} <span className="text-slate-600">/</span> {formatTime(activeDurationSeconds)}</span>
             </div>
             <div className="hidden min-w-0 items-center gap-2 sm:flex">
               <span className="animate-pulse truncate font-mono text-xs font-bold uppercase tracking-wider text-immersive-secondary">🎞️ {activePlaylist.category}: {activePlaylist.title}</span>
-              <span className="shrink-0 rounded-full bg-immersive-primary/10 px-2 py-0.5 font-mono text-[9px] font-bold text-immersive-primary">{activePlaylist.durationSeconds}s</span>
+              <span className="shrink-0 rounded-full bg-immersive-primary/10 px-2 py-0.5 font-mono text-[9px] font-bold text-immersive-primary">{activeDurationSeconds}s</span>
             </div>
             <div className="flex items-center gap-1">
-              {!isCodeLab && onOpenLab && <button onClick={onOpenLab} className="rounded-lg bg-immersive-primary px-2 py-1 font-mono text-[9px] font-bold text-white hover:brightness-95">Open {experienceLabel}</button>}
-              <button onClick={speakActiveLesson} className="flex items-center gap-1 rounded-lg border border-immersive-primary/30 bg-immersive-primary/10 px-2 py-1 font-mono text-[9px] font-bold text-immersive-primary transition-colors hover:bg-immersive-primary hover:text-white" title="Hear this lesson"><Volume2 className="h-3.5 w-3.5" /> Hear teacher</button>
-              <button onClick={() => setIsMuted((muted) => !muted)} className="cursor-pointer rounded-lg p-1.5 text-immersive-text-secondary transition-all hover:bg-white/5 hover:text-immersive-text-primary" title={isMuted ? "Turn voice back on" : "Mute automatic voice"}>{isMuted ? <VolumeX className="h-4.5 w-4.5" /> : <Volume2 className="h-4.5 w-4.5" />}</button>
+              {onOpenLab && (!showJoinButtonWhenComplete || walkthroughComplete) && <button type="button" onClick={onOpenLab} className="rounded-lg bg-immersive-primary px-2 py-1 font-mono text-[9px] font-bold text-white hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500">{showJoinButtonWhenComplete ? "Join practical" : `Open ${experienceLabel}`}</button>}
+              <button type="button" onClick={speakActiveLesson} className="flex items-center gap-1 rounded-lg border border-immersive-primary/30 bg-immersive-primary/10 px-2 py-1 font-mono text-[9px] font-bold text-immersive-primary transition-colors hover:bg-immersive-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title="Hear this lesson" aria-label={isNarrating ? "Teacher is speaking" : "Hear teacher"}><Volume2 className="h-3.5 w-3.5" /> {isNarrating ? "Teacher speaking" : "Hear teacher"}</button>
+              <button type="button" onClick={() => setIsMuted((muted) => !muted)} className="cursor-pointer rounded-lg p-1.5 text-immersive-text-secondary transition-colors hover:bg-white/5 hover:text-immersive-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title={isMuted ? "Turn voice back on" : "Mute automatic voice"} aria-label={isMuted ? "Turn voice back on" : "Mute automatic voice"}>{isMuted ? <VolumeX className="h-4.5 w-4.5" /> : <Volume2 className="h-4.5 w-4.5" />}</button>
             </div>
           </div>
         </div>
