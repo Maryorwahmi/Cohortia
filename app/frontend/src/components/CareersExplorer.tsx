@@ -172,11 +172,8 @@ interface CareersExplorerProps {
   onOpenWizard?: () => void;
 }
 
-const CATEGORIES = ["All", "Full-Stack", "Frontend", "Backend", "Foundations"] as const;
-
 export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState<(typeof CATEGORIES)[number]>("All");
   const [selectedCourse, setSelectedCourse] = useState<FeaturedCourse>(FEATURED_COURSES[0]);
   const [slidesPerView, setSlidesPerView] = useState(3);
   const [trackIndex, setTrackIndex] = useState(1);
@@ -188,12 +185,15 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const dragRef = useRef<{ pointerId: number; startX: number; moved: boolean } | null>(null);
   const suppressClickRef = useRef(false);
-  const filteredCourses = activeCategory === "All"
-    ? FEATURED_COURSES
-    : FEATURED_COURSES.filter((course) => course.category === activeCategory);
+  const filteredCourses = FEATURED_COURSES;
   const coursePages: FeaturedCourse[][] = [];
   for (let index = 0; index < filteredCourses.length; index += slidesPerView) {
-    coursePages.push(filteredCourses.slice(index, index + slidesPerView));
+    const page = filteredCourses.slice(index, index + slidesPerView);
+    if (page.length < slidesPerView && coursePages.length > 0) {
+      coursePages.push(filteredCourses.slice(-slidesPerView));
+      break;
+    }
+    coursePages.push(page);
   }
   const pageCount = coursePages.length;
   const pagesWithClones = pageCount > 1
@@ -237,7 +237,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
     setTrackIndex(pageCount > 1 ? 1 : 0);
     setDragOffset(0);
     requestAnimationFrame(() => setTransitionEnabled(true));
-  }, [activeCategory, pageCount, slidesPerView]);
+  }, [pageCount, slidesPerView]);
 
   const goToNextPage = () => {
     if (pageCount < 2) return;
@@ -331,7 +331,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
       <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#ff4b3e]/[0.07] blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-[38rem] h-96 w-96 rounded-full bg-blue-500/[0.06] blur-3xl" />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6">
         <div className="mb-10 grid gap-8 lg:mb-14 lg:grid-cols-[1fr_0.88fr] lg:items-end">
           <div className="max-w-2xl">
             <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#ff4b3e]/20 bg-[#ff4b3e]/[0.07] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#e83e32] dark:text-[#ff786e]">
@@ -422,30 +422,6 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
             </p>
           </div>
 
-          <div className="mb-7 flex gap-2 overflow-x-auto pb-2" aria-label="Filter courses by category">
-            {CATEGORIES.map((category) => {
-              const count = category === "All"
-                ? FEATURED_COURSES.length
-                : FEATURED_COURSES.filter((course) => course.category === category).length;
-              const isActive = activeCategory === category;
-              return (
-                <button
-                  key={category}
-                  type="button"
-                  onClick={() => setActiveCategory(category)}
-                  aria-pressed={isActive}
-                  className={`shrink-0 rounded-full border px-4 py-2.5 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e] ${
-                    isActive
-                      ? "border-[#ff4b3e] bg-[#ff4b3e] text-white shadow-md shadow-[#ff4b3e]/15"
-                      : "border-immersive-border bg-immersive-card text-immersive-text-secondary hover:border-immersive-text-secondary/40 hover:text-immersive-text-primary"
-                  }`}
-                >
-                  {category} <span className={isActive ? "text-white/75" : "text-immersive-text-secondary/70"}>({count})</span>
-                </button>
-              );
-            })}
-          </div>
-
           <div
             role="region"
             aria-label="Course carousel"
@@ -489,7 +465,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                       key={`page-${pageIndex}`}
                       role="group"
                       aria-roledescription="slide"
-                      aria-label={`Courses ${actualPageIndex * slidesPerView + 1} to ${Math.min((actualPageIndex + 1) * slidesPerView, filteredCourses.length)} of ${filteredCourses.length}`}
+                      aria-label={`Courses ${page[0].number} to ${page[page.length - 1].number} of ${filteredCourses.length}`}
                       aria-hidden={isClone || !isCurrentPage}
                       className="grid w-full flex-none auto-rows-fr grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3"
                     >
@@ -599,45 +575,6 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
           </div>
         </div>
 
-        <div className="mt-10 grid overflow-hidden rounded-3xl border border-immersive-border bg-immersive-card shadow-sm lg:grid-cols-[0.72fr_1.28fr]">
-          <div className="relative min-h-64 bg-slate-900 lg:min-h-full">
-            <img src={selectedCourse.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-75" />
-            <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent" />
-            <div className="absolute bottom-5 left-5 right-5 text-white">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-white/70">Your selected course</span>
-              <h3 className="mt-2 font-display text-2xl font-bold leading-tight">{selectedCourse.title}</h3>
-            </div>
-          </div>
-          <div className="p-6 sm:p-8 lg:p-10">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#e83e32] dark:text-[#ff786e]">Skills you can put to work</p>
-                <p className="mt-2 text-sm leading-6 text-immersive-text-secondary">{selectedCourse.careerImpact}</p>
-              </div>
-              <span className="rounded-full bg-immersive-bg px-3 py-1.5 text-xs font-semibold text-immersive-text-secondary">{selectedCourse.duration}</span>
-            </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {selectedCourse.skills.map((skill) => (
-                <span key={skill} className="inline-flex items-center gap-2 text-sm font-medium text-immersive-text-primary">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" aria-hidden="true" />
-                  {skill}
-                </span>
-              ))}
-            </div>
-            <div className="mt-7 flex flex-col gap-4 border-t border-immersive-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-immersive-text-secondary">
-                Included in <span className="font-semibold text-immersive-text-primary">{selectedCourse.trackTier.replace("Included in ", "")}</span> career tracks
-              </p>
-              <button
-                type="button"
-                onClick={enroll}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#ff4b3e] px-5 py-3 text-sm font-bold text-white shadow-md shadow-[#ff4b3e]/15 transition hover:bg-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
-              >
-                Build my learning path <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
