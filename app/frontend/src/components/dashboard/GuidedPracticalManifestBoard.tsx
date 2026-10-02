@@ -364,7 +364,11 @@ export default function GuidedPracticalManifestBoard({
         <div className={`text-xs font-semibold ${mutedText}`}>{completedCount} / {tasks.length} tasks passed</div>
       </header>
 
-      <div key={practical.id || practical.title} className="h-[min(58vh,520px)] min-h-[360px] shrink-0 overflow-hidden rounded-xl">
+      <div
+        key={practical.id || practical.title}
+        hidden={isWorkspaceOpen}
+        className="h-[min(58vh,520px)] min-h-[360px] shrink-0 overflow-hidden rounded-xl"
+      >
         <AnimatedCodeAlongPlayer
           playlist={practical.teachingPlaylist}
           files={practicalFiles}
@@ -373,14 +377,27 @@ export default function GuidedPracticalManifestBoard({
           courseId={practical.courseId}
           tasks={tasks}
           narratorGuide={practical.narratorGuide}
-          checks={checks.map(({ id, type, expected }) => ({ id, type, expected }))}
           onOpenLab={handleJoinPractical}
           showJoinButtonWhenComplete
+          isActive={!isWorkspaceOpen}
         />
       </div>
 
       {isWorkspaceOpen && (
       <section ref={workspaceRef} className="flex min-h-0 flex-1 flex-col gap-3 scroll-mt-4">
+        <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${surface}`}>
+          <div>
+            <p className={`text-[10px] font-bold uppercase tracking-widest ${accentText}`}>Walkthrough complete · Your turn</p>
+            <p className={`mt-1 text-sm ${mutedText}`}>Edit the starter file, predict the result, then run the practical checks.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsWorkspaceOpen(false)}
+            className={`rounded-lg border px-3 py-2 text-xs font-semibold ${surface} ${darkText} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF4B3E]`}
+          >
+            Review walkthrough
+          </button>
+        </div>
         <nav aria-label="Practical tasks" className="flex gap-2 overflow-x-auto pb-1">
           {tasks.map((task, index) => (
             <button

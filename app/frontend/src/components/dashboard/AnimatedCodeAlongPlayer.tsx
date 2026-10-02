@@ -4,7 +4,7 @@ import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardP
 import { getAssignedVoiceForCourse, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
 import { estimateSpeechDurationSeconds, SpeechNarrationQueue } from "../../lib/speechNarration";
 
-const TEACHER_SPEECH_RATE = 0.68;
+const TEACHER_SPEECH_RATE = 0.82;
 
 /** Mirrors the homepage's simulated IDE scene for every practical code-along. */
 interface AnimatedCodeAlongPlayerProps {
@@ -15,10 +15,10 @@ interface AnimatedCodeAlongPlayerProps {
   courseId?: string | null;
   tasks?: LearningBoardPracticalTask[];
   narratorGuide?: string | null;
-  checks?: Array<{ id: string; type?: string; expected?: unknown }>;
   output?: string[];
   onOpenLab?: () => void;
   showJoinButtonWhenComplete?: boolean;
+  isActive?: boolean;
 }
 
 function hasReadableNarration(
@@ -52,10 +52,10 @@ export default function AnimatedCodeAlongPlayer({
   courseId,
   tasks = [],
   narratorGuide,
-  checks = [],
   output = [],
   onOpenLab,
   showJoinButtonWhenComplete = false,
+  isActive = true,
 }: AnimatedCodeAlongPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
@@ -70,13 +70,14 @@ export default function AnimatedCodeAlongPlayer({
   const narrationQueueRef = useRef(new SpeechNarrationQueue());
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
+  const lessonDuration = (script: string) => Math.ceil(estimateSpeechDurationSeconds(script, TEACHER_SPEECH_RATE) + 6);
   const fallbackPlaylist: PracticalTeachingPlaylistStep[] = tasks.length
     ? tasks.map((task, index) => ({
         id: `generated-task-${task.id}`,
         title: task.title || `Practical step ${index + 1}`,
         category: category || "Practical learning",
         description: task.teaching?.learningGoal || task.title || "Follow the guided practical.",
-        durationSeconds: Math.ceil(estimateSpeechDurationSeconds(taskNarration(task, narratorGuide), TEACHER_SPEECH_RATE) + 12),
+        durationSeconds: lessonDuration(taskNarration(task, narratorGuide)),
         learningGoal: task.requiredConcepts?.join(", ") || "Understand and apply the practical concept.",
         narratorScript: taskNarration(task, narratorGuide),
         workedExample: task.teaching?.learningGoal || task.title || "Follow the guided practical.",
@@ -89,7 +90,7 @@ export default function AnimatedCodeAlongPlayer({
     : [{
         id: "guided-practical", title: "Guided practical", category: "Practical learning",
         description: "Build the solution with a warm, teacher-led explanation.",
-        durationSeconds: Math.ceil(estimateSpeechDurationSeconds(taskNarration(undefined, narratorGuide), TEACHER_SPEECH_RATE) + 12),
+        durationSeconds: lessonDuration(taskNarration(undefined, narratorGuide)),
         learningGoal: "Understand the practical through guided action.",
         narratorScript: taskNarration(undefined, narratorGuide),
         workedExample: "The imported starter file will appear here.",
@@ -108,27 +109,15 @@ export default function AnimatedCodeAlongPlayer({
       }))
     : fallbackPlaylist;
   const activePlaylist = teachingPlaylist[Math.min(activePlaylistIndex, teachingPlaylist.length - 1)];
-  const activeDurationSeconds = Math.max(
-    activePlaylist.durationSeconds,
-    estimateSpeechDurationSeconds(activePlaylist.narratorScript, TEACHER_SPEECH_RATE) + 12,
-  );
+  const activeDurationSeconds = lessonDuration(activePlaylist.narratorScript);
   const activeWalkthrough = walkthrough.filter((step) => activePlaylist.codeSteps.includes(step.stepNumber));
-  const codeToReveal = activeWalkthrough.length
-    ? activeWalkthrough.map((step) => step.codeLine).join("\n")
-    : files.find((file) => file.path === activeWalkthrough[0]?.file)?.content
-      || files[0]?.content
-      || "// Waiting for the imported practical file...";
-  const codeLines = codeToReveal.split("\n");
-  const sceneProgress = Math.min(1, currentTime / activeDurationSeconds);
-  const displayedCode = codeLines.slice(0, Math.max(1, Math.ceil(codeLines.length * sceneProgress))).join("\n");
-  const activeFile = activeWalkthrough[0]?.file || files[0]?.path || "workspace";
+  const activeFile = activeWalkthrough.find((step) => step.file)?.file || files[0]?.path || "workspace";
+  const activeFileContent = files.find((file) => file.path === activeFile)?.content || files[0]?.content || "";
+  const walkthroughCode = activeWalkthrough.map((step) => step.codeLine).filter(Boolean).join("\n");
+  const displayedCode = activeFileContent || walkthroughCode || "// No starter code was provided for this practical.";
   const activeTask = tasks.length ? tasks[Math.min(activePlaylistIndex, tasks.length - 1)] : undefined;
-  const activeCheckIds = activeTask?.checkIds || [];
-  const activeChecks = checks.filter((check) => activeCheckIds.includes(check.id));
-  const isCodeLab = category === "Terminal Coding Lab";
+  const isCodeLab = category === "Terminal Coding Lab" || files.some((file) => /\.(c|h|cpp|cc|cxx|hpp|py|js|ts|sql)$/i.test(file.path));
   const experienceLabel = category === "Research & Analysis" ? "Evidence lab" : category === "Cloud Console Lab" ? "Cloud mission" : category === "Scenario & Design Exercise" ? "Decision simulator" : "Coding lab";
-  const executionPhases = ["Prepare", "Compile", "Run", "Verify"];
-  const executionPhaseIndex = Math.min(executionPhases.length - 1, Math.floor((currentTime / activeDurationSeconds) * executionPhases.length));
   const walkthroughComplete = !isPlaying
     && activePlaylistIndex === teachingPlaylist.length - 1
     && currentTime >= activeDurationSeconds;
@@ -151,6 +140,12 @@ export default function AnimatedCodeAlongPlayer({
   }, [courseId]);
 
   useEffect(() => () => narrationQueueRef.current.cancel(), []);
+
+  useEffect(() => {
+    if (isActive) return;
+    setIsPlaying(false);
+    narrationQueueRef.current.cancel();
+  }, [isActive]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -228,7 +223,7 @@ export default function AnimatedCodeAlongPlayer({
                     {isCodeLab ? (
                       <>
                         <p className="mb-2 text-xs font-bold text-immersive-primary">{activeFile}</p>
-                        <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-6 text-slate-700">{displayedCode}</pre>
+                        <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-950 p-3 font-mono text-xs leading-6 text-emerald-200">{displayedCode}</pre>
                       </>
                     ) : (
                       <div className="grid gap-2 font-sans text-left sm:grid-cols-2">
@@ -238,27 +233,10 @@ export default function AnimatedCodeAlongPlayer({
                         <TeachingCard label="Watch for" text={activePlaylist.commonMistake} tone="rose" />
                       </div>
                     )}
-                    <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 font-sans">
-                      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Execution path</p>
-                      <div className="mt-2 grid grid-cols-4 gap-2">
-                        {executionPhases.map((phase, index) => (
-                          <div key={phase} className={`rounded-md px-2 py-1.5 text-center text-xs font-semibold ${index <= executionPhaseIndex ? "bg-emerald-100 text-emerald-800" : "bg-white text-slate-400"}`}>
-                            {index < executionPhaseIndex ? "✓ " : index === executionPhaseIndex ? "→ " : ""}{phase}
-                          </div>
-                        ))}
-                      </div>
-                      <p className="mt-2 text-xs text-slate-600">Watch the teacher connect the source change to the compile, run, and verification result.</p>
-                    </div>
-                    {activeChecks.length > 0 && (
-                      <div className="absolute right-4 top-4 rounded-lg border border-slate-200 bg-white/95 px-2.5 py-2 text-[9px] text-slate-600 shadow-sm">
-                        <p className="font-mono font-bold uppercase text-immersive-primary">Checks for this step</p>
-                        <p className="mt-1">{activeChecks.length} imported check{activeChecks.length === 1 ? "" : "s"}</p>
-                      </div>
-                    )}
                   </div>
-                  <div className="absolute bottom-3 left-3 right-3 rounded-lg border border-immersive-primary/20 bg-white/90 p-2.5 shadow-sm backdrop-blur">
-                    <div className="mb-1 flex items-center justify-between gap-2"><span className="font-mono text-[8px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className="font-mono text-[8px] text-slate-500">Pause & predict</span></div>
-                    <div className="max-h-48 overflow-y-auto pr-1">
+                  <div className="mt-3 max-h-32 shrink-0 overflow-y-auto rounded-lg border border-immersive-primary/20 bg-white p-3 shadow-sm">
+                    <div className="mb-1 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-[9px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className="font-mono text-[9px] text-slate-500">Pause & predict</span></div>
+                    <div>
                       <p className="text-xs leading-relaxed text-slate-600">{activePlaylist.narratorScript}</p>
                       <p className="mt-2 text-xs font-medium leading-relaxed text-amber-700">Think first: {activePlaylist.learnerPrompt}</p>
                       {activeTask?.teaching?.learningGoal && <p className="mt-2 text-xs leading-relaxed text-emerald-700">Focus: {activeTask.teaching.learningGoal}</p>}
@@ -282,7 +260,7 @@ export default function AnimatedCodeAlongPlayer({
                 aria-label={`Play lesson ${index + 1}: ${lesson.title}`}
                 className={`min-w-[190px] rounded-xl border p-2 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 disabled:cursor-not-allowed disabled:opacity-50 ${index === activePlaylistIndex ? "border-immersive-primary/50 bg-immersive-primary/10" : "border-immersive-border bg-immersive-card hover:bg-immersive-card-hover"}`}
               >
-                <span className="block font-mono text-[9px] font-bold uppercase text-immersive-secondary">Lesson {index + 1} · {lesson.durationSeconds}s</span>
+                <span className="block font-mono text-[9px] font-bold uppercase text-immersive-secondary">Lesson {index + 1} · {formatTime(lessonDuration(lesson.narratorScript))}</span>
                 <span className="mt-0.5 block truncate text-[11px] font-bold text-immersive-text-primary">{lesson.title}</span>
               </button>
             ))}
