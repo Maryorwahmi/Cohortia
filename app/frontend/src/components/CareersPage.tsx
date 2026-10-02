@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight,
   ArrowUpRight,
-  BookOpen,
+  Award,
+  BriefcaseBusiness,
   Check,
   ChevronDown,
   Clock3,
@@ -13,7 +14,6 @@ import {
   LoaderCircle,
   Search,
   Sparkles,
-  Target,
 } from 'lucide-react';
 import type { Career, CatalogCourse } from '../services/api';
 import { careerApi, catalogCourseApi } from '../services/api';
@@ -29,25 +29,24 @@ interface CareerPath extends Career {
 
 const growOptions = [
   {
-    title: 'Explore',
-    subtitle: 'Find your direction',
-    description: 'Get a clearer picture of the careers and skills that match your interests.',
+    title: 'Choose a course',
+    subtitle: 'Find the right path for your goals.',
     icon: Compass,
-    tone: 'bg-immersive-primary/10 text-immersive-primary',
   },
   {
-    title: 'Learn',
-    subtitle: 'Build practical skills',
-    description: 'Follow a structured path and learn with courses from the catalog.',
-    icon: BookOpen,
-    tone: 'bg-immersive-secondary/10 text-immersive-secondary',
+    title: 'Learn & practice',
+    subtitle: 'Explore quality content and build projects.',
+    icon: Code2,
   },
   {
-    title: 'Grow',
-    subtitle: 'Keep moving forward',
-    description: 'Track your progress and take the next step toward your career goals.',
-    icon: Target,
-    tone: 'bg-immersive-primary/10 text-immersive-primary',
+    title: 'Get certified',
+    subtitle: 'Work toward course certificates and new skills.',
+    icon: Award,
+  },
+  {
+    title: 'Build your future',
+    subtitle: 'Apply what you learn and keep moving forward.',
+    icon: BriefcaseBusiness,
   },
 ];
 
@@ -453,6 +452,47 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
         </div>
       </section>
 
+      <section className="mx-auto w-full max-w-[1600px] px-3 py-8 sm:px-4 sm:py-10 lg:px-6" aria-labelledby="how-you-grow-title">
+        <div className="relative isolate overflow-hidden rounded-[2rem] border border-immersive-border bg-gradient-to-br from-immersive-primary/[0.06] via-immersive-card to-immersive-secondary/[0.06] p-6 shadow-sm shadow-immersive-shadow sm:p-8 lg:grid lg:grid-cols-[0.85fr_2.15fr] lg:items-center lg:gap-10 lg:p-10">
+          <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-24 -z-10 h-64 w-64 rounded-full bg-immersive-primary/[0.06] blur-3xl" />
+          <div className="relative">
+            <span className="inline-flex items-center gap-2 rounded-full border border-immersive-primary/15 bg-immersive-primary/[0.06] px-3 py-1.5 text-[11px] font-bold text-immersive-primary">
+              <Sparkles size={14} aria-hidden="true" />
+              Simple steps to your dream career
+            </span>
+            <h2 id="how-you-grow-title" className="mt-4 text-3xl font-bold tracking-[-0.04em] text-immersive-text-primary sm:text-4xl">
+              How You Grow
+            </h2>
+            <p className="mt-3 max-w-sm text-sm leading-6 text-immersive-text-secondary">
+              Getting started with Cohortia is easy. Follow these steps and start your journey today.
+            </p>
+            <button
+              type="button"
+              onClick={onOpenWizard}
+              className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-immersive-primary px-5 py-3 text-sm font-bold text-white shadow-md shadow-immersive-shadow transition hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-bg"
+            >
+              Get started <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          </div>
+
+          <ol className="mt-9 grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:mt-0 lg:grid-cols-4 lg:gap-3">
+            {growOptions.map(({ title, subtitle, icon: Icon }, index) => (
+              <li key={title} className="relative flex flex-col items-center text-center">
+                {index < growOptions.length - 1 && (
+                  <span aria-hidden="true" className="absolute left-[calc(50%+1.65rem)] top-[1.15rem] hidden w-[calc(100%-3.3rem)] border-t border-dashed border-immersive-secondary/40 lg:block" />
+                )}
+                <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-immersive-secondary/20 bg-immersive-bg text-immersive-secondary shadow-sm shadow-immersive-shadow sm:h-12 sm:w-12">
+                  <Icon size={19} aria-hidden="true" />
+                </span>
+                <span className="mt-2 text-xs font-bold text-immersive-primary">{index + 1}</span>
+                <h3 className="mt-1 text-sm font-bold text-immersive-text-primary sm:text-base">{title}</h3>
+                <p className="mt-1 max-w-[12rem] text-xs leading-5 text-immersive-text-secondary">{subtitle}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
       <section className="mx-auto w-full max-w-[1600px] px-3 py-16 sm:px-4 sm:py-20 lg:px-6">
         <div className="mb-9 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
@@ -534,29 +574,6 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
             })}
           </div>
         )}
-      </section>
-
-      <section className="border-y border-immersive-border bg-immersive-card/40">
-        <div className="mx-auto w-full max-w-[1600px] px-3 py-16 sm:px-4 sm:py-20 lg:px-6">
-          <div className="mx-auto mb-11 max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-immersive-primary">A clearer way forward</p>
-            <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-immersive-text-primary sm:text-4xl">How you grow with Cohortia</h2>
-            <p className="mt-4 leading-7 text-immersive-text-secondary">Move from exploring your options to building skills and keeping your momentum.</p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-3">
-            {growOptions.map(({ title, subtitle, description, icon: Icon, tone }, index) => (
-              <article key={title} className="relative rounded-2xl border border-immersive-border bg-immersive-card p-6 sm:p-7">
-                {index < growOptions.length - 1 && <div className="absolute -right-4 top-12 z-10 hidden h-px w-8 bg-immersive-border md:block" />}
-                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${tone}`}>
-                  <Icon size={22} aria-hidden="true" />
-                </div>
-                <p className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-immersive-text-secondary">0{index + 1} · {subtitle}</p>
-                <h3 className="mt-2 text-xl font-bold text-immersive-text-primary">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-immersive-text-secondary">{description}</p>
-              </article>
-            ))}
-          </div>
-        </div>
       </section>
 
       <section className="mx-auto w-full max-w-[1600px] px-3 py-16 sm:px-4 sm:py-20 lg:px-6">
