@@ -97,25 +97,31 @@ function CourseCard({
         {course.image && (
           <img
             src={course.image}
-            alt=""
+            alt={course.title}
             loading="lazy"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
             onError={(event) => event.currentTarget.remove()}
           />
         )}
-        <div className="absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-2">
-          {course.category && (
-            <span className="rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-slate-700 shadow-sm backdrop-blur">
-              {course.subcategory || course.category}
-            </span>
-          )}
-          {course.certification && (
+        {course.certification && (
+          <div className="absolute left-3 top-3">
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm">
               <Check size={12} aria-hidden="true" />
               Certified
             </span>
-          )}
-        </div>
+          </div>
+        )}
+        {course.imageSource && (
+          <a
+            href={course.imageSource}
+            target="_blank"
+            rel="noreferrer"
+            className="absolute inset-x-0 bottom-0 truncate bg-slate-950/65 px-3 py-1.5 text-[9px] text-white/90 hover:bg-slate-950/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+            aria-label={`Image credit: ${course.imageCredit || 'Wikimedia Commons contributor'}, ${course.imageLicense || 'license information'}; opens Wikimedia Commons`}
+          >
+            Photo: {course.imageCredit || 'Wikimedia Commons contributor'} · {course.imageLicense || 'License'}
+          </a>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-4">
@@ -192,7 +198,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
   const [certificatesOnly, setCertificatesOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState<'catalog' | 'title'>('catalog');
   const [searchQuery, setSearchQuery] = useState('');
-  const [visibleLimit, setVisibleLimit] = useState(12);
+  const [currentPage, setCurrentPage] = useState(1);
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
@@ -277,10 +283,15 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
     if (sortOrder === 'title') filtered.sort((a, b) => a.title.localeCompare(b.title));
     return filtered;
   }, [allCourses, certificatesOnly, priceFilter, searchQuery, selectedCategory, selectedLevels, sortOrder]);
-  const coursesToRender = visibleCourses.slice(0, visibleLimit);
+  const pageSize = 12;
+  const pageCount = Math.ceil(visibleCourses.length / pageSize);
+  const displayedPage = Math.min(currentPage, Math.max(1, pageCount));
+  const firstVisiblePage = Math.max(1, Math.min(displayedPage - 2, pageCount - 4));
+  const pageNumbers = Array.from({ length: Math.min(5, pageCount) }, (_, index) => firstVisiblePage + index);
+  const coursesToRender = visibleCourses.slice((displayedPage - 1) * pageSize, displayedPage * pageSize);
 
   useEffect(() => {
-    setVisibleLimit(12);
+    setCurrentPage(1);
   }, [selectedCategory, selectedLevels, priceFilter, certificatesOnly, searchQuery, sortOrder]);
 
   const scrollToCatalog = () => {
@@ -551,7 +562,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="inline-flex max-w-full truncate rounded-full bg-immersive-primary/10 px-2 py-0.5 text-[10px] font-semibold text-immersive-primary">
-                          {getCourseCategory(course) || course.level || 'Course'}
+                          {course.level || course.type || 'Course'}
                         </span>
                         <h3 className="mt-1.5 line-clamp-2 min-h-10 text-xs font-bold leading-5 text-immersive-text-primary sm:text-sm">
                           {course.title}
@@ -778,17 +789,40 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                   {coursesToRender.map((course) => <CourseCard key={course.id} course={course} onSelect={onSelectTrack} />)}
                 </div>
               )}
-              {!allCoursesLoading && !allCoursesError && visibleCourses.length > visibleLimit && (
-                <div className="mt-8 text-center">
+              {!allCoursesLoading && !allCoursesError && pageCount > 1 && (
+                <nav className="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Course catalog pagination">
                   <button
                     type="button"
-                    onClick={() => setVisibleLimit((limit) => limit + 12)}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-immersive-border bg-immersive-card px-5 py-3 text-sm font-semibold text-immersive-text-primary transition hover:border-immersive-primary hover:bg-immersive-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-bg"
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={displayedPage === 1}
+                    className="min-h-10 rounded-lg border border-immersive-border bg-immersive-card px-3 text-xs font-semibold text-immersive-text-primary transition hover:border-immersive-primary disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
                   >
-                    Show more courses
-                    <span className="text-immersive-text-secondary">({visibleCourses.length - visibleLimit} remaining)</span>
+                    Previous
                   </button>
-                </div>
+                  {pageNumbers.map((page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => setCurrentPage(page)}
+                      aria-label={`Go to page ${page}`}
+                      aria-current={displayedPage === page ? 'page' : undefined}
+                      className={`min-h-10 min-w-10 rounded-lg border px-3 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary ${displayedPage === page ? 'border-immersive-primary bg-immersive-primary text-white' : 'border-immersive-border bg-immersive-card text-immersive-text-primary hover:border-immersive-primary'}`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <span className="px-1 text-xs text-immersive-text-secondary" aria-live="polite">
+                    Page {displayedPage} of {pageCount}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
+                    disabled={displayedPage === pageCount}
+                    className="min-h-10 rounded-lg border border-immersive-border bg-immersive-card px-3 text-xs font-semibold text-immersive-text-primary transition hover:border-immersive-primary disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
+                  >
+                    Next
+                  </button>
+                </nav>
               )}
             </div>
           </div>

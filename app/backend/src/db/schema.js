@@ -83,6 +83,9 @@ export const catalogCourses = sqliteTable('catalog_courses', {
   cost: text('cost'),
   url: text('url'),
   image: text('image'),
+  imageCredit: text('image_credit'),
+  imageLicense: text('image_license'),
+  imageSource: text('image_source'),
   skills: text('skills'), // JSON array as string
   certification: text('certification'),
   description: text('description'),

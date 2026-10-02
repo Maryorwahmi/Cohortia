@@ -58,7 +58,7 @@ export default function CourseDetails() {
 
   return (
     <div className="min-h-screen bg-immersive-bg pb-16 pt-24 text-left">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto w-full max-w-[1600px] px-3 sm:px-4 lg:px-6">
         <Link to="/careers" className="mb-8 inline-flex items-center gap-2 text-xs font-bold text-immersive-text-secondary hover:text-immersive-secondary"><ArrowLeft className="h-4 w-4" /> Back to Careers</Link>
         <header className="grid gap-8 border-b border-immersive-border pb-10 lg:grid-cols-[1fr_320px] lg:items-end">
           <div>

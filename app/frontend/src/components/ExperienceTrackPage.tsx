@@ -60,7 +60,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
     <main className="pt-24 pb-16 min-h-screen bg-immersive-bg text-left">
       
       {/* 1. Header / Hero */}
-      <header className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
+      <header className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 py-10 text-center">
         <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase bg-[#FF4B3E]/10 border border-[#FF4B3E]/20 px-3.5 py-1 rounded-full inline-flex items-center gap-1.5 mb-4">
           <Award className="w-3.5 h-3.5" />
           <span>CAREER TRACK PRICING & EXPERIENCE</span>
@@ -74,7 +74,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
       </header>
 
       {/* 2. The Three Pricing Cards */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+      <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 mb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           
           {/* Card 1: Pivot into a New Career — $23 */}
@@ -296,7 +296,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
       </section>
 
       {/* 3. Comprehensive Feature Comparison Table ("What Changes Between the Plans?") */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+      <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 mb-16">
         <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-10 shadow-xl shadow-immersive-shadow">
           <div className="text-center max-w-2xl mx-auto mb-8">
             <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-2">
@@ -370,10 +370,10 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4"><div className="text-center mb-5"><span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">| ROADMAP SANDBOX</span><h2 className="text-3xl font-extrabold text-immersive-text-primary mt-2">Try It Out Interactive</h2></div><ExperienceTrackSim userProfile={userProfile} onOpenWizard={onOpenWizard} /></section>
+      <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6"><div className="text-center mb-5"><span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">| ROADMAP SANDBOX</span><h2 className="text-3xl font-extrabold text-immersive-text-primary mt-2">Try It Out Interactive</h2></div><ExperienceTrackSim userProfile={userProfile} onOpenWizard={onOpenWizard} /></section>
 
       {/* 6. Bottom CTA */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6">
         <div className="border border-immersive-border rounded-3xl p-6 sm:p-10 bg-immersive-card flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl shadow-immersive-shadow">
           <div>
             <span className="text-xs font-mono tracking-widest text-immersive-secondary font-bold uppercase">

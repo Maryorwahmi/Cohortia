@@ -23,6 +23,9 @@ await client.execute(`
     cost TEXT,
     url TEXT,
     image TEXT,
+    image_credit TEXT,
+    image_license TEXT,
+    image_source TEXT,
     skills TEXT,
     certification TEXT,
     description TEXT,
@@ -34,10 +37,12 @@ await client.execute(`
   )
 `);
 
-try {
-  await client.execute(`ALTER TABLE catalog_courses ADD COLUMN image TEXT`);
-} catch (error) {
-  if (!error.message?.toLowerCase().includes('duplicate column')) throw error;
+for (const column of ['image', 'image_credit', 'image_license', 'image_source']) {
+  try {
+    await client.execute(`ALTER TABLE catalog_courses ADD COLUMN ${column} TEXT`);
+  } catch (error) {
+    if (!error.message?.toLowerCase().includes('duplicate column')) throw error;
+  }
 }
 
 await client.execute(`
@@ -71,22 +76,6 @@ const careerRules = [
   {id: 'ux-ui-design', subcategories: ['Web Development'], terms: ['ux', 'ui', 'web design', 'user experience', 'figma', 'design']},
 ];
 
-const subcategoryImages = {
-  'Programming & Software Development Fundamentals': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=900&auto=format&fit=crop&q=80',
-  'Web Development': 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=900&auto=format&fit=crop&q=80',
-  'Mobile App Development': 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=900&auto=format&fit=crop&q=80',
-  'Data Science, Machine Learning & AI': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&auto=format&fit=crop&q=80',
-  'Cybersecurity': 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=900&auto=format&fit=crop&q=80',
-  'Cloud Computing & DevOps': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&auto=format&fit=crop&q=80',
-  'Computer Networks': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&auto=format&fit=crop&q=80',
-  'Databases': 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=900&auto=format&fit=crop&q=80',
-  'Operating Systems & System Administration': 'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=900&auto=format&fit=crop&q=80',
-  'Software Engineering, Architecture & Design': 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=900&auto=format&fit=crop&q=80',
-  'Game Development': 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=900&auto=format&fit=crop&q=80',
-  'Blockchain & Web3': 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=900&auto=format&fit=crop&q=80',
-  'Hardware, Embedded & IoT': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&auto=format&fit=crop&q=80',
-};
-
 function matchingCareerIds(course, subcategory) {
   const searchable = [course.title, course.description, ...(course.skills || []), subcategory].filter(Boolean).join(' ').toLowerCase();
   return careerRules
@@ -108,9 +97,9 @@ for (const subcategory of catalog.subcategories || []) {
       sql: `
         INSERT INTO catalog_courses (
           id, title, provider, platform, level, type, duration, cost, url,
-          image, skills, certification, description, category, subcategory, source,
+          image, image_credit, image_license, image_source, skills, certification, description, category, subcategory, source,
           created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           title = excluded.title,
           provider = excluded.provider,
@@ -121,6 +110,9 @@ for (const subcategory of catalog.subcategories || []) {
           cost = excluded.cost,
           url = excluded.url,
           image = excluded.image,
+          image_credit = excluded.image_credit,
+          image_license = excluded.image_license,
+          image_source = excluded.image_source,
           skills = excluded.skills,
           certification = excluded.certification,
           description = excluded.description,
@@ -139,7 +131,10 @@ for (const subcategory of catalog.subcategories || []) {
         course.duration ?? null,
         course.cost == null ? null : String(course.cost),
         course.url ?? null,
-        course.image || subcategoryImages[course.subcategory || subcategory.name] || subcategoryImages['Web Development'],
+        course.image ?? null,
+        course.imageCredit ?? null,
+        course.imageLicense ?? null,
+        course.imageSource ?? null,
         JSON.stringify(course.skills || []),
         course.certification ?? null,
         course.description ?? null,

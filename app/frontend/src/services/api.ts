@@ -214,6 +214,9 @@ export interface CatalogCourse {
   cost?: string | number | null;
   url?: string | null;
   image?: string | null;
+  imageCredit?: string | null;
+  imageLicense?: string | null;
+  imageSource?: string | null;
   skills?: string[] | string | null;
   certification?: string | null;
   description?: string | null;
