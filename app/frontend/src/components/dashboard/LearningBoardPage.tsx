@@ -1209,7 +1209,9 @@ export default function LearningBoardPage({
               )}
 
               {/* WORKSPACE MEDIA CONTAINER */}
-              <div className="relative rounded-lg sm:rounded-2xl bg-immersive-bg border border-immersive-border overflow-hidden min-h-[320px] sm:min-h-[420px] md:min-h-[560px] lg:min-h-[720px] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] flex flex-col justify-between group shadow-inner">
+              <div className={!devPreviewEnabled && viewerMode === "practical"
+                ? "relative min-w-0"
+                : "relative rounded-lg sm:rounded-2xl bg-immersive-bg border border-immersive-border overflow-hidden min-h-[320px] sm:min-h-[420px] md:min-h-[560px] lg:min-h-[720px] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] flex flex-col justify-between group shadow-inner"}>
                 
                 {/* Read mode / dev preview */}
                 {devPreviewEnabled && (
@@ -1346,9 +1348,9 @@ export default function LearningBoardPage({
 
                 {/* 3. GUIDED PRACTICAL LEARNING BOARD */}
                 {!devPreviewEnabled && viewerMode === "practical" && (
-                  <div className="absolute inset-0 flex min-h-0 flex-col">
-                    <div className="flex min-h-0 flex-1 flex-col">
-                      <div className="relative min-h-0 min-w-0 flex-1">
+                  <div className="flex min-w-0 flex-col">
+                    <div className="min-w-0">
+                      <div className="relative min-w-0">
                         {activePractical ? (
                           <PracticalLearningBoardSimulation
                             aspectRatio="16:9"
@@ -1366,7 +1368,7 @@ export default function LearningBoardPage({
                       </div>
                     </div>
 
-                    <div className="shrink-0 px-6 py-3 text-center text-xs font-bold text-immersive-secondary border-t border-immersive-border/50">
+                    <div className="mt-4 px-6 py-3 text-center text-xs font-bold text-immersive-secondary border-t border-immersive-border/50">
                       Complete all hands-on checks to unlock the assessment.
                     </div>
                   </div>
