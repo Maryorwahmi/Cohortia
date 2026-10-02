@@ -19,6 +19,7 @@ interface AnimatedCodeAlongPlayerProps {
   output?: string[];
   onOpenLab?: () => void;
   onWalkthroughComplete?: () => void;
+  onGuideChange?: (guide: { goal: string; narration: string; prompt: string; focus?: string }) => void;
   openButtonLabel?: string;
   isActive?: boolean;
 }
@@ -85,6 +86,7 @@ export default function AnimatedCodeAlongPlayer({
   output = [],
   onOpenLab,
   onWalkthroughComplete,
+  onGuideChange,
   openButtonLabel,
   isActive = true,
 }: AnimatedCodeAlongPlayerProps) {
@@ -166,6 +168,15 @@ export default function AnimatedCodeAlongPlayer({
   const walkthroughComplete = !isPlaying
     && activePlaylistIndex === teachingPlaylist.length - 1
     && currentTime >= activeDurationSeconds;
+
+  useEffect(() => {
+    onGuideChange?.({
+      goal: activePlaylist.learningGoal,
+      narration: codeReveal.activeStep?.speakerText || activeNarrationScript,
+      prompt: activePlaylist.learnerPrompt,
+      focus: activeTask?.teaching?.learningGoal,
+    });
+  }, [activeNarrationScript, activePlaylist.learnerPrompt, activePlaylist.learningGoal, activeTask?.teaching?.learningGoal, codeReveal.activeStep?.speakerText, onGuideChange]);
 
   const moveToExperiment = () => {
     if (transitionStartedRef.current) return;
@@ -304,12 +315,6 @@ export default function AnimatedCodeAlongPlayer({
           </div>
           <div className={`pointer-events-none absolute inset-0 bg-gradient-to-t via-transparent to-transparent ${isDark ? "from-[#101522]/50" : "from-white/50"}`} />
         </div>
-        <section className={`mt-3 rounded-xl border p-3 shadow-sm ${isDark ? "border-cyan-300/20 bg-slate-900/70" : "border-immersive-primary/20 bg-white"}`} aria-live="polite">
-          <div className="mb-1 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-[9px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className={`font-mono text-[9px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Pause & predict</span></div>
-          <p className={`text-xs leading-relaxed ${isDark ? "text-slate-200" : "text-slate-600"}`}>{codeReveal.activeStep?.speakerText || activeNarrationScript}</p>
-          <p className={`mt-2 text-xs font-medium leading-relaxed ${isDark ? "text-amber-200" : "text-amber-700"}`}>Think first: {activePlaylist.learnerPrompt}</p>
-          {activeTask?.teaching?.learningGoal && <p className={`mt-2 text-xs leading-relaxed ${isDark ? "text-emerald-300" : "text-emerald-700"}`}>Focus: {activeTask.teaching.learningGoal}</p>}
-        </section>
         <div className={`mt-3 flex flex-col space-y-3 rounded-xl border p-3 shadow-md backdrop-blur-md ${isDark ? "border-slate-700 bg-[#171d2c] shadow-black/20" : "border-immersive-border/60 bg-immersive-card shadow-immersive-shadow"}`}>
           <label className="sr-only" htmlFor="practical-walkthrough-progress">Walkthrough progress</label>
           <input

@@ -5,6 +5,7 @@ import type { ChatLearningContext } from "../../services/api";
 import { learningBoardsApi, type LearningBoardPractical, type LearningBoardPracticalTask } from "../../services/learningBoardsApi";
 import { executePython } from "../../services/pyodideRunner";
 import { evaluatePracticalChecks } from "../../lib/practicalCheckEvaluator";
+import { simulateIntroductoryC } from "../../lib/cPracticeSimulator";
 import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
 
 interface GuidedPracticalManifestBoardProps {
@@ -23,6 +24,13 @@ type CheckDefinition = {
   variableCheck?: { name: string; expected: unknown };
   explanation?: string;
   testData?: Record<string, unknown>;
+};
+
+type TeacherGuide = {
+  goal: string;
+  narration: string;
+  prompt: string;
+  focus?: string;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -95,6 +103,7 @@ export default function GuidedPracticalManifestBoard({
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
+  const [teacherGuide, setTeacherGuide] = useState<TeacherGuide | null>(null);
   const workspaceRef = useRef<HTMLElement>(null);
   const tasks = Array.isArray(practical.tasks) ? practical.tasks : [];
   const activeTask = tasks[activeTaskIndex];
@@ -113,6 +122,7 @@ export default function GuidedPracticalManifestBoard({
     setIsWorkspaceOpen(true);
     window.requestAnimationFrame(() => workspaceRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, []);
+  const handleGuideChange = useCallback((guide: TeacherGuide) => setTeacherGuide(guide), []);
 
   useEffect(() => {
     setActiveTaskIndex(0);
@@ -124,6 +134,7 @@ export default function GuidedPracticalManifestBoard({
     setCompletedTasks({});
     setCheckResults({});
     setOutput("");
+    setTeacherGuide(null);
     setIsWorkspaceOpen(false);
   }, [practical.id, practicalFiles]);
 
@@ -273,21 +284,30 @@ export default function GuidedPracticalManifestBoard({
         const executionFilePath = /\.(h|hpp)$/i.test(activeFilePath)
           ? practicalFiles.find((file) => /\.(c|cpp|cc|cxx)$/i.test(file.path))?.path || activeFilePath
           : activeFilePath;
-        const result = await learningBoardsApi.executeNativePractical(
-          files,
-          executionFilePath,
-          supportedLanguage,
-          "",
-          taskChecks.some((check) => check.type.toLowerCase() === "sanitizer"),
-          compileProbes
-        );
-        stdout = result.stdout || "";
-        stderr = result.stderr || "";
-        executionError = result.error || "";
-        executionSuccess = result.ok;
-        artifacts = result.artifacts || {};
-        sanitizers = result.sanitizers || [];
-        compileProbeResults = result.compileProbes || [];
+        try {
+          const result = await learningBoardsApi.executeNativePractical(
+            files,
+            executionFilePath,
+            supportedLanguage,
+            "",
+            taskChecks.some((check) => check.type.toLowerCase() === "sanitizer"),
+            compileProbes
+          );
+          stdout = result.stdout || "";
+          stderr = result.stderr || "";
+          executionError = result.error || "";
+          executionSuccess = result.ok;
+          artifacts = result.artifacts || {};
+          sanitizers = result.sanitizers || [];
+          compileProbeResults = result.compileProbes || [];
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          if (!/Native execution is disabled until an isolated sandbox executor is configured/i.test(message)) throw error;
+          const simulated = simulateIntroductoryC(currentCode);
+          stdout = simulated.stdout;
+          stderr = simulated.stderr;
+          executionSuccess = simulated.success;
+        }
       }
 
       const evaluations = evaluatePracticalChecks({
@@ -347,7 +367,9 @@ export default function GuidedPracticalManifestBoard({
   }
 
   return (
-    <div className={`flex h-full min-h-[620px] min-w-0 flex-col gap-3 overflow-y-auto rounded-2xl border p-3 ${isDark ? "border-slate-800 bg-[#101522]" : "border-slate-200 bg-slate-50"}`}>
+    <>
+      {!isWorkspaceOpen && (
+    <div className={`flex h-full min-h-[620px] min-w-0 flex-col gap-3 overflow-hidden rounded-2xl border p-3 ${isDark ? "border-slate-800 bg-[#101522]" : "border-slate-200 bg-slate-50"}`}>
       <div
         key={practical.id || practical.title}
         hidden={isWorkspaceOpen}
@@ -363,13 +385,28 @@ export default function GuidedPracticalManifestBoard({
           narratorGuide={practical.narratorGuide}
           onOpenLab={handleJoinPractical}
           onWalkthroughComplete={handleJoinPractical}
+          onGuideChange={handleGuideChange}
           openButtonLabel="Join practical"
           isActive={!isWorkspaceOpen}
         />
       </div>
+    </div>
+      )}
+
+      {!isWorkspaceOpen && teacherGuide && (
+        <section className={`mt-3 rounded-xl border p-4 shadow-sm ${isDark ? "border-cyan-300/20 bg-[#111827] text-slate-100" : "border-immersive-primary/20 bg-white text-slate-900"}`} aria-live="polite">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <span className="font-mono text-[10px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {teacherGuide.goal}</span>
+            <span className={isDark ? "font-mono text-[10px] text-slate-400" : "font-mono text-[10px] text-slate-500"}>Pause & predict</span>
+          </div>
+          <p className={`text-sm leading-relaxed ${isDark ? "text-slate-200" : "text-slate-600"}`}>{teacherGuide.narration}</p>
+          <p className={`mt-2 text-sm font-medium leading-relaxed ${isDark ? "text-amber-200" : "text-amber-700"}`}>Think first: {teacherGuide.prompt}</p>
+          {teacherGuide.focus && <p className={`mt-2 text-sm leading-relaxed ${isDark ? "text-emerald-300" : "text-emerald-700"}`}>Focus: {teacherGuide.focus}</p>}
+        </section>
+      )}
 
       {isWorkspaceOpen && (
-      <section ref={workspaceRef} className="flex min-h-0 flex-1 flex-col gap-3 scroll-mt-4">
+      <section ref={workspaceRef} className={`flex min-w-0 flex-col gap-3 scroll-mt-4 ${isDark ? "text-slate-100" : "text-slate-900"}`}>
         <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${surface}`}>
           <div>
             <p className={`text-[10px] font-bold uppercase tracking-widest ${accentText}`}>Walkthrough complete · Your turn</p>
@@ -545,6 +582,6 @@ export default function GuidedPracticalManifestBoard({
       </footer>
       </section>
       )}
-    </div>
+    </>
   );
 }
