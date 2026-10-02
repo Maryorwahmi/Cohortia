@@ -369,7 +369,7 @@ export default function GuidedPracticalManifestBoard({
   return (
     <>
       {!isWorkspaceOpen && (
-    <div className={`flex h-full min-h-[620px] min-w-0 flex-col gap-3 overflow-hidden rounded-2xl border p-3 ${isDark ? "border-slate-800 bg-[#101522]" : "border-slate-200 bg-slate-50"}`}>
+    <div className={`flex h-[min(72vh,680px)] min-h-[520px] min-w-0 flex-col gap-3 overflow-hidden rounded-2xl border p-3 ${isDark ? "border-slate-800 bg-[#101522]" : "border-slate-200 bg-slate-50"}`}>
       <div
         key={practical.id || practical.title}
         hidden={isWorkspaceOpen}
