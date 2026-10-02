@@ -557,6 +557,7 @@ function extractFencedCode(text, language) {
 
 function fallbackStarterFile(instructions, labType, language) {
   const extracted = extractFencedCode(instructions, language);
+  const namedFile = String(instructions || "").match(/\b(?:save|create|name)\b[^\n]{0,100}?\b(?:as|to)\s+`?([a-z0-9][a-z0-9_.-]*\.(?:c|cc|cpp|cxx|py|js|ts|sql|sh))`?/i)?.[1];
   if (labType === "database") {
     const content = extracted && /\b(create\s+table|insert\s+into|select)\b/i.test(extracted)
       ? extracted
@@ -595,7 +596,7 @@ SELECT id, title, department, credits FROM courses ORDER BY id;`;
   const normalizedLanguage = language || "text";
   if (normalizedLanguage === "python") {
     return {
-      path: "main.py",
+      path: namedFile && /\.py$/i.test(namedFile) ? namedFile : "main.py",
       content: extracted || 'print("Cohortia practical ready")\n',
       language: "python",
       description: "Runnable Python starter file for the practical.",
@@ -604,7 +605,7 @@ SELECT id, title, department, credits FROM courses ORDER BY id;`;
   }
   if (normalizedLanguage === "javascript") {
     return {
-      path: "index.js",
+      path: namedFile && /\.js$/i.test(namedFile) ? namedFile : "index.js",
       content: extracted || 'console.log("Cohortia practical ready");\n',
       language: "javascript",
       description: "Runnable JavaScript starter file for the practical.",
@@ -612,7 +613,9 @@ SELECT id, title, department, credits FROM courses ORDER BY id;`;
     };
   }
   return {
-    path: normalizedLanguage === "cpp" ? "main.cpp" : "main.c",
+    path: namedFile && (normalizedLanguage === "cpp" ? /\.(cpp|cc|cxx)$/i.test(namedFile) : /\.c$/i.test(namedFile))
+      ? namedFile
+      : normalizedLanguage === "cpp" ? "main.cpp" : "main.c",
     content: extracted || '#include <stdio.h>\n\nint main(void) {\n    printf("Cohortia practical ready\\n");\n    return 0;\n}\n',
     language: normalizedLanguage === "cpp" ? "cpp" : "c",
     description: "Runnable C starter file for the practical.",
@@ -1041,14 +1044,53 @@ function normalizePractical(raw, sourceContext, metadata) {
           waitForLearner: true,
         },
   }));
-  const codeWalkthrough = (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
+  const filePathByLowerCase = new Map(files.map((file) => [file.path.toLowerCase(), file.path]));
+  const primarySourceFiles = files.filter((file) => /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql)$/i.test(file.path));
+  const resolveWalkthroughFile = (candidate) => {
+    if (typeof candidate !== "string" || !candidate.trim()) return undefined;
+    const normalized = candidate.trim().replace(/\\/g, "/").replace(/^\.\//, "");
+    const exact = filePathByLowerCase.get(normalized.toLowerCase());
+    if (exact) return exact;
+    const basename = normalized.split("/").at(-1)?.toLowerCase();
+    const basenameMatch = files.find((file) => file.path.split("/").at(-1)?.toLowerCase() === basename);
+    if (basenameMatch) return basenameMatch.path;
+
+    // Models often name the source shown in the activity (for example
+    // greeting.c) even when fallback generation created main.c. A single
+    // executable source file is an unambiguous safe target; preserve the
+    // generated workspace path instead of rejecting an otherwise teachable lab.
+    const extension = normalized.split(".").at(-1)?.toLowerCase();
+    const compatibleSource = primarySourceFiles.filter((file) => (
+      file.path.split(".").at(-1)?.toLowerCase() === extension
+    ));
+    return compatibleSource.length === 1 ? compatibleSource[0].path : undefined;
+  };
+  let codeWalkthrough = (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
     stepNumber: Number.isInteger(Number(seg.stepNumber)) ? Number(seg.stepNumber) : idx + 1,
     speakerText: asStringText(seg.speakerText || seg.text || seg.narration || seg.explanation),
     codeLine: typeof seg.codeLine === "string" ? seg.codeLine : (typeof seg.code === "string" ? seg.code : ""),
-    file: typeof seg.file === "string" ? seg.file : undefined,
+    file: resolveWalkthroughFile(seg.file),
     explanation: asStringText(seg.explanation || seg.annotation),
     durationSeconds: clampInteger(seg.durationSeconds, 8, 3, 90),
   })).filter((seg) => seg.speakerText || seg.codeLine).sort((left, right) => left.stepNumber - right.stepNumber);
+  if (sourceContext.source.category === "Terminal Coding Lab" && codeWalkthrough.length < 4) {
+    const fallbackFile = primarySourceFiles[0] || files[0];
+    const lines = String(fallbackFile?.content || "")
+      .split(/\r?\n/)
+      .map((line) => line.trimEnd())
+      .filter((line) => line.trim())
+      .slice(0, 8);
+    if (fallbackFile && lines.length >= 4) {
+      codeWalkthrough = lines.map((codeLine, index) => ({
+        stepNumber: index + 1,
+        file: fallbackFile.path,
+        codeLine,
+        speakerText: `As this line appears, read it slowly and connect its syntax to the program's job. Notice how step ${index + 1} contributes one clear piece of behavior before we run and test the complete program.`,
+        explanation: `Understand the role of this line before moving to the next one.`,
+        durationSeconds: 8,
+      }));
+    }
+  }
   const walkthroughStepNumbers = codeWalkthrough.map((step) => step.stepNumber);
   const stepsForTask = (taskIndex) => {
     if (!walkthroughStepNumbers.length) return [];

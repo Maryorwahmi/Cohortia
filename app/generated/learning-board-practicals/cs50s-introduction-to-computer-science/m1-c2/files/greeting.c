@@ -1,8 +1,6 @@
 #include <stdio.h>
 
-int main(void)
-{
-    // Your code here: Modify the printf statement
-    printf("Hello, World!\n");
+int main(void) {
+    printf("Cohortia practical ready\n");
     return 0;
 }

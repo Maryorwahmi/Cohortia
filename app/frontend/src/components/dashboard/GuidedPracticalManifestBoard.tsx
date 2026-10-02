@@ -101,9 +101,6 @@ export default function GuidedPracticalManifestBoard({
   const checks = useMemo(() => normalizeChecks(practical), [practical]);
   const currentCode = files[activeFilePath] ?? "";
   const completedCount = tasks.filter((task) => completedTasks[task.id]).length;
-  const displayTitle = /^practical\s+[\w-]+\/\d+\/\d+$/i.test(practical.title.trim())
-    ? tasks[0]?.title || "Guided practical"
-    : practical.title;
   const language = languageForFile(activeFilePath, practical.language);
   const codeMode = ["code_lab", "terminal_lab", "database_lab"].includes(practical.mode)
     && ["python", "c", "cpp", "c++"].includes(language.toLowerCase());
@@ -350,24 +347,11 @@ export default function GuidedPracticalManifestBoard({
   }
 
   return (
-    <div className={`flex h-full min-h-0 flex-col gap-3 overflow-y-auto rounded-2xl p-4 ${isDark ? "bg-[#090a10]" : "bg-slate-50"}`}>
-      <header className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${surface}`}>
-        <div className="min-w-0">
-          <p className={`text-[10px] font-bold uppercase tracking-widest ${accentText}`}>Cohortia Practical Learning Board</p>
-          <h2 className={`mt-1 truncate text-lg font-bold ${darkText}`}>{displayTitle}</h2>
-          <p className={`mt-1 text-xs ${mutedText}`}>
-            {isWorkspaceOpen
-              ? "Predict → do → run → debug → reflect"
-              : "The walkthrough starts first. Join the practical whenever you’re ready to edit, run, and test. Use Hear teacher if audio is blocked."}
-          </p>
-        </div>
-        <div className={`text-xs font-semibold ${mutedText}`}>{completedCount} / {tasks.length} tasks passed</div>
-      </header>
-
+    <div className={`flex h-full min-h-[620px] min-w-0 flex-col gap-3 overflow-y-auto rounded-2xl border p-3 ${isDark ? "border-slate-800 bg-[#101522]" : "border-slate-200 bg-slate-50"}`}>
       <div
         key={practical.id || practical.title}
         hidden={isWorkspaceOpen}
-        className="h-[min(58vh,520px)] min-h-[360px] shrink-0 overflow-hidden rounded-xl"
+        className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl"
       >
         <AnimatedCodeAlongPlayer
           playlist={practical.teachingPlaylist}
@@ -378,6 +362,7 @@ export default function GuidedPracticalManifestBoard({
           tasks={tasks}
           narratorGuide={practical.narratorGuide}
           onOpenLab={handleJoinPractical}
+          onWalkthroughComplete={handleJoinPractical}
           openButtonLabel="Join practical"
           isActive={!isWorkspaceOpen}
         />
@@ -432,8 +417,8 @@ export default function GuidedPracticalManifestBoard({
           </div>
         </section>
 
-      <section className={`grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.7fr)]`}>
-        <div className={`flex min-h-[300px] min-w-0 flex-col rounded-xl border p-3 ${surface}`}>
+      <section className={`grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]`}>
+        <div className={`flex min-h-[520px] min-w-0 flex-col rounded-xl border p-3 ${surface}`}>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-1 overflow-x-auto">
               {practicalFiles.map((file) => (
@@ -460,7 +445,7 @@ export default function GuidedPracticalManifestBoard({
             onChange={(event) => updateCurrentFile(event.target.value)}
             spellCheck={false}
             aria-label={`Editor for ${activeFilePath}`}
-            className={`min-h-[240px] flex-1 resize-y rounded-lg border p-3 font-mono text-xs leading-relaxed outline-none focus:border-[#FF4B3E] ${
+            className={`h-[min(42vh,400px)] min-h-[260px] flex-none resize-y rounded-lg border p-3 font-mono text-xs leading-relaxed outline-none focus:border-[#FF4B3E] ${
               isDark ? "border-white/10 bg-[#05070d] text-slate-100" : "border-slate-200 bg-white text-slate-900"
             }`}
           />
@@ -488,7 +473,7 @@ export default function GuidedPracticalManifestBoard({
           </div>
         </div>
 
-        <aside className={`flex min-h-[300px] flex-col gap-3 rounded-xl border p-3 ${surface}`}>
+        <aside className={`flex min-h-[520px] min-w-0 flex-col gap-3 rounded-xl border p-3 ${surface}`}>
           <div>
             <h3 className={`text-xs font-bold ${darkText}`}>Inline guidance</h3>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -502,7 +487,7 @@ export default function GuidedPracticalManifestBoard({
                       ...previous,
                       [activeTask.id]: Math.max(previous[activeTask.id] || 0, index + 1),
                     }))}
-                    className={`rounded-md border px-2 py-1 text-[10px] ${revealedCount > index ? "border-amber-500/40 bg-amber-500/10 text-amber-700" : `border-slate-300 ${mutedText}`}`}
+                    className={`rounded-md border px-2 py-1 text-[10px] ${revealedCount > index ? isDark ? "border-amber-400/40 bg-amber-400/10 text-amber-200" : "border-amber-500/40 bg-amber-500/10 text-amber-700" : isDark ? `border-slate-700 ${mutedText}` : `border-slate-300 ${mutedText}`}`}
                   >
                     <Lightbulb className="mr-1 inline h-3 w-3" />Hint {index + 1}
                   </button>
@@ -516,7 +501,7 @@ export default function GuidedPracticalManifestBoard({
                     ...previous,
                     [activeTask.id]: [...new Set([...(previous[activeTask.id] || []), suggestion.id])],
                   }))}
-                  className="rounded-md border border-blue-500/30 bg-blue-500/10 px-2 py-1 text-[10px] text-blue-700"
+                  className={`rounded-md border border-blue-500/30 bg-blue-500/10 px-2 py-1 text-[10px] ${isDark ? "text-blue-200" : "text-blue-700"}`}
                 >
                   {suggestion.label}
                 </button>
@@ -529,7 +514,7 @@ export default function GuidedPracticalManifestBoard({
                   <div key={suggestion.id} className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-2">
                     <p>{suggestion.text}</p>
                     {suggestion.insertionText && (
-                      <button type="button" onClick={() => updateCurrentFile(`${currentCode}${currentCode.endsWith("\n") || !currentCode ? "" : "\n"}${suggestion.insertionText}`)} className="mt-1 font-semibold text-blue-700">
+                      <button type="button" onClick={() => updateCurrentFile(`${currentCode}${currentCode.endsWith("\n") || !currentCode ? "" : "\n"}${suggestion.insertionText}`)} className={`mt-1 font-semibold ${isDark ? "text-blue-200" : "text-blue-700"}`}>
                         Insert small code suggestion
                       </button>
                     )}
@@ -540,7 +525,7 @@ export default function GuidedPracticalManifestBoard({
           </div>
           <div className="min-h-0 flex-1">
             <h3 className={`text-xs font-bold ${darkText}`}>Run output and checks</h3>
-            <pre aria-live="polite" className={`mt-2 h-[min(38vh,280px)] overflow-auto whitespace-pre-wrap rounded-lg border p-3 font-mono text-[11px] ${
+            <pre aria-live="polite" className={`mt-2 h-[min(28vh,220px)] min-h-[150px] overflow-auto whitespace-pre-wrap rounded-lg border p-3 font-mono text-[11px] ${
               isDark ? "border-white/10 bg-[#05070d] text-slate-200" : "border-slate-200 bg-slate-100 text-slate-800"
             }`}>{output || "Your compiler or runtime output will appear here. A successful compile alone does not pass a practical check."}</pre>
             <div className="mt-2 space-y-1">

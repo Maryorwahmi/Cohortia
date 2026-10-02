@@ -3,6 +3,7 @@ import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep } from "../../services/learningBoardsApi";
 import { getAssignedVoiceForCourse, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
 import { estimateSpeechDurationSeconds, SpeechNarrationQueue } from "../../lib/speechNarration";
+import { useTheme } from "../../context/ThemeContext";
 
 const TEACHER_SPEECH_RATE = 0.82;
 
@@ -17,6 +18,7 @@ interface AnimatedCodeAlongPlayerProps {
   narratorGuide?: string | null;
   output?: string[];
   onOpenLab?: () => void;
+  onWalkthroughComplete?: () => void;
   openButtonLabel?: string;
   isActive?: boolean;
 }
@@ -82,20 +84,23 @@ export default function AnimatedCodeAlongPlayer({
   narratorGuide,
   output = [],
   onOpenLab,
+  onWalkthroughComplete,
   openButtonLabel,
   isActive = true,
 }: AnimatedCodeAlongPlayerProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [isNarrating, setIsNarrating] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [activePlaylistIndex, setActivePlaylistIndex] = useState(0);
-  const [furthestPlaylistIndex, setFurthestPlaylistIndex] = useState(0);
   const requestRef = useRef<number | null>(null);
   const previousTimeRef = useRef<number | null>(null);
   const spokenLessonRef = useRef<string | null>(null);
   const narratorVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
   const narrationQueueRef = useRef(new SpeechNarrationQueue());
+  const transitionStartedRef = useRef(false);
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
   const lessonDuration = (script: string) => narrationDuration(script) + 3;
@@ -162,6 +167,24 @@ export default function AnimatedCodeAlongPlayer({
     && activePlaylistIndex === teachingPlaylist.length - 1
     && currentTime >= activeDurationSeconds;
 
+  const moveToExperiment = () => {
+    if (transitionStartedRef.current) return;
+    transitionStartedRef.current = true;
+    setIsPlaying(false);
+    const transitionScript = "Great work completing the walkthrough. Let’s move to the experimental phase, where you test your ability by editing, running, and checking the practical yourself.";
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      onWalkthroughComplete?.();
+      return;
+    }
+    narrationQueueRef.current.play(transitionScript, {
+      voice: narratorVoiceRef.current,
+      rate: TEACHER_SPEECH_RATE,
+      pitch: 1.02,
+      onSpeakingChange: setIsNarrating,
+    });
+    onWalkthroughComplete?.();
+  };
+
   useEffect(() => {
     if (!courseId || typeof window === "undefined" || !window.speechSynthesis) return;
     let cancelled = false;
@@ -184,7 +207,7 @@ export default function AnimatedCodeAlongPlayer({
   useEffect(() => {
     if (isActive) return;
     setIsPlaying(false);
-    narrationQueueRef.current.cancel();
+    if (!transitionStartedRef.current) narrationQueueRef.current.cancel();
   }, [isActive]);
 
   useEffect(() => {
@@ -211,11 +234,10 @@ export default function AnimatedCodeAlongPlayer({
     if (activePlaylistIndex < teachingPlaylist.length - 1) {
       const nextIndex = activePlaylistIndex + 1;
       setActivePlaylistIndex(nextIndex);
-      setFurthestPlaylistIndex((furthest) => Math.max(furthest, nextIndex));
       setCurrentTime(0);
       return;
     }
-    setIsPlaying(false);
+    moveToExperiment();
   }, [activeDurationSeconds, activePlaylistIndex, currentTime, isPlaying, teachingPlaylist.length]);
 
   const speakActiveLesson = () => {
@@ -238,34 +260,34 @@ export default function AnimatedCodeAlongPlayer({
   }, [activePlaylist.id, activeNarrationScript, isMuted, isPlaying]);
 
   return (
-    <div className="h-full min-h-0 w-full overflow-hidden bg-immersive-bg">
+    <div className={`h-full min-h-0 w-full overflow-hidden ${isDark ? "bg-[#101522]" : "bg-slate-50"}`}>
       <div className="flex h-full min-h-0 w-full flex-col">
-        <div className="relative min-h-0 w-full flex-1 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/60">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100">
+        <div className={`relative min-h-0 w-full flex-1 overflow-hidden rounded-2xl border shadow-xl ${isDark ? "border-slate-700 bg-[#171d2c] shadow-black/30" : "border-slate-200 bg-white shadow-slate-200/60"}`}>
+          <div className={`absolute inset-0 ${isDark ? "bg-gradient-to-br from-[#151b2a] via-[#1d2435] to-[#101522]" : "bg-gradient-to-br from-slate-50 via-white to-slate-100"}`}>
             <div className="absolute inset-0 flex flex-col p-4 text-left sm:p-6">
-              <div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2">
+              <div className={`mb-3 flex items-center justify-between border-b pb-2 ${isDark ? "border-slate-700" : "border-slate-200"}`}>
                 <div className="flex items-center space-x-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-rose-500" /><span className="h-2.5 w-2.5 rounded-full bg-amber-500" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  <span className="pl-2 font-mono text-[10px] font-semibold uppercase text-slate-500">Imported practical workspace</span>
+                  <span className={`pl-2 font-mono text-[10px] font-semibold uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>Practical workspace</span>
                 </div>
-                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-700">GENERATED CONTENT</span>
+                <span className={`rounded-full px-2 py-0.5 font-mono text-[9px] font-bold ${isDark ? "bg-emerald-400/10 text-emerald-300" : "bg-emerald-500/10 text-emerald-700"}`}>TEACH MODE</span>
               </div>
               <div className="grid min-h-0 flex-1 grid-cols-12 gap-3">
-                <div className="col-span-2 flex flex-col space-y-1.5 rounded-xl border border-slate-200 bg-white p-2 font-mono text-xs text-slate-600">
-                  <span className="mb-1 text-[10px] font-black uppercase text-slate-500">WORKSPACE</span>
+                <div className={`col-span-2 flex flex-col space-y-1.5 rounded-xl border p-2 font-mono text-xs ${isDark ? "border-slate-700 bg-[#121827] text-slate-300" : "border-slate-200 bg-white text-slate-600"}`}>
+                  <span className={`mb-1 text-[10px] font-black uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>WORKSPACE</span>
                   <div className="flex items-center space-x-1.5 text-immersive-secondary"><span className="text-xs">📂</span><span>practical</span></div>
                   {files.length > 0 ? files.map((file) => (
-                    <div key={file.path} className={`flex items-center space-x-1.5 rounded-md p-1 pl-3 ${file.path === activeFile ? "bg-slate-100 text-immersive-primary" : ""}`}><span className="text-xs">📄</span><span className="truncate">{file.path}</span></div>
+                    <div key={file.path} className={`flex items-center space-x-1.5 rounded-md p-1 pl-3 ${file.path === activeFile ? isDark ? "bg-slate-700/70 text-cyan-200" : "bg-slate-100 text-immersive-primary" : ""}`}><span className="text-xs">📄</span><span className="truncate">{file.path}</span></div>
                   )) : <div className="pl-3 text-slate-400">Loading practical files…</div>}
                 </div>
-                <div className="relative col-span-10 flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="flex-1 select-none space-y-2 font-mono text-xs text-emerald-400">
-                    <p className="text-slate-500">// Lesson {activePlaylistIndex + 1}: {activePlaylist.title}</p>
+                <div className={`relative col-span-10 flex flex-col overflow-hidden rounded-xl border p-4 ${isDark ? "border-slate-700 bg-[#151b2a]" : "border-slate-200 bg-white"}`}>
+                  <div className="flex-1 select-none space-y-2 font-mono text-xs">
+                    <p className={isDark ? "text-slate-400" : "text-slate-500"}>// Lesson {activePlaylistIndex + 1}: {activePlaylist.title}</p>
                     {isCodeLab ? (
                       <>
-                        <p className="mb-2 text-xs font-bold text-immersive-primary">{activeFile}</p>
-                        <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-950 p-3 font-mono text-xs leading-6 text-emerald-200">{displayedCode}{activeWalkthrough.length > 0 && codeReveal.progress < 1 ? <span className="animate-pulse text-amber-300">▌</span> : null}</pre>
-                        {codeReveal.activeStep && <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] leading-relaxed text-amber-900">Line {codeReveal.activeStep.stepNumber}: {codeReveal.activeStep.explanation || codeReveal.activeStep.speakerText}</p>}
+                        <p className={isDark ? "mb-2 text-xs font-bold text-cyan-300" : "mb-2 text-xs font-bold text-immersive-primary"}>{activeFile}</p>
+                        <pre className={`min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded-lg border p-4 font-mono text-xs leading-6 shadow-inner ${isDark ? "border-slate-700 bg-gradient-to-br from-[#222b40] via-[#151b2a] to-[#292f40]" : "border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100"}`}><CodePreview code={displayedCode} dark={isDark} />{activeWalkthrough.length > 0 && codeReveal.progress < 1 ? <span className="animate-pulse text-amber-300">▌</span> : null}</pre>
+                        {codeReveal.activeStep && <p className={`rounded-md border px-2 py-1 text-[10px] leading-relaxed ${isDark ? "border-amber-400/30 bg-amber-300/10 text-amber-100" : "border-amber-200 bg-amber-50 text-amber-900"}`}>Line {codeReveal.activeStep.stepNumber}: {codeReveal.activeStep.explanation || codeReveal.activeStep.speakerText}</p>}
                       </>
                     ) : (
                       <div className="grid gap-2 font-sans text-left sm:grid-cols-2">
@@ -276,39 +298,19 @@ export default function AnimatedCodeAlongPlayer({
                       </div>
                     )}
                   </div>
-                  <div className="mt-3 max-h-32 shrink-0 overflow-y-auto rounded-lg border border-immersive-primary/20 bg-white p-3 shadow-sm">
-                    <div className="mb-1 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-[9px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className="font-mono text-[9px] text-slate-500">Pause & predict</span></div>
-                    <div>
-                      <p className="text-xs leading-relaxed text-slate-600">{codeReveal.activeStep?.speakerText || activeNarrationScript}</p>
-                      <p className="mt-2 text-xs font-medium leading-relaxed text-amber-700">Think first: {activePlaylist.learnerPrompt}</p>
-                      {activeTask?.teaching?.learningGoal && <p className="mt-2 text-xs leading-relaxed text-emerald-700">Focus: {activeTask.teaching.learningGoal}</p>}
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-transparent" />
-          <div className="pointer-events-none absolute left-4 top-4 z-10 flex space-x-2 rounded-full border border-emerald-200 bg-white/90 px-3 py-1 font-mono text-[10px] font-bold text-emerald-700 shadow-lg"><span className="h-2 w-2 rounded-full bg-emerald-500" /><span>IMPORTED PRACTICAL</span></div>
+          <div className={`pointer-events-none absolute inset-0 bg-gradient-to-t via-transparent to-transparent ${isDark ? "from-[#101522]/50" : "from-white/50"}`} />
         </div>
-        {teachingPlaylist.length > 1 && (
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-            {teachingPlaylist.map((lesson, index) => (
-              <button
-                key={lesson.id}
-                type="button"
-                onClick={() => { setActivePlaylistIndex(index); setCurrentTime(0); setIsPlaying(true); }}
-                disabled={index > furthestPlaylistIndex}
-                aria-label={`Play lesson ${index + 1}: ${lesson.title}`}
-                className={`min-w-[190px] rounded-xl border p-2 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 disabled:cursor-not-allowed disabled:opacity-50 ${index === activePlaylistIndex ? "border-immersive-primary/50 bg-immersive-primary/10" : "border-immersive-border bg-immersive-card hover:bg-immersive-card-hover"}`}
-              >
-                <span className="block font-mono text-[9px] font-bold uppercase text-immersive-secondary">Lesson {index + 1} · {formatTime(lessonDuration(lesson.narratorScript))}</span>
-                <span className="mt-0.5 block truncate text-[11px] font-bold text-immersive-text-primary">{lesson.title}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        <div className="mt-3.5 flex flex-col space-y-3 rounded-2xl border border-immersive-border/60 bg-immersive-card p-3.5 shadow-md shadow-immersive-shadow backdrop-blur-md">
+        <section className={`mt-3 rounded-xl border p-3 shadow-sm ${isDark ? "border-cyan-300/20 bg-slate-900/70" : "border-immersive-primary/20 bg-white"}`} aria-live="polite">
+          <div className="mb-1 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-[9px] font-black uppercase tracking-wider text-immersive-primary">Teacher guide · {activePlaylist.learningGoal}</span><span className={`font-mono text-[9px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Pause & predict</span></div>
+          <p className={`text-xs leading-relaxed ${isDark ? "text-slate-200" : "text-slate-600"}`}>{codeReveal.activeStep?.speakerText || activeNarrationScript}</p>
+          <p className={`mt-2 text-xs font-medium leading-relaxed ${isDark ? "text-amber-200" : "text-amber-700"}`}>Think first: {activePlaylist.learnerPrompt}</p>
+          {activeTask?.teaching?.learningGoal && <p className={`mt-2 text-xs leading-relaxed ${isDark ? "text-emerald-300" : "text-emerald-700"}`}>Focus: {activeTask.teaching.learningGoal}</p>}
+        </section>
+        <div className={`mt-3 flex flex-col space-y-3 rounded-xl border p-3 shadow-md backdrop-blur-md ${isDark ? "border-slate-700 bg-[#171d2c] shadow-black/20" : "border-immersive-border/60 bg-immersive-card shadow-immersive-shadow"}`}>
           <label className="sr-only" htmlFor="practical-walkthrough-progress">Walkthrough progress</label>
           <input
             id="practical-walkthrough-progress"
@@ -323,8 +325,8 @@ export default function AnimatedCodeAlongPlayer({
           />
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 text-immersive-text-secondary">
-              <button type="button" onClick={() => { if (walkthroughComplete) { setActivePlaylistIndex(0); setCurrentTime(0); } setIsPlaying((playing) => !playing); }} className="cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-white/5 hover:text-immersive-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title={isPlaying ? "Pause walkthrough" : "Play walkthrough"} aria-label={isPlaying ? "Pause walkthrough" : "Play walkthrough"}>{isPlaying ? <Pause className="h-4.5 w-4.5" /> : <Play className="h-4.5 w-4.5" />}</button>
-              <button type="button" onClick={() => { setActivePlaylistIndex(0); setFurthestPlaylistIndex(0); setCurrentTime(0); setIsPlaying(true); }} className="cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-white/5 hover:text-immersive-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title="Restart walkthrough" aria-label="Restart walkthrough"><RotateCcw className="h-4.5 w-4.5" /></button>
+              <button type="button" onClick={() => { if (walkthroughComplete) { transitionStartedRef.current = false; setActivePlaylistIndex(0); setCurrentTime(0); } setIsPlaying((playing) => !playing); }} className="cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-white/5 hover:text-immersive-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title={isPlaying ? "Pause walkthrough" : "Play walkthrough"} aria-label={isPlaying ? "Pause walkthrough" : "Play walkthrough"}>{isPlaying ? <Pause className="h-4.5 w-4.5" /> : <Play className="h-4.5 w-4.5" />}</button>
+              <button type="button" onClick={() => { transitionStartedRef.current = false; narrationQueueRef.current.cancel(); setActivePlaylistIndex(0); setCurrentTime(0); setIsPlaying(true); }} className="cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-white/5 hover:text-immersive-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500" title="Restart walkthrough" aria-label="Restart walkthrough"><RotateCcw className="h-4.5 w-4.5" /></button>
               <span className="select-none font-mono text-[11px] font-bold text-immersive-text-primary/80">{formatTime(currentTime)} <span className="text-slate-600">/</span> {formatTime(activeDurationSeconds)}</span>
             </div>
             <div className="hidden min-w-0 items-center gap-2 sm:flex">
@@ -346,6 +348,23 @@ export default function AnimatedCodeAlongPlayer({
       </div>
     </div>
   );
+}
+
+function CodePreview({ code, dark }: { code: string; dark: boolean }) {
+  const tokenPattern = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/|#\s*include\s*<[^>]+>|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b(?:auto|bool|break|case|char|class|const|continue|def|double|else|enum|float|for|if|import|int|let|long|main|print|printf|public|return|static|string|struct|switch|void|while)\b|\b\d+(?:\.\d+)?\b)/g;
+  const parts = code.split(tokenPattern);
+  const color = (token: string) => {
+    if (/^(\/\/|\/\*)/.test(token)) return dark ? "text-slate-400 italic" : "text-slate-500 italic";
+    if (/^#\s*include/.test(token)) return dark ? "text-fuchsia-300" : "text-fuchsia-700";
+    if (/^["']/.test(token)) return dark ? "text-amber-300" : "text-amber-700";
+    if (/^\d/.test(token)) return dark ? "text-cyan-300" : "text-cyan-700";
+    return dark ? "text-violet-300" : "text-violet-700";
+  };
+  return <>{parts.map((part, index) => {
+    tokenPattern.lastIndex = 0;
+    const isToken = tokenPattern.test(part);
+    return <span key={index} className={isToken ? color(part) : dark ? "text-slate-100" : "text-slate-800"}>{part}</span>;
+  })}</>;
 }
 
 function TeachingCard({ label, text, tone }: { label: string; text: string; tone: "blue" | "violet" | "amber" | "rose" }) {

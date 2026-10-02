@@ -292,14 +292,15 @@ async function generateCourse(options) {
 function usage() {
   return [
     "Usage:",
-    "  node scripts/generate-learning-board-practical-course.js --course-id <course-id> [--module <number> --chapters <number[,number...]>] [--dry-run]",
+    "  node scripts/generate-learning-board-practical-course.js --course-id <course-id> --module <number> [--chapters <number[,number...]>] [--dry-run] [--skip-import]",
     "  node scripts/generate-learning-board-practical-course.js --syllabus <path> [--course-id <course-id>]",
     "",
-    "The generator creates one practical per chapter with a hands-on activity,",
-    "then writes course-manifest.json for the Learning Board API to serve.",
+    "The generator creates an entire module's practicals in one model request,",
+    "imports every generated chapter into Turso, then writes course-manifest.json.",
     "Chapters without a hands-on activity are listed as skipped.",
     "Matching existing chapter practicals are reused by source hash; use --force to regenerate them.",
-    "Use --module and --chapters to generate a small test subset; the resulting course manifest contains only that selected subset.",
+    "Use --module by itself to generate the complete module. Add --chapters only to retry a small subset; the resulting course manifest contains only that selected subset.",
+    "Use --skip-import only when you explicitly do not want generated practicals published to Turso.",
     "Use the default output directory, or set COHORTIA_PRACTICALS_DIR consistently",
     "for both the generator and backend when using a custom output location.",
   ].join("\n");

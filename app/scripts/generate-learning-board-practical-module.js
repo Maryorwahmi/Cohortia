@@ -10,6 +10,7 @@
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import path from "node:path";
+import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
 import {
@@ -21,6 +22,8 @@ import {
 } from "./generate-learning-board-practical.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const BACKEND_ROOT = path.join(REPOSITORY_ROOT, "backend");
+const PRACTICAL_IMPORTER_PATH = path.join(BACKEND_ROOT, "scripts", "import-practicals.js");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 const MODULE_RESPONSE_SCHEMA = {
@@ -300,6 +303,29 @@ function resolveInputPath(value, repoRoot) {
   return path.isAbsolute(value) ? value : path.resolve(repoRoot, value);
 }
 
+function importGeneratedPractical(practicalPath) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [PRACTICAL_IMPORTER_PATH, "--practical", practicalPath], {
+      cwd: BACKEND_ROOT,
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+      windowsHide: true,
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => { stdout += chunk; });
+    child.stderr.on("data", (chunk) => { stderr += chunk; });
+    child.once("error", reject);
+    child.once("exit", (code) => {
+      if (code === 0) {
+        resolve({ practicalPath, output: stdout.trim() });
+        return;
+      }
+      reject(new Error(`Turso import failed for ${practicalPath}: ${(stderr || stdout || `exit code ${code}`).trim()}`));
+    });
+  });
+}
+
 async function buildModuleEntries({
   repoRoot,
   syllabusPath,
@@ -465,15 +491,22 @@ async function generateModule(options) {
   const normalized = normalizeModuleResponse(result.data, entries);
   const outputRoot = resolveInputPath(options.output || "generated/learning-board-practicals", repoRoot);
   const targets = [];
+  const imports = [];
   for (const entry of normalized) {
-    targets.push(await writePractical(
+    const target = await writePractical(
       entry.practical,
       outputRoot,
       resolvedCourseId,
       entry.metadata.moduleNumber,
       entry.metadata.chapterNumber,
       entry.sourceContext
-    ));
+    );
+    targets.push(target);
+    if (options["skip-import"] !== true) {
+      const imported = await importGeneratedPractical(path.join(target, "practical.json"));
+      imports.push(imported.practicalPath);
+      console.log(`✓ Imported practical into Turso: ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`);
+    }
   }
 
   return {
@@ -482,6 +515,7 @@ async function generateModule(options) {
     moduleNumber,
     chapters: normalized.map((entry) => `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`),
     targets,
+    imports,
   };
 }
 
@@ -492,10 +526,12 @@ function usage() {
     "    --course-id <course-id> \\",
     "    --module <num> \\",
     "    [--chapter <num[,num...]>] \\",
-    "    [--output <dir>] [--dry-run]",
+    "    [--output <dir>] [--dry-run] [--skip-import]",
     "",
-    "The generator sends all selected chapters in one Gemini request and writes",
-    "one validated practical manifest per chapter.",
+    "The generator sends all selected chapters in one Gemini request, writes",
+    "one validated practical manifest per chapter, then imports each generated chapter into Turso.",
+    "Omit --chapter to generate every hands-on practical in the module.",
+    "Use --skip-import only when you explicitly need JSON files without publishing them.",
   ].join("\n");
 }
 
