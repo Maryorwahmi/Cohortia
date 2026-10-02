@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config/api';
+import { fetchWithReadCache } from '../services/requestCache';
 
 interface Chapter {
   id: string;
@@ -39,7 +40,7 @@ export default function CourseAssessmentDetail() {
     const fetchCourseData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(
+        const res = await fetchWithReadCache(
           `${API_BASE_URL}/assessments/${courseId}`
         );
         const data = await res.json();

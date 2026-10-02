@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL as API_ROOT } from '../config/api';
+import { fetchWithReadCache } from '../services/requestCache';
 
 interface CourseOption {
   id: string;
@@ -158,7 +159,7 @@ export default function AutomationPage() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_ROOT}/automation/courses?category=${encodeURIComponent(category)}`, {
+      const response = await fetchWithReadCache(`${API_ROOT}/automation/courses?category=${encodeURIComponent(category)}`, {
         headers: authHeaders(),
       });
       const payload = await response.json();
@@ -196,7 +197,7 @@ export default function AutomationPage() {
     try {
       const selected = courses.find((course) => course.id === selectedCourse);
       const courseId = selectedCourse === ALL_SUBCATEGORY_OPTION ? 'all' : selectedCourse;
-      const response = await fetch(`${API_ROOT}/automation/generate`, {
+      const response = await fetchWithReadCache(`${API_ROOT}/automation/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({
@@ -232,7 +233,7 @@ export default function AutomationPage() {
       pollTimerRef.current = null;
     }
     try {
-      const response = await fetch(`${API_ROOT}/automation/jobs/stop-all`, {
+      const response = await fetchWithReadCache(`${API_ROOT}/automation/jobs/stop-all`, {
         method: 'POST',
         headers: authHeaders(),
       });

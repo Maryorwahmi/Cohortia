@@ -4,6 +4,7 @@
  */
 
 import { API_BASE_URL as API_ROOT } from '../config/api';
+import { fetchWithReadCache } from './requestCache';
 const API_BASE = `${API_ROOT}/learning-boards`;
 
 function authHeaders(): HeadersInit {
@@ -311,7 +312,7 @@ class LearningBoardsApiService {
    * Get all available learning board courses
    */
   async getCourses(): Promise<LearningBoardCourse[]> {
-    const response = await fetch(`${API_BASE}/boards`);
+    const response = await fetchWithReadCache(`${API_BASE}/boards`);
     if (!response.ok) {
       throw new Error(`Failed to fetch learning board courses: ${response.statusText}`);
     }
@@ -323,7 +324,7 @@ class LearningBoardsApiService {
    * Get chapters for a specific course
    */
   async getCourseChapters(courseId: string): Promise<{ course: LearningBoardCourse; chapters: LearningBoardChapter[] }> {
-    const response = await fetch(`${API_BASE}/boards/${courseId}`);
+    const response = await fetchWithReadCache(`${API_BASE}/boards/${courseId}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch course chapters: ${response.statusText}`);
     }
@@ -338,7 +339,7 @@ class LearningBoardsApiService {
    * Get a specific chapter with all its screens
    */
   async getChapter(courseId: string, module: number, chapter: number): Promise<LearningBoardChapterData> {
-    const response = await fetch(`${API_BASE}/boards/${courseId}/${module}/${chapter}`);
+    const response = await fetchWithReadCache(`${API_BASE}/boards/${courseId}/${module}/${chapter}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch chapter: ${response.statusText}`);
     }
@@ -350,12 +351,26 @@ class LearningBoardsApiService {
   }
 
   async getProgress(courseId: string, module: number, chapter: number): Promise<LearningBoardProgress | null> {
-    const response = await fetch(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
       headers: authHeaders(),
     });
     if (!response.ok) throw new Error(`Failed to fetch chapter progress: ${response.statusText}`);
     const data = await response.json();
     return data.data?.progress || null;
+  }
+
+  async getCourseProgress(courseId: string): Promise<Record<string, LearningBoardProgress>> {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}`, {
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error(`Failed to fetch course progress: ${response.statusText}`);
+    const data = await response.json();
+    return Object.fromEntries(
+      (data.data?.progress || []).map((progress: LearningBoardProgress) => [
+        `${progress.module}-${progress.chapter}`,
+        progress,
+      ]),
+    );
   }
 
   async updateProgress(
@@ -364,7 +379,7 @@ class LearningBoardsApiService {
     chapter: number,
     update: Partial<Pick<LearningBoardProgress, 'lessonId' | 'explicitComplete' | 'watched' | 'practicalsComplete' | 'assessmentPassed' | 'score' | 'studySeconds' | 'notes'>>,
   ): Promise<{ progress: LearningBoardProgress; completed: boolean }> {
-    const response = await fetch(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify(update),
@@ -381,7 +396,7 @@ class LearningBoardsApiService {
     questionId: number,
     studentAnswer: string,
   ): Promise<AssessmentAnswerEvaluation> {
-    const response = await fetch(`${API_ROOT}/learning/assessment/evaluate`, {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/assessment/evaluate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({ courseId, module, chapter, questionId, studentAnswer }),
@@ -402,7 +417,7 @@ class LearningBoardsApiService {
     status: "started" | "in_progress" | "passed" | "failed" | "submitted",
     output: string
   ): Promise<{ id: string; status: string }> {
-    const response = await fetch(`${API_ROOT}/learning/practical-attempts`, {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-attempts`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ practicalId, files, status, output }),
@@ -433,7 +448,7 @@ class LearningBoardsApiService {
     compileProbes?: Array<{ id: string; passed: boolean; message: string }>;
     error?: string;
   }> {
-    const response = await fetch(`${API_ROOT}/learning/practical-execute`, {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({ files, activeFilePath, language, stdin, enableSanitizers, compileProbes }),
@@ -456,7 +471,7 @@ class LearningBoardsApiService {
     taskId: string,
     status: "not_started" | "in_progress" | "completed" = "completed"
   ): Promise<{ practicalId: string; taskId: string; status: string }> {
-    const response = await fetch(`${API_ROOT}/learning/practical-task-progress`, {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-task-progress`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ practicalId, taskId, status }),
@@ -472,7 +487,7 @@ class LearningBoardsApiService {
    * Retrieve learner's attempts and task completions for a practical
    */
   async getPracticalProgress(practicalId: string): Promise<{ attempts: any[]; taskProgress: any[] }> {
-    const response = await fetch(`${API_ROOT}/learning/practical-progress/${encodeURIComponent(practicalId)}`, {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-progress/${encodeURIComponent(practicalId)}`, {
       headers: authHeaders(),
     });
     const data = await response.json().catch(() => ({}));
@@ -486,7 +501,7 @@ class LearningBoardsApiService {
    * Get a specific screen from a chapter
    */
   async getScreen(courseId: string, module: number, chapter: number, screen: number): Promise<LearningBoardScreen> {
-    const response = await fetch(`${API_BASE}/boards/${courseId}/${module}/${chapter}/${screen}`);
+    const response = await fetchWithReadCache(`${API_BASE}/boards/${courseId}/${module}/${chapter}/${screen}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch screen: ${response.statusText}`);
     }

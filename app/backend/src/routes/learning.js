@@ -1088,7 +1088,21 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
 });
 
 // Get the current user's progress for one learning-board chapter.
+learning.use('/board-progress/:courseId', authMiddleware);
 learning.use('/board-progress/*', authMiddleware);
+learning.get('/board-progress/:courseId', async (c) => {
+  const userId = c.get('userId');
+  const records = await db
+    .select()
+    .from(learningBoardProgress)
+    .where(and(
+      eq(learningBoardProgress.userId, userId),
+      eq(learningBoardProgress.courseId, c.req.param('courseId')),
+    ));
+
+  return c.json({ success: true, data: { progress: records } });
+});
+
 learning.get('/board-progress/:courseId/:module/:chapter', async (c) => {
   const userId = c.get('userId');
   const record = await db

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { authApi, BackendUser, AuthResponse } from '../services/api.js';
+import { invalidateRequestCache } from '../services/requestCache';
 
 interface AuthState {
   user: BackendUser | null;
@@ -84,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('cohortia_token');
+    invalidateRequestCache();
   };
 
   const completeExternalLogin = useCallback(async (token: string) => {

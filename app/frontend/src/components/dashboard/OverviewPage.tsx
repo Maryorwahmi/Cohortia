@@ -68,15 +68,13 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
         const { chapters } = await learningBoardsApi.getCourseChapters(course.courseId);
         if (cancelled) return;
         setCourseChapters(chapters);
-        const progressEntries = await Promise.all(chapters.map(async (chapter) => {
-          try {
-            const progress = await learningBoardsApi.getProgress(course.courseId, chapter.module, chapter.chapter);
-            return [`${chapter.module}-${chapter.chapter}`, progress] as const;
-          } catch {
-            return [`${chapter.module}-${chapter.chapter}`, null] as const;
-          }
-        }));
-        if (!cancelled) setChapterProgress(Object.fromEntries(progressEntries));
+        try {
+          const progress = await learningBoardsApi.getCourseProgress(course.courseId);
+          if (!cancelled) setChapterProgress(progress);
+        } catch (error) {
+          console.error("Failed to load learning-board course progress:", error);
+          if (!cancelled) setChapterProgress({});
+        }
       })
       .catch(() => {
         if (!cancelled) setCourseChapters([]);

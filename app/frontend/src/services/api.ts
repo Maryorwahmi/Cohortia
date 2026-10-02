@@ -1,5 +1,6 @@
 import { API_BASE_URL } from '../config/api';
 import type { RoadmapSelection } from '../types';
+import { fetchWithReadCache } from './requestCache';
 
 export interface ApiError extends Error {
   status?: number;
@@ -19,7 +20,7 @@ async function fetchApi<T = unknown>(endpoint: string, options: RequestInit = {}
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
+  const response = await fetchWithReadCache(url, {
     ...options,
     headers,
   });

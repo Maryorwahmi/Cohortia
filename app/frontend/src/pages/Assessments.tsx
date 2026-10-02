@@ -4,6 +4,7 @@ import AssessmentsList from '../components/assessments/AssessmentsList';
 import AssessmentFilters from '../components/assessments/AssessmentFilters';
 import AssessmentStats from '../components/assessments/AssessmentStats';
 import { API_BASE_URL } from '../config/api';
+import { fetchWithReadCache } from '../services/requestCache';
 
 interface Assessment {
   courseId: string;
@@ -40,9 +41,9 @@ export default function Assessments() {
       try {
         setLoading(true);
         const [statsRes, categoriesRes, levelsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/assessments/stats/overview`),
-          fetch(`${API_BASE_URL}/assessments/filter/categories`),
-          fetch(`${API_BASE_URL}/assessments/filter/levels`),
+          fetchWithReadCache(`${API_BASE_URL}/assessments/stats/overview`),
+          fetchWithReadCache(`${API_BASE_URL}/assessments/filter/categories`),
+          fetchWithReadCache(`${API_BASE_URL}/assessments/filter/levels`),
         ]);
 
         const statsData = await statsRes.json();
@@ -78,7 +79,7 @@ export default function Assessments() {
           url = `${API_BASE_URL}/assessments/filter/by-level-category?${params}`;
         }
 
-        const res = await fetch(url);
+        const res = await fetchWithReadCache(url);
         const data = await res.json();
 
         if (data.success) {
