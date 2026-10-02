@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -6,7 +6,6 @@ import {
   BookOpen,
   BriefcaseBusiness,
   Check,
-  ChevronDown,
   Clock3,
   Code2,
   Compass,
@@ -16,16 +15,12 @@ import {
   Search,
   Sparkles,
 } from 'lucide-react';
-import type { Career, CatalogCourse } from '../services/api';
-import { careerApi, catalogCourseApi } from '../services/api';
+import type { CatalogCourse } from '../services/api';
+import { catalogCourseApi } from '../services/api';
 
 interface CareersPageProps {
   onOpenWizard: () => void;
   onSelectTrack: (trackId: string) => void;
-}
-
-interface CareerPath extends Career {
-  tags: string[];
 }
 
 const growOptions = [
@@ -74,6 +69,14 @@ function getCourseSkills(course: CatalogCourse): string[] {
   return readList(course.skills);
 }
 
+function getCourseCategory(course: CatalogCourse): string {
+  return course.subcategory?.trim() || course.category;
+}
+
+function normalizeCourseLevel(level?: string | null): string {
+  return (level || '').replace(/\s*(?:→|�|>)\s*/g, ' to ').replace(/\s+/g, ' ').trim();
+}
+
 function CourseCard({
   course,
   onSelect,
@@ -89,8 +92,8 @@ function CourseCard({
     : String(course.cost);
 
   return (
-    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-[1.35rem] border border-immersive-border bg-immersive-card shadow-xl shadow-immersive-shadow transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
-      <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-immersive-primary/15 via-immersive-bg to-immersive-secondary/15 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
+    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card shadow-sm shadow-immersive-shadow transition duration-200 hover:-translate-y-0.5 hover:border-immersive-primary/35 hover:shadow-lg">
+      <div className="relative aspect-[16/8.5] overflow-hidden bg-gradient-to-br from-immersive-primary/15 via-immersive-bg to-immersive-secondary/15 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
         {course.image && (
           <img
             src={course.image}
@@ -100,64 +103,64 @@ function CourseCard({
             onError={(event) => event.currentTarget.remove()}
           />
         )}
-        <div className="absolute left-4 top-4 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
+        <div className="absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-2">
           {course.category && (
-            <span className="rounded-full border border-white/70 bg-white/90 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur">
-              {course.category}
+            <span className="rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-slate-700 shadow-sm backdrop-blur">
+              {course.subcategory || course.category}
             </span>
           )}
           {course.certification && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-immersive-primary px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm">
               <Check size={12} aria-hidden="true" />
-              Certificate
+              Certified
             </span>
           )}
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <div className="mb-3 flex min-h-5 items-center justify-between gap-3">
-          <span className="truncate text-xs font-semibold uppercase tracking-[0.12em] text-immersive-primary">
+      <div className="flex flex-1 flex-col p-4">
+        <div className="mb-2 flex min-h-4 items-center justify-between gap-2">
+          <span className="truncate text-[11px] font-semibold text-immersive-primary">
             {course.provider || course.platform || 'Course catalog'}
           </span>
-          {course.type && <span className="shrink-0 text-xs text-immersive-text-secondary">{course.type}</span>}
+          {course.type && <span className="shrink-0 text-[10px] text-immersive-text-secondary">{course.type}</span>}
         </div>
-        <h3 className="line-clamp-2 min-h-[3.5rem] text-lg font-bold leading-7 tracking-[-0.02em] text-immersive-text-primary">
+        <h3 className="line-clamp-2 min-h-10 text-sm font-bold leading-5 text-immersive-text-primary">
           {course.title}
         </h3>
-        <p className="mt-2 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-immersive-text-secondary">
+        <p className="mt-2 line-clamp-2 min-h-9 text-xs leading-[1.15rem] text-immersive-text-secondary">
           {course.description?.trim() || 'A course description has not been provided by the course provider.'}
         </p>
 
         {skills.length > 0 && (
-          <div className="mt-4 flex min-h-7 flex-wrap gap-2">
-            {skills.map((skill) => (
-              <span key={skill} className="rounded-full bg-immersive-bg px-2.5 py-1 text-[11px] font-medium text-immersive-text-secondary">
+          <div className="mt-3 flex min-h-5 flex-wrap gap-1.5">
+            {skills.slice(0, 2).map((skill) => (
+              <span key={skill} className="rounded-full bg-immersive-bg px-2 py-0.5 text-[10px] font-medium text-immersive-text-secondary">
                 {skill}
               </span>
             ))}
           </div>
         )}
 
-        <div className="mt-auto pt-5">
-          {(metadata.length > 0 || cost) && (
-            <div className="mb-4 flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-immersive-text-secondary">
-              {metadata.map((item, index) => (
-                <span key={`${item}-${index}`} className="inline-flex items-center gap-1.5">
-                  {index === 2 ? <Clock3 size={13} aria-hidden="true" /> : <Layers3 size={13} aria-hidden="true" />}
+        <div className="mt-auto pt-4">
+          <div className="mb-3 flex min-h-5 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-immersive-border pt-3 text-[10px] text-immersive-text-secondary">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              {metadata.slice(0, 2).map((item, index) => (
+                <span key={`${item}-${index}`} className="inline-flex items-center gap-1">
+                  {index === 1 ? <Clock3 size={12} aria-hidden="true" /> : <Layers3 size={12} aria-hidden="true" />}
                   {item}
                 </span>
               ))}
-              {cost && <span>Cost: {cost}</span>}
             </div>
-          )}
+            <span className="font-semibold text-immersive-text-primary">{cost || 'Price not listed'}</span>
+          </div>
           <button
             type="button"
             onClick={() => onSelect(course.id)}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-immersive-primary px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-card"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-immersive-primary px-3 py-2.5 text-xs font-semibold text-white transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-card"
           >
-            Explore learning path
-            <ArrowRight size={16} aria-hidden="true" />
+            Explore course
+            <ArrowRight size={14} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -167,62 +170,33 @@ function CourseCard({
 
 function CourseCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-[1.35rem] border border-immersive-border bg-immersive-card">
-      <div className="aspect-[16/9] animate-pulse bg-slate-200 dark:bg-slate-700" />
-      <div className="space-y-3 p-6">
+    <div className="overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card">
+      <div className="aspect-[16/8.5] animate-pulse bg-slate-200 dark:bg-slate-700" />
+      <div className="space-y-3 p-4">
         <div className="h-3 w-1/3 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="h-6 w-4/5 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
-        <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
-        <div className="h-11 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+        <div className="h-10 w-4/5 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-9 w-full animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+        <div className="mt-5 h-10 w-full animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700" />
       </div>
     </div>
   );
 }
 
 export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPageProps) {
-  const [careers, setCareers] = useState<CareerPath[]>([]);
-  const [careersLoading, setCareersLoading] = useState(true);
-  const [careersError, setCareersError] = useState<string | null>(null);
   const [allCourses, setAllCourses] = useState<CatalogCourse[]>([]);
   const [allCoursesLoading, setAllCoursesLoading] = useState(true);
   const [allCoursesError, setAllCoursesError] = useState<string | null>(null);
-  const [selectedCareerId, setSelectedCareerId] = useState('all');
-  const [careerCourses, setCareerCourses] = useState<CatalogCourse[]>([]);
-  const [careerCoursesLoading, setCareerCoursesLoading] = useState(false);
-  const [careerCoursesError, setCareerCoursesError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [priceFilter, setPriceFilter] = useState<'all' | 'listed' | 'unlisted'>('all');
+  const [certificatesOnly, setCertificatesOnly] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'catalog' | 'title'>('catalog');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('all');
   const [visibleLimit, setVisibleLimit] = useState(12);
   const [retryKey, setRetryKey] = useState(0);
-  const requestId = useRef(0);
 
   useEffect(() => {
     let active = true;
-
-    const loadCareers = async () => {
-      setCareersLoading(true);
-      setCareersError(null);
-      try {
-        const response = await careerApi.getAll();
-        if (!response.success || !response.data?.careers) {
-          throw new Error(response.error || 'The career paths could not be loaded.');
-        }
-        if (active) {
-          setCareers(response.data.careers.map((career) => ({
-            ...career,
-            tags: readList(career.skills),
-          })));
-        }
-      } catch (error) {
-        if (active) {
-          setCareersError(error instanceof Error ? error.message : 'The career paths could not be loaded.');
-        }
-      } finally {
-        if (active) setCareersLoading(false);
-      }
-    };
-
     const loadCourses = async () => {
       setAllCoursesLoading(true);
       setAllCoursesError(null);
@@ -241,7 +215,6 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
       }
     };
 
-    void loadCareers();
     void loadCourses();
 
     return () => {
@@ -249,8 +222,30 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
     };
   }, [retryKey]);
 
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    allCourses.forEach((course) => {
+      const category = getCourseCategory(course);
+      counts.set(category, (counts.get(category) || 0) + 1);
+    });
+    return [...counts.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [allCourses]);
   const levels = useMemo(
-    () => [...new Set(allCourses.map((course) => course.level).filter((level): level is string => Boolean(level)))].sort(),
+    () => [...new Set(allCourses.map((course) => normalizeCourseLevel(course.level)).filter(Boolean))].sort(),
+    [allCourses],
+  );
+  const levelCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    allCourses.forEach((course) => {
+      const level = normalizeCourseLevel(course.level);
+      if (level) counts.set(level, (counts.get(level) || 0) + 1);
+    });
+    return counts;
+  }, [allCourses]);
+  const listedPriceCount = useMemo(
+    () => allCourses.filter((course) => course.cost !== null && course.cost !== undefined && String(course.cost).trim() !== '').length,
     [allCourses],
   );
   const providers = useMemo(
@@ -260,61 +255,33 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
   const featuredCourses = allCourses.slice(0, 3);
   const leadCourse = featuredCourses[0];
 
-  const loadCareerCourses = async (careerId: string) => {
-    const currentRequest = ++requestId.current;
-    setSelectedCareerId(careerId);
-    setCareerCoursesError(null);
-    setCareerCourses([]);
-
-    if (careerId === 'all') {
-      setCareerCoursesLoading(false);
-      return;
-    }
-
-    setCareerCoursesLoading(true);
-    try {
-      const response = await catalogCourseApi.getByCareer(careerId);
-      if (!response.success || !response.data?.courses) {
-        throw new Error(response.error || 'Courses for this career could not be loaded.');
-      }
-      if (requestId.current === currentRequest) setCareerCourses(response.data.courses);
-    } catch (error) {
-      if (requestId.current === currentRequest) {
-        setCareerCoursesError(error instanceof Error ? error.message : 'Courses for this career could not be loaded.');
-      }
-    } finally {
-      if (requestId.current === currentRequest) setCareerCoursesLoading(false);
-    }
-  };
-
-  const selectedCareer = careers.find((career) => career.id === selectedCareerId);
-  const sourceCourses = selectedCareerId === 'all' || searchQuery.trim()
-    ? allCourses
-    : careerCourses;
-  const visibleCourses = sourceCourses.filter((course) => {
+  const visibleCourses = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    const searchable = [
-      course.title,
-      course.description,
-      course.provider,
-      course.platform,
-      course.category,
-      course.subcategory,
-      ...getCourseSkills(course),
-    ].filter(Boolean).join(' ').toLowerCase();
-    return (!query || searchable.includes(query)) && (selectedLevel === 'all' || course.level === selectedLevel);
-  });
+    const filtered = allCourses.filter((course) => {
+      const searchable = [
+        course.title,
+        course.description,
+        course.provider,
+        course.platform,
+        course.category,
+        course.subcategory,
+        ...getCourseSkills(course),
+      ].filter(Boolean).join(' ').toLowerCase();
+      const hasListedPrice = course.cost !== null && course.cost !== undefined && String(course.cost).trim() !== '';
+      return (!query || searchable.includes(query))
+        && (selectedCategory === 'all' || getCourseCategory(course) === selectedCategory)
+        && (selectedLevels.length === 0 || selectedLevels.includes(normalizeCourseLevel(course.level)))
+        && (priceFilter === 'all' || (priceFilter === 'listed' ? hasListedPrice : !hasListedPrice))
+        && (!certificatesOnly || Boolean(course.certification));
+    });
+    if (sortOrder === 'title') filtered.sort((a, b) => a.title.localeCompare(b.title));
+    return filtered;
+  }, [allCourses, certificatesOnly, priceFilter, searchQuery, selectedCategory, selectedLevels, sortOrder]);
   const coursesToRender = visibleCourses.slice(0, visibleLimit);
-  const courseLoadError = searchQuery.trim() || selectedCareerId === 'all'
-    ? allCoursesError
-    : careerCoursesError;
-  const courseLoading = selectedCareerId !== 'all' && !searchQuery.trim()
-    ? careerCoursesLoading
-    : allCoursesLoading;
 
   useEffect(() => {
     setVisibleLimit(12);
-  }, [selectedCareerId, searchQuery, selectedLevel]);
+  }, [selectedCategory, selectedLevels, priceFilter, certificatesOnly, searchQuery, sortOrder]);
 
   const scrollToCatalog = () => {
     const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
@@ -368,9 +335,9 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
               </div>
               <div className="px-3 text-center">
                 <p className="text-2xl font-bold tracking-tight text-immersive-text-primary">
-                  {careersLoading ? '—' : careers.length}
+                  {allCoursesLoading ? '—' : categories.length}
                 </p>
-                <p className="mt-1 text-xs text-immersive-text-secondary sm:text-sm">career paths</p>
+                <p className="mt-1 text-xs text-immersive-text-secondary sm:text-sm">course categories</p>
               </div>
               <div className="px-3 text-center">
                 <p className="text-2xl font-bold tracking-tight text-immersive-text-primary">
@@ -504,7 +471,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: 'Courses', value: allCoursesLoading || allCoursesError ? '—' : allCourses.length, icon: BookOpen },
-                { label: 'Career paths', value: careersLoading || careersError ? '—' : careers.length, icon: Compass },
+                { label: 'Course categories', value: allCoursesLoading || allCoursesError ? '—' : categories.length, icon: Compass },
                 { label: 'Course sources', value: allCoursesLoading || allCoursesError ? '—' : providers, icon: Layers3 },
                 { label: 'Certificate courses', value: allCoursesLoading || allCoursesError ? '—' : allCourses.filter((course) => Boolean(course.certification)).length, icon: Award },
               ].map(({ label, value, icon: Icon }) => (
@@ -584,7 +551,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="inline-flex max-w-full truncate rounded-full bg-immersive-primary/10 px-2 py-0.5 text-[10px] font-semibold text-immersive-primary">
-                          {course.category || course.level || 'Course'}
+                          {getCourseCategory(course) || course.level || 'Course'}
                         </span>
                         <h3 className="mt-1.5 line-clamp-2 min-h-10 text-xs font-bold leading-5 text-immersive-text-primary sm:text-sm">
                           {course.title}
@@ -617,199 +584,184 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1600px] px-3 py-16 sm:px-4 sm:py-20 lg:px-6">
-        <div className="mb-9 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-immersive-primary">Start with a direction</p>
-            <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-immersive-text-primary sm:text-4xl">Explore career paths</h2>
-            <p className="mt-3 max-w-2xl text-immersive-text-secondary">Browse the career paths available in Cohortia, then explore courses connected to the path you choose.</p>
-          </div>
-          <button
-            type="button"
-            onClick={scrollToCatalog}
-            className="inline-flex min-h-10 items-center gap-2 self-start text-sm font-semibold text-immersive-secondary transition hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-4 focus-visible:ring-offset-immersive-bg sm:self-auto"
-          >
-            Browse all courses <ArrowRight size={16} aria-hidden="true" />
-          </button>
-        </div>
-
-        {careersLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading career paths">
-            {[0, 1, 2, 3, 4, 5].map((item) => <div key={item} className="h-56 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-700" />)}
-          </div>
-        ) : careersError ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200" role="alert">
-            <p className="font-semibold">Career paths are unavailable right now.</p>
-            <p className="mt-1">{careersError}</p>
-            <button
-              type="button"
-              onClick={() => setRetryKey((key) => key + 1)}
-              className="mt-4 rounded-lg border border-rose-300 px-4 py-2 font-semibold transition hover:bg-white dark:border-rose-800 dark:hover:bg-rose-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
-            >
-              Try again
-            </button>
-          </div>
-        ) : careers.length === 0 ? (
-          <div className="rounded-2xl border border-immersive-border bg-immersive-card p-8 text-center text-immersive-text-secondary">
-            No career paths are available in the catalog yet.
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {careers.map((career) => {
-              return (
-                <article key={career.id} className="group flex min-h-[220px] flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card transition hover:-translate-y-1 hover:border-immersive-primary/40 hover:shadow-xl hover:shadow-immersive-shadow">
-                  <div className="relative flex h-24 items-center justify-between overflow-hidden bg-gradient-to-br from-immersive-primary/10 to-immersive-secondary/10 px-6">
-                    <span className="absolute -right-4 -top-10 h-36 w-36 rounded-full border-[22px] border-immersive-card/30" />
-                    <span className="absolute -right-1 -bottom-12 h-28 w-28 rounded-full bg-immersive-card/25" />
-                    <span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-immersive-card text-immersive-primary shadow-sm">
-                      <GraduationCap size={24} aria-hidden="true" />
-                    </span>
-                    {career.category && (
-                      <span className="relative rounded-full border border-immersive-border bg-immersive-card/90 px-3 py-1 text-xs font-semibold text-immersive-text-secondary">
-                        {career.category}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="text-lg font-bold tracking-[-0.02em] text-immersive-text-primary">{career.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-immersive-text-secondary">
-                      {career.description?.trim() || 'Explore this career path and the skills associated with it.'}
-                    </p>
-                    {career.tags.length > 0 && (
-                      <div className="mt-auto flex flex-wrap gap-2 pt-4">
-                        {career.tags.slice(0, 3).map((tag) => (
-                          <span key={tag} className="rounded-full bg-immersive-bg px-2.5 py-1 text-[11px] font-medium text-immersive-text-secondary">{tag}</span>
-                        ))}
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void loadCareerCourses(career.id);
-                        scrollToCatalog();
-                      }}
-                      className="mt-4 inline-flex items-center gap-2 self-start text-sm font-semibold text-immersive-secondary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-card"
-                    >
-                      Explore related courses <ArrowRight size={15} aria-hidden="true" />
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
       <section id="course-catalog" className="scroll-mt-8 bg-immersive-bg/70">
         <div className="mx-auto w-full max-w-[1600px] px-3 py-16 sm:px-4 sm:py-20 lg:px-6">
-          <div className="mb-9 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-immersive-primary">The catalog</p>
-              <h2 className="mt-3 text-3xl font-bold tracking-[-0.035em] text-immersive-text-primary sm:text-4xl">Find your next course</h2>
-              <p className="mt-3 max-w-2xl leading-7 text-immersive-text-secondary">Search real courses and narrow the catalog by career path or course level.</p>
-            </div>
-            <label className="relative block w-full lg:max-w-sm">
-              <span className="sr-only">Search courses</span>
-              <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-immersive-text-secondary" aria-hidden="true" />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search courses, skills, providers…"
-                className="h-12 w-full rounded-xl border border-immersive-border bg-immersive-input-bg pl-11 pr-4 text-sm text-immersive-text-primary outline-none transition placeholder:text-immersive-text-secondary/60 focus:border-immersive-primary focus:ring-2 focus:ring-immersive-primary/20"
-              />
-            </label>
-          </div>
+          <div className="grid items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]">
+            <aside className="h-fit rounded-2xl border border-immersive-border bg-immersive-card p-4 shadow-sm shadow-immersive-shadow sm:p-5">
+              <label className="relative block">
+                <span className="sr-only">Search courses</span>
+                <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-immersive-text-secondary" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search for a course…"
+                  className="h-10 w-full rounded-lg border border-immersive-border bg-immersive-input-bg pl-9 pr-3 text-xs text-immersive-text-primary outline-none transition placeholder:text-immersive-text-secondary/60 focus:border-immersive-primary focus:ring-2 focus:ring-immersive-primary/20"
+                />
+              </label>
 
-          <div className="grid gap-7 lg:grid-cols-[260px_minmax(0,1fr)]">
-            <aside className="h-fit rounded-2xl border border-immersive-border bg-immersive-card p-5 shadow-sm">
-              <div className="mb-4 flex items-center gap-2 text-sm font-bold text-immersive-text-primary">
-                <Layers3 size={17} aria-hidden="true" />
-                Career paths
+              <div className="mb-3 mt-6 flex items-center gap-2 text-sm font-bold text-immersive-text-primary">
+                <Layers3 size={16} aria-hidden="true" />
+                Categories
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0">
+              <div className="max-h-72 space-y-1 overflow-y-auto pr-1">
                 <button
                   type="button"
-                  onClick={() => void loadCareerCourses('all')}
-                  aria-pressed={selectedCareerId === 'all'}
-                  className={`shrink-0 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary ${selectedCareerId === 'all' ? 'bg-immersive-primary/10 text-immersive-primary' : 'text-immersive-text-secondary hover:bg-immersive-card-hover hover:text-immersive-text-primary'}`}
+                  onClick={() => setSelectedCategory('all')}
+                  aria-pressed={selectedCategory === 'all'}
+                  className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary ${selectedCategory === 'all' ? 'bg-immersive-primary/10 text-immersive-primary' : 'text-immersive-text-secondary hover:bg-immersive-card-hover hover:text-immersive-text-primary'}`}
                 >
                   All courses
+                  <span className="tabular-nums opacity-70">{allCoursesLoading ? '—' : allCourses.length}</span>
                 </button>
-                {careers.map((career) => (
+                {categories.map(({ name, count }) => (
                   <button
                     type="button"
-                    key={career.id}
-                    onClick={() => void loadCareerCourses(career.id)}
-                    aria-pressed={selectedCareerId === career.id}
-                    className={`shrink-0 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary lg:shrink ${selectedCareerId === career.id ? 'bg-immersive-primary/10 text-immersive-primary' : 'text-immersive-text-secondary hover:bg-immersive-card-hover hover:text-immersive-text-primary'}`}
+                    key={name}
+                    onClick={() => setSelectedCategory(name)}
+                    aria-pressed={selectedCategory === name}
+                    className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary ${selectedCategory === name ? 'bg-immersive-primary/10 text-immersive-primary' : 'text-immersive-text-secondary hover:bg-immersive-card-hover hover:text-immersive-text-primary'}`}
                   >
-                    {career.title}
+                    <span className="truncate">{name}</span>
+                    <span className="shrink-0 tabular-nums opacity-70">{count}</span>
                   </button>
                 ))}
               </div>
 
               <div className="my-5 border-t border-immersive-border" />
-              <label className="block text-sm font-bold text-immersive-text-primary" htmlFor="course-level">
-                Course level
-              </label>
-              <div className="relative mt-3">
-                <select
-                  id="course-level"
-                  value={selectedLevel}
-                  onChange={(event) => setSelectedLevel(event.target.value)}
-                  className="h-11 w-full appearance-none rounded-lg border border-immersive-border bg-immersive-input-bg px-3 pr-9 text-sm text-immersive-text-primary outline-none focus:border-immersive-primary focus:ring-2 focus:ring-immersive-primary/20"
+              <fieldset>
+                <legend className="text-sm font-bold text-immersive-text-primary">Level</legend>
+                <div className="mt-2 space-y-2">
+                  {levels.map((level) => (
+                    <label key={level} className="flex cursor-pointer items-center justify-between gap-2 text-xs text-immersive-text-secondary">
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedLevels.includes(level)}
+                          onChange={(event) => setSelectedLevels((current) => (
+                            event.target.checked ? [...current, level] : current.filter((item) => item !== level)
+                          ))}
+                          className="h-4 w-4 rounded border-immersive-border accent-immersive-primary focus:ring-immersive-primary"
+                        />
+                        {level}
+                      </span>
+                      <span className="tabular-nums">{levelCounts.get(level) || 0}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+
+              <div className="my-5 border-t border-immersive-border" />
+              <fieldset>
+                <legend className="text-sm font-bold text-immersive-text-primary">Price details</legend>
+                <div className="mt-2 space-y-2">
+                  {[
+                    { value: 'listed' as const, label: 'Price listed', count: listedPriceCount },
+                    { value: 'unlisted' as const, label: 'Price not listed', count: allCourses.length - listedPriceCount },
+                  ].map((option) => (
+                    <label key={option.value} className="flex cursor-pointer items-center justify-between gap-2 text-xs text-immersive-text-secondary">
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="course-price"
+                          checked={priceFilter === option.value}
+                          onChange={() => setPriceFilter(option.value)}
+                          className="h-4 w-4 border-immersive-border accent-immersive-primary focus:ring-immersive-primary"
+                        />
+                        {option.label}
+                      </span>
+                      <span className="tabular-nums">{allCoursesLoading ? '—' : option.count}</span>
+                    </label>
+                  ))}
+                  <label className="flex cursor-pointer items-center gap-2 text-xs text-immersive-text-secondary">
+                    <input
+                      type="radio"
+                      name="course-price"
+                      checked={priceFilter === 'all'}
+                      onChange={() => setPriceFilter('all')}
+                      className="h-4 w-4 border-immersive-border accent-immersive-primary focus:ring-immersive-primary"
+                    />
+                    Any price
+                  </label>
+                </div>
+              </fieldset>
+
+              <div className="mt-6 rounded-xl bg-immersive-primary p-4 text-white">
+                <Award size={20} aria-hidden="true" />
+                <h3 className="mt-2 text-sm font-bold">Get certified. Stand out.</h3>
+                <p className="mt-1 text-xs leading-5 text-white/80">Explore courses with certification details in the catalog.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSelectedLevels([]);
+                    setPriceFilter('all');
+                    setCertificatesOnly(true);
+                    setSearchQuery('');
+                    document.getElementById('course-catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="mt-3 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#17314f] transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-primary"
                 >
-                  <option value="all">All levels</option>
-                  {levels.map((level) => <option key={level} value={level}>{level}</option>)}
-                </select>
-                <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-immersive-text-secondary" aria-hidden="true" />
+                  Explore courses <ArrowRight size={13} aria-hidden="true" />
+                </button>
               </div>
-              {selectedCareer && (
-                <p className="mt-4 text-xs leading-5 text-immersive-text-secondary">
-                  Showing courses connected to <span className="font-semibold text-immersive-text-primary">{selectedCareer.title}</span>.
-                </p>
-              )}
             </aside>
 
             <div className="min-w-0">
-              <div className="mb-5 flex min-h-7 items-center justify-between gap-4">
-                <p className="text-sm font-medium text-immersive-text-secondary" aria-live="polite">
-                  {courseLoading ? 'Loading courses…' : `${visibleCourses.length} ${visibleCourses.length === 1 ? 'course' : 'courses'}`}
-                  {searchQuery.trim() && !courseLoading ? ' found' : ''}
-                </p>
-                {(searchQuery || selectedCareerId !== 'all' || selectedLevel !== 'all') && (
+              <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.15em] text-immersive-primary">The catalog</p>
+                  <h2 className="mt-1 text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">Find your next course</h2>
+                  <p className="mt-1 text-xs text-immersive-text-secondary" aria-live="polite">
+                    {allCoursesLoading ? 'Loading courses…' : `${visibleCourses.length} ${visibleCourses.length === 1 ? 'course' : 'courses'} available`}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-2 text-xs text-immersive-text-secondary">
+                    <span className="hidden sm:inline">Sort by:</span>
+                    <select
+                      value={sortOrder}
+                      onChange={(event) => {
+                        if (event.target.value === 'catalog' || event.target.value === 'title') {
+                          setSortOrder(event.target.value);
+                        }
+                      }}
+                      className="h-9 rounded-lg border border-immersive-border bg-immersive-input-bg px-3 text-xs font-semibold text-immersive-text-primary outline-none focus:border-immersive-primary focus:ring-2 focus:ring-immersive-primary/20"
+                    >
+                      <option value="catalog">Catalog order</option>
+                      <option value="title">Title A–Z</option>
+                    </select>
+                  </label>
+                  {(searchQuery || selectedCategory !== 'all' || selectedLevels.length > 0 || priceFilter !== 'all' || certificatesOnly || sortOrder !== 'catalog') && (
                   <button
                     type="button"
                     onClick={() => {
                       setSearchQuery('');
-                      setSelectedLevel('all');
-                      void loadCareerCourses('all');
+                      setSelectedCategory('all');
+                      setSelectedLevels([]);
+                      setPriceFilter('all');
+                      setCertificatesOnly(false);
+                      setSortOrder('catalog');
                     }}
                     className="text-sm font-semibold text-immersive-secondary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-bg"
                   >
                     Clear filters
                   </button>
-                )}
+                  )}
+                </div>
               </div>
 
-              {courseLoading ? (
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-label="Loading courses">
+              {allCoursesLoading ? (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Loading courses">
                   {[0, 1, 2].map((item) => <CourseCardSkeleton key={item} />)}
                 </div>
-              ) : courseLoadError ? (
+              ) : allCoursesError ? (
                 <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200" role="alert">
                   <p className="font-semibold">Courses could not be loaded.</p>
-                  <p className="mt-1">{courseLoadError}</p>
+                  <p className="mt-1">{allCoursesError}</p>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (selectedCareerId === 'all' || searchQuery.trim()) {
-                        setRetryKey((key) => key + 1);
-                      } else {
-                        void loadCareerCourses(selectedCareerId);
-                      }
-                    }}
+                    onClick={() => setRetryKey((key) => key + 1)}
                     className="mt-4 rounded-lg border border-rose-300 px-4 py-2 font-semibold transition hover:bg-white dark:border-rose-800 dark:hover:bg-rose-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                   >
                     Try again
@@ -822,11 +774,11 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                   <p className="mt-2 text-sm text-immersive-text-secondary">Try another search or clear one of your filters.</p>
                 </div>
               ) : (
-                <div className="grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {coursesToRender.map((course) => <CourseCard key={course.id} course={course} onSelect={onSelectTrack} />)}
                 </div>
               )}
-              {!courseLoading && !courseLoadError && visibleCourses.length > visibleLimit && (
+              {!allCoursesLoading && !allCoursesError && visibleCourses.length > visibleLimit && (
                 <div className="mt-8 text-center">
                   <button
                     type="button"
