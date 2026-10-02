@@ -304,6 +304,55 @@ async function executeNativeC({
   }
 }
 
+async function executeCloudflareNativeSandbox(request) {
+  const executorUrl = process.env.COHORTIA_SANDBOX_EXECUTOR_URL;
+  const executorSecret = process.env.COHORTIA_SANDBOX_EXECUTOR_SECRET;
+  if (!executorUrl || !executorSecret) return null;
+
+  let url;
+  try {
+    url = new URL(executorUrl);
+  } catch {
+    return { ok: false, error: 'The isolated executor URL is invalid.' };
+  }
+  if (url.protocol !== 'https:' && process.env.NODE_ENV === 'production') {
+    return { ok: false, error: 'The isolated executor must use HTTPS in production.' };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25_000);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${executorSecret}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        runId: uuidv4(),
+        files: request.files,
+        activeFilePath: request.activeFilePath,
+        language: request.language,
+      }),
+      signal: controller.signal,
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload || typeof payload !== 'object') {
+      return { ok: false, error: typeof payload?.error === 'string' ? payload.error : 'The isolated executor returned an invalid response.' };
+    }
+    return payload;
+  } catch (error) {
+    return {
+      ok: false,
+      error: error?.name === 'AbortError'
+        ? 'The isolated executor timed out.'
+        : 'The isolated executor could not be reached.',
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function parseJson(value, fallback) {
   if (!value) return fallback;
   try {
@@ -1196,14 +1245,18 @@ learning.patch('/board-progress/:courseId/:module/:chapter', async (c) => {
 // Execute native C/C++ practical code with a fixed, non-shell compiler command.
 learning.post('/practical-execute', authMiddleware, async (c) => {
   try {
+    const body = await c.req.json();
+    const request = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
+    const sandboxResult = await executeCloudflareNativeSandbox(request);
+    if (sandboxResult) {
+      return c.json({ success: sandboxResult.ok, data: sandboxResult, error: sandboxResult.ok ? undefined : sandboxResult.error }, sandboxResult.ok ? 200 : 400);
+    }
     if (process.env.COHORTIA_ALLOW_UNSANDBOXED_NATIVE_EXECUTION !== 'true') {
       return c.json({
         success: false,
-        error: 'Native execution is disabled until an isolated sandbox executor is configured. Python practicals continue to run in the browser.',
+        error: 'Native execution is disabled until the Cloudflare isolated executor is configured. Python practicals continue to run in the browser.',
       }, 503);
     }
-    const body = await c.req.json();
-    const request = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
     const result = await executeNativeC({
       ...request,
       enableSanitizers: request.enableSanitizers === true,
