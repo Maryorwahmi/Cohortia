@@ -171,11 +171,27 @@ export default function AnimatedCodeAlongPlayer({
           : taskNarration(tasks[index], narratorGuide),
       }))
     : fallbackPlaylist;
+  // Older imported records may predate teachingSteps. Scenario labs must still
+  // enter the same progressive, teacher-led walkthrough instead of falling
+  // back to four static cards. The playlist is sufficient to reconstruct a
+  // safe presentational sequence; regenerated manifests provide richer steps.
+  const resolvedTeachingSteps: PracticalTeachingStep[] = teachingSteps.length
+    ? teachingSteps
+    : category === "Scenario & Design Exercise"
+      ? teachingPlaylist.map((step, index) => ({
+          stepNumber: index + 1,
+          title: step.title || `Guided step ${index + 1}`,
+          displayText: step.workedExample || step.description || step.learnerPrompt || `Explore ${step.title || "this idea"}.`,
+          speakerText: step.narratorScript || taskNarration(tasks[index], narratorGuide),
+          explanation: step.learningGoal || step.recap || "Follow the reasoning, then test it yourself.",
+          durationSeconds: narrationDuration(step.narratorScript || step.description || step.workedExample || ""),
+        }))
+      : [];
   const activePlaylist = teachingPlaylist[Math.min(activePlaylistIndex, teachingPlaylist.length - 1)];
   const activeWalkthrough = walkthrough
     .filter((step) => activePlaylist.codeSteps.includes(step.stepNumber))
     .sort((left, right) => left.stepNumber - right.stepNumber);
-  const activeTeachingSteps = teachingSteps
+  const activeTeachingSteps = resolvedTeachingSteps
     .filter((step) => activePlaylist.codeSteps.includes(step.stepNumber))
     .sort((left, right) => left.stepNumber - right.stepNumber);
   const activeNarrationScript = activeTeachingSteps.length

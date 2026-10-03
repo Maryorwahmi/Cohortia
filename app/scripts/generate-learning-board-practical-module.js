@@ -176,6 +176,9 @@ REQUIREMENTS:
    - Scenario & Design:
      * If the activity covers binary conversions, bits, or number systems, set widgetType to "binary_converter".
      * If algorithmic, break into structured design steps (inputs/outputs, step-by-step logic, edge case analysis).
+     * Create 4–8 ordered teachingSteps for the animated teacher walkthrough. This is mandatory and replaces codeWalkthrough for this category.
+     * Each teaching step must represent one real reasoning move, include a concise displayText that can type onto the board progressively, 25–50 words of speakerText, and a concise explanation callout. Do not return generic cards or a prose worksheet.
+     * Map every teaching step to teachingPlaylist[].codeSteps in order, so the board can finish the walkthrough and automatically open the learner's interactive “Your turn” phase.
    - Research & Analysis / Non-Code:
      * Structure as a guided inquiry notebook with observation prompts, hypothesis formation, and comparative analysis.
    - Cloud Console:
@@ -189,7 +192,7 @@ REQUIREMENTS:
    - Provide 1–3 task-specific inlineSuggestions with concise coaching and optional small insertionText fragments. These are static manifest content, never runtime AI responses, and must not reveal a complete solution.
 5. Overall Narrator Guide (~300–500 words):
    - Warm, masterclass educator voice (~100 wpm). Greet the learner, set the thematic context (make it feel like a real mission), preview milestones, and emphasize that errors are part of the discovery process.
-6. Synchronized Animated CodeWalkthrough (CRITICAL FOR ANIMATED CLASSROOM MODE):
+6. Synchronized Animated CodeWalkthrough (TERMINAL CODING LABS ONLY):
    - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching steps that walk the student line-by-line through the foundational starter code.
    - For EACH step, provide:
      * stepNumber: 1, 2, 3...
@@ -198,10 +201,10 @@ REQUIREMENTS:
      * file: Relative file path (e.g., 'greeting.c' or 'main.py').
      * explanation: A concise on-screen annotation / callout.
      * durationSeconds: Estimated audio speech time (e.g., 6-12s).
-   - This empowers the frontend to animate the code typing out line-by-line in perfect sync with the narrator's voice before the student attempts the interactive tasks!
+   - This empowers the frontend to animate the code typing out line-by-line in perfect sync with the narrator's voice before the student attempts the interactive tasks. Do not use codeWalkthrough to fake code for Scenario & Design activities; use the progressive teachingSteps format above.
 7. Scenario & Design Excellence:
    - If the category is 'Scenario & Design Exercise', create a highly descriptive world/context. Use 'widgetType' to select specialized UI tools (binary_converter, memory_diagram, etc.).
-   - Break the problem into 'Think First' steps before any implementation.
+   - Break the problem into 'Think First' steps before any implementation. The first scene should set up the problem, middle scenes should reveal the working method one line at a time, and the final scene should prepare the learner to solve a related problem independently.
 8. Research & Analysis Guidance:
    - For 'Research & Analysis' practicals, focus on guided inquiry. The narrator should act as a lead researcher, asking the student to form hypotheses and document observations in the provided task areas.
 9. Do NOT invent a different exercise or use source material from another chapter.

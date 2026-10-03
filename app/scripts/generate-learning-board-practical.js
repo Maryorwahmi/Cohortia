@@ -1087,6 +1087,13 @@ function normalizePractical(raw, sourceContext, metadata) {
   if (executableLab && files.length === 0) {
     files.push(fallbackStarterFile(instructions, labType, language));
   }
+  // A model can return only a README while still providing an otherwise useful
+  // code walkthrough. Terminal coding labs must always have a real editable
+  // source file for that walkthrough and for the learner's practice phase.
+  const hasSourceFile = files.some((file) => /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql)$/i.test(file.path));
+  if (sourceContext.source.category === "Terminal Coding Lab" && !hasSourceFile) {
+    files.push(fallbackStarterFile(instructions, labType, language));
+  }
   if (executableLab && checks.length === 0) {
     for (const fallback of fallbackChecks(labType, language, files, instructions)) {
       addCheck(fallback, fallback.id);
@@ -1227,7 +1234,8 @@ function normalizePractical(raw, sourceContext, metadata) {
   const filePathByLowerCase = new Map(files.map((file) => [file.path.toLowerCase(), file.path]));
   const primarySourceFiles = files.filter((file) => /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql)$/i.test(file.path));
   const resolveWalkthroughFile = (candidate) => {
-    if (typeof candidate !== "string" || !candidate.trim()) return undefined;
+    const fallbackFile = primarySourceFiles[0] || files[0];
+    if (typeof candidate !== "string" || !candidate.trim()) return fallbackFile?.path;
     const normalized = candidate.trim().replace(/\\/g, "/").replace(/^\.\//, "");
     const exact = filePathByLowerCase.get(normalized.toLowerCase());
     if (exact) return exact;
@@ -1243,7 +1251,7 @@ function normalizePractical(raw, sourceContext, metadata) {
     const compatibleSource = primarySourceFiles.filter((file) => (
       file.path.split(".").at(-1)?.toLowerCase() === extension
     ));
-    return compatibleSource.length === 1 ? compatibleSource[0].path : undefined;
+    return compatibleSource.length === 1 ? compatibleSource[0].path : fallbackFile?.path;
   };
   let codeWalkthrough = (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
     stepNumber: Number.isInteger(Number(seg.stepNumber)) ? Number(seg.stepNumber) : idx + 1,
