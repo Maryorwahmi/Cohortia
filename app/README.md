@@ -71,6 +71,21 @@ generate files without database writes, use `--skip-import` (or
 node scripts/generate-cs50-practical-pilot.js --provider azure --skip-import
 ```
 
+Generate all modules for every course in a catalog subcategory:
+
+```bash
+node scripts/generate-learning-board-practical-course.js \
+  --category computer-science \
+  --subcategory "Blockchain & Web3" \
+  --provider azure \
+  --force
+```
+
+Use `--list-only` with the same category and subcategory to preview the
+catalog courses and whether each course syllabus was found. The subcategory
+match is case-insensitive. Add `--module <number>` to limit generation to one
+module; if omitted, all modules are generated.
+
 To generate only the original six-activity pilot:
 
 ```bash

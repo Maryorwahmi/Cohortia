@@ -97,6 +97,61 @@ function parseCourseOptions(argv) {
   return options;
 }
 
+async function readSubcategoryCourses(repoRoot, category, subcategory) {
+  if (!/^[a-z0-9-]+$/i.test(category)) {
+    throw new Error("--category must be a category slug.");
+  }
+  const catalogPath = path.join(repoRoot, "docs", category, "catalog-courses-by-subcategory.json");
+  let catalog;
+  try {
+    catalog = JSON.parse(await fs.readFile(catalogPath, "utf8"));
+  } catch (error) {
+    throw new Error(`Could not read course catalog at ${catalogPath}: ${error.message}`);
+  }
+
+  const matchingSubcategory = catalog.subcategories?.find((item) => (
+    String(item.name).trim().toLowerCase() === subcategory.trim().toLowerCase()
+  ));
+  if (!matchingSubcategory) {
+    throw new Error(`Subcategory "${subcategory}" was not found in category "${category}".`);
+  }
+
+  const courses = matchingSubcategory.courses || [];
+  if (!courses.length) {
+    throw new Error(`Subcategory "${matchingSubcategory.name}" has no courses.`);
+  }
+  return courses
+    .filter((course) => typeof course.id === "string" && course.id.trim())
+    .map((course) => ({
+      id: course.id.trim(),
+      title: course.title || course.name || course.id,
+    }));
+}
+
+async function findSubcategorySyllabi(repoRoot, category, courses) {
+  const courseRoot = path.join(repoRoot, "docs", category);
+  const syllabusPaths = new Map();
+  const courseIds = new Set(courses.map((course) => course.id.toLowerCase()));
+
+  async function walk(directory) {
+    const entries = await fs.readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await walk(entryPath);
+      } else if (entry.isFile() && /\.(md|markdown)$/i.test(entry.name)) {
+        const courseId = path.basename(entry.name, path.extname(entry.name)).toLowerCase();
+        if (courseIds.has(courseId) && !syllabusPaths.has(courseId)) {
+          syllabusPaths.set(courseId, entryPath);
+        }
+      }
+    }
+  }
+
+  await walk(courseRoot);
+  return syllabusPaths;
+}
+
 async function generateCourse(options) {
   const repoRoot = path.resolve(options["repo-root"] || REPOSITORY_ROOT);
   const courseId = courseIdFrom(options);
@@ -289,14 +344,83 @@ async function generateCourse(options) {
   };
 }
 
+async function generateSubcategory(options) {
+  const category = String(options.category || "computer-science");
+  const subcategory = String(options.subcategory || "").trim();
+  if (!subcategory) throw new Error("--subcategory must be a non-empty subcategory name.");
+
+  const moduleNumber = options.module === undefined ? null : Number(options.module);
+  if (moduleNumber !== null && (!Number.isInteger(moduleNumber) || moduleNumber < 1)) {
+    throw new Error("--module must be a positive integer when generating a subcategory.");
+  }
+
+  const repoRoot = path.resolve(options["repo-root"] || REPOSITORY_ROOT);
+  const courses = await readSubcategoryCourses(repoRoot, category, subcategory);
+  const syllabusPaths = await findSubcategorySyllabi(repoRoot, category, courses);
+  const failures = [];
+  let generated = 0;
+  let skipped = 0;
+  let dryRuns = 0;
+
+  if (options["list-only"] === true) {
+    for (const course of courses) {
+      const syllabusPath = syllabusPaths.get(course.id.toLowerCase());
+      console.log(`${course.id}\t${course.title}\t${syllabusPath ? "FOUND" : "MISSING"}\t${syllabusPath || "n/a"}`);
+    }
+    return { status: "list-only", courseCount: courses.length };
+  }
+
+  for (const course of courses) {
+    const scope = moduleNumber === null ? "all modules" : `module ${moduleNumber}`;
+    console.log(`\nGenerating ${scope} practicals for ${course.title} (${course.id})`);
+    const syllabusPath = syllabusPaths.get(course.id.toLowerCase());
+    if (!syllabusPath) {
+      failures.push({ course, error: new Error(`Syllabus not found for course ${course.id}.`) });
+      console.error(`Failed ${course.id}: syllabus not found.`);
+      continue;
+    }
+    try {
+      const result = await generateCourse({
+        ...options,
+        category: undefined,
+        "repo-root": repoRoot,
+        "course-id": course.id,
+        syllabus: syllabusPath,
+        course: undefined,
+      });
+      if (result.status === "generated") generated += 1;
+      else if (result.status === "dry-run") dryRuns += 1;
+      else skipped += 1;
+    } catch (error) {
+      failures.push({ course, error });
+      console.error(`Failed ${course.id}: ${error.message}`);
+    }
+  }
+
+  console.log(`\nSubcategory complete: ${generated} generated, ${skipped} skipped, ${dryRuns} dry-run, ${failures.length} failed.`);
+  if (failures.length) {
+    throw new Error(`${failures.length} course(s) failed in subcategory "${subcategory}".`);
+  }
+  return {
+    status: dryRuns > 0 && generated === 0 && skipped === 0 ? "dry-run" : "generated",
+    courseCount: courses.length,
+    generated,
+    skipped,
+    dryRuns,
+  };
+}
+
 function usage() {
   return [
     "Usage:",
     "  node scripts/generate-learning-board-practical-course.js --course-id <course-id> --module <number> [--chapters <number[,number...]>] [--dry-run] [--skip-import]",
+    "  node scripts/generate-learning-board-practical-course.js --category <category> --subcategory <name> [--module <number>] [--list-only]",
     "  node scripts/generate-learning-board-practical-course.js --syllabus <path> [--course-id <course-id>]",
     "",
     "The generator creates an entire module's practicals in one model request,",
     "imports every generated chapter into Turso, then writes course-manifest.json.",
+    "Use --category and --subcategory to generate every module for every course in that catalog subcategory; add --module to limit generation to one module.",
+    "Use --list-only with --subcategory to preview the matched courses and syllabus paths.",
     "Chapters without a hands-on activity are listed as skipped.",
     "Matching existing chapter practicals are reused by source hash; use --force to regenerate them.",
     "Use --module by itself to generate the complete module. Add --chapters only to retry a small subset; the resulting course manifest contains only that selected subset.",
@@ -307,7 +431,11 @@ function usage() {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  generateCourse(parseCourseOptions(process.argv.slice(2)))
+  const options = parseCourseOptions(process.argv.slice(2));
+  const generate = options.subcategory
+    ? generateSubcategory(options)
+    : generateCourse(options);
+  generate
     .then((result) => console.log(JSON.stringify(result, null, 2)))
     .catch((error) => {
       console.error(`Error: ${error.message}`);
