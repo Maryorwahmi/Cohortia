@@ -47,6 +47,10 @@ function getAzureConfig() {
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
+export function geminiGenerateContentEndpoint(model) {
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+}
+
 const MAX_RETRIES_PER_KEY = 1;
 
 const keyState = {
@@ -377,10 +381,7 @@ async function callGeminiDirect({ prompt, systemPrompt, responseSchema, maxToken
       await sleep(90000);
     }
 
-    const endpoints = [
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`,
-    ];
+    const endpoints = [geminiGenerateContentEndpoint(model)];
 
     for (let keyIdx = 0; keyIdx < keys.length; keyIdx++) {
       if (!isKeyAvailable(keyIdx)) continue;

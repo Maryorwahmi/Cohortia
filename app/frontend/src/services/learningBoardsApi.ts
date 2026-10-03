@@ -175,6 +175,15 @@ export interface CodeWalkthroughSegment {
   durationSeconds?: number;
 }
 
+export interface PracticalTeachingStep {
+  stepNumber: number;
+  title?: string;
+  displayText: string;
+  speakerText: string;
+  explanation: string;
+  durationSeconds?: number;
+}
+
 export interface PracticalTeachingPlaylistStep {
   id: string;
   title: string;
@@ -233,6 +242,13 @@ export interface LearningBoardPracticalTask {
   requiredConcepts: string[];
   hints: string[];
   inlineSuggestions?: PracticalInlineSuggestion[];
+  interactiveExercise?: {
+    type: 'binary_conversion';
+    prompt: string;
+    expectedAnswer: string;
+    acceptedAnswers?: string[];
+    explanation: string;
+  };
   tests: LearningBoardPracticalTest[];
   checkIds?: string[];
 }
@@ -243,6 +259,7 @@ export interface LearningBoardPractical {
   module?: number;
   chapter?: number;
   category?: string | null;
+  activityKind?: 'terminal_code_along' | 'cloud_console_walkthrough' | 'evidence_inquiry' | 'binary_exercise' | 'algorithm_design' | 'design_decision' | 'scenario_analysis' | 'guided_exercise' | string | null;
   sourceCategory?: string | null;
   experienceType?: 'terminal_coding_lab' | 'scenario_simulator' | 'research_evidence_lab' | 'cloud_console_lab' | string | null;
   categoryDecision?: {
@@ -295,6 +312,7 @@ export interface LearningBoardPractical {
   teacher?: PracticalTeacherContext | null;
   codeWalkthrough?: CodeWalkthroughSegment[];
   teachingPlaylist?: PracticalTeachingPlaylistStep[];
+  teachingSteps?: PracticalTeachingStep[];
   completionRule: string;
   checks?: Record<string, unknown>[];
   hints?: Record<string, unknown>[];

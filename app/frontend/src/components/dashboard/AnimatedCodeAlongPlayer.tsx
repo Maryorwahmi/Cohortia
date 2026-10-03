@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
-import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep } from "../../services/learningBoardsApi";
+import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep, PracticalTeachingStep } from "../../services/learningBoardsApi";
 import { getAssignedVoiceForCourse, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
 import { estimateSpeechDurationSeconds, SpeechNarrationQueue } from "../../lib/speechNarration";
 import { useTheme } from "../../context/ThemeContext";
@@ -13,6 +13,8 @@ interface AnimatedCodeAlongPlayerProps {
   files?: LearningBoardPracticalFile[];
   walkthrough?: CodeWalkthroughSegment[];
   category?: string | null;
+  activityKind?: string | null;
+  teachingSteps?: PracticalTeachingStep[];
   courseId?: string | null;
   tasks?: LearningBoardPracticalTask[];
   narratorGuide?: string | null;
@@ -75,11 +77,37 @@ function revealWalkthroughCode(steps: CodeWalkthroughSegment[], elapsedSeconds: 
   return { code: chunks.filter(Boolean).join("\n"), progress: 1 };
 }
 
+function revealTeachingText(steps: PracticalTeachingStep[], elapsedSeconds: number): {
+  text: string;
+  activeStep?: PracticalTeachingStep;
+  progress: number;
+} {
+  let elapsed = 0;
+  const chunks: string[] = [];
+  for (const step of steps) {
+    const duration = narrationDuration(step.speakerText || step.explanation || step.displayText);
+    if (elapsedSeconds >= elapsed + duration) {
+      chunks.push(step.displayText);
+      elapsed += duration;
+      continue;
+    }
+    if (elapsedSeconds >= elapsed) {
+      const progress = Math.max(0, Math.min(1, (elapsedSeconds - elapsed) / duration));
+      chunks.push(step.displayText.slice(0, Math.ceil(step.displayText.length * progress)));
+      return { text: chunks.filter(Boolean).join("\n"), activeStep: step, progress };
+    }
+    return { text: chunks.filter(Boolean).join("\n"), activeStep: step, progress: 0 };
+  }
+  return { text: chunks.filter(Boolean).join("\n"), progress: 1 };
+}
+
 export default function AnimatedCodeAlongPlayer({
   playlist = [],
   files = [],
   walkthrough = [],
   category,
+  activityKind,
+  teachingSteps = [],
   courseId,
   tasks = [],
   narratorGuide,
@@ -147,23 +175,31 @@ export default function AnimatedCodeAlongPlayer({
   const activeWalkthrough = walkthrough
     .filter((step) => activePlaylist.codeSteps.includes(step.stepNumber))
     .sort((left, right) => left.stepNumber - right.stepNumber);
-  const activeNarrationScript = activeWalkthrough.length
-    ? activeWalkthrough.map((step) => step.speakerText).filter(Boolean).join(" ")
-    : activePlaylist.narratorScript;
-  const activeDurationSeconds = activeWalkthrough.length
-    ? activeWalkthrough.reduce((total, step) => total + narrationDuration(step.speakerText || step.explanation || step.codeLine), 0)
-    : lessonDuration(activeNarrationScript);
+  const activeTeachingSteps = teachingSteps
+    .filter((step) => activePlaylist.codeSteps.includes(step.stepNumber))
+    .sort((left, right) => left.stepNumber - right.stepNumber);
+  const activeNarrationScript = activeTeachingSteps.length
+    ? activeTeachingSteps.map((step) => step.speakerText).filter(Boolean).join(" ")
+    : activeWalkthrough.length
+      ? activeWalkthrough.map((step) => step.speakerText).filter(Boolean).join(" ")
+      : activePlaylist.narratorScript;
+  const activeDurationSeconds = activeTeachingSteps.length
+    ? activeTeachingSteps.reduce((total, step) => total + narrationDuration(step.speakerText || step.explanation || step.displayText), 0)
+    : activeWalkthrough.length
+      ? activeWalkthrough.reduce((total, step) => total + narrationDuration(step.speakerText || step.explanation || step.codeLine), 0)
+      : lessonDuration(activeNarrationScript);
   const activeFile = activeWalkthrough.find((step) => step.file)?.file || files[0]?.path || "workspace";
   const activeFileContent = files.find((file) => file.path === activeFile)?.content || files[0]?.content || "";
   const priorWalkthrough = walkthrough
     .filter((step) => step.file === activeFile && step.stepNumber < (activeWalkthrough[0]?.stepNumber || 0))
     .sort((left, right) => left.stepNumber - right.stepNumber);
   const codeReveal = revealWalkthroughCode(activeWalkthrough, currentTime);
+  const teachingReveal = revealTeachingText(activeTeachingSteps, currentTime);
   const displayedCode = activeWalkthrough.length
     ? [...priorWalkthrough.map((step) => step.codeLine), codeReveal.code].filter(Boolean).join("\n")
     : activeFileContent || "// No starter code was provided for this practical.";
   const activeTask = tasks.length ? tasks[Math.min(activePlaylistIndex, tasks.length - 1)] : undefined;
-  const isCodeLab = category === "Terminal Coding Lab" || files.some((file) => /\.(c|h|cpp|cc|cxx|hpp|py|js|ts|sql)$/i.test(file.path));
+  const isCodeLab = category === "Terminal Coding Lab";
   const experienceLabel = category === "Research & Analysis" ? "Evidence lab" : category === "Cloud Console Lab" ? "Cloud mission" : category === "Scenario & Design Exercise" ? "Decision simulator" : "Coding lab";
   const walkthroughComplete = !isPlaying
     && activePlaylistIndex === teachingPlaylist.length - 1
@@ -182,7 +218,7 @@ export default function AnimatedCodeAlongPlayer({
     if (transitionStartedRef.current) return;
     transitionStartedRef.current = true;
     setIsPlaying(false);
-    const transitionScript = "Great work completing the walkthrough. Let’s move to the experimental phase, where you test your ability by editing, running, and checking the practical yourself.";
+    const transitionScript = "Great work completing the walkthrough. Now it is your turn to apply the idea, check your reasoning, and explain what you discovered.";
     if (typeof window === "undefined" || !window.speechSynthesis) {
       onWalkthroughComplete?.();
       return;
@@ -300,6 +336,27 @@ export default function AnimatedCodeAlongPlayer({
                         <pre className={`min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded-lg border p-4 font-mono text-xs leading-6 shadow-inner ${isDark ? "border-slate-700 bg-gradient-to-br from-[#222b40] via-[#151b2a] to-[#292f40]" : "border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100"}`}><CodePreview code={displayedCode} dark={isDark} />{activeWalkthrough.length > 0 && codeReveal.progress < 1 ? <span className="animate-pulse text-amber-300">▌</span> : null}</pre>
                         {codeReveal.activeStep && <p className={`rounded-md border px-2 py-1 text-[10px] leading-relaxed ${isDark ? "border-amber-400/30 bg-amber-300/10 text-amber-100" : "border-amber-200 bg-amber-50 text-amber-900"}`}>Line {codeReveal.activeStep.stepNumber}: {codeReveal.activeStep.explanation || codeReveal.activeStep.speakerText}</p>}
                       </>
+                    ) : activeTeachingSteps.length > 0 ? (
+                      <div className="grid gap-2 font-sans text-left">
+                        <div className={`flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-cyan-300" : "text-immersive-primary"}`}>
+                          <span>{activityKind?.replaceAll("_", " ") || "Guided scenario"}</span>
+                          <span>{teachingReveal.activeStep ? `Step ${teachingReveal.activeStep.stepNumber}` : "Teacher-led board"}</span>
+                        </div>
+                        <div className={`min-h-28 rounded-lg border p-4 ${isDark ? "border-slate-700 bg-[#111827]" : "border-blue-200 bg-gradient-to-br from-blue-50 via-white to-indigo-50"}`}>
+                          <p className={`mb-3 font-mono text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                            {teachingReveal.activeStep?.title || "Follow the idea"}
+                          </p>
+                          <pre className={`whitespace-pre-wrap break-words font-mono text-sm leading-7 ${isDark ? "text-cyan-100" : "text-blue-950"}`}>
+                            {teachingReveal.text || "The teacher’s worked example will appear here."}
+                            {teachingReveal.activeStep && teachingReveal.progress < 1 ? <span className="animate-pulse text-amber-400">▌</span> : null}
+                          </pre>
+                        </div>
+                        {teachingReveal.activeStep && (
+                          <p className={`rounded-md border px-3 py-2 text-xs leading-relaxed ${isDark ? "border-amber-400/30 bg-amber-300/10 text-amber-100" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
+                            {teachingReveal.activeStep.explanation}
+                          </p>
+                        )}
+                      </div>
                     ) : (
                       <div className="grid gap-2 font-sans text-left sm:grid-cols-2">
                         <TeachingCard label="Worked example" text={activePlaylist.workedExample} tone="blue" />

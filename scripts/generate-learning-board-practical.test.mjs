@@ -10,6 +10,12 @@ import {
   normalizePractical as normalizeAppPractical,
   validatePractical as validateAppPractical,
 } from "../app/scripts/generate-learning-board-practical.js";
+import {
+  activityKindFor,
+  profileFor,
+  profileSchema,
+} from "../app/scripts/lib/practical-experience-profiles.js";
+import { geminiGenerateContentEndpoint } from "../app/scripts/lib/gemini-rotating-client.js";
 
 const sourceActivity = [
   "**Hands-on activity:**",
@@ -130,6 +136,14 @@ test("short app-generator responses are expanded into five learner scenes with c
   const context = makeContext("Terminal Coding Lab");
   const response = makeGeneratedResponse();
   response.tasks = response.tasks.slice(0, 1);
+  response.codeWalkthrough = Array.from({ length: 4 }, (_, index) => ({
+    stepNumber: index + 1,
+    speakerText: `Explain how this line supports the program and why this specific code step matters to the learner.`,
+    codeLine: `print(${index + 1})`,
+    file: "main.py",
+    explanation: `Program line ${index + 1}.`,
+    durationSeconds: 8,
+  }));
   response.checks = [
     { id: "starter-file", type: "file_exists", path: "result.txt", adapter: "code-sandbox", timeoutSeconds: 30 },
     { id: "result-content", type: "file_contents", path: "result.txt", contents: "ready", adapter: "code-sandbox", timeoutSeconds: 30 },
@@ -152,4 +166,114 @@ test("short app-generator responses are expanded into five learner scenes with c
   );
   assert.ok(practical.tasks.flatMap((task) => task.checkIds).includes("result-content"));
   assert.deepEqual(validateAppPractical(practical), []);
+});
+
+test("Scenario & Design binary activities receive their specific activity kind", () => {
+  assert.equal(
+    activityKindFor({
+      category: "Scenario & Design Exercise",
+      title: "Binary Conversion Challenge",
+      activity: "Convert between binary and decimal numbers.",
+    }),
+    "binary_exercise",
+  );
+  assert.equal(
+    activityKindFor({ category: "Scenario & Design Exercise", title: "Plan a privacy trade-off" }),
+    "design_decision",
+  );
+});
+
+test("Gemini JSON generation uses the v1beta generateContent endpoint", () => {
+  assert.equal(
+    geminiGenerateContentEndpoint("gemini-2.5-flash"),
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+  );
+});
+
+test("binary response schema requires each task interaction without mutating shared schema", () => {
+  const baseSchema = {
+    type: "object",
+    properties: {
+      tasks: {
+        type: "array",
+        items: { type: "object", properties: { title: { type: "string" } }, required: ["title"] },
+      },
+      teachingSteps: { type: "array", items: { type: "object" } },
+    },
+    required: ["tasks"],
+  };
+  const profile = profileFor({ category: "Scenario & Design Exercise", labType: "simulation" });
+
+  const binarySchema = profileSchema(baseSchema, profile, "binary_exercise");
+  const terminalSchema = profileSchema(baseSchema, profileFor({ category: "Terminal Coding Lab", labType: "code" }));
+
+  assert.ok(binarySchema.properties.tasks.items.required.includes("interactiveExercise"));
+  assert.deepEqual(baseSchema.properties.tasks.items.required, ["title"]);
+  assert.equal(baseSchema.properties.teachingSteps.minItems, undefined);
+  assert.equal(binarySchema.properties.teachingSteps.minItems, 4);
+  assert.equal(binarySchema.properties.teachingSteps.maxItems, 8);
+  assert.equal(terminalSchema.properties.teachingSteps.minItems, undefined);
+});
+
+test("binary scenario normalization preserves narrated teaching steps and validates task interactions", () => {
+  const context = makeContext("Scenario & Design Exercise");
+  context.activityTitle = "Binary Conversion Challenge";
+  context.activityChapter.handsOnActivity = [
+    "**Binary Conversion Challenge:**",
+    "Work through the following conversions to solidify your understanding of binary representation.",
+    "1. Convert the binary number `11010` to its decimal equivalent.",
+    "2. Convert the decimal number `27` to its binary equivalent.",
+    "3. How many unique values can be represented by 6 bits?",
+    "4. If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?",
+  ].join("\n");
+  const response = makeGeneratedResponse();
+  response.tasks = response.tasks.slice(0, 3).map((task) => ({
+    ...task,
+    interactiveExercise: undefined,
+  }));
+  response.teachingSteps = Array.from({ length: 4 }, (_, index) => ({
+    stepNumber: index + 1,
+    title: `Binary idea ${index + 1}`,
+    displayText: ["1 × 2⁴", "0 × 2³", "1 × 2²", "0 × 2¹"][index],
+    speakerText: `The teacher explains binary place value carefully in step ${index + 1}, connecting this position to its power of two.`,
+    explanation: `Position ${index + 1} contributes its bit multiplied by a power of two.`,
+    durationSeconds: 8,
+  }));
+  response.teachingPlaylist = response.tasks.map((task, index) => ({
+    id: `path-${index + 1}`,
+    title: task.title,
+    narratorScript: task.narratorGuide,
+    durationSeconds: 90,
+    codeSteps: [99],
+  }));
+  const practical = normalizeAppPractical(
+    response,
+    context,
+    { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+  );
+
+  assert.equal(practical.activityKind, "binary_exercise");
+  assert.equal(practical.tasks.length, 4);
+  assert.equal(practical.teachingSteps.length, 5);
+  assert.deepEqual(practical.tasks.map((task) => task.interactiveExercise?.expectedAnswer), ["26", "11011", "64", "255"]);
+  assert.deepEqual(
+    practical.teachingPlaylist.flatMap((step) => step.codeSteps),
+    [1, 2, 3, 4, 5],
+  );
+  assert.equal(practical.teachingPlaylist.length, 1);
+  assert.deepEqual(
+    practical.teachingSteps.map((step) => step.displayText),
+    [
+      "Bits (left to right): 1  1  0  1  0",
+      "Place values: 16  8  4  2  1",
+      "(1 × 16) + (1 × 8) + (0 × 4) + (1 × 2) + (0 × 1)",
+      "16 + 8 + 2 = 26",
+      "11010₂ = 26₁₀",
+    ],
+  );
+  assert.ok(practical.tasks.every((task) => task.interactiveExercise?.type === "binary_conversion"));
+  assert.deepEqual(validateAppPractical(practical), []);
+
+  practical.tasks[0].interactiveExercise = undefined;
+  assert.ok(validateAppPractical(practical).some((error) => error.includes("needs a complete interactiveExercise")));
 });

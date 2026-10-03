@@ -921,6 +921,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
             instruction: task.instruction,
             narratorGuide: typeof metadataTask.narratorGuide === 'string' ? metadataTask.narratorGuide : (typeof task.narratorGuide === 'string' ? task.narratorGuide : null),
             teaching: metadataTask.teaching && typeof metadataTask.teaching === 'object' ? metadataTask.teaching : null,
+            interactiveExercise: metadataTask.interactiveExercise && typeof metadataTask.interactiveExercise === 'object' ? metadataTask.interactiveExercise : null,
             requiredConcepts: Array.isArray(requiredConcepts) ? requiredConcepts : [],
             hints: Array.isArray(hints) ? hints : [],
             inlineSuggestions: Array.isArray(metadataTask.inlineSuggestions) ? metadataTask.inlineSuggestions : [],
@@ -936,6 +937,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
           instruction: task.instruction || '',
           narratorGuide: typeof task.narratorGuide === 'string' ? task.narratorGuide : null,
           teaching: task.teaching && typeof task.teaching === 'object' ? task.teaching : null,
+          interactiveExercise: task.interactiveExercise && typeof task.interactiveExercise === 'object' ? task.interactiveExercise : null,
           requiredConcepts: Array.isArray(task.requiredConcepts) ? task.requiredConcepts : [],
           hints: Array.isArray(task.hints) ? task.hints : [],
           inlineSuggestions: Array.isArray(task.inlineSuggestions) ? task.inlineSuggestions : [],
@@ -949,6 +951,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
       module: practicalRecord.module,
       chapter: practicalRecord.chapter,
       category: practicalRecord.category,
+      activityKind: practicalPayload.activityKind || null,
       categoryProfile: metadata.categoryProfile && typeof metadata.categoryProfile === 'object' ? metadata.categoryProfile : null,
       sourcePath: practicalRecord.sourcePath,
       sourceContent: practicalRecord.sourceContent,
@@ -974,6 +977,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
       narratorGuide: practicalPayload.narratorGuide || null,
       teacher: practicalPayload.teacher && typeof practicalPayload.teacher === 'object' ? practicalPayload.teacher : null,
       codeWalkthrough: Array.isArray(practicalPayload.codeWalkthrough) ? practicalPayload.codeWalkthrough : [],
+      teachingSteps: Array.isArray(practicalPayload.teachingSteps) ? practicalPayload.teachingSteps : [],
       teachingPlaylist: Array.isArray(practicalPayload.teachingPlaylist) ? practicalPayload.teachingPlaylist : [],
       completionRule: practicalRecord.completionRule || practicalPayload.completionRule || 'all_tests_pass',
       checks: Array.isArray(practicalPayload.checks) && practicalPayload.checks.length > 0
@@ -1055,7 +1059,9 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
     instructions: manifestPractical.instructions || '',
     checklist: manifestPractical.tasks?.map((task) => task.instruction) || [],
   } : null);
-  const practical = courseManifestPractical
+  const practical = databasePractical?.publicationStatus === 'published'
+    ? databasePractical
+    : courseManifestPractical
     ? {
         ...courseManifestPractical,
         id: courseManifestPractical.id || courseManifestPractical.practicalId,
@@ -1068,8 +1074,6 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
         source: 'course_manifest',
         status: 'published',
       }
-    : databasePractical?.publicationStatus === 'published'
-    ? databasePractical
     : manifestPractical
       ? {
           ...manifestPractical,

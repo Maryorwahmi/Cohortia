@@ -34,9 +34,29 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "decision_simulator",
     learnerArtifact: "decision rationale and outcome analysis",
     requiredUi: ["mission", "scenario", "decision", "outcome", "reflection"],
-    prompt: `Build a decision simulator. Present a realistic scenario with meaningful options, trade-offs, expected outcomes, and a reflection prompt. The learner must make and justify a decision; do not disguise a prose worksheet as a simulation.`,
+    prompt: `Build a teacher-led, line-by-line scenario lesson followed by an interactive "Your turn" phase. Return 4-8 ordered teachingSteps; each step must include a concise displayText that can be revealed progressively, 25-50 words of speakerText, and a useful explanation. Teach one idea at a time, then give the learner a related task to solve in the workspace. For binary_exercise, explain place values and conversions visually without writing source code, and give every conversion task an interactiveExercise with a prompt, exact expectedAnswer, optional acceptedAnswers, and an explanation. For design_decision, present realistic options, trade-offs, outcomes, and ask the learner to justify a choice. Do not disguise a prose worksheet as a simulation.`,
   },
 };
+
+export function activityKindFor({ category, title = "", activity = "" }) {
+  const text = `${title}\n${activity}`.toLowerCase();
+  if (category === "Terminal Coding Lab") return "terminal_code_along";
+  if (category === "Cloud Console Lab") return "cloud_console_walkthrough";
+  if (category === "Research & Analysis") return "evidence_inquiry";
+  if (category === "Scenario & Design Exercise") {
+    if (/\b(binary|decimal|number systems?|bits?|bitwise|base conversion|convert(?:ing)? .*base)\b/.test(text)) {
+      return "binary_exercise";
+    }
+    if (/\b(algorithm|pseudocode|flowchart|trace (?:the|an) algorithm)\b/.test(text)) {
+      return "algorithm_design";
+    }
+    if (/\b(ethical|ethics|privacy|bias|trade-?off|decision matrix|choose|select|recommend)\b/.test(text)) {
+      return "design_decision";
+    }
+    return "scenario_analysis";
+  }
+  return "guided_exercise";
+}
 
 export function experienceFor({ category, labType }) {
   if (category === "Terminal Coding Lab") return "terminal_coding_lab";
@@ -51,8 +71,9 @@ export function profileFor(input) {
   return { experienceType, ...EXPERIENCE_PROFILES[experienceType] };
 }
 
-export function profileSchema(baseSchema, profile) {
-  return {
+export function profileSchema(baseSchema, profile, activityKind) {
+  const required = [...new Set([...(baseSchema.required || []), "experience"])];
+  const schema = {
     ...baseSchema,
     properties: {
       ...baseSchema.properties,
@@ -67,6 +88,30 @@ export function profileSchema(baseSchema, profile) {
         required: ["experienceType", "workspaceFamily", "learnerArtifact", "requiredUi"],
       },
     },
-    required: [...new Set([...(baseSchema.required || []), "experience"])],
+    required,
   };
+
+  if (profile.experienceType === "scenario_simulator") {
+    schema.required = [...new Set([...schema.required, "activityKind", "teachingSteps"])];
+    schema.properties.teachingSteps = {
+      ...schema.properties.teachingSteps,
+      minItems: 4,
+      maxItems: 8,
+    };
+  }
+
+  if (activityKind === "binary_exercise") {
+    const taskSchema = schema.properties.tasks;
+    if (taskSchema?.type === "array" && taskSchema.items) {
+      schema.properties.tasks = {
+        ...taskSchema,
+        items: {
+          ...taskSchema.items,
+          required: [...new Set([...(taskSchema.items.required || []), "interactiveExercise"])],
+        },
+      };
+    }
+  }
+
+  return schema;
 }

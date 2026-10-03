@@ -96,6 +96,8 @@ export default function GuidedPracticalManifestBoard({
     practicalFiles.map((file) => [file.path, file.content])
   ));
   const [prediction, setPrediction] = useState("");
+  const [exerciseAnswers, setExerciseAnswers] = useState<Record<string, string>>({});
+  const [exerciseFeedback, setExerciseFeedback] = useState<Record<string, { correct: boolean; message: string; explanation: string }>>({});
   const [revealedHints, setRevealedHints] = useState<Record<string, number>>({});
   const [revealedSuggestions, setRevealedSuggestions] = useState<Record<string, string[]>>({});
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
@@ -111,6 +113,7 @@ export default function GuidedPracticalManifestBoard({
   const currentCode = files[activeFilePath] ?? "";
   const completedCount = tasks.filter((task) => completedTasks[task.id]).length;
   const language = languageForFile(activeFilePath, practical.language);
+  const isBinaryExercise = practical.activityKind === "binary_exercise";
   const codeMode = ["code_lab", "terminal_lab", "database_lab"].includes(practical.mode)
     && ["python", "c", "cpp", "c++"].includes(language.toLowerCase());
   const darkText = isDark ? "text-slate-100" : "text-slate-900";
@@ -129,6 +132,8 @@ export default function GuidedPracticalManifestBoard({
     setActiveFilePath(practicalFiles[0]?.path || "response.md");
     setFiles(Object.fromEntries(practicalFiles.map((file) => [file.path, file.content])));
     setPrediction("");
+    setExerciseAnswers({});
+    setExerciseFeedback({});
     setRevealedHints({});
     setRevealedSuggestions({});
     setCompletedTasks({});
@@ -212,6 +217,53 @@ export default function GuidedPracticalManifestBoard({
   ]);
 
   const runPractical = async () => {
+    if (activeTask.interactiveExercise?.type === "binary_conversion") {
+      const answer = exerciseAnswers[activeTask.id]?.trim() || "";
+      if (!answer) {
+        setOutput("Enter your answer before checking it.");
+        return;
+      }
+      const normalizeAnswer = (value: string) => value
+        .trim()
+        .toLowerCase()
+        .replace(/^0b/, "")
+        .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, "")
+        .replace(/[\s,_]/g, "");
+      const exercise = activeTask.interactiveExercise;
+      const acceptedAnswers = [exercise.expectedAnswer, ...(exercise.acceptedAnswers || [])];
+      const correct = acceptedAnswers.some((expected) => normalizeAnswer(expected) === normalizeAnswer(answer));
+      setExerciseFeedback((previous) => ({
+        ...previous,
+        [activeTask.id]: {
+          correct,
+          message: correct
+            ? "That’s correct. Your conversion matches the place-value rule."
+            : "Not quite yet. Recheck the place values and try again.",
+          explanation: exercise.explanation,
+        },
+      }));
+
+      const savedResponse = `${exercise.prompt}\n\nYour answer: ${answer}\nPrediction: ${prediction || "Not provided"}`;
+      const updatedFiles = { ...files, [activeFilePath]: savedResponse };
+      setFiles(updatedFiles);
+      setOutput(correct ? "Correct — your answer has been checked." : "Not yet — revise your answer and check again.");
+      try {
+        if (practical.id) {
+          await learningBoardsApi.recordPracticalAttempt(
+            practical.id,
+            updatedFiles,
+            correct ? "passed" : "in_progress",
+            savedResponse,
+          );
+        }
+        if (correct) await markTaskComplete(activeTask);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        setOutput(`Your answer was checked, but progress could not be saved: ${message}`);
+      }
+      return;
+    }
+
     if (!prediction.trim()) {
       setOutput("Write your prediction before running the practical.");
       return;
@@ -380,6 +432,8 @@ export default function GuidedPracticalManifestBoard({
           files={practicalFiles}
           walkthrough={practical.codeWalkthrough}
           category={practical.category}
+          activityKind={practical.activityKind}
+          teachingSteps={practical.teachingSteps}
           courseId={practical.courseId}
           tasks={tasks}
           narratorGuide={practical.narratorGuide}
@@ -410,7 +464,11 @@ export default function GuidedPracticalManifestBoard({
         <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${surface}`}>
           <div>
             <p className={`text-[10px] font-bold uppercase tracking-widest ${accentText}`}>Walkthrough complete · Your turn</p>
-            <p className={`mt-1 text-sm ${mutedText}`}>Edit the starter file, predict the result, then run the practical checks.</p>
+            <p className={`mt-1 text-sm ${mutedText}`}>
+              {isBinaryExercise
+                ? "Solve each conversion, check your answer, and use the feedback to strengthen your reasoning."
+                : "Apply the idea from the walkthrough, record your reasoning, then check the result."}
+            </p>
           </div>
           <button
             type="button"
@@ -456,7 +514,7 @@ export default function GuidedPracticalManifestBoard({
 
       <section className={`grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]`}>
         <div className={`flex min-h-[520px] min-w-0 flex-col rounded-xl border p-3 ${surface}`}>
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          {!activeTask.interactiveExercise && <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-1 overflow-x-auto">
               {practicalFiles.map((file) => (
                 <button
@@ -476,8 +534,52 @@ export default function GuidedPracticalManifestBoard({
             >
               <RotateCcw className="h-3 w-3" /> Reset
             </button>
-          </div>
-          <textarea
+          </div>}
+          {activeTask.interactiveExercise?.type === "binary_conversion" ? (
+            <div className={`flex flex-1 flex-col gap-4 rounded-lg border p-5 ${isDark ? "border-slate-700 bg-[#05070d]" : "border-slate-200 bg-gradient-to-br from-slate-50 to-white"}`}>
+              <div>
+                <p className={`font-mono text-[10px] font-bold uppercase tracking-wider ${accentText}`}>Conversion challenge</p>
+                <h4 className={`mt-2 text-base font-bold ${darkText}`}>{activeTask.interactiveExercise.prompt}</h4>
+              </div>
+              <label className={`text-xs font-semibold ${mutedText}`} htmlFor={`binary-answer-${activeTask.id}`}>Your answer</label>
+              <input
+                id={`binary-answer-${activeTask.id}`}
+                type="text"
+                inputMode="text"
+                autoComplete="off"
+                name={`binary-answer-${activeTask.id}`}
+                value={exerciseAnswers[activeTask.id] || ""}
+                onChange={(event) => setExerciseAnswers((previous) => ({ ...previous, [activeTask.id]: event.target.value }))}
+                placeholder="Enter your answer…"
+                className={`rounded-lg border p-3 font-mono text-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF4B3E] ${isDark ? "border-white/10 bg-[#0b0d14] text-slate-100" : "border-slate-200 bg-white text-slate-900"}`}
+              />
+              {exerciseFeedback[activeTask.id] && (
+                <div className={`rounded-lg border p-3 text-sm ${exerciseFeedback[activeTask.id].correct ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200" : "border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200"}`}>
+                  <p className="font-semibold">{exerciseFeedback[activeTask.id].message}</p>
+                  <p className="mt-1">{exerciseFeedback[activeTask.id].explanation}</p>
+                </div>
+              )}
+              <label className={`mt-auto text-[11px] font-semibold ${mutedText}`} htmlFor={`practical-prediction-${activeTask.id}`}>Predict before checking</label>
+              <textarea
+                id={`practical-prediction-${activeTask.id}`}
+                value={prediction}
+                onChange={(event) => setPrediction(event.target.value)}
+                placeholder="How did you work it out?…"
+                className={`min-h-20 resize-y rounded-lg border p-3 text-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF4B3E] ${isDark ? "border-white/10 bg-[#0b0d14] text-slate-100" : "border-slate-200 bg-white text-slate-900"}`}
+              />
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={`text-[10px] ${mutedText}`}>Use your place-value reasoning; formatting such as `0b` or spaces is accepted.</p>
+                <button
+                  type="button"
+                  onClick={() => void runPractical()}
+                  disabled={isRunning || !exerciseAnswers[activeTask.id]?.trim()}
+                  className={`inline-flex items-center gap-1.5 rounded-lg ${accentBackground} px-3 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />Check answer
+                </button>
+              </div>
+            </div>
+          ) : <textarea
             value={currentCode}
             onChange={(event) => updateCurrentFile(event.target.value)}
             spellCheck={false}
@@ -485,8 +587,8 @@ export default function GuidedPracticalManifestBoard({
             className={`h-[min(42vh,400px)] min-h-[260px] flex-none resize-y rounded-lg border p-3 font-mono text-xs leading-relaxed outline-none focus:border-[#FF4B3E] ${
               isDark ? "border-white/10 bg-[#05070d] text-slate-100" : "border-slate-200 bg-white text-slate-900"
             }`}
-          />
-          <label className={`mt-3 text-[11px] font-semibold ${mutedText}`} htmlFor="practical-prediction">Predict before running</label>
+          />}
+          {!activeTask.interactiveExercise && <><label className={`mt-3 text-[11px] font-semibold ${mutedText}`} htmlFor="practical-prediction">Predict before running</label>
           <textarea
             id="practical-prediction"
             value={prediction}
@@ -507,7 +609,7 @@ export default function GuidedPracticalManifestBoard({
               {isRunning ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
               {isRunning ? "Running" : codeMode ? "Run and check" : "Submit for review"}
             </button>
-          </div>
+          </div></>}
         </div>
 
         <aside className={`flex min-h-[520px] min-w-0 flex-col gap-3 rounded-xl border p-3 ${surface}`}>

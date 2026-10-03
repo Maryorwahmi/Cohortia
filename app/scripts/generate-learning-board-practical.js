@@ -32,7 +32,7 @@ import { fileURLToPath } from "node:url";
 import { sourceHashFor } from "../backend/src/lib/practicalIdentity.js";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
 import { classifyActivity } from "./lib/hands-on-activity-source.js";
-import { profileFor, profileSchema } from "./lib/practical-experience-profiles.js";
+import { activityKindFor, profileFor, profileSchema } from "./lib/practical-experience-profiles.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -73,6 +73,11 @@ const PRACTICAL_SCHEMA = {
     language: { type: "string", description: "Primary programming language" },
     runtime: { type: "string", description: "Runtime or compiler (e.g., clang, python, node)" },
     title: { type: "string", description: "Practical title from activity or inferred" },
+    activityKind: {
+      type: "string",
+      enum: ["terminal_code_along", "cloud_console_walkthrough", "evidence_inquiry", "binary_exercise", "algorithm_design", "design_decision", "scenario_analysis", "guided_exercise"],
+      description: "Specific interaction pattern for this source activity.",
+    },
     labType: { type: "string", enum: LAB_TYPES },
     objectives: {
       type: "array",
@@ -102,6 +107,22 @@ const PRACTICAL_SCHEMA = {
         required: ["stepNumber", "speakerText", "codeLine"]
       },
       description: "Line-by-line animated code-along teaching segments synchronized with narrator voice"
+    },
+    teachingSteps: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          stepNumber: { type: "integer" },
+          title: { type: "string" },
+          displayText: { type: "string", description: "A short equation, diagram label, decision, or other non-code visual revealed as the teacher explains." },
+          speakerText: { type: "string", description: "Teacher narration synchronized to this visual step." },
+          explanation: { type: "string", description: "Short on-screen explanation of the current idea." },
+          durationSeconds: { type: "number" },
+        },
+        required: ["stepNumber", "displayText", "speakerText", "explanation"],
+      },
+      description: "Ordered, progressively revealed non-code teaching lines for scenario and design activities.",
     },
     widgetType: {
       type: "string",
@@ -141,6 +162,17 @@ const PRACTICAL_SCHEMA = {
               concept: { type: "string", description: "Tier 2: Refresher on core rule or formula" },
               walkthrough: { type: "string", description: "Tier 3: Concrete structural hint or code outline" }
             }
+          },
+          interactiveExercise: {
+            type: "object",
+            properties: {
+              type: { type: "string", enum: ["binary_conversion"] },
+              prompt: { type: "string" },
+              expectedAnswer: { type: "string" },
+              acceptedAnswers: { type: "array", items: { type: "string" } },
+              explanation: { type: "string" },
+            },
+            required: ["type", "prompt", "expectedAnswer", "explanation"],
           },
           inlineSuggestions: {
             type: "array",
@@ -816,11 +848,115 @@ function fallbackTaskNarrator(task, index, practicalTitle) {
   return `In this ${phase} step, focus on ${task.title || `task ${index + 1}`} in ${practicalTitle}. Read the instruction aloud, make a prediction, and then work carefully through one change at a time. Notice the evidence produced by your program or design. Ask yourself why the result makes sense, what assumption you tested, and what you would change next. If you get stuck, compare the result with the core concept rather than copying a solution. When the check passes, explain the reason in your own words before continuing.`;
 }
 
+function binaryExercisesFromActivity(activity) {
+  const questions = String(activity || "")
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^\s*\d+[.)]\s*/, "").replace(/[`*_]/g, "").trim())
+    .filter((line) => line && /^(?:convert|how many|if\b)/i.test(line));
+
+  return questions.flatMap((question) => {
+    let expectedAnswer;
+    let explanation;
+    let title;
+    const binaryToDecimal = /binary number\s+([01]+)\s+to its decimal/i.exec(question);
+    const decimalToBinary = /decimal number\s+(\d+)\s+to its binary/i.exec(question);
+    const numberOfBits = /how many unique values?.*?(\d+)\s*bits?/i.exec(question);
+    const maxComponent = /maximum decimal value for each .*?component/i.test(question)
+      ? /(\d+)\s*bits?\s+each/i.exec(question) || /(\d+)\s*bits?/i.exec(question)
+      : null;
+
+    if (binaryToDecimal) {
+      expectedAnswer = String(Number.parseInt(binaryToDecimal[1], 2));
+      title = `Convert ${binaryToDecimal[1]} from binary to decimal`;
+      explanation = `${binaryToDecimal[1]}₂ equals ${expectedAnswer}₁₀ when each bit is multiplied by its power-of-two place value and the products are added.`;
+    } else if (decimalToBinary) {
+      const decimal = Number(decimalToBinary[1]);
+      if (!Number.isSafeInteger(decimal)) return [];
+      expectedAnswer = decimal.toString(2);
+      title = `Convert ${decimal} from decimal to binary`;
+      explanation = `${decimal}₁₀ is ${expectedAnswer}₂. Repeatedly divide by two and read the remainders from last to first.`;
+    } else if (numberOfBits) {
+      const bits = Number(numberOfBits[1]);
+      if (!Number.isSafeInteger(bits) || bits < 1 || bits > 52) return [];
+      expectedAnswer = String(2 ** bits);
+      title = `Count the values represented by ${bits} bits`;
+      explanation = `${bits} bits have ${2 ** bits} possible patterns because each bit has two choices.`;
+    } else if (maxComponent) {
+      const bits = Number(maxComponent[1]);
+      if (!Number.isSafeInteger(bits) || bits < 1 || bits > 52) return [];
+      expectedAnswer = String(2 ** bits - 1);
+      title = `Find the maximum value of a ${bits}-bit color component`;
+      explanation = `An unsigned ${bits}-bit component ranges from 0 to 2^${bits} − 1, so its maximum is ${expectedAnswer}.`;
+    } else {
+      return [];
+    }
+
+    return [{
+      type: "binary_conversion",
+      title,
+      prompt: question,
+      expectedAnswer,
+      acceptedAnswers: [],
+      explanation,
+    }];
+  });
+}
+
+function binaryWorkedExample(exercise) {
+  const binaryToDecimal = /binary number\s+([01]+)\s+to its decimal/i.exec(exercise.prompt);
+  if (binaryToDecimal) {
+    const bits = binaryToDecimal[1];
+    const placeValues = [...bits].map((_, index) => 2 ** (bits.length - index - 1));
+    const products = [...bits].map((bit, index) => Number(bit) * placeValues[index]);
+    const activeProducts = products.filter((product) => product > 0);
+    const answer = exercise.expectedAnswer;
+    return [
+      {
+        title: "Read the binary digits",
+        displayText: `Bits (left to right): ${[...bits].join("  ")}`,
+        speakerText: `We will convert ${bits} from binary to decimal by matching each digit with its place value. Keep the digits in their original order. A bit of one includes its place value in the total, while a bit of zero contributes nothing.`,
+        explanation: "Each binary digit is either zero or one.",
+      },
+      {
+        title: "Assign powers of two",
+        displayText: `Place values: ${placeValues.join("  ")}`,
+        speakerText: `Starting at the right, binary place values are powers of two beginning with one. Moving left, they double each time. For ${bits}, write those values directly under the digits so every bit is paired with the correct power of two.`,
+        explanation: "From right to left, the place values are 2⁰, 2¹, 2², and so on.",
+      },
+      {
+        title: "Multiply each bit by its place value",
+        displayText: [...bits].map((bit, index) => `(${bit} × ${placeValues[index]})`).join(" + "),
+        speakerText: `Now multiply each digit by the value beneath it. The one digits keep their place values; each zero makes a zero product. This step makes clear exactly which powers of two are included in the binary number.`,
+        explanation: "Multiply each bit by its matching power-of-two place value.",
+      },
+      {
+        title: "Add the included values",
+        displayText: `${activeProducts.join(" + ")} = ${answer}`,
+        speakerText: `Add only the non-zero products. For ${bits}, the included place values total ${answer}. You can check the addition separately before writing the final result, which helps catch mistakes in either the place values or the sum.`,
+        explanation: "Add the place values whose corresponding bit is one.",
+      },
+      {
+        title: "State the equivalent decimal value",
+        displayText: `${bits}₂ = ${answer}₁₀`,
+        speakerText: `So ${bits} in base two is ${answer} in base ten. The small base labels tell us how to interpret the digits. We have converted the same quantity into a different number system, not changed the value itself.`,
+        explanation: "The base-two and base-ten expressions represent the same value.",
+      },
+    ].map((step, index) => ({ stepNumber: index + 1, ...step, durationSeconds: 8 }));
+  }
+
+  return [];
+}
+
 function normalizePractical(raw, sourceContext, metadata) {
   if (!raw || typeof raw !== "object") throw new Error("Generated practical must be an object.");
 
   const labType = inferLabType(raw, sourceContext);
   const experienceProfile = profileFor({ category: sourceContext.source.category, labType });
+  const activityKind = activityKindFor({
+    category: sourceContext.source.category,
+    title: sourceContext.activityTitle || raw.title,
+    activity: sourceContext.activityChapter.handsOnActivity,
+  });
   const language = inferLanguage(raw, sourceContext, labType);
   const title = raw.title || sourceContext.activityTitle || `Practical ${sourceContext.source.sourceKey}`;
   const instructions = raw.instructions || sourceContext.activityChapter.handsOnActivity;
@@ -887,9 +1023,53 @@ function normalizePractical(raw, sourceContext, metadata) {
             .filter((suggestion) => suggestion.text.length > 0)
         : [],
       structuredHints: task.structuredHints && typeof task.structuredHints === "object" ? task.structuredHints : undefined,
+      interactiveExercise: activityKind === "binary_exercise"
+        && task.interactiveExercise?.type === "binary_conversion"
+        && typeof task.interactiveExercise.prompt === "string"
+        && typeof task.interactiveExercise.expectedAnswer === "string"
+        && typeof task.interactiveExercise.explanation === "string"
+        ? {
+            type: "binary_conversion",
+            prompt: task.interactiveExercise.prompt,
+            expectedAnswer: task.interactiveExercise.expectedAnswer,
+            acceptedAnswers: asStringArray(task.interactiveExercise.acceptedAnswers),
+            explanation: task.interactiveExercise.explanation,
+          }
+        : undefined,
       checkIds: taskCheckIds,
     };
   });
+
+  if (activityKind === "binary_exercise") {
+    const sourceExercises = binaryExercisesFromActivity(sourceContext.activityChapter.handsOnActivity);
+    if (sourceExercises.length) {
+      tasks = sourceExercises.map((exercise, index) => {
+        const existing = tasks[index];
+        const narratorGuide = existing?.narratorGuide
+          || `Let's solve this binary challenge carefully. ${exercise.prompt} Explain how the place values or repeated division support your answer.`;
+        return {
+          ...existing,
+          id: existing?.id || `binary-question-${index + 1}`,
+          title: exercise.title,
+          instruction: exercise.prompt,
+          narratorGuide,
+          teaching: existing?.teaching || {
+            learningGoal: "Apply binary place values and explain the conversion.",
+            teacherTalk: narratorGuide,
+            realWorldExample: "Binary values represent numbers stored and processed by digital systems.",
+            guidedSteps: [exercise.prompt, "Show the place values or division steps.", "Check that the result represents the same quantity."],
+            questions: ["How can you verify your answer using powers of two?"],
+            expectedObservations: ["The answer agrees with the binary place-value or base-conversion rule."],
+            recap: exercise.explanation,
+            waitForLearner: true,
+          },
+          required: true,
+          checkIds: existing?.checkIds || [],
+          interactiveExercise: exercise,
+        };
+      });
+    }
+  }
 
   const rawChecks = Array.isArray(raw.checks) ? raw.checks : [];
   for (const [index, check] of rawChecks.entries()) {
@@ -950,7 +1130,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       question: "What principle did you learn, and where else could you use it?",
     },
   ];
-  if (tasks.length < progressiveStages.length) {
+  if (activityKind !== "binary_exercise" && tasks.length < progressiveStages.length) {
     tasks = progressiveStages.map((stage, index) => {
       const existing = tasks[index];
       if (existing) {
@@ -1091,7 +1271,34 @@ function normalizePractical(raw, sourceContext, metadata) {
       }));
     }
   }
-  const walkthroughStepNumbers = codeWalkthrough.map((step) => step.stepNumber);
+  let teachingSteps = (Array.isArray(raw.teachingSteps) ? raw.teachingSteps : [])
+    .filter((step) => step && typeof step === "object")
+    .map((step, index) => ({
+      stepNumber: Number.isInteger(Number(step.stepNumber)) ? Number(step.stepNumber) : index + 1,
+      title: asStringText(step.title) || `Teaching step ${index + 1}`,
+      displayText: asStringText(step.displayText),
+      speakerText: asStringText(step.speakerText),
+      explanation: asStringText(step.explanation),
+      durationSeconds: clampInteger(step.durationSeconds, 8, 3, 90),
+    }))
+    .filter((step) => step.displayText && step.speakerText && step.explanation)
+    .sort((left, right) => left.stepNumber - right.stepNumber);
+  if (activityKind === "binary_exercise" && tasks[0]?.interactiveExercise) {
+    teachingSteps = binaryWorkedExample(tasks[0].interactiveExercise);
+  }
+  if (experienceProfile.experienceType === "scenario_simulator" && teachingSteps.length === 0) {
+    teachingSteps = tasks.slice(0, 8).map((task, index) => ({
+      stepNumber: index + 1,
+      title: task.title || `Teaching step ${index + 1}`,
+      displayText: task.teaching?.guidedSteps?.[0] || task.title || `Explore the idea in step ${index + 1}`,
+      speakerText: task.narratorGuide || task.instruction,
+      explanation: task.teaching?.learningGoal || task.instruction,
+      durationSeconds: 8,
+    }));
+  }
+  const walkthroughStepNumbers = teachingSteps.length
+    ? teachingSteps.map((step) => step.stepNumber)
+    : codeWalkthrough.map((step) => step.stepNumber);
   const stepsForTask = (taskIndex) => {
     if (!walkthroughStepNumbers.length) return [];
     const chunkSize = Math.ceil(walkthroughStepNumbers.length / Math.max(tasks.length, 1));
@@ -1115,7 +1322,7 @@ function normalizePractical(raw, sourceContext, metadata) {
         recap: task.teaching?.recap || task.instruction,
         codeSteps: stepsForTask(index),
       })));
-  const teachingPlaylist = tasks.map((task, index) => {
+  let teachingPlaylist = tasks.map((task, index) => {
     const step = rawTeachingPlaylist[index] || {
       id: `path-${task.id}`,
       title: task.title || `Learning path ${index + 1}`,
@@ -1135,9 +1342,26 @@ function normalizePractical(raw, sourceContext, metadata) {
         ...step,
         id: normalizeId(step.id, `path-${index + 1}`),
         durationSeconds: clampInteger(step.durationSeconds, 90, 45, 240),
-        codeSteps: Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : stepsForTask(index),
+        codeSteps: experienceProfile.experienceType === "scenario_simulator"
+          ? stepsForTask(index)
+          : Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : stepsForTask(index),
       };
   });
+  if (activityKind === "binary_exercise" && teachingPlaylist.length && teachingSteps.length) {
+    const teacherNarration = teachingSteps.map((step) => step.speakerText).join(" ");
+    teachingPlaylist = [{
+      ...teachingPlaylist[0],
+      id: "binary-worked-example",
+      title: "Worked example: binary to decimal",
+      description: "Follow the teacher's place-value conversion, then try the challenges yourself.",
+      durationSeconds: clampInteger(Math.ceil(teacherNarration.length / 10), 90, 60, 240),
+      learningGoal: "Convert a binary number to decimal by applying powers of two.",
+      narratorScript: teacherNarration,
+      workedExample: teachingSteps.map((step) => step.displayText).join("\n"),
+      learnerPrompt: "After the worked example, choose a challenge and solve it yourself.",
+      codeSteps: teachingSteps.map((step) => step.stepNumber),
+    }];
+  }
   const completionRules = {
     requiredChecks: checks.map((check) => check.id),
     minimumScore: typeof raw.completionRules?.minimumScore === "number" && raw.completionRules.minimumScore >= 0
@@ -1162,6 +1386,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       learnerArtifact: experienceProfile.learnerArtifact,
       teacherRole: raw.teacher?.role || "supportive practical mentor",
     },
+    activityKind,
     experience: {
       experienceType: experienceProfile.experienceType,
       workspaceFamily: experienceProfile.workspaceFamily,
@@ -1197,6 +1422,7 @@ function normalizePractical(raw, sourceContext, metadata) {
     },
     teachingPlaylist,
     codeWalkthrough,
+    teachingSteps,
     completionRule: ["all_tests_pass", "any_test_pass", "learner_submission"].includes(raw.completionRule)
       ? raw.completionRule
       : "all_tests_pass",
@@ -1408,6 +1634,33 @@ function validatePractical(practical) {
     }
     const playlistSteps = new Set((practical.teachingPlaylist || []).flatMap((item) => Array.isArray(item.codeSteps) ? item.codeSteps : []));
     for (const step of walkthrough) if (!playlistSteps.has(step.stepNumber)) errors.push(`codeWalkthrough step ${step.stepNumber} is not assigned to a teaching playlist item`);
+  }
+
+  if (practical.activityKind === "binary_exercise" || practical.category === "Scenario & Design Exercise") {
+    const steps = Array.isArray(practical.teachingSteps) ? practical.teachingSteps : [];
+    if (steps.length < 4 || steps.length > 8) errors.push("Scenario & Design Exercise must include 4-8 teachingSteps");
+    const stepNumbers = new Set();
+    for (const step of steps) {
+      if (!Number.isInteger(step.stepNumber) || step.stepNumber < 1 || stepNumbers.has(step.stepNumber)) {
+        errors.push("teachingSteps stepNumber values must be unique positive integers");
+      }
+      stepNumbers.add(step.stepNumber);
+      if (!step.displayText?.trim()) errors.push(`teaching step ${step.stepNumber} needs displayText`);
+      if (!step.speakerText?.trim() || step.speakerText.trim().length < 40) errors.push(`teaching step ${step.stepNumber} needs meaningful teacher narration`);
+      if (!step.explanation?.trim()) errors.push(`teaching step ${step.stepNumber} needs an explanation`);
+    }
+    const playlistSteps = new Set((practical.teachingPlaylist || []).flatMap((item) => Array.isArray(item.codeSteps) ? item.codeSteps : []));
+    for (const step of steps) if (!playlistSteps.has(step.stepNumber)) errors.push(`teaching step ${step.stepNumber} is not assigned to a teaching playlist item`);
+  }
+
+  if (practical.activityKind === "binary_exercise") {
+    for (const task of practical.tasks || []) {
+      if (task.required === false) continue;
+      const exercise = task.interactiveExercise;
+      if (exercise?.type !== "binary_conversion" || !exercise.prompt?.trim() || !exercise.expectedAnswer?.trim() || !exercise.explanation?.trim()) {
+        errors.push(`binary exercise task ${task.id} needs a complete interactiveExercise`);
+      }
+    }
   }
 
   const environment = practical.environment;
@@ -1683,9 +1936,14 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
 
     const inferredLabType = inferLabType({}, sourceContext);
     const experienceProfile = profileFor({ category: sourceContext.source.category, labType: inferredLabType });
-    const experienceBrief = `\n\nEXPERIENCE PROFILE (AUTHORITATIVE)\n==================================\nExperience: ${experienceProfile.experienceType}\nWorkspace family: ${experienceProfile.workspaceFamily}\nLearner artifact: ${experienceProfile.learnerArtifact}\nRequired learner UI: ${experienceProfile.requiredUi.join(", ")}\n\n${experienceProfile.prompt}\n\nReturn an \"experience\" object that exactly matches this profile. Do not substitute another experience family.`;
+    const activityKind = activityKindFor({
+      category: sourceContext.source.category,
+      title: sourceContext.activityTitle,
+      activity: sourceContext.activityChapter.handsOnActivity,
+    });
+    const experienceBrief = `\n\nACTIVITY KIND (AUTHORITATIVE)\n==============================\n${activityKind}\n\nEXPERIENCE PROFILE (AUTHORITATIVE)\n==================================\nExperience: ${experienceProfile.experienceType}\nWorkspace family: ${experienceProfile.workspaceFamily}\nLearner artifact: ${experienceProfile.learnerArtifact}\nRequired learner UI: ${experienceProfile.requiredUi.join(", ")}\n\n${experienceProfile.prompt}\n\nReturn an \"experience\" object that exactly matches this profile. Do not substitute another experience family.`;
     const prompt = `${buildGeminiPrompt(promptTemplate, chapterData, metadata, sourceContext)}${experienceBrief}`;
-    const responseSchema = profileSchema(PRACTICAL_SCHEMA, experienceProfile);
+    const responseSchema = profileSchema(PRACTICAL_SCHEMA, experienceProfile, activityKind);
 
     if (options["dry-run"] === true) {
       console.log(JSON.stringify({
@@ -1694,6 +1952,7 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
         lessonSourcePath: sourceContext.lessonSourcePath,
         lessonHash: sourceContext.lessonHash,
         experienceType: experienceProfile.experienceType,
+        activityKind,
         promptCharacters: prompt.length,
       }, null, 2));
       return;
