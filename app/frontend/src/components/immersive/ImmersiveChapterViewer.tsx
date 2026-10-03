@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play, RotateCw, Volume2, VolumeX } from "lucide-react";
-import { loadCourseVoiceMapping, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
+import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 import type { LearningBoardPractical } from "../../services/learningBoardsApi";
 
 export interface ImmersiveScreen {
@@ -173,16 +173,13 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
       const next = window.speechSynthesis.getVoices().filter((voice) => voice.lang.toLowerCase().startsWith("en"));
       setVoices(next);
       
-      // Priority 1: Try to load course-assigned voice
+      // Use the shared resolver so Read Mode and Practical Mode cannot choose
+      // different fallbacks when a configured voice is unavailable locally.
       try {
-        const courseVoiceMapping = await loadCourseVoiceMapping();
-        const assignedVoice = courseVoiceMapping[manifest.courseId];
-        if (assignedVoice) {
-          const browserVoice = findBrowserVoiceByName(assignedVoice.label, next);
-          if (browserVoice) {
-            setVoiceName(browserVoice.name);
-            return;
-          }
+        const browserVoice = await resolveCourseNarratorVoice(manifest.courseId, next);
+        if (browserVoice) {
+          setVoiceName(browserVoice.name);
+          return;
         }
       } catch (error) {
         // Silently ignore if mapping not available

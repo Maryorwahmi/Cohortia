@@ -41,6 +41,24 @@ export async function getAssignedVoiceForCourse(courseId: string): Promise<any |
 }
 
 /**
+ * Resolve one deterministic browser voice for every course surface.
+ * Read Mode, Practical Mode, and sandbox narration must all call this so a
+ * missing installed voice falls back in the same way everywhere.
+ */
+export async function resolveCourseNarratorVoice(
+  courseId: string,
+  allVoices: SpeechSynthesisVoice[],
+): Promise<SpeechSynthesisVoice | null> {
+  const englishVoices = allVoices.filter((voice) => voice.lang.toLowerCase().startsWith("en"));
+  const assigned = await getAssignedVoiceForCourse(courseId);
+  const assignedMatch = assigned ? findBrowserVoiceByName(assigned.label, englishVoices) : null;
+  return assignedMatch
+    || englishVoices[0]
+    || allVoices[0]
+    || null;
+}
+
+/**
  * Find a browser voice by name (handles variations like "Microsoft Ava" vs just "Ava")
  */
 export function findBrowserVoiceByName(

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep, PracticalTeachingStep } from "../../services/learningBoardsApi";
-import { getAssignedVoiceForCourse, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
+import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 import { estimateSpeechDurationSeconds, SpeechNarrationQueue } from "../../lib/speechNarration";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -123,12 +123,13 @@ export default function AnimatedCodeAlongPlayer({
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [isNarrating, setIsNarrating] = useState(false);
+  const [narratorVoice, setNarratorVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [voiceReady, setVoiceReady] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [activePlaylistIndex, setActivePlaylistIndex] = useState(0);
   const requestRef = useRef<number | null>(null);
   const previousTimeRef = useRef<number | null>(null);
   const spokenLessonRef = useRef<string | null>(null);
-  const narratorVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
   const narrationQueueRef = useRef(new SpeechNarrationQueue());
   const transitionStartedRef = useRef(false);
 
@@ -240,7 +241,7 @@ export default function AnimatedCodeAlongPlayer({
       return;
     }
     narrationQueueRef.current.play(transitionScript, {
-      voice: narratorVoiceRef.current,
+      voice: narratorVoice,
       rate: TEACHER_SPEECH_RATE,
       pitch: 1.02,
       onSpeakingChange: setIsNarrating,
@@ -251,17 +252,22 @@ export default function AnimatedCodeAlongPlayer({
   useEffect(() => {
     if (!courseId || typeof window === "undefined" || !window.speechSynthesis) return;
     let cancelled = false;
-    const applyVoice = () => {
+    const applyVoice = async () => {
       const browserVoices = window.speechSynthesis.getVoices();
-      getAssignedVoiceForCourse(courseId).then((assigned) => {
-        if (!cancelled) narratorVoiceRef.current = assigned ? findBrowserVoiceByName(assigned.label, browserVoices) : null;
-      });
+      if (!browserVoices.length) return;
+      const voice = await resolveCourseNarratorVoice(courseId, browserVoices);
+      if (!cancelled) {
+        setNarratorVoice(voice);
+        setVoiceReady(true);
+      }
     };
-    applyVoice();
-    window.speechSynthesis.addEventListener("voiceschanged", applyVoice);
+    setVoiceReady(false);
+    void applyVoice();
+    const handleVoicesChanged = () => { void applyVoice(); };
+    window.speechSynthesis.addEventListener("voiceschanged", handleVoicesChanged);
     return () => {
       cancelled = true;
-      window.speechSynthesis.removeEventListener("voiceschanged", applyVoice);
+      window.speechSynthesis.removeEventListener("voiceschanged", handleVoicesChanged);
     };
   }, [courseId]);
 
@@ -310,7 +316,7 @@ export default function AnimatedCodeAlongPlayer({
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     spokenLessonRef.current = null;
     narrationQueueRef.current.play(activeNarrationScript, {
-      voice: narratorVoiceRef.current,
+      voice: narratorVoice,
       rate: TEACHER_SPEECH_RATE,
       pitch: 1.02,
       onSpeakingChange: setIsNarrating,
@@ -323,11 +329,11 @@ export default function AnimatedCodeAlongPlayer({
   };
 
   useEffect(() => {
-    if (!isPlaying || isMuted || typeof window === "undefined" || !window.speechSynthesis) return;
+    if (!isPlaying || isMuted || !voiceReady || typeof window === "undefined" || !window.speechSynthesis) return;
     if (spokenLessonRef.current === activePlaylist.id) return;
     speakActiveLesson();
     return () => narrationQueueRef.current.cancel();
-  }, [activePlaylist.id, activeNarrationScript, isMuted, isPlaying]);
+  }, [activePlaylist.id, activeNarrationScript, isMuted, isPlaying, narratorVoice, voiceReady]);
 
   return (
     <div className={`h-full min-h-0 w-full overflow-hidden ${isDark ? "bg-[#101522]" : "bg-slate-50"}`}>
