@@ -183,6 +183,8 @@ REQUIREMENTS:
      * Structure as a guided inquiry notebook with observation prompts, hypothesis formation, and comparative analysis.
    - Cloud Console:
      * Provide realistic CLI scenarios with contextual mock command responses.
+     * Use the same teacher-led flow as coding and scenario practicals: a warm welcome, 4–8 progressive teachingSteps, then a safe “Your turn” command-plan and verification phase.
+     * Explain each command in plain language, including a familiar real-world consequence, and use simulations or read-only resources only.
 4. Tasks & Milestones:
    - Build 3–5 progressive milestones per practical.
    - For EACH task, provide a dedicated 'narratorGuide' (~100–150 words) that provides intensive, step-by-step conceptual coaching.
@@ -191,7 +193,10 @@ REQUIREMENTS:
    - Provide 3-tier progressive hints (nudge, concept, walkthrough) in structuredHints and as hints array.
    - Provide 1–3 task-specific inlineSuggestions with concise coaching and optional small insertionText fragments. These are static manifest content, never runtime AI responses, and must not reveal a complete solution.
 5. Overall Narrator Guide (~300–500 words):
-   - Warm, masterclass educator voice (~100 wpm). Greet the learner, set the thematic context (make it feel like a real mission), preview milestones, and emphasize that errors are part of the discovery process.
+   - Begin with “Welcome” and use a calm, warm, conversational teacher voice (~100 wpm), never a robotic or command-only voice.
+   - Name the course, module, chapter, and practical mission. Briefly connect the chapter idea to a familiar real-world use case before the first instruction.
+   - Explain why each action matters, pause for predictions, use encouraging questions, preview milestones, and make clear that errors are useful evidence in discovery.
+   - Write narration for speech synthesis: spell out symbols in prose rather than relying on punctuation. For example say “plus”, “slash”, “dot”, “opening curly brace”, and “closing curly brace”; never make the voice read raw code punctuation as a robot.
 6. Synchronized Animated CodeWalkthrough (TERMINAL CODING LABS ONLY):
    - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching steps that walk the student line-by-line through the foundational starter code.
    - For EACH step, provide:
@@ -205,9 +210,11 @@ REQUIREMENTS:
 7. Scenario & Design Excellence:
    - If the category is 'Scenario & Design Exercise', create a highly descriptive world/context. Use 'widgetType' to select specialized UI tools (binary_converter, memory_diagram, etc.).
    - Break the problem into 'Think First' steps before any implementation. The first scene should set up the problem, middle scenes should reveal the working method one line at a time, and the final scene should prepare the learner to solve a related problem independently.
-8. Research & Analysis Guidance:
+8. Cloud Console Teaching Excellence:
+   - Start with the operational goal and the resource state the learner should expect. Reveal each safe command or console action progressively, explain what it changes or verifies, and then let the learner make a related decision in “Your turn.”
+9. Research & Analysis Guidance:
    - For 'Research & Analysis' practicals, focus on guided inquiry. The narrator should act as a lead researcher, asking the student to form hypotheses and document observations in the provided task areas.
-9. Do NOT invent a different exercise or use source material from another chapter.
+10. Do NOT invent a different exercise or use source material from another chapter.
 7. Infer labType from each activity, but prefer simulation/manual review when execution would need host, production, credential, or unrestricted network access.
 8. Keep all generated file paths relative to the practical workspace and never use absolute paths or parent-directory segments.
 9. Return only valid JSON matching the requested module response schema.`;

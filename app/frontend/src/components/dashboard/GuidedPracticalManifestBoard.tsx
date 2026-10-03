@@ -107,6 +107,7 @@ export default function GuidedPracticalManifestBoard({
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [teacherGuide, setTeacherGuide] = useState<TeacherGuide | null>(null);
   const workspaceRef = useRef<HTMLElement>(null);
+  const completionTriggeredRef = useRef(false);
   const tasks = Array.isArray(practical.tasks) ? practical.tasks : [];
   const activeTask = tasks[activeTaskIndex];
   const checks = useMemo(() => normalizeChecks(practical), [practical]);
@@ -141,6 +142,7 @@ export default function GuidedPracticalManifestBoard({
     setOutput("");
     setTeacherGuide(null);
     setIsWorkspaceOpen(false);
+    completionTriggeredRef.current = false;
   }, [practical.id, practicalFiles]);
 
   useEffect(() => {
@@ -174,8 +176,21 @@ export default function GuidedPracticalManifestBoard({
     await learningBoardsApi.updatePracticalTaskProgress(practical.id, task.id, "completed");
     const nextCompleted = { ...completedTasks, [task.id]: true };
     setCompletedTasks(nextCompleted);
-    if (tasks.every((item) => nextCompleted[item.id])) await onComplete?.();
+    const nextIncompleteIndex = tasks.findIndex((item) => !nextCompleted[item.id]);
+    if (nextIncompleteIndex >= 0) {
+      window.setTimeout(() => {
+        setActiveTaskIndex(nextIncompleteIndex);
+        setPrediction("");
+      }, 500);
+    }
   };
+
+  useEffect(() => {
+    if (!tasks.length || !tasks.every((task) => completedTasks[task.id]) || completionTriggeredRef.current) return;
+    completionTriggeredRef.current = true;
+    setOutput("Excellent work — all practical checks are complete. Opening the chapter assessment now.");
+    void onComplete?.();
+  }, [completedTasks, onComplete, tasks]);
 
   useEffect(() => {
     if (!onMentorContextReady) return;

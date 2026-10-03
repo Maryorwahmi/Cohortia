@@ -3,6 +3,7 @@ export interface SpeechNarrationOptions {
   rate?: number;
   pitch?: number;
   onSpeakingChange?: (isSpeaking: boolean) => void;
+  onProgress?: (progress: number) => void;
   onComplete?: () => void;
 }
 
@@ -15,6 +16,13 @@ const SYMBOL_WORDS: Array<[RegExp, string]> = [
   [/>=/g, " is greater than or equal to "],
   [/<=/g, " is less than or equal to "],
   [/\+/g, " plus "],
+  [/\*/g, " asterisk "],
+  [/\{/g, " opening curly brace "],
+  [/\}/g, " closing curly brace "],
+  [/\(/g, " opening parenthesis "],
+  [/\)/g, " closing parenthesis "],
+  [/\[/g, " opening square bracket "],
+  [/\]/g, " closing square bracket "],
   [/:/g, ". "],
   [/\//g, " slash "],
 ];
@@ -34,6 +42,7 @@ export function prepareSpeechText(value: string): string {
     .replace(/\bHTML\b/g, "H T M L")
     .replace(/\bCSS\b/g, "C S S")
     .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/([A-Za-z0-9])\.([A-Za-z0-9])/g, "$1 dot $2")
     .replace(/[_]+/g, " ");
 
   for (const [pattern, replacement] of SYMBOL_WORDS) {
@@ -84,7 +93,10 @@ export class SpeechNarrationQueue {
     if (this.chunks.length === 0) return;
 
     const generation = ++this.generation;
+    const totalCharacters = this.chunks.reduce((total, chunk) => total + chunk.length, 0);
+    let completedCharacters = 0;
     options.onSpeakingChange?.(true);
+    options.onProgress?.(0);
 
     const speakNext = (index: number) => {
       if (generation !== this.generation || index >= this.chunks.length) {
@@ -99,7 +111,15 @@ export class SpeechNarrationQueue {
       if (options.voice) utterance.voice = options.voice;
       utterance.rate = options.rate ?? 0.9;
       utterance.pitch = options.pitch ?? 1;
-      utterance.onend = () => window.setTimeout(() => speakNext(index + 1), 120);
+      utterance.onboundary = (event) => {
+        if (event.name !== "word" || totalCharacters === 0) return;
+        options.onProgress?.(Math.min(0.999, (completedCharacters + event.charIndex) / totalCharacters));
+      };
+      utterance.onend = () => {
+        completedCharacters += this.chunks[index].length;
+        options.onProgress?.(Math.min(1, completedCharacters / totalCharacters));
+        window.setTimeout(() => speakNext(index + 1), 120);
+      };
       utterance.onerror = (event) => {
         if (event.error !== "canceled" && event.error !== "interrupted") {
           window.setTimeout(() => speakNext(index + 1), 120);

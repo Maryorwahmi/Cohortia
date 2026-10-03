@@ -52,6 +52,16 @@ interface SlideItem {
   points: string[];
 }
 
+function formatHandsOnActivity(value: string | null | undefined): string {
+  return String(value || "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^\s*(?:#{1,6}|[-*]|\d+[.)])\s*/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalizeAssessmentSource(assessment: unknown): ImmersiveAssessment | null {
   if (!assessment || typeof assessment !== "object") return null;
 
@@ -1573,15 +1583,9 @@ export default function LearningBoardPage({
                             Hands-on Activity
                           </span>
                           <p className="text-xs text-immersive-text-secondary leading-relaxed">
-                            {generatedPreview?.handsOn?.instructions || "No hands-on activity has been recorded for this chapter."}
+                            {formatHandsOnActivity(generatedPreview?.handsOn?.instructions) || "This chapter’s guided practical will help you apply the main idea and verify your understanding."}
                           </p>
                         </div>
-                        <button
-                          onClick={() => setViewerMode("practical")}
-                          className="mt-3 py-1.5 px-3 bg-[#FF4B3E]/10 border border-[#FF4B3E]/30 hover:bg-[#FF4B3E]/20 text-[#FF4B3E] text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer self-start"
-                        >
-                          Go to PRACTICAL ➔
-                        </button>
                       </div>
                     </div>
                   </div>

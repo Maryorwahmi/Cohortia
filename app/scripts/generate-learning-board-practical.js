@@ -467,6 +467,7 @@ async function resolveSourceContext({
     },
     lessonHash: hashText(lessonMarkdown),
     activityTitle: extractActivityTitle(activityChapter.handsOnActivity),
+    courseTitle: extractFrontmatterField(lessonMarkdown, "title") || resolvedCourseId,
     level: extractFrontmatterField(lessonMarkdown, "Level") || extractFrontmatterField(activityMarkdown, "Level"),
   };
 }
@@ -912,6 +913,12 @@ function binaryWorkedExample(exercise) {
     const answer = exercise.expectedAnswer;
     return [
       {
+        title: "Welcome to the practical",
+        displayText: `Mission: understand how ${bits} stores a number using only zero and one.`,
+        speakerText: `Welcome to this practical. Before we calculate anything, notice that this is the same binary idea used inside a phone, a game console, and every digital image. We will move slowly, test each step, and turn a pattern of zeroes and ones into a number you can explain with confidence.`,
+        explanation: "Binary is the language digital systems use to represent information.",
+      },
+      {
         title: "Read the binary digits",
         displayText: `Bits (left to right): ${[...bits].join("  ")}`,
         speakerText: `We will convert ${bits} from binary to decimal by matching each digit with its place value. Keep the digits in their original order. A bit of one includes its place value in the total, while a bit of zero contributes nothing.`,
@@ -1294,7 +1301,7 @@ function normalizePractical(raw, sourceContext, metadata) {
   if (activityKind === "binary_exercise" && tasks[0]?.interactiveExercise) {
     teachingSteps = binaryWorkedExample(tasks[0].interactiveExercise);
   }
-  if (experienceProfile.experienceType === "scenario_simulator" && teachingSteps.length === 0) {
+  if (["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType) && teachingSteps.length === 0) {
     teachingSteps = tasks.slice(0, 8).map((task, index) => ({
       stepNumber: index + 1,
       title: task.title || `Teaching step ${index + 1}`,
@@ -1303,6 +1310,20 @@ function normalizePractical(raw, sourceContext, metadata) {
       explanation: task.teaching?.learningGoal || task.instruction,
       durationSeconds: 8,
     }));
+  }
+  if (["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
+    && teachingSteps.length > 0
+    && teachingSteps.length < 8
+    && !/\bwelcome\b/i.test(teachingSteps[0]?.speakerText || "")) {
+    teachingSteps.unshift({
+      stepNumber: 0,
+      title: "Welcome to the practical",
+      displayText: `Welcome to ${sourceContext.courseTitle}, Module ${metadata.moduleNumber}, Chapter ${metadata.chapterNumber}: ${title}.`,
+      speakerText: `Welcome. In this practical for ${sourceContext.courseTitle}, Module ${metadata.moduleNumber}, Chapter ${metadata.chapterNumber}, we will explore ${title}. First, I will show you the central idea with a realistic example. Then you will test your own reasoning step by step. Take your time: careful predictions and observations are how practical learning becomes understanding.`,
+      explanation: "Start with the mission, then connect each step to evidence.",
+      durationSeconds: 18,
+    });
+    teachingSteps = teachingSteps.map((step, index) => ({ ...step, stepNumber: index + 1 }));
   }
   const walkthroughStepNumbers = teachingSteps.length
     ? teachingSteps.map((step) => step.stepNumber)
@@ -1350,7 +1371,7 @@ function normalizePractical(raw, sourceContext, metadata) {
         ...step,
         id: normalizeId(step.id, `path-${index + 1}`),
         durationSeconds: clampInteger(step.durationSeconds, 90, 45, 240),
-        codeSteps: experienceProfile.experienceType === "scenario_simulator"
+        codeSteps: ["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
           ? stepsForTask(index)
           : Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : stepsForTask(index),
       };

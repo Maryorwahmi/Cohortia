@@ -26,7 +26,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "safe_cloud_console",
     learnerArtifact: "safe command plan and verification log",
     requiredUi: ["mission", "resource_map", "command_plan", "verification_log"],
-    prompt: `Build a safe cloud-console mission. Use simulated or read-only resources only, explicitly state the expected resource state, and include command-plan and verification-log milestones. Never require real credentials, billing actions, destructive commands, or production access.`,
+    prompt: `Build a safe cloud-console mission with two explicit phases: a calm, teacher-led walkthrough, then “Your turn.” Begin with a welcoming course-and-chapter introduction, explain why this cloud skill matters using a concrete real-world example, and invite a prediction before each action. Return 4-8 ordered teachingSteps with progressive displayText, warm 25-50 word speakerText, and useful explanation callouts, then map every teaching step to teachingPlaylist[].codeSteps. Use simulated or read-only resources only, explicitly state expected resource state, and include command-plan and verification-log milestones. Never require real credentials, billing actions, destructive commands, or production access.`,
   },
   scenario_simulator: {
     category: "Scenario & Design Exercise",
@@ -34,7 +34,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "decision_simulator",
     learnerArtifact: "decision rationale and outcome analysis",
     requiredUi: ["mission", "scenario", "decision", "outcome", "reflection"],
-    prompt: `Build a teacher-led, line-by-line scenario lesson followed by an interactive "Your turn" phase. Return 4-8 ordered teachingSteps; each step must include a concise displayText that can be revealed progressively, 25-50 words of speakerText, and a useful explanation. Teach one idea at a time, then give the learner a related task to solve in the workspace. For binary_exercise, explain place values and conversions visually without writing source code, and give every conversion task an interactiveExercise with a prompt, exact expectedAnswer, optional acceptedAnswers, and an explanation. For design_decision, present realistic options, trade-offs, outcomes, and ask the learner to justify a choice. Do not disguise a prose worksheet as a simulation.`,
+    prompt: `Build a teacher-led, line-by-line scenario lesson followed by an interactive "Your turn" phase. Start with a warm welcome that names the course, module, chapter, and hands-on mission; establish why it matters through a concrete real-world example, then ask the learner a prediction. Return 4-8 ordered teachingSteps; each step must include concise displayText that can be revealed progressively, warm 25-50 word speakerText, and a useful explanation. Teach one idea at a time, then give the learner a related task to solve in the workspace. For binary_exercise, explain place values and conversions visually without writing source code, and give every conversion task an interactiveExercise with a prompt, exact expectedAnswer, optional acceptedAnswers, and an explanation. For design_decision, present realistic options, trade-offs, outcomes, and ask the learner to justify a choice. Do not disguise a prose worksheet as a simulation.`,
   },
 };
 
@@ -91,7 +91,7 @@ export function profileSchema(baseSchema, profile, activityKind) {
     required,
   };
 
-  if (profile.experienceType === "scenario_simulator") {
+  if (["scenario_simulator", "cloud_console_lab"].includes(profile.experienceType)) {
     schema.required = [...new Set([...schema.required, "activityKind", "teachingSteps"])];
     schema.properties.teachingSteps = {
       ...schema.properties.teachingSteps,

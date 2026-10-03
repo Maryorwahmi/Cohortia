@@ -171,13 +171,13 @@ export default function AnimatedCodeAlongPlayer({
           : taskNarration(tasks[index], narratorGuide),
       }))
     : fallbackPlaylist;
-  // Older imported records may predate teachingSteps. Scenario labs must still
+  // Older imported records may predate teachingSteps. Scenario and cloud labs must still
   // enter the same progressive, teacher-led walkthrough instead of falling
   // back to four static cards. The playlist is sufficient to reconstruct a
   // safe presentational sequence; regenerated manifests provide richer steps.
   const resolvedTeachingSteps: PracticalTeachingStep[] = teachingSteps.length
     ? teachingSteps
-    : category === "Scenario & Design Exercise"
+    : ["Scenario & Design Exercise", "Cloud Console Lab"].includes(category || "")
       ? teachingPlaylist.map((step, index) => ({
           stepNumber: index + 1,
           title: step.title || `Guided step ${index + 1}`,
@@ -274,7 +274,10 @@ export default function AnimatedCodeAlongPlayer({
   }, [isActive]);
 
   useEffect(() => {
-    if (!isPlaying) {
+    // Browser speech reports word-boundary progress. When narration is audible,
+    // use that real progress so typing never outruns or lags behind the teacher.
+    // The time-based clock remains only for muted playback and browsers without TTS.
+    if (!isPlaying || !isMuted) {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       previousTimeRef.current = null;
       setIsNarrating(false);
@@ -290,7 +293,7 @@ export default function AnimatedCodeAlongPlayer({
     };
     requestRef.current = requestAnimationFrame(animate);
     return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current); };
-  }, [isPlaying, activeDurationSeconds, activePlaylistIndex, teachingPlaylist.length]);
+  }, [isPlaying, isMuted, activeDurationSeconds, activePlaylistIndex, teachingPlaylist.length]);
 
   useEffect(() => {
     if (!isPlaying || currentTime < activeDurationSeconds) return;
@@ -311,7 +314,11 @@ export default function AnimatedCodeAlongPlayer({
       rate: TEACHER_SPEECH_RATE,
       pitch: 1.02,
       onSpeakingChange: setIsNarrating,
-      onComplete: () => { spokenLessonRef.current = activePlaylist.id; },
+      onProgress: (progress) => setCurrentTime(activeDurationSeconds * progress),
+      onComplete: () => {
+        spokenLessonRef.current = activePlaylist.id;
+        setCurrentTime(activeDurationSeconds);
+      },
     });
   };
 
