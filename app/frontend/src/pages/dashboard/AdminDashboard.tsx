@@ -4,19 +4,22 @@ import {BookOpen, Check, ClipboardCheck, Search, ShieldCheck, TerminalSquare, Us
 import {adminApi, AdminCourse, AdminCoursePermission, AdminManagedUser} from '../../services/api';
 import {useAuth} from '../../context/AuthContext';
 
-type PermissionKey = 'screens' | 'assessments' | 'practicals';
+type PermissionKey = 'screens' | 'assessments' | 'practicals' | 'other';
+type CourseFilter = 'all' | PermissionKey;
 type CourseGrantMap = Record<string, Record<PermissionKey, boolean>>;
 
 const permissionLabels: Record<PermissionKey, string> = {
-  screens: 'Screens',
+  screens: 'Learning screens',
   assessments: 'Assessments',
   practicals: 'Practicals',
+  other: 'Other',
 };
 
 const emptyGrant = (): Record<PermissionKey, boolean> => ({
   screens: false,
   assessments: false,
   practicals: false,
+  other: false,
 });
 
 export default function AdminDashboard() {
@@ -26,6 +29,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<AdminManagedUser[]>([]);
   const [isAlphaAdmin, setIsAlphaAdmin] = useState(false);
   const [search, setSearch] = useState('');
+  const [courseFilter, setCourseFilter] = useState<CourseFilter>('all');
   const [selectedUserId, setSelectedUserId] = useState('');
   const [grants, setGrants] = useState<CourseGrantMap>({});
   const [loading, setLoading] = useState(true);
@@ -77,11 +81,13 @@ export default function AdminDashboard() {
 
   const visibleCourses = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return courses;
-    return courses.filter((course) =>
-      `${course.title} ${course.category} ${course.subcategory} ${course.provider || ''}`.toLowerCase().includes(query)
-    );
-  }, [courses, search]);
+    return courses.filter((course) => {
+      const matchesSearch = !query
+        || `${course.title} ${course.category} ${course.subcategory} ${course.provider || ''}`.toLowerCase().includes(query);
+      const matchesFilter = courseFilter === 'all' || course.availability[courseFilter];
+      return matchesSearch && matchesFilter;
+    });
+  }, [courses, courseFilter, search]);
 
   const managedAdmins = users.filter((account) => account.adminRole === 'admin');
   const selectedUser = users.find((account) => account.id === selectedUserId);
@@ -96,6 +102,30 @@ export default function AdminDashboard() {
     }));
   };
 
+  const selectMatchingCourses = () => {
+    setGrants((current) => {
+      const next = {...current};
+      for (const course of visibleCourses) {
+        const available = {
+          screens: course.availability.screens,
+          assessments: course.availability.assessments,
+          practicals: course.availability.practicals,
+          other: course.availability.other,
+        };
+        const selected = {...(current[course.id] || emptyGrant())};
+        if (courseFilter === 'all') {
+          for (const permission of Object.keys(permissionLabels) as PermissionKey[]) {
+            selected[permission] = available[permission];
+          }
+        } else if (available[courseFilter]) {
+          selected[courseFilter] = true;
+        }
+        next[course.id] = selected;
+      }
+      return next;
+    });
+  };
+
   const saveAccess = async () => {
     if (!selectedUser) return;
     setSaving(true);
@@ -103,7 +133,7 @@ export default function AdminDashboard() {
     setNotice('');
     try {
       const coursePermissions: AdminCoursePermission[] = (Object.entries(grants) as [string, Record<PermissionKey, boolean>][])
-        .filter(([, values]) => values.screens || values.assessments || values.practicals)
+        .filter(([, values]) => values.screens || values.assessments || values.practicals || values.other)
         .map(([courseId, values]) => ({courseId, ...values}));
       await adminApi.saveUserAccess(selectedUser.id, coursePermissions);
       setNotice(`Course access saved for ${selectedUser.name}.`);
@@ -208,29 +238,61 @@ export default function AdminDashboard() {
           </div>
           {managedAdmins.length > 0 && <p className="mt-3 text-xs text-immersive-text-secondary">Currently managed admins: {managedAdmins.map((account) => account.name).join(', ')}</p>}
           {selectedUser && (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {visibleCourses.map((course) => {
-                const current = grants[course.id] || emptyGrant();
-                return (
-                  <fieldset key={course.id} className="rounded-xl border border-immersive-border bg-immersive-bg p-4">
-                    <legend className="max-w-full px-1 text-sm font-bold text-immersive-text-primary">{course.title}</legend>
-                    <div className="mt-1 flex flex-wrap gap-3">
-                      {(Object.keys(permissionLabels) as PermissionKey[]).map((permission) => (
-                        <label key={permission} className={`flex items-center gap-2 text-xs ${course.availability[permission] ? 'text-immersive-text-secondary' : 'text-immersive-text-secondary/45'}`}>
-                          <input
-                            type="checkbox"
-                            checked={current[permission]}
-                            disabled={!course.availability[permission]}
-                            onChange={(event) => toggleGrant(course.id, permission, event.target.checked)}
-                          />
-                          {permissionLabels[permission]}
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                );
-              })}
-            </div>
+            <>
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+                {([
+                  ['all', 'All courses'],
+                  ['screens', 'Learning screens'],
+                  ['assessments', 'Assessments'],
+                  ['practicals', 'Practicals'],
+                  ['other', 'Other'],
+                ] as const).map(([filter, label]) => (
+                  <button
+                    key={filter}
+                    type="button"
+                    aria-pressed={courseFilter === filter}
+                    onClick={() => setCourseFilter(filter)}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-bold transition ${courseFilter === filter ? 'border-immersive-primary bg-immersive-primary/10 text-immersive-primary' : 'border-immersive-border text-immersive-text-secondary hover:border-immersive-primary/50'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={selectMatchingCourses}
+                  disabled={!visibleCourses.length || (courseFilter === 'other' && !visibleCourses.some((course) => course.availability.other))}
+                  className="ml-auto rounded-lg bg-immersive-primary px-3 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {courseFilter === 'all' ? 'Select all available access' : `Select all ${courseFilter === 'screens' ? 'screens' : courseFilter}`}
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-immersive-text-secondary">
+                {visibleCourses.length} matching course{visibleCourses.length === 1 ? '' : 's'}. Bulk selection grants only content types available for those courses.
+              </p>
+              <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {visibleCourses.map((course) => {
+                  const current = grants[course.id] || emptyGrant();
+                  return (
+                    <fieldset key={course.id} className="rounded-xl border border-immersive-border bg-immersive-bg p-4">
+                      <legend className="max-w-full px-1 text-sm font-bold text-immersive-text-primary">{course.title}</legend>
+                      <div className="mt-1 flex flex-wrap gap-3">
+                        {(Object.keys(permissionLabels) as PermissionKey[]).map((permission) => (
+                          <label key={permission} className={`flex items-center gap-2 text-xs ${course.availability[permission] ? 'text-immersive-text-secondary' : 'text-immersive-text-secondary/45'}`}>
+                            <input
+                              type="checkbox"
+                              checked={current[permission]}
+                              disabled={!course.availability[permission]}
+                              onChange={(event) => toggleGrant(course.id, permission, event.target.checked)}
+                            />
+                            {permissionLabels[permission]}
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                  );
+                })}
+              </div>
+            </>
           )}
         </section>
       )}
@@ -266,6 +328,7 @@ export default function AdminDashboard() {
                   <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.screens ? 'bg-sky-500/10 text-sky-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Screens {course.availability.screens ? 'available' : 'not imported'}</span>
                   <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.assessments ? 'bg-violet-500/10 text-violet-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Assessments {course.availability.assessments ? 'available' : 'not imported'}</span>
                   <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.practicals ? 'bg-emerald-500/10 text-emerald-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Practicals {course.availability.practicals ? 'available' : 'not imported'}</span>
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.other ? 'bg-amber-500/10 text-amber-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Other {course.availability.other ? 'available' : 'not applicable'}</span>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {course.availability.screens && course.access.screens && (
@@ -281,6 +344,11 @@ export default function AdminDashboard() {
                   {course.availability.practicals && course.access.practicals && (
                     <button type="button" onClick={() => openCourseBoard(course, 'practicals')} className="inline-flex items-center gap-2 rounded-lg border border-immersive-border px-3 py-2 text-xs font-bold text-immersive-text-primary hover:border-immersive-primary">
                       <TerminalSquare className="h-3.5 w-3.5" /> Open practicals
+                    </button>
+                  )}
+                  {course.availability.other && course.access.other && (
+                    <button type="button" onClick={() => navigate(`/careers/course/${encodeURIComponent(course.id)}`)} className="inline-flex items-center gap-2 rounded-lg border border-immersive-border px-3 py-2 text-xs font-bold text-immersive-text-primary hover:border-immersive-primary">
+                      <BookOpen className="h-3.5 w-3.5" /> Open course overview
                     </button>
                   )}
                   {!isAlphaAdmin && !Object.values(course.access).some(Boolean) && (

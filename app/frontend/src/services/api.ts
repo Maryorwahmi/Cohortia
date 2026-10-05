@@ -272,11 +272,12 @@ export interface AdminCoursePermission {
   screens: boolean;
   assessments: boolean;
   practicals: boolean;
+  other: boolean;
 }
 
 export interface AdminCourse extends CatalogCourse {
-  availability: { screens: boolean; assessments: boolean; practicals: boolean };
-  access: { screens: boolean; assessments: boolean; practicals: boolean };
+  availability: { screens: boolean; assessments: boolean; practicals: boolean; other: boolean };
+  access: { screens: boolean; assessments: boolean; practicals: boolean; other: boolean };
 }
 
 export interface AdminManagedUser {

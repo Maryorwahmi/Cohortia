@@ -24,7 +24,7 @@ npm run dev         # Start development server
 
 Set a private `ADMIN_BOOTSTRAP_PASSWORD` (at least 12 characters) in the backend environment and, optionally, set `ALPHA_ADMIN_EMAIL`. Run `npm run db:migrate-schema`, then `npm run admin:bootstrap` from the backend directory. The initial alpha administrator signs in with username `Admin` and the configured password; the password is hashed before storage and is never included in source code. To intentionally reset an existing alpha admin's password, also set `ADMIN_BOOTSTRAP_RESET_PASSWORD=true` for that bootstrap run.
 
-The alpha administrator can grant existing registered users admin access and independently select course permissions for screens, assessments, and practicals. Only the alpha administrator can manage other admins; the alpha account retains access to every catalog course.
+The alpha administrator can grant existing registered users admin access and independently select course permissions for learning screens, assessments, practicals, and course overviews for courses without those content types. Bulk selectors can grant all available access or target one content type. Only the alpha administrator can manage other admins; the alpha account retains access to every catalog course.
 
 ## API Routes
 

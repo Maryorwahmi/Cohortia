@@ -533,14 +533,6 @@ export default function ProductDemoSection() {
     }
   };
 
-  const jumpToPhase = (phaseIndex: number) => {
-    setCurrentTime(PHASES[phaseIndex].startSec);
-    currentSpokenPhaseRef.current = null;
-    if (isPlaying && !isVoiceMuted && hasStartedByUser) {
-      speakPhaseNarration(phaseIndex);
-    }
-  };
-
   const togglePlay = () => {
     const nextPlay = !isPlaying;
     setIsPlaying(nextPlay);
@@ -555,10 +547,10 @@ export default function ProductDemoSection() {
   };
 
   const playerShellClass = isDark
-    ? "relative min-h-[520px] w-full rounded-3xl bg-[#090a10] border border-immersive-border/60 shadow-2xl shadow-immersive-shadow overflow-hidden flex flex-col justify-between"
-    : "relative min-h-[520px] w-full rounded-3xl bg-white border border-slate-200 shadow-2xl shadow-slate-200/60 overflow-hidden flex flex-col justify-between";
+    ? "relative mx-auto flex min-h-[520px] w-full flex-col justify-between overflow-hidden rounded-3xl border border-immersive-border/60 bg-[#090a10] shadow-2xl shadow-immersive-shadow lg:aspect-video lg:min-h-0"
+    : "relative mx-auto flex min-h-[520px] w-full flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/60 lg:aspect-video lg:min-h-0";
 
-  const codePaneClass = isDark ? "bg-[#06080e] border-white/10" : "bg-slate-900 border-slate-700";
+  const codePaneClass = isDark ? "bg-[#06080e] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-800";
 
   return (
     <section id="practical-tour-section" className="py-14 sm:py-20 bg-immersive-bg relative overflow-hidden border-t border-immersive-border/20 text-left">
@@ -590,65 +582,30 @@ export default function ProductDemoSection() {
           </p>
 
           {/* Quick Notice Pill clarifying simulation status */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] text-slate-400 font-mono">
+          <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px] ${isDark ? "border-white/10 bg-white/[0.04] text-slate-400" : "border-slate-200 bg-white text-slate-600"}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span>Illustrative simulation: Pre-rendered walkthrough showcasing curriculum structure</span>
           </div>
         </div>
 
-        {/* TOP STEP NAVIGATION PILLS (Replaces the sidebar so the simulator is full-width!) */}
-        <div className="mb-6 flex items-center justify-between gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {PHASES.map((phase, index) => {
-            const isSelected = activePhaseIndex === index;
-            const Icon = phase.icon;
-            return (
-              <button
-                key={phase.id}
-                onClick={() => jumpToPhase(index)}
-                aria-label={`Jump to ${phase.stepNumber}: ${phase.title}`}
-                className={`flex-1 min-w-[200px] p-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
-                  isSelected
-                    ? "bg-[#FF4B3E]/10 border-[#FF4B3E] shadow-lg shadow-[#FF4B3E]/10"
-                    : "bg-immersive-card border-immersive-border/60 hover:border-immersive-border hover:bg-immersive-card-hover"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-[10px] font-mono font-bold uppercase ${isSelected ? "text-[#FF4B3E]" : "text-slate-400"}`}>
-                    {phase.stepNumber}
-                  </span>
-                  <span className="text-[9px] font-mono text-slate-500">
-                    {phase.badge}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? "text-[#FF4B3E]" : "text-slate-400"}`} />
-                  <span className={`text-xs font-bold truncate ${isSelected ? "text-immersive-text-primary" : "text-immersive-text-secondary"}`}>
-                    {phase.title}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
         {/* FULL WIDTH PRACTICAL LEARNING BOARD CONTAINER */}
         <div className="w-full">
-          <div className={playerShellClass}>
+          <div className={playerShellClass} style={{ width: "min(100%, calc(76vh * 16 / 9))" }}>
             
             {/* TOP HEADER: File tab, live mode switches & accurate voice status */}
-            <div className="p-3.5 sm:p-4 border-b border-white/10 bg-black/50 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 select-none">
+            <div className={`flex flex-wrap items-center justify-between gap-3 border-b p-3.5 backdrop-blur-md select-none sm:p-4 ${isDark ? "border-white/10 bg-black/50" : "border-slate-200 bg-slate-50"}`}>
               <div className="flex items-center space-x-2.5">
                 <div className="flex space-x-1.5" aria-hidden="true">
                   <span className="w-2.5 h-2.5 bg-rose-500 rounded-full" />
                   <span className="w-2.5 h-2.5 bg-amber-500 rounded-full" />
                   <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
                 </div>
-                <div className="h-4 w-px bg-white/20" />
-                <span className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
+                <div className={`h-4 w-px ${isDark ? "bg-white/20" : "bg-slate-300"}`} />
+                <span className={`flex items-center gap-1.5 font-mono text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                   <FileText className="w-3.5 h-3.5 text-[#FF4B3E]" />
                   <span>HierarchicalLoggingSystem.cpp</span>
                 </span>
-                <span className="text-[9px] font-mono text-slate-400 bg-white/[0.06] px-2 py-0.5 rounded border border-white/10">
+                <span className={`rounded border px-2 py-0.5 font-mono text-[9px] ${isDark ? "border-white/10 bg-white/[0.06] text-slate-400" : "border-slate-200 bg-white text-slate-500"}`}>
                   Simulation Preview
                 </span>
               </div>
@@ -657,7 +614,7 @@ export default function ProductDemoSection() {
               <div 
                 role="tablist" 
                 aria-label="Simulation display modes" 
-                className="flex items-center space-x-1 bg-white/[0.06] p-1 rounded-xl border border-white/10 text-[11px] font-mono font-semibold"
+                className={`flex items-center space-x-1 rounded-xl border p-1 font-mono text-[11px] font-semibold ${isDark ? "border-white/10 bg-white/[0.06]" : "border-slate-200 bg-white"}`}
               >
                 <button
                   role="tab"
@@ -665,7 +622,7 @@ export default function ProductDemoSection() {
                   aria-label="Switch to Live Code Simulator"
                   onClick={() => setActiveTab("code")}
                   className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
-                    activeTab === "code" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
+                    activeTab === "code" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-950"
                   }`}
                 >
                   <Code className="w-3.5 h-3.5" />
@@ -678,7 +635,7 @@ export default function ProductDemoSection() {
                   aria-label="Switch to Step Terminal Screen"
                   onClick={() => setActiveTab("terminal")}
                   className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
-                    activeTab === "terminal" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
+                    activeTab === "terminal" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-950"
                   }`}
                 >
                   <Terminal className="w-3.5 h-3.5" />
@@ -691,7 +648,7 @@ export default function ProductDemoSection() {
                   aria-label="Switch to Inheritance Access Matrix"
                   onClick={() => setActiveTab("spec")}
                   className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${
-                    activeTab === "spec" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : "text-slate-400 hover:text-white"
+                    activeTab === "spec" ? "bg-[#FF4B3E] text-white shadow-md shadow-[#FF4B3E]/20" : isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-950"
                   }`}
                 >
                   <Sliders className="w-3.5 h-3.5" />
@@ -712,14 +669,14 @@ export default function ProductDemoSection() {
               
               {/* Unstarted Overlay: If user hasn't clicked play yet, provide an inviting start prompt */}
               {!hasStartedByUser && !isPlaying && (
-                <div className="absolute inset-0 z-20 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+                <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center backdrop-blur-sm ${isDark ? "bg-black/70" : "bg-white/85"}`}>
                   <div className="w-16 h-16 rounded-3xl bg-[#FF4B3E] text-white flex items-center justify-center mb-4 shadow-xl shadow-[#FF4B3E]/30 animate-bounce">
                     <Play className="w-8 h-8 ml-1" />
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                  <h3 className={`text-xl font-extrabold sm:text-2xl ${isDark ? "text-white" : "text-slate-900"}`}>
                     Start the 4.5-Minute Masterclass Walkthrough
                   </h3>
-                  <p className="mt-2 text-sm text-slate-300 max-w-md">
+                  <p className={`mt-2 max-w-md text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                     Click to launch the interactive simulation with step-by-step code construction and teacher audio narration.
                   </p>
                   <button
@@ -736,14 +693,14 @@ export default function ProductDemoSection() {
               {/* 1. CODE SIMULATOR TAB (Line-by-Line Animated Typing) */}
               {activeTab === "code" && (
                 <div className="flex-1 min-h-0 flex flex-col justify-between">
-                  <div className={`${codePaneClass} rounded-2xl p-5 flex-1 font-mono text-xs sm:text-[13px] leading-relaxed text-slate-300 overflow-y-auto max-h-[380px] border border-white/10 relative shadow-inner space-y-1`}>
+                  <div className={`${codePaneClass} relative flex-1 space-y-1 overflow-y-auto rounded-2xl border p-5 font-mono text-xs leading-relaxed shadow-inner sm:text-[13px]`}>
                     
                     {/* Header inside Editor */}
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                    <div className={`mb-3 flex items-center justify-between border-b pb-2 ${isDark ? "border-white/10" : "border-slate-200"}`}>
                       <span className="text-[11px] font-mono text-[#FF4B3E] font-bold uppercase tracking-wider">
                         ▶ {activePhase.stepNumber}: {activePhase.title}
                       </span>
-                      <span className="text-[10px] font-mono text-slate-400">
+                      <span className={`font-mono text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                         {prefersReducedMotion ? "Reduced Motion Mode" : `Typing: Line ${typedLineCount} of ${totalLines}`}
                       </span>
                     </div>
@@ -765,7 +722,7 @@ export default function ProductDemoSection() {
                         <div
                           key={idx}
                           className={`flex items-start group rounded transition-colors ${indentClass} ${
-                            line.highlight ? "bg-blue-500/10 text-white font-semibold" : ""
+                            line.highlight ? isDark ? "bg-blue-500/10 text-white font-semibold" : "bg-blue-50 text-slate-950 font-semibold" : ""
                           } ${line.errorLine ? "text-rose-400 bg-rose-950/20" : ""}`}
                         >
                           <span className="text-slate-600 text-[11px] select-none w-8 shrink-0 font-mono text-right pr-3" aria-hidden="true">
@@ -773,12 +730,12 @@ export default function ProductDemoSection() {
                           </span>
                           
                           <span className="flex-1 min-w-0">
-                            {line.text}
+                            {renderHighlightedCode(line.text, isDark)}
                             {isCurrentActiveLine && isPlaying && !prefersReducedMotion && (
                               <span className="inline-block w-2 h-4 bg-[#FF4B3E] ml-1 animate-pulse align-middle" aria-hidden="true" />
                             )}
                             {line.comment && (
-                              <span className="text-slate-500 ml-2 italic text-[11px]">
+                              <span className="ml-2 font-mono text-[11px] italic text-slate-500">
                                 {line.comment}
                               </span>
                             )}
@@ -788,13 +745,13 @@ export default function ProductDemoSection() {
                     })}
 
                     {/* Teacher Annotation Callout */}
-                    <div className="mt-4 p-3.5 bg-gradient-to-r from-blue-950/30 to-purple-950/30 border border-blue-500/30 rounded-xl flex items-start gap-3 text-xs font-sans text-slate-200">
-                      <Sparkles className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <div className={`mt-auto flex items-start gap-3 rounded-xl border p-3.5 pt-4 font-sans text-xs ${isDark ? "border-blue-500/30 bg-gradient-to-r from-blue-950/30 to-purple-950/30 text-slate-200" : "border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 text-slate-700"}`}>
+                      <Sparkles className={`mt-0.5 h-4 w-4 shrink-0 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
                       <div>
-                        <strong className="text-blue-300 font-mono text-[11px] uppercase block">
+                        <strong className={`block font-mono text-[11px] uppercase ${isDark ? "text-blue-300" : "text-blue-800"}`}>
                           TEACHER'S ARCHITECTURAL NOTE
                         </strong>
-                        <p className="mt-0.5 text-xs text-slate-300 leading-relaxed font-medium">
+                        <p className={`mt-0.5 text-xs font-medium leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                           {activePhase.keyTakeaway}
                         </p>
                       </div>
@@ -806,22 +763,22 @@ export default function ProductDemoSection() {
 
               {/* 2. DEDICATED PER-STEP TERMINAL SCREEN (Clear simulated screen) */}
               {activeTab === "terminal" && (
-                <div className="bg-[#04060c] border border-blue-500/25 rounded-2xl p-5 font-mono text-xs sm:text-[13px] text-slate-300 flex-1 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                <div className={`relative flex flex-1 flex-col justify-between overflow-hidden rounded-2xl border p-5 font-mono text-xs shadow-2xl sm:text-[13px] ${isDark ? "border-blue-500/25 bg-[#04060c] text-slate-300" : "border-slate-200 bg-slate-50 text-slate-700"}`}>
                   <div className="space-y-3">
                     {/* Terminal prompt bar */}
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className={`flex items-center justify-between border-b pb-3 ${isDark ? "border-white/10" : "border-slate-200"}`}>
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full" aria-hidden="true" />
                         <span className="text-emerald-400 font-bold">simulated-runner@cohortia-cpp-box:~$ {activePhase.terminalContent.command}</span>
                       </div>
-                      <span className="text-[10px] font-mono text-slate-400 bg-white/[0.05] px-2 py-0.5 rounded">
+                        <span className={`rounded px-2 py-0.5 font-mono text-[10px] ${isDark ? "bg-white/[0.05] text-slate-400" : "bg-white text-slate-500"}`}>
                         Simulated Screen {activePhaseIndex + 1} of 5
                       </span>
                     </div>
 
                     {/* Status pill */}
-                    <div className="p-2.5 bg-white/[0.03] border border-white/5 rounded-xl flex items-center justify-between text-xs">
-                      <span className="text-slate-400">Simulation Status:</span>
+                    <div className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${isDark ? "border-white/5 bg-white/[0.03]" : "border-slate-200 bg-white"}`}>
+                      <span className={isDark ? "text-slate-400" : "text-slate-600"}>Simulation Status:</span>
                       <span className="font-bold text-emerald-400">
                         {activePhase.terminalContent.status}
                       </span>
@@ -834,12 +791,12 @@ export default function ProductDemoSection() {
                           key={idx} 
                           className={`flex items-start gap-2.5 ${
                             line.type === "error" 
-                              ? "text-rose-400 bg-rose-950/30 p-2.5 rounded-lg border border-rose-500/30" 
+                              ? isDark ? "text-rose-400 bg-rose-950/30 p-2.5 rounded-lg border border-rose-500/30" : "text-rose-700 bg-rose-50 p-2.5 rounded-lg border border-rose-200"
                               : line.type === "warn" 
-                                ? "text-amber-300" 
+                                ? isDark ? "text-amber-300" : "text-amber-700"
                                 : line.type === "success" 
-                                  ? "text-emerald-300 font-medium" 
-                                  : "text-slate-300"
+                                  ? isDark ? "text-emerald-300 font-medium" : "text-emerald-700 font-medium"
+                                  : isDark ? "text-slate-300" : "text-slate-700"
                           }`}
                         >
                           <span className="text-slate-500 select-none" aria-hidden="true">▶</span>
@@ -850,8 +807,8 @@ export default function ProductDemoSection() {
                   </div>
 
                   {/* Step summary footer with explicit simulation label */}
-                  <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
-                    <span className="text-blue-300 font-sans font-medium">
+                  <div className={`flex items-center justify-between border-t pt-3 text-xs ${isDark ? "border-white/10 text-slate-400" : "border-slate-200 text-slate-600"}`}>
+                    <span className={`font-sans font-medium ${isDark ? "text-blue-300" : "text-blue-700"}`}>
                       ✓ {activePhase.terminalContent.summary}
                     </span>
                     <span className="text-emerald-400 font-mono font-bold">
@@ -863,10 +820,10 @@ export default function ProductDemoSection() {
 
               {/* 3. ACCESS SPEC MATRIX TAB */}
               {activeTab === "spec" && (
-                <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-[#0b0f1d] border border-white/10 rounded-2xl p-5 flex-1 flex flex-col justify-between">
+                <div className={`flex flex-1 flex-col justify-between rounded-2xl border p-5 ${isDark ? "border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-[#0b0f1d]" : "border-slate-200 bg-gradient-to-br from-white via-slate-50 to-blue-50"}`}>
                   <div>
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
-                      <span className="text-xs sm:text-sm font-mono uppercase text-white font-bold">
+                    <div className={`mb-4 flex items-center justify-between border-b pb-3 ${isDark ? "border-white/10" : "border-slate-200"}`}>
+                      <span className={`font-mono text-xs font-bold uppercase sm:text-sm ${isDark ? "text-white" : "text-slate-900"}`}>
                         C++ INHERITANCE ACCESS MATRIX (STANDARDIZED TERMINOLOGY)
                       </span>
                       <span className="text-[10px] font-mono text-[#FF4B3E] font-bold bg-[#FF4B3E]/10 px-2 py-0.5 rounded">
@@ -875,37 +832,37 @@ export default function ProductDemoSection() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
-                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
+                      <div className={`space-y-2 rounded-2xl border p-4 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-white"}`}>
                         <span className="text-[#FF4B3E] font-bold block text-sm">1. Base Logger</span>
-                        <span className="text-slate-400 text-xs block">logLevel: <strong className="text-rose-400">protected</strong></span>
-                        <span className="text-slate-400 text-xs block">log(): <strong className="text-emerald-400">public</strong></span>
-                        <p className="text-[11px] text-slate-400 pt-2 border-t border-white/5 font-sans leading-relaxed">
+                        <span className={`block text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>logLevel: <strong className={isDark ? "text-rose-400" : "text-rose-700"}>protected</strong></span>
+                        <span className={`block text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>log(): <strong className={isDark ? "text-emerald-400" : "text-emerald-700"}>public</strong></span>
+                        <p className={`border-t pt-2 font-sans text-[11px] leading-relaxed ${isDark ? "border-white/5 text-slate-400" : "border-slate-100 text-slate-600"}`}>
                           Accessible to derived subclasses; invisible to outside client code.
                         </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-emerald-500/30 space-y-2">
-                        <span className="text-emerald-400 font-bold block text-sm">2. public Logger (is-a)</span>
-                        <span className="text-slate-200 text-xs block font-bold">ConsoleLogger</span>
-                        <span className="text-slate-300 text-xs block">public ➔ public</span>
-                        <span className="text-slate-300 text-xs block">protected ➔ protected</span>
-                        <p className="text-[11px] text-slate-400 pt-2 border-t border-white/5 font-sans leading-relaxed">
+                      <div className={`space-y-2 rounded-2xl border p-4 ${isDark ? "border-emerald-500/30 bg-white/[0.03]" : "border-emerald-200 bg-white"}`}>
+                        <span className={`block text-sm font-bold ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>2. public Logger (is-a)</span>
+                        <span className={`block text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>ConsoleLogger</span>
+                        <span className={`block text-xs ${isDark ? "text-slate-300" : "text-slate-700"}`}>public ➔ public</span>
+                        <span className={`block text-xs ${isDark ? "text-slate-300" : "text-slate-700"}`}>protected ➔ protected</span>
+                        <p className={`border-t pt-2 font-sans text-[11px] leading-relaxed ${isDark ? "border-white/5 text-slate-400" : "border-slate-100 text-slate-600"}`}>
                           Preserves base interface for polymorphic console logging.
                         </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-rose-500/30 space-y-2">
-                        <span className="text-rose-400 font-bold block text-sm">3. private Logger</span>
-                        <span className="text-slate-200 text-xs block font-bold">FileLogger (implemented-in-terms-of)</span>
-                        <span className="text-rose-300 text-xs block">all base members ➔ PRIVATE</span>
-                        <p className="text-[11px] text-slate-400 pt-2 border-t border-white/5 font-sans leading-relaxed">
+                      <div className={`space-y-2 rounded-2xl border p-4 ${isDark ? "border-rose-500/30 bg-white/[0.03]" : "border-rose-200 bg-white"}`}>
+                        <span className={`block text-sm font-bold ${isDark ? "text-rose-400" : "text-rose-700"}`}>3. private Logger</span>
+                        <span className={`block text-xs font-bold ${isDark ? "text-slate-200" : "text-slate-800"}`}>FileLogger (implemented-in-terms-of)</span>
+                        <span className={`block text-xs ${isDark ? "text-rose-300" : "text-rose-700"}`}>all base members ➔ PRIVATE</span>
+                        <p className={`border-t pt-2 font-sans text-[11px] leading-relaxed ${isDark ? "border-white/5 text-slate-400" : "border-slate-100 text-slate-600"}`}>
                           Reuses base code as private implementation. Subclasses cannot access base members.
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-3.5 bg-purple-500/10 border border-purple-500/30 rounded-xl flex items-center justify-between text-xs text-purple-300 font-sans">
+                  <div className={`flex items-center justify-between rounded-xl border p-3.5 font-sans text-xs ${isDark ? "border-purple-500/30 bg-purple-500/10 text-purple-300" : "border-indigo-200 bg-indigo-50 text-indigo-800"}`}>
                     <span>Modern C++ Guideline: Private inheritance means 'is-implemented-in-terms-of', whereas composition describes 'has-a'.</span>
                     <span className="font-mono text-[10px] bg-purple-500/20 px-2 py-0.5 rounded font-bold">CORE-I2</span>
                   </div>
@@ -915,15 +872,15 @@ export default function ProductDemoSection() {
             </div>
 
             {/* NARRATOR'S VOICE SUBTITLE & CLOSED CAPTIONS BAR */}
-            <div className="p-3.5 sm:p-4 bg-gradient-to-r from-slate-900/95 via-black to-slate-900/95 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+              <div className={`flex flex-wrap items-center justify-between gap-3 border-t p-3.5 sm:p-4 ${isDark ? "border-white/10 bg-gradient-to-r from-slate-900/95 via-black to-slate-900/95" : "border-slate-200 bg-gradient-to-r from-slate-50 via-white to-slate-50"}`}>
               
               {/* Voice Info Badge: Accurate name display */}
               <div className="flex items-center gap-2.5 shrink-0">
-                <div className="w-9 h-9 rounded-2xl bg-[#FF4B3E]/20 border border-[#FF4B3E]/40 text-[#FF4B3E] flex items-center justify-center text-sm shadow-md shadow-[#FF4B3E]/20">
+                <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-[#FF4B3E]/40 bg-[#FF4B3E]/20 text-sm text-[#FF4B3E] shadow-md shadow-[#FF4B3E]/20">
                   <Radio className={`w-4 h-4 ${isPlaying && !isVoiceMuted ? "animate-pulse text-[#FF4B3E]" : "text-slate-400"}`} />
                 </div>
                 <div>
-                  <span className="text-xs font-mono font-extrabold text-white block leading-tight">
+                  <span className={`block font-mono text-xs font-extrabold leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                     {voiceDisplayName}
                   </span>
                   <span className="text-[10px] font-mono text-[#FF4B3E] font-semibold">
@@ -938,10 +895,10 @@ export default function ProductDemoSection() {
                 aria-label="Current lesson subtitles"
                 aria-live="polite" 
                 aria-atomic="true"
-                className="flex-1 min-w-[260px] bg-white/[0.04] border border-white/10 rounded-2xl px-3.5 py-2 flex items-center gap-2.5"
+                className={`flex min-w-[260px] flex-1 items-center gap-2.5 rounded-2xl border px-3.5 py-2 ${isDark ? "border-white/10 bg-white/[0.04]" : "border-slate-200 bg-white"}`}
               >
                 <MessageSquareQuote className="w-4 h-4 text-[#FF4B3E] shrink-0" aria-hidden="true" />
-                <p className="text-xs sm:text-[13px] text-slate-200 font-medium leading-relaxed break-words">
+                <p className={`break-words text-xs font-medium leading-relaxed sm:text-[13px] ${isDark ? "text-slate-200" : "text-slate-700"}`}>
                   <strong className="text-[#FF4B3E] font-mono mr-1.5">{activePhase.stepNumber}:</strong>
                   <span>"{currentSubtitle}"</span>
                 </p>
@@ -954,7 +911,7 @@ export default function ProductDemoSection() {
                   onClick={() => setShowFullTranscript(!showFullTranscript)}
                   aria-expanded={showFullTranscript}
                   aria-label={showFullTranscript ? "Hide lesson transcript" : "Show full lesson transcript"}
-                  className="px-3 py-2 rounded-xl border border-white/10 bg-white/[0.05] hover:bg-white/[0.1] text-xs font-mono font-bold text-slate-300 transition-all flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E]"
+                  className={`flex cursor-pointer items-center gap-1.5 rounded-xl border px-3 py-2 font-mono text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${isDark ? "border-white/10 bg-white/[0.05] text-slate-300 hover:bg-white/[0.1]" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"}`}
                 >
                   <FileCheck className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Transcript</span>
@@ -1003,7 +960,7 @@ export default function ProductDemoSection() {
                     Full Lesson Transcript & Pedagogical Script
                   </h3>
                 </div>
-                <span className="text-xs font-mono text-slate-400">
+                <span className={`font-mono text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                   Total Duration: 4m 30s
                 </span>
               </div>
@@ -1018,7 +975,7 @@ export default function ProductDemoSection() {
                       <span className="font-mono font-bold text-[#FF4B3E]">
                         {phase.stepNumber}: {phase.title}
                       </span>
-                      <span className="text-[10px] font-mono text-slate-400">
+                      <span className={`font-mono text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                         {phase.badge}
                       </span>
                     </div>
@@ -1120,7 +1077,7 @@ export default function ProductDemoSection() {
                 </p>
               </div>
             </div>
-            <span className="text-[10px] font-mono text-slate-400 bg-white/[0.05] border border-white/10 px-2.5 py-1 rounded-full shrink-0">
+            <span className={`shrink-0 rounded-full border px-2.5 py-1 font-mono text-[10px] ${isDark ? "border-white/10 bg-white/[0.05] text-slate-400" : "border-slate-200 bg-white text-slate-600"}`}>
               CPP Capstone #4
             </span>
           </div>
@@ -1130,4 +1087,26 @@ export default function ProductDemoSection() {
       </div>
     </section>
   );
+}
+
+function renderHighlightedCode(code: string, isDark: boolean) {
+  const tokenPattern = /(\/\/.*|#\s*include\b|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b(?:auto|bool|break|case|char|class|const|continue|double|else|enum|float|for|if|int|long|private|protected|public|return|static|string|struct|switch|void|while)\b|\bstd::(?:cout|endl|string)\b|\b\d+(?:\.\d+)?\b)/g;
+  const parts = code.split(tokenPattern);
+
+  return parts.map((part, index) => {
+    tokenPattern.lastIndex = 0;
+    if (!tokenPattern.test(part)) return part;
+
+    const tokenClass = /^(\/\/|\/\*)/.test(part)
+      ? isDark ? "text-slate-400 italic" : "text-slate-500 italic"
+      : /^#\s*include/.test(part)
+        ? isDark ? "text-fuchsia-300" : "text-fuchsia-700"
+        : /^["']/.test(part)
+          ? isDark ? "text-amber-300" : "text-amber-700"
+          : /^\d/.test(part)
+            ? isDark ? "text-cyan-300" : "text-cyan-700"
+            : isDark ? "text-sky-300" : "text-blue-700";
+
+    return <span key={index} className={tokenClass}>{part}</span>;
+  });
 }

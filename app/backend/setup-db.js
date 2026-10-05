@@ -38,6 +38,7 @@ const statements = [
     can_view_screens INTEGER NOT NULL DEFAULT 0,
     can_take_assessments INTEGER NOT NULL DEFAULT 0,
     can_use_practicals INTEGER NOT NULL DEFAULT 0,
+    can_view_other INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     PRIMARY KEY (admin_user_id, course_id)

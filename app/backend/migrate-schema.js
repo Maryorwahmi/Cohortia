@@ -32,6 +32,16 @@ async function migrate() {
     }
   }
   try {
+    await client.execute(`ALTER TABLE admin_course_permissions ADD COLUMN can_view_other INTEGER NOT NULL DEFAULT 0`);
+  } catch (error) {
+    if (error.message?.includes('duplicate column name')) {
+      console.log('✓ Column can_view_other already exists');
+    } else if (!error.message?.includes('no such table')) {
+      console.error('✗ Error adding can_view_other:', error.message);
+      process.exitCode = 1;
+    }
+  }
+  try {
     await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS users_username_unique ON users (username)`);
     await client.execute(`CREATE TABLE IF NOT EXISTS admin_course_permissions (
       admin_user_id TEXT NOT NULL,
@@ -39,6 +49,7 @@ async function migrate() {
       can_view_screens INTEGER NOT NULL DEFAULT 0,
       can_take_assessments INTEGER NOT NULL DEFAULT 0,
       can_use_practicals INTEGER NOT NULL DEFAULT 0,
+      can_view_other INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
       PRIMARY KEY (admin_user_id, course_id)

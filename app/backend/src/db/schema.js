@@ -41,6 +41,7 @@ export const adminCoursePermissions = sqliteTable('admin_course_permissions', {
   canViewScreens: integer('can_view_screens', { mode: 'boolean' }).notNull().default(false),
   canTakeAssessments: integer('can_take_assessments', { mode: 'boolean' }).notNull().default(false),
   canUsePracticals: integer('can_use_practicals', { mode: 'boolean' }).notNull().default(false),
+  canViewOther: integer('can_view_other', { mode: 'boolean' }).notNull().default(false),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 }, (table) => ({

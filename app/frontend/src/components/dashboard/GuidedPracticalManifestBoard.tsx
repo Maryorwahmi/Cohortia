@@ -10,6 +10,7 @@ import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
 
 interface GuidedPracticalManifestBoardProps {
   practical: LearningBoardPractical;
+  aspectRatio?: "16:9" | "auto";
   onComplete?: () => void | Promise<void>;
   onMentorContextReady?: (provider: (() => ChatLearningContext) | null) => void;
 }
@@ -81,6 +82,7 @@ function languageForFile(path: string, fallback: string | null | undefined): str
 
 export default function GuidedPracticalManifestBoard({
   practical,
+  aspectRatio = "auto",
   onComplete,
   onMentorContextReady,
 }: GuidedPracticalManifestBoardProps) {
@@ -436,7 +438,7 @@ export default function GuidedPracticalManifestBoard({
   return (
     <>
       {!isWorkspaceOpen && (
-    <div className={`flex h-[min(72vh,680px)] min-h-[520px] min-w-0 flex-col gap-3 overflow-hidden rounded-2xl border p-3 ${isDark ? "border-slate-800 bg-[#101522]" : "border-slate-200 bg-slate-50"}`}>
+    <div className={`flex min-w-0 flex-col gap-3 overflow-hidden rounded-2xl border p-3 ${aspectRatio === "16:9" ? "aspect-video min-h-[520px] lg:min-h-0" : "h-[min(72vh,680px)] min-h-[520px]"} ${isDark ? "border-slate-800 bg-[#101522]" : "border-slate-200 bg-slate-50"}`}>
       <div
         key={practical.id || practical.title}
         hidden={isWorkspaceOpen}

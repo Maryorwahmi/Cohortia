@@ -14,6 +14,7 @@ export interface PracticalLearningBoardSimulationProps {
 }
 
 export default function PracticalLearningBoardSimulation({
+  aspectRatio = "auto",
   practical,
   onComplete,
   onMentorContextReady,
@@ -24,6 +25,7 @@ export default function PracticalLearningBoardSimulation({
     return (
       <GuidedPracticalManifestBoard
         practical={practical}
+        aspectRatio={aspectRatio}
         onComplete={onComplete}
         onMentorContextReady={onMentorContextReady}
       />

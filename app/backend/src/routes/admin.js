@@ -65,13 +65,15 @@ admin.get('/courses', async (c) => {
       practicals: practicals.some((practical) => practical.courseId === course.id),
     };
     const access = isAlphaAdmin(c)
-      ? { screens: true, assessments: true, practicals: true }
+      ? { screens: true, assessments: true, practicals: true, other: true }
       : {
           screens: Boolean(permission?.canViewScreens),
           assessments: Boolean(permission?.canTakeAssessments),
           practicals: Boolean(permission?.canUsePracticals),
+          other: Boolean(permission?.canViewOther),
         };
 
+    availability.other = !availability.screens && !availability.assessments && !availability.practicals;
     return { ...course, availability, access };
   }).filter((course) => isAlphaAdmin(c) || Object.values(course.access).some(Boolean));
 
@@ -97,6 +99,7 @@ admin.get('/users', async (c) => {
       screens: Boolean(permission.canViewScreens),
       assessments: Boolean(permission.canTakeAssessments),
       practicals: Boolean(permission.canUsePracticals),
+      other: Boolean(permission.canViewOther),
     });
     coursesByUser.set(permission.adminUserId, courseList);
   }
@@ -133,8 +136,9 @@ admin.put('/users/:userId/access', async (c) => {
       || typeof item.screens !== 'boolean'
       || typeof item.assessments !== 'boolean'
       || typeof item.practicals !== 'boolean'
+      || typeof item.other !== 'boolean'
     ) {
-      return c.json({ success: false, error: 'Each course permission requires a courseId and boolean screens, assessments, and practicals values' }, 400);
+      return c.json({ success: false, error: 'Each course permission requires a courseId and boolean screens, assessments, practicals, and other values' }, 400);
     }
     requested.set(item.courseId, item);
   }
@@ -149,13 +153,14 @@ admin.put('/users/:userId/access', async (c) => {
 
   const now = new Date().toISOString();
   const rows = [...requested.values()]
-    .filter((item) => item.screens || item.assessments || item.practicals)
+    .filter((item) => item.screens || item.assessments || item.practicals || item.other)
     .map((item) => ({
       adminUserId: userId,
       courseId: item.courseId,
       canViewScreens: item.screens,
       canTakeAssessments: item.assessments,
       canUsePracticals: item.practicals,
+      canViewOther: item.other,
       createdAt: now,
       updatedAt: now,
     }));
@@ -168,6 +173,7 @@ admin.put('/users/:userId/access', async (c) => {
           canViewScreens: row.canViewScreens,
           canTakeAssessments: row.canTakeAssessments,
           canUsePracticals: row.canUsePracticals,
+          canViewOther: row.canViewOther,
           updatedAt: now,
         },
       });
