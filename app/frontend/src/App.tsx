@@ -22,6 +22,7 @@ import Mentor from './pages/dashboard/Mentor';
 import Projects from './pages/dashboard/Projects';
 import Progress from './pages/dashboard/Progress';
 import Profile from './pages/dashboard/Profile';
+import AdminDashboard from './pages/dashboard/AdminDashboard';
 
 export default function App() {
   return (
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="/dashboard/projects" element={<Projects />} />
         <Route path="/dashboard/progress" element={<Progress />} />
         <Route path="/dashboard/profile" element={<Profile />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Route>
 
       {/* Temporary public test route for generated HTML learning boards */}

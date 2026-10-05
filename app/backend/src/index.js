@@ -33,6 +33,7 @@ import generatedRoutes from './routes/generated.js';
 import catalogCoursesRoutes from './routes/catalogCourses.js';
 import assessmentsRoutes from './routes/assessments.js';
 import automationRoutes from './routes/automation.js';
+import adminRoutes from './routes/admin.js';
 import { automationExecutionMode, startAutomationWorker } from './lib/automationJobs.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
@@ -62,6 +63,7 @@ app.get('/health', (c) => {
 
 // Public routes (no auth required)
 app.route('/api/v1/auth', authRoutes);
+app.route('/api/v1/admin', adminRoutes);
 app.route('/api/v1/careers', careerRoutes);
 app.route('/api/v1/catalog-courses', catalogCoursesRoutes);
 app.route('/api/v1/assessments', assessmentsRoutes);

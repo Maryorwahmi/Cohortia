@@ -255,7 +255,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   const handleLoginSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email) {
-      setErrorMsg("Please enter your registered email address.");
+      setErrorMsg("Please enter your registered email address or admin username.");
       return;
     }
     setIsSubmitting(true);
@@ -268,7 +268,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       setSuccessMsg("Welcome back! Session authorized successfully.");
       setTimeout(() => {
         const state = location.state as LocationState;
-        const from = state?.from?.pathname || "/dashboard";
+        const from = state?.from?.pathname || (result.adminRole ? "/admin" : "/dashboard");
         navigate(from);
       }, 1200);
     } else {
@@ -1035,7 +1035,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
                   </button>
                   <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-immersive-text-secondary/60">
                     <span className="h-px flex-1 bg-immersive-border" />
-                    <span>Or use your email</span>
+                    <span>Or use your email or admin username</span>
                     <span className="h-px flex-1 bg-immersive-border" />
                   </div>
                 </div>
@@ -1043,18 +1043,18 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
                 {/* Email */}
                 <div className="space-y-1.5 text-left">
                   <label className="text-[10px] font-mono text-immersive-secondary font-bold uppercase tracking-wider block">
-                    Academic Email Address
+                    Email Address or Admin Username
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                       <Mail className="w-4 h-4 text-immersive-text-secondary/50" />
                     </div>
                     <input
-                      type="email"
+                      type="text"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. yourname@example.com"
+                      placeholder="Your email or Admin"
                       className="w-full pl-10 pr-4 py-3.5 bg-immersive-bg border border-immersive-border focus:border-immersive-secondary rounded-xl text-xs text-immersive-text-primary placeholder:text-immersive-text-secondary/40 focus:outline-none"
                     />
                   </div>

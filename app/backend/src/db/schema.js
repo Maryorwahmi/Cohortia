@@ -5,12 +5,14 @@ export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
+  username: text('username').unique(),
   password: text('password').notNull(),
   phone: text('phone'),
   country: text('country'),
   currentStatus: text('current_status'),
   currentRole: text('current_role'),
   role: text('role').notNull().default('career-starter'), // career-starter, level-up, experience-track
+  adminRole: text('admin_role'), // alpha, admin, or null
   onboardingGoal: text('onboarding_goal'),
   experienceLevel: text('experience_level'),
   weeklyHours: text('weekly_hours'),
@@ -32,6 +34,19 @@ export const users = sqliteTable('users', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+export const adminCoursePermissions = sqliteTable('admin_course_permissions', {
+  adminUserId: text('admin_user_id').notNull(),
+  courseId: text('course_id').notNull(),
+  canViewScreens: integer('can_view_screens', { mode: 'boolean' }).notNull().default(false),
+  canTakeAssessments: integer('can_take_assessments', { mode: 'boolean' }).notNull().default(false),
+  canUsePracticals: integer('can_use_practicals', { mode: 'boolean' }).notNull().default(false),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  adminCoursePk: primaryKey({ columns: [table.adminUserId, table.courseId] }),
+  adminUserIdx: index('admin_course_permissions_admin_user_idx').on(table.adminUserId),
+}));
 
 // Careers table
 export const careers = sqliteTable('careers', {

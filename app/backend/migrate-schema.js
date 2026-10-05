@@ -14,6 +14,8 @@ const columnsToAdd = [
   { name: 'learning_pace', type: 'TEXT' },
   { name: 'skills_known', type: 'TEXT' },
   { name: 'roadmap_selection', type: 'TEXT' },
+  { name: 'username', type: 'TEXT' },
+  { name: 'admin_role', type: 'TEXT' },
 ];
 
 async function migrate() {
@@ -29,8 +31,25 @@ async function migrate() {
       }
     }
   }
+  try {
+    await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS users_username_unique ON users (username)`);
+    await client.execute(`CREATE TABLE IF NOT EXISTS admin_course_permissions (
+      admin_user_id TEXT NOT NULL,
+      course_id TEXT NOT NULL,
+      can_view_screens INTEGER NOT NULL DEFAULT 0,
+      can_take_assessments INTEGER NOT NULL DEFAULT 0,
+      can_use_practicals INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      PRIMARY KEY (admin_user_id, course_id)
+    )`);
+    console.log('✓ Admin access tables are ready');
+  } catch (error) {
+    console.error('✗ Error creating admin access tables:', error.message);
+    process.exitCode = 1;
+  }
   console.log('Migration complete.');
-  process.exit(0);
+  if (!process.exitCode) process.exit(0);
 }
 
 migrate();

@@ -77,7 +77,7 @@ const signupSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().trim().min(1, 'Email or admin username is required').max(255),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -298,7 +298,9 @@ auth.post('/signup', async (c) => {
         id: userId,
         name: data.name,
         email: data.email,
+        username: null,
         role: data.role,
+        adminRole: null,
         onboardingGoal: data.onboardingGoal || null,
         experienceLevel: data.experienceLevel || null,
         currentStatus: data.currentStatus || null,
@@ -324,12 +326,15 @@ auth.post('/login', async (c) => {
   }
 
   const { email, password } = result.data;
+  const identifier = email.trim();
 
   // Find user
   const userResult = await db
     .select()
     .from(users)
-    .where(eq(users.email, email))
+    .where(identifier.includes('@')
+      ? eq(users.email, identifier)
+      : eq(users.username, identifier.toLowerCase()))
     .limit(1);
 
   if (userResult.length === 0) {
@@ -366,7 +371,9 @@ auth.post('/login', async (c) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        username: user.username,
         role: user.role,
+        adminRole: user.adminRole,
         phone: user.phone,
         country: user.country,
         currentStatus: user.currentStatus,

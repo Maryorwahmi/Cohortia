@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config/api';
 import { fetchWithReadCache } from '../services/requestCache';
+import { adminApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 interface Chapter {
   id: string;
@@ -32,6 +34,7 @@ interface CourseData {
 export default function CourseAssessmentDetail() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const {user} = useAuth();
   const [courseData, setCourseData] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +43,15 @@ export default function CourseAssessmentDetail() {
     const fetchCourseData = async () => {
       try {
         setLoading(true);
+        if (user?.adminRole) {
+          const access = await adminApi.getCourses();
+          const course = access.data?.courses.find((item) => item.id === courseId);
+          if (!course?.access.assessments) {
+            setError('Your admin account does not have assessment access for this course.');
+            setCourseData(null);
+            return;
+          }
+        }
         const res = await fetchWithReadCache(
           `${API_BASE_URL}/assessments/${courseId}`
         );
@@ -53,7 +65,7 @@ export default function CourseAssessmentDetail() {
         }
       } catch (err) {
         console.error('Error fetching course data:', err);
-        setError('Failed to load course details');
+        setError(err instanceof Error ? err.message : 'Failed to load course details');
       } finally {
         setLoading(false);
       }
@@ -62,7 +74,7 @@ export default function CourseAssessmentDetail() {
     if (courseId) {
       fetchCourseData();
     }
-  }, [courseId]);
+  }, [courseId, user?.adminRole]);
 
   if (loading) {
     return (

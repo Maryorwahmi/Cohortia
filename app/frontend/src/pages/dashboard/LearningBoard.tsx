@@ -1,4 +1,4 @@
-import {useState, useMemo} from 'react';
+import {useState, useMemo, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import LearningBoardPage, {CustomLessonDetails} from '../../components/dashboard/LearningBoardPage';
 import {useAuth} from '../../context/AuthContext';
@@ -8,6 +8,7 @@ import {useTrackCurriculum} from '../../hooks/useTrackCurriculum';
 import {useCourseManifest} from '../../hooks/useCourseManifest';
 import {DashboardMilestone, DashboardLesson} from '../../data/dashboardData';
 import {findFirstIncompleteLesson} from '../../lib/roadmap';
+import {adminApi} from '../../services/api';
 import RoadmapSummary from '../../components/dashboard/RoadmapSummary';
 import type { ManifestChapter, CourseManifest } from '../../lib/courseManifest';
 
@@ -100,6 +101,13 @@ export default function LearningBoard() {
   const {user} = useAuth();
   const {theme} = useTheme();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [adminCourseAccess, setAdminCourseAccess] = useState<{
+    screens: boolean;
+    assessments: boolean;
+    practicals: boolean;
+  } | null>(null);
+  const [adminAccessLoading, setAdminAccessLoading] = useState(false);
+  const [adminAccessError, setAdminAccessError] = useState('');
   const {track, milestones, lessons, completedSteps, loading, error, completeLesson} = useTrackCurriculum();
   const {manifest, loading: manifestLoading} = useCourseManifest(track?.id);
 
@@ -121,12 +129,39 @@ export default function LearningBoard() {
           return JSON.parse(localStorage.getItem('cohortia_active_learning_context') || 'null') as {
             courseId?: string;
             courseTitle?: string;
+            mode?: 'screens' | 'practicals';
           } | null;
         } catch {
           return null;
         }
       })()
     : null;
+
+  useEffect(() => {
+    if (!user.adminRole || !activeLearningContext?.courseId) {
+      setAdminCourseAccess(null);
+      setAdminAccessLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setAdminAccessLoading(true);
+    setAdminAccessError('');
+    adminApi.getCourses()
+      .then((response) => {
+        if (cancelled) return;
+        const course = response.data?.courses.find((item) => item.id === activeLearningContext.courseId);
+        setAdminCourseAccess(course?.access || {screens: false, assessments: false, practicals: false});
+      })
+      .catch((accessError) => {
+        if (cancelled) return;
+        setAdminAccessError(accessError instanceof Error ? accessError.message : 'Could not verify admin course access.');
+        setAdminCourseAccess({screens: false, assessments: false, practicals: false});
+      })
+      .finally(() => {
+        if (!cancelled) setAdminAccessLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [user.adminRole, activeLearningContext?.courseId]);
 
   const flatLessons = useMemo(() => {
     return curriculum.reduce<DashboardLesson[]>((acc, m) => [...acc, ...m.lessons], []);
@@ -174,18 +209,24 @@ export default function LearningBoard() {
     await completeLesson(lessonId);
   };
 
-  if (loading || manifestLoading) {
+  if (loading || manifestLoading || adminAccessLoading) {
     return (
       <div className="min-h-screen bg-immersive-bg flex items-center justify-center">
         <div className="animate-pulse text-immersive-secondary font-mono text-sm">Loading learning board...</div>
       </div>
     );
   }
+  if (user.adminRole && adminAccessError) {
+    return <div role="alert" className="m-6 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-400">{adminAccessError}</div>;
+  }
+  if (user.adminRole && activeLearningContext?.courseId && !adminCourseAccess?.[activeLearningContext.mode || 'screens']) {
+    return <div role="alert" className="m-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-400">Your admin account does not have access to this course section.</div>;
+  }
 
   return (
     <div className="relative">
-      <RoadmapSummary selection={userProfile.roadmapSelection} completedSteps={userProfile.completedSteps} />
-      {error && (
+      {!user.adminRole && <RoadmapSummary selection={userProfile.roadmapSelection} completedSteps={userProfile.completedSteps} />}
+      {error && !user.adminRole && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-xl text-xs font-mono font-bold">
           {error}
         </div>
@@ -202,6 +243,10 @@ export default function LearningBoard() {
         lessonContent={lessonContentMap}
         courseId={activeLearningContext?.courseId || track?.id}
         courseTitle={activeLearningContext?.courseTitle || track?.title}
+        adminAccess={user.adminRole ? {
+          ...(adminCourseAccess || {screens: false, assessments: false, practicals: false}),
+          mode: activeLearningContext?.mode || 'screens',
+        } : undefined}
         courseLessons={Object.fromEntries(lessons.map((lesson) => [lesson.id, lesson.content || '']))}
         manifest={manifest}
         manifestLessonMap={manifestLessonMap}

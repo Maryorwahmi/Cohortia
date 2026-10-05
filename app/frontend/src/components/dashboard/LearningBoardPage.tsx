@@ -43,6 +43,12 @@ interface LearningBoardPageProps {
   manifest?: CourseManifest | null;
   manifestLessonMap?: Record<string, ManifestChapter>;
   onCompleteLesson?: (lessonId: string) => void | Promise<void>;
+  adminAccess?: {
+    screens: boolean;
+    assessments: boolean;
+    practicals: boolean;
+    mode: 'screens' | 'practicals';
+  };
 }
 
 // Custom interfaces for Lesson Content
@@ -337,7 +343,8 @@ export default function LearningBoardPage({
   courseTitle,
   manifest,
   manifestLessonMap,
-  onCompleteLesson
+  onCompleteLesson,
+  adminAccess,
 }: LearningBoardPageProps) {
   const activeTrackId = (userProfile.track || "frontend") as CohortTrackId;
   const fallbackCurriculum = TRACK_CURRICULA[activeTrackId] || TRACK_CURRICULA.frontend;
@@ -372,13 +379,15 @@ export default function LearningBoardPage({
   });
 
   // Active visual layout mode: "video" | "practical" | "assessment" | "complete"
-  const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">("video");
+  const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">(
+    adminAccess?.mode === 'practicals' ? 'practical' : 'video'
+  );
   const [practicalCompleted, setPracticalCompleted] = useState(false);
   // Practical mode is always the manifest-driven guided learning board.
   
   // Fetch the imported chapter whenever either viewer needs it. Practical mode
   // must not depend on read-mode having been opened first.
-  const [devPreviewEnabled, setDevPreviewEnabled] = useState(true);
+  const [devPreviewEnabled, setDevPreviewEnabled] = useState(adminAccess?.mode !== 'practicals');
   const [devPreviewLoading, setDevPreviewLoading] = useState(false);
   const [devPreviewError, setDevPreviewError] = useState<string | null>(null);
   const [generatedPreview, setGeneratedPreview] = useState<ImmersiveChapterManifest | null>(null);
@@ -663,7 +672,7 @@ export default function LearningBoardPage({
     try {
       await persistChapterProgress({ watched: true });
       // Auto-advance to practical mode after chapter is watched
-      setViewerMode("practical");
+      if (!adminAccess || adminAccess.practicals) setViewerMode("practical");
     } catch {
       setNotesStatus("error");
     }
@@ -674,7 +683,7 @@ export default function LearningBoardPage({
       setPracticalCompleted(true);
       // Auto-advance to assessment after practical is completed
       await persistChapterProgress({ watched: true, practicalsComplete: true });
-      setViewerMode("assessment");
+      if (!adminAccess || adminAccess.assessments) setViewerMode("assessment");
     } catch {
       setNotesStatus("error");
     }
@@ -708,6 +717,7 @@ export default function LearningBoardPage({
 
   const handleContinueInternalAssessment = () => {
     setShowCompletionPrompt(false);
+    if (adminAccess && !adminAccess.assessments) return;
     if (practicalCompleted) {
       setViewerMode("assessment");
     } else {
@@ -718,6 +728,7 @@ export default function LearningBoardPage({
 
   const handleNavigateExternalAssessment = () => {
     setShowCompletionPrompt(false);
+    if (adminAccess && !adminAccess.assessments) return;
     // Extract module and chapter numbers from selected lesson ID
     const match = selectedLesson.id.match(/-m(\d+)-c(\d+)-lesson$/);
     if (match && courseId) {
@@ -1163,7 +1174,7 @@ export default function LearningBoardPage({
 
                 {/* View selectors */}
                 <div className="flex items-center bg-immersive-bg border border-immersive-border rounded-xl p-1 shrink-0 self-start sm:self-center">
-                  <button
+                  {(!adminAccess || adminAccess.screens) && <button
                     onClick={() => {
                       setDevPreviewEnabled(true);
                     }}
@@ -1175,8 +1186,8 @@ export default function LearningBoardPage({
                     title="Toggle read-mode preview"
                   >
                     Read Mode
-                  </button>
-                  <button
+                  </button>}
+                  {(!adminAccess || adminAccess.practicals) && <button
                     onClick={() => {
                       setDevPreviewEnabled(false);
                       setViewerMode("practical");
@@ -1188,7 +1199,7 @@ export default function LearningBoardPage({
                     }`}
                   >
                     PRACTICAL
-                  </button>
+                  </button>}
                 </div>
               </div>
 
@@ -1241,7 +1252,7 @@ export default function LearningBoardPage({
                           </div>
                         </div>
                       ) : generatedPreview ? (
-                        showChapterAssessment ? (
+                        showChapterAssessment && (!adminAccess || adminAccess.assessments) ? (
                           <AssessmentEngine
                             userProfile={userProfile}
                             selectedLesson={selectedLesson}
@@ -1257,8 +1268,10 @@ export default function LearningBoardPage({
                           onComplete={async () => {
                             await handleChapterWatched();
                             setShowChapterAssessment(false);
-                            setDevPreviewEnabled(false);
-                            setViewerMode("practical");
+                            if (!adminAccess || adminAccess.practicals) {
+                              setDevPreviewEnabled(false);
+                              setViewerMode("practical");
+                            }
                           }}
                           onRequestPrevChapter={() => {
                             const currentMod = Number.parseInt(previewModule, 10);
@@ -1385,7 +1398,7 @@ export default function LearningBoardPage({
                 )}
 
                 {/* 4. INTERACTIVE ASSESSMENT */}
-                {!devPreviewEnabled && viewerMode === "assessment" && chapterProgress?.watched && practicalCompleted && (
+                {!devPreviewEnabled && viewerMode === "assessment" && chapterProgress?.watched && practicalCompleted && (!adminAccess || adminAccess.assessments) && (
                   <AssessmentEngine 
                     userProfile={userProfile}
                     selectedLesson={selectedLesson}
@@ -1418,7 +1431,7 @@ export default function LearningBoardPage({
                   </div>
 
                 {/* Chapter Assessment */}
-                  <button
+                  {(!adminAccess || adminAccess.assessments) && <button
                     disabled={!practicalCompleted}
                     onClick={() => {
                       if (practicalCompleted) setViewerMode("assessment");
@@ -1438,10 +1451,10 @@ export default function LearningBoardPage({
                     <p className="text-xs text-immersive-text-secondary leading-relaxed line-clamp-4 group-hover:text-immersive-text-primary transition-colors">
                       {activeAssessment?.questions?.[0]?.question || "Review your understanding with the chapter assessment."}
                     </p>
-                  </button>
+                  </button>}
 
                   {/* Try It */}
-                  <button
+                  {(!adminAccess || adminAccess.practicals) && <button
                     onClick={() => setViewerMode("practical")}
                     className="text-left bg-immersive-card/30 border border-white/5 rounded-2xl p-4 hover:bg-immersive-card/50 transition-all group cursor-pointer min-h-[120px] flex flex-col"
                   >
@@ -1456,7 +1469,7 @@ export default function LearningBoardPage({
                     <p className="text-xs text-immersive-text-secondary leading-relaxed line-clamp-4 group-hover:text-immersive-text-primary transition-colors">
                       {generatedPreview?.handsOn?.title || manifestChapter?.handsOn?.title || "No hands-on activity recorded"}
                     </p>
-                  </button>
+                  </button>}
                 </div>
               )}
 
@@ -1853,7 +1866,7 @@ export default function LearningBoardPage({
       )}
 
       {/* Chapter Completion Prompt */}
-      {showCompletionPrompt && (
+      {showCompletionPrompt && (!adminAccess || adminAccess.assessments) && (
         <ChapterCompletionPrompt
           chapterTitle={selectedLesson?.title || "Chapter"}
           courseId={courseId}

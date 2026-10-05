@@ -7,6 +7,7 @@ import {
   Code,
   TrendingUp,
   User,
+  ShieldCheck,
   Users,
   LogOut,
   ChevronLeft,
@@ -98,6 +99,7 @@ export default function DashboardSidebar({ isCollapsed = false, onToggleCollapse
     {path: '/dashboard/projects', label: 'Projects', icon: Code},
     {path: '/dashboard/progress', label: 'Progress', icon: TrendingUp},
     {path: '/dashboard/profile', label: 'Profile', icon: User},
+    ...(user?.adminRole ? [{path: '/admin', label: 'Admin courses', icon: ShieldCheck}] : []),
   ];
 
   return (

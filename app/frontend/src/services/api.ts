@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '../config/api';
 import type { RoadmapSelection } from '../types';
-import { fetchWithReadCache } from './requestCache';
+import { fetchWithReadCache, invalidateRequestCache } from './requestCache';
 
 export interface ApiError extends Error {
   status?: number;
@@ -54,7 +54,9 @@ export interface BackendUser {
   id: string;
   name: string;
   email: string;
+  username?: string | null;
   role: string;
+  adminRole?: 'alpha' | 'admin' | null;
   phone?: string | null;
   country?: string | null;
   currentStatus?: string | null;
@@ -111,6 +113,7 @@ export interface SignupData {
 }
 
 export interface LoginCredentials {
+  /** Accepts an email address or an admin username. */
   email: string;
   password: string;
 }
@@ -262,6 +265,47 @@ export const catalogCourseApi = {
     fetchApi<CatalogCoursesResponse>(`/catalog-courses?careerId=${encodeURIComponent(careerId)}`),
   getDetails: (id: string) =>
     fetchApi<{success: boolean; data?: {course: CatalogCourse; details: CatalogCourseDetails}; error?: string}>(`/catalog-courses/${encodeURIComponent(id)}/details`),
+};
+
+export interface AdminCoursePermission {
+  courseId: string;
+  screens: boolean;
+  assessments: boolean;
+  practicals: boolean;
+}
+
+export interface AdminCourse extends CatalogCourse {
+  availability: { screens: boolean; assessments: boolean; practicals: boolean };
+  access: { screens: boolean; assessments: boolean; practicals: boolean };
+}
+
+export interface AdminManagedUser {
+  id: string;
+  name: string;
+  email: string;
+  adminRole: 'alpha' | 'admin' | null;
+  role: string;
+  coursePermissions: AdminCoursePermission[];
+}
+
+export const adminApi = {
+  getCourses: () => fetchApi<{success: boolean; data?: {courses: AdminCourse[]; isAlphaAdmin: boolean}; error?: string}>('/admin/courses'),
+  getUsers: () => fetchApi<{success: boolean; data?: {users: AdminManagedUser[]}; error?: string}>('/admin/users'),
+  saveUserAccess: async (userId: string, coursePermissions: AdminCoursePermission[]) => {
+    const response = await fetchApi<{success: boolean; message?: string; error?: string}>(`/admin/users/${encodeURIComponent(userId)}/access`, {
+      method: 'PUT',
+      body: JSON.stringify({coursePermissions}),
+    });
+    invalidateRequestCache();
+    return response;
+  },
+  revokeUserAccess: async (userId: string) => {
+    const response = await fetchApi<{success: boolean; message?: string; error?: string}>(`/admin/users/${encodeURIComponent(userId)}/access`, {
+      method: 'DELETE',
+    });
+    invalidateRequestCache();
+    return response;
+  },
 };
 
 // Tracks

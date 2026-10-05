@@ -11,12 +11,14 @@ const statements = [
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    username TEXT UNIQUE,
     password TEXT NOT NULL,
     phone TEXT,
     country TEXT,
     current_status TEXT,
     current_role TEXT,
     role TEXT NOT NULL DEFAULT 'career-starter',
+    admin_role TEXT,
     onboarding_goal TEXT,
     experience_level TEXT,
     weekly_hours TEXT,
@@ -29,6 +31,16 @@ const statements = [
     portfolio_link TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS admin_course_permissions (
+    admin_user_id TEXT NOT NULL,
+    course_id TEXT NOT NULL,
+    can_view_screens INTEGER NOT NULL DEFAULT 0,
+    can_take_assessments INTEGER NOT NULL DEFAULT 0,
+    can_use_practicals INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (admin_user_id, course_id)
   )`,
   `CREATE TABLE IF NOT EXISTS careers (
     id TEXT PRIMARY KEY,

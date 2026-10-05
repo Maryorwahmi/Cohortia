@@ -6,7 +6,7 @@ interface AuthState {
   user: BackendUser | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; message?: string; adminRole?: BackendUser['adminRole'] }>;
   signup: (userData: Record<string, unknown>) => Promise<{ success: boolean; message?: string; details?: Record<string, string[]> }>;
   completeExternalLogin: (token: string) => Promise<boolean>;
   logout: () => void;
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.success && res.data?.token) {
         localStorage.setItem('cohortia_token', res.data.token);
         setUser(res.data.user || null);
-        return { success: true };
+        return { success: true, adminRole: res.data.user?.adminRole };
       }
       return { success: false, message: res.error || 'Login failed' };
     } catch (error) {
