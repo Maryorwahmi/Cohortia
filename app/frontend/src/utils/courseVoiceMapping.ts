@@ -9,6 +9,10 @@
 
 let cachedVoiceMapping: Record<string, any> | null = null;
 
+export function isMicrosoftEdge(): boolean {
+  return typeof navigator !== "undefined" && /\bEdg(?:A|iOS)?\//i.test(navigator.userAgent);
+}
+
 /**
  * Load course voice assignments from generated JSON
  */
@@ -52,6 +56,12 @@ export async function resolveCourseNarratorVoice(
   const englishVoices = allVoices.filter((voice) => voice.lang.toLowerCase().startsWith("en"));
   const assigned = await getAssignedVoiceForCourse(courseId);
   const assignedMatch = assigned ? findBrowserVoiceByName(assigned.label, englishVoices) : null;
+  if (assigned && !assignedMatch) {
+    console.warn(
+      `Assigned voice "${assigned.label}" is unavailable for course "${courseId}".`,
+    );
+  }
+  if (isMicrosoftEdge()) return assignedMatch;
   return assignedMatch
     || englishVoices[0]
     || allVoices[0]
@@ -67,27 +77,13 @@ export function findBrowserVoiceByName(
 ): SpeechSynthesisVoice | null {
   if (!voiceLabel || allVoices.length === 0) return null;
 
-  // Extract key words from the voice label (e.g., "Ava (US Neural HD)" -> ["Ava", "US"])
-  const labelParts = voiceLabel.toLowerCase().split(/[\s()]/);
+  const assignedName = voiceLabel.split("(")[0].trim().toLowerCase();
+  if (!assignedName) return null;
+  const escapedName = assignedName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const assignedNamePattern = new RegExp(`(^|[^a-z])${escapedName}([^a-z]|$)`, "i");
 
-  // Try exact match first
-  let match = allVoices.find((v) => v.name.toLowerCase().includes(voiceLabel.toLowerCase()));
-  if (match) return match;
-
-  // Try partial matches - look for voices that contain key words
-  for (const part of labelParts) {
-    if (part.length > 2) {
-      match = allVoices.find((v) => v.name.toLowerCase().includes(part));
-      if (match) return match;
-    }
-  }
-
-  // Fallback: try to find any "Online (Natural)" Microsoft voice
-  match = allVoices.find((v) => 
-    v.name.toLowerCase().includes('microsoft') && 
-    (v.name.includes('Online') || v.name.includes('Natural'))
-  );
-  if (match) return match;
-
-  return null;
+  return allVoices.find((voice) => (
+    assignedNamePattern.test(voice.name)
+    || assignedNamePattern.test(voice.voiceURI)
+  )) || null;
 }

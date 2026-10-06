@@ -147,6 +147,7 @@ export default function VSCodeWorkbench({
         playlist={teachingPlaylist}
         files={files}
         walkthrough={codeWalkthrough}
+        courseId={courseId}
         category={mode === "code_lab" || mode === "terminal_lab" || mode === "database_lab" ? "Terminal Coding Lab" : isResearchMode ? "Research & Analysis" : isCloudMode ? "Cloud Console Lab" : "Scenario & Design Exercise"}
         tasks={tasks}
         output={output}

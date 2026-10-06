@@ -6,7 +6,7 @@ import { CPP_LESSONS_DETAILS } from "../../data/cppLessonsData";
 import VSCodeWorkbench from "./VSCodeWorkbench";
 import type { LearningBoardPractical } from "../../services/learningBoardsApi";
 import { learningBoardsApi } from "../../services/learningBoardsApi";
-import { getAssignedVoiceForCourse, findBrowserVoiceByName } from "../../utils/courseVoiceMapping";
+import { isMicrosoftEdge, resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 import { executePython } from "../../services/pyodideRunner";
 import { evaluatePracticalChecks } from "../../lib/practicalCheckEvaluator";
 import { SpeechNarrationQueue } from "../../lib/speechNarration";
@@ -94,6 +94,7 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
   const [lastNudgeTime, setLastNudgeTime] = useState<number>(Date.now());
   const narratorVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
   const narrationQueueRef = useRef(new SpeechNarrationQueue());
+  const courseId = learningContext?.courseId || practical?.courseId;
 
   // Proactive AI Nudge System: If student is idle or failing tests repeatedly
   useEffect(() => {
@@ -138,30 +139,29 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
 
   // Reuse the course's assigned narrator voice (same voice as the lesson video) for the practical brief.
   useEffect(() => {
-    const courseId = learningContext?.courseId;
     if (!courseId || typeof window === "undefined" || !window.speechSynthesis) return;
 
     let cancelled = false;
-    const applyVoice = () => {
+    narratorVoiceRef.current = null;
+    const applyVoice = async () => {
       const browserVoices = window.speechSynthesis.getVoices();
-      getAssignedVoiceForCourse(courseId).then((assigned) => {
-        if (cancelled) return;
-        narratorVoiceRef.current = assigned ? findBrowserVoiceByName(assigned.label, browserVoices) : null;
-      });
+      if (!browserVoices.length) return;
+      const voice = await resolveCourseNarratorVoice(courseId, browserVoices);
+      if (!cancelled) narratorVoiceRef.current = voice;
     };
-    applyVoice();
-    window.speechSynthesis.onvoiceschanged = applyVoice;
+    void applyVoice();
+    window.speechSynthesis.addEventListener("voiceschanged", applyVoice);
     return () => {
       cancelled = true;
-      window.speechSynthesis.onvoiceschanged = null;
+      window.speechSynthesis.removeEventListener("voiceschanged", applyVoice);
     };
-  }, [learningContext?.courseId]);
+  }, [courseId]);
 
   useEffect(() => {
     return () => narrationQueueRef.current.cancel();
   }, []);
 
-  const handlePlayNarration = (text?: unknown) => {
+  const handlePlayNarration = async (text?: unknown) => {
     let candidate = typeof text === "string" ? text : null;
     if (!candidate) {
       const taskGuide = (practical?.tasks?.[activeTaskIndex] as any)?.narratorGuide;
@@ -181,8 +181,13 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
     if (!narrationText || !narrationText.trim()) return;
 
     if (typeof window === "undefined" || !window.speechSynthesis) return;
+    const voice = narratorVoiceRef.current || (courseId
+      ? await resolveCourseNarratorVoice(courseId, window.speechSynthesis.getVoices())
+      : null);
+    if (courseId && isMicrosoftEdge() && !voice) return;
+    if (voice) narratorVoiceRef.current = voice;
     narrationQueueRef.current.play(narrationText, {
-      voice: narratorVoiceRef.current,
+      voice,
       rate: 0.88,
       pitch: 1,
       onSpeakingChange: setIsNarrating,
@@ -729,7 +734,7 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
 
   return <VSCodeWorkbench
     activeTrackId={activeTrackId}
-    courseId={learningContext?.courseId || activeTrackId}
+    courseId={courseId || activeTrackId}
     selectedLesson={selectedLesson}
     code={code}
     output={output}

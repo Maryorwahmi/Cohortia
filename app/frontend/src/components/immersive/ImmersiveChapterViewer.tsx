@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play, RotateCw, Volume2, VolumeX } from "lucide-react";
-import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
+import { isMicrosoftEdge, resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 import type { LearningBoardPractical } from "../../services/learningBoardsApi";
 
 export interface ImmersiveScreen {
@@ -150,6 +150,10 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     setAudioUrl(null);
     setAudioChecked(false);
     if (!screen || !narration) return;
+    if (isMicrosoftEdge()) {
+      setAudioChecked(true);
+      return;
+    }
     generatedAudioUrl(manifest, screen, narration).then(async (url) => {
       if (!url) {
         if (!cancelled) setAudioChecked(true);
@@ -185,9 +189,13 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
         // Silently ignore if mapping not available
       }
       
-      // Priority 2: Default to first available voice
-      setVoiceName((current) => current || next[0]?.name || "");
+      if (!isMicrosoftEdge()) {
+        setVoiceName((current) => current || next[0]?.name || "");
+      } else {
+        setVoiceName("");
+      }
     };
+    setVoiceName("");
     load();
     window.speechSynthesis.addEventListener("voiceschanged", load);
     return () => window.speechSynthesis.removeEventListener("voiceschanged", load);
@@ -202,9 +210,13 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     window.speechSynthesis.cancel();
     playbackRunRef.current += 1;
     const runId = playbackRunRef.current;
+    const voice = voices.find((candidate) => candidate.name === voiceName);
+    if (isMicrosoftEdge() && !voice) {
+      setSpeechDone(true);
+      return;
+    }
     const utterance = new SpeechSynthesisUtterance(narration);
     utterance.lang = "en-US";
-    const voice = voices.find((candidate) => candidate.name === voiceName);
     if (voice) utterance.voice = voice;
     utterance.rate = .92;
     setSpeechDone(false);
@@ -308,5 +320,98 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     }
   };
   const progressPercent = duration > 0 ? Math.min(100, (progress / duration) * 100) : 0;
-  return <main className="flex h-full w-full flex-col overflow-hidden bg-slate-100 text-slate-900"><header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-2.5"><div className="flex min-w-0 items-center gap-3"><span className="shrink-0 rounded-md border border-[#FF4B3E]/30 bg-[#FF4B3E]/10 px-2 py-1 text-[10px] font-bold tracking-wider text-[#FF4B3E]">16:9 HD CLASSROOM</span><h1 className="truncate text-xs font-extrabold sm:text-sm">{manifest.course} - Mod {String(manifest.module).padStart(2,"0")} Ch {String(manifest.chapter).padStart(2,"0")}: {manifest.unitTitle}</h1></div><nav className="flex shrink-0 gap-1" aria-label="Screens">{screens.map((item, i) => <button key={item.screen} type="button" aria-label={`Jump to screen ${i + 1}`} title={item.title} onClick={() => jump(i)} className={`h-3 w-3 rounded-full ${i === index ? "bg-[#FF4B3E] ring-2 ring-[#FF4B3E]/30" : i < index ? "bg-emerald-400" : "bg-slate-300"}`} />)}</nav></header><section className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-2 sm:p-4"><div className="relative aspect-video h-auto max-h-full w-full max-w-[1600px] overflow-hidden border border-slate-200 bg-white shadow-xl">{hasHtmlScreen ? <><iframe key={screen.screen} title={screen.title} className="h-full w-full border-0" srcDoc={buildScreenDocument(screen)} sandbox="allow-scripts" referrerPolicy="no-referrer" onLoad={() => setScreenReady(true)} /><div className={`absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm transition-opacity duration-300 ${screenReady ? "opacity-0 pointer-events-none" : "opacity-100"}`}><div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-lg"><RotateCw className="h-4 w-4 animate-spin text-[#FF4B3E]" />Loading visual screen...</div></div></> : <FallbackScreen screen={screen} />}</div></section><footer className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-white px-4 py-2.5"><div className="flex items-center gap-2"><button type="button" onClick={() => setPlaying((value) => !value)} aria-label={playing ? "Pause lecture" : "Play lecture"} className="rounded-xl bg-[#FF4B3E] p-2 text-white">{playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}</button><button type="button" onClick={() => { jump(0); setPlaying(true); }} aria-label="Restart chapter" className="rounded-xl bg-slate-800 p-2 text-white"><RotateCw className="h-4 w-4" /></button><button type="button" onClick={() => setMuted((value) => !value)} aria-label={muted ? "Unmute narration" : "Mute narration"} className="rounded-xl bg-slate-800 p-2 text-white">{muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}</button></div><div className="flex min-w-0 flex-1 items-center gap-3 px-2"><span className="whitespace-nowrap text-xs text-slate-400">{Math.floor(progress)}s / {duration}s</span><input type="range" min={0} max={duration} step={0.1} value={progress} onPointerDown={handleSeekStart} onPointerUp={handleSeekEnd} onMouseDown={handleSeekStart} onMouseUp={handleSeekEnd} onTouchStart={handleSeekStart} onTouchEnd={handleSeekEnd} onBlur={handleSeekEnd} onChange={(event) => handleSeekChange(Number(event.target.value))} aria-label="Seek narration" className="h-2 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#FF4B3E]" /><span className="whitespace-nowrap text-xs text-slate-400">Slide {index + 1}/{screens.length}</span></div><div className="flex items-center gap-2"><button type="button" onClick={() => index ? jump(index - 1) : onRequestPrevChapter?.()} aria-label="Previous screen" className="rounded-xl bg-slate-800 p-2 text-white"><ArrowLeft className="h-4 w-4" /></button><button type="button" onClick={() => index < screens.length - 1 ? jump(index + 1) : onRequestNextChapter?.()} aria-label="Next screen" className="rounded-xl bg-slate-800 p-2 text-white"><ArrowRight className="h-4 w-4" /></button></div></footer></main>;
+  return (
+    <main className="flex h-full w-full flex-col overflow-hidden bg-slate-100 text-slate-900">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-2.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="shrink-0 rounded-md border border-[#FF4B3E]/30 bg-[#FF4B3E]/10 px-2 py-1 text-[10px] font-bold tracking-wider text-[#FF4B3E]">16:9 HD CLASSROOM</span>
+          <h1 className="truncate text-xs font-extrabold sm:text-sm">
+            {manifest.course} - Mod {String(manifest.module).padStart(2, "0")} Ch {String(manifest.chapter).padStart(2, "0")}: {manifest.unitTitle}
+          </h1>
+        </div>
+        <nav className="flex shrink-0 gap-1" aria-label="Screens">
+          {screens.map((item, i) => (
+            <button
+              key={item.screen}
+              type="button"
+              aria-label={`Jump to screen ${i + 1}`}
+              title={item.title}
+              onClick={() => jump(i)}
+              className={`h-3 w-3 rounded-full ${i === index ? "bg-[#FF4B3E] ring-2 ring-[#FF4B3E]/30" : i < index ? "bg-emerald-400" : "bg-slate-300"}`}
+            />
+          ))}
+        </nav>
+      </header>
+      {isMicrosoftEdge() && !audioUrl && voices.length > 0 && !voiceName && (
+        <p role="status" className="shrink-0 border-b border-amber-300 bg-amber-50 px-4 py-1.5 text-xs text-amber-900">
+          The assigned course voice is unavailable in Microsoft Edge, so narration is paused.
+        </p>
+      )}
+      <section className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-2 sm:p-4">
+        <div className="relative aspect-video h-auto max-h-full w-full max-w-[1600px] overflow-hidden border border-slate-200 bg-white shadow-xl">
+          {hasHtmlScreen ? (
+            <>
+              <iframe
+                key={screen.screen}
+                title={screen.title}
+                className="h-full w-full border-0"
+                srcDoc={buildScreenDocument(screen)}
+                sandbox="allow-scripts"
+                referrerPolicy="no-referrer"
+                onLoad={() => setScreenReady(true)}
+              />
+              <div className={`absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm transition-opacity duration-300 ${screenReady ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-lg">
+                  <RotateCw className="h-4 w-4 animate-spin text-[#FF4B3E]" />
+                  Loading visual screen...
+                </div>
+              </div>
+            </>
+          ) : <FallbackScreen screen={screen} />}
+        </div>
+      </section>
+      <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-white px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => setPlaying((value) => !value)} aria-label={playing ? "Pause lecture" : "Play lecture"} className="rounded-xl bg-[#FF4B3E] p-2 text-white">
+            {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </button>
+          <button type="button" onClick={() => { jump(0); setPlaying(true); }} aria-label="Restart chapter" className="rounded-xl bg-slate-800 p-2 text-white">
+            <RotateCw className="h-4 w-4" />
+          </button>
+          <button type="button" onClick={() => setMuted((value) => !value)} aria-label={muted ? "Unmute narration" : "Mute narration"} className="rounded-xl bg-slate-800 p-2 text-white">
+            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+        </div>
+        <div className="flex min-w-0 flex-1 items-center gap-3 px-2">
+          <span className="whitespace-nowrap text-xs text-slate-400">{Math.floor(progress)}s / {duration}s</span>
+          <input
+            type="range"
+            min={0}
+            max={duration}
+            step={0.1}
+            value={progress}
+            onPointerDown={handleSeekStart}
+            onPointerUp={handleSeekEnd}
+            onMouseDown={handleSeekStart}
+            onMouseUp={handleSeekEnd}
+            onTouchStart={handleSeekStart}
+            onTouchEnd={handleSeekEnd}
+            onBlur={handleSeekEnd}
+            onChange={(event) => handleSeekChange(Number(event.target.value))}
+            aria-label="Seek narration"
+            className="h-2 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-[#FF4B3E]"
+          />
+          <span className="whitespace-nowrap text-xs text-slate-400">Slide {index + 1}/{screens.length}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => index ? jump(index - 1) : onRequestPrevChapter?.()} aria-label="Previous screen" className="rounded-xl bg-slate-800 p-2 text-white">
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <button type="button" onClick={() => index < screens.length - 1 ? jump(index + 1) : onRequestNextChapter?.()} aria-label="Next screen" className="rounded-xl bg-slate-800 p-2 text-white">
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      </footer>
+    </main>
+  );
 }
