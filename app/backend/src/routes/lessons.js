@@ -5,48 +5,9 @@ import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { logActivity } from '../lib/activity.js';
 import { createNotification } from '../lib/notifications.js';
+import { callGemini } from '../lib/gemini.js';
 
 const lessons = new Hono();
-
-function getGeminiKeys() {
-  const keys = [];
-  const mainKey = process.env.GEMINI_API_KEY;
-  if (mainKey) keys.push(mainKey.trim().replace(/^["']|["']$/g, ''));
-  for (let i = 1; i <= 9; i++) {
-    const key = process.env[`GEMINI_API_KEY_${i}`];
-    if (key) keys.push(key.trim().replace(/^["']|["']$/g, ''));
-  }
-  return keys;
-}
-
-async function callGeminiWithKeys(prompt, systemPrompt, maxTokens = 4096) {
-  const keys = getGeminiKeys();
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  
-  let lastError = null;
-  for (let i = 0; i < keys.length; i++) {
-    try {
-      const resp = await fetch(`${baseUrl}?key=${keys[i]}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
-        }),
-      });
-      if (resp.ok) return { ok: true, response: await resp.json(), keyIndex: i };
-      const err = await resp.json().catch(() => ({}));
-      lastError = err.error?.message || `HTTP ${resp.status}`;
-      console.log(`Lesson key ${i} failed: ${lastError}`);
-    } catch (e) {
-      lastError = e.message;
-      console.log(`Lesson key ${i} error: ${lastError}`);
-    }
-  }
-  return { ok: false, error: lastError };
-}
 
 function stripHtml(value = '') {
   return String(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -308,12 +269,12 @@ The lesson must teach "${chapterTitle}" directly. Do not fall back to generic ad
 
 Return valid JSON only.`;
 
-  const result = await callGeminiWithKeys(prompt, systemPrompt, 6144);
-  if (!result.ok) {
+  const result = await callGemini({ userPrompt: prompt, systemPrompt, maxTokens: 6144 });
+  if (!result.success) {
     return c.json({ success: false, error: 'Failed to generate lesson', details: result.error }, 502);
   }
 
-  const rawContent = result.response.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const rawContent = result.text;
   let microLesson;
   try {
     microLesson = normaliseMicroLesson(rawContent, {

@@ -203,7 +203,7 @@ const ROADMAP_RESPONSE_SCHEMA = {
 };
 
 /**
- * Call Gemini API with automatic key rotation.
+ * Call Gemini sequentially across configured key/model attempts, advancing after failures.
  * Returns { success: true, text: string, usedKeyIndex: number } or { success: false, error: string }.
  */
 function getConfiguredProvider() {
@@ -372,14 +372,16 @@ export async function callGemini({ systemPrompt, userPrompt, maxTokens = 1500, j
     }
   };
 
-  try {
-    return await Promise.any(attempts.map((attempt) => runAttempt(attempt)));
-  } catch (error) {
-    const failures = error instanceof AggregateError ? error.errors : [error];
-    lastError = failures.at(-1)?.message || 'Unknown Gemini error';
-    console.error(`Gemini exhausted ${keys.length} configured key(s) across ${models.length} model(s) after ${attempts.length} attempt(s).`);
-    return { success: false, error: `All Gemini keys failed after ${attempts.length} attempt(s). Last error: ${lastError}` };
+  for (const attempt of attempts) {
+    try {
+      return await runAttempt(attempt);
+    } catch (error) {
+      lastError = error.message || 'Unknown Gemini error';
+    }
   }
+
+  console.error(`Gemini exhausted ${keys.length} configured key(s) across ${models.length} model(s) after ${attempts.length} sequential attempt(s).`);
+  return { success: false, error: `All Gemini keys failed after ${attempts.length} attempt(s). Last error: ${lastError || 'Unknown Gemini error'}` };
 }
 
 /**

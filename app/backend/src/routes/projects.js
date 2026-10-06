@@ -5,6 +5,7 @@ import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { logActivity } from '../lib/activity.js';
 import { createNotification } from '../lib/notifications.js';
+import { callGemini } from '../lib/gemini.js';
 
 const projects = new Hono();
 
@@ -82,41 +83,6 @@ function buildFallbackProjects(roadmap) {
   ];
 }
 
-function getGeminiKeys() {
-  const keys = [];
-  const mainKey = process.env.GEMINI_API_KEY;
-  if (mainKey) keys.push(mainKey.trim().replace(/^["']|["']$/g, ''));
-  for (let i = 1; i <= 9; i++) {
-    const key = process.env[`GEMINI_API_KEY_${i}`];
-    if (key) keys.push(key.trim().replace(/^["']|["']$/g, ''));
-  }
-  return keys;
-}
-
-async function callGeminiWithKeys(prompt, systemPrompt, maxTokens = 4096) {
-  const keys = getGeminiKeys();
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  let lastError = null;
-  for (let i = 0; i < keys.length; i++) {
-    try {
-      const resp = await fetch(`${baseUrl}?key=${keys[i]}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens },
-        }),
-      });
-      if (resp.ok) return { ok: true, response: await resp.json(), keyIndex: i };
-      const err = await resp.json().catch(() => ({}));
-      lastError = err.error?.message || `HTTP ${resp.status}`;
-    } catch (e) { lastError = e.message; }
-  }
-  return { ok: false, error: lastError };
-}
-
 // Get user's submissions
 projects.get('/submissions/me', async (c) => {
   const userId = c.get('userId');
@@ -171,10 +137,10 @@ projects.post('/:submissionId/feedback', async (c) => {
   const systemPrompt = `You are Cohortia, a professional career mentor and project reviewer. You give constructive, detailed, and encouraging feedback on student projects. You evaluate based on clarity, completeness, practical application, and presentation. Be thorough but kind. Always suggest specific improvements. Score out of 100.`;
   const prompt = `Review this project submission and provide detailed feedback.\n\nProject Info:\n${projectInfo}\n\nUser Submission:\n${submission.content}\n\nPlease provide:\n1. A score out of 100\n2. What was done well (2-3 points)\n3. Specific areas for improvement (2-3 points)\n4. Actionable next steps (2-3 suggestions)\n5. An encouraging closing statement\n\nReturn JSON: { "score": number, "feedback": string, "strengths": [string], "improvements": [string], "nextSteps": [string] }`;
 
-  const result = await callGeminiWithKeys(prompt, systemPrompt, 4096);
-  if (!result.ok) return c.json({ success: false, error: 'AI feedback failed', details: result.error }, 502);
+  const result = await callGemini({ userPrompt: prompt, systemPrompt, maxTokens: 4096 });
+  if (!result.success) return c.json({ success: false, error: 'AI feedback failed', details: result.error }, 502);
 
-  const text = result.response.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const text = result.text;
   let feedback = null;
   try {
     const match = text.match(/\{[\s\S]*\}/);
