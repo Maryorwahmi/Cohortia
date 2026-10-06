@@ -116,7 +116,8 @@ export function classifyActivity(activityText, chapterRaw) {
     signals.push("cloud");
     return { category: "Cloud Console Lab", confidence: 0.9, signals };
   }
-  if (/\b(c|python|javascript|typescript|java|program|function|compile|sql|query|html|css|starter code|implement|write code|build)\b/.test(activity)) {
+  if (/\b(program|function|compile|sql|query|html|css|starter code|implement|write code|build)\b/.test(activity)
+    || /\b(?:write|implement|compile|run|edit|debug|modify)\s+(?:a\s+)?(?:c(?:\+\+)?|python|javascript|typescript|java)\s+(?:program|code|file)\b/i.test(activity)) {
     signals.push("code");
     return { category: "Terminal Coding Lab", confidence: 0.88, signals };
   }
