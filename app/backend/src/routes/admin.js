@@ -8,7 +8,6 @@ import {
   learningBoardChapters,
   learningBoardPracticals,
   learningBoardScreens,
-  lessons,
   users,
 } from '../db/schema.js';
 import { authMiddleware } from '../middleware/auth.js';
@@ -33,7 +32,6 @@ admin.get('/courses', async (c) => {
   const [
     courses,
     permissions,
-    lessonsList,
     boardChapters,
     boardScreens,
     practicals,
@@ -41,10 +39,8 @@ admin.get('/courses', async (c) => {
   ] = await Promise.all([
     db.select().from(catalogCourses),
     db.select().from(adminCoursePermissions).where(eq(adminCoursePermissions.adminUserId, user.id)),
-    db.select({ trackId: lessons.trackId }).from(lessons),
     db.select({
       courseId: learningBoardChapters.courseId,
-      screensCount: learningBoardChapters.screensCount,
       assessmentData: learningBoardChapters.assessmentData,
     }).from(learningBoardChapters),
     db.select({ courseId: learningBoardScreens.courseId }).from(learningBoardScreens),
@@ -57,9 +53,7 @@ admin.get('/courses', async (c) => {
     const chapters = boardChapters.filter((chapter) => chapter.courseId === course.id);
     const permission = coursePermissions.get(course.id);
     const availability = {
-      screens: lessonsList.some((lesson) => lesson.trackId === course.id)
-        || boardScreens.some((screen) => screen.courseId === course.id)
-        || chapters.some((chapter) => Number(chapter.screensCount) > 0),
+      screens: boardScreens.some((screen) => screen.courseId === course.id),
       assessments: assessments.some((assessment) => assessment.courseId === course.id)
         || chapters.some((chapter) => Boolean(chapter.assessmentData)),
       practicals: practicals.some((practical) => practical.courseId === course.id),

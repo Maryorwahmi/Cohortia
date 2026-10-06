@@ -5,7 +5,7 @@ import {adminApi, AdminCourse, AdminCoursePermission, AdminManagedUser} from '..
 import {useAuth} from '../../context/AuthContext';
 
 type PermissionKey = 'screens' | 'assessments' | 'practicals' | 'other';
-type CourseFilter = 'all' | PermissionKey;
+type CourseFilter = 'all' | 'screens-ready' | 'screens-pending' | 'assessments' | 'practicals' | 'other';
 type CourseGrantMap = Record<string, Record<PermissionKey, boolean>>;
 
 const permissionLabels: Record<PermissionKey, string> = {
@@ -84,7 +84,12 @@ export default function AdminDashboard() {
     return courses.filter((course) => {
       const matchesSearch = !query
         || `${course.title} ${course.category} ${course.subcategory} ${course.provider || ''}`.toLowerCase().includes(query);
-      const matchesFilter = courseFilter === 'all' || course.availability[courseFilter];
+      const matchesFilter = courseFilter === 'all'
+        || (courseFilter === 'screens-ready' && course.availability.screens)
+        || (courseFilter === 'screens-pending' && !course.availability.screens)
+        || (courseFilter === 'assessments' && course.availability.assessments)
+        || (courseFilter === 'practicals' && course.availability.practicals)
+        || (courseFilter === 'other' && course.availability.other);
       return matchesSearch && matchesFilter;
     });
   }, [courses, courseFilter, search]);
@@ -113,10 +118,15 @@ export default function AdminDashboard() {
           other: course.availability.other,
         };
         const selected = {...(current[course.id] || emptyGrant())};
-        if (courseFilter === 'all') {
+        if (courseFilter === 'all' || courseFilter === 'screens-ready') {
           for (const permission of Object.keys(permissionLabels) as PermissionKey[]) {
             selected[permission] = available[permission];
           }
+        } else if (courseFilter === 'screens-pending') {
+          selected.screens = false;
+          selected.assessments = available.assessments;
+          selected.practicals = available.practicals;
+          selected.other = available.other;
         } else if (available[courseFilter]) {
           selected[courseFilter] = true;
         }
@@ -242,7 +252,8 @@ export default function AdminDashboard() {
               <div className="mt-5 flex flex-wrap items-center gap-2">
                 {([
                   ['all', 'All courses'],
-                  ['screens', 'Learning screens'],
+                  ['screens-ready', 'Screens in database'],
+                  ['screens-pending', 'No screens yet'],
                   ['assessments', 'Assessments'],
                   ['practicals', 'Practicals'],
                   ['other', 'Other'],
@@ -263,11 +274,18 @@ export default function AdminDashboard() {
                   disabled={!visibleCourses.length || (courseFilter === 'other' && !visibleCourses.some((course) => course.availability.other))}
                   className="ml-auto rounded-lg bg-immersive-primary px-3 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {courseFilter === 'all' ? 'Select all available access' : `Select all ${courseFilter === 'screens' ? 'screens' : courseFilter}`}
+                  {courseFilter === 'all'
+                    ? 'Select all available access'
+                    : courseFilter === 'screens-ready'
+                      ? 'Select all available access'
+                      : courseFilter === 'screens-pending'
+                        ? 'Select available access (no screens)'
+                        : `Select all ${courseFilter}`}
                 </button>
               </div>
               <p className="mt-2 text-xs text-immersive-text-secondary">
-                {visibleCourses.length} matching course{visibleCourses.length === 1 ? '' : 's'}. Bulk selection grants only content types available for those courses.
+                {visibleCourses.length} matching course{visibleCourses.length === 1 ? '' : 's'}.{' '}
+                “Screens in database” is based on imported screen records. “No screens yet” includes courses with no learning-board screens saved in the database; bulk access never grants screen permission to those courses.
               </p>
               <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {visibleCourses.map((course) => {
@@ -325,7 +343,7 @@ export default function AdminDashboard() {
                 </div>
                 <p className="mt-3 line-clamp-2 text-sm text-immersive-text-secondary">{course.description || course.subcategory}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.screens ? 'bg-sky-500/10 text-sky-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Screens {course.availability.screens ? 'available' : 'not imported'}</span>
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.screens ? 'bg-sky-500/10 text-sky-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>{course.availability.screens ? 'Screens in database' : 'No screens yet'}</span>
                   <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.assessments ? 'bg-violet-500/10 text-violet-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Assessments {course.availability.assessments ? 'available' : 'not imported'}</span>
                   <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.practicals ? 'bg-emerald-500/10 text-emerald-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Practicals {course.availability.practicals ? 'available' : 'not imported'}</span>
                   <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.other ? 'bg-amber-500/10 text-amber-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Other {course.availability.other ? 'available' : 'not applicable'}</span>
