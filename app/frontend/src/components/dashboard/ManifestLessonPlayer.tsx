@@ -36,7 +36,7 @@ export default function ManifestLessonPlayer({
     formatTime,
     waitingForInteraction,
     completeInteraction,
-  } = useManifestPlayer({ scenes, autoPlay: true });
+  } = useManifestPlayer({ scenes, autoPlay: true, courseId: manifest.courseId });
 
   const [reflection, setReflection] = useState("");
 

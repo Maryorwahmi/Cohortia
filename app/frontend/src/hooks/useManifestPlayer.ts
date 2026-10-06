@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { ManifestScene } from "../lib/courseManifest";
+import { isMicrosoftEdge, resolveCourseNarratorVoice } from "../utils/courseVoiceMapping";
 
 export interface UseManifestPlayerOptions {
   scenes: ManifestScene[];
   autoPlay?: boolean;
+  courseId?: string;
 }
 
-export function useManifestPlayer({ scenes, autoPlay = true }: UseManifestPlayerOptions) {
+export function useManifestPlayer({ scenes, autoPlay = true, courseId }: UseManifestPlayerOptions) {
   const totalDuration = useMemo(
     () => scenes.reduce((acc, s) => acc + (s.duration || 15), 0),
     [scenes]
@@ -18,6 +20,7 @@ export function useManifestPlayer({ scenes, autoPlay = true }: UseManifestPlayer
   const [sceneElapsed, setSceneElapsed] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [speechReady, setSpeechReady] = useState(false);
+  const [narratorVoice, setNarratorVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [sceneDurationDone, setSceneDurationDone] = useState(false);
   const [speechCompleted, setSpeechCompleted] = useState(false);
 
@@ -54,6 +57,7 @@ export function useManifestPlayer({ scenes, autoPlay = true }: UseManifestPlayer
       setSpeechCompleted(true);
       return;
     }
+    if (!speechReady) return;
     const rawNarration = (activeScene as any).narration || "";
     const fallbackNarration = (activeScene as any).narratorSegment || "";
     const text = (typeof rawNarration === 'string'
@@ -74,8 +78,12 @@ export function useManifestPlayer({ scenes, autoPlay = true }: UseManifestPlayer
     utterance.rate = pace === 'slow' ? 0.9 : pace === 'fast' ? 1.15 : 1.0;
     utterance.pitch = 1.0;
     const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find((v) => v.lang.startsWith("en-") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Samantha")));
-    if (preferred) utterance.voice = preferred;
+    if (narratorVoice) {
+      utterance.voice = narratorVoice;
+    } else if (courseId && isMicrosoftEdge()) {
+      setSpeechCompleted(true);
+      return;
+    }
 
     utterance.onend = () => {
       if (runId !== playbackRunRef.current) return;
@@ -112,7 +120,7 @@ export function useManifestPlayer({ scenes, autoPlay = true }: UseManifestPlayer
     utteranceRef.current = utterance;
     window.speechSynthesis.resume();
     window.speechSynthesis.speak(utterance);
-  }, [activeScene, cancelSpeech, isMuted]);
+  }, [activeScene, cancelSpeech, courseId, isMuted, narratorVoice, speechReady]);
 
   // Start/resume playback
   useEffect(() => {
@@ -181,10 +189,24 @@ export function useManifestPlayer({ scenes, autoPlay = true }: UseManifestPlayer
   // Wait for voices to load
   useEffect(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-    const check = () => setSpeechReady(window.speechSynthesis.getVoices().length > 0);
-    check();
-    window.speechSynthesis.onvoiceschanged = check;
-  }, []);
+    let cancelled = false;
+    const loadVoice = async () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return;
+      const resolvedVoice = courseId
+        ? await resolveCourseNarratorVoice(courseId, voices)
+        : voices.find((voice) => voice.lang.toLowerCase().startsWith("en")) || voices[0];
+      if (cancelled) return;
+      setNarratorVoice(resolvedVoice);
+      setSpeechReady(true);
+    };
+    void loadVoice();
+    window.speechSynthesis.addEventListener("voiceschanged", loadVoice);
+    return () => {
+      cancelled = true;
+      window.speechSynthesis.removeEventListener("voiceschanged", loadVoice);
+    };
+  }, [courseId]);
 
   const togglePlay = useCallback(() => {
     setIsPlaying((p) => {
