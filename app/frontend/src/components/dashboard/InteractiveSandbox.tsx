@@ -6,7 +6,7 @@ import { CPP_LESSONS_DETAILS } from "../../data/cppLessonsData";
 import VSCodeWorkbench from "./VSCodeWorkbench";
 import type { LearningBoardPractical } from "../../services/learningBoardsApi";
 import { learningBoardsApi } from "../../services/learningBoardsApi";
-import { isMicrosoftEdge, resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
+import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 import { executePython } from "../../services/pyodideRunner";
 import { evaluatePracticalChecks } from "../../lib/practicalCheckEvaluator";
 import { SpeechNarrationQueue } from "../../lib/speechNarration";
@@ -184,7 +184,6 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
     const voice = narratorVoiceRef.current || (courseId
       ? await resolveCourseNarratorVoice(courseId, window.speechSynthesis.getVoices())
       : null);
-    if (courseId && isMicrosoftEdge() && !voice) return;
     if (voice) narratorVoiceRef.current = voice;
     narrationQueueRef.current.play(narrationText, {
       voice,

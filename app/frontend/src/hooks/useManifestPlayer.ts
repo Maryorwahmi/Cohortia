@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { ManifestScene } from "../lib/courseManifest";
-import { isMicrosoftEdge, resolveCourseNarratorVoice } from "../utils/courseVoiceMapping";
+import { resolveCourseNarratorVoice } from "../utils/courseVoiceMapping";
 
 export interface UseManifestPlayerOptions {
   scenes: ManifestScene[];
@@ -80,9 +80,6 @@ export function useManifestPlayer({ scenes, autoPlay = true, courseId }: UseMani
     const voices = window.speechSynthesis.getVoices();
     if (narratorVoice) {
       utterance.voice = narratorVoice;
-    } else if (courseId && isMicrosoftEdge()) {
-      setSpeechCompleted(true);
-      return;
     }
 
     utterance.onend = () => {

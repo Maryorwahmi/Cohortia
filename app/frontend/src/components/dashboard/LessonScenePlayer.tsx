@@ -7,9 +7,11 @@ import {
 } from "lucide-react";
 import { useScenePlayer } from "../../hooks/useScenePlayer";
 import { generateCppScenes, LessonScene } from "../../lib/cppSceneGenerator";
+import { findBestBrowserVoice, resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 
 interface LessonScenePlayerProps {
   lessonId?: string;
+  courseId?: string;
   scenes?: LessonScene[];
   theme: "dark" | "light";
   loop?: boolean;
@@ -17,7 +19,7 @@ interface LessonScenePlayerProps {
   onComplete?: () => void;
 }
 
-export default function LessonScenePlayer({ lessonId, scenes: propScenes, theme, loop = false, onTimeUpdate, onComplete }: LessonScenePlayerProps) {
+export default function LessonScenePlayer({ lessonId, courseId, scenes: propScenes, theme, loop = false, onTimeUpdate, onComplete }: LessonScenePlayerProps) {
   const generatedScenes = useMemo(() => lessonId ? generateCppScenes(lessonId) : [], [lessonId]);
   const scenes = propScenes && propScenes.length > 0 ? propScenes : generatedScenes;
   const {
@@ -26,7 +28,33 @@ export default function LessonScenePlayer({ lessonId, scenes: propScenes, theme,
   } = useScenePlayer({ scenes, autoPlay: true, loop });
 
   const [isMuted, setIsMuted] = useState(false);
+  const [narratorVoice, setNarratorVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [voiceReady, setVoiceReady] = useState(false);
   const isDark = theme === "dark";
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    let cancelled = false;
+    const loadVoice = async () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return;
+      const voice = courseId
+        ? await resolveCourseNarratorVoice(courseId, voices)
+        : findBestBrowserVoice(voices);
+      if (!cancelled) {
+        setNarratorVoice(voice);
+        setVoiceReady(true);
+      }
+    };
+    setVoiceReady(false);
+    void loadVoice();
+    const handleVoicesChanged = () => { void loadVoice(); };
+    window.speechSynthesis.addEventListener("voiceschanged", handleVoicesChanged);
+    return () => {
+      cancelled = true;
+      window.speechSynthesis.removeEventListener("voiceschanged", handleVoicesChanged);
+    };
+  }, [courseId]);
 
   // Notify parent of time updates (throttled to ~1s)
   const lastEmitRef = useRef(0);
@@ -75,7 +103,7 @@ export default function LessonScenePlayer({ lessonId, scenes: propScenes, theme,
   // Speech synthesis
   const lastSpokenSubRef = useRef<string>("");
   useEffect(() => {
-    if (!isPlaying || isMuted || !subtitle || typeof window === "undefined" || !window.speechSynthesis) {
+    if (!isPlaying || isMuted || !subtitle || !voiceReady || typeof window === "undefined" || !window.speechSynthesis) {
       if (typeof window !== "undefined" && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
@@ -87,13 +115,11 @@ export default function LessonScenePlayer({ lessonId, scenes: propScenes, theme,
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.rate = 1.05;
       utterance.pitch = 1.1;
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(v => v.lang.startsWith("en-") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Samantha")));
-      if (preferredVoice) utterance.voice = preferredVoice;
+      if (narratorVoice) utterance.voice = narratorVoice;
       lastSpokenSubRef.current = cleanText;
       window.speechSynthesis.speak(utterance);
     }
-  }, [subtitle, isPlaying, isMuted]);
+  }, [subtitle, isPlaying, isMuted, narratorVoice, voiceReady]);
 
   // Cleanup on unmount
   useEffect(() => {

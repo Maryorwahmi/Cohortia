@@ -189,11 +189,7 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
         // Silently ignore if mapping not available
       }
       
-      if (!isMicrosoftEdge()) {
-        setVoiceName((current) => current || next[0]?.name || "");
-      } else {
-        setVoiceName("");
-      }
+      setVoiceName((current) => current || next[0]?.name || "");
     };
     setVoiceName("");
     load();
@@ -211,10 +207,6 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     playbackRunRef.current += 1;
     const runId = playbackRunRef.current;
     const voice = voices.find((candidate) => candidate.name === voiceName);
-    if (isMicrosoftEdge() && !voice) {
-      setSpeechDone(true);
-      return;
-    }
     const utterance = new SpeechSynthesisUtterance(narration);
     utterance.lang = "en-US";
     if (voice) utterance.voice = voice;
@@ -342,11 +334,6 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
           ))}
         </nav>
       </header>
-      {isMicrosoftEdge() && !audioUrl && voices.length > 0 && !voiceName && (
-        <p role="status" className="shrink-0 border-b border-amber-300 bg-amber-50 px-4 py-1.5 text-xs text-amber-900">
-          The assigned course voice is unavailable in Microsoft Edge, so narration is paused.
-        </p>
-      )}
       <section className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-2 sm:p-4">
         <div className="relative aspect-video h-auto max-h-full w-full max-w-[1600px] overflow-hidden border border-slate-200 bg-white shadow-xl">
           {hasHtmlScreen ? (

@@ -1360,6 +1360,7 @@ export default function LearningBoardPage({
                     />
                   ) : (
                     <LessonScenePlayer
+                      courseId={courseId || previewCourseId || undefined}
                       scenes={generateGenericScenes(details, selectedLesson.title)}
                       theme={theme}
                       loop={false}
