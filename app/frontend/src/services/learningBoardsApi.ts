@@ -198,6 +198,37 @@ export interface PracticalTeachingPlaylistStep {
   commonMistake: string;
   recap: string;
   codeSteps: number[];
+  phase?: 'orientation' | 'grounding' | 'walkthrough' | 'practice' | 'transfer' | string;
+  activityStepIds?: string[];
+  lessonScreenIds?: string[];
+  teachingStepNumbers?: number[];
+  interactionGate?: string;
+  completionAction?: string;
+}
+
+export interface PracticalLessonScreenContext {
+  id: string;
+  order: number;
+  title: string;
+  summary: string;
+}
+
+export interface PracticalLessonContext {
+  courseIntroduction?: string;
+  chapterIntroduction?: string;
+  learningObjectives?: string[];
+  keyConcepts?: string[];
+  lessonScreens?: PracticalLessonScreenContext[];
+}
+
+export interface PracticalActivityMapping {
+  activityStepId: string;
+  order: number;
+  sourceTitle?: string;
+  taskId?: string | null;
+  teachingStepNumbers?: number[];
+  lessonScreenIds?: string[];
+  concepts?: string[];
 }
 
 export interface PracticalTeacherContext {
@@ -313,6 +344,8 @@ export interface LearningBoardPractical {
   codeWalkthrough?: CodeWalkthroughSegment[];
   teachingPlaylist?: PracticalTeachingPlaylistStep[];
   teachingSteps?: PracticalTeachingStep[];
+  lessonContext?: PracticalLessonContext | null;
+  activityMapping?: PracticalActivityMapping[];
   completionRule: string;
   checks?: Record<string, unknown>[];
   hints?: Record<string, unknown>[];

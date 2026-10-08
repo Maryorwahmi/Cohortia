@@ -44,7 +44,10 @@ export function activityKindFor({ category, title = "", activity = "" }) {
   if (category === "Cloud Console Lab") return "cloud_console_walkthrough";
   if (category === "Research & Analysis") return "evidence_inquiry";
   if (category === "Scenario & Design Exercise") {
-    if (/\b(binary|decimal|number systems?|bits?|bitwise|base conversion|convert(?:ing)? .*base)\b/.test(text)) {
+    // A decimal value or a generic type conversion is not automatically a
+    // binary exercise. Require an explicit number-systems signal so ordinary
+    // Python data-type labs remain scenario/design activities.
+    if (/\b(binary|number systems?|bits?|bitwise|base conversion)\b/.test(text)) {
       return "binary_exercise";
     }
     if (/\b(algorithm|pseudocode|flowchart|trace (?:the|an) algorithm)\b/.test(text)) {

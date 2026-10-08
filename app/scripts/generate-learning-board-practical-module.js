@@ -215,6 +215,8 @@ REQUIREMENTS:
 9. Research & Analysis Guidance:
    - For 'Research & Analysis' practicals, focus on guided inquiry. The narrator should act as a lead researcher, asking the student to form hypotheses and document observations in the provided task areas.
 10. Do NOT invent a different exercise or use source material from another chapter.
+11. Use the STRUCTURED LESSON CONTEXT as the teaching spine. Return an activityMapping array for every numbered source activity step. Each entry must include activityStepId, taskId, lessonScreenIds, teachingStepNumbers, and relevant concepts. Preserve source activity order; never let playlist order differ from teaching order.
+12. Begin the playlist with a brief course/chapter connection and activity orientation before implementation. End with a learner-transfer scene that explicitly hands control to the Your turn phase.
 7. Infer labType from each activity, but prefer simulation/manual review when execution would need host, production, credential, or unrestricted network access.
 8. Keep all generated file paths relative to the practical workspace and never use absolute paths or parent-directory segments.
 9. Return only valid JSON matching the requested module response schema.`;
@@ -240,7 +242,15 @@ ${sourceContext.activityChapter.raw}
 
 LESSON SOURCE CHAPTER
 --------------------
-${sourceContext.lessonChapter.raw || "(lesson source unavailable)"}`;
+${sourceContext.lessonChapter.raw || "(lesson source unavailable)"}
+
+STRUCTURED LESSON CONTEXT
+-------------------------
+${JSON.stringify(sourceContext.lessonContext || {}, null, 2)}
+
+ACTIVITY STEP MAP
+-----------------
+${JSON.stringify(sourceContext.activitySteps || [], null, 2)}`;
   }).join("\n\n");
 
   const expectedChapters = entries
@@ -267,8 +277,15 @@ ${chapterSections}`;
 }
 
 function normalizeModuleResponse(raw, entries) {
-  const items = Array.isArray(raw) ? raw : raw?.practicals;
-  if (!Array.isArray(items)) throw new Error("Module response must contain a practicals array.");
+  const items = Array.isArray(raw)
+    ? raw
+    : raw?.practicals
+      || raw?.data?.practicals
+      || raw?.result?.practicals;
+  if (!Array.isArray(items)) {
+    const keys = raw && typeof raw === "object" ? Object.keys(raw).join(", ") : typeof raw;
+    throw new Error(`Module response must contain a practicals array (received keys: ${keys || "none"}).`);
+  }
   if (items.length !== entries.length) {
     throw new Error(`Module response returned ${items.length} practical(s); expected ${entries.length}.`);
   }

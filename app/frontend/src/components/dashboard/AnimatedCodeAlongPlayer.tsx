@@ -53,6 +53,12 @@ function narrationDuration(text: string): number {
   return Math.max(3, Math.ceil(estimateSpeechDurationSeconds(text, TEACHER_SPEECH_RATE)));
 }
 
+function generatedDuration(durationSeconds: number | undefined, fallbackText: string): number {
+  return typeof durationSeconds === "number" && Number.isFinite(durationSeconds) && durationSeconds > 0
+    ? Math.max(3, durationSeconds)
+    : narrationDuration(fallbackText);
+}
+
 function revealWalkthroughCode(steps: CodeWalkthroughSegment[], elapsedSeconds: number): {
   code: string;
   activeStep?: CodeWalkthroughSegment;
@@ -61,16 +67,16 @@ function revealWalkthroughCode(steps: CodeWalkthroughSegment[], elapsedSeconds: 
   let elapsed = 0;
   const chunks: string[] = [];
   for (const step of steps) {
-    const duration = narrationDuration(step.speakerText || step.explanation || step.codeLine);
+    const duration = generatedDuration(step.durationSeconds, step.speakerText || step.explanation || step.codeLine);
     if (elapsedSeconds >= elapsed + duration) {
       chunks.push(step.codeLine);
       elapsed += duration;
       continue;
     }
     if (elapsedSeconds >= elapsed) {
-      const progress = Math.max(0, Math.min(1, (elapsedSeconds - elapsed) / duration));
-      chunks.push(step.codeLine.slice(0, Math.ceil(step.codeLine.length * progress)));
-      return { code: chunks.filter(Boolean).join("\n"), activeStep: step, progress };
+      // Reveal one complete source line at the start of its teaching interval.
+      // The teacher's speech, not a character animation, is the pacing cue.
+      return { code: [...chunks, step.codeLine].filter(Boolean).join("\n"), activeStep: step, progress: (elapsedSeconds - elapsed) / duration };
     }
     return { code: chunks.filter(Boolean).join("\n"), activeStep: step, progress: 0 };
   }
@@ -85,16 +91,14 @@ function revealTeachingText(steps: PracticalTeachingStep[], elapsedSeconds: numb
   let elapsed = 0;
   const chunks: string[] = [];
   for (const step of steps) {
-    const duration = narrationDuration(step.speakerText || step.explanation || step.displayText);
+    const duration = generatedDuration(step.durationSeconds, step.speakerText || step.explanation || step.displayText);
     if (elapsedSeconds >= elapsed + duration) {
       chunks.push(step.displayText);
       elapsed += duration;
       continue;
     }
     if (elapsedSeconds >= elapsed) {
-      const progress = Math.max(0, Math.min(1, (elapsedSeconds - elapsed) / duration));
-      chunks.push(step.displayText.slice(0, Math.ceil(step.displayText.length * progress)));
-      return { text: chunks.filter(Boolean).join("\n"), activeStep: step, progress };
+      return { text: [...chunks, step.displayText].filter(Boolean).join("\n"), activeStep: step, progress: (elapsedSeconds - elapsed) / duration };
     }
     return { text: chunks.filter(Boolean).join("\n"), activeStep: step, progress: 0 };
   }
@@ -195,16 +199,23 @@ export default function AnimatedCodeAlongPlayer({
   const activeTeachingSteps = resolvedTeachingSteps
     .filter((step) => activePlaylist.codeSteps.includes(step.stepNumber))
     .sort((left, right) => left.stepNumber - right.stepNumber);
-  const activeNarrationScript = activeTeachingSteps.length
+  const sceneNarration = activeTeachingSteps.length
     ? activeTeachingSteps.map((step) => step.speakerText).filter(Boolean).join(" ")
     : activeWalkthrough.length
       ? activeWalkthrough.map((step) => step.speakerText).filter(Boolean).join(" ")
       : activePlaylist.narratorScript;
-  const activeDurationSeconds = activeTeachingSteps.length
-    ? activeTeachingSteps.reduce((total, step) => total + narrationDuration(step.speakerText || step.explanation || step.displayText), 0)
+  const activeNarrationScript = activePlaylistIndex === 0 && narratorGuide
+    ? `${narratorGuide.trim()} ${sceneNarration}`.trim()
+    : sceneNarration;
+  const calculatedDurationSeconds = activeTeachingSteps.length
+    ? activeTeachingSteps.reduce((total, step) => total + generatedDuration(step.durationSeconds, step.speakerText || step.explanation || step.displayText), 0)
     : activeWalkthrough.length
-      ? activeWalkthrough.reduce((total, step) => total + narrationDuration(step.speakerText || step.explanation || step.codeLine), 0)
+      ? activeWalkthrough.reduce((total, step) => total + generatedDuration(step.durationSeconds, step.speakerText || step.explanation || step.codeLine), 0)
       : lessonDuration(activeNarrationScript);
+  const activeDurationSeconds = Math.max(
+    generatedDuration(activePlaylist.durationSeconds, activeNarrationScript || "") || calculatedDurationSeconds,
+    activePlaylistIndex === 0 ? narrationDuration(activeNarrationScript) : 0,
+  );
   const activeFile = activeWalkthrough.find((step) => step.file)?.file || files[0]?.path || "workspace";
   const activeFileContent = files.find((file) => file.path === activeFile)?.content || files[0]?.content || "";
   const priorWalkthrough = walkthrough

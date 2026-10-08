@@ -219,6 +219,22 @@ const PRACTICAL_SCHEMA = {
     cleanup: { type: "object" },
     completionRules: { type: "object" },
     generator: { type: "object" }
+    ,lessonContext: {
+      type: "object",
+      description: "Structured context from the authored learning-board lesson.",
+      properties: {
+        courseIntroduction: { type: "string" },
+        chapterIntroduction: { type: "string" },
+        learningObjectives: { type: "array", items: { type: "string" } },
+        keyConcepts: { type: "array", items: { type: "string" } },
+        lessonScreens: { type: "array", items: { type: "object" } },
+      },
+    },
+    activityMapping: {
+      type: "array",
+      description: "Explicit mapping between source activity steps and generated teaching/tasks.",
+      items: { type: "object" },
+    }
   },
   required: ["mode", "title", "instructions", "narratorGuide", "files", "tasks"]
 };
@@ -311,6 +327,65 @@ function extractSection(block, heading) {
   );
   return (block.match(re)?.[1] || "").trim();
 }
+
+function extractMarkdownItems(section) {
+  return String(section || "")
+    .split(/\r?\n/)
+    .map((line) => line.match(/^\s*(?:[-*]|\d+[.)])\s+(?:\*\*)?(.+?)(?:\*\*)?\s*$/)?.[1]?.trim())
+    .filter(Boolean)
+    .map((item) => item.replace(/\s+/g, " ").trim());
+}
+
+function summarizeText(value, maxLength = 420) {
+  const text = String(value || "").replace(/[`*_>#]/g, "").replace(/\s+/g, " ").trim();
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1).trim()}…` : text;
+}
+
+function buildLessonContext(lessonChapter, courseTitle) {
+  const raw = lessonChapter?.raw || "";
+  const objectives = extractMarkdownItems(extractSection(raw, "Learning objectives"));
+  const keyConcepts = extractMarkdownItems(extractSection(raw, "Key concepts"));
+  const detailed = extractSection(raw, "Detailed lesson content");
+  const chapterIntroduction = summarizeText(detailed.split(/\n\s*\n/)[0] || raw, 560);
+  const courseIntroduction = summarizeText(
+    extractSection(raw, "Course overview") || `This chapter belongs to ${courseTitle}.`,
+    560,
+  );
+  const sections = [...raw.matchAll(/^####\s+(.+)$/gm)].map((match, index, all) => {
+    const start = match.index + match[0].length;
+    const end = all[index + 1]?.index ?? raw.length;
+    return {
+      id: `screen-${index + 1}`,
+      order: index + 1,
+      title: match[1].trim(),
+      summary: summarizeText(raw.slice(start, end), 360),
+    };
+  });
+  return {
+    courseIntroduction,
+    chapterIntroduction,
+    learningObjectives: objectives,
+    keyConcepts,
+    lessonScreens: sections,
+  };
+}
+
+function extractActivitySteps(activity) {
+    const numberedSteps = String(activity || "")
+      .split(/\r?\n/)
+    .map((line) => line.match(/^\s*(\d+)[.)]\s+(?:\*\*)?(.+?)(?:\*\*)?\s*$/))
+    .filter(Boolean)
+    .map((match) => ({
+      activityStepId: `activity-step-${match[1]}`,
+      order: Number(match[1]),
+      title: summarizeText(match[2], 180),
+      }));
+    if (numberedSteps.length) return numberedSteps;
+    const summary = summarizeText(activity, 240);
+    return summary
+      ? [{ activityStepId: "activity-step-1", order: 1, title: summary }]
+      : [];
+  }
 function extractChapter(markdown, requestedChapter) {
   const headingRegex = /^(#{2,4})\s*Chapter\s+(\d+)\.(\d+)[ \t]*(?:[—–:-][ \t]*)?([^\r\n]*)$/gm;
   const headings = [...markdown.matchAll(headingRegex)];
@@ -469,6 +544,11 @@ async function resolveSourceContext({
     activityTitle: extractActivityTitle(activityChapter.handsOnActivity),
     courseTitle: extractFrontmatterField(lessonMarkdown, "title") || resolvedCourseId,
     level: extractFrontmatterField(lessonMarkdown, "Level") || extractFrontmatterField(activityMarkdown, "Level"),
+    lessonContext: buildLessonContext(
+      lessonChapter,
+      extractFrontmatterField(lessonMarkdown, "title") || resolvedCourseId,
+    ),
+    activitySteps: extractActivitySteps(activityChapter.handsOnActivity),
   };
 }
 
@@ -503,6 +583,14 @@ ${chapterData.raw}
 LESSON SOURCE CHAPTER
 ====================
 ${sourceContext?.lessonChapter?.raw || "(lesson source unavailable)"}
+
+STRUCTURED LESSON CONTEXT (AUTHORITATIVE TEACHING ORDER)
+=========================================================
+${JSON.stringify(sourceContext?.lessonContext || {}, null, 2)}
+
+ACTIVITY STEP MAP
+=================
+${JSON.stringify(sourceContext?.activitySteps || [], null, 2)}
 `;
 }
 
@@ -1330,8 +1418,16 @@ function normalizePractical(raw, sourceContext, metadata) {
     : codeWalkthrough.map((step) => step.stepNumber);
   const stepsForTask = (taskIndex) => {
     if (!walkthroughStepNumbers.length) return [];
-    const chunkSize = Math.ceil(walkthroughStepNumbers.length / Math.max(tasks.length, 1));
-    return walkthroughStepNumbers.slice(taskIndex * chunkSize, (taskIndex + 1) * chunkSize);
+    const taskCount = Math.max(tasks.length, 1);
+    // Keep the teaching order stable while ensuring generated verify/transfer
+    // scenes never become empty when the model returns fewer teaching steps
+    // than learner tasks.
+    if (taskCount > walkthroughStepNumbers.length) {
+      return [walkthroughStepNumbers[Math.min(taskIndex, walkthroughStepNumbers.length - 1)]];
+    }
+    const start = Math.floor(taskIndex * walkthroughStepNumbers.length / taskCount);
+    const end = Math.floor((taskIndex + 1) * walkthroughStepNumbers.length / taskCount);
+    return walkthroughStepNumbers.slice(start, Math.max(start + 1, end));
   };
 
   const rawTeachingPlaylist = (Array.isArray(raw.teachingPlaylist) && raw.teachingPlaylist.length
@@ -1370,6 +1466,14 @@ function normalizePractical(raw, sourceContext, metadata) {
     return {
         ...step,
         id: normalizeId(step.id, `path-${index + 1}`),
+        phase: index === 0 ? "orientation" : index === tasks.length - 1 ? "transfer" : (typeof step.phase === "string" ? step.phase : "walkthrough"),
+        activityStepIds: asStringArray(step.activityStepIds),
+        lessonScreenIds: asStringArray(step.lessonScreenIds),
+        teachingStepNumbers: Array.isArray(step.teachingStepNumbers)
+          ? step.teachingStepNumbers.map(Number).filter(Number.isInteger)
+          : [],
+        interactionGate: typeof step.interactionGate === "string" ? step.interactionGate : "listen_and_predict",
+        completionAction: typeof step.completionAction === "string" ? step.completionAction : undefined,
         durationSeconds: clampInteger(step.durationSeconds, 90, 45, 240),
         codeSteps: ["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
           ? stepsForTask(index)
@@ -1391,6 +1495,23 @@ function normalizePractical(raw, sourceContext, metadata) {
       codeSteps: teachingSteps.map((step) => step.stepNumber),
     }];
   }
+  const sourceActivitySteps = sourceContext.activitySteps || [];
+  const lessonScreens = sourceContext.lessonContext?.lessonScreens || [];
+  const generatedActivityMapping = sourceActivitySteps.map((step, index) => ({
+    activityStepId: step.activityStepId,
+    order: step.order,
+    sourceTitle: step.title,
+    taskId: tasks[index]?.id || null,
+    teachingStepNumbers: teachingSteps.length
+      ? [teachingSteps[Math.min(index, teachingSteps.length - 1)]?.stepNumber].filter(Number.isInteger)
+      : codeWalkthrough.length
+        ? [codeWalkthrough[Math.min(index, codeWalkthrough.length - 1)]?.stepNumber].filter(Number.isInteger)
+        : [],
+    lessonScreenIds: lessonScreens.length
+      ? [lessonScreens[Math.min(index, lessonScreens.length - 1)]?.id].filter(Boolean)
+      : [],
+    concepts: (sourceContext.lessonContext?.keyConcepts || []).slice(index, index + 2),
+  }));
   const completionRules = {
     requiredChecks: checks.map((check) => check.id),
     minimumScore: typeof raw.completionRules?.minimumScore === "number" && raw.completionRules.minimumScore >= 0
@@ -1433,6 +1554,24 @@ function normalizePractical(raw, sourceContext, metadata) {
     language,
     runtime: raw.runtime || undefined,
     sourceActivity: raw.sourceActivity || sourceContext.activityTitle || title,
+    lessonContext: sourceContext.lessonContext,
+    activityMapping: sourceActivitySteps.map((sourceStep, index) => {
+      const candidate = Array.isArray(raw.activityMapping)
+        ? raw.activityMapping.find((item) => item?.activityStepId === sourceStep.activityStepId)
+        : null;
+      const fallback = generatedActivityMapping[index];
+      return {
+        ...fallback,
+        ...(candidate && typeof candidate === "object" ? candidate : {}),
+        activityStepId: sourceStep.activityStepId,
+        order: sourceStep.order,
+        taskId: tasks.some((task) => task.id === candidate?.taskId) ? candidate.taskId : fallback.taskId,
+        lessonScreenIds: asStringArray(candidate?.lessonScreenIds).length ? asStringArray(candidate.lessonScreenIds) : fallback.lessonScreenIds,
+        teachingStepNumbers: Array.isArray(candidate?.teachingStepNumbers) && candidate.teachingStepNumbers.length
+          ? candidate.teachingStepNumbers.map(Number).filter(Number.isInteger)
+          : fallback.teachingStepNumbers,
+      };
+    }),
     objectives: asStringArray(raw.objectives),
     learningObjectives: asStringArray(raw.learningObjectives).length
       ? asStringArray(raw.learningObjectives)
@@ -1680,6 +1819,27 @@ function validatePractical(practical) {
     }
     const playlistSteps = new Set((practical.teachingPlaylist || []).flatMap((item) => Array.isArray(item.codeSteps) ? item.codeSteps : []));
     for (const step of steps) if (!playlistSteps.has(step.stepNumber)) errors.push(`teaching step ${step.stepNumber} is not assigned to a teaching playlist item`);
+  }
+
+  const playlist = Array.isArray(practical.teachingPlaylist) ? practical.teachingPlaylist : [];
+  if (playlist.length) {
+    const playlistIds = new Set();
+    for (const [index, item] of playlist.entries()) {
+      if (!item?.id || playlistIds.has(item.id)) errors.push(`teaching playlist item ${index + 1} has a duplicate or missing id`);
+      playlistIds.add(item?.id);
+      if (!Number.isFinite(item.durationSeconds) || item.durationSeconds < 3) errors.push(`teaching playlist item ${item.id || index + 1} has invalid durationSeconds`);
+      if (index === 0 && item.phase !== "orientation") errors.push("teaching playlist must begin with an orientation phase");
+      if (playlist.length > 1 && index === playlist.length - 1 && item.phase !== "transfer") errors.push("teaching playlist must end with a transfer phase");
+    }
+  }
+  if (Array.isArray(practical.activityMapping)) {
+    const mappingIds = new Set();
+    for (const mapping of practical.activityMapping) {
+      if (!mapping?.activityStepId || mappingIds.has(mapping.activityStepId)) errors.push("activityMapping step ids must be unique");
+      mappingIds.add(mapping?.activityStepId);
+      if (mapping.taskId && !practical.tasks?.some((task) => task.id === mapping.taskId)) errors.push(`activityMapping ${mapping.activityStepId} references a missing task`);
+      if (!Array.isArray(mapping.lessonScreenIds) || !Array.isArray(mapping.teachingStepNumbers)) errors.push(`activityMapping ${mapping.activityStepId} is incomplete`);
+    }
   }
 
   if (practical.activityKind === "binary_exercise") {

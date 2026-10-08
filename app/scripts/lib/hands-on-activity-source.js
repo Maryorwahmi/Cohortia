@@ -116,7 +116,11 @@ export function classifyActivity(activityText, chapterRaw) {
     signals.push("cloud");
     return { category: "Cloud Console Lab", confidence: 0.9, signals };
   }
-  if (/\b(program|function|compile|sql|query|html|css|starter code|implement|write code|build)\b/.test(activity)
+  if (/\b(algorithm|pseudocode|flowchart|plain english|step-by-step instructions?)\b/.test(activity)) {
+    signals.push("algorithm-design");
+    return { category: "Scenario & Design Exercise", confidence: 0.86, signals };
+  }
+  if (/```(?:python|javascript|bash|shell|sql)?|\b(python|python3|interpreter|repl|print\s*\(|\.py\b|program|function|compile|sql|query|html|css|starter code|implement|write code|build)\b/.test(activity)
     || /\b(?:write|implement|compile|run|edit|debug|modify)\s+(?:a\s+)?(?:c(?:\+\+)?|python|javascript|typescript|java)\s+(?:program|code|file)\b/i.test(activity)) {
     signals.push("code");
     return { category: "Terminal Coding Lab", confidence: 0.88, signals };

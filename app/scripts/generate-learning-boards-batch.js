@@ -17,7 +17,7 @@ const generatedRoot = path.join(repoRoot, 'generated', 'learning-boards-html');
 
 function printUsage() {
   console.log(`Usage:
-  node scripts/generate-learning-boards-batch.js --category <category> --course-id <course-id> [--module <module>] [--subcategory <name>] [--overwrite] [--import-retries <count>] [--list-only]
+node scripts/generate-learning-boards-batch.js --category <category> --course-id <course-id> [--module <module>] [--subcategory <name>] [--overwrite] [--generation-retries <count>] [--import-retries <count>] [--list-only]
 
 Examples:
   node scripts/generate-learning-boards-batch.js --category computer-science --course-id ai-for-everyone --list-only
@@ -42,6 +42,9 @@ function parseArgs(argv) {
     courseId: args['course-id'] || args.course || null,
     module: args.module || null,
     overwrite: Boolean(args.overwrite),
+    generationRetries: Number.isFinite(Number(args['generation-retries']))
+      ? Math.max(1, Number(args['generation-retries']))
+      : 3,
     importRetries: Number.isFinite(Number(args['import-retries']))
       ? Math.max(1, Number(args['import-retries']))
       : 3,
@@ -191,6 +194,12 @@ async function waitBeforeImportRetry(attempt) {
   await new Promise((resolve) => setTimeout(resolve, delayMs));
 }
 
+async function waitBeforeGenerationRetry(attempt) {
+  const delayMs = Math.min(30000, 3000 * (2 ** (attempt - 1)));
+  console.log(`Waiting ${delayMs / 1000}s before retrying chapter generation.`);
+  await new Promise((resolve) => setTimeout(resolve, delayMs));
+}
+
 async function writeCourseRecord(course, syllabusPath, record) {
   await writeCourseGenerationRecord(generatedRoot, course, syllabusPath, {
     completedChapters: record.completedChapters || {},
@@ -235,7 +244,6 @@ async function generateCourse(category, course, options) {
     if (hasLocalManifest) {
       console.log(`Reusing existing local manifest for ${course.id}, chapter ${chapterKey}; Turso import is pending.`);
     } else {
-      console.log(`Generating ${course.id}, chapter ${moduleNumber}.${chapterNumber}.`);
       const args = [
         generatorScript,
         '--syllabus',
@@ -252,7 +260,15 @@ async function generateCourse(category, course, options) {
         String(chapterNumber),
       ];
       if (options.overwrite) args.push('--overwrite');
-      result = await runCommand(process.execPath, args, repoRoot);
+      for (let attempt = 1; attempt <= options.generationRetries; attempt += 1) {
+        console.log(`Generating ${course.id}, chapter ${moduleNumber}.${chapterNumber} (attempt ${attempt}/${options.generationRetries}).`);
+        result = await runCommand(process.execPath, args, repoRoot);
+        if (result.code === 0) break;
+        if (attempt < options.generationRetries) {
+          console.warn(`Chapter ${chapterKey} generation failed; keeping it pending and retrying safely.`);
+          await waitBeforeGenerationRetry(attempt);
+        }
+      }
     }
     if (result.code !== 0) {
       code = result.code;

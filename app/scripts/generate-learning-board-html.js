@@ -725,6 +725,14 @@ async function callGemini({ model, prompt, maxContinuations, responseSchema = BO
   return result.data;
 }
 
+function isRecoverableJsonGenerationError(error) {
+  const message = String(error?.message || error || "").toLowerCase();
+  return message.includes("truncated")
+    || message.includes("incomplete json")
+    || message.includes("could not parse valid json")
+    || message.includes("json parsing failed");
+}
+
 function splitModuleChapters(chapters) {
   if (chapters.length < 2) return [chapters, []];
 
@@ -1352,7 +1360,7 @@ export async function generateLearningBoard({
     try {
       board = await callGemini({ model, prompt, maxContinuations: 1 });
     } catch (error) {
-      if (String(error.message || "").includes("Could not parse valid JSON")) {
+      if (isRecoverableJsonGenerationError(error)) {
         console.log("   ⚠️  Single-request generation produced a large/truncated response — retrying as a 2-part split...");
         board = await generateBoardInParts({ model, promptTemplate, chapterData, metadata, screenPolicy });
       } else {
