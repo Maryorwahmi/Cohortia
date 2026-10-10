@@ -20,6 +20,10 @@ import {
   resolveSourceContext,
   writePractical,
 } from "./generate-learning-board-practical.js";
+import {
+  readCourseGenerationRecord,
+  writeCourseGenerationRecord,
+} from "./lib/learning-board-record.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const BACKEND_ROOT = path.join(REPOSITORY_ROOT, "backend");
@@ -449,7 +453,7 @@ async function generateModule(options) {
     : parseChapterNumbers(chapterFilter, moduleNumber);
   const chapterNumbers = requestedChapterEntries?.map((entry) => entry.chapter) || null;
   const model = options.model || DEFAULT_MODEL;
-  const entries = await buildModuleEntries({
+  const allEntries = await buildModuleEntries({
     repoRoot,
     syllabusPath,
     courseId,
@@ -460,9 +464,54 @@ async function generateModule(options) {
     category: options.category,
     model,
   });
-  const resolvedCourseId = entries[0].sourceContext.courseId;
-  if (entries.some((entry) => entry.sourceContext.courseId !== resolvedCourseId)) {
+  const resolvedCourseId = allEntries[0].sourceContext.courseId;
+  if (allEntries.some((entry) => entry.sourceContext.courseId !== resolvedCourseId)) {
     throw new Error("All module chapters must resolve to the same course id.");
+  }
+
+  const outputRoot = resolveInputPath(options.output || "generated/learning-board-practicals", repoRoot);
+  let entries = allEntries;
+  if (options["dry-run"] !== true && options.force !== true) {
+    const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
+    const recordedChapters = generationRecord.completedChapters || {};
+    const pendingEntries = [];
+    for (const entry of allEntries) {
+      const chapterKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
+      const recordEntry = recordedChapters[chapterKey];
+      const artifactPath = recordEntry?.artifactPath
+        ? path.resolve(outputRoot, recordEntry.artifactPath)
+        : path.join(outputRoot, resolvedCourseId, `m${entry.metadata.moduleNumber}-c${entry.metadata.chapterNumber}`, "practical.json");
+      let reusable = recordEntry
+        && (recordEntry.status === "generated" || recordEntry.status === "completed")
+        && recordEntry.sourceHash === entry.metadata.sourceHash;
+      if (reusable) {
+        try {
+          const manifest = JSON.parse(await fs.readFile(artifactPath, "utf8"));
+          reusable = manifest.courseId === resolvedCourseId
+            && manifest.moduleNumber === entry.metadata.moduleNumber
+            && manifest.chapterNumber === entry.metadata.chapterNumber
+            && manifest.practical;
+        } catch {
+          reusable = false;
+        }
+      }
+      if (reusable) {
+        console.log(`Resuming from record.json: skipping practical ${resolvedCourseId} ${chapterKey}.`);
+      } else {
+        pendingEntries.push(entry);
+      }
+    }
+    entries = pendingEntries;
+    if (!entries.length) {
+      return {
+        status: "resumed",
+        courseId: resolvedCourseId,
+        moduleNumber,
+        chapters: allEntries.map((entry) => `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`),
+        targets: [],
+        imports: [],
+      };
+    }
   }
 
   const promptTemplate = options["prompt-template"]
@@ -516,10 +565,12 @@ async function generateModule(options) {
     throw error;
   }
   const normalized = normalizeModuleResponse(result.data, entries);
-  const outputRoot = resolveInputPath(options.output || "generated/learning-board-practicals", repoRoot);
   const targets = [];
   const imports = [];
+  const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
+  const completedChapters = { ...(generationRecord.completedChapters || {}) };
   for (const entry of normalized) {
+    const chapterKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
     const target = await writePractical(
       entry.practical,
       outputRoot,
@@ -529,9 +580,35 @@ async function generateModule(options) {
       entry.sourceContext
     );
     targets.push(target);
+
+    // Record each artifact immediately so an interrupted module can resume
+    // without asking the model to regenerate chapters already written.
+    completedChapters[chapterKey] = {
+      status: "generated",
+      kind: "practical",
+      module: entry.metadata.moduleNumber,
+      chapter: entry.metadata.chapterNumber,
+      sourceHash: entry.metadata.sourceHash,
+      artifactPath: path.relative(outputRoot, path.join(target, "practical.json")).replaceAll("\\", "/"),
+      generatedAt: new Date().toISOString(),
+    };
+    await writeCourseGenerationRecord(outputRoot, {
+      id: resolvedCourseId,
+      title: entry.sourceContext.courseTitle || resolvedCourseId,
+    }, syllabusPath, { completedChapters });
+
     if (options["skip-import"] !== true) {
       const imported = await importGeneratedPractical(path.join(target, "practical.json"));
       imports.push(imported.practicalPath);
+      completedChapters[chapterKey] = {
+        ...completedChapters[chapterKey],
+        status: "completed",
+        importedAt: new Date().toISOString(),
+      };
+      await writeCourseGenerationRecord(outputRoot, {
+        id: resolvedCourseId,
+        title: entry.sourceContext.courseTitle || resolvedCourseId,
+      }, syllabusPath, { completedChapters });
       console.log(`✓ Imported practical into Turso: ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`);
     }
   }

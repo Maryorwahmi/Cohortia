@@ -15,6 +15,7 @@ import {
   resolveSyllabusPath,
 } from "./generate-learning-board-practical-module.js";
 import { assertValidPractical } from "./generate-learning-board-practical.js";
+import { readCourseGenerationRecord } from "./lib/learning-board-record.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -231,6 +232,7 @@ async function generateCourse(options) {
   const dryRuns = [];
   const reusedChapters = [];
   let resolvedCourseId = courseId;
+  let recordedChapters = {};
   const discoveredModules = [...new Set(chapters.map((chapter) => chapter.module))]
     .filter((moduleNumber) => requestedModule === null || moduleNumber === requestedModule)
     .sort((a, b) => a - b);
@@ -260,6 +262,10 @@ async function generateCourse(options) {
 
     if (!validEntries.length) continue;
     resolvedCourseId ||= validEntries[0].sourceContext.courseId;
+    if (options["dry-run"] !== true && !Object.keys(recordedChapters).length) {
+      const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
+      recordedChapters = generationRecord.completedChapters || {};
+    }
     const existingByChapter = new Map();
     if (options["dry-run"] !== true && options.force !== true) {
       for (const entry of validEntries) {
@@ -267,6 +273,10 @@ async function generateCourse(options) {
         if (existing) {
           existingByChapter.set(entry.metadata.chapterNumber, existing);
           reusedChapters.push(`${moduleNumber}.${entry.metadata.chapterNumber}`);
+          const recordEntry = recordedChapters[`${moduleNumber}.${entry.metadata.chapterNumber}`];
+          if (recordEntry?.status === "generated" || recordEntry?.status === "completed") {
+            console.log(`Resuming from record.json: reusing practical ${resolvedCourseId} ${moduleNumber}.${entry.metadata.chapterNumber}.`);
+          }
         }
       }
     }
