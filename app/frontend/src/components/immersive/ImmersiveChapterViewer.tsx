@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play, RotateCw, Volume2, VolumeX } from "lucide-react";
-import { isMicrosoftEdge, resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
+import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 import type { LearningBoardPractical } from "../../services/learningBoardsApi";
 
 export interface ImmersiveScreen {
@@ -11,6 +11,7 @@ export interface ImmersiveScreen {
   durationSeconds?: number;
   narratorSegment?: string;
   narration?: { text?: string; durationSeconds?: number };
+  audio?: { url?: string; mimeType?: string; durationSeconds?: number; voice?: string | null; model?: string | null; sourceHash?: string | null } | null;
   content?: { html?: string; css?: string; [key: string]: unknown };
   visual?: { headline?: string; body?: string; accent?: string; data?: Record<string, unknown> };
   keyIdea?: { title?: string; text?: string };
@@ -134,23 +135,36 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
   const [isSeeking, setIsSeeking] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioChecked, setAudioChecked] = useState(false);
+  const [loadedVisualScreens, setLoadedVisualScreens] = useState<Set<number>>(new Set());
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const preloadedAudioRef = useRef<Map<number, HTMLAudioElement>>(new Map());
   const playbackRunRef = useRef(0);
   const screen = screens[index];
   const narration = screen ? narrationOf(screen) : "";
   const duration = screen ? durationOf(screen) : 20;
   const hasHtmlScreen = Boolean(screen?.content?.html?.trim());
 
-  useEffect(() => { setIndex(0); setProgress(0); setPlaying(true); setSpeechDone(false); setDurationDone(false); setScreenReady(false); }, [manifest]);
   useEffect(() => {
+    setIndex(0);
+    setProgress(0);
+    setPlaying(true);
+    setSpeechDone(false);
+    setDurationDone(false);
     setScreenReady(false);
-  }, [index]);
+    setLoadedVisualScreens(new Set());
+    preloadedAudioRef.current.forEach((audio) => { audio.src = ""; });
+    preloadedAudioRef.current.clear();
+  }, [manifest]);
+  useEffect(() => {
+    setScreenReady(!screen?.content?.html?.trim() || loadedVisualScreens.has(screen.screen));
+  }, [index, loadedVisualScreens, screen]);
   useEffect(() => {
     let cancelled = false;
     setAudioUrl(null);
     setAudioChecked(false);
     if (!screen || !narration) return;
-    if (isMicrosoftEdge()) {
+    if (screen.audio?.url) {
+      setAudioUrl(screen.audio.url);
       setAudioChecked(true);
       return;
     }
@@ -260,6 +274,16 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     };
   }, [audioChecked, audioUrl, duration, hasHtmlScreen, index, muted, playing, screenReady]);
   useEffect(() => {
+    const nextScreen = screens[index + 1];
+    const nextAudioUrl = nextScreen?.audio?.url;
+    if (!nextAudioUrl || preloadedAudioRef.current.has(nextScreen.screen)) return;
+    const audio = new Audio();
+    audio.preload = "auto";
+    audio.src = nextAudioUrl;
+    audio.load();
+    preloadedAudioRef.current.set(nextScreen.screen, audio);
+  }, [index, screens]);
+  useEffect(() => {
     if ((hasHtmlScreen && !screenReady) || !playing || !screens.length || durationDone || isSeeking) return;
     const timer = window.setInterval(() => setProgress((value) => {
       const next = value + .1;
@@ -288,6 +312,15 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
 
   if (!screen) return null;
   const jump = (next: number) => { setIndex(Math.max(0, Math.min(screens.length - 1, next))); setProgress(0); setSpeechDone(false); setDurationDone(false); setIsSeeking(false); };
+  const markVisualLoaded = (screenNumber: number) => {
+    setLoadedVisualScreens((current) => {
+      if (current.has(screenNumber)) return current;
+      const next = new Set(current);
+      next.add(screenNumber);
+      return next;
+    });
+    if (screenNumber === screen.screen) setScreenReady(true);
+  };
   const handleSeekStart = () => {
     setIsSeeking(true);
     audioRef.current?.pause();
@@ -336,25 +369,30 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
       </header>
       <section className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-2 sm:p-4">
         <div className="relative aspect-video h-auto max-h-full w-full max-w-[1600px] overflow-hidden border border-slate-200 bg-white shadow-xl">
-          {hasHtmlScreen ? (
-            <>
-              <iframe
-                key={screen.screen}
-                title={screen.title}
-                className="h-full w-full border-0"
-                srcDoc={buildScreenDocument(screen)}
-                sandbox="allow-scripts"
-                referrerPolicy="no-referrer"
-                onLoad={() => setScreenReady(true)}
-              />
-              <div className={`absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm transition-opacity duration-300 ${screenReady ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-lg">
-                  <RotateCw className="h-4 w-4 animate-spin text-[#FF4B3E]" />
-                  Loading visual screen...
-                </div>
-              </div>
-            </>
-          ) : <FallbackScreen screen={screen} />}
+          {!hasHtmlScreen && <FallbackScreen screen={screen} />}
+          {screens
+            .filter((item) => item.content?.html?.trim() && (item.screen === screen.screen || item.screen === screens[index + 1]?.screen))
+            .map((item) => {
+              const active = item.screen === screen.screen;
+              return (
+                <iframe
+                  key={item.screen}
+                  title={item.title}
+                  aria-hidden={!active}
+                  className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-150 ${active ? "opacity-100" : "pointer-events-none opacity-0"}`}
+                  srcDoc={buildScreenDocument(item)}
+                  sandbox="allow-scripts"
+                  referrerPolicy="no-referrer"
+                  onLoad={() => markVisualLoaded(item.screen)}
+                />
+              );
+            })}
+          {hasHtmlScreen && <div className={`absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm transition-opacity duration-300 ${screenReady ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+            <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-lg">
+              <RotateCw className="h-4 w-4 animate-spin text-[#FF4B3E]" />
+              Loading visual screen...
+            </div>
+          </div>}
         </div>
       </section>
       <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-white px-4 py-2.5">
