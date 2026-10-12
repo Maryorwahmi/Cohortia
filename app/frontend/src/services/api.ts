@@ -307,6 +307,12 @@ export const adminApi = {
     invalidateRequestCache();
     return response;
   },
+  getCommunityReports: () => fetchApi<{success: boolean; data?: {reports: Array<Record<string, unknown>>}; error?: string}>('/admin/community/reports'),
+  getCommunityStats: () => fetchApi<{success: boolean; data?: {totalPosts: number; openReports: number; hiddenPosts: number}; error?: string}>('/admin/community/stats'),
+  moderateCommunityPost: (postId: string, data: {status?: 'published' | 'hidden' | 'removed'; isPinned?: boolean; isLocked?: boolean; isSolved?: boolean; reason?: string}) =>
+    fetchApi<{success: boolean; message?: string; error?: string}>(`/admin/community/posts/${encodeURIComponent(postId)}`, {method: 'PUT', body: JSON.stringify(data)}),
+  updateCommunityReport: (reportId: string, status: 'open' | 'reviewing' | 'resolved' | 'dismissed', resolution?: string) =>
+    fetchApi<{success: boolean; message?: string; error?: string}>(`/admin/community/reports/${encodeURIComponent(reportId)}`, {method: 'PUT', body: JSON.stringify({status, resolution})}),
 };
 
 // Tracks
@@ -359,8 +365,11 @@ export const trackApi = {
 
 // Community
 export const communityApi = {
-  getPosts: () => fetchApi<{ success: boolean; data?: { posts: Array<Record<string, unknown>> }; error?: string }>('/community/posts'),
-  createPost: (data: { title: string; content: string; category: string }) =>
+  getPosts: (filters: {courseId?: string; category?: string; postType?: string} = {}) => {
+    const query = new URLSearchParams(Object.entries(filters).filter(([, value]) => Boolean(value)) as Array<[string, string]>).toString();
+    return fetchApi<{ success: boolean; data?: { posts: Array<Record<string, unknown>> }; error?: string }>(`/community/posts${query ? `?${query}` : ''}`);
+  },
+  createPost: (data: { title: string; content: string; category: string; courseId?: string | null; module?: number | null; chapter?: number | null; lessonId?: string | null; postType?: string }) =>
     fetchApi<{ success: boolean; data?: { post: Record<string, unknown> }; error?: string }>('/community/posts', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -371,6 +380,8 @@ export const communityApi = {
       method: 'POST',
       body: JSON.stringify({ content }),
     }),
+  reportPost: (id: string, reason: string, details?: string) => fetchApi<{success: boolean; error?: string}>(`/community/posts/${id}/report`, {method: 'POST', body: JSON.stringify({reason, details})}),
+  toggleBookmark: (id: string) => fetchApi<{success: boolean; data?: {bookmarked: boolean}; error?: string}>(`/community/posts/${id}/bookmark`, {method: 'POST'}),
 };
 
 // Internships

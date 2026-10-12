@@ -66,7 +66,7 @@ export default function CourseDetails() {
             <h1 className="max-w-4xl text-3xl font-extrabold leading-tight text-immersive-text-primary sm:text-5xl">{course.title}</h1>
             <p className="mt-4 text-sm font-medium text-immersive-text-secondary">{course.provider || course.platform || 'Cohortia'} · {course.level || 'Self-paced'} · {course.type || 'Course'}</p>
           </div>
-          <div className="rounded-2xl border border-immersive-border bg-immersive-card p-5 shadow-lg shadow-immersive-shadow">
+            <div className="rounded-2xl border border-immersive-border bg-immersive-card p-5 shadow-lg shadow-immersive-shadow">
             <div className="mb-4 flex items-center gap-3 text-xs text-immersive-text-secondary"><Clock3 className="h-4 w-4 text-immersive-secondary" /> {course.duration || 'Self-paced'}</div>
             <button type="button" onClick={handleStartCourse} className="flex w-full items-center justify-center gap-2 rounded-xl bg-immersive-primary px-5 py-3 text-sm font-bold text-white transition hover:brightness-110"><span>{user ? 'Start this course' : 'Sign up to start'}</span><ArrowRight className="h-4 w-4" /></button>
           </div>
@@ -77,6 +77,7 @@ export default function CourseDetails() {
             <div className="rounded-2xl border border-immersive-border bg-immersive-card p-6 sm:p-8">
               <div className="mb-4 flex items-center gap-3"><BookOpen className="h-5 w-5 text-immersive-primary" /><h2 className="text-xl font-extrabold text-immersive-text-primary">What you will learn</h2></div>
               <p className="whitespace-pre-line text-sm leading-7 text-immersive-text-secondary">{details?.overview || course.description || 'Explore this structured course and build practical skills step by step.'}</p>
+              <Link to={`/community?courseId=${encodeURIComponent(course.id)}`} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-immersive-secondary px-5 py-3 text-sm font-bold text-immersive-secondary transition hover:bg-immersive-secondary/10"><Users className="h-4 w-4" /> Join course community</Link>
             </div>
             <div className="rounded-2xl border border-immersive-border bg-immersive-card p-6 sm:p-8"><div className="mb-4 flex items-center gap-3"><Layers3 className="h-5 w-5 text-immersive-secondary" /><h2 className="text-xl font-extrabold text-immersive-text-primary">Skills</h2></div><div className="flex flex-wrap gap-2">{skills.length ? skills.map((skill) => <span key={skill} className="rounded-lg border border-immersive-border bg-immersive-bg px-3 py-2 text-xs font-semibold text-immersive-text-secondary">{skill}</span>) : <span className="text-sm text-immersive-text-secondary">Skills are mapped throughout the course.</span>}</div></div>
           </section>

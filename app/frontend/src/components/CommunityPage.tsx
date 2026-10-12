@@ -1,526 +1,98 @@
-import React, { useState, useEffect } from "react";
-import { MessageSquare, Users, Calendar, Sparkles, Send, Check, Heart, ExternalLink, ShieldAlert, Award } from "lucide-react";
+import {useEffect, useMemo, useState, type ReactNode} from 'react';
+import {BookOpen, Calendar, CheckCircle2, Bookmark, Flag, MessageSquare, Plus, Search, Send, Users, X} from 'lucide-react';
+import {communityApi, CommunityEvent, eventsApi, StudyRoom, studyRoomsApi} from '../services/api';
 
-interface Comment {
-  id: string;
-  author: string;
-  avatar: string;
-  role: string;
-  content: string;
-  time: string;
-  likes: number;
-  hasLiked?: boolean;
-  replies?: Reply[];
-}
-
-interface Reply {
-  id: string;
-  author: string;
-  avatar: string;
-  content: string;
-  time: string;
-}
-
-interface Post {
-  id: string;
-  title?: string;
-  content: string;
-  category?: string;
-  author?: {
-    name?: string;
-    role?: string;
-    avatar?: string;
-  };
-  createdAt?: string;
-  likes?: number;
-  comments?: Array<{
-    id?: string;
-    content?: string;
-    author?: { name?: string; avatar?: string };
-    createdAt?: string;
-  }>;
-}
+type Area = 'my-courses' | 'discover' | 'discussions' | 'collaboration' | 'events';
+type Post = Record<string, any>;
+type Course = {id: string; title: string; category?: string; level?: string; description?: string | null};
 
 interface CommunityPageProps {
-  posts?: Post[];
-  onCreatePost?: (post: { title: string; content: string; category: string }) => void | Promise<void>;
-  onAddComment?: (postId: string, content: string) => void | Promise<void>;
+  courses?: Course[];
+  activeCourseId?: string;
 }
 
-const INITIAL_COMMENTS: Comment[] = [
-  {
-    id: "1",
-    author: "Elena Babalola",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&fit=crop&q=80",
-    role: "UX/UI Designer Alumni",
-    content: "Just landed a Full-Time Product Design offer at Vanta! The design sprint specs I built for CarbonHQ during my cohort were the exact highlight of my portfolio interview. Keep pushing, everyone!",
-    time: "2 hours ago",
-    likes: 18
-  },
-  {
-    id: "2",
-    author: "Tunde Alao",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&fit=crop&q=80",
-    role: "Active Frontend Intern",
-    content: "Has anyone successfully tackled the svg animation rendering edge cases on the solar telemetry widget? It's lagging slightly when there are over 100 active nodes. Any performance tips would be amazing!",
-    time: "4 hours ago",
-    likes: 4
-  },
-  {
-    id: "3",
-    author: "Emeka K.",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&fit=crop&q=80",
-    role: "Technical Lead @ Stripe / Mentor",
-    content: "Hey @Tunde, try wrapping your telemetry grid nodes in React.memo() or leverage D3 canvas bindings if node count rises over 200. Check my code snippet in the #lab-code-reviews channel!",
-    time: "5 hours ago",
-    likes: 12
-  }
+const areas: Array<{id: Area; label: string; description: string}> = [
+  {id: 'my-courses', label: 'My courses', description: 'Learn with people on the same path.'},
+  {id: 'discover', label: 'Discover', description: 'Find related learners and communities.'},
+  {id: 'discussions', label: 'Discussions', description: 'Ask, explain, showcase, and solve.'},
+  {id: 'collaboration', label: 'Collaboration', description: 'Study together and build projects.'},
+  {id: 'events', label: 'Events', description: 'Join workshops, office hours, and demos.'},
 ];
 
-const EVENTS_DATA = [
-  {
-    id: "e1",
-    title: "Portfolio Defense: How to present simulated briefs",
-    host: "Yetunde A. (Lead Recruiter)",
-    date: "July 15, 2026",
-    time: "6:00 PM EST",
-    desc: "Learn to articulate your Cohortia milestone projects to hiring managers as actual verified workplace outputs.",
-    rsvped: false
-  },
-  {
-    id: "e2",
-    title: "Figma Typography & Layout Systems",
-    host: "Elena Babalola (Product Designer @ Vanta)",
-    date: "July 18, 2026",
-    time: "2:00 PM EST",
-    desc: "Deep dive into auto-layouts, nested components, typography scaling, and exporting cohesive developer spec handoffs.",
-    rsvped: false
-  },
-  {
-    id: "e3",
-    title: "Vite & React 19 State Management Strategy",
-    host: "Emeka K. (Tech Lead)",
-    date: "July 22, 2026",
-    time: "5:30 PM EST",
-    desc: "Assess modern state container paradigms, reducer abstractions, and render optimization rules in fast client builds.",
-    rsvped: false
-  }
-];
-
-function timeAgo(dateString?: string): string {
-  if (!dateString) return "Recently";
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  if (seconds < 60) return "Just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+function relativeTime(value?: string) {
+  if (!value) return 'Recently';
+  const seconds = Math.max(0, (Date.now() - new Date(value).getTime()) / 1000);
+  if (seconds < 60) return 'Just now'; if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`; if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
 }
 
-function mapPostsToComments(posts: Post[]): Comment[] {
-  return posts.map((post) => ({
-    id: post.id,
-    author: post.author?.name || "Community Member",
-    avatar:
-      post.author?.avatar ||
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&fit=crop&q=80",
-    role: post.author?.role || "Learner",
-    content: post.title ? `${post.title}\n\n${post.content}` : post.content,
-    time: timeAgo(post.createdAt),
-    likes: post.likes || 0,
-    hasLiked: false,
-    replies: (post.comments || []).map((c) => ({
-      id: c.id || `reply-${Math.random().toString(36).slice(2)}`,
-      author: c.author?.name || "Community Member",
-      avatar:
-        c.author?.avatar ||
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&fit=crop&q=80",
-      content: c.content || "",
-      time: timeAgo(c.createdAt),
-    })),
-  }));
-}
+export default function CommunityPage({courses = [], activeCourseId}: CommunityPageProps) {
+  const [area, setArea] = useState<Area>('my-courses');
+  const [selectedCourse, setSelectedCourse] = useState(activeCourseId || '');
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [rooms, setRooms] = useState<StudyRoom[]>([]);
+  const [events, setEvents] = useState<CommunityEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notice, setNotice] = useState('');
+  const [search, setSearch] = useState('');
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [draft, setDraft] = useState({title: '', content: '', postType: 'discussion', category: 'general', module: '', chapter: ''});
 
-export default function CommunityPage({ posts, onCreatePost, onAddComment }: CommunityPageProps) {
-  const [activeChannel, setActiveChannel] = useState("#career-strategy");
-  const [comments, setComments] = useState<Comment[]>(() => (posts?.length ? mapPostsToComments(posts) : INITIAL_COMMENTS));
-  const [newCommentText, setNewCommentText] = useState("");
-  const [events, setEvents] = useState(EVENTS_DATA);
-  const [rsvpSuccessId, setRsvpSuccessId] = useState<string | null>(null);
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState("");
-
-  const channels = [
-    { name: "#announcements", desc: "Official updates, cohort launch reports, and placement announcements." },
-    { name: "#career-strategy", desc: "Job search, interview prep, and portfolio presenting strategies." },
-    { name: "#lab-code-reviews", desc: "Collaborative code feedback, design audits, and telemetry optimizations." },
-    { name: "#general-chat", desc: "Informal conversations, cohort introductions, and peer-to-peer networking." }
-  ];
-
-  useEffect(() => {
-    if (posts?.length) {
-      setComments(mapPostsToComments(posts));
-    }
-  }, [posts]);
-
-  const handlePostComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCommentText.trim()) return;
-
-    if (onCreatePost) {
-      await onCreatePost({
-        title: `${activeChannel} discussion`,
-        content: newCommentText,
-        category: activeChannel,
-      });
-      setNewCommentText("");
-      return;
-    }
-
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      author: "You (Cohort Candidate)",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&fit=crop&q=80",
-      role: "Candidate Explorer",
-      content: newCommentText,
-      time: "Just now",
-      likes: 0
-    };
-
-    setComments([newComment, ...comments]);
-    setNewCommentText("");
+  const loadCommunity = async () => {
+    setLoading(true);
+    try {
+      const [postResponse, roomResponse, eventResponse] = await Promise.all([
+        communityApi.getPosts({courseId: selectedCourse || undefined}), studyRoomsApi.getAll(), eventsApi.getAll(),
+      ]);
+      setPosts(postResponse.data?.posts || []); setRooms(roomResponse.data?.rooms || []); setEvents(eventResponse.data?.events || []);
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'Unable to load community data.'); }
+    finally { setLoading(false); }
   };
+  useEffect(() => { void loadCommunity(); }, [selectedCourse]);
 
-  const handleReply = async (postId: string) => {
-    if (!replyText.trim()) return;
-    if (onAddComment) {
-      await onAddComment(postId, replyText);
-    }
-    setReplyText("");
-    setReplyingTo(null);
+  const visiblePosts = useMemo(() => posts.filter((post) => {
+    const haystack = `${post.title || ''} ${post.content || ''} ${post.category || ''} ${post.author?.name || ''}`.toLowerCase();
+    return !search.trim() || haystack.includes(search.trim().toLowerCase());
+  }), [posts, search]);
+
+  const createPost = async () => {
+    if (!draft.title.trim() || draft.content.trim().length < 10) return;
+    try { await communityApi.createPost({title: draft.title, content: draft.content, postType: draft.postType, category: draft.category, courseId: selectedCourse || null, module: draft.module ? Number(draft.module) : null, chapter: draft.chapter ? Number(draft.chapter) : null}); setDraft({title: '', content: '', postType: 'discussion', category: 'general', module: '', chapter: ''}); setComposerOpen(false); await loadCommunity(); }
+    catch (error) { setNotice(error instanceof Error ? error.message : 'Unable to publish discussion.'); }
   };
+  const reply = async (postId: string, content: string) => { try { await communityApi.addComment(postId, content); await loadCommunity(); } catch (error) { setNotice(error instanceof Error ? error.message : 'Unable to reply.'); } };
+  const joinRoom = async (id: string) => { try { await studyRoomsApi.join(id); await loadCommunity(); } catch (error) { setNotice(error instanceof Error ? error.message : 'Unable to join room.'); } };
+  const rsvp = async (id: string) => { try { await eventsApi.rsvp(id); setNotice('You are on the guest list.'); await loadCommunity(); } catch (error) { setNotice(error instanceof Error ? error.message : 'Unable to RSVP.'); } };
 
-  const handleLike = (id: string) => {
-    setComments(comments.map(c => {
-      if (c.id === id) {
-        return {
-          ...c,
-          likes: c.hasLiked ? c.likes - 1 : c.likes + 1,
-          hasLiked: !c.hasLiked
-        };
-      }
-      return c;
-    }));
-  };
-
-  const handleRsvp = (id: string) => {
-    setEvents(events.map(ev => {
-      if (ev.id === id) {
-        return { ...ev, rsvped: !ev.rsvped };
-      }
-      return ev;
-    }));
-    setRsvpSuccessId(id);
-    setTimeout(() => setRsvpSuccessId(null), 3000);
-  };
-
-  return (
-    <div className="pt-20 pb-8 min-h-screen bg-immersive-bg relative">
-      {/* Background Graphic Accents */}
-      <div className="absolute top-20 right-20 w-[400px] h-[400px] bg-immersive-accent/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 left-20 w-[450px] h-[450px] bg-immersive-secondary/5 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Page Header */}
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 text-center mt-6 mb-10">
-        <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-3">
-          | GLOBAL ALUMNI & STUDENT HUB
-        </span>
-        <h1 className="text-4xl sm:text-6xl font-sans font-extrabold text-immersive-text-primary tracking-tight max-w-4xl mx-auto leading-tight">
-          The Cohortia <span className="text-[#FF4B3E]">Community</span>
-        </h1>
-        <p className="mt-6 text-lg sm:text-xl text-immersive-text-secondary max-w-2xl mx-auto font-medium leading-relaxed">
-          Connect, collaborate, and grow with active learners, expert mentors, and global alumni who are building verified products.
-        </p>
+  return <div className="min-h-screen bg-immersive-bg px-4 pb-12 pt-24 text-left sm:px-6">
+    <div className="mx-auto max-w-[1500px]">
+      <header className="mb-8 flex flex-col gap-5 border-b border-immersive-border pb-8 lg:flex-row lg:items-end lg:justify-between">
+        <div><span className="text-xs font-mono font-bold uppercase tracking-widest text-[#FF4B3E]">Cohortia learning network</span><h1 className="mt-2 text-4xl font-extrabold tracking-tight text-immersive-text-primary sm:text-5xl">Learn together. Build together.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-immersive-text-secondary">A real home for questions, peer support, study partners, mentors, projects, and the people learning alongside you.</p></div>
+        <button onClick={() => setComposerOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-immersive-primary px-4 py-3 text-sm font-bold text-white hover:brightness-110"><Plus className="h-4 w-4" /> Start a discussion</button>
+      </header>
+      {notice && <div className="mb-5 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300"><span>{notice}</span><button onClick={() => setNotice('')}><X className="h-4 w-4" /></button></div>}
+      <div className="grid gap-8 lg:grid-cols-[250px_1fr]">
+        <aside className="space-y-2">
+          {areas.map((item) => <button key={item.id} onClick={() => setArea(item.id)} className={`w-full rounded-2xl border p-4 text-left transition ${area === item.id ? 'border-immersive-primary bg-immersive-primary/10' : 'border-immersive-border bg-immersive-card hover:border-immersive-secondary/50'}`}><span className="block text-sm font-extrabold text-immersive-text-primary">{item.label}</span><span className="mt-1 block text-xs leading-5 text-immersive-text-secondary">{item.description}</span></button>)}
+          <div className="mt-5 rounded-2xl border border-immersive-border bg-immersive-card p-4"><p className="text-xs font-bold uppercase tracking-widest text-immersive-secondary">Your learning context</p><select value={selectedCourse} onChange={(event) => setSelectedCourse(event.target.value)} className="mt-3 w-full rounded-xl border border-immersive-border bg-immersive-bg px-3 py-2 text-xs text-immersive-text-primary"><option value="">All courses</option>{courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select><p className="mt-3 text-xs leading-5 text-immersive-text-secondary">Choose a course to see conversations from learners on the same curriculum.</p></div>
+        </aside>
+        <main className="min-w-0">
+          {area === 'my-courses' && <section className="space-y-6"><SectionTitle icon={<BookOpen className="h-5 w-5" />} title="My course communities" subtitle="The people learning the same material as you." />{courses.length ? <div className="grid gap-4 md:grid-cols-2">{courses.map((course) => <button key={course.id} onClick={() => {setSelectedCourse(course.id); setArea('discussions');}} className="rounded-2xl border border-immersive-border bg-immersive-card p-5 text-left hover:border-immersive-secondary"><p className="text-xs font-bold uppercase tracking-widest text-immersive-secondary">{course.category || 'Course'} · {course.level || 'Self-paced'}</p><h3 className="mt-2 font-extrabold text-immersive-text-primary">{course.title}</h3><p className="mt-2 line-clamp-2 text-sm text-immersive-text-secondary">{course.description || 'Join learners working through this course together.'}</p><span className="mt-4 inline-block text-xs font-bold text-immersive-primary">Open course community →</span></button>)}</div> : <Empty text="Enroll in a course to see your course community here." />}</section>}
+          {area === 'discover' && <section className="space-y-6"><SectionTitle icon={<Users className="h-5 w-5" />} title="Discover your people" subtitle="Explore related courses and find learners with overlapping goals." /><div className="grid gap-4 md:grid-cols-2">{courses.map((course) => <button key={course.id} onClick={() => {setSelectedCourse(course.id); setArea('discussions');}} className="rounded-2xl border border-immersive-border bg-immersive-card p-5 text-left hover:border-immersive-secondary"><h3 className="font-extrabold text-immersive-text-primary">{course.title}</h3><p className="mt-2 text-sm text-immersive-text-secondary">{course.category || 'Learning community'} · {course.level || 'All levels'}</p><span className="mt-4 inline-block text-xs font-bold text-immersive-primary">Meet related learners →</span></button>)}</div></section>}
+          {area === 'discussions' && <section className="space-y-5"><SectionTitle icon={<MessageSquare className="h-5 w-5" />} title="Discussions" subtitle="Ask questions, share work, and help someone move forward." /><div className="flex flex-col gap-3 sm:flex-row"><div className="relative flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-immersive-text-secondary" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search discussions..." className="w-full rounded-xl border border-immersive-border bg-immersive-card py-3 pl-10 pr-3 text-sm text-immersive-text-primary outline-none focus:border-immersive-secondary" /></div><select className="rounded-xl border border-immersive-border bg-immersive-card px-3 text-sm text-immersive-text-primary"><option>All post types</option><option>Questions</option><option>Showcases</option><option>Study partners</option></select></div>{loading ? <Empty text="Loading real conversations..." /> : visiblePosts.length ? <div className="space-y-4">{visiblePosts.map((post) => <PostCard key={post.id} post={post} onReply={reply} onRefresh={loadCommunity} />)}</div> : <Empty text="No discussions yet. Start the first useful conversation for this course." />}</section>}
+          {area === 'collaboration' && <section className="space-y-6"><SectionTitle icon={<Users className="h-5 w-5" />} title="Collaboration" subtitle="Join a live room or find people to build and study with." /><div className="grid gap-4 md:grid-cols-2">{rooms.length ? rooms.map((room) => <div key={room.id} className="rounded-2xl border border-immersive-border bg-immersive-card p-5"><div className="flex items-start justify-between gap-4"><div><h3 className="font-extrabold text-immersive-text-primary">{room.name}</h3><p className="mt-1 text-xs text-immersive-text-secondary">{room.topic} · {room.activeParticipants}/{room.maxParticipants} active</p></div><span className="rounded-full bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-400">Live</span></div><p className="mt-3 text-sm text-immersive-text-secondary">{room.description || 'A focused peer learning room.'}</p><button onClick={() => joinRoom(room.id)} className="mt-4 rounded-lg bg-immersive-secondary px-3 py-2 text-xs font-bold text-immersive-bg">Join room</button></div>) : <Empty text="No live rooms yet. Create a focused study room from your course community." />}</div></section>}
+          {area === 'events' && <section className="space-y-6"><SectionTitle icon={<Calendar className="h-5 w-5" />} title="Events and live learning" subtitle="Show up for workshops, office hours, demos, and peer sessions." /><div className="grid gap-4 md:grid-cols-2">{events.length ? events.map((event) => <div key={event.id} className="rounded-2xl border border-immersive-border bg-immersive-card p-5"><p className="text-xs font-bold uppercase tracking-widest text-immersive-secondary">{event.category} · {event.date}</p><h3 className="mt-2 font-extrabold text-immersive-text-primary">{event.title}</h3><p className="mt-2 text-sm text-immersive-text-secondary">{event.description}</p><div className="mt-4 flex items-center justify-between gap-3"><span className="text-xs text-immersive-text-secondary">{event.time} · {event.rsvpCount} attending</span><button onClick={() => rsvp(event.id)} className="rounded-lg border border-immersive-secondary px-3 py-2 text-xs font-bold text-immersive-secondary">RSVP</button></div></div>) : <Empty text="No upcoming events have been published yet." />}</div></section>}
+        </main>
       </div>
-
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          
-          {/* Left: Community Discussions Forum */}
-          <div className="lg:col-span-8 space-y-6 flex flex-col justify-between">
-            <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl shadow-immersive-shadow text-left">
-              
-              {/* Channel Selector Row */}
-              <div className="space-y-2">
-                <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest">
-                  1. SELECT CHANNEL
-                </span>
-                <div className="flex flex-wrap gap-2.5">
-                  {channels.map((chan) => (
-                    <button
-                      key={chan.name}
-                      onClick={() => setActiveChannel(chan.name)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        activeChannel === chan.name
-                          ? "bg-immersive-primary/15 border border-[#FF4B3E] text-immersive-text-primary"
-                          : "bg-immersive-bg border border-immersive-border hover:border-immersive-secondary/30 text-immersive-text-secondary hover:text-immersive-text-primary"
-                      }`}
-                    >
-                      {chan.name}
-                    </button>
-                  ))}
-                </div>
-                <div className="text-[11px] text-immersive-text-secondary/70 italic font-medium pl-1 pt-1">
-                  Active Channel Focus: {channels.find(c => c.name === activeChannel)?.desc}
-                </div>
-              </div>
-
-              {/* Live comment/discussion list */}
-              <div className="space-y-4 pt-4 border-t border-immersive-border/20">
-                <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest block mb-1">
-                  2. FORUM CONVERSATIONS
-                </span>
-                
-                <div className="space-y-4 max-h-[380px] overflow-y-auto pr-2">
-                  {comments.map((item) => (
-                    <div
-                      key={item.id}
-                      className="p-4 bg-immersive-bg/50 border border-immersive-border/50 hover:border-immersive-secondary/30 rounded-2xl transition-all duration-300"
-                    >
-                      <div className="flex items-start space-x-3.5">
-                        <img
-                          src={item.avatar}
-                          alt={item.author}
-                          className="w-10 h-10 rounded-full border border-immersive-border object-cover shrink-0"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="space-y-2 text-left min-w-0 flex-1">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <span className="text-sm font-bold text-immersive-text-primary mr-2 block sm:inline">
-                                {item.author}
-                              </span>
-                              <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-immersive-secondary/10 text-immersive-secondary border border-immersive-secondary/15">
-                                {item.role}
-                              </span>
-                            </div>
-                            <span className="text-[10px] text-immersive-text-secondary/60 font-medium">
-                              {item.time}
-                            </span>
-                          </div>
-                          <p className="text-xs sm:text-sm text-immersive-text-secondary/95 leading-relaxed font-medium">
-                            {item.content}
-                          </p>
-
-                          {/* Upvote / Reply buttons */}
-                          <div className="flex items-center space-x-4 pt-1">
-                            <button
-                              onClick={() => handleLike(item.id)}
-                              className={`flex items-center space-x-1.5 text-xs font-bold transition-all cursor-pointer ${
-                                item.hasLiked ? "text-rose-500 scale-105" : "text-immersive-text-secondary hover:text-rose-500"
-                              }`}
-                            >
-                              <Heart className={`w-3.5 h-3.5 ${item.hasLiked ? "fill-rose-500 text-rose-500" : ""}`} />
-                              <span>{item.likes} upvotes</span>
-                            </button>
-                            {onAddComment && (
-                              <button
-                                onClick={() => {
-                                  setReplyingTo(replyingTo === item.id ? null : item.id);
-                                  setReplyText("");
-                                }}
-                                className="text-xs font-bold text-immersive-text-secondary hover:text-immersive-secondary transition-all cursor-pointer"
-                              >
-                                Reply
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Replies */}
-                      {item.replies && item.replies.length > 0 && (
-                        <div className="mt-3 pl-14 space-y-3">
-                          {item.replies.map((reply) => (
-                            <div key={reply.id} className="flex items-start space-x-3">
-                              <img
-                                src={reply.avatar}
-                                alt={reply.author}
-                                className="w-8 h-8 rounded-full border border-immersive-border object-cover shrink-0"
-                                referrerPolicy="no-referrer"
-                              />
-                              <div className="bg-immersive-bg/40 border border-immersive-border/40 rounded-xl p-3 flex-1 text-left">
-                                <div className="flex items-center justify-between mb-1">
-                                  <span className="text-xs font-bold text-immersive-text-primary">{reply.author}</span>
-                                  <span className="text-[9px] text-immersive-text-secondary/60">{reply.time}</span>
-                                </div>
-                                <p className="text-xs text-immersive-text-secondary/95 leading-relaxed">{reply.content}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Reply input */}
-                      {onAddComment && replyingTo === item.id && (
-                        <div className="mt-3 pl-14 flex items-center space-x-2">
-                          <input
-                            type="text"
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleReply(item.id);
-                            }}
-                            placeholder="Write a reply..."
-                            className="flex-1 bg-immersive-bg border border-immersive-border rounded-xl px-3 py-2 text-xs text-immersive-text-primary placeholder:text-immersive-text-secondary/50 focus:outline-none focus:border-immersive-secondary"
-                          />
-                          <button
-                            onClick={() => handleReply(item.id)}
-                            disabled={!replyText.trim()}
-                            className="p-2 bg-immersive-secondary text-immersive-bg hover:bg-white disabled:opacity-40 rounded-xl cursor-pointer transition-all"
-                          >
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Submit Post Form */}
-              <form onSubmit={handlePostComment} className="pt-4 border-t border-immersive-border/20 space-y-3">
-                <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest block">
-                  3. JOIN THE CONVERSATION
-                </span>
-                <div className="flex items-center space-x-3 bg-immersive-bg border border-immersive-border rounded-2xl p-2 focus-within:border-immersive-secondary transition-all">
-                  <input
-                    type="text"
-                    value={newCommentText}
-                    onChange={(e) => setNewCommentText(e.target.value)}
-                    placeholder={`Post a message in ${activeChannel}...`}
-                    className="flex-1 bg-transparent px-4 py-3 text-sm text-immersive-text-primary placeholder:text-immersive-text-secondary/50 focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    className="p-3.5 bg-immersive-secondary text-immersive-bg hover:bg-white transition-all rounded-xl shrink-0 cursor-pointer shadow-md shadow-immersive-shadow"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          {/* Right: Upcoming Community Workshops/Events & Study Rooms */}
-          <div className="lg:col-span-4 flex flex-col space-y-6">
-            
-            {/* Active Study Rooms */}
-            <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl shadow-immersive-shadow text-left">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest">
-                  Active Study Rooms
-                </span>
-                <Users className="w-4 h-4 text-[#FF4B3E]" />
-              </div>
-              <p className="text-xs text-immersive-text-secondary font-medium mb-4">
-                Join live text-based peer sessions to collaborate on your cohort projects in real-time.
-              </p>
-              <div className="space-y-3">
-                {[
-                  { name: "Frontend Project Review", users: 12, active: true },
-                  { name: "Design Spec Critique", users: 8, active: true },
-                  { name: "Algorithm Practice", users: 5, active: false }
-                ].map((room, idx) => (
-                  <div key={idx} className="p-3 bg-immersive-bg/40 border border-immersive-border rounded-xl flex items-center justify-between hover:border-immersive-secondary/50 transition-all">
-                    <div className="space-y-1">
-                      <span className="text-xs font-bold text-immersive-text-primary block">{room.name}</span>
-                      <div className="flex items-center space-x-1">
-                        <span className={`w-1.5 h-1.5 rounded-full ${room.active ? 'bg-emerald-500 animate-pulse' : 'bg-immersive-text-secondary'}`} />
-                        <span className="text-[10px] text-immersive-text-secondary">{room.users} peers active</span>
-                      </div>
-                    </div>
-                    <button className="px-3 py-1.5 text-[10px] font-bold text-immersive-bg bg-immersive-secondary hover:bg-white rounded-lg transition-all cursor-pointer">
-                      Join
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl shadow-immersive-shadow text-left flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest">
-                    UPCOMING EVENTS
-                  </span>
-                  <Calendar className="w-4 h-4 text-[#FF4B3E]" />
-                </div>
-                <h3 className="text-xl font-bold text-immersive-text-primary mb-1">
-                  Cohortia Workshops
-                </h3>
-                <p className="text-xs text-immersive-text-secondary font-medium mb-6">
-                  Interactive masterclasses and guest speaker sessions organized live for our active cohort members.
-                </p>
-
-                {/* Event list */}
-                <div className="space-y-4">
-                  {events.map((ev) => (
-                    <div
-                      key={ev.id}
-                      className="p-4 bg-immersive-bg/40 border border-immersive-border rounded-2xl space-y-3 hover:border-[#FF4B3E]/30 transition-all duration-300"
-                    >
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-mono text-immersive-secondary font-bold uppercase block">
-                          {ev.date} @ {ev.time}
-                        </span>
-                        <h4 className="text-xs sm:text-sm font-bold text-immersive-text-primary line-clamp-1">
-                          {ev.title}
-                        </h4>
-                        <span className="text-[10px] text-immersive-text-secondary/70 font-semibold block">
-                          Hosted by: {ev.host}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-immersive-text-secondary leading-relaxed font-medium">
-                        {ev.desc}
-                      </p>
-
-                      {/* RSVP action button */}
-                      <div className="flex items-center justify-between pt-1">
-                        <button
-                          onClick={() => handleRsvp(ev.id)}
-                          className={`py-1.5 px-3 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                            ev.rsvped
-                              ? "bg-emerald-500/15 border border-emerald-500 text-emerald-400"
-                              : "bg-immersive-secondary/15 border border-immersive-secondary/30 text-immersive-secondary hover:bg-immersive-secondary hover:text-immersive-bg"
-                          }`}
-                        >
-                          {ev.rsvped ? "RSVPed ✓" : "RSVP Seat"}
-                        </button>
-                        {rsvpSuccessId === ev.id && ev.rsvped && (
-                          <span className="text-[9px] font-mono font-bold text-emerald-400 animate-pulse">
-                            Calendar synced!
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Community values reminder */}
-              <div className="border-t border-immersive-border pt-5.5 mt-6 flex items-start space-x-2.5 text-[10px] text-immersive-text-secondary font-medium leading-relaxed">
-                <Award className="w-4 h-4 text-immersive-secondary shrink-0 mt-0.5" />
-                <span>Respectful guidelines: Always engage productively. Peer reviews operate under complete academic trust. Have fun shipping!</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {composerOpen && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"><div className="w-full max-w-xl rounded-2xl border border-immersive-border bg-immersive-card p-6"><div className="flex items-center justify-between"><h2 className="text-xl font-extrabold text-immersive-text-primary">Start a discussion</h2><button onClick={() => setComposerOpen(false)}><X className="h-5 w-5 text-immersive-text-secondary" /></button></div><input value={draft.title} onChange={(event) => setDraft({...draft, title: event.target.value})} placeholder="Give your discussion a clear title" className="mt-5 w-full rounded-xl border border-immersive-border bg-immersive-bg p-3 text-sm text-immersive-text-primary outline-none" /><textarea value={draft.content} onChange={(event) => setDraft({...draft, content: event.target.value})} placeholder="What would you like the community to know or help with?" rows={6} className="mt-3 w-full rounded-xl border border-immersive-border bg-immersive-bg p-3 text-sm text-immersive-text-primary outline-none" /><div className="mt-3 flex flex-wrap gap-2"><select value={draft.postType} onChange={(event) => setDraft({...draft, postType: event.target.value})} className="rounded-lg border border-immersive-border bg-immersive-bg px-3 py-2 text-xs text-immersive-text-primary"><option value="discussion">Discussion</option><option value="question">Question</option><option value="showcase">Project showcase</option><option value="study_partner">Study partner</option><option value="resource">Resource</option></select><button onClick={createPost} className="ml-auto rounded-xl bg-immersive-primary px-4 py-2 text-sm font-bold text-white">Publish</button></div></div></div>}
     </div>
-  );
+  </div>;
+}
+
+function SectionTitle({icon, title, subtitle}: {icon: ReactNode; title: string; subtitle: string}) { return <div className="flex items-start gap-3"><div className="rounded-xl bg-immersive-primary/10 p-2 text-immersive-primary">{icon}</div><div><h2 className="text-2xl font-extrabold text-immersive-text-primary">{title}</h2><p className="mt-1 text-sm text-immersive-text-secondary">{subtitle}</p></div></div>; }
+function Empty({text}: {text: string}) { return <div className="rounded-2xl border border-dashed border-immersive-border bg-immersive-card p-10 text-center text-sm text-immersive-text-secondary">{text}</div>; }
+function PostCard({post, onReply, onRefresh}: {key?: string; post: Post; onReply: (id: string, content: string) => Promise<void>; onRefresh?: () => Promise<void>}) {
+  const [replyText, setReplyText] = useState(''); const [bookmarked, setBookmarked] = useState(Boolean(post.bookmarked)); const [reported, setReported] = useState(false);
+  const replyNow = async () => { if (!replyText.trim()) return; await onReply(post.id, replyText); setReplyText(''); };
+  return <article className="rounded-2xl border border-immersive-border bg-immersive-card p-5"><div className="flex items-start justify-between gap-4"><div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-immersive-secondary/10 px-2 py-1 text-[10px] font-bold uppercase text-immersive-secondary">{post.postType || 'discussion'}</span>{post.courseId && <span className="text-[10px] text-immersive-text-secondary">Course discussion</span>}{post.isSolved && <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400"><CheckCircle2 className="h-3 w-3" /> Solved</span>}</div><h3 className="mt-2 text-lg font-extrabold text-immersive-text-primary">{post.title}</h3></div><span className="text-xs text-immersive-text-secondary">{relativeTime(post.createdAt)}</span></div><p className="mt-3 whitespace-pre-line text-sm leading-6 text-immersive-text-secondary">{post.content}</p><div className="mt-4 flex flex-wrap items-center gap-3 border-t border-immersive-border pt-3 text-xs text-immersive-text-secondary"><span className="font-bold text-immersive-text-primary">{post.author?.name || 'Learner'}</span><span>{post.author?.desiredField || post.author?.role || 'Learner'}</span><span>{post.replies || post.comments?.length || 0} replies</span><button onClick={async () => {const result = await communityApi.toggleBookmark(post.id); setBookmarked(Boolean(result.data?.bookmarked));}} className="ml-auto inline-flex items-center gap-1 hover:text-immersive-secondary"><Bookmark className={`h-3.5 w-3.5 ${bookmarked ? 'fill-current text-immersive-secondary' : ''}`} /> {bookmarked ? 'Saved' : 'Save'}</button><button onClick={async () => {await communityApi.reportPost(post.id, 'Inappropriate or harmful content'); setReported(true);}} disabled={reported} className="inline-flex items-center gap-1 hover:text-rose-400"><Flag className="h-3.5 w-3.5" /> {reported ? 'Reported' : 'Report'}</button></div>{post.comments?.slice(0, 3).map((comment: any) => <div key={comment.id} className="mt-3 rounded-xl bg-immersive-bg/60 p-3"><p className="text-xs font-bold text-immersive-text-primary">{comment.author?.name || 'Learner'} <span className="ml-2 font-normal text-immersive-text-secondary">{relativeTime(comment.createdAt)}</span></p><p className="mt-1 text-sm text-immersive-text-secondary">{comment.content}</p></div>)}<div className="mt-4 flex gap-2"><input value={replyText} onChange={(event) => setReplyText(event.target.value)} onKeyDown={(event) => {if (event.key === 'Enter') void replyNow();}} placeholder="Add a helpful reply..." className="min-w-0 flex-1 rounded-xl border border-immersive-border bg-immersive-bg px-3 py-2 text-xs text-immersive-text-primary outline-none" /><button onClick={() => void replyNow()} className="rounded-xl bg-immersive-secondary px-3 text-immersive-bg"><Send className="h-4 w-4" /></button></div></article>;
 }

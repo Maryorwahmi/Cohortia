@@ -175,6 +175,15 @@ export const communityPosts = sqliteTable('community_posts', {
   title: text('title').notNull(),
   content: text('content').notNull(),
   category: text('category').notNull(),
+  courseId: text('course_id'),
+  module: integer('module'),
+  chapter: integer('chapter'),
+  lessonId: text('lesson_id'),
+  postType: text('post_type').notNull().default('discussion'),
+  status: text('status').notNull().default('published'), // published, hidden, removed
+  isPinned: integer('is_pinned', { mode: 'boolean' }).notNull().default(false),
+  isLocked: integer('is_locked', { mode: 'boolean' }).notNull().default(false),
+  isSolved: integer('is_solved', { mode: 'boolean' }).notNull().default(false),
   likes: integer('likes').notNull().default(0),
   replies: integer('replies').notNull().default(0),
   createdAt: text('created_at').notNull(),
@@ -187,9 +196,45 @@ export const communityComments = sqliteTable('community_comments', {
   postId: text('post_id').notNull(),
   userId: text('user_id').notNull(),
   content: text('content').notNull(),
+  status: text('status').notNull().default('published'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+export const communityReports = sqliteTable('community_reports', {
+  id: text('id').primaryKey(),
+  reporterUserId: text('reporter_user_id').notNull(),
+  postId: text('post_id'),
+  commentId: text('comment_id'),
+  reason: text('reason').notNull(),
+  details: text('details'),
+  status: text('status').notNull().default('open'), // open, reviewing, resolved, dismissed
+  resolvedByUserId: text('resolved_by_user_id'),
+  resolution: text('resolution'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  statusCreatedIdx: index('community_reports_status_created_idx').on(table.status, table.createdAt),
+}));
+
+export const communityModerationActions = sqliteTable('community_moderation_actions', {
+  id: text('id').primaryKey(),
+  moderatorUserId: text('moderator_user_id').notNull(),
+  targetUserId: text('target_user_id'),
+  postId: text('post_id'),
+  commentId: text('comment_id'),
+  action: text('action').notNull(),
+  reason: text('reason'),
+  createdAt: text('created_at').notNull(),
+});
+
+export const communityBookmarks = sqliteTable('community_bookmarks', {
+  userId: text('user_id').notNull(),
+  postId: text('post_id').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (table) => ({
+  bookmarkPk: primaryKey({ columns: [table.userId, table.postId] }),
+}));
 
 // Internship Briefs table
 export const internshipBriefs = sqliteTable('internship_briefs', {
@@ -504,6 +549,12 @@ export const learningBoardScreens = sqliteTable('learning_board_screens', {
   narratorSegment: text('narrator_segment'),
   narratorText: text('narrator_text'),
   narratorDuration: integer('narrator_duration'),
+  audioUrl: text('audio_url'),
+  audioMimeType: text('audio_mime_type'),
+  audioDuration: integer('audio_duration'),
+  audioVoice: text('audio_voice'),
+  audioModel: text('audio_model'),
+  audioSourceHash: text('audio_source_hash'),
   keyIdeaTitle: text('key_idea_title'),
   keyIdeaText: text('key_idea_text'),
   contentHtml: text('content_html'), // Full HTML content

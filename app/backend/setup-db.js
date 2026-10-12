@@ -104,6 +104,15 @@ const statements = [
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     category TEXT NOT NULL,
+    course_id TEXT,
+    module INTEGER,
+    chapter INTEGER,
+    lesson_id TEXT,
+    post_type TEXT NOT NULL DEFAULT 'discussion',
+    status TEXT NOT NULL DEFAULT 'published',
+    is_pinned INTEGER NOT NULL DEFAULT 0,
+    is_locked INTEGER NOT NULL DEFAULT 0,
+    is_solved INTEGER NOT NULL DEFAULT 0,
     likes INTEGER NOT NULL DEFAULT 0,
     replies INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
@@ -114,6 +123,7 @@ const statements = [
     post_id TEXT NOT NULL,
     user_id TEXT NOT NULL,
     content TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'published',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`,
@@ -212,6 +222,35 @@ const statements = [
     user_id TEXT NOT NULL,
     type TEXT NOT NULL DEFAULT 'like',
     created_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS community_reports (
+    id TEXT PRIMARY KEY,
+    reporter_user_id TEXT NOT NULL,
+    post_id TEXT,
+    comment_id TEXT,
+    reason TEXT NOT NULL,
+    details TEXT,
+    status TEXT NOT NULL DEFAULT 'open',
+    resolved_by_user_id TEXT,
+    resolution TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS community_moderation_actions (
+    id TEXT PRIMARY KEY,
+    moderator_user_id TEXT NOT NULL,
+    target_user_id TEXT,
+    post_id TEXT,
+    comment_id TEXT,
+    action TEXT NOT NULL,
+    reason TEXT,
+    created_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS community_bookmarks (
+    user_id TEXT NOT NULL,
+    post_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, post_id)
   )`,
   `CREATE TABLE IF NOT EXISTS user_activity_log (
     id TEXT PRIMARY KEY,

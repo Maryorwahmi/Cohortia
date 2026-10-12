@@ -36,6 +36,8 @@ export default function AdminDashboard() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [communityReports, setCommunityReports] = useState<Array<Record<string, any>>>([]);
+  const [communityStats, setCommunityStats] = useState({totalPosts: 0, openReports: 0, hiddenPosts: 0});
 
   const loadData = async () => {
     setLoading(true);
@@ -44,6 +46,9 @@ export default function AdminDashboard() {
       const courseResponse = await adminApi.getCourses();
       setCourses(courseResponse.data?.courses || []);
       setIsAlphaAdmin(Boolean(courseResponse.data?.isAlphaAdmin));
+      const [reportResponse, statsResponse] = await Promise.all([adminApi.getCommunityReports(), adminApi.getCommunityStats()]);
+      setCommunityReports(reportResponse.data?.reports || []);
+      setCommunityStats(statsResponse.data || {totalPosts: 0, openReports: 0, hiddenPosts: 0});
       if (user?.adminRole === 'alpha') {
         const userResponse = await adminApi.getUsers();
         setUsers(userResponse.data?.users || []);
@@ -209,6 +214,17 @@ export default function AdminDashboard() {
 
       {error && <div role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">{error}</div>}
       {notice && <div role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">{notice}</div>}
+
+      <section className="rounded-2xl border border-immersive-border bg-immersive-card p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div><h2 className="text-lg font-extrabold text-immersive-text-primary">Community control</h2><p className="mt-1 text-xs text-immersive-text-secondary">Review reports and keep course conversations useful and safe.</p></div>
+          <div className="flex flex-wrap gap-2 text-xs"><span className="rounded-full bg-immersive-bg px-3 py-1.5 text-immersive-text-secondary">{communityStats.totalPosts} posts</span><span className="rounded-full bg-amber-500/10 px-3 py-1.5 text-amber-400">{communityStats.openReports} open reports</span><span className="rounded-full bg-rose-500/10 px-3 py-1.5 text-rose-400">{communityStats.hiddenPosts} hidden</span></div>
+        </div>
+        <div className="mt-5 space-y-3">
+          {communityReports.filter((report) => report.status === 'open' || report.status === 'reviewing').slice(0, 8).map((report) => <div key={report.id} className="rounded-xl border border-immersive-border bg-immersive-bg/60 p-4"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-widest text-amber-400">{report.status} · {report.reason}</p><h3 className="mt-1 text-sm font-bold text-immersive-text-primary">{report.post?.title || 'Reported community content'}</h3><p className="mt-1 line-clamp-2 text-xs text-immersive-text-secondary">{report.post?.content || report.details || 'No additional details.'}</p></div><div className="flex shrink-0 gap-2"><button onClick={async () => {await adminApi.moderateCommunityPost(report.postId, {status: 'hidden', reason: report.reason}); await adminApi.updateCommunityReport(report.id, 'resolved', 'Content hidden by moderator'); await loadData();}} className="rounded-lg bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-400">Hide post</button><button onClick={async () => {await adminApi.updateCommunityReport(report.id, 'dismissed', 'Reviewed and dismissed'); await loadData();}} className="rounded-lg border border-immersive-border px-3 py-2 text-xs font-bold text-immersive-text-secondary">Dismiss</button></div></div></div>)}
+          {!communityReports.some((report) => report.status === 'open' || report.status === 'reviewing') && <p className="rounded-xl border border-dashed border-immersive-border p-6 text-center text-sm text-immersive-text-secondary">No open community reports.</p>}
+        </div>
+      </section>
 
       {isAlphaAdmin && (
         <section className="rounded-2xl border border-immersive-border bg-immersive-card p-5 sm:p-6">
