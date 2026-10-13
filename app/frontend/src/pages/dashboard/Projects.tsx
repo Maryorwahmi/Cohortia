@@ -3,7 +3,7 @@ import ProjectsPage from '../../components/dashboard/ProjectsPage';
 import {useAuth} from '../../context/AuthContext';
 import {backendUserToPreferences} from '../../types';
 import {useTrackCurriculum} from '../../hooks/useTrackCurriculum';
-import {projectApi} from '../../services/api';
+import {projectApi, CourseFinalPackage} from '../../services/api';
 import {ProjectBrief} from '../../data/dashboardData';
 import RoadmapSummary from '../../components/dashboard/RoadmapSummary';
 
@@ -21,6 +21,8 @@ export default function Projects() {
   const {user} = useAuth();
   const {lessons, completedSteps, loading: curriculumLoading, error: curriculumError} = useTrackCurriculum();
   const [submissions, setSubmissions] = useState<BackendSubmission[]>([]);
+  const [courseFinal, setCourseFinal] = useState<CourseFinalPackage | null>(null);
+  const [courseFinalLoading, setCourseFinalLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,15 +38,39 @@ export default function Projects() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (!user) {
+  const userProfile = user ? backendUserToPreferences(user) : null;
+  const activeCourseId = lessons.find((lesson) => lesson.trackId)?.trackId || null;
+
+  useEffect(() => {
+    if (!activeCourseId) {
+      setCourseFinal(null);
+      setCourseFinalLoading(false);
+      return;
+    }
+    setCourseFinalLoading(true);
+    projectApi.getCourseFinal(activeCourseId)
+      .then((res) => setCourseFinal(res.data || null))
+      .catch(() => setCourseFinal(null))
+      .finally(() => setCourseFinalLoading(false));
+  }, [activeCourseId]);
+
+  if (!user || !userProfile) {
     return null;
   }
 
-  const userProfile = backendUserToPreferences(user);
-
-  const projects: ProjectBrief[] = lessons
-    .filter((l) => l.type === 'project')
-    .map((l) => ({
+  const projects: ProjectBrief[] = courseFinal?.capstones?.length
+    ? courseFinal.capstones.map((capstone) => ({
+      id: capstone.id,
+      title: capstone.title,
+      client: 'CS50 · Final Capstone',
+      logo: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=100&fit=crop&q=80',
+      difficulty: 'Course final',
+      duration: capstone.estimatedTime || 'Self-paced',
+      description: capstone.description,
+      deliverables: capstone.requirements,
+      tasks: capstone.rubric.map((item) => `${item.criterion} · ${item.weight}%`),
+    }))
+    : lessons.filter((l) => l.type === 'project').map((l) => ({
       id: l.id,
       title: l.title,
       client: 'Cohortia',
@@ -74,7 +100,7 @@ export default function Projects() {
     }
   };
 
-  if (curriculumLoading || loading) {
+  if (curriculumLoading || loading || courseFinalLoading) {
     return (
       <div className="min-h-screen bg-immersive-bg flex items-center justify-center">
         <div className="animate-pulse text-immersive-secondary font-mono text-sm">Loading projects...</div>
@@ -95,6 +121,7 @@ export default function Projects() {
         projects={projects.length ? projects : undefined}
         submissions={submissions}
         onSubmit={handleSubmit}
+        courseFinal={courseFinal}
       />
     </div>
   );

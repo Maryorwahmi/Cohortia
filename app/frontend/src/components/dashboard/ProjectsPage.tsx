@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BookOpen, FolderUp, Check, Play, AlertCircle, ShieldCheck, Sparkles, Send, Award, Clock, Calendar, Compass, Info, CheckCircle, Code } from "lucide-react";
 import { UserPreferences, CohortTrackId } from "../../types";
 import { TRACK_PROJECT_BRIEFS, ProjectBrief, TRACK_CURRICULA } from "../../data/dashboardData";
 import InteractiveSandbox from "./InteractiveSandbox";
 import { chatApi } from "../../services/api";
+import { CourseFinalPackage } from "../../services/api";
+import CourseFinalBoard from "./CourseFinalBoard";
 
 interface ProjectsPageProps {
   userProfile: UserPreferences;
@@ -22,6 +24,7 @@ interface ProjectsPageProps {
     submission?: { id?: string; feedback?: string; score?: number };
     error?: string;
   }>;
+  courseFinal?: CourseFinalPackage | null;
 }
 
 interface EvaluationResult {
@@ -31,13 +34,16 @@ interface EvaluationResult {
   checklistStatuses: boolean[];
 }
 
-export default function ProjectsPage({ userProfile, projects, submissions, onSubmit }: ProjectsPageProps) {
+export default function ProjectsPage({ userProfile, projects, submissions, onSubmit, courseFinal }: ProjectsPageProps) {
   const activeTrackId = userProfile.track || "frontend";
   const briefs = projects?.length
     ? projects
     : TRACK_PROJECT_BRIEFS[activeTrackId] || TRACK_PROJECT_BRIEFS.frontend;
   
   const [selectedBrief, setSelectedBrief] = useState<ProjectBrief | null>(briefs[0] || null);
+  useEffect(() => {
+    setSelectedBrief((current) => briefs.find((brief) => brief.id === current?.id) || briefs[0] || null);
+  }, [courseFinal?.courseId, briefs.length]);
   const milestones = TRACK_CURRICULA[activeTrackId as CohortTrackId] || TRACK_CURRICULA.frontend;
   const [selectedMilestoneIndex, setSelectedMilestoneIndex] = useState<number>(0);
   const [workspaceMode, setWorkspaceMode] = useState<"overview" | "codebase" | "ide" | "submit">("overview");
@@ -267,21 +273,23 @@ Keep your feedback professional, realistic, and warm.`;
 
       <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
 
+        {!courseFinal && <>
+
         {/* Title */}
         <div className="mb-8">
           <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-2">
             | EXPERIENTIAL EXPERT WORKPLACE
           </span>
           <h1 className="text-3xl sm:text-4xl font-sans font-extrabold text-immersive-text-primary tracking-tight">
-            Active Client Briefs
+            {courseFinal ? 'Course Project Studio' : 'Active Client Briefs'}
           </h1>
           <p className="text-sm text-immersive-text-secondary max-w-2xl font-medium mt-1">
-            Build and submit verified solutions for active client requirements. Unlock simulated evaluations scored dynamically based on your curriculum benchmarks.
+            {courseFinal ? 'Choose a CS50 capstone, review the evidence standard, and prepare a submission that can be evaluated against the course rubric.' : 'Build and submit verified solutions for active client requirements. Unlock simulated evaluations scored dynamically based on your curriculum benchmarks.'}
           </p>
         </div>
 
         {/* Gantt-style timeline visualization */}
-        <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 mb-8 shadow-xl shadow-immersive-shadow relative overflow-hidden">
+        <div className={`${courseFinal ? 'hidden' : 'bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 mb-8 shadow-xl shadow-immersive-shadow relative overflow-hidden'}`}>
           <div className="absolute top-0 right-0 w-48 h-48 bg-immersive-secondary/5 rounded-full blur-3xl pointer-events-none" />
           
           <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-immersive-border/40 pb-4 mb-6">
@@ -971,7 +979,11 @@ Keep your feedback professional, realistic, and warm.`;
           </div>
 
         </div>
+        </>}
 
+        {courseFinal && <CourseFinalBoard courseFinal={courseFinal} />}
+
+        {!courseFinal && <>
         {/* Academic Graduation & Evaluation Board */}
         <div className="mt-16 pt-12 border-t border-immersive-border/40 space-y-8">
           <div>
@@ -1146,6 +1158,7 @@ Keep your feedback professional, realistic, and warm.`;
 
           </div>
         </div>
+        </>}
 
       </div>
     </div>

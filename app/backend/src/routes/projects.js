@@ -1,13 +1,56 @@
 import { Hono } from 'hono';
 import { db } from '../db/index.js';
-import { projectTemplates, userProjectSubmissions, userRoadmaps } from '../db/schema.js';
-import { eq, and } from 'drizzle-orm';
+import { projectTemplates, userProjectSubmissions, userRoadmaps, courseCapstones, courseFinalExams, courseFinalExamQuestions } from '../db/schema.js';
+import { eq, and, asc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { logActivity } from '../lib/activity.js';
 import { createNotification } from '../lib/notifications.js';
 import { callGemini } from '../lib/gemini.js';
 
 const projects = new Hono();
+
+function parseJson(value, fallback = []) {
+  try { return value ? JSON.parse(value) : fallback; } catch { return fallback; }
+}
+
+// Course-specific capstone and exam blueprint. Answer keys never leave the server.
+projects.get('/course/:courseId/final', async (c) => {
+  const courseId = c.req.param('courseId');
+  const [exam] = await db.select().from(courseFinalExams).where(eq(courseFinalExams.courseId, courseId)).limit(1);
+  const capstones = await db.select().from(courseCapstones).where(eq(courseCapstones.courseId, courseId)).orderBy(asc(courseCapstones.optionNumber));
+  const questions = exam
+    ? await db.select().from(courseFinalExamQuestions).where(eq(courseFinalExamQuestions.examId, exam.id)).orderBy(asc(courseFinalExamQuestions.questionNumber))
+    : [];
+
+  if (!exam && capstones.length === 0) return c.json({ success: false, error: 'Course final package not found' }, 404);
+
+  return c.json({
+    success: true,
+    data: {
+      courseId,
+      capstones: capstones.map((item) => ({
+        id: item.id,
+        optionNumber: item.optionNumber,
+        title: item.title,
+        description: item.description,
+        requirements: parseJson(item.requirements),
+        stretchGoals: parseJson(item.stretchGoals),
+        rubric: parseJson(item.rubric),
+        estimatedTime: item.estimatedTime,
+      })),
+      exam: exam ? {
+        id: exam.id,
+        title: exam.title,
+        instructions: exam.instructions,
+        timeLimitMinutes: exam.timeLimitMinutes,
+        passingScore: exam.passingScore,
+        questionCount: questions.length,
+        sections: [...new Set(questions.map((question) => question.section))],
+        questions: questions.map(({ answerKey, ...question }) => question),
+      } : null,
+    },
+  });
+});
 
 function buildFallbackProjects(roadmap) {
   let parsed = null;
