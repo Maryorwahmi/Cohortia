@@ -96,7 +96,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
   }
 
   const sections = [];
-  const sectionMatches = [...examText.matchAll(/^(?:###\s+Section\s+(.+)|\*\*Section\s+([^*]+)\*\*)\s*$/gim)];
+  const sectionMatches = [...examText.matchAll(/^(?:###\s+(?:Section|Part)\s+(.+)|\*\*(?:Section|Part)\s+([^*]+)\*\*)\s*$/gim)];
   for (let index = 0; index < sectionMatches.length; index += 1) {
     const match = sectionMatches[index];
     const sectionTitle = clean(match[1] || match[2]);
@@ -108,17 +108,15 @@ export function parseCourseFinals(markdown, sourcePath = null) {
 
   const questions = [];
   for (const section of sections) {
-    const questionMatches = [...section.text.matchAll(/^(?:\s*(\d+)\.\s*)?\*\*Question(?:\s+(\d+))?:\*\*\s*([\s\S]*?)(?=^(?:\s*\d+\.\s*)?\*\*Question(?:\s+\d+)?:\*\*|^---\s*$|(?![\s\S]))/gim)];
-    for (let index = 0; index < questionMatches.length; index += 1) {
-      const match = questionMatches[index];
-      const questionNumber = Number(match[2] || match[1] || questions.length + 1);
-      const block = match[3].trim();
-      const answerMatch = block.match(/^\s*\*\*Answer(?:\s+\d+)?\s*:\*\*\s*([\s\S]*)$/im);
+    const questionMatches = [...section.text.matchAll(/^(?:\s*(\d+)\.\s*)?\*\*Question(?:\s+\d+(?:\.\d+)?)?(?:\s*\([^)]*\))?:\*\*\s*([\s\S]*?)(?=^(?:\s*\d+\.\s*)?\*\*Question(?:\s+\d+(?:\.\d+)?)?(?:\s*\([^)]*\))?:\*\*|^---\s*$|(?![\s\S]))/gim)];
+    for (const match of questionMatches) {
+      const block = match[2].trim();
+      const answerMatch = block.match(/^\s*\*\*Answer(?:\s+\d+(?:\.\d+)?)?\s*:\*\*\s*([\s\S]*)$/im);
       const prompt = answerMatch
         ? block.slice(0, answerMatch.index).trim()
         : block;
       questions.push({
-        questionNumber,
+        questionNumber: questions.length + 1,
         section: section.title,
         type: inferQuestionType(prompt),
         prompt,
@@ -136,7 +134,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     exam: examText ? {
       title: 'Final Examination',
       instructions: (() => {
-        const contentStart = examText.search(/^(?:###\s+Section\b|\*\*Section\b|(?:\d+\.\s*)?\*\*Question\b)/im);
+        const contentStart = examText.search(/^(?:###\s+(?:Section|Part)\b|\*\*(?:Section|Part)\b|(?:\d+\.\s*)?\*\*Question\b)/im);
         return clean(contentStart >= 0 ? examText.slice(0, contentStart) : examText);
       })(),
       questions,

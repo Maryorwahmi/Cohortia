@@ -68,7 +68,7 @@ Answer all questions.
 `;
   const exam = parseCourseFinals(source).exam;
   assert.equal(exam.questions.length, 3);
-  assert.deepEqual(exam.questions.map((question) => question.questionNumber), [1, 2, 1]);
+  assert.deepEqual(exam.questions.map((question) => question.questionNumber), [1, 2, 3]);
   assert.deepEqual(exam.questions.map((question) => question.section), [
     '1: Foundations (2 Questions)',
     '1: Foundations (2 Questions)',
@@ -78,6 +78,63 @@ Answer all questions.
   assert.equal(exam.questions[1].answer, 'A. First choice.');
   assert.equal(exam.questions[2].answer, 'One appropriate application.');
   assert.equal(exam.instructions, 'Answer all questions.');
+});
+
+test('final exam parser assigns unique numbers to decimal question labels across parts', () => {
+  const source = `---
+course_id: decimal-course
+---
+## Final Examination
+Instructions for this exam.
+
+### Part 1: Fundamentals
+
+**Question 1.1:** Define a planning heuristic.
+**Answer 1.1:** A function estimating cost to a goal.
+
+**Question 1.2:** Why use an admissible heuristic?
+**Answer 1.2:** It does not overestimate the true remaining cost.
+
+### Part 2: Application
+
+**Question 2.1:** Describe a planning use case.
+**Answer 2.1:** Scheduling actions with dependencies.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 3);
+  assert.deepEqual(exam.questions.map((question) => question.questionNumber), [1, 2, 3]);
+  assert.deepEqual(exam.questions.map((question) => question.section), [
+    '1: Fundamentals',
+    '1: Fundamentals',
+    '2: Application',
+  ]);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'A function estimating cost to a goal.',
+    'It does not overestimate the true remaining cost.',
+    'Scheduling actions with dependencies.',
+  ]);
+  assert.equal(exam.instructions, 'Instructions for this exam.');
+});
+
+test('final exam parser supports question labels with parenthesized categories and unnumbered answers', () => {
+  const source = `---
+course_id: categorized-questions
+---
+## Final Examination
+
+**Question 1 (Concept Definition):** Define visual odometry.
+**Answer:** Visual odometry estimates camera motion from consecutive images.
+
+**Question 2 (Code Tracing):** What does the function return?
+**Answer:** It returns the estimated displacement.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 2);
+  assert.deepEqual(exam.questions.map((question) => question.questionNumber), [1, 2]);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'Visual odometry estimates camera motion from consecutive images.',
+    'It returns the estimated displacement.',
+  ]);
 });
 
 test('multiple-choice grading awards only the selected correct option', () => {

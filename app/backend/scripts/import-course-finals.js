@@ -31,13 +31,19 @@ for (const file of files) {
   if (!finals.courseId || (!finals.capstone.length && !finals.exam)) continue;
   if (requestedCourse && finals.courseId !== requestedCourse) continue;
   const courseId = finals.courseId;
+  const duplicateQuestionNumbers = finals.exam
+    ? finals.exam.questions.some((question, index, questions) =>
+      questions.findIndex((candidate) => candidate.questionNumber === question.questionNumber) !== index)
+    : false;
   const invalidExamReason = !finals.exam
     ? null
     : !finals.exam.questions.length
       ? 'no questions parsed'
-      : finals.exam.questions.some((question) => !question.answer.trim())
-        ? `${finals.exam.questions.filter((question) => !question.answer.trim()).length} question(s) missing answer keys`
-        : null;
+      : duplicateQuestionNumbers
+        ? 'duplicate question numbers parsed'
+        : finals.exam.questions.some((question) => !question.answer.trim())
+          ? `${finals.exam.questions.filter((question) => !question.answer.trim()).length} question(s) missing answer keys`
+          : null;
   await client.execute({ sql: 'DELETE FROM course_capstones WHERE course_id = ?', args: [courseId] });
   for (const project of finals.capstone) {
     await client.execute({
