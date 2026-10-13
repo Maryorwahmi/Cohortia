@@ -96,32 +96,35 @@ export function parseCourseFinals(markdown, sourcePath = null) {
   }
 
   const sections = [];
-  const sectionMatches = [...examText.matchAll(/^###\s+Section\s+(.+)$/gim)];
+  const sectionMatches = [...examText.matchAll(/^(?:###\s+Section\s+(.+)|\*\*Section\s+([^*]+)\*\*)\s*$/gim)];
   for (let index = 0; index < sectionMatches.length; index += 1) {
     const match = sectionMatches[index];
-    const sectionTitle = clean(match[1]);
+    const sectionTitle = clean(match[1] || match[2]);
     const start = match.index + match[0].length;
     const end = sectionMatches[index + 1]?.index ?? examText.length;
     sections.push({ title: sectionTitle, text: examText.slice(start, end).trim() });
   }
+  if (!sections.length && examText) sections.push({ title: 'Final Examination', text: examText });
+
   const questions = [];
   for (const section of sections) {
-    const questionMatches = [...section.text.matchAll(/^\*\*Question\s+(\d+):\*\*\s*([\s\S]*?)(?=^\*\*Answer\s+\1:\*\*|^\*\*Question\s+\d+:\*\*|^---\s*$|$)/gim)];
-    for (const match of questionMatches) {
-      const prompt = match[2].trim();
+    const questionMatches = [...section.text.matchAll(/^(?:\s*(\d+)\.\s*)?\*\*Question(?:\s+(\d+))?:\*\*\s*([\s\S]*?)(?=^(?:\s*\d+\.\s*)?\*\*Question(?:\s+\d+)?:\*\*|^---\s*$|(?![\s\S]))/gim)];
+    for (let index = 0; index < questionMatches.length; index += 1) {
+      const match = questionMatches[index];
+      const questionNumber = Number(match[2] || match[1] || questions.length + 1);
+      const block = match[3].trim();
+      const answerMatch = block.match(/^\s*\*\*Answer(?:\s+\d+)?\s*:\*\*\s*([\s\S]*)$/im);
+      const prompt = answerMatch
+        ? block.slice(0, answerMatch.index).trim()
+        : block;
       questions.push({
-        questionNumber: Number(match[1]),
+        questionNumber,
         section: section.title,
         type: inferQuestionType(prompt),
         prompt,
-        answer: '',
+        answer: answerMatch?.[1].trim() || '',
         points: 1,
       });
-    }
-    const answerMatches = [...section.text.matchAll(/^\*\*Answer\s+(\d+):\*\*\s*([\s\S]*?)(?=^\*\*Question\s+\d+:\*\*|^\*\*Answer\s+\d+:\*\*|^---\s*$|$)/gim)];
-    for (const answer of answerMatches) {
-      const question = questions.find((item) => item.section === section.title && item.questionNumber === Number(answer[1]));
-      if (question) question.answer = answer[2].trim();
     }
   }
 
@@ -132,7 +135,10 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     capstone: projects,
     exam: examText ? {
       title: 'Final Examination',
-      instructions: clean(examText.split(/^###\s+/m)[0]),
+      instructions: (() => {
+        const contentStart = examText.search(/^(?:###\s+Section\b|\*\*Section\b|(?:\d+\.\s*)?\*\*Question\b)/im);
+        return clean(contentStart >= 0 ? examText.slice(0, contentStart) : examText);
+      })(),
       questions,
       passingScore: 70,
       timeLimitMinutes: examTimeLimit(meta, examText),

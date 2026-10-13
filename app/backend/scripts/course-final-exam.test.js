@@ -44,6 +44,42 @@ test('final exam parser preserves an explicit course time limit', () => {
   assert.equal(parseCourseFinals(markdown(45)).exam.timeLimitMinutes, 45);
 });
 
+test('final exam parser supports numbered questions with bold section and answer labels', () => {
+  const source = `---
+course_id: numbered-course
+---
+## Final Examination
+Answer all questions.
+
+**Section 1: Foundations (2 Questions)**
+
+1.  **Question:** Explain what an agent is.
+    **Answer:** An agent perceives its environment and takes actions toward a goal.
+
+2.  **Question:** Which option is correct?
+    A. First choice
+    B. Second choice
+    **Answer:** A. First choice.
+
+**Section 2: Application (1 Question)**
+
+1.  **Question:** Describe one application.
+    **Answer:** One appropriate application.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 3);
+  assert.deepEqual(exam.questions.map((question) => question.questionNumber), [1, 2, 1]);
+  assert.deepEqual(exam.questions.map((question) => question.section), [
+    '1: Foundations (2 Questions)',
+    '1: Foundations (2 Questions)',
+    '2: Application (1 Question)',
+  ]);
+  assert.equal(exam.questions[0].answer, 'An agent perceives its environment and takes actions toward a goal.');
+  assert.equal(exam.questions[1].answer, 'A. First choice.');
+  assert.equal(exam.questions[2].answer, 'One appropriate application.');
+  assert.equal(exam.instructions, 'Answer all questions.');
+});
+
 test('multiple-choice grading awards only the selected correct option', () => {
   const question = {
     prompt: 'Which choice identifies the primary key?\nA. A unique row identifier\nB. A database backup',

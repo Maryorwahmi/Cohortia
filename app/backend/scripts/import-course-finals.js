@@ -31,6 +31,13 @@ for (const file of files) {
   if (!finals.courseId || (!finals.capstone.length && !finals.exam)) continue;
   if (requestedCourse && finals.courseId !== requestedCourse) continue;
   const courseId = finals.courseId;
+  const invalidExamReason = !finals.exam
+    ? null
+    : !finals.exam.questions.length
+      ? 'no questions parsed'
+      : finals.exam.questions.some((question) => !question.answer.trim())
+        ? `${finals.exam.questions.filter((question) => !question.answer.trim()).length} question(s) missing answer keys`
+        : null;
   await client.execute({ sql: 'DELETE FROM course_capstones WHERE course_id = ?', args: [courseId] });
   for (const project of finals.capstone) {
     await client.execute({
@@ -41,7 +48,7 @@ for (const file of files) {
         finals.sourcePath, now, now],
     });
   }
-  if (finals.exam) {
+  if (finals.exam && !invalidExamReason) {
     const examId = `${courseId}-final-exam`;
     await client.execute({
       sql: `INSERT INTO course_final_exams (id, course_id, title, instructions, time_limit_minutes, passing_score, source_path, created_at, updated_at)
@@ -59,7 +66,12 @@ for (const file of files) {
     }
   }
   imported += 1;
-  console.log(`${courseId}: ${finals.capstone.length} capstone option(s), ${finals.exam?.questions.length || 0} exam question(s)`);
+  const examSummary = !finals.exam
+    ? 'no final examination section'
+    : invalidExamReason
+      ? `exam NOT imported (${invalidExamReason})`
+      : `${finals.exam.questions.length} exam question(s)`;
+  console.log(`${courseId}: ${finals.capstone.length} capstone option(s), ${examSummary}`);
 }
 console.log(`Imported ${imported} course final package(s).`);
 client.close();
