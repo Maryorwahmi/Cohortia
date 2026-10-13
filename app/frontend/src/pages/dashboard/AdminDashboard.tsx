@@ -88,7 +88,7 @@ export default function AdminDashboard() {
     const query = search.trim().toLowerCase();
     return courses.filter((course) => {
       const matchesSearch = !query
-        || `${course.title} ${course.category} ${course.subcategory} ${course.provider || ''}`.toLowerCase().includes(query);
+        || `${course.title} ${course.marketCategory || course.category} ${course.marketSubcategory || course.subcategory} ${course.provider || ''}`.toLowerCase().includes(query);
       const matchesFilter = courseFilter === 'all'
         || (courseFilter === 'screens-ready' && course.availability.screens)
         || (courseFilter === 'screens-pending' && !course.availability.screens)
@@ -353,11 +353,11 @@ export default function AdminDashboard() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="font-extrabold text-immersive-text-primary">{course.title}</h3>
-                    <p className="mt-1 text-xs text-immersive-text-secondary">{course.provider || course.category} · {course.level || 'Self-paced'}</p>
+                    <p className="mt-1 text-xs text-immersive-text-secondary">{course.provider || course.marketCategory || course.category} · {course.level || 'Self-paced'}</p>
                   </div>
                   <BookOpen className="h-5 w-5 shrink-0 text-immersive-primary" />
                 </div>
-                <p className="mt-3 line-clamp-2 text-sm text-immersive-text-secondary">{course.description || course.subcategory}</p>
+                <p className="mt-3 line-clamp-2 text-sm text-immersive-text-secondary">{course.description || course.marketSubcategory || course.subcategory}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.screens ? 'bg-sky-500/10 text-sky-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>{course.availability.screens ? 'Screens in database' : 'No screens yet'}</span>
                   <span className={`rounded-full px-2.5 py-1 text-[11px] ${course.availability.assessments ? 'bg-violet-500/10 text-violet-400' : 'bg-immersive-bg text-immersive-text-secondary/60'}`}>Assessments {course.availability.assessments ? 'available' : 'not imported'}</span>

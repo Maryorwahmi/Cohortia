@@ -28,6 +28,7 @@ export interface FeaturedCourse {
   providerLogoColor: string;
   level: "Beginner" | "Intermediate" | "Advanced" | "Beginner to Intermediate" | "Beginner to Advanced";
   category: "Full-Stack" | "Backend" | "Frontend" | "Foundations";
+  marketCategory?: string | null;
   description: string;
   careerImpact: string;
   duration: string;
@@ -516,7 +517,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                               <p className="mt-3 line-clamp-3 text-sm leading-6 text-immersive-text-secondary">{course.description}</p>
                               <div className="mt-5 flex items-center gap-4 border-t border-immersive-border/70 pt-4 text-xs font-medium text-immersive-text-secondary">
                                 <span className="inline-flex items-center gap-1.5"><Clock3 className="h-3.5 w-3.5" aria-hidden="true" /> {course.duration}</span>
-                                <span className="inline-flex items-center gap-1.5"><Code2 className="h-3.5 w-3.5" aria-hidden="true" /> {course.category}</span>
+                                <span className="inline-flex items-center gap-1.5"><Code2 className="h-3.5 w-3.5" aria-hidden="true" /> {course.marketCategory || course.category}</span>
                               </div>
                               <button
                                 type="button"

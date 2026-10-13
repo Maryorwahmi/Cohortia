@@ -107,6 +107,11 @@ export const catalogCourses = sqliteTable('catalog_courses', {
   description: text('description'),
   category: text('category').notNull(),
   subcategory: text('subcategory').notNull(),
+  marketCategory: text('market_category'),
+  marketSubcategory: text('market_subcategory'),
+  careerPaths: text('career_paths'),
+  skillTags: text('skill_tags'),
+  catalogStatus: text('catalog_status').notNull().default('active'),
   source: text('source'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
@@ -325,6 +330,49 @@ export const projectTemplates = sqliteTable('project_templates', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+export const courseCapstones = sqliteTable('course_capstones', {
+  id: text('id').primaryKey(),
+  courseId: text('course_id').notNull(),
+  optionNumber: integer('option_number').notNull(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  requirements: text('requirements'),
+  stretchGoals: text('stretch_goals'),
+  rubric: text('rubric'),
+  estimatedTime: text('estimated_time'),
+  sourcePath: text('source_path'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  courseOptionUnique: uniqueIndex('course_capstones_course_option_unique').on(table.courseId, table.optionNumber),
+}));
+
+export const courseFinalExams = sqliteTable('course_final_exams', {
+  id: text('id').primaryKey(),
+  courseId: text('course_id').notNull().unique(),
+  title: text('title').notNull(),
+  instructions: text('instructions'),
+  timeLimitMinutes: integer('time_limit_minutes'),
+  passingScore: integer('passing_score').notNull().default(70),
+  sourcePath: text('source_path'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+export const courseFinalExamQuestions = sqliteTable('course_final_exam_questions', {
+  id: text('id').primaryKey(),
+  examId: text('exam_id').notNull(),
+  questionNumber: integer('question_number').notNull(),
+  section: text('section').notNull(),
+  type: text('type').notNull(),
+  prompt: text('prompt').notNull(),
+  answerKey: text('answer_key'),
+  points: integer('points').notNull().default(1),
+  createdAt: text('created_at').notNull(),
+}, (table) => ({
+  examQuestionUnique: uniqueIndex('course_final_exam_questions_exam_number_unique').on(table.examId, table.questionNumber),
+}));
 
 // User Project Submissions — user work with AI feedback
 export const userProjectSubmissions = sqliteTable('user_project_submissions', {

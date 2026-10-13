@@ -70,7 +70,7 @@ function getCourseSkills(course: CatalogCourse): string[] {
 }
 
 function getCourseCategory(course: CatalogCourse): string {
-  return course.subcategory?.trim() || course.category;
+  return course.marketSubcategory?.trim() || course.subcategory?.trim() || course.marketCategory || course.category;
 }
 
 function normalizeCourseLevel(level?: string | null): string {
@@ -269,6 +269,8 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
         course.description,
         course.provider,
         course.platform,
+        course.marketCategory,
+        course.marketSubcategory,
         course.category,
         course.subcategory,
         ...getCourseSkills(course),

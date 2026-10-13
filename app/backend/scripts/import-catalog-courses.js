@@ -44,6 +44,19 @@ for (const column of ['image', 'image_credit', 'image_license', 'image_source'])
     if (!error.message?.toLowerCase().includes('duplicate column')) throw error;
   }
 }
+for (const columnDefinition of [
+  ['market_category', 'TEXT'],
+  ['market_subcategory', 'TEXT'],
+  ['career_paths', 'TEXT'],
+  ['skill_tags', 'TEXT'],
+  ['catalog_status', "TEXT NOT NULL DEFAULT 'active'"],
+]) {
+  try {
+    await client.execute(`ALTER TABLE catalog_courses ADD COLUMN ${columnDefinition[0]} ${columnDefinition[1]}`);
+  } catch (error) {
+    if (!error.message?.toLowerCase().includes('duplicate column')) throw error;
+  }
+}
 
 await client.execute(`
   CREATE TABLE IF NOT EXISTS catalog_course_subcategories (
@@ -97,9 +110,9 @@ for (const subcategory of catalog.subcategories || []) {
       sql: `
         INSERT INTO catalog_courses (
           id, title, provider, platform, level, type, duration, cost, url,
-          image, image_credit, image_license, image_source, skills, certification, description, category, subcategory, source,
-          created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          image, image_credit, image_license, image_source, skills, certification, description, category, subcategory,
+          market_category, market_subcategory, career_paths, skill_tags, catalog_status, source, created_at, updated_at
+        ) VALUES (${Array.from({length: 26}, () => '?').join(', ')})
         ON CONFLICT(id) DO UPDATE SET
           title = excluded.title,
           provider = excluded.provider,
@@ -118,6 +131,11 @@ for (const subcategory of catalog.subcategories || []) {
           description = excluded.description,
           category = excluded.category,
           subcategory = excluded.subcategory,
+          market_category = excluded.market_category,
+          market_subcategory = excluded.market_subcategory,
+          career_paths = excluded.career_paths,
+          skill_tags = excluded.skill_tags,
+          catalog_status = excluded.catalog_status,
           source = excluded.source,
           updated_at = excluded.updated_at
       `,
@@ -140,6 +158,11 @@ for (const subcategory of catalog.subcategories || []) {
         course.description ?? null,
         course.category || catalog.category || 'Computer Science',
         course.subcategory || subcategory.name,
+        course.marketCategory ?? null,
+        course.marketSubcategory ?? null,
+        JSON.stringify(course.careerPaths || []),
+        JSON.stringify(course.skillTags || course.skills || []),
+        course.catalogStatus || 'active',
         course.source ?? null,
         now,
         now,

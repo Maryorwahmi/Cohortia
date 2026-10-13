@@ -225,6 +225,11 @@ export interface CatalogCourse {
   description?: string | null;
   category: string;
   subcategory: string;
+  marketCategory?: string | null;
+  marketSubcategory?: string | null;
+  careerPaths?: string[] | string | null;
+  skillTags?: string[] | string | null;
+  catalogStatus?: 'active' | 'review' | 'archive' | string | null;
   source?: string | null;
 }
 
@@ -450,9 +455,34 @@ export const lessonApi = {
 };
 
 // AI Projects
+export interface CourseFinalPackage {
+  courseId: string;
+  capstones: Array<{
+    id: string;
+    optionNumber: number;
+    title: string;
+    description: string;
+    requirements: string[];
+    stretchGoals: string[];
+    rubric: Array<{ criterion: string; weight: number }>;
+    estimatedTime?: string | null;
+  }>;
+  exam: {
+    id: string;
+    title: string;
+    instructions?: string | null;
+    timeLimitMinutes?: number | null;
+    passingScore: number;
+    questionCount: number;
+    sections: string[];
+    questions: Array<{ id: string; questionNumber: number; section: string; type: string; prompt: string; points: number }>;
+  } | null;
+}
+
 export const projectApi = {
   getByRoadmap: (roadmapId: string) => fetchApi<{ success: boolean; data?: { projects: Array<Record<string, unknown>> }; error?: string }>(`/projects/${roadmapId}`),
   getSubmissions: () => fetchApi<{ success: boolean; data?: { submissions: Array<Record<string, unknown>> }; error?: string }>('/projects/submissions/me'),
+  getCourseFinal: (courseId: string) => fetchApi<{ success: boolean; data?: CourseFinalPackage; error?: string }>(`/projects/course/${encodeURIComponent(courseId)}/final`),
   submit: (projectId: string, content: string) =>
     fetchApi<{ success: boolean; data?: { submission: Record<string, unknown> }; error?: string }>(`/projects/${projectId}/submit`, {
       method: 'POST',
