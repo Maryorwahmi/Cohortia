@@ -5,8 +5,13 @@ import { createClient } from '@libsql/client';
 import { parseCourseFinals } from '../src/lib/courseFinals.js';
 
 const requestedCourse = process.argv.find((arg) => arg.startsWith('--course='))?.split('=')[1] || null;
+const requestedCategory = process.argv.find((arg) => arg.startsWith('--category='))?.split('=')[1] || 'computer-science';
+const supportedCategories = ['computer-science', 'artificial-intelligence'];
+if (!supportedCategories.includes(requestedCategory)) {
+  throw new Error(`Unsupported course category "${requestedCategory}". Choose ${supportedCategories.join(' or ')}.`);
+}
 const repoRoot = path.resolve(import.meta.dirname, '../..');
-const docsRoot = path.join(repoRoot, 'docs');
+const docsRoot = path.join(repoRoot, 'docs', requestedCategory);
 const client = createClient({ url: process.env.DATABASE_URL || 'file:./cohortia.db', authToken: process.env.DATABASE_AUTH_TOKEN });
 const now = new Date().toISOString();
 
@@ -25,6 +30,7 @@ const files = requestedCourse
   ? allFiles.filter((file) => path.basename(file, '.md') === requestedCourse)
   : allFiles;
 let imported = 0;
+console.log(`Importing course finals from ${requestedCategory}.`);
 for (const file of files) {
   const markdown = await fs.readFile(file, 'utf8');
   const finals = parseCourseFinals(markdown, path.relative(repoRoot, file));
