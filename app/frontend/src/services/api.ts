@@ -340,6 +340,14 @@ export interface Track {
   certification?: string | null;
 }
 
+export interface TrackEnrollment {
+  id: string;
+  trackId: string;
+  status: string;
+  enrolledAt?: string;
+  updatedAt?: string;
+}
+
 export interface Lesson {
   id: string;
   trackId: string;
@@ -365,7 +373,7 @@ export const trackApi = {
     fetchApi<{ success: boolean; data?: { enrollment: Record<string, unknown> }; error?: string }>(`/tracks/${id}/enroll`, {
       method: 'POST',
     }),
-  getEnrolled: () => fetchApi<{ success: boolean; data?: { enrollments: Array<Record<string, unknown>> }; error?: string }>('/tracks/user/enrolled'),
+  getEnrolled: () => fetchApi<{ success: boolean; data?: { enrollments: TrackEnrollment[] }; error?: string }>('/tracks/user/enrolled'),
 };
 
 // Community
@@ -457,6 +465,8 @@ export const lessonApi = {
 // AI Projects
 export interface CourseFinalPackage {
   courseId: string;
+  selectedCapstoneId?: string | null;
+  capstoneStatus?: string;
   capstones: Array<{
     id: string;
     optionNumber: number;
@@ -479,17 +489,104 @@ export interface CourseFinalPackage {
   } | null;
 }
 
+export interface CourseFinalExamQuestion {
+  id: string;
+  questionNumber: number;
+  section: string;
+  type: string;
+  prompt: string;
+  points: number;
+}
+
+export interface CourseFinalExamAnswer {
+  questionId: string;
+  answer: string;
+  pointsAwarded?: number | null;
+  feedback?: string | null;
+}
+
+export interface CourseFinalExamAttempt {
+  id: string;
+  attemptNumber: number;
+  status: string;
+  startedAt: string;
+  expiresAt: string;
+  submittedAt?: string | null;
+  score?: number | null;
+  passed?: boolean | null;
+  reviewRequired: boolean;
+  answers: CourseFinalExamAnswer[];
+  questions: CourseFinalExamQuestion[];
+}
+
+export interface CourseFinalExamAttemptSummary {
+  id: string;
+  attemptNumber: number;
+  status: string;
+  submittedAt?: string | null;
+  score?: number | null;
+  passed?: boolean | null;
+  reviewRequired: boolean;
+}
+
+export interface CourseFinalExamAttemptsResponse {
+  success: boolean;
+  data?: {
+    timeLimitMinutes: number;
+    passingScore: number;
+    attempts: CourseFinalExamAttemptSummary[];
+    currentAttempt: CourseFinalExamAttempt | null;
+    completion: { eligible: boolean; completed?: number; total?: number; reason: string };
+    passed: boolean;
+    attemptsUsed: number;
+    attemptsRemaining: number;
+    canStart: boolean;
+  };
+  error?: string;
+}
+
 export const projectApi = {
   getByRoadmap: (roadmapId: string) => fetchApi<{ success: boolean; data?: { projects: Array<Record<string, unknown>> }; error?: string }>(`/projects/${roadmapId}`),
   getSubmissions: () => fetchApi<{ success: boolean; data?: { submissions: Array<Record<string, unknown>> }; error?: string }>('/projects/submissions/me'),
   getCourseFinal: (courseId: string) => fetchApi<{ success: boolean; data?: CourseFinalPackage; error?: string }>(`/projects/course/${encodeURIComponent(courseId)}/final`),
+  updateCourseFinalSelection: (courseId: string, capstoneId: string) =>
+    fetchApi<{ success: boolean; data?: { selectedCapstoneId: string; capstoneStatus: string }; error?: string }>(`/projects/course/${encodeURIComponent(courseId)}/final/capstone-selection`, {
+      method: 'PUT',
+      body: JSON.stringify({ capstoneId }),
+    }),
+  getFinalExamAttempts: (courseId: string) => fetchApi<CourseFinalExamAttemptsResponse>(`/projects/course/${encodeURIComponent(courseId)}/final/attempts`),
+  startFinalExam: (courseId: string) =>
+    fetchApi<{ success: boolean; data?: { attempt: CourseFinalExamAttempt }; error?: string }>(`/projects/course/${encodeURIComponent(courseId)}/final/attempts`, {
+      method: 'POST',
+    }),
+  saveFinalExamAnswer: (attemptId: string, questionId: string, answer: string) =>
+    fetchApi<{ success: boolean; error?: string }>(`/projects/final-exam-attempts/${encodeURIComponent(attemptId)}/answers`, {
+      method: 'PUT',
+      body: JSON.stringify({ questionId, answer }),
+    }),
+  submitFinalExam: (attemptId: string, answers: Array<{ questionId: string; answer: string }>) =>
+    fetchApi<{ success: boolean; data?: { attempt: CourseFinalExamAttempt }; error?: string }>(`/projects/final-exam-attempts/${encodeURIComponent(attemptId)}/submit`, {
+      method: 'POST',
+      body: JSON.stringify({ answers }),
+    }),
+  getEvidenceUploadUrl: (courseId: string, capstoneId: string, fileName: string, contentType: string, submissionId?: string) =>
+    fetchApi<{ success: boolean; data?: { fileId: string; objectKey: string; uploadUrl: string; expiresInSeconds: number; uploadExpiresAt: string }; error?: string }>(`/projects/submission-files/upload-url`, {
+      method: 'POST',
+      body: JSON.stringify({ courseId, capstoneId, fileName, contentType, submissionId }),
+    }),
+  completeEvidenceUpload: (fileId: string) =>
+    fetchApi<{ success: boolean; data?: { fileId: string; objectKey: string; byteSize: number; contentType: string }; error?: string }>(`/projects/submission-files/${encodeURIComponent(fileId)}/complete`, {
+      method: 'POST',
+    }),
+  getEvidenceDownloadUrl: (fileId: string) =>
+    fetchApi<{ success: boolean; data?: { fileId: string; fileName: string; contentType: string; objectKey: string; downloadUrl: string; expiresInSeconds: number }; error?: string }>(`/projects/submission-files/${encodeURIComponent(fileId)}/download`),
   submit: (projectId: string, content: string) =>
     fetchApi<{ success: boolean; data?: { submission: Record<string, unknown> }; error?: string }>(`/projects/${projectId}/submit`, {
       method: 'POST',
       body: JSON.stringify({ content }),
     }),
   getFeedback: (submissionId: string) =>
-    fetchApi<{ success: boolean; data?: { feedback: Record<string, unknown> }; error?: string }>(`/projects/${submissionId}/feedback`, { method: 'POST' }),
+    fetchApi<{ success: boolean; data?: Record<string, unknown>; error?: string }>(`/projects/${submissionId}/feedback`, { method: 'POST' }),
 };
 
 // Chat

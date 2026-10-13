@@ -1,16 +1,241 @@
-import {useState} from 'react';
-import {CheckCircle2, ChevronDown, Clock3, Code2, ListChecks} from 'lucide-react';
-import {CourseFinalPackage} from '../../services/api';
+import {useEffect, useState, type ChangeEvent} from 'react';
+import {AlertCircle, CheckCircle2, ChevronDown, Clock3, Code2, ListChecks} from 'lucide-react';
+import {CourseFinalExamAttempt, CourseFinalPackage, projectApi} from '../../services/api';
 
 interface CourseFinalBoardProps {
   courseFinal: CourseFinalPackage;
+  adminTestMode?: boolean;
+  submissions?: Array<{
+    id?: string;
+    projectId?: string;
+    content?: string;
+    feedback?: string;
+    score?: number;
+    status?: string;
+    createdAt?: string;
+  }>;
+  onSubmit?: (projectId: string, content: string) => Promise<{
+    success: boolean;
+    submission?: {id?: string; feedback?: string; score?: number; status?: string};
+    feedbackError?: string;
+    error?: string;
+  }>;
 }
 
-export default function CourseFinalBoard({courseFinal}: CourseFinalBoardProps) {
-  const [selectedId, setSelectedId] = useState(courseFinal.capstones[0]?.id || '');
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'The final exam request failed. Please try again.';
+}
+
+function formatRemainingTime(expiresAt: string, now: number) {
+  const seconds = Math.max(0, Math.ceil((Date.parse(expiresAt) - now) / 1000));
+  const minutes = Math.floor(seconds / 60);
+  return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+function savedAnswers(attempt: CourseFinalExamAttempt) {
+  return Object.fromEntries(attempt.answers.map((answer) => [answer.questionId, answer.answer]));
+}
+
+export default function CourseFinalBoard({courseFinal, submissions = [], onSubmit, adminTestMode = false}: CourseFinalBoardProps) {
+  const [selectedId, setSelectedId] = useState(courseFinal.selectedCapstoneId || courseFinal.capstones[0]?.id || '');
   const [expanded, setExpanded] = useState(true);
+  const [selectionSaving, setSelectionSaving] = useState(false);
+  const [capstoneText, setCapstoneText] = useState('');
+  const [capstoneBusy, setCapstoneBusy] = useState(false);
+  const [capstoneMessage, setCapstoneMessage] = useState<string | null>(null);
+  const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
+  const [evidenceUploadBusy, setEvidenceUploadBusy] = useState(false);
+  const [uploadedEvidence, setUploadedEvidence] = useState<{fileId: string; objectKey: string; byteSize: number; contentType: string} | null>(null);
+  const [attemptsData, setAttemptsData] = useState<Awaited<ReturnType<typeof projectApi.getFinalExamAttempts>>['data']>();
+  const [currentAttempt, setCurrentAttempt] = useState<CourseFinalExamAttempt | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [examLoading, setExamLoading] = useState(Boolean(courseFinal.exam));
+  const [examBusy, setExamBusy] = useState(false);
+  const [examError, setExamError] = useState<string | null>(null);
+  const [clockNow, setClockNow] = useState(Date.now());
   const selected = courseFinal.capstones.find((item) => item.id === selectedId) || courseFinal.capstones[0];
   const exam = courseFinal.exam;
+  const capstoneSubmissions = submissions.filter((submission) => submission.projectId === selected?.id);
+  const latestSubmission = capstoneSubmissions[0];
+
+  useEffect(() => {
+    setSelectedId(courseFinal.selectedCapstoneId || courseFinal.capstones[0]?.id || '');
+  }, [courseFinal.courseId, courseFinal.selectedCapstoneId]);
+
+  const selectCapstone = async (capstoneId: string) => {
+    setSelectionSaving(true);
+    setCapstoneMessage(null);
+    try {
+      const response = await projectApi.updateCourseFinalSelection(courseFinal.courseId, capstoneId);
+      if (!response.success) throw new Error(response.error || 'Could not save your capstone selection.');
+      setSelectedId(capstoneId);
+    } catch (error) {
+      setCapstoneMessage(errorMessage(error));
+    } finally {
+      setSelectionSaving(false);
+    }
+  };
+
+  const uploadEvidenceForSelectedCapstone = async () => {
+    if (!selected || !evidenceFile) return null;
+    setEvidenceUploadBusy(true);
+    setCapstoneMessage(null);
+    try {
+      const uploadUrlResponse = await projectApi.getEvidenceUploadUrl(courseFinal.courseId, selected.id, evidenceFile.name, evidenceFile.type || 'application/octet-stream');
+      if (!uploadUrlResponse.success || !uploadUrlResponse.data) {
+        throw new Error(uploadUrlResponse.error || 'Could not prepare the evidence upload.');
+      }
+      const { uploadUrl, fileId } = uploadUrlResponse.data;
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {'Content-Type': evidenceFile.type || 'application/octet-stream'},
+        body: evidenceFile,
+      });
+      if (!uploadResponse.ok) {
+        throw new Error('The evidence upload did not complete successfully.');
+      }
+      const completeResponse = await projectApi.completeEvidenceUpload(fileId);
+      if (!completeResponse.success || !completeResponse.data) {
+        throw new Error(completeResponse.error || 'The evidence upload could not be verified.');
+      }
+      setUploadedEvidence(completeResponse.data);
+      setEvidenceFile(null);
+      setCapstoneMessage('Evidence uploaded successfully.');
+      return completeResponse.data;
+    } catch (error) {
+      setCapstoneMessage(errorMessage(error));
+      return null;
+    } finally {
+      setEvidenceUploadBusy(false);
+    }
+  };
+
+  const submitCapstone = async () => {
+    if (!selected || !capstoneText.trim() || !onSubmit) return;
+    setCapstoneBusy(true);
+    setCapstoneMessage(null);
+    try {
+      if (evidenceFile) {
+        const uploaded = await uploadEvidenceForSelectedCapstone();
+        if (!uploaded) {
+          throw new Error('Please upload evidence before submitting your capstone.');
+        }
+      }
+      const result = await onSubmit(selected.id, capstoneText.trim());
+      if (!result.success) throw new Error(result.error || 'Capstone submission failed.');
+      setCapstoneText('');
+      setCapstoneMessage(result.feedbackError
+        ? `Submission received. Feedback is temporarily unavailable: ${result.feedbackError}`
+        : 'Capstone submission received.');
+    } catch (error) {
+      setCapstoneMessage(errorMessage(error));
+    } finally {
+      setCapstoneBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!exam) {
+      setAttemptsData(undefined);
+      setCurrentAttempt(null);
+      setExamLoading(false);
+      return () => { cancelled = true; };
+    }
+    setExamLoading(true);
+    setExamError(null);
+    projectApi.getFinalExamAttempts(courseFinal.courseId)
+      .then((response) => {
+        if (!response.success || !response.data) throw new Error(response.error || 'Could not load exam attempts.');
+        if (cancelled) return;
+        setAttemptsData(response.data);
+        setCurrentAttempt(response.data.currentAttempt);
+        setAnswers(response.data.currentAttempt ? savedAnswers(response.data.currentAttempt) : {});
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setExamError(errorMessage(error));
+      })
+      .finally(() => {
+        if (!cancelled) setExamLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [courseFinal.courseId, exam?.id]);
+
+  useEffect(() => {
+    if (!currentAttempt || currentAttempt.status !== 'in_progress') return;
+    const timer = window.setInterval(() => setClockNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [currentAttempt?.id, currentAttempt?.status]);
+
+  const startExam = async () => {
+    setExamBusy(true);
+    setExamError(null);
+    try {
+      const response = await projectApi.startFinalExam(courseFinal.courseId);
+      if (!response.success || !response.data?.attempt) throw new Error(response.error || 'Could not start the final exam.');
+      setCurrentAttempt(response.data.attempt);
+      setAnswers(savedAnswers(response.data.attempt));
+      setClockNow(Date.now());
+      const refreshed = await projectApi.getFinalExamAttempts(courseFinal.courseId);
+      if (refreshed.success && refreshed.data) setAttemptsData(refreshed.data);
+    } catch (error) {
+      setExamError(errorMessage(error));
+    } finally {
+      setExamBusy(false);
+    }
+  };
+
+  const saveAnswer = async (questionId: string) => {
+    if (!currentAttempt || currentAttempt.status !== 'in_progress') return;
+    try {
+      await projectApi.saveFinalExamAnswer(currentAttempt.id, questionId, answers[questionId] || '');
+    } catch (error) {
+      setExamError(errorMessage(error));
+    }
+  };
+
+  const submitExam = async () => {
+    if (!currentAttempt) return;
+    setExamBusy(true);
+    setExamError(null);
+    try {
+      const response = await projectApi.submitFinalExam(
+        currentAttempt.id,
+        currentAttempt.questions.map((question) => ({questionId: question.id, answer: answers[question.id] || ''})),
+      );
+      if (!response.success || !response.data?.attempt) throw new Error(response.error || 'Could not submit the final exam.');
+      setCurrentAttempt(response.data.attempt);
+      setAnswers(savedAnswers(response.data.attempt));
+      const refreshed = await projectApi.getFinalExamAttempts(courseFinal.courseId);
+      if (refreshed.success && refreshed.data) setAttemptsData(refreshed.data);
+    } catch (error) {
+      setExamError(errorMessage(error));
+    } finally {
+      setExamBusy(false);
+    }
+  };
+
+  const timeExpired = currentAttempt
+    ? Date.parse(currentAttempt.expiresAt) <= clockNow
+    : false;
+  const canEditAnswers = currentAttempt?.status === 'in_progress' && !timeExpired;
+  const currentResult = currentAttempt?.score !== null && currentAttempt?.score !== undefined;
+
+  const handleEvidenceSelection = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+    if (!file) {
+      setEvidenceFile(null);
+      return;
+    }
+    if (file.size > 25 * 1024 * 1024) {
+      setCapstoneMessage('Evidence files must be 25MB or smaller.');
+      setEvidenceFile(null);
+      event.target.value = '';
+      return;
+    }
+    setCapstoneMessage(null);
+    setEvidenceFile(file);
+  };
 
   return (
     <section className="pt-3 pb-12 space-y-8">
@@ -18,6 +243,7 @@ export default function CourseFinalBoard({courseFinal}: CourseFinalBoardProps) {
         <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-2">| COURSE FINALS</span>
         <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-immersive-text-primary tracking-tight">Final project & examination</h2>
         <p className="text-sm text-immersive-text-secondary max-w-3xl font-medium mt-1">This workspace is generated from the course specification. Choose one capstone brief, review its evidence requirements, then prepare for the course-specific final examination.</p>
+        {adminTestMode && <p className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">Admin testing mode: course enrollment and chapter-completion gates are bypassed for exam testing.</p>}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.75fr] gap-6">
@@ -31,7 +257,7 @@ export default function CourseFinalBoard({courseFinal}: CourseFinalBoardProps) {
           </div>
           <div className="grid gap-3">
             {courseFinal.capstones.map((option) => (
-              <button key={option.id} onClick={() => setSelectedId(option.id)} className={`text-left rounded-2xl border p-4 transition-colors ${selected?.id === option.id ? 'border-[#FF4B3E]/60 bg-[#FF4B3E]/10' : 'border-immersive-border hover:border-[#FF4B3E]/30'}`}>
+              <button key={option.id} onClick={() => void selectCapstone(option.id)} disabled={selectionSaving} className={`text-left rounded-2xl border p-4 transition-colors disabled:opacity-60 ${selected?.id === option.id ? 'border-[#FF4B3E]/60 bg-[#FF4B3E]/10' : 'border-immersive-border hover:border-[#FF4B3E]/30'}`}>
                 <div className="flex items-start justify-between gap-3">
                   <span className="text-sm font-bold text-immersive-text-primary">Option {option.optionNumber}: {option.title}</span>
                   {selected?.id === option.id && <CheckCircle2 className="w-4 h-4 text-[#FF4B3E] shrink-0" />}
@@ -59,16 +285,103 @@ export default function CourseFinalBoard({courseFinal}: CourseFinalBoardProps) {
               </div>}
             </div>
           )}
+          {selected && <div className="border-t border-immersive-border/40 pt-5 space-y-3">
+            <div>
+              <p className="text-xs font-bold text-immersive-text-primary">Submit this capstone</p>
+              <p className="text-[11px] text-immersive-text-secondary mt-1">Your selected option is saved to your course progress and attached to each submission.</p>
+            </div>
+            {latestSubmission && <div className="rounded-xl border border-immersive-border bg-immersive-bg/50 p-3 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-bold text-immersive-text-primary">Latest submission</span>
+                <span className="text-immersive-text-secondary">{latestSubmission.status || 'submitted'}{latestSubmission.score !== undefined ? ` · ${latestSubmission.score}%` : ''}</span>
+              </div>
+              {latestSubmission.feedback && <p className="text-immersive-text-secondary mt-2 whitespace-pre-wrap">{latestSubmission.feedback}</p>}
+            </div>}
+            <textarea aria-label="Capstone project submission" value={capstoneText} onChange={(event) => setCapstoneText(event.target.value)} rows={5} maxLength={30_000} className="w-full rounded-xl border border-immersive-border bg-immersive-bg p-3 text-xs text-immersive-text-primary" placeholder="Describe your project and include the work you want reviewed..." />
+            <div className="rounded-xl border border-dashed border-immersive-border bg-immersive-bg/40 p-3 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] font-mono font-bold tracking-widest text-immersive-text-secondary uppercase">Evidence</p>
+                <span className="text-[10px] text-immersive-text-secondary">Optional</span>
+              </div>
+              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-immersive-border bg-immersive-bg px-3 py-2 text-xs text-immersive-text-primary">
+                <span className="truncate">{evidenceFile ? evidenceFile.name : 'Choose a README, screenshot, demo, or supporting file'}</span>
+                <input type="file" className="hidden" onChange={handleEvidenceSelection} />
+                <span className="rounded-full border border-[#FF4B3E]/30 bg-[#FF4B3E]/10 px-2 py-1 text-[10px] font-bold text-[#FF4B3E]">Browse</span>
+              </label>
+              {evidenceFile && (
+                <button type="button" onClick={() => void uploadEvidenceForSelectedCapstone()} disabled={evidenceUploadBusy} className="w-full rounded-lg border border-[#FF4B3E]/40 bg-[#FF4B3E]/10 text-[11px] font-bold text-[#FF4B3E] py-2 disabled:opacity-60">
+                  {evidenceUploadBusy ? 'Uploading evidence...' : 'Upload evidence'}
+                </button>
+              )}
+              {uploadedEvidence && (
+                <p className="text-[11px] text-emerald-300">Uploaded {uploadedEvidence.objectKey.split('/').at(-1) || 'evidence file'} ({Math.round(uploadedEvidence.byteSize / 1024)} KB)</p>
+              )}
+            </div>
+            {capstoneMessage && <p role="status" className="text-xs text-immersive-text-secondary">{capstoneMessage}</p>}
+            <button onClick={() => void submitCapstone()} disabled={!capstoneText.trim() || capstoneBusy || selectionSaving || !onSubmit} className="w-full rounded-xl bg-[#FF4B3E] hover:bg-[#e64035] disabled:opacity-50 text-white py-2.5 text-xs font-bold">
+              {capstoneBusy ? 'Submitting...' : 'Submit selected capstone'}
+            </button>
+          </div>}
         </div>
 
         <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 space-y-5">
-          <div className="flex items-center justify-between gap-4"><div><p className="text-[10px] font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">Assessment</p><h3 className="text-lg font-bold text-immersive-text-primary">{exam?.title || 'Final examination'}</h3></div><Code2 className="w-5 h-5 text-[#FF4B3E]" /></div>
+          <div className="flex items-center justify-between gap-4"><div><p className="text-[10px] font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">Assessment</p><h3 className="text-lg font-bold text-immersive-text-primary">{exam?.title || 'Final examination'}</h3></div><ListChecks className="w-5 h-5 text-[#FF4B3E]" /></div>
           <p className="text-xs text-immersive-text-secondary leading-relaxed">{exam?.instructions || 'Complete the course-specific examination after preparing your capstone.'}</p>
           {exam && <>
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono"><div className="rounded-xl border border-immersive-border p-3"><Clock3 className="w-4 h-4 text-[#FF4B3E] mb-2" /><span className="block text-immersive-text-secondary">TIME LIMIT</span><strong className="text-immersive-text-primary">{exam.timeLimitMinutes ? `${exam.timeLimitMinutes} min` : 'Not timed'}</strong></div><div className="rounded-xl border border-immersive-border p-3"><ListChecks className="w-4 h-4 text-[#FF4B3E] mb-2" /><span className="block text-immersive-text-secondary">QUESTIONS</span><strong className="text-immersive-text-primary">{exam.questionCount}</strong></div></div>
+            <div className="grid grid-cols-2 gap-3 text-xs font-mono"><div className="rounded-xl border border-immersive-border p-3"><Clock3 className="w-4 h-4 text-[#FF4B3E] mb-2" /><span className="block text-immersive-text-secondary">TIME LIMIT</span><strong className="text-immersive-text-primary">{attemptsData?.timeLimitMinutes ?? exam.timeLimitMinutes ?? 90} min</strong></div><div className="rounded-xl border border-immersive-border p-3"><ListChecks className="w-4 h-4 text-[#FF4B3E] mb-2" /><span className="block text-immersive-text-secondary">QUESTIONS</span><strong className="text-immersive-text-primary">{exam.questionCount}</strong></div></div>
             <div className="flex flex-wrap gap-2">{exam.sections.map((section) => <span key={section} className="text-[10px] font-mono rounded-full border border-[#FF4B3E]/20 bg-[#FF4B3E]/10 text-[#FF4B3E] px-2.5 py-1">{section}</span>)}</div>
           </>}
-          <button disabled className="w-full rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-500 py-2.5 text-xs font-bold cursor-not-allowed">Exam attempt unlocks after course completion</button>
+
+          {examError && <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300 flex gap-2"><AlertCircle className="w-4 h-4 shrink-0" />{examError}</div>}
+
+          {examLoading ? <p className="text-xs text-immersive-text-secondary">Checking exam eligibility...</p> : null}
+
+          {currentAttempt && !currentResult && <>
+            <div className="rounded-xl border border-immersive-border bg-immersive-bg/60 p-3 flex items-center justify-between gap-3">
+              <span className="text-xs font-bold text-immersive-text-primary">Attempt {currentAttempt.attemptNumber}</span>
+              <span className={`font-mono text-sm font-bold ${timeExpired ? 'text-red-400' : 'text-[#FF4B3E]'}`}>
+                {currentAttempt.status === 'in_progress' ? formatRemainingTime(currentAttempt.expiresAt, clockNow) : 'Ready to submit'}
+              </span>
+            </div>
+            <div className="max-h-[28rem] overflow-y-auto space-y-4 pr-1">
+              {currentAttempt.questions.map((question) => {
+                const options = [...question.prompt.matchAll(/^\s*([A-D])[.)]\s*(.+)$/gim)]
+                  .map((match) => ({letter: match[1].toUpperCase(), text: match[2].trim()}));
+                const prompt = question.prompt.replace(/^\s*([A-D])[.)]\s*.+$/gim, '').trim();
+                return <div key={question.id} className="rounded-xl border border-immersive-border p-3 space-y-2">
+                  <p className="text-[10px] uppercase font-mono tracking-wide text-[#FF4B3E]">{question.section} · Question {question.questionNumber}</p>
+                  <p className="text-xs font-semibold text-immersive-text-primary whitespace-pre-line">{prompt}</p>
+                  {options.length ? <div className="space-y-2">{options.map((option) => <label key={option.letter} className="flex items-start gap-2 text-xs text-immersive-text-secondary"><input type="radio" name={question.id} value={option.letter} disabled={!canEditAnswers || examBusy} checked={answers[question.id] === option.letter} onChange={() => setAnswers((current) => ({...current, [question.id]: option.letter}))} onBlur={() => void saveAnswer(question.id)} /><span><strong className="mr-1">{option.letter}.</strong>{option.text}</span></label>)}</div>
+                    : <textarea aria-label={`Answer to question ${question.questionNumber}`} disabled={!canEditAnswers || examBusy} value={answers[question.id] || ''} onChange={(event) => setAnswers((current) => ({...current, [question.id]: event.target.value}))} onBlur={() => void saveAnswer(question.id)} rows={4} maxLength={12_000} className="w-full rounded-lg border border-immersive-border bg-immersive-bg p-3 text-xs text-immersive-text-primary disabled:opacity-60" placeholder="Write your answer..." />}
+                  {currentAttempt.answers.find((answer) => answer.questionId === question.id)?.feedback && <p className="text-[11px] text-immersive-text-secondary">{currentAttempt.answers.find((answer) => answer.questionId === question.id)?.feedback}</p>}
+                </div>;
+              })}
+            </div>
+            <button onClick={() => void submitExam()} disabled={examBusy} className="w-full rounded-xl bg-[#FF4B3E] hover:bg-[#e64035] disabled:opacity-60 text-white py-2.5 text-xs font-bold">
+              {examBusy ? 'Submitting and grading...' : currentAttempt.status === 'submitted' ? 'Retry grading' : 'Submit final exam'}
+            </button>
+          </>}
+
+          {currentResult && currentAttempt && <div className={`rounded-xl border p-4 space-y-1 ${currentAttempt.reviewRequired ? 'border-amber-400/30 bg-amber-400/10' : currentAttempt.passed ? 'border-emerald-400/30 bg-emerald-400/10' : 'border-red-400/30 bg-red-400/10'}`}>
+            <p className="text-sm font-bold text-immersive-text-primary">{currentAttempt.reviewRequired ? 'Result pending reviewer check' : currentAttempt.passed ? 'Final exam passed' : 'Final exam not passed'}</p>
+            <p className="text-xs text-immersive-text-secondary">Score: {currentAttempt.score}% · Passing score: {attemptsData?.passingScore ?? exam?.passingScore ?? 70}%</p>
+            {currentAttempt.reviewRequired && <p className="text-[11px] text-immersive-text-secondary">Some answers need a reviewer check before this result can count toward completion.</p>}
+          </div>}
+
+          {!examLoading && !currentAttempt && !currentResult && attemptsData && <>
+            <p className="text-xs text-immersive-text-secondary">{attemptsData.attemptsUsed} of {attemptsData.attemptsUsed + attemptsData.attemptsRemaining} attempts used · {attemptsData.attemptsRemaining} remaining</p>
+            {!attemptsData.completion.eligible && <p className="text-xs text-amber-300">{attemptsData.completion.reason}</p>}
+            {attemptsData.passed && <p className="text-xs text-emerald-300">You have passed this final exam.</p>}
+            {attemptsData.attemptsRemaining === 0 && !attemptsData.passed && <p className="text-xs text-amber-300">No attempts remain. Ask a reviewer to unlock another attempt.</p>}
+            <button onClick={() => void startExam()} disabled={!attemptsData.canStart || examBusy} className={`w-full rounded-xl py-2.5 text-xs font-bold ${attemptsData.canStart && !examBusy ? 'bg-[#FF4B3E] hover:bg-[#e64035] text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-500 cursor-not-allowed'}`}>
+              {examBusy ? 'Preparing exam...' : 'Start final exam'}
+            </button>
+          </>}
+
+          {attemptsData?.attempts?.length ? <div className="border-t border-immersive-border/50 pt-4 space-y-2">
+            <p className="text-[10px] uppercase tracking-widest font-mono text-immersive-text-secondary">Attempt history</p>
+            {attemptsData.attempts.map((attempt) => <div key={attempt.id} className="flex justify-between text-xs text-immersive-text-secondary"><span>Attempt {attempt.attemptNumber}</span><span>{attempt.reviewRequired ? 'Under review' : attempt.score === null ? attempt.status.replace('_', ' ') : `${attempt.score}%${attempt.passed ? ' · Passed' : ' · Not passed'}`}</span></div>)}
+          </div> : null}
         </div>
       </div>
     </section>

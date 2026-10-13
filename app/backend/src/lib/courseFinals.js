@@ -66,6 +66,13 @@ function inferQuestionType(prompt) {
   return 'written';
 }
 
+function examTimeLimit(meta, examText) {
+  const frontmatterValue = Number(meta.exam_time_limit_minutes || meta.time_limit_minutes);
+  if (Number.isInteger(frontmatterValue) && frontmatterValue > 0) return frontmatterValue;
+  const match = String(examText).match(/(?:time limit|duration|time allowed)\s*:?\s*(\d+)\s*(?:minutes?|mins?)/i);
+  return match ? Number(match[1]) : 90;
+}
+
 export function parseCourseFinals(markdown, sourcePath = null) {
   const meta = frontmatter(markdown);
   const capstoneText = sectionBody(markdown, 'Final Capstone Project');
@@ -113,7 +120,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     }
     const answerMatches = [...section.text.matchAll(/^\*\*Answer\s+(\d+):\*\*\s*([\s\S]*?)(?=^\*\*Question\s+\d+:\*\*|^\*\*Answer\s+\d+:\*\*|^---\s*$|$)/gim)];
     for (const answer of answerMatches) {
-      const question = questions.find((item) => item.questionNumber === Number(answer[1]));
+      const question = questions.find((item) => item.section === section.title && item.questionNumber === Number(answer[1]));
       if (question) question.answer = answer[2].trim();
     }
   }
@@ -128,7 +135,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
       instructions: clean(examText.split(/^###\s+/m)[0]),
       questions,
       passingScore: 70,
-      timeLimitMinutes: null,
+      timeLimitMinutes: examTimeLimit(meta, examText),
     } : null,
   };
 }

@@ -6,7 +6,7 @@ import { parseCourseFinals } from '../src/lib/courseFinals.js';
 
 const requestedCourse = process.argv.find((arg) => arg.startsWith('--course='))?.split('=')[1] || null;
 const repoRoot = path.resolve(import.meta.dirname, '../..');
-const docsRoot = path.join(repoRoot, 'docs', 'computer-science');
+const docsRoot = path.join(repoRoot, 'docs');
 const client = createClient({ url: process.env.DATABASE_URL || 'file:./cohortia.db', authToken: process.env.DATABASE_AUTH_TOKEN });
 const now = new Date().toISOString();
 

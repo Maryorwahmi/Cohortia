@@ -348,6 +348,18 @@ export const courseCapstones = sqliteTable('course_capstones', {
   courseOptionUnique: uniqueIndex('course_capstones_course_option_unique').on(table.courseId, table.optionNumber),
 }));
 
+export const userCourseFinalProgress = sqliteTable('user_course_final_progress', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  courseId: text('course_id').notNull(),
+  selectedCapstoneId: text('selected_capstone_id'),
+  capstoneStatus: text('capstone_status').notNull().default('not_started'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  userCourseUnique: uniqueIndex('user_course_final_progress_user_course_unique').on(table.userId, table.courseId),
+}));
+
 export const courseFinalExams = sqliteTable('course_final_exams', {
   id: text('id').primaryKey(),
   courseId: text('course_id').notNull().unique(),
@@ -374,17 +386,81 @@ export const courseFinalExamQuestions = sqliteTable('course_final_exam_questions
   examQuestionUnique: uniqueIndex('course_final_exam_questions_exam_number_unique').on(table.examId, table.questionNumber),
 }));
 
+export const courseFinalExamAttempts = sqliteTable('course_final_exam_attempts', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  examId: text('exam_id').notNull(),
+  courseId: text('course_id').notNull(),
+  attemptNumber: integer('attempt_number').notNull(),
+  status: text('status').notNull().default('in_progress'),
+  startedAt: text('started_at').notNull(),
+  expiresAt: text('expires_at').notNull(),
+  submittedAt: text('submitted_at'),
+  score: integer('score'),
+  passed: integer('passed', { mode: 'boolean' }),
+  reviewRequired: integer('review_required', { mode: 'boolean' }).notNull().default(false),
+  reviewedBy: text('reviewed_by'),
+  reviewerFeedback: text('reviewer_feedback'),
+  reviewedAt: text('reviewed_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  userExamNumberUnique: uniqueIndex('course_final_exam_attempts_user_exam_number_unique')
+    .on(table.userId, table.examId, table.attemptNumber),
+}));
+
+export const courseFinalExamAttemptAnswers = sqliteTable('course_final_exam_attempt_answers', {
+  id: text('id').primaryKey(),
+  attemptId: text('attempt_id').notNull(),
+  questionId: text('question_id').notNull(),
+  answer: text('answer').notNull().default(''),
+  pointsAwarded: real('points_awarded'),
+  feedback: text('feedback'),
+  confidence: real('confidence'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  attemptQuestionUnique: uniqueIndex('course_final_exam_attempt_answers_attempt_question_unique').on(table.attemptId, table.questionId),
+}));
+
+export const courseFinalExamAttemptGrants = sqliteTable('course_final_exam_attempt_grants', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  examId: text('exam_id').notNull(),
+  grantedBy: text('granted_by').notNull(),
+  reason: text('reason').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (table) => ({
+  userExamIndex: index('course_final_exam_attempt_grants_user_exam_idx').on(table.userId, table.examId),
+}));
+
 // User Project Submissions — user work with AI feedback
 export const userProjectSubmissions = sqliteTable('user_project_submissions', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),
   projectId: text('project_id').notNull(),
+  courseId: text('course_id'),
+  evidence: text('evidence'),
   content: text('content').notNull(), // user submission
   aiFeedback: text('ai_feedback'), // AI-generated feedback
   aiScore: integer('ai_score'), // AI score (0-100)
   status: text('status').notNull().default('submitted'), // submitted, ai_reviewed, needs_revision, approved
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
+});
+
+export const userProjectSubmissionFiles = sqliteTable('user_project_submission_files', {
+  id: text('id').primaryKey(),
+  submissionId: text('submission_id'),
+  userId: text('user_id').notNull(),
+  courseId: text('course_id').notNull(),
+  capstoneId: text('capstone_id').notNull(),
+  objectKey: text('object_key').notNull().unique(),
+  fileName: text('file_name').notNull(),
+  contentType: text('content_type').notNull(),
+  byteSize: integer('byte_size').notNull(),
+  uploadExpiresAt: text('upload_expires_at').notNull(),
+  createdAt: text('created_at').notNull(),
 });
 
 // Community Post Reactions table
