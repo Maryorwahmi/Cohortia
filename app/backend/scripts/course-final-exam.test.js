@@ -137,6 +137,58 @@ course_id: categorized-questions
   ]);
 });
 
+test('final exam parser supports descriptive bold question headings and answer-key headings', () => {
+  const source = `---
+course_id: descriptive-questions
+---
+## Final Examination
+
+**Question 1: Concept Definition (5 points)**
+Explain the difference between semantic and instance segmentation.
+
+**Answer Key & Explanation:**
+Semantic segmentation labels each pixel by class, while instance segmentation also distinguishes separate objects of the same class.
+
+**Question 2 (Code Tracing - 10 points)**
+What is printed by the following program?
+
+**Answer 2:**
+The expected output is 42.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 2);
+  assert.deepEqual(exam.questions.map((question) => question.questionNumber), [1, 2]);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'Semantic segmentation labels each pixel by class, while instance segmentation also distinguishes separate objects of the same class.',
+    'The expected output is 42.',
+  ]);
+});
+
+test('final exam parser supports list-prefixed correct-answer labels', () => {
+  const source = `---
+course_id: correct-answer-labels
+---
+## Final Examination
+
+**Question 1: Fundamentals**
+What is a pixel?
+
+*   **Correct Answer:**
+    A pixel is the smallest unit of a raster image.
+
+**Question 2: Computer Vision**
+Name a common color representation.
+
+*   **Correct Answer & Explanation:** RGB uses red, green, and blue channels.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 2);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'A pixel is the smallest unit of a raster image.',
+    'RGB uses red, green, and blue channels.',
+  ]);
+});
+
 test('multiple-choice grading awards only the selected correct option', () => {
   const question = {
     prompt: 'Which choice identifies the primary key?\nA. A unique row identifier\nB. A database backup',

@@ -108,19 +108,37 @@ export function parseCourseFinals(markdown, sourcePath = null) {
 
   const questions = [];
   for (const section of sections) {
-    const questionMatches = [...section.text.matchAll(/^(?:\s*(\d+)\.\s*)?\*\*Question(?:\s+\d+(?:\.\d+)?)?(?:\s*\([^)]*\))?:\*\*\s*([\s\S]*?)(?=^(?:\s*\d+\.\s*)?\*\*Question(?:\s+\d+(?:\.\d+)?)?(?:\s*\([^)]*\))?:\*\*|^---\s*$|(?![\s\S]))/gim)];
-    for (const match of questionMatches) {
-      const block = match[2].trim();
-      const answerMatch = block.match(/^\s*\*\*Answer(?:\s+\d+(?:\.\d+)?)?\s*:\*\*\s*([\s\S]*)$/im);
-      const prompt = answerMatch
-        ? block.slice(0, answerMatch.index).trim()
+    const lines = section.text.split(/\r?\n/);
+    const questionStarts = [];
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+      const match = lines[lineIndex].match(/^\s*(?:\d+\.\s*)?\*\*Question\b[^*\r\n]*\*\*:?\s*(.*)$/i);
+      if (match) questionStarts.push({ lineIndex, trailingText: match[1] });
+    }
+
+    for (let index = 0; index < questionStarts.length; index += 1) {
+      const start = questionStarts[index];
+      let endLineIndex = questionStarts[index + 1]?.lineIndex ?? lines.length;
+      const separatorIndex = lines.slice(start.lineIndex + 1, endLineIndex).findIndex((line) => /^---\s*$/.test(line));
+      if (separatorIndex >= 0) endLineIndex = start.lineIndex + 1 + separatorIndex;
+      const block = [start.trailingText, ...lines.slice(start.lineIndex + 1, endLineIndex)].join('\n').trim();
+      const blockLines = block.split(/\r?\n/);
+      const answerLineIndex = blockLines.findIndex((line) =>
+        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key(?:[ \t]*&[ \t]*Explanation)?)?|Correct[ \t]+Answer(?:[ \t]*&[ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
+      const answerLine = answerLineIndex >= 0
+        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key(?:[ \t]*&[ \t]*Explanation)?)?|Correct[ \t]+Answer(?:[ \t]*&[ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i)
+        : null;
+      const prompt = answerLineIndex >= 0
+        ? blockLines.slice(0, answerLineIndex).join('\n').trim()
         : block;
+      const answer = answerLine
+        ? [answerLine[1], ...blockLines.slice(answerLineIndex + 1)].join('\n').trim()
+        : '';
       questions.push({
         questionNumber: questions.length + 1,
         section: section.title,
         type: inferQuestionType(prompt),
         prompt,
-        answer: answerMatch?.[1].trim() || '',
+        answer,
         points: 1,
       });
     }

@@ -42,7 +42,7 @@ for (const file of files) {
       : duplicateQuestionNumbers
         ? 'duplicate question numbers parsed'
         : finals.exam.questions.some((question) => !question.answer.trim())
-          ? `${finals.exam.questions.filter((question) => !question.answer.trim()).length} question(s) missing answer keys`
+          ? `question(s) ${finals.exam.questions.filter((question) => !question.answer.trim()).map((question) => question.questionNumber).join(', ')} missing answer keys`
           : null;
   await client.execute({ sql: 'DELETE FROM course_capstones WHERE course_id = ?', args: [courseId] });
   for (const project of finals.capstone) {
