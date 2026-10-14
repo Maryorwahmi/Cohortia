@@ -172,6 +172,12 @@ await client.execute(`
     narrator_segment TEXT,
     narrator_text TEXT,
     narrator_duration INTEGER,
+    audio_url TEXT,
+    audio_mime_type TEXT,
+    audio_duration INTEGER,
+    audio_voice TEXT,
+    audio_model TEXT,
+    audio_source_hash TEXT,
     key_idea_title TEXT,
     key_idea_text TEXT,
     content_html TEXT,
@@ -182,6 +188,21 @@ await client.execute(`
     UNIQUE(course_id, chapter_id, screen)
   )
 `);
+
+for (const [column, definition] of [
+  ['audio_url', 'TEXT'],
+  ['audio_mime_type', 'TEXT'],
+  ['audio_duration', 'INTEGER'],
+  ['audio_voice', 'TEXT'],
+  ['audio_model', 'TEXT'],
+  ['audio_source_hash', 'TEXT'],
+]) {
+  try {
+    await client.execute(`ALTER TABLE learning_board_screens ADD COLUMN ${column} ${definition}`);
+  } catch {
+    // Column already exists on an imported database.
+  }
+}
 
 await client.execute(`
   CREATE TABLE IF NOT EXISTS learning_board_practicals (

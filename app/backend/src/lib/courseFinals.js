@@ -131,7 +131,8 @@ export function parseCourseFinals(markdown, sourcePath = null) {
       const isQuestionLabel = /^Question\b/i.test(label);
       const isNumberedPromptLabel = isTopLevel
         && /^(?:Concept Definition|Scenario Analysis|Code Tracing|Configuration Writing|Design Problem|Command Tracing|Comparison|Architecture Problem)\b/i.test(label)
-        && (Boolean(match[2]) || (Boolean(match[1]) && Boolean(match[4].trim())));
+        && !/\(\s*\d+\s+questions?\s*\)/i.test(label)
+        && (Boolean(match[2]) || Boolean(match[1]));
       if (!isTopLevel || (!isQuestionLabel && !isNumberedPromptLabel)) continue;
 
       if (isQuestionLabel && lines.slice(Math.max(0, lineIndex - 3), lineIndex)

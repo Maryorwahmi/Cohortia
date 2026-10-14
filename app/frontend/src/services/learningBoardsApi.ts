@@ -52,6 +52,14 @@ export interface LearningBoardScreen {
     text: string;
     durationSeconds?: number;
   };
+  audio?: {
+    url: string;
+    mimeType?: string;
+    durationSeconds?: number;
+    voice?: string | null;
+    model?: string | null;
+    sourceHash?: string | null;
+  } | null;
   keyIdea?: {
     title: string;
     text: string;

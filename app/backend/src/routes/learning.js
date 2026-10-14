@@ -1116,6 +1116,14 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
         durationSeconds: s.durationSeconds,
         narratorSegment: s.narratorSegment,
         narration: s.narratorText ? { text: s.narratorText, durationSeconds: s.narratorDuration } : null,
+        audio: s.audioUrl ? {
+          url: s.audioUrl,
+          mimeType: s.audioMimeType || 'audio/wav',
+          durationSeconds: s.audioDuration,
+          voice: s.audioVoice,
+          model: s.audioModel,
+          sourceHash: s.audioSourceHash,
+        } : null,
         keyIdea: s.keyIdeaTitle ? { title: s.keyIdeaTitle, text: s.keyIdeaText } : null,
         content: s.contentHtml ? { html: s.contentHtml, css: s.contentCss } : null,
       }))
