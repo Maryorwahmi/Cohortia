@@ -111,7 +111,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     const lines = section.text.split(/\r?\n/);
     const questionStarts = [];
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-      const match = lines[lineIndex].match(/^\s*(?:\d+\.\s*)?\*\*Question\b[^*\r\n]*\*\*:?\s*(.*)$/i);
+      const match = lines[lineIndex].match(/^\s*(?:\d+\.\s*)?\*\*(?:\d+[.)]\s*)?Question\b[^*\r\n]*\*\*:?\s*(.*)$/i);
       if (match) questionStarts.push({ lineIndex, trailingText: match[1] });
     }
 
@@ -123,9 +123,9 @@ export function parseCourseFinals(markdown, sourcePath = null) {
       const block = [start.trailingText, ...lines.slice(start.lineIndex + 1, endLineIndex)].join('\n').trim();
       const blockLines = block.split(/\r?\n/);
       const answerLineIndex = blockLines.findIndex((line) =>
-        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key(?:[ \t]*&[ \t]*Explanation)?)?|Correct[ \t]+Answer(?:[ \t]*&[ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
+        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key(?:[ \t]*[&/][ \t]*Explanation)?)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
       const answerLine = answerLineIndex >= 0
-        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key(?:[ \t]*&[ \t]*Explanation)?)?|Correct[ \t]+Answer(?:[ \t]*&[ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i)
+        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key(?:[ \t]*[&/][ \t]*Explanation)?)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i)
         : null;
       const prompt = answerLineIndex >= 0
         ? blockLines.slice(0, answerLineIndex).join('\n').trim()

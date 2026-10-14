@@ -189,6 +189,50 @@ Name a common color representation.
   ]);
 });
 
+test('final exam parser supports numbered question prefixes inside bold labels', () => {
+  const source = `---
+course_id: bold-numbered-questions
+---
+## Final Examination
+
+### Section 1: Foundations
+
+**1. Question:** Explain what a GitLab CI/CD pipeline does.
+
+**Answer:**
+A pipeline automates build, test, and deployment stages.
+
+**2. Question:** Name one benefit of pipeline automation.
+
+**Correct Answer:**
+It provides consistent feedback and reduces manual errors.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 2);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'A pipeline automates build, test, and deployment stages.',
+    'It provides consistent feedback and reduces manual errors.',
+  ]);
+});
+
+test('final exam parser supports slash-separated answer and explanation labels', () => {
+  const source = `---
+course_id: slash-answer-labels
+---
+## Final Examination
+
+### Section 1: Foundations
+
+**Question:** What does idempotency mean?
+
+**Correct Answer/Explanation:**
+Repeated execution has the same effect as a single execution.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 1);
+  assert.equal(exam.questions[0].answer, 'Repeated execution has the same effect as a single execution.');
+});
+
 test('multiple-choice grading awards only the selected correct option', () => {
   const question = {
     prompt: 'Which choice identifies the primary key?\nA. A unique row identifier\nB. A database backup',
