@@ -223,7 +223,7 @@ export default function Projects() {
 
   return (
     <main className="min-h-screen bg-immersive-bg">
-      <header className="mx-auto max-w-7xl px-6 pt-8">
+      <header className="mx-auto w-full max-w-[1600px] px-4 pt-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-[#FF4B3E]">
@@ -271,7 +271,7 @@ export default function Projects() {
       </header>
 
       {courses.length === 0 && (
-        <div className="mx-auto max-w-7xl px-6 py-10">
+        <div className="mx-auto w-full max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-immersive-border bg-immersive-card p-6 text-sm text-immersive-text-secondary">
             {isAdmin ? 'No courses are currently available to test.' : 'You are not enrolled in an available course. Enroll in a course to access its final project and examination.'}
           </div>
@@ -279,7 +279,7 @@ export default function Projects() {
       )}
 
       {selectedCourse && (
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
           <div className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-immersive-border bg-immersive-card/60 px-4 py-3">
             <div>
               <p className="text-sm font-bold text-immersive-text-primary">{selectedCourse.title}</p>
@@ -306,7 +306,7 @@ export default function Projects() {
             />
           )}
           {courseFinalError && !courseFinalLoading && (
-            <div role="status" className="mx-auto max-w-5xl px-6 pb-8 text-xs text-amber-300">
+            <div role="status" className="mx-auto w-full max-w-[1600px] px-4 pb-8 text-xs text-amber-300 sm:px-6 lg:px-8">
               {courseFinalError}
             </div>
           )}

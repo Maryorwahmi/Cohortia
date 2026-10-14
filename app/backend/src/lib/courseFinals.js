@@ -27,9 +27,9 @@ function sectionBody(markdown, heading) {
 }
 
 function labeledBlock(text, label) {
-  const labels = ['Project Description', 'Requirements', 'Stretch Goals', 'Evaluation Criteria', 'Estimated Time'];
+  const labels = ['Project Description', 'Requirements', 'Core Requirements', 'Project Requirements', 'Stretch Goals', 'Evaluation Criteria', 'Estimated Time'];
   const stop = labels.filter((candidate) => candidate !== label).join('|');
-  const match = String(text).match(new RegExp(`(?:\\*\\*${label}:\\*\\*|####\\s+${label})\\s*([\\s\\S]*?)(?=\\n(?:\\*\\*(?:${stop}):\\*\\*|####\\s+(?:${stop}))|\\n###|\\n##\\s+|$)`, 'i'));
+  const match = String(text).match(new RegExp(`(?:\\*\\*${label}:?\\*\\*:?|####\\s+${label})\\s*([\\s\\S]*?)(?=\\n(?:\\*\\*(?:${stop}):?\\*\\*:?|####\\s+(?:${stop}))|\\n###|\\n##\\s+|$)`, 'i'));
   return match?.[1]?.trim() || '';
 }
 
@@ -42,13 +42,26 @@ function listItems(text) {
 }
 
 function rubricItems(text) {
-  return String(text || '').split(/\r?\n/)
-    .map((line) => line.trim())
-    .map((line) => {
-      const match = line.match(/^\*\s+\*\*([^*]+?)\s*\((\d+)%\):\*\*\s*(.*)$/);
-      return match ? { criterion: clean(match[1]), weight: Number(match[2]), description: clean(match[3]) } : null;
-    })
-    .filter(Boolean);
+  const items = [];
+  for (const rawLine of String(text || '').split(/\r?\n/)) {
+    let line = rawLine.trim();
+    line = line.replace(/^\*\s+\*\*Evaluation Criteria(?:\s+\(\d+%\))?:?\*\*\s*/i, '').trim();
+    if (!line || /^\*\*?(?:Estimated Time|Stretch Goals|Requirements)/i.test(line)) continue;
+    const bold = line.match(/^(?:\*\s+)?\*\*([^*]+?)(?:\s+\((\d+)%\))?:?\*\*\s*(.*)$/);
+    if (bold) {
+      items.push({criterion: clean(bold[1]), weight: bold[2] ? Number(bold[2]) : null, description: clean(bold[3])});
+      continue;
+    }
+    const plain = line.match(/^\*\s+(?:\*\s+)?(.+?)\s*$/);
+    if (plain && !/^\*\*/.test(plain[1])) items.push({criterion: clean(plain[1]), weight: null, description: ''});
+  }
+  if (!items.length) return items;
+  const hasCompleteWeights = items.every((item) => Number.isInteger(item.weight))
+    && items.reduce((total, item) => total + item.weight, 0) === 100;
+  if (hasCompleteWeights) return items;
+  const base = Math.floor(100 / items.length);
+  const remainder = 100 - (base * items.length);
+  return items.map((item, index) => ({...item, weight: base + (index < remainder ? 1 : 0)}));
 }
 
 function projectDescription(text) {
@@ -95,7 +108,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
       optionNumber: Number(match[1]),
       title: clean(match[2]),
       description: projectDescription(body),
-      requirements: listItems(labeledBlock(body, 'Requirements')),
+      requirements: listItems(labeledBlock(body, 'Requirements') || labeledBlock(body, 'Core Requirements') || labeledBlock(body, 'Project Requirements')),
       stretchGoals: listItems(labeledBlock(body, 'Stretch Goals')),
       rubric: rubricItems(labeledBlock(body, 'Evaluation Criteria')),
       estimatedTime: clean(labeledBlock(body, 'Estimated Time')),
@@ -118,7 +131,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     const lines = section.text.split(/\r?\n/);
     const questionStarts = [];
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-      const headingMatch = lines[lineIndex].match(/^\s*#{2,4}\s+(?:\d+[.)]\s*)?Question(?:\s+\d+)?\s*:\s*(.*)$/i);
+      const headingMatch = lines[lineIndex].match(/^\s*#{2,4}\s+(?:\d+(?:\.\d+)?[.)]\s*)?Question(?:\s+\d+(?:\.\d+)?)?\s*:\s*(.*)$/i);
       if (headingMatch) {
         questionStarts.push({ lineIndex, trailingText: headingMatch[1] || '' });
         continue;
@@ -135,8 +148,8 @@ export function parseCourseFinals(markdown, sourcePath = null) {
         && (Boolean(match[2]) || Boolean(match[1]));
       if (!isTopLevel || (!isQuestionLabel && !isNumberedPromptLabel)) continue;
 
-      if (isQuestionLabel && lines.slice(Math.max(0, lineIndex - 3), lineIndex)
-        .some((candidate) => /^\s*#{2,4}\s+(?:\d+[.)]\s*)?Question\b/i.test(candidate))) continue;
+      if (isQuestionLabel && /^Question\s*:?[\s]*$/i.test(label) && lines.slice(Math.max(0, lineIndex - 3), lineIndex)
+        .some((candidate) => /^\s*(?:#{2,4}\s+(?:\d+(?:\.\d+)?[.)]\s*)?Question\b|\*\*Question\s+\d+(?:\.\d+)?\s*[:.)])/i.test(candidate))) continue;
 
       questionStarts.push({ lineIndex, trailingText: match[4] });
     }
@@ -144,14 +157,23 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     for (let index = 0; index < questionStarts.length; index += 1) {
       const start = questionStarts[index];
       let endLineIndex = questionStarts[index + 1]?.lineIndex ?? lines.length;
-      const separatorIndex = lines.slice(start.lineIndex + 1, endLineIndex).findIndex((line) => /^---\s*$/.test(line));
+      let fenced = false;
+      let separatorIndex = -1;
+      for (let offset = 0; offset < endLineIndex - start.lineIndex - 1; offset += 1) {
+        const line = lines[start.lineIndex + 1 + offset];
+        if (/^\s*```/.test(line)) fenced = !fenced;
+        if (!fenced && /^---\s*$/.test(line)) {
+          separatorIndex = offset;
+          break;
+        }
+      }
       if (separatorIndex >= 0) endLineIndex = start.lineIndex + 1 + separatorIndex;
       const block = [start.trailingText, ...lines.slice(start.lineIndex + 1, endLineIndex)].join('\n').trim();
       const blockLines = block.split(/\r?\n/);
       const answerLineIndex = blockLines.findIndex((line) =>
-        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
+        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
       const answerLine = answerLineIndex >= 0
-        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i)
+        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i)
         : null;
       const prompt = answerLineIndex >= 0
         ? blockLines.slice(0, answerLineIndex).join('\n').trim()
@@ -174,7 +196,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     const answerKeyItems = [];
     const lines = answerKeyText.split(/\r?\n/);
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-      if (/^\s*(?:[-*]\s*)?\*\*\d+[.)]\s+[^*\r\n]+\*\*/.test(lines[lineIndex])) {
+      if (/^(?:[-*]\s*)?(?:\*\*\d+[.)]\s+[^*\r\n]+\*\*|\d+[.)]\s+\*\*[^*\r\n]+\*\*)/.test(lines[lineIndex])) {
         answerKeyItems.push(lineIndex);
       }
     }
@@ -183,9 +205,9 @@ export function parseCourseFinals(markdown, sourcePath = null) {
       const endLineIndex = answerKeyItems[index + 1] ?? lines.length;
       const blockLines = lines.slice(startLineIndex + 1, endLineIndex);
       const answerLineIndex = blockLines.findIndex((line) =>
-        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
+        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
       if (answerLineIndex < 0) continue;
-      const answerLine = blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i);
+      const answerLine = blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i);
       if (!answerLine) continue;
       const answer = [answerLine[1], ...blockLines.slice(answerLineIndex + 1)].join('\n').trim();
       if (questions[index] && !questions[index].answer) questions[index].answer = answer;

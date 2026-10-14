@@ -33,7 +33,7 @@ export default function ProjectsPage({
 }: ProjectsPageProps) {
   if (!courseFinal) {
     return (
-      <section className="mx-auto max-w-5xl px-6 py-12">
+      <section className="mx-auto w-full max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-immersive-border bg-immersive-card p-6">
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />

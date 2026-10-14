@@ -311,7 +311,7 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
         <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-2">| COURSE FINALS</span>
         <h2 className="text-2xl sm:text-3xl font-sans font-extrabold text-immersive-text-primary tracking-tight">Final project & examination</h2>
         <p className="text-sm text-immersive-text-secondary max-w-3xl font-medium mt-1">This workspace is generated from the course specification. Choose one capstone brief, review its evidence requirements, then prepare for the course-specific final examination.</p>
-        {adminTestMode && <p className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">Admin testing mode: course enrollment and chapter-completion gates are bypassed for exam testing.</p>}
+        {adminTestMode && <p className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">Admin testing mode: choose a course and test its capstone project and final exam without enrollment or completing course chapters.</p>}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.75fr] gap-6">
