@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 import {AlertCircle, BookOpen, LoaderCircle, ShieldCheck} from 'lucide-react';
 import ProjectsPage from '../../components/dashboard/ProjectsPage';
 import {useAuth} from '../../context/AuthContext';
-import {CourseFinalPackage, Track, projectApi, trackApi} from '../../services/api';
+import {CourseFinalPackage, EvidenceFile, Track, projectApi, trackApi} from '../../services/api';
 
 interface BackendSubmission {
   id?: string;
@@ -12,6 +12,7 @@ interface BackendSubmission {
   score?: number;
   status?: string;
   createdAt?: string;
+  files?: EvidenceFile[];
 }
 
 function toBackendSubmission(value: Record<string, unknown>): BackendSubmission {
@@ -32,6 +33,7 @@ function toBackendSubmission(value: Record<string, unknown>): BackendSubmission 
     score: typeof value.aiScore === 'number' ? value.aiScore : undefined,
     status: typeof value.status === 'string' ? value.status : undefined,
     createdAt: typeof value.createdAt === 'string' ? value.createdAt : undefined,
+    files: Array.isArray(value.files) ? value.files as EvidenceFile[] : [],
   };
 }
 
@@ -167,9 +169,9 @@ export default function Projects() {
     [courses, selectedCourseId],
   );
 
-  const handleSubmit = async (projectId: string, content: string) => {
+  const handleSubmit = async (projectId: string, content: string, fileIds: string[], withoutFileEvidence: boolean) => {
     try {
-      const submitResponse = await projectApi.submit(projectId, content);
+      const submitResponse = await projectApi.submit(projectId, content, fileIds, withoutFileEvidence);
       if (!submitResponse.success) throw new Error(submitResponse.error || 'Capstone submission failed.');
       const submission = submitResponse.data?.submission as BackendSubmission | undefined;
       if (!submission?.id) throw new Error('The submission was accepted without a submission ID.');

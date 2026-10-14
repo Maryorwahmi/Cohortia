@@ -13,9 +13,21 @@ async function ensureCourseFinalTables() {
     `CREATE TABLE IF NOT EXISTS course_capstones (
       id TEXT PRIMARY KEY, course_id TEXT NOT NULL, option_number INTEGER NOT NULL, title TEXT NOT NULL,
       description TEXT NOT NULL, requirements TEXT, stretch_goals TEXT, rubric TEXT, estimated_time TEXT,
+      requires_file_evidence INTEGER NOT NULL DEFAULT 0,
       source_path TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
       UNIQUE(course_id, option_number)
     )`,
+    `CREATE TABLE IF NOT EXISTS course_final_packages (
+      course_id TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'draft',
+      created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+    )`,
+    `CREATE TABLE IF NOT EXISTS course_final_review_audit (
+      id TEXT PRIMARY KEY, submission_id TEXT NOT NULL, reviewer_id TEXT NOT NULL,
+      action TEXT NOT NULL, score INTEGER, feedback TEXT, rubric_scores TEXT, created_at TEXT NOT NULL
+    )`,
+    `ALTER TABLE course_final_review_audit ADD COLUMN rubric_scores TEXT`,
+    `CREATE INDEX IF NOT EXISTS course_final_review_audit_submission_created_idx
+      ON course_final_review_audit (submission_id, created_at)`,
     `CREATE TABLE IF NOT EXISTS user_course_final_progress (
       id TEXT PRIMARY KEY, user_id TEXT NOT NULL, course_id TEXT NOT NULL, selected_capstone_id TEXT,
       capstone_status TEXT NOT NULL DEFAULT 'not_started', created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
@@ -58,7 +70,12 @@ async function ensureCourseFinalTables() {
   ];
 
   for (const statement of statements) {
-    await client.execute(statement);
+    try {
+      await client.execute(statement);
+    } catch (error) {
+      if (!statement.startsWith('ALTER TABLE course_final_review_audit ADD COLUMN rubric_scores')
+        || !String(error.message).includes('duplicate column name')) throw error;
+    }
   }
 
   const submissionColumns = await client.execute('PRAGMA table_info(user_project_submissions)');
@@ -68,6 +85,23 @@ async function ensureCourseFinalTables() {
   }
   if (!existingSubmissionColumns.has('evidence')) {
     await client.execute('ALTER TABLE user_project_submissions ADD COLUMN evidence TEXT');
+  }
+  if (!existingSubmissionColumns.has('reviewer_feedback')) {
+    await client.execute('ALTER TABLE user_project_submissions ADD COLUMN reviewer_feedback TEXT');
+  }
+  if (!existingSubmissionColumns.has('reviewed_by')) {
+    await client.execute('ALTER TABLE user_project_submissions ADD COLUMN reviewed_by TEXT');
+  }
+  if (!existingSubmissionColumns.has('reviewed_at')) {
+    await client.execute('ALTER TABLE user_project_submissions ADD COLUMN reviewed_at TEXT');
+  }
+  if (!existingSubmissionColumns.has('reviewer_score')) {
+    await client.execute('ALTER TABLE user_project_submissions ADD COLUMN reviewer_score INTEGER');
+  }
+  const capstoneColumns = await client.execute('PRAGMA table_info(course_capstones)');
+  const existingCapstoneColumns = new Set(capstoneColumns.rows.map((row) => row.name));
+  if (!existingCapstoneColumns.has('requires_file_evidence')) {
+    await client.execute('ALTER TABLE course_capstones ADD COLUMN requires_file_evidence INTEGER NOT NULL DEFAULT 0');
   }
 
   await client.execute('UPDATE course_final_exams SET time_limit_minutes = 90 WHERE time_limit_minutes IS NULL');

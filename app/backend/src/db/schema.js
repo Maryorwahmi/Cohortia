@@ -341,12 +341,20 @@ export const courseCapstones = sqliteTable('course_capstones', {
   stretchGoals: text('stretch_goals'),
   rubric: text('rubric'),
   estimatedTime: text('estimated_time'),
+  requiresFileEvidence: integer('requires_file_evidence', {mode: 'boolean'}).notNull().default(false),
   sourcePath: text('source_path'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 }, (table) => ({
   courseOptionUnique: uniqueIndex('course_capstones_course_option_unique').on(table.courseId, table.optionNumber),
 }));
+
+export const courseFinalPackages = sqliteTable('course_final_packages', {
+  courseId: text('course_id').primaryKey(),
+  status: text('status').notNull().default('draft'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
 
 export const userCourseFinalProgress = sqliteTable('user_course_final_progress', {
   id: text('id').primaryKey(),
@@ -444,6 +452,10 @@ export const userProjectSubmissions = sqliteTable('user_project_submissions', {
   content: text('content').notNull(), // user submission
   aiFeedback: text('ai_feedback'), // AI-generated feedback
   aiScore: integer('ai_score'), // AI score (0-100)
+  reviewerFeedback: text('reviewer_feedback'),
+  reviewedBy: text('reviewed_by'),
+  reviewedAt: text('reviewed_at'),
+  reviewerScore: integer('reviewer_score'),
   status: text('status').notNull().default('submitted'), // submitted, ai_reviewed, needs_revision, approved
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
@@ -462,6 +474,19 @@ export const userProjectSubmissionFiles = sqliteTable('user_project_submission_f
   uploadExpiresAt: text('upload_expires_at').notNull(),
   createdAt: text('created_at').notNull(),
 });
+
+export const courseFinalReviewAudit = sqliteTable('course_final_review_audit', {
+  id: text('id').primaryKey(),
+  submissionId: text('submission_id').notNull(),
+  reviewerId: text('reviewer_id').notNull(),
+  action: text('action').notNull(),
+  score: integer('score'),
+  feedback: text('feedback'),
+  rubricScores: text('rubric_scores'),
+  createdAt: text('created_at').notNull(),
+}, (table) => ({
+  submissionCreatedIdx: index('course_final_review_audit_submission_created_idx').on(table.submissionId, table.createdAt),
+}));
 
 // Community Post Reactions table
 export const communityReactions = sqliteTable('community_reactions', {

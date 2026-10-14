@@ -1,4 +1,4 @@
-import {GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
+import {DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 
 const PRESIGNED_URL_TTL_SECONDS = 900;
@@ -62,4 +62,13 @@ export async function inspectR2Object(key) {
     contentType: result.ContentType || '',
     byteSize: Number(result.ContentLength) || 0,
   };
+}
+
+export async function deleteR2Object(key) {
+  const configuration = r2Configuration();
+  if (!configuration) throw new Error('R2 is not configured.');
+  await getR2Client(configuration).send(new DeleteObjectCommand({
+    Bucket: configuration.bucket,
+    Key: key,
+  }));
 }

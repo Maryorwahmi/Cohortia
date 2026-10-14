@@ -233,6 +233,114 @@ Repeated execution has the same effect as a single execution.
   assert.equal(exam.questions[0].answer, 'Repeated execution has the same effect as a single execution.');
 });
 
+test('final exam parser supports numbered category prompts with inline answer and explanation labels', () => {
+  const source = `---
+course_id: category-prompt-questions
+---
+## Final Examination
+
+### Questions
+
+1. **Concept Definition:** Explain what a distributed database is.
+* **Answer:** It stores data across multiple nodes.
+
+2. **Code Tracing:** What does this SQL query return?
+* **Answer & Explanation:**
+It returns the rows matching the query.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 2);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'It stores data across multiple nodes.',
+    'It returns the rows matching the query.',
+  ]);
+});
+
+test('final exam parser supports question headings before the inline question text', () => {
+  const source = `---
+course_id: question-heading-questions
+---
+## Final Examination
+
+### Question 1: Concept Definition (RTO vs. RPO)
+**Question:** Explain the difference between RTO and RPO.
+
+**Correct Answer/Explanation:**
+RTO is the acceptable downtime, while RPO is the acceptable data loss window.
+
+### Question 2: Design Problem (High-Availability)
+**Question:** Which AWS services help minimize downtime?
+
+**Correct Answer/Explanation:**
+Route 53 and multi-region failover reduce downtime.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 2);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'RTO is the acceptable downtime, while RPO is the acceptable data loss window.',
+    'Route 53 and multi-region failover reduce downtime.',
+  ]);
+});
+
+test('final exam parser maps a separate numbered answer key to its questions', () => {
+  const source = `---
+course_id: separate-answer-key
+---
+## Final Examination
+
+### Questions
+
+**1. Concept Definition: Supervised Learning**
+Explain how supervised learning uses labeled data.
+
+**2. Scenario Analysis: Model Selection**
+Should house-price prediction use regression or classification?
+
+### Answer Key
+
+**1. Concept Definition: Supervised Learning**
+* **Answer:**
+Training examples pair input features with known output labels.
+
+**2. Scenario Analysis: Model Selection**
+* **Answer:**
+Use regression because the target is a continuous numeric price.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 2);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'Training examples pair input features with known output labels.',
+    'Use regression because the target is a continuous numeric price.',
+  ]);
+});
+
+test('final exam parser does not treat numbered answer details as new questions', () => {
+  const source = `---
+course_id: nested-numbered-answer-details
+---
+## Final Examination
+
+1. **Question:** What should you check when diagnosing a client connection failure?
+   **Answer:**
+   Check the connection profile and wallet configuration:
+   1. **Connection Profile Configuration:** Verify that peer and orderer addresses are correct.
+   2. **Wallet and Identity Setup:** Confirm that the wallet contains a valid enrolled identity.
+   3. **Service Discovery:** Confirm that peers advertise reachable addresses.
+
+2. **Question:** What should you verify about service discovery?
+   **Answer:** Confirm that discovery advertises reachable peer addresses.
+`;
+  const exam = parseCourseFinals(source).exam;
+  assert.equal(exam.questions.length, 2);
+  assert.deepEqual(exam.questions.map((question) => question.answer), [
+    'Check the connection profile and wallet configuration:\n' +
+      '   1. **Connection Profile Configuration:** Verify that peer and orderer addresses are correct.\n' +
+      '   2. **Wallet and Identity Setup:** Confirm that the wallet contains a valid enrolled identity.\n' +
+      '   3. **Service Discovery:** Confirm that peers advertise reachable addresses.',
+    'Confirm that discovery advertises reachable peer addresses.',
+  ]);
+});
+
 test('multiple-choice grading awards only the selected correct option', () => {
   const question = {
     prompt: 'Which choice identifies the primary key?\nA. A unique row identifier\nB. A database backup',

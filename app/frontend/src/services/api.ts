@@ -343,6 +343,7 @@ export interface Track {
 export interface TrackEnrollment {
   id: string;
   trackId: string;
+  courseId?: string;
   status: string;
   enrolledAt?: string;
   updatedAt?: string;
@@ -465,6 +466,9 @@ export const lessonApi = {
 // AI Projects
 export interface CourseFinalPackage {
   courseId: string;
+  status: 'draft' | 'review' | 'ready' | 'published' | 'archived';
+  difficulty: string | null;
+  validation: {valid: boolean; errors: string[]};
   selectedCapstoneId?: string | null;
   capstoneStatus?: string;
   capstones: Array<{
@@ -476,6 +480,7 @@ export interface CourseFinalPackage {
     stretchGoals: string[];
     rubric: Array<{ criterion: string; weight: number }>;
     estimatedTime?: string | null;
+    requiresFileEvidence: boolean;
   }>;
   exam: {
     id: string;
@@ -548,7 +553,25 @@ export interface CourseFinalExamAttemptsResponse {
 export const projectApi = {
   getByRoadmap: (roadmapId: string) => fetchApi<{ success: boolean; data?: { projects: Array<Record<string, unknown>> }; error?: string }>(`/projects/${roadmapId}`),
   getSubmissions: () => fetchApi<{ success: boolean; data?: { submissions: Array<Record<string, unknown>> }; error?: string }>('/projects/submissions/me'),
+  getCapstoneReviewQueue: () => fetchApi<{success: boolean; data?: {submissions: Array<Record<string, unknown>>}; error?: string}>('/projects/admin/capstone-submissions'),
+  reviewCapstoneSubmission: (submissionId: string, data: {status: 'approved' | 'needs_revision'; score: number; feedback: string; rubricScores?: Array<{criterion: string; score: number}>}) =>
+    fetchApi<{success: boolean; error?: string}>(`/projects/admin/capstone-submissions/${encodeURIComponent(submissionId)}/review`, {method: 'POST', body: JSON.stringify(data)}),
+  getCapstoneReviewHistory: (submissionId: string) =>
+    fetchApi<{success: boolean; data?: {history: Array<Record<string, unknown>>}; error?: string}>(`/projects/admin/capstone-submissions/${encodeURIComponent(submissionId)}/history`),
+  getExamReviewQueue: () => fetchApi<{success: boolean; data?: {attempts: Array<Record<string, unknown>>}; error?: string}>('/projects/admin/final-exam-attempts/review'),
+  reviewExamAttempt: (attemptId: string, data: {score: number; feedback: string}) =>
+    fetchApi<{success: boolean; error?: string}>(`/projects/admin/final-exam-attempts/${encodeURIComponent(attemptId)}/review`, {method: 'POST', body: JSON.stringify(data)}),
+  updateCourseFinalStatus: (courseId: string, status: 'draft' | 'review' | 'ready' | 'published' | 'archived') =>
+    fetchApi<{success: boolean; data?: {status: string; validation: {valid: boolean; errors: string[]}}; error?: string}>(`/projects/admin/course/${encodeURIComponent(courseId)}/final/status`, {
+      method: 'PUT',
+      body: JSON.stringify({status}),
+    }),
+  getUnattachedEvidence: (courseId: string, capstoneId: string) =>
+    fetchApi<{success: boolean; data?: {files: Array<EvidenceFile>}; error?: string}>(`/projects/submission-files/me?courseId=${encodeURIComponent(courseId)}&capstoneId=${encodeURIComponent(capstoneId)}`),
+  deleteEvidence: (fileId: string) =>
+    fetchApi<{success: boolean; error?: string}>(`/projects/submission-files/${encodeURIComponent(fileId)}`, {method: 'DELETE'}),
   getCourseFinal: (courseId: string) => fetchApi<{ success: boolean; data?: CourseFinalPackage; error?: string }>(`/projects/course/${encodeURIComponent(courseId)}/final`),
+  getCourseFinalPackages: () => fetchApi<{success: boolean; data?: {packages: Array<{courseId: string; title: string; difficulty: string | null; status: string; validation: {valid: boolean; errors: string[]}}>}; error?: string}>('/projects/admin/course-finals'),
   updateCourseFinalSelection: (courseId: string, capstoneId: string) =>
     fetchApi<{ success: boolean; data?: { selectedCapstoneId: string; capstoneStatus: string }; error?: string }>(`/projects/course/${encodeURIComponent(courseId)}/final/capstone-selection`, {
       method: 'PUT',
@@ -569,10 +592,10 @@ export const projectApi = {
       method: 'POST',
       body: JSON.stringify({ answers }),
     }),
-  getEvidenceUploadUrl: (courseId: string, capstoneId: string, fileName: string, contentType: string, submissionId?: string) =>
+  getEvidenceUploadUrl: (courseId: string, capstoneId: string, fileName: string, contentType: string) =>
     fetchApi<{ success: boolean; data?: { fileId: string; objectKey: string; uploadUrl: string; expiresInSeconds: number; uploadExpiresAt: string }; error?: string }>(`/projects/submission-files/upload-url`, {
       method: 'POST',
-      body: JSON.stringify({ courseId, capstoneId, fileName, contentType, submissionId }),
+      body: JSON.stringify({ courseId, capstoneId, fileName, contentType }),
     }),
   completeEvidenceUpload: (fileId: string) =>
     fetchApi<{ success: boolean; data?: { fileId: string; objectKey: string; byteSize: number; contentType: string }; error?: string }>(`/projects/submission-files/${encodeURIComponent(fileId)}/complete`, {
@@ -580,14 +603,23 @@ export const projectApi = {
     }),
   getEvidenceDownloadUrl: (fileId: string) =>
     fetchApi<{ success: boolean; data?: { fileId: string; fileName: string; contentType: string; objectKey: string; downloadUrl: string; expiresInSeconds: number }; error?: string }>(`/projects/submission-files/${encodeURIComponent(fileId)}/download`),
-  submit: (projectId: string, content: string) =>
+  submit: (projectId: string, content: string, fileIds: string[] = [], withoutFileEvidence = false) =>
     fetchApi<{ success: boolean; data?: { submission: Record<string, unknown> }; error?: string }>(`/projects/${projectId}/submit`, {
       method: 'POST',
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, fileIds, withoutFileEvidence }),
     }),
   getFeedback: (submissionId: string) =>
     fetchApi<{ success: boolean; data?: Record<string, unknown>; error?: string }>(`/projects/${submissionId}/feedback`, { method: 'POST' }),
 };
+
+export interface EvidenceFile {
+  id: string;
+  submissionId?: string | null;
+  fileName: string;
+  contentType: string;
+  byteSize: number;
+  createdAt: string;
+}
 
 // Chat
 export interface ChatLearningContext {

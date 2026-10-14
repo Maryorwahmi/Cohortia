@@ -9,6 +9,10 @@ await client.execute(`CREATE TABLE IF NOT EXISTS course_capstones (
   source_path TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
   UNIQUE(course_id, option_number)
 )`);
+await client.execute(`CREATE TABLE IF NOT EXISTS course_final_packages (
+  course_id TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'draft',
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+)`);
 await client.execute(`CREATE TABLE IF NOT EXISTS user_course_final_progress (
   id TEXT PRIMARY KEY, user_id TEXT NOT NULL, course_id TEXT NOT NULL, selected_capstone_id TEXT,
   capstone_status TEXT NOT NULL DEFAULT 'not_started', created_at TEXT NOT NULL, updated_at TEXT NOT NULL,

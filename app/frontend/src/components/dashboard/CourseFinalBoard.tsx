@@ -1,6 +1,6 @@
 import {useEffect, useState, type ChangeEvent} from 'react';
 import {AlertCircle, CheckCircle2, ChevronDown, Clock3, Code2, ListChecks} from 'lucide-react';
-import {CourseFinalExamAttempt, CourseFinalPackage, projectApi} from '../../services/api';
+import {CourseFinalExamAttempt, CourseFinalPackage, EvidenceFile, projectApi} from '../../services/api';
 
 interface CourseFinalBoardProps {
   courseFinal: CourseFinalPackage;
@@ -13,8 +13,9 @@ interface CourseFinalBoardProps {
     score?: number;
     status?: string;
     createdAt?: string;
+    files?: EvidenceFile[];
   }>;
-  onSubmit?: (projectId: string, content: string) => Promise<{
+  onSubmit?: (projectId: string, content: string, fileIds: string[], withoutFileEvidence: boolean) => Promise<{
     success: boolean;
     submission?: {id?: string; feedback?: string; score?: number; status?: string};
     feedbackError?: string;
@@ -45,7 +46,9 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
   const [capstoneMessage, setCapstoneMessage] = useState<string | null>(null);
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const [evidenceUploadBusy, setEvidenceUploadBusy] = useState(false);
-  const [uploadedEvidence, setUploadedEvidence] = useState<{fileId: string; objectKey: string; byteSize: number; contentType: string} | null>(null);
+  const [uploadedEvidence, setUploadedEvidence] = useState<EvidenceFile[]>([]);
+  const [evidenceLoading, setEvidenceLoading] = useState(false);
+  const [withoutFileEvidence, setWithoutFileEvidence] = useState(false);
   const [attemptsData, setAttemptsData] = useState<Awaited<ReturnType<typeof projectApi.getFinalExamAttempts>>['data']>();
   const [currentAttempt, setCurrentAttempt] = useState<CourseFinalExamAttempt | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -61,6 +64,27 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
   useEffect(() => {
     setSelectedId(courseFinal.selectedCapstoneId || courseFinal.capstones[0]?.id || '');
   }, [courseFinal.courseId, courseFinal.selectedCapstoneId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!selected) {
+      setUploadedEvidence([]);
+      return () => { cancelled = true; };
+    }
+    setEvidenceLoading(true);
+    projectApi.getUnattachedEvidence(courseFinal.courseId, selected.id)
+      .then((response) => {
+        if (!response.success || !response.data) throw new Error(response.error || 'Could not load uploaded evidence.');
+        if (!cancelled) setUploadedEvidence(response.data.files);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setCapstoneMessage(errorMessage(error));
+      })
+      .finally(() => {
+        if (!cancelled) setEvidenceLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [courseFinal.courseId, selected?.id]);
 
   const selectCapstone = async (capstoneId: string) => {
     setSelectionSaving(true);
@@ -98,8 +122,15 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
       if (!completeResponse.success || !completeResponse.data) {
         throw new Error(completeResponse.error || 'The evidence upload could not be verified.');
       }
-      setUploadedEvidence(completeResponse.data);
+      setUploadedEvidence((current) => [...current, {
+        id: completeResponse.data!.fileId,
+        fileName: evidenceFile.name,
+        contentType: completeResponse.data!.contentType,
+        byteSize: completeResponse.data!.byteSize,
+        createdAt: new Date().toISOString(),
+      }]);
       setEvidenceFile(null);
+      setWithoutFileEvidence(false);
       setCapstoneMessage('Evidence uploaded successfully.');
       return completeResponse.data;
     } catch (error) {
@@ -115,15 +146,31 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
     setCapstoneBusy(true);
     setCapstoneMessage(null);
     try {
+      let filesToSubmit = uploadedEvidence;
       if (evidenceFile) {
         const uploaded = await uploadEvidenceForSelectedCapstone();
         if (!uploaded) {
           throw new Error('Please upload evidence before submitting your capstone.');
         }
+        filesToSubmit = [...filesToSubmit, {
+          id: uploaded.fileId,
+          fileName: evidenceFile.name,
+          contentType: uploaded.contentType,
+          byteSize: uploaded.byteSize,
+          createdAt: new Date().toISOString(),
+        }];
       }
-      const result = await onSubmit(selected.id, capstoneText.trim());
+      if (selected.requiresFileEvidence && filesToSubmit.length === 0) {
+        throw new Error('Attach at least one verified evidence file before submitting.');
+      }
+      if (filesToSubmit.length === 0 && !withoutFileEvidence) {
+        throw new Error('Attach a verified evidence file or confirm that you are submitting without file evidence.');
+      }
+      const result = await onSubmit(selected.id, capstoneText.trim(), filesToSubmit.map((file) => file.id), withoutFileEvidence);
       if (!result.success) throw new Error(result.error || 'Capstone submission failed.');
       setCapstoneText('');
+      setUploadedEvidence([]);
+      setWithoutFileEvidence(false);
       setCapstoneMessage(result.feedbackError
         ? `Submission received. Feedback is temporarily unavailable: ${result.feedbackError}`
         : 'Capstone submission received.');
@@ -237,6 +284,27 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
     setEvidenceFile(file);
   };
 
+  const deleteEvidence = async (fileId: string) => {
+    setCapstoneMessage(null);
+    try {
+      const response = await projectApi.deleteEvidence(fileId);
+      if (!response.success) throw new Error(response.error || 'Could not delete the uploaded evidence.');
+      setUploadedEvidence((current) => current.filter((file) => file.id !== fileId));
+    } catch (error) {
+      setCapstoneMessage(errorMessage(error));
+    }
+  };
+
+  const downloadEvidence = async (fileId: string) => {
+    try {
+      const response = await projectApi.getEvidenceDownloadUrl(fileId);
+      if (!response.success || !response.data) throw new Error(response.error || 'Could not download the evidence file.');
+      window.open(response.data.downloadUrl, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      setCapstoneMessage(errorMessage(error));
+    }
+  };
+
   return (
     <section className="pt-3 pb-12 space-y-8">
       <div>
@@ -296,12 +364,13 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
                 <span className="text-immersive-text-secondary">{latestSubmission.status || 'submitted'}{latestSubmission.score !== undefined ? ` · ${latestSubmission.score}%` : ''}</span>
               </div>
               {latestSubmission.feedback && <p className="text-immersive-text-secondary mt-2 whitespace-pre-wrap">{latestSubmission.feedback}</p>}
+              {latestSubmission.files?.map((file) => <button key={file.id} type="button" onClick={() => void downloadEvidence(file.id)} className="mt-2 block text-left font-bold text-[#FF4B3E] hover:underline">{file.fileName} · Download</button>)}
             </div>}
             <textarea aria-label="Capstone project submission" value={capstoneText} onChange={(event) => setCapstoneText(event.target.value)} rows={5} maxLength={30_000} className="w-full rounded-xl border border-immersive-border bg-immersive-bg p-3 text-xs text-immersive-text-primary" placeholder="Describe your project and include the work you want reviewed..." />
             <div className="rounded-xl border border-dashed border-immersive-border bg-immersive-bg/40 p-3 space-y-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[10px] font-mono font-bold tracking-widest text-immersive-text-secondary uppercase">Evidence</p>
-                <span className="text-[10px] text-immersive-text-secondary">Optional</span>
+                <span className={`text-[10px] ${selected.requiresFileEvidence ? 'text-amber-300' : 'text-immersive-text-secondary'}`}>{selected.requiresFileEvidence ? 'Required' : 'Optional'}</span>
               </div>
               <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-immersive-border bg-immersive-bg px-3 py-2 text-xs text-immersive-text-primary">
                 <span className="truncate">{evidenceFile ? evidenceFile.name : 'Choose a README, screenshot, demo, or supporting file'}</span>
@@ -313,12 +382,22 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
                   {evidenceUploadBusy ? 'Uploading evidence...' : 'Upload evidence'}
                 </button>
               )}
-              {uploadedEvidence && (
-                <p className="text-[11px] text-emerald-300">Uploaded {uploadedEvidence.objectKey.split('/').at(-1) || 'evidence file'} ({Math.round(uploadedEvidence.byteSize / 1024)} KB)</p>
+              {evidenceLoading && <p className="text-[11px] text-immersive-text-secondary">Loading verified uploads...</p>}
+              {uploadedEvidence.map((file) => (
+                <div key={file.id} className="flex items-center justify-between gap-2 text-[11px] text-emerald-300">
+                  <span className="truncate">Verified {file.fileName} ({Math.round(file.byteSize / 1024)} KB)</span>
+                  <button type="button" onClick={() => void deleteEvidence(file.id)} className="shrink-0 font-bold text-rose-300 hover:underline">Remove</button>
+                </div>
+              ))}
+              {!selected.requiresFileEvidence && (
+                <label className="flex items-start gap-2 text-[11px] text-immersive-text-secondary">
+                  <input type="checkbox" checked={withoutFileEvidence} onChange={(event) => setWithoutFileEvidence(event.target.checked)} />
+                  <span>I am submitting without file evidence.</span>
+                </label>
               )}
             </div>
             {capstoneMessage && <p role="status" className="text-xs text-immersive-text-secondary">{capstoneMessage}</p>}
-            <button onClick={() => void submitCapstone()} disabled={!capstoneText.trim() || capstoneBusy || selectionSaving || !onSubmit} className="w-full rounded-xl bg-[#FF4B3E] hover:bg-[#e64035] disabled:opacity-50 text-white py-2.5 text-xs font-bold">
+            <button onClick={() => void submitCapstone()} disabled={!capstoneText.trim() || capstoneBusy || selectionSaving || !onSubmit || (!evidenceFile && uploadedEvidence.length === 0 && (selected.requiresFileEvidence || !withoutFileEvidence))} className="w-full rounded-xl bg-[#FF4B3E] hover:bg-[#e64035] disabled:opacity-50 text-white py-2.5 text-xs font-bold">
               {capstoneBusy ? 'Submitting...' : 'Submit selected capstone'}
             </button>
           </div>}

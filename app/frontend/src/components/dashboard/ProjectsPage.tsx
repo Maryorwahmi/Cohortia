@@ -1,5 +1,5 @@
 import {AlertCircle} from 'lucide-react';
-import {CourseFinalPackage} from '../../services/api';
+import {CourseFinalPackage, EvidenceFile} from '../../services/api';
 import CourseFinalBoard from './CourseFinalBoard';
 
 interface ProjectsPageProps {
@@ -12,8 +12,9 @@ interface ProjectsPageProps {
     score?: number;
     status?: string;
     createdAt?: string;
+    files?: EvidenceFile[];
   }>;
-  onSubmit: (projectId: string, content: string) => Promise<{
+  onSubmit: (projectId: string, content: string, fileIds: string[], withoutFileEvidence: boolean) => Promise<{
     success: boolean;
     submission?: {id?: string; feedback?: string; score?: number; status?: string};
     feedbackError?: string;

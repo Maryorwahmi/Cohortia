@@ -4,15 +4,17 @@ import {
   projectTemplates, userProjectSubmissions, userRoadmaps, courseCapstones, courseFinalExams,
   courseFinalExamQuestions, courseFinalExamAttempts, courseFinalExamAttemptAnswers,
   courseFinalExamAttemptGrants, enrollments, lessons, progress, learningBoardChapters,
-  learningBoardProgress, userCourseFinalProgress, userProjectSubmissionFiles,
+  learningBoardProgress, learningBoardCourses, tracks, userCourseFinalProgress,
+  userProjectSubmissionFiles, courseFinalPackages, courseFinalReviewAudit, users,
 } from '../db/schema.js';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, desc, inArray, isNull, lt } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { logActivity } from '../lib/activity.js';
 import { createNotification } from '../lib/notifications.js';
 import { callGemini, extractJson } from '../lib/gemini.js';
 import { calculateExamScore, gradeMultipleChoiceAnswer } from '../lib/courseFinalExamGrading.js';
-import { createR2DownloadUrl, createR2UploadUrl, inspectR2Object, isR2Configured } from '../lib/r2Storage.js';
+import { createR2DownloadUrl, createR2UploadUrl, deleteR2Object, inspectR2Object, isR2Configured } from '../lib/r2Storage.js';
+import { validateCourseFinalPackage } from '../lib/courseFinalValidation.js';
 
 const projects = new Hono();
 const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 90;
@@ -64,6 +66,40 @@ function buildEvidenceObjectKey(userId, courseId, capstoneId, fileName) {
 
 function learnerQuestion({ answerKey, ...question }) {
   return question;
+}
+
+async function courseFinalValidation(courseId) {
+  const [[exam], capstones, [track], [learningBoardCourse]] = await Promise.all([
+    db.select().from(courseFinalExams).where(eq(courseFinalExams.courseId, courseId)).limit(1),
+    db.select().from(courseCapstones).where(eq(courseCapstones.courseId, courseId)),
+    db.select().from(tracks).where(eq(tracks.id, courseId)).limit(1),
+    db.select().from(learningBoardCourses).where(eq(learningBoardCourses.courseId, courseId)).limit(1),
+  ]);
+  const questions = exam
+    ? await db.select().from(courseFinalExamQuestions).where(eq(courseFinalExamQuestions.examId, exam.id))
+    : [];
+  return validateCourseFinalPackage({
+    courseId,
+    capstones: capstones.map((capstone) => ({
+      ...capstone,
+      requirements: parseJson(capstone.requirements),
+      rubric: parseJson(capstone.rubric),
+    })),
+    exam,
+    questions,
+    courseMatchesLearningContent: Boolean(track || learningBoardCourse),
+  });
+}
+
+async function cleanupExpiredEvidenceUploads() {
+  const expired = await db.select().from(userProjectSubmissionFiles).where(and(
+    isNull(userProjectSubmissionFiles.submissionId),
+    lt(userProjectSubmissionFiles.uploadExpiresAt, new Date().toISOString()),
+  ));
+  for (const file of expired) {
+    await deleteR2Object(file.objectKey);
+    await db.delete(userProjectSubmissionFiles).where(eq(userProjectSubmissionFiles.id, file.id));
+  }
 }
 
 async function courseCompletion(userId, courseId, adminTestMode = false) {
@@ -210,24 +246,37 @@ projects.get('/course/:courseId/final', async (c) => {
       return c.json({ success: false, error: 'Enroll in this course to access its final package.' }, 403);
     }
   }
-  const [[exam], capstones, [finalProgress]] = await Promise.all([
+  const [[exam], capstones, [finalProgress], [packageRecord], [track], [learningBoardCourse]] = await Promise.all([
     db.select().from(courseFinalExams).where(eq(courseFinalExams.courseId, courseId)).limit(1),
     db.select().from(courseCapstones).where(eq(courseCapstones.courseId, courseId)).orderBy(asc(courseCapstones.optionNumber)),
     db.select().from(userCourseFinalProgress).where(and(
       eq(userCourseFinalProgress.userId, userId),
       eq(userCourseFinalProgress.courseId, courseId),
     )).limit(1),
+    db.select().from(courseFinalPackages).where(eq(courseFinalPackages.courseId, courseId)).limit(1),
+    db.select().from(tracks).where(eq(tracks.id, courseId)).limit(1),
+    db.select().from(learningBoardCourses).where(eq(learningBoardCourses.courseId, courseId)).limit(1),
   ]);
   const questions = exam
     ? await db.select().from(courseFinalExamQuestions).where(eq(courseFinalExamQuestions.examId, exam.id)).orderBy(asc(courseFinalExamQuestions.questionNumber))
     : [];
 
   if (!exam && capstones.length === 0) return c.json({ success: false, error: 'Course final package not found' }, 404);
+  const validation = validateCourseFinalPackage({
+    courseId,
+    capstones: capstones.map((item) => ({...item, requirements: parseJson(item.requirements), rubric: parseJson(item.rubric)})),
+    exam,
+    questions,
+    courseMatchesLearningContent: Boolean(track || learningBoardCourse),
+  });
 
   return c.json({
     success: true,
     data: {
       courseId,
+      status: packageRecord?.status || (validation.valid ? 'review' : 'draft'),
+      difficulty: track?.difficulty || learningBoardCourse?.courseLevel || null,
+      validation,
       selectedCapstoneId: finalProgress?.selectedCapstoneId || null,
       capstoneStatus: finalProgress?.capstoneStatus || 'not_started',
       capstones: capstones.map((item) => ({
@@ -239,6 +288,7 @@ projects.get('/course/:courseId/final', async (c) => {
         stretchGoals: parseJson(item.stretchGoals),
         rubric: parseJson(item.rubric),
         estimatedTime: item.estimatedTime,
+        requiresFileEvidence: Boolean(item.requiresFileEvidence),
       })),
       exam: exam ? {
         id: exam.id,
@@ -252,6 +302,50 @@ projects.get('/course/:courseId/final', async (c) => {
       } : null,
     },
   });
+});
+
+projects.get('/admin/course-finals', async (c) => {
+  if (c.get('user')?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  const [capstones, exams, packageRows, allTracks, allBoardCourses] = await Promise.all([
+    db.select({courseId: courseCapstones.courseId}).from(courseCapstones),
+    db.select({courseId: courseFinalExams.courseId}).from(courseFinalExams),
+    db.select().from(courseFinalPackages),
+    db.select().from(tracks),
+    db.select().from(learningBoardCourses),
+  ]);
+  const courseIds = [...new Set([...capstones, ...exams].map((item) => item.courseId))];
+  const packages = await Promise.all(courseIds.map(async (courseId) => {
+    const validation = await courseFinalValidation(courseId);
+    const track = allTracks.find((item) => item.id === courseId);
+    const learningBoardCourse = allBoardCourses.find((item) => item.courseId === courseId);
+    const stored = packageRows.find((item) => item.courseId === courseId);
+    return {
+      courseId,
+      title: track?.title || learningBoardCourse?.course || courseId,
+      difficulty: track?.difficulty || learningBoardCourse?.courseLevel || null,
+      status: stored?.status || (validation.valid ? 'review' : 'draft'),
+      validation,
+    };
+  }));
+  return c.json({success: true, data: {packages}});
+});
+
+projects.put('/admin/course/:courseId/final/status', async (c) => {
+  if (c.get('user')?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  const courseId = c.req.param('courseId');
+  const body = await c.req.json();
+  const statuses = ['draft', 'review', 'ready', 'published', 'archived'];
+  if (!statuses.includes(body.status)) {
+    return c.json({success: false, error: `Status must be one of: ${statuses.join(', ')}.`}, 400);
+  }
+  const validation = await courseFinalValidation(courseId);
+  if (['ready', 'published'].includes(body.status) && !validation.valid) {
+    return c.json({success: false, error: 'This course final package is not valid for publication.', data: {validation}}, 422);
+  }
+  const now = new Date().toISOString();
+  await db.insert(courseFinalPackages).values({courseId, status: body.status, createdAt: now, updatedAt: now})
+    .onConflictDoUpdate({target: courseFinalPackages.courseId, set: {status: body.status, updatedAt: now}});
+  return c.json({success: true, data: {status: body.status, validation}});
 });
 
 projects.put('/course/:courseId/final/capstone-selection', async (c) => {
@@ -541,6 +635,110 @@ projects.post('/final-exam-attempts/:attemptId/submit', async (c) => {
   return c.json({ success: true, data: { attempt: await examAttemptResponse(gradedAttempt, questions) } });
 });
 
+projects.get('/admin/capstone-submissions', async (c) => {
+  if (c.get('user')?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  const [allSubmissions, capstones, files] = await Promise.all([
+    db.select().from(userProjectSubmissions).orderBy(desc(userProjectSubmissions.createdAt)),
+    db.select().from(courseCapstones),
+    db.select().from(userProjectSubmissionFiles),
+  ]);
+  const capstoneIds = new Set(capstones.map((capstone) => capstone.id));
+  const queue = await Promise.all(allSubmissions
+    .filter((submission) => capstoneIds.has(submission.projectId) && submission.status !== 'approved')
+    .map(async (submission) => {
+      const [[learner]] = await Promise.all([
+        db.select({id: users.id, name: users.name, email: users.email}).from(users)
+          .where(eq(users.id, submission.userId)).limit(1),
+      ]);
+      const capstone = capstones.find((item) => item.id === submission.projectId);
+      const history = await db.select().from(courseFinalReviewAudit)
+        .where(eq(courseFinalReviewAudit.submissionId, submission.id)).orderBy(desc(courseFinalReviewAudit.createdAt));
+      return {
+        ...submission,
+        learner: learner || null,
+        capstone: capstone ? {id: capstone.id, title: capstone.title, courseId: capstone.courseId, rubric: parseJson(capstone.rubric)} : null,
+        files: files.filter((file) => file.submissionId === submission.id).map(({objectKey, uploadExpiresAt, ...file}) => file),
+        history,
+      };
+    }));
+  return c.json({success: true, data: {submissions: queue}});
+});
+
+projects.get('/admin/capstone-submissions/:submissionId/history', async (c) => {
+  if (c.get('user')?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  const submissionId = c.req.param('submissionId');
+  const history = await db.select().from(courseFinalReviewAudit)
+    .where(eq(courseFinalReviewAudit.submissionId, submissionId)).orderBy(desc(courseFinalReviewAudit.createdAt));
+  return c.json({success: true, data: {history}});
+});
+
+projects.post('/admin/capstone-submissions/:submissionId/review', async (c) => {
+  const reviewer = c.get('user');
+  if (reviewer?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  const submissionId = c.req.param('submissionId');
+  const body = await c.req.json();
+  if (!['approved', 'needs_revision'].includes(body.status)) {
+    return c.json({success: false, error: 'Review status must be approved or needs_revision.'}, 400);
+  }
+  if (typeof body.feedback !== 'string' || !body.feedback.trim()) {
+    return c.json({success: false, error: 'Reviewer feedback is required.'}, 400);
+  }
+  const score = Number(body.score);
+  if (!Number.isInteger(score) || score < 0 || score > 100) {
+    return c.json({success: false, error: 'A reviewer score from 0 to 100 is required.'}, 400);
+  }
+  const [submission] = await db.select().from(userProjectSubmissions)
+    .where(eq(userProjectSubmissions.id, submissionId)).limit(1);
+  if (!submission) return c.json({success: false, error: 'Capstone submission not found.'}, 404);
+  const [capstone] = await db.select().from(courseCapstones)
+    .where(eq(courseCapstones.id, submission.projectId)).limit(1);
+  if (!capstone) return c.json({success: false, error: 'Submission is not for a course capstone.'}, 400);
+  const rubric = parseJson(capstone.rubric);
+  let rubricScores = [];
+  let finalScore = score;
+  if (body.rubricScores !== undefined) {
+    if (!Array.isArray(body.rubricScores) || body.rubricScores.length !== rubric.length || !rubric.length) {
+      return c.json({success: false, error: 'Provide one score for every rubric criterion.'}, 400);
+    }
+    rubricScores = body.rubricScores;
+    for (const criterion of rubric) {
+      const matched = rubricScores.find((item) => item?.criterion === criterion.criterion);
+      if (!matched || !Number.isInteger(Number(matched.score)) || Number(matched.score) < 0 || Number(matched.score) > 100) {
+        return c.json({success: false, error: `A score from 0 to 100 is required for ${criterion.criterion}.`}, 400);
+      }
+    }
+    if (rubric.reduce((total, criterion) => total + Number(criterion.weight || 0), 0) !== 100) {
+      return c.json({success: false, error: 'The capstone rubric weights must total 100 before rubric scoring.'}, 409);
+    }
+    finalScore = Math.round(rubric.reduce((total, criterion) => {
+      const criterionScore = rubricScores.find((item) => item.criterion === criterion.criterion).score;
+      return total + Number(criterion.weight) * Number(criterionScore);
+    }, 0) / 100);
+  }
+  const now = new Date().toISOString();
+  const feedback = body.feedback.trim().slice(0, 4000);
+  await db.update(userProjectSubmissions).set({
+    status: body.status,
+    reviewerFeedback: feedback,
+    reviewedBy: reviewer.id,
+    reviewedAt: now,
+    reviewerScore: finalScore,
+    updatedAt: now,
+  }).where(eq(userProjectSubmissions.id, submissionId));
+  await db.insert(courseFinalReviewAudit).values({
+    id: uuidv4(), submissionId, reviewerId: reviewer.id, action: body.status, score: finalScore,
+    feedback, rubricScores: rubricScores.length ? JSON.stringify(rubricScores) : null, createdAt: now,
+  });
+  await db.update(userCourseFinalProgress).set({
+    capstoneStatus: body.status,
+    updatedAt: now,
+  }).where(and(
+    eq(userCourseFinalProgress.userId, submission.userId),
+    eq(userCourseFinalProgress.courseId, capstone.courseId),
+  ));
+  return c.json({success: true, data: {submissionId, status: body.status, score: finalScore}});
+});
+
 projects.get('/admin/final-exam-attempts/review', async (c) => {
   if (c.get('user')?.role !== 'admin') return c.json({ success: false, error: 'Admin access required.' }, 403);
   const attempts = await db.select().from(courseFinalExamAttempts)
@@ -693,6 +891,7 @@ projects.post('/submission-files/upload-url', async (c) => {
   if (!isR2Configured()) {
     return c.json({ success: false, error: 'Evidence storage is not configured yet.' }, 503);
   }
+  await cleanupExpiredEvidenceUploads();
 
   const [capstone] = await db.select().from(courseCapstones).where(and(
     eq(courseCapstones.id, capstoneId),
@@ -714,7 +913,7 @@ projects.post('/submission-files/upload-url', async (c) => {
   const now = new Date().toISOString();
   await db.insert(userProjectSubmissionFiles).values({
     id: fileId,
-    submissionId: body?.submissionId || null,
+    submissionId: null,
     userId,
     courseId,
     capstoneId,
@@ -748,9 +947,13 @@ projects.post('/submission-files/:fileId/complete', async (c) => {
   try {
     const objectMeta = await inspectR2Object(file.objectKey);
     if (objectMeta.byteSize > MAX_EVIDENCE_FILE_SIZE_BYTES) {
+      await deleteR2Object(file.objectKey);
+      await db.delete(userProjectSubmissionFiles).where(eq(userProjectSubmissionFiles.id, fileId));
       return c.json({ success: false, error: `Evidence files must be ${MAX_EVIDENCE_FILE_SIZE_BYTES} bytes or less.` }, 413);
     }
     if (!isAllowedEvidenceType(objectMeta.contentType || file.contentType, file.fileName)) {
+      await deleteR2Object(file.objectKey);
+      await db.delete(userProjectSubmissionFiles).where(eq(userProjectSubmissionFiles.id, fileId));
       return c.json({ success: false, error: 'This file type is not allowed for capstone evidence.' }, 415);
     }
 
@@ -771,8 +974,31 @@ projects.post('/submission-files/:fileId/complete', async (c) => {
       },
     });
   } catch (error) {
+    console.error(`[projects] Failed to verify uploaded evidence ${fileId}:`, error);
     return c.json({ success: false, error: 'The uploaded file could not be verified in storage.' }, 400);
   }
+});
+
+projects.get('/submission-files/me', async (c) => {
+  const files = await db.select().from(userProjectSubmissionFiles).where(and(
+    eq(userProjectSubmissionFiles.userId, c.get('userId')),
+    eq(userProjectSubmissionFiles.courseId, c.req.query('courseId') || ''),
+    eq(userProjectSubmissionFiles.capstoneId, c.req.query('capstoneId') || ''),
+    isNull(userProjectSubmissionFiles.submissionId),
+  ));
+  return c.json({success: true, data: {files: files.filter((file) => file.byteSize > 0)}});
+});
+
+projects.delete('/submission-files/:fileId', async (c) => {
+  const fileId = c.req.param('fileId');
+  const [file] = await db.select().from(userProjectSubmissionFiles).where(eq(userProjectSubmissionFiles.id, fileId)).limit(1);
+  if (!file) return c.json({success: false, error: 'Evidence file not found.'}, 404);
+  if (file.userId !== c.get('userId')) return c.json({success: false, error: 'Unauthorized'}, 403);
+  if (file.submissionId) return c.json({success: false, error: 'Evidence attached to a submission cannot be deleted.'}, 409);
+  if (!isR2Configured()) return c.json({success: false, error: 'Evidence storage is not configured yet.'}, 503);
+  await deleteR2Object(file.objectKey);
+  await db.delete(userProjectSubmissionFiles).where(eq(userProjectSubmissionFiles.id, fileId));
+  return c.json({success: true});
 });
 
 projects.get('/submission-files/:fileId/download', async (c) => {
@@ -780,7 +1006,8 @@ projects.get('/submission-files/:fileId/download', async (c) => {
   const fileId = c.req.param('fileId');
   const [file] = await db.select().from(userProjectSubmissionFiles).where(eq(userProjectSubmissionFiles.id, fileId)).limit(1);
   if (!file) return c.json({ success: false, error: 'Evidence file not found.' }, 404);
-  if (file.userId !== userId) return c.json({ success: false, error: 'Unauthorized' }, 403);
+  const isReviewer = c.get('user')?.role === 'admin' && Boolean(file.submissionId);
+  if (file.userId !== userId && !isReviewer) return c.json({ success: false, error: 'Unauthorized' }, 403);
   if (!isR2Configured()) return c.json({ success: false, error: 'Evidence storage is not configured yet.' }, 503);
 
   const downloadUrl = await createR2DownloadUrl(file.objectKey);
@@ -804,22 +1031,75 @@ projects.get('/submissions/me', async (c) => {
     .select()
     .from(userProjectSubmissions)
     .where(eq(userProjectSubmissions.userId, userId));
-  return c.json({ success: true, data: { submissions: subs } });
+  const files = subs.length
+    ? await db.select().from(userProjectSubmissionFiles)
+      .where(inArray(userProjectSubmissionFiles.submissionId, subs.map((submission) => submission.id)))
+    : [];
+  return c.json({
+    success: true,
+    data: {submissions: subs.map((submission) => ({
+      ...submission,
+      files: files.filter((file) => file.submissionId === submission.id).map(({objectKey, uploadExpiresAt, ...file}) => file),
+    }))},
+  });
 });
 
 // Submit a project
 projects.post('/:projectId/submit', async (c) => {
   const userId = c.get('userId');
   const projectId = c.req.param('projectId');
-  const { content } = await c.req.json();
+  const body = await c.req.json();
+  const content = typeof body.content === 'string' ? body.content.trim() : '';
+  if (body.fileIds !== undefined && (!Array.isArray(body.fileIds) || body.fileIds.some((id) => typeof id !== 'string'))) {
+    return c.json({success: false, error: 'Evidence file IDs must be an array of file IDs.'}, 400);
+  }
+  const fileIds = Array.isArray(body.fileIds) ? [...new Set(body.fileIds.filter((id) => typeof id === 'string'))] : [];
   if (!content) return c.json({ success: false, error: 'Content is required' }, 400);
 
   const now = new Date().toISOString();
   const id = uuidv4();
   const [capstone] = await db.select().from(courseCapstones).where(eq(courseCapstones.id, projectId)).limit(1);
+  let evidenceFiles = [];
+  if (capstone) {
+    const [finalProgress] = await db.select().from(userCourseFinalProgress).where(and(
+      eq(userCourseFinalProgress.userId, userId),
+      eq(userCourseFinalProgress.courseId, capstone.courseId),
+    )).limit(1);
+    if (finalProgress?.selectedCapstoneId !== capstone.id) {
+      return c.json({success: false, error: 'Select this capstone before submitting it.'}, 403);
+    }
+    if (fileIds.length) {
+      evidenceFiles = await db.select().from(userProjectSubmissionFiles).where(and(
+        inArray(userProjectSubmissionFiles.id, fileIds),
+        eq(userProjectSubmissionFiles.userId, userId),
+        eq(userProjectSubmissionFiles.courseId, capstone.courseId),
+        eq(userProjectSubmissionFiles.capstoneId, capstone.id),
+        isNull(userProjectSubmissionFiles.submissionId),
+      ));
+      if (evidenceFiles.length !== fileIds.length || evidenceFiles.some((file) =>
+        file.byteSize <= 0 || file.uploadExpiresAt <= now)) {
+        return c.json({success: false, error: 'One or more evidence files are not verified or have expired. Upload them again.'}, 409);
+      }
+    }
+    if (capstone.requiresFileEvidence && evidenceFiles.length === 0) {
+      return c.json({success: false, error: 'A verified evidence file is required for this capstone.'}, 400);
+    }
+    if (evidenceFiles.length === 0 && body.withoutFileEvidence !== true) {
+      return c.json({success: false, error: 'Confirm that you are submitting without file evidence, or attach a verified file.'}, 400);
+    }
+  }
   await db.insert(userProjectSubmissions).values({
-    id, userId, projectId, content, status: 'submitted', createdAt: now, updatedAt: now,
+    id, userId, projectId, courseId: capstone?.courseId || null, content, status: 'submitted', createdAt: now, updatedAt: now,
   });
+  if (evidenceFiles.length) {
+    const attached = await db.update(userProjectSubmissionFiles).set({submissionId: id})
+      .where(and(inArray(userProjectSubmissionFiles.id, fileIds), isNull(userProjectSubmissionFiles.submissionId)))
+      .returning({id: userProjectSubmissionFiles.id});
+    if (attached.length !== evidenceFiles.length) {
+      await db.delete(userProjectSubmissions).where(eq(userProjectSubmissions.id, id));
+      return c.json({success: false, error: 'Evidence ownership changed during submission. Please retry.'}, 409);
+    }
+  }
   if (capstone) {
     const [existingProgress] = await db.select().from(userCourseFinalProgress).where(and(
       eq(userCourseFinalProgress.userId, userId),

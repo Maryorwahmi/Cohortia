@@ -77,6 +77,13 @@ export function parseCourseFinals(markdown, sourcePath = null) {
   const meta = frontmatter(markdown);
   const capstoneText = sectionBody(markdown, 'Final Capstone Project');
   const examText = sectionBody(markdown, 'Final Examination');
+  const answerKeyHeading = /^#{2,4}\s+Answer Key\b[^\r\n]*\r?\n/im.exec(examText);
+  const questionText = answerKeyHeading?.index === undefined
+    ? examText
+    : examText.slice(0, answerKeyHeading.index).trim();
+  const answerKeyText = answerKeyHeading?.index === undefined
+    ? ''
+    : examText.slice(answerKeyHeading.index + answerKeyHeading[0].length);
   const projects = [];
   const optionMatches = [...capstoneText.matchAll(/^###\s+Project Option\s+(\d+):\s*(.+)$/gim)];
   for (let index = 0; index < optionMatches.length; index += 1) {
@@ -96,23 +103,41 @@ export function parseCourseFinals(markdown, sourcePath = null) {
   }
 
   const sections = [];
-  const sectionMatches = [...examText.matchAll(/^(?:###\s+(?:Section|Part)\s+(.+)|\*\*(?:Section|Part)\s+([^*]+)\*\*)\s*$/gim)];
+  const sectionMatches = [...questionText.matchAll(/^(?:###\s+(?:Section|Part)\s+(.+)|\*\*(?:Section|Part)\s+([^*]+)\*\*)\s*$/gim)];
   for (let index = 0; index < sectionMatches.length; index += 1) {
     const match = sectionMatches[index];
     const sectionTitle = clean(match[1] || match[2]);
     const start = match.index + match[0].length;
-    const end = sectionMatches[index + 1]?.index ?? examText.length;
-    sections.push({ title: sectionTitle, text: examText.slice(start, end).trim() });
+    const end = sectionMatches[index + 1]?.index ?? questionText.length;
+    sections.push({ title: sectionTitle, text: questionText.slice(start, end).trim() });
   }
-  if (!sections.length && examText) sections.push({ title: 'Final Examination', text: examText });
+  if (!sections.length && questionText) sections.push({ title: 'Final Examination', text: questionText });
 
   const questions = [];
   for (const section of sections) {
     const lines = section.text.split(/\r?\n/);
     const questionStarts = [];
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-      const match = lines[lineIndex].match(/^\s*(?:\d+\.\s*)?\*\*(?:\d+[.)]\s*)?Question\b[^*\r\n]*\*\*:?\s*(.*)$/i);
-      if (match) questionStarts.push({ lineIndex, trailingText: match[1] });
+      const headingMatch = lines[lineIndex].match(/^\s*#{2,4}\s+(?:\d+[.)]\s*)?Question(?:\s+\d+)?\s*:\s*(.*)$/i);
+      if (headingMatch) {
+        questionStarts.push({ lineIndex, trailingText: headingMatch[1] || '' });
+        continue;
+      }
+
+      const match = lines[lineIndex].match(/^\s*(?:(\d+)\.\s*)?\*\*(?:(\d+)[.)]\s*)?([^*\r\n]+)\*\*:?\s*(.*)$/);
+      if (!match) continue;
+      const label = match[3].trim();
+      const isTopLevel = !/^\s/.test(lines[lineIndex]);
+      const isQuestionLabel = /^Question\b/i.test(label);
+      const isNumberedPromptLabel = isTopLevel
+        && /^(?:Concept Definition|Scenario Analysis|Code Tracing|Configuration Writing|Design Problem|Command Tracing|Comparison|Architecture Problem)\b/i.test(label)
+        && (Boolean(match[2]) || (Boolean(match[1]) && Boolean(match[4].trim())));
+      if (!isTopLevel || (!isQuestionLabel && !isNumberedPromptLabel)) continue;
+
+      if (isQuestionLabel && lines.slice(Math.max(0, lineIndex - 3), lineIndex)
+        .some((candidate) => /^\s*#{2,4}\s+(?:\d+[.)]\s*)?Question\b/i.test(candidate))) continue;
+
+      questionStarts.push({ lineIndex, trailingText: match[4] });
     }
 
     for (let index = 0; index < questionStarts.length; index += 1) {
@@ -123,9 +148,9 @@ export function parseCourseFinals(markdown, sourcePath = null) {
       const block = [start.trailingText, ...lines.slice(start.lineIndex + 1, endLineIndex)].join('\n').trim();
       const blockLines = block.split(/\r?\n/);
       const answerLineIndex = blockLines.findIndex((line) =>
-        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key(?:[ \t]*[&/][ \t]*Explanation)?)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
+        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
       const answerLine = answerLineIndex >= 0
-        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key(?:[ \t]*[&/][ \t]*Explanation)?)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i)
+        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i)
         : null;
       const prompt = answerLineIndex >= 0
         ? blockLines.slice(0, answerLineIndex).join('\n').trim()
@@ -144,6 +169,28 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     }
   }
 
+  if (answerKeyText) {
+    const answerKeyItems = [];
+    const lines = answerKeyText.split(/\r?\n/);
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+      if (/^\s*(?:[-*]\s*)?\*\*\d+[.)]\s+[^*\r\n]+\*\*/.test(lines[lineIndex])) {
+        answerKeyItems.push(lineIndex);
+      }
+    }
+    for (let index = 0; index < answerKeyItems.length; index += 1) {
+      const startLineIndex = answerKeyItems[index];
+      const endLineIndex = answerKeyItems[index + 1] ?? lines.length;
+      const blockLines = lines.slice(startLineIndex + 1, endLineIndex);
+      const answerLineIndex = blockLines.findIndex((line) =>
+        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
+      if (answerLineIndex < 0) continue;
+      const answerLine = blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i);
+      if (!answerLine) continue;
+      const answer = [answerLine[1], ...blockLines.slice(answerLineIndex + 1)].join('\n').trim();
+      if (questions[index] && !questions[index].answer) questions[index].answer = answer;
+    }
+  }
+
   return {
     courseId: meta.course_id || null,
     courseTitle: meta.course_title || null,
@@ -152,8 +199,8 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     exam: examText ? {
       title: 'Final Examination',
       instructions: (() => {
-        const contentStart = examText.search(/^(?:###\s+(?:Section|Part)\b|\*\*(?:Section|Part)\b|(?:\d+\.\s*)?\*\*Question\b)/im);
-        return clean(contentStart >= 0 ? examText.slice(0, contentStart) : examText);
+        const contentStart = questionText.search(/^(?:###\s+(?:Section|Part|Questions?)\b|\*\*(?:Section|Part)\b|(?:\d+\.\s*)?\*\*Question\b|(?:\d+\.\s*)?\*\*(?:\d+[.)]\s*)?[A-Z][^*\r\n]*:\*\*)/im);
+        return clean(contentStart >= 0 ? questionText.slice(0, contentStart) : questionText);
       })(),
       questions,
       passingScore: 70,
