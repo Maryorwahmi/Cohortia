@@ -73,29 +73,6 @@ function getCourseCategory(course: CatalogCourse): string {
   return course.marketSubcategory?.trim() || course.subcategory?.trim() || course.marketCategory || course.category;
 }
 
-function getCourseFallbackImage(course: CatalogCourse): string {
-  const topic = `${course.title} ${getCourseCategory(course)} ${course.marketCategory || course.category}`.toLowerCase();
-  const image = /health|medicine|medical|biology/.test(topic)
-    ? 'photo-1576091160399-112ba8d25d1d'
-    : /art|design|creative|visual/.test(topic)
-      ? 'photo-1513364776144-60967b0f800f'
-      : /business|finance|marketing|management/.test(topic)
-        ? 'photo-1460925895917-afdab827c52f'
-        : /science|physics|chemistry|engineering/.test(topic)
-          ? 'photo-1532094349884-543bc11b234d'
-          : /math|statistics|logic/.test(topic)
-            ? 'photo-1509228468518-180dd4864904'
-            : /cyber|security|cloud|network|devops/.test(topic)
-              ? 'photo-1555949963-ff9fe0c870eb'
-              : /ai|machine learning|data/.test(topic)
-                ? 'photo-1516321318423-f06f85e504b3'
-                : /programming|software|computer|coding|developer/.test(topic)
-                  ? 'photo-1515879218367-8466d910aaa4'
-                  : 'photo-1522071820081-009f0129c71c';
-
-  return `https://images.unsplash.com/${image}?auto=format&fit=crop&w=1200&q=85`;
-}
-
 function normalizeCourseLevel(level?: string | null): string {
   return (level || '').replace(/\s*(?:→|�|>)\s*/g, ' to ').replace(/\s+/g, ' ').trim();
 }
@@ -109,8 +86,7 @@ function CourseCard({
   onSelect: (courseId: string) => void;
 }) {
   const skills = getCourseSkills(course).slice(0, 3);
-  const fallbackImage = getCourseFallbackImage(course);
-  const image = course.image?.trim() || fallbackImage;
+  const image = course.image?.trim();
   const metadata = [course.platform, course.level, course.duration].filter(Boolean);
   const cost = course.cost === null || course.cost === undefined || String(course.cost).trim() === ''
     ? null
@@ -119,16 +95,15 @@ function CourseCard({
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card shadow-sm shadow-immersive-shadow transition duration-200 hover:-translate-y-0.5 hover:border-immersive-primary/35 hover:shadow-lg">
       <div className="relative aspect-[16/8.5] overflow-hidden bg-gradient-to-br from-immersive-primary/15 via-immersive-bg to-immersive-secondary/15 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
-        <img
-          src={image}
-          alt={course.title}
-          loading="lazy"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-          onError={(event) => {
-            if (event.currentTarget.src !== fallbackImage) event.currentTarget.src = fallbackImage;
-            else event.currentTarget.remove();
-          }}
-        />
+        {image && (
+          <img
+            src={image}
+            alt={course.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+            onError={(event) => event.currentTarget.remove()}
+          />
+        )}
         {course.certification && (
           <div className="absolute left-3 top-3">
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm">
@@ -286,7 +261,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
   );
   const featuredCourses = allCourses.slice(0, 3);
   const leadCourse = featuredCourses[0];
-  const leadCourseImage = leadCourse ? leadCourse.image?.trim() || getCourseFallbackImage(leadCourse) : null;
+  const leadCourseImage = leadCourse?.image?.trim() || null;
 
   const visibleCourses = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -397,13 +372,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                     src={leadCourseImage}
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover"
-                    onError={(event) => {
-                      if (event.currentTarget.src !== getCourseFallbackImage(leadCourse)) {
-                        event.currentTarget.src = getCourseFallbackImage(leadCourse);
-                      } else {
-                        event.currentTarget.remove();
-                      }
-                    }}
+                    onError={(event) => event.currentTarget.remove()}
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#102541]/85 via-[#102541]/10 to-transparent" />
@@ -583,17 +552,17 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                   <article key={course.id} className="group flex min-w-0 flex-col rounded-xl border border-immersive-border bg-immersive-bg/55 p-3 transition hover:border-immersive-primary/35 hover:bg-immersive-card-hover">
                     <div className="flex min-w-0 items-start gap-3">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-immersive-border bg-immersive-card text-immersive-primary">
-                        <img
-                          src={course.image?.trim() || getCourseFallbackImage(course)}
-                          alt=""
-                          loading="lazy"
-                          className="h-full w-full object-cover"
-                          onError={(event) => {
-                            const fallbackImage = getCourseFallbackImage(course);
-                            if (event.currentTarget.src !== fallbackImage) event.currentTarget.src = fallbackImage;
-                            else event.currentTarget.remove();
-                          }}
-                        />
+                        {course.image?.trim() ? (
+                          <img
+                            src={course.image}
+                            alt=""
+                            loading="lazy"
+                            className="h-full w-full object-cover"
+                            onError={(event) => event.currentTarget.remove()}
+                          />
+                        ) : (
+                          <GraduationCap size={20} aria-hidden="true" />
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="inline-flex max-w-full truncate rounded-full bg-immersive-primary/10 px-2 py-0.5 text-[10px] font-semibold text-immersive-primary">
