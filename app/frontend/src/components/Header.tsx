@@ -1,15 +1,22 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { User, Menu, X, Sparkles, ChevronDown, LogOut, BookOpen, Trophy, Activity, Sun, Moon, ArrowRight } from "lucide-react";
+import { User, Menu, X, Sparkles, ChevronDown, LogOut, BookOpen, Trophy, Activity, Sun, Moon, ArrowRight, Search } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { backendUserToPreferences } from "../types";
 import { catalogCourseApi, type CatalogCourse } from "../services/api";
-import { careerCategories, featuredCareerRoles, getCareerCategoryPath, getCareerRolePath, getCareerSkillPath } from "../data/careerDirectory";
+import { careerCategories, careerRoles, featuredCareerRoles, getCareerCategoryPath, getCareerRolePath, getCareerSkillPath } from "../data/careerDirectory";
 import Logo from "./Logo";
 
 interface HeaderProps {
   onOpenWizard: () => void;
+}
+
+interface SearchSuggestion {
+  href: string;
+  label: string;
+  detail: string;
+  kind: "Course" | "Role" | "Category";
 }
 
 function readMenuList(value?: string | string[] | null): string[] {
@@ -37,6 +44,11 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isCareerMenuOpen, setIsCareerMenuOpen] = useState(false);
   const [isMobileCareerMenuOpen, setIsMobileCareerMenuOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const [careerMenuCourses, setCareerMenuCourses] = useState<CatalogCourse[]>([]);
   const [careerMenuLoading, setCareerMenuLoading] = useState(false);
   const [careerMenuLoaded, setCareerMenuLoaded] = useState(false);
@@ -67,7 +79,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   }, [isUserDropdownOpen]);
 
   useEffect(() => {
-    if ((isCareerMenuOpen || isMobileCareerMenuOpen) && !careerMenuLoaded) {
+    if ((isCareerMenuOpen || isMobileCareerMenuOpen || isSearchFocused) && !careerMenuLoaded) {
       let active = true;
       setCareerMenuLoading(true);
       setCareerMenuError("");
@@ -87,7 +99,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
       return () => { active = false; };
     }
     return undefined;
-  }, [careerMenuAttempt, careerMenuLoaded, isCareerMenuOpen, isMobileCareerMenuOpen]);
+  }, [careerMenuAttempt, careerMenuLoaded, isCareerMenuOpen, isMobileCareerMenuOpen, isSearchFocused]);
 
   useEffect(() => {
     setIsCareerMenuOpen(false);
@@ -102,6 +114,18 @@ export default function Header({ onOpenWizard }: HeaderProps) {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isCareerMenuOpen]);
+
+  useEffect(() => {
+    if (!isSearchFocused) return;
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!desktopSearchRef.current?.contains(target) && !mobileSearchRef.current?.contains(target)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener("pointerdown", handleOutsidePointerDown);
+    return () => document.removeEventListener("pointerdown", handleOutsidePointerDown);
+  }, [isSearchFocused]);
 
   const handleLogout = () => {
     logout();
@@ -160,6 +184,160 @@ export default function Header({ onOpenWizard }: HeaderProps) {
     setCareerMenuLoaded(false);
     setCareerMenuAttempt((attempt) => attempt + 1);
   };
+  const searchSuggestions = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (query.length < 2) return [];
+
+    const results: SearchSuggestion[] = [];
+    careerCategories.forEach((category) => {
+      if (`${category.name} ${category.description}`.toLowerCase().includes(query)) {
+        results.push({
+          href: getCareerCategoryPath(category),
+          label: category.name,
+          detail: "Career category",
+          kind: "Category",
+        });
+      }
+    });
+    careerRoles.forEach((role) => {
+      if (role.name.toLowerCase().includes(query)) {
+        results.push({
+          href: getCareerRolePath(role.category, role.name),
+          label: role.name,
+          detail: role.category.name,
+          kind: "Role",
+        });
+      }
+    });
+    careerMenuCourses.forEach((course) => {
+      const searchable = [
+        course.title,
+        course.provider,
+        course.description,
+        course.marketCategory,
+        course.marketSubcategory,
+        course.category,
+        course.subcategory,
+        ...readMenuList(course.skills),
+        ...readMenuList(course.skillTags),
+      ].filter(Boolean).join(" ").toLowerCase();
+      if (searchable.includes(query)) {
+        results.push({
+          href: `/careers/course/${encodeURIComponent(course.id)}`,
+          label: course.title,
+          detail: course.provider || course.marketSubcategory || course.category,
+          kind: "Course",
+        });
+      }
+    });
+
+    return results
+      .sort((left, right) => {
+        const leftIndex = left.label.toLowerCase().indexOf(query);
+        const rightIndex = right.label.toLowerCase().indexOf(query);
+        const leftRank = leftIndex < 0 ? Number.MAX_SAFE_INTEGER : leftIndex;
+        const rightRank = rightIndex < 0 ? Number.MAX_SAFE_INTEGER : rightIndex;
+        return leftRank - rightRank || left.label.localeCompare(right.label);
+      })
+      .slice(0, 8);
+  }, [careerMenuCourses, searchQuery]);
+
+  const selectSearchSuggestion = (suggestion: SearchSuggestion) => {
+    navigate(suggestion.href);
+    setSearchQuery("");
+    setIsSearchFocused(false);
+    setIsCareerMenuOpen(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  const renderSearch = (isMobile = false) => {
+    const searchRef = isMobile ? mobileSearchRef : desktopSearchRef;
+    const showSuggestions = isSearchFocused && searchQuery.trim().length >= 2;
+    const searchId = isMobile ? "mobile-career-search" : "desktop-career-search";
+    return (
+      <div ref={searchRef} className={`relative ${isMobile ? "w-full" : "w-48 xl:w-56 2xl:w-64"}`}>
+        <label htmlFor={searchId} className="sr-only">Search courses, roles, and categories</label>
+        <div className="flex h-10 items-center gap-2 rounded-xl border border-immersive-border bg-immersive-card px-3 text-immersive-text-secondary shadow-sm focus-within:border-immersive-primary/60 focus-within:ring-2 focus-within:ring-immersive-primary/15">
+          <Search size={16} aria-hidden="true" className="shrink-0" />
+          <input
+            id={searchId}
+            type="search"
+            value={searchQuery}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={showSuggestions}
+            aria-controls={`${searchId}-suggestions`}
+            aria-activedescendant={showSuggestions && searchSuggestions[activeSuggestionIndex] ? `${searchId}-suggestion-${activeSuggestionIndex}` : undefined}
+            placeholder="Search courses, roles..."
+            autoComplete="off"
+            className="min-w-0 flex-1 bg-transparent text-sm text-immersive-text-primary outline-none placeholder:text-immersive-text-secondary/70"
+            onFocus={() => {
+              setIsSearchFocused(true);
+              setIsCareerMenuOpen(false);
+            }}
+            onChange={(event) => {
+              setSearchQuery(event.target.value);
+              setActiveSuggestionIndex(0);
+              setIsSearchFocused(true);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                setIsSearchFocused(false);
+              } else if (event.key === "ArrowDown" && searchSuggestions.length) {
+                event.preventDefault();
+                setActiveSuggestionIndex((index) => (index + 1) % searchSuggestions.length);
+              } else if (event.key === "ArrowUp" && searchSuggestions.length) {
+                event.preventDefault();
+                setActiveSuggestionIndex((index) => (index - 1 + searchSuggestions.length) % searchSuggestions.length);
+              } else if (event.key === "Enter" && searchSuggestions[activeSuggestionIndex]) {
+                event.preventDefault();
+                selectSearchSuggestion(searchSuggestions[activeSuggestionIndex]);
+              }
+            }}
+          />
+        </div>
+        {showSuggestions && (
+          <div
+            id={`${searchId}-suggestions`}
+            role="listbox"
+            aria-label="Search suggestions"
+            className="absolute right-0 top-full z-[80] mt-2 max-h-[min(70vh,28rem)] w-[min(24rem,calc(100vw-2rem))] overflow-y-auto rounded-xl border border-immersive-border bg-immersive-card p-2 text-immersive-text-primary shadow-2xl shadow-immersive-shadow"
+          >
+            {searchSuggestions.map((suggestion, index) => (
+              <button
+                key={`${suggestion.kind}-${suggestion.href}`}
+                id={`${searchId}-suggestion-${index}`}
+                type="button"
+                role="option"
+                aria-selected={activeSuggestionIndex === index}
+                className={`block w-full rounded-lg px-3 py-2 text-left ${activeSuggestionIndex === index ? "bg-immersive-bg" : "hover:bg-immersive-bg"}`}
+                onMouseEnter={() => setActiveSuggestionIndex(index)}
+                onClick={() => selectSearchSuggestion(suggestion)}
+              >
+                <span className="flex items-start justify-between gap-3">
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{suggestion.label}</span>
+                    <span className="mt-0.5 block truncate text-xs text-immersive-text-secondary">{suggestion.detail}</span>
+                  </span>
+                  <span className="shrink-0 rounded-md bg-immersive-bg px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-immersive-text-secondary">{suggestion.kind}</span>
+                </span>
+              </button>
+            ))}
+            {!searchSuggestions.length && careerMenuLoading ? (
+              <p role="status" className="px-3 py-3 text-sm text-immersive-text-secondary">Searching courses…</p>
+            ) : !searchSuggestions.length && careerMenuError ? (
+              <div role="alert" className="px-3 py-3 text-sm text-rose-700 dark:text-rose-300">
+                <p>{careerMenuError}</p>
+                <button type="button" onClick={handleCareerMenuRetry} className="mt-2 font-semibold underline">Retry search</button>
+              </div>
+            ) : !searchSuggestions.length ? (
+              <p className="px-3 py-3 text-sm text-immersive-text-secondary">No matching courses, roles, or categories.</p>
+            ) : null}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <header
@@ -196,7 +374,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-7">
+          <nav className="hidden lg:flex items-center space-x-5">
             {!isDashboard && navLinks.map((link) => (
               link.path === "/careers" ? (
                 <div
@@ -223,7 +401,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
                   </button>
 
                   {isCareerMenuOpen && !isDashboard && (
-                    <div className="absolute left-1/2 top-full z-[60] w-[min(calc(100vw-2rem),1480px)] -translate-x-1/2 pt-4">
+                    <div className={`fixed left-1/2 z-[60] w-[min(calc(100vw-2rem),1480px)] -translate-x-1/2 pt-2 ${isScrolled ? "top-[66px]" : "top-[82px]"}`}>
                       <div className="overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-2xl shadow-immersive-shadow">
                         <div className="grid gap-7 p-6 md:grid-cols-2 xl:grid-cols-[1fr_1.25fr_1fr_0.9fr]">
                           <section>
@@ -323,6 +501,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
                 </Link>
               )
             ))}
+            {!isDashboard && renderSearch()}
           </nav>
 
           {/* Action buttons / Dynamic Profile */}
@@ -503,6 +682,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-immersive-bg/98 border-b border-immersive-border px-4 py-6 space-y-4 animate-in fade-in slide-in-from-top duration-200 shadow-xl shadow-immersive-shadow">
+          {renderSearch(true)}
           <div className="flex flex-col space-y-3">
             {navLinks.map((link) => (
               link.path === "/careers" ? (
