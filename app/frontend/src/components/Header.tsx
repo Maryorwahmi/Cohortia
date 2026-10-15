@@ -186,7 +186,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   };
   const searchSuggestions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (query.length < 2) return [];
+    if (!query) return [];
 
     const results: SearchSuggestion[] = [];
     careerCategories.forEach((category) => {
@@ -252,7 +252,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
 
   const renderSearch = (isMobile = false) => {
     const searchRef = isMobile ? mobileSearchRef : desktopSearchRef;
-    const showSuggestions = isSearchFocused && searchQuery.trim().length >= 2;
+    const showSuggestions = isSearchFocused && searchQuery.trim().length > 0;
     const searchId = isMobile ? "mobile-career-search" : "desktop-career-search";
     return (
       <div ref={searchRef} className={`relative ${isMobile ? "w-full" : "w-48 xl:w-56 2xl:w-64"}`}>
