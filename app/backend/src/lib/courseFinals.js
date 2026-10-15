@@ -10,8 +10,11 @@ function frontmatter(markdown) {
   const block = String(markdown).match(/^(?:---\s*\r?\n([\s\S]*?)\r?\n---|```(?:yaml|yml)?\s*\r?\n([\s\S]*?)\r?\n```)/i);
   const values = {};
   for (const line of (block?.[1] || block?.[2] || '').split(/\r?\n/)) {
-    const match = line.match(/^([\w-]+):\s*(.*)$/);
-    if (match) values[match[1]] = match[2].trim().replace(/^['"]|['"]$/g, '');
+    const match = line.match(/^([\w-]+(?:\s+[\w-]+)*):\s*(.*)$/);
+    if (match) {
+      const key = match[1].trim().toLowerCase().replace(/\s+/g, '_');
+      values[key] = match[2].trim().replace(/^['"]|['"]$/g, '');
+    }
   }
   return values;
 }
@@ -93,6 +96,9 @@ function examTimeLimit(meta, examText) {
 
 export function parseCourseFinals(markdown, sourcePath = null) {
   const meta = frontmatter(markdown);
+  const sourceCourseId = sourcePath
+    ? String(sourcePath).split(/[\\/]/).pop().replace(/\.md$/i, '')
+    : null;
   const capstoneText = sectionBody(markdown, 'Final Capstone Project');
   const examText = sectionBody(markdown, 'Final Examination');
   const answerKeyHeading = /^#{2,4}\s+Answer Key\b[^\r\n]*\r?\n/im.exec(examText);
@@ -209,7 +215,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
   }
 
   return {
-    courseId: meta.course_id || null,
+    courseId: meta.course_id || sourceCourseId || null,
     courseTitle: meta.course_title || null,
     sourcePath,
     capstone: projects,
