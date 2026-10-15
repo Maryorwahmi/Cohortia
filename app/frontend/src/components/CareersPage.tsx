@@ -1,4 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
+import aiSpecializationImage from '../../Course-image/artificial-intelligence-specialization.jpg';
+import cloudDevopsImage from '../../Course-image/cloud-computing-and-devops.jpg';
+import cs50Image from '../../Course-image/cs50s-introduction-to-computer-science.jpg';
+import cybersecurityImage from '../../Course-image/cybersecurity-fundamentals.jpg';
+import dataScienceImage from '../../Course-image/data-science-specialization.jpg';
+import frontEndReactImage from '../../Course-image/front-end-web-development-with-react.jpg';
+import fullStackReactImage from '../../Course-image/full-stack-web-development-with-react-specialization.jpg';
+import googleUxImage from '../../Course-image/google-ux-design-certificate.jpg';
+import ibmFullStackImage from '../../Course-image/ibm-full-stack-software-developer.jpg';
+import javaFundamentalsImage from '../../Course-image/java-programming-fundamentals.jpg';
+import machineLearningImage from '../../Course-image/machine-learning-specialization.jpg';
+import metaAndroidImage from '../../Course-image/meta-android-developer-professional-certificate.jpg';
+import metaBackEndImage from '../../Course-image/meta-back-end-developer-certificate.jpg';
+import metaFrontEndImage from '../../Course-image/meta-front-end-developer-professional-certificate.jpg';
+import metaFullStackImage from '../../Course-image/meta-full-stack-developer-specialization.jpg';
+import pythonForEverybodyImage from '../../Course-image/python-for-everybody-specialization.jpg';
+import responsiveWebDesignImage from '../../Course-image/responsive-web-design.jpg';
+import serverSideImage from '../../Course-image/server-side-development-with-nodejs-express-and-mongodb.jpg';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -22,6 +40,27 @@ interface CareersPageProps {
   onOpenWizard: () => void;
   onSelectTrack: (trackId: string) => void;
 }
+
+const COURSE_IMAGE_OVERRIDES: Record<string, string> = {
+  'computer-science-for-artificial-intelligence': aiSpecializationImage,
+  'google-professional-cloud-devops-engineer': cloudDevopsImage,
+  'cs50s-introduction-to-computer-science': cs50Image,
+  'introduction-to-cybersecurity': cybersecurityImage,
+  'applied-data-science-with-python-specialization': dataScienceImage,
+  'front-end-web-development-with-react': frontEndReactImage,
+  'full-stack-web-development-with-react-specialization': fullStackReactImage,
+  'google-ux-design-professional-certificate': googleUxImage,
+  'ibm-full-stack-software-developer-professional-certificate': ibmFullStackImage,
+  'java-programming-and-software-engineering-fundamentals-specialization': javaFundamentalsImage,
+  'machine-learning-specialization': machineLearningImage,
+  'meta-android-developer-professional-certificate': metaAndroidImage,
+  'meta-back-end-developer-professional-certificate': metaBackEndImage,
+  'meta-front-end-developer-professional-certificate': metaFrontEndImage,
+  'meta-full-stack-developer-front-end-back-end-from-scratch-specialization': metaFullStackImage,
+  'python-for-everybody-specialization': pythonForEverybodyImage,
+  'responsive-web-design': responsiveWebDesignImage,
+  'server-side-development-with-nodejs-express-and-mongodb': serverSideImage,
+};
 
 const growOptions = [
   {
@@ -86,7 +125,8 @@ function CourseCard({
   onSelect: (courseId: string) => void;
 }) {
   const skills = getCourseSkills(course).slice(0, 3);
-  const image = course.image?.trim();
+  const suppliedImage = COURSE_IMAGE_OVERRIDES[course.id];
+  const image = suppliedImage || course.image?.trim();
   const metadata = [course.platform, course.level, course.duration].filter(Boolean);
   const cost = course.cost === null || course.cost === undefined || String(course.cost).trim() === ''
     ? null
@@ -112,7 +152,7 @@ function CourseCard({
             </span>
           </div>
         )}
-        {course.imageSource && (
+        {course.imageSource && !suppliedImage && (
           <a
             href={course.imageSource}
             target="_blank"
