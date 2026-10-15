@@ -56,13 +56,37 @@ interface CourseCategory {
   id: string;
   label: string;
   count: number;
+  description: string;
 }
+
+const categoryDescriptions: Record<string, string> = {
+  "Cyber Defense, Offensive Security & Cloud Security": "Learn to protect systems, investigate threats, test security controls, and secure cloud environments.",
+  "Data Engineering, Analytics & Databases": "Build data pipelines, query and manage databases, and turn reliable data into useful insights.",
+  "Cloud Architecture, DevOps & Platform Reliability": "Design cloud infrastructure, automate software delivery, and keep production services reliable.",
+  "Programming Languages & Core Development": "Develop programming fundamentals and learn languages used to build software, tools, and services.",
+  "Machine Learning, Deep Learning & Computer Vision": "Train and evaluate intelligent models for prediction, perception, and image or video understanding.",
+  "Frontend, Backend & Full-Stack Web": "Create web experiences, server APIs, and complete applications from interface to data layer.",
+  "Game Engines, Graphics & Interactive Development": "Build games and interactive 3D experiences using engines, graphics tools, and digital-asset workflows.",
+  "Android, iOS & Cross-Platform": "Design and build applications for Android, iOS, and multiple mobile platforms.",
+  "Blockchain, Web3 & FinTech Infrastructure": "Create blockchain applications, smart contracts, and infrastructure for decentralized products.",
+  "Networks, Infrastructure & Network Operations": "Configure, secure, and troubleshoot networks that connect users, systems, and cloud services.",
+  "Robotics, Embedded Systems & Edge Computing": "Program connected devices, embedded hardware, and robots that sense and act in the physical world.",
+  "Architecture, Quality Engineering & Technical Leadership": "Design maintainable systems, improve software quality, and develop technical leadership skills.",
+  "LLMs, NLP & Generative AI Applications": "Work with language technologies and build practical applications powered by generative AI.",
+  "IT Support, Linux & Systems Administration": "Support users and administer Linux and other systems that keep technology services running.",
+  "Product Management, Agile & AI Strategy": "Plan and prioritize products, guide agile delivery, and evaluate how AI supports business goals.",
+};
 
 function getCourseCategory(course: CatalogCourse): string {
   return course.marketSubcategory?.trim()
     || course.subcategory?.trim()
     || course.marketCategory
     || course.category;
+}
+
+function getCategoryDescription(label: string): string {
+  return categoryDescriptions[label]
+    || `Explore courses in ${label.toLowerCase()} and build practical skills for this area.`;
 }
 
 function getCategoryId(label: string): string {
@@ -105,6 +129,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
   const [recommending, setRecommending] = useState(false);
   const [rankingMethod, setRankingMethod] = useState<"ai" | "mixed" | "catalog-order" | null>(null);
   const [recommendationError, setRecommendationError] = useState("");
+  const [courseAvailability, setCourseAvailability] = useState<Partial<Record<RoadmapLevel, {required: number; available: number}>>>({});
   const [recommendationAttempt, setRecommendationAttempt] = useState(0);
 
   const activeLevels = (Object.keys(quotas[goal]) as RoadmapLevel[]);
@@ -122,7 +147,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
         if (label) counts.set(label, (counts.get(label) || 0) + 1);
       });
       const categories = [...counts.entries()]
-        .map(([label, count]) => ({id: getCategoryId(label), label, count}))
+        .map(([label, count]) => ({id: getCategoryId(label), label, count, description: getCategoryDescription(label)}))
         .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
       if (!cancelled) setCourseCategories(categories);
     }).catch((error: unknown) => {
@@ -142,6 +167,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
     setRecommending(true);
     setRecommendationError("");
     setRankingMethod(null);
+    setCourseAvailability({});
     setOptionsByLevel({ beginner: [], intermediate: [], advanced: [] });
     catalogCourseApi.recommend({
       careerGoal: goal,
@@ -155,6 +181,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
       if (!cancelled) {
         setOptionsByLevel({ beginner: response.data?.courses?.beginner || [], intermediate: response.data?.courses?.intermediate || [], advanced: response.data?.courses?.advanced || [] });
         setRankingMethod(response.data?.rankingMethod || "catalog-order");
+        setCourseAvailability(response.data?.availability || {});
         if (response.data?.rankingNotice) setRecommendationError(`AI recommendations were unavailable. Showing catalog-ordered courses instead. (${response.data.rankingNotice})`);
       }
     }).catch((error: unknown) => {
@@ -279,7 +306,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                     Loading course categories...
                   </div>
                 ) : categoriesError ? (
-                  <div role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-700 dark:text-rose-200">
+                  <div role="alert" className="rounded-xl border border-rose-700 bg-rose-50 p-4 text-sm font-medium text-rose-950 dark:border-rose-400/60 dark:bg-rose-950/60 dark:text-rose-100">
                     {categoriesError}
                     <button type="button" onClick={() => setCategoriesAttempt((attempt) => attempt + 1)} className="ml-2 underline">
                       Retry
@@ -296,10 +323,15 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                           setSelectedCategory(item);
                           setSelected({ beginner: [], intermediate: [], advanced: [] });
                         }}
-                        className={`flex items-start justify-between gap-3 rounded-xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${selectedCategory?.id === item.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}
+                        className={`flex min-h-28 items-start justify-between gap-3 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${selectedCategory?.id === item.id ? "border-[#d92f24] bg-[#d92f24] text-white shadow-md shadow-[#d92f24]/20" : "border-slate-300 bg-immersive-card hover:border-[#d92f24] hover:bg-[#fff1ef] dark:border-slate-600 dark:hover:bg-[#351b1a]"}`}
                       >
-                        <span className="text-sm font-bold leading-relaxed text-immersive-text-primary">{item.label}</span>
-                        <span className="shrink-0 text-xs text-immersive-text-secondary">{item.count}</span>
+                        <span className={`space-y-2 text-sm font-bold leading-relaxed ${selectedCategory?.id === item.id ? "text-white" : "text-immersive-text-primary"}`}>
+                          <span className="block">{item.label}</span>
+                          <span className={`block text-xs font-normal leading-relaxed ${selectedCategory?.id === item.id ? "text-white/90" : "text-immersive-text-secondary"}`}>
+                            {item.description}
+                          </span>
+                        </span>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${selectedCategory?.id === item.id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>{item.count}</span>
                       </button>
                     ))}
                   </div>
@@ -321,16 +353,24 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                 {recommending ? (
                   <div role="status" className="flex items-center gap-2 text-base text-immersive-text-secondary">
                     <LoaderCircle aria-hidden="true" className="w-4 h-4 animate-spin" />
-                    Ranking career courses...
+                    Finding courses in this category...
                   </div>
                 ) : (
                   <>
                     {recommendationError && (
-                      <div role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+                      <div role="alert" className="rounded-xl border border-amber-700 bg-amber-50 p-4 text-sm font-medium text-amber-950 dark:border-amber-400/60 dark:bg-amber-950/60 dark:text-amber-100">
                         {recommendationError}
-                        <button type="button" onClick={() => setRecommendationAttempt((attempt) => attempt + 1)} className="ml-2 underline">
+                        <button type="button" onClick={() => setRecommendationAttempt((attempt) => attempt + 1)} className="ml-2 font-semibold underline underline-offset-2">
                           Retry recommendations
                         </button>
+                      </div>
+                    )}
+                    {activeLevels.some((level) => {
+                      const availability = courseAvailability[level];
+                      return Boolean(availability && availability.available < availability.required);
+                    }) && (
+                      <div className="rounded-xl border border-amber-700 bg-amber-50 p-4 text-sm font-medium text-amber-950 dark:border-amber-400/60 dark:bg-amber-950/60 dark:text-amber-100">
+                        Showing the available Learning Board courses in this category. Some roadmap levels have fewer options than this goal requires, so you may need to choose another category to complete the roadmap.
                       </div>
                     )}
                     {rankingMethod && (
@@ -444,7 +484,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                         {isExpanded && (
                           <div id={`ready-course-${course.id}`} className="border-t border-immersive-border p-4 sm:p-5 text-sm text-immersive-text-secondary space-y-4">
                             {details?.loading && <p role="status">Loading course details…</p>}
-                            {details?.error && <p role="alert" className="text-amber-300">Course details are unavailable right now.</p>}
+                            {details?.error && <p role="alert" className="font-medium text-amber-900 dark:text-amber-200">Course details are unavailable right now.</p>}
                             {!details?.loading && !details?.error && (
                               <>
                                 <section>

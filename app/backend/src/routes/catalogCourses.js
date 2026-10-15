@@ -2,7 +2,7 @@ import {Hono} from 'hono';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {db} from '../db/index.js';
-import {catalogCourses, catalogCourseSubcategories, catalogCourseCareers, tracks, lessons} from '../db/schema.js';
+import {catalogCourses, catalogCourseSubcategories, catalogCourseCareers, learningBoardScreens, tracks, lessons} from '../db/schema.js';
 import {eq, inArray} from 'drizzle-orm';
 import {generateCompleteJson} from '../lib/gemini.js';
 
@@ -229,11 +229,22 @@ catalogCoursesRoute.post('/recommend', async (c) => {
   }
   const levelCourses = linkedCourses.filter((course) => Object.prototype.hasOwnProperty.call(limits, String(course.level || '').toLowerCase()));
   const candidateIds = levelCourses.map((course) => course.id);
-  const lessonRows = candidateIds.length
-    ? await db.select({ trackId: lessons.trackId }).from(lessons).where(inArray(lessons.trackId, candidateIds))
-    : [];
-  const coursesWithLessons = new Set(lessonRows.map((lesson) => lesson.trackId));
-  const candidateCourses = levelCourses.filter((course) => coursesWithLessons.has(course.id));
+  let candidateCourses;
+  if (courseCategory) {
+    const screenRows = candidateIds.length
+      ? await db.select({courseId: learningBoardScreens.courseId})
+        .from(learningBoardScreens)
+        .where(inArray(learningBoardScreens.courseId, candidateIds))
+      : [];
+    const coursesWithScreens = new Set(screenRows.map((screen) => screen.courseId));
+    candidateCourses = levelCourses.filter((course) => coursesWithScreens.has(course.id));
+  } else {
+    const lessonRows = candidateIds.length
+      ? await db.select({trackId: lessons.trackId}).from(lessons).where(inArray(lessons.trackId, candidateIds))
+      : [];
+    const coursesWithLessons = new Set(lessonRows.map((lesson) => lesson.trackId));
+    candidateCourses = levelCourses.filter((course) => coursesWithLessons.has(course.id));
+  }
 
   if (!candidateCourses.length) {
     const scope = courseCategory ? `in the ${courseCategory} category` : 'linked to this career';
@@ -247,7 +258,7 @@ catalogCoursesRoute.post('/recommend', async (c) => {
       available: candidateCourses.filter((course) => String(course.level || '').toLowerCase() === level).length,
     }))
     .filter((item) => item.available < item.required);
-  if (insufficientLevels.length) {
+  if (insufficientLevels.length && !courseCategory) {
     return c.json({
       success: false,
       error: 'There are not enough courses with learning content for this career and roadmap goal.',
@@ -325,6 +336,13 @@ Rank only IDs from the canonical metadata. Keep each level in sensible learning 
       goal: body.careerGoal,
       learnerStage,
       courses: options,
+      availability: Object.fromEntries(Object.entries(limits).map(([level, quota]) => [
+        level,
+        {
+          required: quota.options,
+          available: candidateCourses.filter((course) => String(course.level || '').toLowerCase() === level).length,
+        },
+      ])),
       rankingMethod,
       rankingNotice: rankingFailure
         ? 'AI ranking was unavailable. Courses are shown in catalog order where needed.'
