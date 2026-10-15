@@ -37,6 +37,46 @@ const careerFocuses = {
 };
 
 const normalizeCareerId = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+const normalizeCatalogLevel = (value) => {
+  const raw = String(value ?? '').trim().toLowerCase();
+  if (!raw) return {primary: null, matches: []};
+
+  const normalized = raw
+    .replace(/[–—]/g, '-')
+    .replace(/\s+/g, ' ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  if (!normalized) return {primary: null, matches: []};
+
+  const levelMap = {
+    beginner: ['beginner'],
+    'beginner-intermediate': ['beginner', 'intermediate'],
+    'beginner-to-intermediate': ['beginner', 'intermediate'],
+    intermediate: ['intermediate'],
+    'intermediate-advanced': ['intermediate', 'advanced'],
+    'intermediate-to-advanced': ['intermediate', 'advanced'],
+    advanced: ['advanced'],
+  };
+
+  const matches = levelMap[normalized] || [normalized];
+  const validMatches = matches.filter((level) => ['beginner', 'intermediate', 'advanced'].includes(level));
+
+  const primary = validMatches.includes('advanced')
+    ? 'advanced'
+    : validMatches.includes('intermediate')
+      ? 'intermediate'
+      : validMatches.includes('beginner')
+        ? 'beginner'
+        : null;
+
+  return {primary, matches: validMatches};
+};
+
+const courseMatchesRoadmapLevel = (courseLevel, roadmapLevel) =>
+  normalizeCatalogLevel(courseLevel).matches.includes(roadmapLevel);
+
 const getCourseCategory = (course) =>
   course.marketSubcategory?.trim()
   || course.subcategory?.trim()
@@ -227,7 +267,10 @@ catalogCoursesRoute.post('/recommend', async (c) => {
       ? await db.select().from(catalogCourses).where(inArray(catalogCourses.id, linkedIds))
       : [];
   }
-  const levelCourses = linkedCourses.filter((course) => Object.prototype.hasOwnProperty.call(limits, String(course.level || '').toLowerCase()));
+  const levelCourses = linkedCourses.filter((course) => {
+    const normalized = normalizeCatalogLevel(course.level);
+    return normalized.matches.length > 0 && normalized.matches.some((level) => Object.prototype.hasOwnProperty.call(limits, level));
+  });
   const candidateIds = levelCourses.map((course) => course.id);
   let candidateCourses;
   if (courseCategory) {
@@ -255,7 +298,7 @@ catalogCoursesRoute.post('/recommend', async (c) => {
     .map(([level, quota]) => ({
       level,
       required: quota.options,
-      available: candidateCourses.filter((course) => String(course.level || '').toLowerCase() === level).length,
+      available: candidateCourses.filter((course) => courseMatchesRoadmapLevel(course.level, level)).length,
     }))
     .filter((item) => item.available < item.required);
   if (insufficientLevels.length && !courseCategory) {
@@ -317,9 +360,14 @@ Rank only IDs from the canonical metadata. Keep each level in sensible learning 
   let usedCatalogOrder = false;
   for (const [level, quota] of Object.entries(limits)) {
     const rankedIds = Array.isArray(ranked[level]) ? ranked[level] : [];
-    const validRanked = rankedIds.filter((id, index) => typeof id === 'string' && byId.get(id)?.level?.toLowerCase() === level && rankedIds.indexOf(id) === index);
+    const validRanked = rankedIds.filter((id, index) => {
+      if (typeof id !== 'string') return false;
+      const course = byId.get(id);
+      if (!course) return false;
+      return courseMatchesRoadmapLevel(course.level, level) && rankedIds.indexOf(id) === index;
+    });
     const fallbackIds = candidateCourses
-      .filter((course) => String(course.level || '').toLowerCase() === level)
+      .filter((course) => courseMatchesRoadmapLevel(course.level, level))
       .sort((left, right) => left.title.localeCompare(right.title))
       .map((course) => course.id);
     usedAI ||= validRanked.length > 0;
@@ -340,7 +388,7 @@ Rank only IDs from the canonical metadata. Keep each level in sensible learning 
         level,
         {
           required: quota.options,
-          available: candidateCourses.filter((course) => String(course.level || '').toLowerCase() === level).length,
+          available: candidateCourses.filter((course) => courseMatchesRoadmapLevel(course.level, level)).length,
         },
       ])),
       rankingMethod,
