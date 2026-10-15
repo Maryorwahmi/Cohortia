@@ -43,7 +43,7 @@ function selectionStorageKey(userId: string) {
 
 export default function Projects() {
   const {user} = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.adminRole === 'admin' || user?.adminRole === 'alpha' || user?.role === 'admin';
   const [courses, setCourses] = useState<Track[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [courseListLoading, setCourseListLoading] = useState(true);

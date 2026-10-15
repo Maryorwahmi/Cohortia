@@ -22,6 +22,7 @@ const MAX_EXAM_ATTEMPTS = 3;
 const REVIEW_CONFIDENCE_THRESHOLD = 0.75;
 const MAX_EXAM_ANSWER_LENGTH = 12_000;
 const MAX_EVIDENCE_FILE_SIZE_BYTES = Number(process.env.MAX_CAPSTONE_EVIDENCE_BYTES || 25 * 1024 * 1024);
+const hasProjectAdminAccess = (user) => user?.adminRole === 'admin' || user?.adminRole === 'alpha' || user?.role === 'admin';
 const ALLOWED_EVIDENCE_CONTENT_TYPES = new Set([
   'application/pdf',
   'application/zip',
@@ -237,7 +238,7 @@ async function examAttemptResponse(attempt, questions) {
 projects.get('/course/:courseId/final', async (c) => {
   const userId = c.get('userId');
   const courseId = c.req.param('courseId');
-  if (c.get('user')?.role !== 'admin') {
+  if (!hasProjectAdminAccess(c.get('user'))) {
     const [enrollment] = await db.select().from(enrollments).where(and(
       eq(enrollments.userId, userId),
       eq(enrollments.trackId, courseId),
@@ -305,7 +306,7 @@ projects.get('/course/:courseId/final', async (c) => {
 });
 
 projects.get('/admin/course-finals', async (c) => {
-  if (c.get('user')?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  if (!hasProjectAdminAccess(c.get('user'))) return c.json({success: false, error: 'Admin access required.'}, 403);
   const [capstones, exams, packageRows, allTracks, allBoardCourses] = await Promise.all([
     db.select({courseId: courseCapstones.courseId}).from(courseCapstones),
     db.select({courseId: courseFinalExams.courseId}).from(courseFinalExams),
@@ -331,7 +332,7 @@ projects.get('/admin/course-finals', async (c) => {
 });
 
 projects.put('/admin/course/:courseId/final/status', async (c) => {
-  if (c.get('user')?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  if (!hasProjectAdminAccess(c.get('user'))) return c.json({success: false, error: 'Admin access required.'}, 403);
   const courseId = c.req.param('courseId');
   const body = await c.req.json();
   const statuses = ['draft', 'review', 'ready', 'published', 'archived'];
@@ -355,7 +356,7 @@ projects.put('/course/:courseId/final/capstone-selection', async (c) => {
   if (typeof body.capstoneId !== 'string') {
     return c.json({ success: false, error: 'A capstone option is required.' }, 400);
   }
-  if (c.get('user')?.role !== 'admin') {
+  if (!hasProjectAdminAccess(c.get('user'))) {
     const [enrollment] = await db.select().from(enrollments).where(and(
       eq(enrollments.userId, userId),
       eq(enrollments.trackId, courseId),
@@ -393,7 +394,7 @@ projects.put('/course/:courseId/final/capstone-selection', async (c) => {
 projects.get('/course/:courseId/final/attempts', async (c) => {
   const userId = c.get('userId');
   const courseId = c.req.param('courseId');
-  const adminTestMode = c.get('user')?.role === 'admin';
+  const adminTestMode = hasProjectAdminAccess(c.get('user'));
   const [exam] = await db.select().from(courseFinalExams).where(eq(courseFinalExams.courseId, courseId)).limit(1);
   if (!exam) return c.json({ success: false, error: 'Course final exam not found' }, 404);
 
@@ -442,7 +443,7 @@ projects.get('/course/:courseId/final/attempts', async (c) => {
 projects.post('/course/:courseId/final/attempts', async (c) => {
   const userId = c.get('userId');
   const courseId = c.req.param('courseId');
-  const adminTestMode = c.get('user')?.role === 'admin';
+  const adminTestMode = hasProjectAdminAccess(c.get('user'));
   const [exam] = await db.select().from(courseFinalExams).where(eq(courseFinalExams.courseId, courseId)).limit(1);
   if (!exam) return c.json({ success: false, error: 'Course final exam not found' }, 404);
 
@@ -636,7 +637,7 @@ projects.post('/final-exam-attempts/:attemptId/submit', async (c) => {
 });
 
 projects.get('/admin/capstone-submissions', async (c) => {
-  if (c.get('user')?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  if (!hasProjectAdminAccess(c.get('user'))) return c.json({success: false, error: 'Admin access required.'}, 403);
   const [allSubmissions, capstones, files] = await Promise.all([
     db.select().from(userProjectSubmissions).orderBy(desc(userProjectSubmissions.createdAt)),
     db.select().from(courseCapstones),
@@ -665,7 +666,7 @@ projects.get('/admin/capstone-submissions', async (c) => {
 });
 
 projects.get('/admin/capstone-submissions/:submissionId/history', async (c) => {
-  if (c.get('user')?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  if (!hasProjectAdminAccess(c.get('user'))) return c.json({success: false, error: 'Admin access required.'}, 403);
   const submissionId = c.req.param('submissionId');
   const history = await db.select().from(courseFinalReviewAudit)
     .where(eq(courseFinalReviewAudit.submissionId, submissionId)).orderBy(desc(courseFinalReviewAudit.createdAt));
@@ -674,7 +675,7 @@ projects.get('/admin/capstone-submissions/:submissionId/history', async (c) => {
 
 projects.post('/admin/capstone-submissions/:submissionId/review', async (c) => {
   const reviewer = c.get('user');
-  if (reviewer?.role !== 'admin') return c.json({success: false, error: 'Admin access required.'}, 403);
+  if (!hasProjectAdminAccess(reviewer)) return c.json({success: false, error: 'Admin access required.'}, 403);
   const submissionId = c.req.param('submissionId');
   const body = await c.req.json();
   if (!['approved', 'needs_revision'].includes(body.status)) {
@@ -740,7 +741,7 @@ projects.post('/admin/capstone-submissions/:submissionId/review', async (c) => {
 });
 
 projects.get('/admin/final-exam-attempts/review', async (c) => {
-  if (c.get('user')?.role !== 'admin') return c.json({ success: false, error: 'Admin access required.' }, 403);
+  if (!hasProjectAdminAccess(c.get('user'))) return c.json({ success: false, error: 'Admin access required.' }, 403);
   const attempts = await db.select().from(courseFinalExamAttempts)
     .where(eq(courseFinalExamAttempts.reviewRequired, true));
   const reviewQueue = await Promise.all(attempts.map(async (attempt) => {
@@ -756,7 +757,7 @@ projects.get('/admin/final-exam-attempts/review', async (c) => {
 
 projects.post('/admin/final-exam-attempts/:attemptId/review', async (c) => {
   const reviewer = c.get('user');
-  if (reviewer?.role !== 'admin') return c.json({ success: false, error: 'Admin access required.' }, 403);
+  if (!hasProjectAdminAccess(reviewer)) return c.json({ success: false, error: 'Admin access required.' }, 403);
   const attemptId = c.req.param('attemptId');
   const body = await c.req.json();
   const score = Number(body.score);
@@ -779,7 +780,7 @@ projects.post('/admin/final-exam-attempts/:attemptId/review', async (c) => {
 
 projects.post('/admin/course/:courseId/final-exam/unlock', async (c) => {
   const reviewer = c.get('user');
-  if (reviewer?.role !== 'admin') return c.json({ success: false, error: 'Admin access required.' }, 403);
+  if (!hasProjectAdminAccess(reviewer)) return c.json({ success: false, error: 'Admin access required.' }, 403);
   const courseId = c.req.param('courseId');
   const body = await c.req.json();
   if (typeof body.userId !== 'string' || typeof body.reason !== 'string' || !body.reason.trim()) {
@@ -1006,7 +1007,7 @@ projects.get('/submission-files/:fileId/download', async (c) => {
   const fileId = c.req.param('fileId');
   const [file] = await db.select().from(userProjectSubmissionFiles).where(eq(userProjectSubmissionFiles.id, fileId)).limit(1);
   if (!file) return c.json({ success: false, error: 'Evidence file not found.' }, 404);
-  const isReviewer = c.get('user')?.role === 'admin' && Boolean(file.submissionId);
+  const isReviewer = hasProjectAdminAccess(c.get('user')) && Boolean(file.submissionId);
   if (file.userId !== userId && !isReviewer) return c.json({ success: false, error: 'Unauthorized' }, 403);
   if (!isR2Configured()) return c.json({ success: false, error: 'Evidence storage is not configured yet.' }, 503);
 
