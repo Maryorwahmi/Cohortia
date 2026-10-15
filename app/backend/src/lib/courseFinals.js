@@ -18,7 +18,8 @@ function frontmatter(markdown) {
 
 function sectionBody(markdown, heading) {
   const source = String(markdown);
-  const headingMatch = source.match(new RegExp(`^##\\s+${heading}\\s*$`, 'im'));
+  const headingMatches = [...source.matchAll(new RegExp(`^##\\s+${heading}\\s*$`, 'gim'))];
+  const headingMatch = headingMatches.at(-1);
   if (!headingMatch || headingMatch.index === undefined) return '';
   const start = headingMatch.index + headingMatch[0].length;
   const remainder = source.slice(start);
@@ -27,23 +28,27 @@ function sectionBody(markdown, heading) {
 }
 
 function labeledBlock(text, label) {
-  const labels = ['Project Description', 'Requirements', 'Core Requirements', 'Project Requirements', 'Stretch Goals', 'Evaluation Criteria', 'Estimated Time'];
+  const labels = ['Project Description', 'Requirements', 'Key Requirements', 'Core Requirements', 'Project Requirements', 'Stretch Goals', 'Evaluation Criteria', 'Estimated Time'];
   const stop = labels.filter((candidate) => candidate !== label).join('|');
-  const match = String(text).match(new RegExp(`(?:\\*\\*${label}:?\\*\\*:?|####\\s+${label})\\s*([\\s\\S]*?)(?=\\n(?:\\*\\*(?:${stop}):?\\*\\*:?|####\\s+(?:${stop}))|\\n###|\\n##\\s+|$)`, 'i'));
+  const normalizedText = String(text).replace(/^\s*>\s?/gm, '');
+  const match = normalizedText.match(new RegExp(`(?:\\*\\*${label}:?\\*\\*:?|####\\s+${label})\\s*([\\s\\S]*?)(?=\\n(?:\\*\\*(?:${stop}):?\\*\\*:?|####\\s+(?:${stop}))|\\n###|\\n##\\s+|$)`, 'i'));
   return match?.[1]?.trim() || '';
 }
 
 function listItems(text) {
-  return String(text || '').split(/\r?\n/)
+  const value = String(text || '').trim();
+  const items = value.split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => /^(?:\d+\.|\*|-|•)\s+/.test(line))
     .map((line) => clean(line.replace(/^(?:\d+\.|\*|-|•)\s+/, '')))
     .filter(Boolean);
+  return items.length ? items : (value ? [clean(value)] : []);
 }
 
 function rubricItems(text) {
+  const value = String(text || '').trim();
   const items = [];
-  for (const rawLine of String(text || '').split(/\r?\n/)) {
+  for (const rawLine of value.split(/\r?\n/)) {
     let line = rawLine.trim();
     line = line.replace(/^\*\s+\*\*Evaluation Criteria(?:\s+\(\d+%\))?:?\*\*\s*/i, '').trim();
     if (!line || /^\*\*?(?:Estimated Time|Stretch Goals|Requirements)/i.test(line)) continue;
@@ -55,7 +60,7 @@ function rubricItems(text) {
     const plain = line.match(/^\*\s+(?:\*\s+)?(.+?)\s*$/);
     if (plain && !/^\*\*/.test(plain[1])) items.push({criterion: clean(plain[1]), weight: null, description: ''});
   }
-  if (!items.length) return items;
+  if (!items.length) return value ? [{criterion: 'Evaluation Criteria', weight: 100, description: clean(value)}] : items;
   const hasCompleteWeights = items.every((item) => Number.isInteger(item.weight))
     && items.reduce((total, item) => total + item.weight, 0) === 100;
   if (hasCompleteWeights) return items;
@@ -108,7 +113,7 @@ export function parseCourseFinals(markdown, sourcePath = null) {
       optionNumber: Number(match[1]),
       title: clean(match[2]),
       description: projectDescription(body),
-      requirements: listItems(labeledBlock(body, 'Requirements') || labeledBlock(body, 'Core Requirements') || labeledBlock(body, 'Project Requirements')),
+      requirements: listItems(labeledBlock(body, 'Requirements') || labeledBlock(body, 'Key Requirements') || labeledBlock(body, 'Core Requirements') || labeledBlock(body, 'Project Requirements')),
       stretchGoals: listItems(labeledBlock(body, 'Stretch Goals')),
       rubric: rubricItems(labeledBlock(body, 'Evaluation Criteria')),
       estimatedTime: clean(labeledBlock(body, 'Estimated Time')),
@@ -157,23 +162,12 @@ export function parseCourseFinals(markdown, sourcePath = null) {
     for (let index = 0; index < questionStarts.length; index += 1) {
       const start = questionStarts[index];
       let endLineIndex = questionStarts[index + 1]?.lineIndex ?? lines.length;
-      let fenced = false;
-      let separatorIndex = -1;
-      for (let offset = 0; offset < endLineIndex - start.lineIndex - 1; offset += 1) {
-        const line = lines[start.lineIndex + 1 + offset];
-        if (/^\s*```/.test(line)) fenced = !fenced;
-        if (!fenced && /^---\s*$/.test(line)) {
-          separatorIndex = offset;
-          break;
-        }
-      }
-      if (separatorIndex >= 0) endLineIndex = start.lineIndex + 1 + separatorIndex;
       const block = [start.trailingText, ...lines.slice(start.lineIndex + 1, endLineIndex)].join('\n').trim();
       const blockLines = block.split(/\r?\n/);
       const answerLineIndex = blockLines.findIndex((line) =>
-        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
+        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+(?:\d+(?:\.\d+)?|[A-Z]))?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?|Explanation)\s*:?\*\*[ \t]*(.*)$/i.test(line));
       const answerLine = answerLineIndex >= 0
-        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i)
+        ? blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+(?:\d+(?:\.\d+)?|[A-Z]))?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?|Explanation)\s*:?\*\*[ \t]*(.*)$/i)
         : null;
       const prompt = answerLineIndex >= 0
         ? blockLines.slice(0, answerLineIndex).join('\n').trim()
@@ -205,9 +199,9 @@ export function parseCourseFinals(markdown, sourcePath = null) {
       const endLineIndex = answerKeyItems[index + 1] ?? lines.length;
       const blockLines = lines.slice(startLineIndex + 1, endLineIndex);
       const answerLineIndex = blockLines.findIndex((line) =>
-        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i.test(line));
+        /^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+(?:\d+(?:\.\d+)?|[A-Z]))?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?|Explanation)\s*:?\*\*[ \t]*(.*)$/i.test(line));
       if (answerLineIndex < 0) continue;
-      const answerLine = blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+\d+(?:\.\d+)?)?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?)\s*:?\*\*[ \t]*(.*)$/i);
+      const answerLine = blockLines[answerLineIndex].match(/^[ \t]*(?:[*-][ \t]*)?\*\*(?:Answer(?:[ \t]+(?:\d+(?:\.\d+)?|[A-Z]))?(?:[ \t]+Key)?(?:[ \t]*[&/][ \t]*Explanation)?(?:[ \t]*\([^*\r\n]+\))?|Correct[ \t]+Answer(?:[ \t]*[&/][ \t]*Explanation)?|Explanation)\s*:?\*\*[ \t]*(.*)$/i);
       if (!answerLine) continue;
       const answer = [answerLine[1], ...blockLines.slice(answerLineIndex + 1)].join('\n').trim();
       if (questions[index] && !questions[index].answer) questions[index].answer = answer;

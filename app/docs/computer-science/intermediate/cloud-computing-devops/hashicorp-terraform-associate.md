@@ -7642,6 +7642,7 @@ This final examination assesses your comprehensive understanding of Terraform, c
       value       = { for name, instance in aws_instance.app_servers : name => instance.public_ip }
     }
     ```
+    **Answer:** Use `for_each = var.ec2_configs` on the resource, reference each instance's settings through `each.value`, and use `each.key` for the instance name. The `main.tf` example above satisfies the requirement.
     **Partial Credit Guidance:** Correctly using `for_each` with `each.key` and `each.value` will receive full credit. Minor syntax errors or incorrect attribute access will result in partial credit.
 
 11. **Question:** Write Terraform code to output the public IP address of a single AWS EC2 instance named `my_web_server` after it has been created. Assume the instance resource is already defined as `resource "aws_instance" "my_web_server" { ... }`.
