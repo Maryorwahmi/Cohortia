@@ -125,96 +125,84 @@ export default function LiveTicker() {
   }, []);
 
   return (
-    <div className="w-full bg-immersive-bg border-y border-immersive-border py-8 relative overflow-hidden">
-      {/* Decorative backdrop glow */}
-      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-20 bg-immersive-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-20 bg-immersive-secondary/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="flex w-full min-w-0 flex-col gap-5" role="region" aria-label="Cohortia community activity">
+      {/* Live Metrics Counts */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4 xl:grid-cols-2">
+        <div className="bg-immersive-card border border-immersive-border p-3 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
+          <span className="text-xl font-mono font-bold text-immersive-text-primary bg-gradient-to-r from-immersive-text-primary to-immersive-secondary bg-clip-text text-transparent animate-pulse">
+            +{stats.learners.toLocaleString()}
+          </span>
+          <span className="text-[10px] leading-tight text-immersive-text-secondary font-medium mt-1 uppercase tracking-wider">Active Learners</span>
+        </div>
 
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
-          {/* Live Metrics Counts */}
-          <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-4">
-            <div className="bg-immersive-card border border-immersive-border p-4 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
-              <span className="text-2xl font-mono font-bold text-immersive-text-primary bg-gradient-to-r from-immersive-text-primary to-immersive-secondary bg-clip-text text-transparent animate-pulse">
-                +{stats.learners.toLocaleString()}
-              </span>
-              <span className="text-xs text-immersive-text-secondary font-medium mt-1 uppercase tracking-wider">Active Learners</span>
-            </div>
+        <div className="bg-immersive-card border border-immersive-border p-3 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
+          <span className="text-xl font-mono font-bold text-immersive-text-primary bg-gradient-to-r from-immersive-text-primary to-immersive-accent bg-clip-text text-transparent">
+            +{stats.projects}
+          </span>
+          <span className="text-[10px] leading-tight text-immersive-text-secondary font-medium mt-1 uppercase tracking-wider">Client Projects</span>
+        </div>
 
-            <div className="bg-immersive-card border border-immersive-border p-4 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
-              <span className="text-2xl font-mono font-bold text-immersive-text-primary bg-gradient-to-r from-immersive-text-primary to-immersive-accent bg-clip-text text-transparent">
-                +{stats.projects}
-              </span>
-              <span className="text-xs text-immersive-text-secondary font-medium mt-1 uppercase tracking-wider">Client Projects</span>
-            </div>
+        <div className="bg-immersive-card border border-immersive-border p-3 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
+          <span className="text-xl font-mono font-bold text-immersive-text-primary bg-gradient-to-r from-immersive-text-primary to-immersive-secondary bg-clip-text text-transparent">
+            +{stats.mentors}
+          </span>
+          <span className="text-[10px] leading-tight text-immersive-text-secondary font-medium mt-1 uppercase tracking-wider">Expert Mentors</span>
+        </div>
 
-            <div className="bg-immersive-card border border-immersive-border p-4 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
-              <span className="text-2xl font-mono font-bold text-immersive-text-primary bg-gradient-to-r from-immersive-text-primary to-immersive-secondary bg-clip-text text-transparent">
-                +{stats.mentors}
-              </span>
-              <span className="text-xs text-immersive-text-secondary font-medium mt-1 uppercase tracking-wider">Expert Mentors</span>
-            </div>
+        <div className="bg-immersive-card border border-immersive-border p-3 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
+          <span className="text-xl font-mono font-bold text-immersive-secondary">
+            %{stats.confidence}
+          </span>
+          <span className="text-[10px] leading-tight text-immersive-text-secondary font-medium mt-1 uppercase tracking-wider">Stronger Confidence</span>
+        </div>
+      </div>
 
-            <div className="bg-immersive-card border border-immersive-border p-4 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
-              <span className="text-2xl font-mono font-bold text-immersive-secondary">
-                %{stats.confidence}
-              </span>
-              <span className="text-xs text-immersive-text-secondary font-medium mt-1 uppercase tracking-wider">Stronger Confidence</span>
-            </div>
-          </div>
+      {/* Real-Time Platform Activity Stream */}
+      <div className="flex min-w-0 flex-col space-y-3">
+        <div className="flex items-center space-x-2 px-1">
+          <div className="w-2.5 h-2.5 bg-immersive-secondary rounded-full animate-ping flex-shrink-0" />
+          <div className="w-2.5 h-2.5 bg-immersive-secondary rounded-full flex-shrink-0" />
+          <span className="text-[10px] font-mono font-bold text-immersive-secondary uppercase tracking-widest flex items-center space-x-1.5">
+            <span>COHORTIA telemetry FEED</span>
+            <Activity className="w-3.5 h-3.5" />
+          </span>
+        </div>
 
-          {/* Real-Time Platform Activity Stream */}
-          <div className="lg:col-span-7 flex flex-col space-y-3">
-            <div className="flex items-center space-x-2 px-1">
-              <div className="w-2.5 h-2.5 bg-immersive-secondary rounded-full animate-ping" />
-              <div className="w-2.5 h-2.5 bg-immersive-secondary rounded-full" />
-              <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest flex items-center space-x-1.5">
-                <span>COHORTIA telemetry FEED</span>
-                <Activity className="w-3.5 h-3.5" />
-              </span>
-            </div>
-
-            <div className="flex flex-col space-y-2 max-h-[160px] overflow-hidden relative">
-              {events.map((event) => (
-                <div
-                  key={event.id}
-                  className="flex items-center justify-between bg-immersive-card border border-immersive-border hover:border-immersive-secondary/40 rounded-xl p-2.5 transition-all duration-300 animate-in fade-in slide-in-from-top-3 duration-500 shadow-[0_0_8px_var(--immersive-shadow)]"
-                >
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <img
-                      src={event.avatar}
-                      alt={event.user}
-                      className="w-8 h-8 rounded-full border border-immersive-border object-cover flex-shrink-0"
-                    />
-                    <div className="text-left min-w-0">
-                      <p className="text-xs font-medium text-immersive-text-secondary truncate">
-                        <span className="font-bold text-immersive-text-primary">{event.user}</span>{" "}
-                        <span className="text-immersive-secondary font-mono text-[10px] bg-immersive-primary/10 border border-immersive-border px-1.5 py-0.5 rounded">
-                          {event.track}
-                        </span>{" "}
-                        <span className="text-immersive-text-secondary">{event.event}</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2 flex-shrink-0 pl-3">
-                    {event.badge && (
-                      <span className="hidden sm:inline-flex items-center text-[9px] font-mono font-bold bg-immersive-primary/10 text-immersive-secondary px-1.5 py-0.5 rounded border border-immersive-border">
-                        {event.badge}
-                      </span>
-                    )}
-                    <span className="text-[10px] font-mono text-immersive-text-secondary/70 whitespace-nowrap">
-                      {event.time}
-                    </span>
-                  </div>
+        <div className="flex flex-col space-y-2 max-h-[220px] overflow-y-auto overscroll-contain pr-1 relative">
+          {events.map((event) => (
+            <div
+              key={event.id}
+              className="flex min-w-0 items-center justify-between gap-2 bg-immersive-card border border-immersive-border hover:border-immersive-secondary/40 rounded-xl p-2 transition-all duration-300 animate-in fade-in slide-in-from-top-3 duration-500 shadow-[0_0_8px_var(--immersive-shadow)]"
+            >
+              <div className="flex min-w-0 items-center space-x-2">
+                <img
+                  src={event.avatar}
+                  alt={event.user}
+                  className="w-7 h-7 rounded-full border border-immersive-border object-cover flex-shrink-0"
+                />
+                <div className="text-left min-w-0">
+                  <p className="text-[11px] leading-snug font-medium text-immersive-text-secondary line-clamp-2">
+                    <span className="font-bold text-immersive-text-primary">{event.user}</span>{" "}
+                    <span className="text-immersive-secondary font-mono text-[10px] bg-immersive-primary/10 border border-immersive-border px-1.5 py-0.5 rounded">
+                      {event.track}
+                    </span>{" "}
+                    <span className="text-immersive-text-secondary">{event.event}</span>
+                  </p>
                 </div>
-              ))}
-              {/* Fade out mask at bottom of ticker */}
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-immersive-bg to-transparent pointer-events-none" />
-            </div>
-          </div>
+              </div>
 
+              <div className="flex items-center space-x-2 flex-shrink-0 pl-3">
+                {event.badge && (
+                  <span className="hidden sm:inline-flex xl:hidden 2xl:inline-flex items-center text-[9px] font-mono font-bold bg-immersive-primary/10 text-immersive-secondary px-1.5 py-0.5 rounded border border-immersive-border">
+                    {event.badge}
+                  </span>
+                )}
+                <span className="text-[10px] font-mono text-immersive-text-secondary/70 whitespace-nowrap">
+                  {event.time}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

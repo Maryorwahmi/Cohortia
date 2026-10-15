@@ -1,6 +1,7 @@
 import { Sparkles, ArrowRight, Star, Compass, Play, UsersRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { UserPreferences } from "../types";
+import LiveTicker from "./LiveTicker";
 
 interface HeroProps {
   userProfile: UserPreferences | null;
@@ -32,10 +33,10 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(17,17,17,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(17,17,17,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
 
       <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 xl:gap-6 items-center">
           
           {/* Left Column (Main Heading) */}
-          <div className="lg:col-span-7 space-y-6 lg:pr-4">
+            <div className="lg:col-span-7 xl:col-span-5 space-y-6 lg:pr-4">
             
             <div className="space-y-3">
               <span className="text-xs font-mono font-extrabold text-immersive-secondary uppercase tracking-widest block">
@@ -44,7 +45,7 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
 
               {userProfile ? (
                 <div className="space-y-2 animate-in fade-in slide-in-from-left duration-300">
-                  <h1 className="text-3xl sm:text-5xl lg:text-6xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.1]">
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-5xl 2xl:text-6xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.1]">
                     Welcome Back, <span className="bg-immersive-primary bg-clip-text text-transparent">{userProfile.name}</span>.<br />
                     Accelerate Your <span className="text-immersive-secondary">Career</span>.
                   </h1>
@@ -54,7 +55,7 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
                   </div>
                 </div>
               ) : (
-                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.08]">
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-5xl 2xl:text-7xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.08]">
                   Build Skills.<br />
                   Gain <span className="bg-immersive-primary bg-clip-text text-transparent">Experience.</span><br />
                   Move Forward.
@@ -101,10 +102,10 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
           </div>
 
           {/* Right Column (Visual representation from mockup) */}
-          <div className="lg:col-span-5 relative flex items-center justify-center">
+          <div className="lg:col-span-5 xl:col-span-3 relative flex items-center justify-center">
             
             {/* Visual Orbiting Circle */}
-            <div className="relative w-72 sm:w-96 h-72 sm:h-96 rounded-full border border-immersive-border flex items-center justify-center animate-[spin_40s_linear_infinite] pointer-events-none">
+            <div className="relative w-72 sm:w-96 xl:w-72 2xl:w-96 h-72 sm:h-96 xl:h-72 2xl:h-96 rounded-full border border-immersive-border flex items-center justify-center animate-[spin_40s_linear_infinite] pointer-events-none">
               {/* Little visual nodes */}
               <div className="absolute top-0 w-3 h-3 bg-immersive-secondary rounded-full shadow-lg shadow-immersive-shadow shadow-immersive-secondary/50" />
               <div className="absolute bottom-1/4 left-0 w-2.5 h-2.5 bg-immersive-primary rounded-full shadow-lg shadow-immersive-shadow shadow-immersive-primary/50" />
@@ -112,7 +113,7 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
             </div>
 
             {/* Inner Profile Image Frame */}
-            <div className="absolute w-56 sm:w-72 h-56 sm:h-72 rounded-full border-4 border-immersive-border shadow-[0_0_30px_var(--immersive-shadow)] overflow-hidden bg-immersive-bg z-10">
+            <div className="absolute w-56 sm:w-72 xl:w-56 2xl:w-72 h-56 sm:h-72 xl:h-56 2xl:h-72 rounded-full border-4 border-immersive-border shadow-[0_0_30px_var(--immersive-shadow)] overflow-hidden bg-immersive-bg z-10">
               <img
                 src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&fit=crop&q=80"
                 alt="Cohortia Learner Workstation"
@@ -136,6 +137,10 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
             <div className="absolute -bottom-2 -left-2 sm:left-4 bg-immersive-card border border-immersive-border text-immersive-text-primary py-2 px-3.5 rounded-2xl shadow-[0_0_10px_var(--immersive-shadow)] z-20 flex items-center space-x-2 font-sans font-bold text-xs animate-pulse">
               <span className="text-immersive-secondary font-extrabold">say</span>
               <span className="bg-immersive-primary/10 text-immersive-secondary px-2 py-0.5 rounded">Yes!</span>
+            </div>
+
+            <div className="lg:col-span-12 xl:col-span-4 min-w-0">
+              <LiveTicker />
             </div>
 
           </div>

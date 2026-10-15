@@ -1,6 +1,5 @@
 import {useOutletContext} from 'react-router-dom';
 import Hero from '../components/Hero';
-import LiveTicker from '../components/LiveTicker';
 import ProductDemoSection from '../components/ProductDemoSection';
 import CareersExplorer from '../components/CareersExplorer';
 import AboutUs from '../components/AboutUs';
@@ -19,7 +18,6 @@ export default function Home() {
   return (
     <>
       <Hero userProfile={userProfile} onOpenWizard={openWizard} />
-      <LiveTicker />
       <ProductDemoSection />
       <CareersExplorer onOpenWizard={openWizard} />
       <AboutUs />
