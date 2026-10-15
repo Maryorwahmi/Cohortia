@@ -72,7 +72,8 @@ const NEW_POTENTIAL_EVENTS = [
   }
 ];
 
-export default function LiveTicker() {
+export default function LiveTicker({ inline = false }: { inline?: boolean }) {
+  const isInline = !!inline;
   const [events, setEvents] = useState<TickerEvent[]>(INITIAL_EVENTS);
   const [stats, setStats] = useState({
     learners: 10241,
@@ -125,9 +126,9 @@ export default function LiveTicker() {
   }, []);
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-5" role="region" aria-label="Cohortia community activity">
+    <div className={isInline ? "flex flex-col gap-3 w-full" : "flex w-full min-w-0 flex-col gap-5"} role="region" aria-label="Cohortia community activity">
       {/* Live Metrics Counts */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4 xl:grid-cols-2">
+      <div className={isInline ? "flex flex-col gap-3" : "grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4 xl:grid-cols-2"}>
         <div className="bg-immersive-card border border-immersive-border p-3 rounded-2xl flex flex-col items-center justify-center text-center backdrop-blur-sm shadow-[0_0_10px_var(--immersive-shadow)]">
           <span className="text-xl font-mono font-bold text-immersive-text-primary bg-gradient-to-r from-immersive-text-primary to-immersive-secondary bg-clip-text text-transparent animate-pulse">
             +{stats.learners.toLocaleString()}
