@@ -73,6 +73,18 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
         </p>
       </header>
 
+      <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6">
+        <div className="text-center mb-5">
+          <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">
+            | ROADMAP SANDBOX
+          </span>
+          <h2 className="text-3xl font-extrabold text-immersive-text-primary mt-2">
+            Try It Out Interactive
+          </h2>
+        </div>
+        <ExperienceTrackSim userProfile={userProfile} onOpenWizard={onOpenWizard} />
+      </section>
+
       {/* 2. The Three Pricing Cards */}
       <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 mb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
@@ -369,8 +381,6 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
           </div>
         </div>
       </section>
-
-      <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6"><div className="text-center mb-5"><span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">| ROADMAP SANDBOX</span><h2 className="text-3xl font-extrabold text-immersive-text-primary mt-2">Try It Out Interactive</h2></div><ExperienceTrackSim userProfile={userProfile} onOpenWizard={onOpenWizard} /></section>
 
       {/* 6. Bottom CTA */}
       <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6">
