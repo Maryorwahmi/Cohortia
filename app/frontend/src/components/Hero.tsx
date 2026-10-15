@@ -1,7 +1,7 @@
 import { Sparkles, ArrowRight, Star, Compass, Play, UsersRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { UserPreferences } from "../types";
-import LiveTicker from "./LiveTicker";
+import CommunityStats from "./CommunityStats";
 
 interface HeroProps {
   userProfile: UserPreferences | null;
@@ -139,16 +139,10 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
               <span className="bg-immersive-primary/10 text-immersive-secondary px-2 py-0.5 rounded">Yes!</span>
             </div>
 
-            {/* Metrics & feed: side panel aligned to circular image on large screens */}
-            <div className="hidden lg:block absolute top-8 -right-56 xl:-right-44 2xl:-right-56 w-56 z-10 pointer-events-auto">
-              <LiveTicker inline />
-            </div>
+          </div>
 
-            {/* Small screens: show feed below hero (stacked) */}
-            <div className="block lg:hidden mt-6 w-full">
-              <LiveTicker />
-            </div>
-
+          <div className="lg:col-span-12 xl:col-span-4 min-w-0 w-full">
+            <CommunityStats />
           </div>
 
         </div>
