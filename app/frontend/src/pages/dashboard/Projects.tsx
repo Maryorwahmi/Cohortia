@@ -235,7 +235,7 @@ export default function Projects() {
             </p>
           </div>
           {isAdmin && (
-            <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs font-semibold text-amber-300">
+            <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200">
               <ShieldCheck className="h-4 w-4" /> Admin testing access
             </span>
           )}
