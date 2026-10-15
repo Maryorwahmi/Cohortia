@@ -1,5 +1,5 @@
 import { db } from '../db/index.js';
-import { users, tracks, catalogCourses, catalogCourseCareers, lessons, enrollments } from '../db/schema.js';
+import { users, tracks, catalogCourses, catalogCourseCareers, lessons, learningBoardScreens, enrollments } from '../db/schema.js';
 import { eq, and, inArray } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Hono } from 'hono';
 import { logActivity } from '../lib/activity.js';
 import crypto from 'node:crypto';
+import {courseMatchesRoadmapLevel} from '../lib/courseLevels.js';
 
 const auth = new Hono();
 const jwtSecret = () => process.env.JWT_SECRET || 'cohortia-dev-secret';
@@ -138,13 +139,14 @@ auth.post('/signup', async (c) => {
     const limits = limitsByGoal[selection?.careerGoal];
     const expectedStages = stagesByGoal[selection?.careerGoal] || [];
     const careerSlug = String(selection?.selectedCareerId || selection?.selectedCareer || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const careerLabelSlug = String(selection?.selectedCareer || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const validCareerSlugs = new Set([
       'frontend-development', 'backend-development', 'data-analytics', 'data-science',
       'ai-ml-engineering', 'cybersecurity', 'cloud-engineering', 'devops-engineering',
       'ux-ui-design', 'qa-testing', 'product-management', 'full-stack-development',
     ]);
 
-    if (!limits || !expectedStages.includes(String(selection?.learningStage || '').toLowerCase()) || !validCareerSlugs.has(careerSlug)) {
+    if (!limits || !expectedStages.includes(String(selection?.learningStage || '').toLowerCase()) || !careerSlug) {
       return c.json({ success: false, error: 'Roadmap goal, learning stage, or career is invalid' }, 400);
     }
     if (!selectedCourses || selectedLevels.some((level) => !allLevels.includes(level)) || !selectedLevels.every((level) => Array.isArray(selectedCourses[level]))) {
@@ -168,35 +170,43 @@ auth.post('/signup', async (c) => {
       return c.json({ success: false, error: 'One or more selected roadmap courses are unavailable' }, 400);
     }
 
-    const careerLinks = await db.select({ courseId: catalogCourseCareers.courseId })
-      .from(catalogCourseCareers)
-      .where(and(eq(catalogCourseCareers.careerId, careerSlug), inArray(catalogCourseCareers.courseId, selectedIds)));
-    if (careerLinks.length !== selectedIds.length) {
-      return c.json({ success: false, error: 'One or more courses do not belong to the selected career' }, 400);
+    const isLegacyCareer = validCareerSlugs.has(careerSlug);
+    if (isLegacyCareer) {
+      const careerLinks = await db.select({ courseId: catalogCourseCareers.courseId })
+        .from(catalogCourseCareers)
+        .where(and(eq(catalogCourseCareers.careerId, careerSlug), inArray(catalogCourseCareers.courseId, selectedIds)));
+      if (careerLinks.length !== selectedIds.length) {
+        return c.json({ success: false, error: 'One or more courses do not belong to the selected career' }, 400);
+      }
+    } else {
+      const normalizedCourseCategory = (course) => String(
+        course.marketSubcategory?.trim()
+        || course.subcategory?.trim()
+        || course.marketCategory
+        || course.category
+        || '',
+      ).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      if (!careerLabelSlug || careerLabelSlug !== careerSlug || courses.some((course) => normalizedCourseCategory(course) !== careerSlug)) {
+        return c.json({ success: false, error: 'One or more courses do not belong to the selected category' }, 400);
+      }
     }
 
-    const availableLessons = await db.select({ trackId: lessons.trackId })
-      .from(lessons)
-      .where(inArray(lessons.trackId, selectedIds));
-    const coursesWithLessons = new Set(availableLessons.map((lesson) => lesson.trackId));
-    if (selectedIds.some((id) => !coursesWithLessons.has(id))) {
+    const availableCurriculum = isLegacyCareer
+      ? await db.select({trackId: lessons.trackId}).from(lessons).where(inArray(lessons.trackId, selectedIds))
+      : await db.select({courseId: learningBoardScreens.courseId}).from(learningBoardScreens).where(inArray(learningBoardScreens.courseId, selectedIds));
+    const coursesWithCurriculum = new Set(availableCurriculum.map((row) => row.trackId || row.courseId));
+    if (selectedIds.some((id) => !coursesWithCurriculum.has(id))) {
       return c.json({
         success: false,
         error: 'One or more selected courses do not have a learning curriculum yet',
       }, 409);
     }
 
-    const levelCounts = courses.reduce((counts, course) => {
-      const level = String(course.level || '').toLowerCase();
-      counts[level] = (counts[level] || 0) + 1;
-      return counts;
-    }, {});
-    const actualLevels = new Set(Object.keys(levelCounts));
-    const expectedLevels = new Set(Object.keys(limits));
-    const selectedLevelById = new Map(selectedCourseIds.map((id, index) => [id, allLevels.find((level) => selectedByLevel[level].includes(id)) || selectedIds[index]]));
-    const hasLevelMismatch = courses.some((course) => selectedLevelById.get(course.id) !== String(course.level || '').toLowerCase());
-    if ([...actualLevels].some((level) => !expectedLevels.has(level)) ||
-      Object.entries(limits).some(([level, max]) => levelCounts[level] !== max) || hasLevelMismatch) {
+    const courseById = new Map(courses.map((course) => [course.id, course]));
+    const hasLevelMismatch = allLevels.some((level) =>
+      selectedByLevel[level].some((id) => !courseMatchesRoadmapLevel(courseById.get(id)?.level, level)),
+    );
+    if (allLevels.some((level) => selectedByLevel[level].length !== (limits[level] || 0)) || hasLevelMismatch) {
       return c.json({ success: false, error: 'Roadmap selection exceeds the allowed level limits' }, 400);
     }
   }

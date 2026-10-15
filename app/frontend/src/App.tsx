@@ -14,6 +14,7 @@ import CourseDetails from './pages/CourseDetails';
 import CourseAssessmentDetail from './pages/CourseAssessmentDetail';
 import ChapterAssessmentDetail from './pages/ChapterAssessmentDetail';
 import AutomationPage from './pages/AutomationPage';
+import {CareerCategoryPage, CareerDirectoryPage, CareerRolePage, CareerSkillPage} from './pages/CareerDiscovery';
 
 import Overview from './pages/dashboard/Overview';
 import LearningBoard from './pages/dashboard/LearningBoard';
@@ -32,6 +33,11 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/careers/categories" element={<CareerDirectoryPage mode="categories" />} />
+        <Route path="/careers/roles" element={<CareerDirectoryPage mode="roles" />} />
+        <Route path="/careers/category/:categorySlug" element={<CareerCategoryPage />} />
+        <Route path="/careers/category/:categorySlug/role/:roleSlug" element={<CareerRolePage />} />
+        <Route path="/careers/skill/:skillSlug" element={<CareerSkillPage />} />
         <Route path="/experience" element={<Experience />} />
         <Route path="/community" element={<Community />} />
         <Route path="/contact" element={<Contact />} />

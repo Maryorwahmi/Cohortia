@@ -130,6 +130,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
   const [rankingMethod, setRankingMethod] = useState<"ai" | "mixed" | "catalog-order" | null>(null);
   const [recommendationError, setRecommendationError] = useState("");
   const [courseAvailability, setCourseAvailability] = useState<Partial<Record<RoadmapLevel, {required: number; available: number}>>>({});
+  const [selectionFeasible, setSelectionFeasible] = useState<boolean | null>(null);
   const [recommendationAttempt, setRecommendationAttempt] = useState(0);
 
   const activeLevels = (Object.keys(quotas[goal]) as RoadmapLevel[]);
@@ -168,6 +169,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
     setRecommendationError("");
     setRankingMethod(null);
     setCourseAvailability({});
+    setSelectionFeasible(null);
     setOptionsByLevel({ beginner: [], intermediate: [], advanced: [] });
     catalogCourseApi.recommend({
       careerGoal: goal,
@@ -182,6 +184,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
         setOptionsByLevel({ beginner: response.data?.courses?.beginner || [], intermediate: response.data?.courses?.intermediate || [], advanced: response.data?.courses?.advanced || [] });
         setRankingMethod(response.data?.rankingMethod || "catalog-order");
         setCourseAvailability(response.data?.availability || {});
+        setSelectionFeasible(response.data?.selectionFeasible ?? null);
         if (response.data?.rankingNotice) setRecommendationError(`AI recommendations were unavailable. Showing catalog-ordered courses instead. (${response.data.rankingNotice})`);
       }
     }).catch((error: unknown) => {
@@ -228,6 +231,10 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
   const toggleCourse = (level: RoadmapLevel, course: CatalogCourse) => {
     const current = selected[level];
     const quota = quotas[goal][level]?.choose || 0;
+    const selectedElsewhere = activeLevels.some((otherLevel) =>
+      otherLevel !== level && selected[otherLevel].some((item) => item.id === course.id),
+    );
+    if (selectedElsewhere) return;
     setSelected({ ...selected, [level]: current.some((item) => item.id === course.id) ? current.filter((item) => item.id !== course.id) : current.length < quota ? [...current, course] : current });
   };
 
@@ -365,12 +372,14 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                         </button>
                       </div>
                     )}
-                    {activeLevels.some((level) => {
+                    {(selectionFeasible === false || activeLevels.some((level) => {
                       const availability = courseAvailability[level];
                       return Boolean(availability && availability.available < availability.required);
-                    }) && (
+                    })) && (
                       <div className="rounded-xl border border-amber-700 bg-amber-50 p-4 text-sm font-medium text-amber-950 dark:border-amber-400/60 dark:bg-amber-950/60 dark:text-amber-100">
-                        Showing the available Learning Board courses in this category. Some roadmap levels have fewer options than this goal requires, so you may need to choose another category to complete the roadmap.
+                        {selectionFeasible === false
+                          ? "There are not enough distinct Learning Board courses in this category to fill every level in this goal. Try another category or choose a goal with fewer courses."
+                          : "Showing the available Learning Board courses in this category. Some roadmap levels have fewer options than this goal requires, so you may need to choose another category to complete the roadmap."}
                       </div>
                     )}
                     {rankingMethod && (
@@ -387,6 +396,9 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                         <div className="grid md:grid-cols-2 gap-3">
                           {(optionsByLevel[level] || []).map((course) => {
                             const isSelected = selected[level].some((item) => item.id === course.id);
+                            const selectedElsewhere = activeLevels.some((otherLevel) =>
+                              otherLevel !== level && selected[otherLevel].some((item) => item.id === course.id),
+                            );
                             const details = courseDetails[course.id];
                             const skills = details?.details?.skills?.length ? details.details.skills : parseCourseSkills(course.skills);
                             return (
@@ -394,13 +406,15 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                                 <button
                                   type="button"
                                   aria-pressed={isSelected}
+                                  disabled={selectedElsewhere}
                                   onClick={() => toggleCourse(level, course)}
-                                  className="w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] rounded-lg"
+                                  className="w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] disabled:cursor-not-allowed disabled:opacity-45"
                                 >
                                   <span className="flex justify-between gap-3">
                                     <span className="text-base font-bold text-immersive-text-primary min-w-0">{course.title}</span>
                                     {isSelected && <Check aria-hidden="true" className="w-4 h-4 text-emerald-400 shrink-0" />}
                                   </span>
+                                  {selectedElsewhere && <span className="mt-1 block text-xs font-semibold text-amber-700 dark:text-amber-300">Already selected in another roadmap level</span>}
                                   <span className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-immersive-text-secondary">
                                     {course.provider && <span>{course.provider}</span>}
                                     {course.duration && <span className="inline-flex items-center gap-1"><Clock3 aria-hidden="true" className="w-3 h-3" />{course.duration}</span>}

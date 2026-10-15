@@ -5,6 +5,7 @@ import {db} from '../db/index.js';
 import {catalogCourses, catalogCourseSubcategories, catalogCourseCareers, learningBoardScreens, tracks, lessons} from '../db/schema.js';
 import {eq, inArray} from 'drizzle-orm';
 import {generateCompleteJson} from '../lib/gemini.js';
+import {canFillUniqueCourseLevelQuotas, courseMatchesRoadmapLevel, normalizeCatalogLevel} from '../lib/courseLevels.js';
 
 const catalogCoursesRoute = new Hono();
 const recommendationLimits = {
@@ -37,45 +38,6 @@ const careerFocuses = {
 };
 
 const normalizeCareerId = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-const normalizeCatalogLevel = (value) => {
-  const raw = String(value ?? '').trim().toLowerCase();
-  if (!raw) return {primary: null, matches: []};
-
-  const normalized = raw
-    .replace(/[–—]/g, '-')
-    .replace(/\s+/g, ' ')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-
-  if (!normalized) return {primary: null, matches: []};
-
-  const levelMap = {
-    beginner: ['beginner'],
-    'beginner-intermediate': ['beginner', 'intermediate'],
-    'beginner-to-intermediate': ['beginner', 'intermediate'],
-    intermediate: ['intermediate'],
-    'intermediate-advanced': ['intermediate', 'advanced'],
-    'intermediate-to-advanced': ['intermediate', 'advanced'],
-    advanced: ['advanced'],
-  };
-
-  const matches = levelMap[normalized] || [normalized];
-  const validMatches = matches.filter((level) => ['beginner', 'intermediate', 'advanced'].includes(level));
-
-  const primary = validMatches.includes('advanced')
-    ? 'advanced'
-    : validMatches.includes('intermediate')
-      ? 'intermediate'
-      : validMatches.includes('beginner')
-        ? 'beginner'
-        : null;
-
-  return {primary, matches: validMatches};
-};
-
-const courseMatchesRoadmapLevel = (courseLevel, roadmapLevel) =>
-  normalizeCatalogLevel(courseLevel).matches.includes(roadmapLevel);
 
 const getCourseCategory = (course) =>
   course.marketSubcategory?.trim()
@@ -384,6 +346,7 @@ Rank only IDs from the canonical metadata. Keep each level in sensible learning 
       goal: body.careerGoal,
       learnerStage,
       courses: options,
+      selectionFeasible: canFillUniqueCourseLevelQuotas(candidateCourses, limits),
       availability: Object.fromEntries(Object.entries(limits).map(([level, quota]) => [
         level,
         {

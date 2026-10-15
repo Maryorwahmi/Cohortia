@@ -1,13 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { User, Menu, X, Sparkles, ChevronDown, LogOut, BookOpen, Trophy, Activity, Sun, Moon } from "lucide-react";
+import { User, Menu, X, Sparkles, ChevronDown, LogOut, BookOpen, Trophy, Activity, Sun, Moon, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { backendUserToPreferences } from "../types";
+import { catalogCourseApi, type CatalogCourse } from "../services/api";
+import { careerCategories, featuredCareerRoles, getCareerCategoryPath, getCareerRolePath, getCareerSkillPath } from "../data/careerDirectory";
 import Logo from "./Logo";
 
 interface HeaderProps {
   onOpenWizard: () => void;
+}
+
+function readMenuList(value?: string | string[] | null): string[] {
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  if (typeof value !== "string" || !value.trim()) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  } catch {
+    if (value.trimStart().startsWith("[") || value.trimStart().startsWith("{")) return [];
+  }
+  return value.split(/[,;]/).map((item) => item.trim()).filter(Boolean);
 }
 
 export default function Header({ onOpenWizard }: HeaderProps) {
@@ -21,6 +35,13 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isCareerMenuOpen, setIsCareerMenuOpen] = useState(false);
+  const [isMobileCareerMenuOpen, setIsMobileCareerMenuOpen] = useState(false);
+  const [careerMenuCourses, setCareerMenuCourses] = useState<CatalogCourse[]>([]);
+  const [careerMenuLoading, setCareerMenuLoading] = useState(false);
+  const [careerMenuLoaded, setCareerMenuLoaded] = useState(false);
+  const [careerMenuError, setCareerMenuError] = useState("");
+  const [careerMenuAttempt, setCareerMenuAttempt] = useState(0);
 
   const activePath = location.pathname;
   const isDashboard = activePath.startsWith("/dashboard");
@@ -45,6 +66,43 @@ export default function Header({ onOpenWizard }: HeaderProps) {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [isUserDropdownOpen]);
 
+  useEffect(() => {
+    if ((isCareerMenuOpen || isMobileCareerMenuOpen) && !careerMenuLoaded) {
+      let active = true;
+      setCareerMenuLoading(true);
+      setCareerMenuError("");
+      catalogCourseApi.getAll().then((response) => {
+        if (!response.success || !response.data?.courses) {
+          throw new Error(response.error || "Career learning links are unavailable.");
+        }
+        if (active) {
+          setCareerMenuCourses(response.data.courses);
+          setCareerMenuLoaded(true);
+        }
+      }).catch((error: unknown) => {
+        if (active) setCareerMenuError(error instanceof Error ? error.message : "Career learning links are unavailable.");
+      }).finally(() => {
+        if (active) setCareerMenuLoading(false);
+      });
+      return () => { active = false; };
+    }
+    return undefined;
+  }, [careerMenuAttempt, careerMenuLoaded, isCareerMenuOpen, isMobileCareerMenuOpen]);
+
+  useEffect(() => {
+    setIsCareerMenuOpen(false);
+    setIsMobileCareerMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isCareerMenuOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsCareerMenuOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isCareerMenuOpen]);
+
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -61,6 +119,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   };
 
   const dashboardLinks = [
+    { path: "/careers", label: "Careers" },
     { path: "/dashboard", label: "Overview" },
     { path: "/dashboard/learning", label: "Learning Board" },
     { path: "/dashboard/mentor", label: "Cohortia Mentor" },
@@ -81,6 +140,26 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   const navLinks = userProfile ? dashboardLinks : publicLinks;
 
   const isActive = (path: string) => activePath === path;
+  const certifiedCourses = careerMenuCourses.filter((course) => course.certification).slice(0, 5);
+  const trendingSkills = useMemo(() => {
+    const counts = new Map<string, number>();
+    careerMenuCourses.forEach((course) => {
+      [...readMenuList(course.skillTags), ...readMenuList(course.skills)].forEach((skill) => {
+        const label = skill.trim();
+        if (label && !careerCategories.some((category) => category.name.toLowerCase() === label.toLowerCase())) {
+          counts.set(label, (counts.get(label) || 0) + 1);
+        }
+      });
+    });
+    return [...counts.entries()]
+      .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+      .slice(0, 8)
+      .map(([skill]) => skill);
+  }, [careerMenuCourses]);
+  const handleCareerMenuRetry = () => {
+    setCareerMenuLoaded(false);
+    setCareerMenuAttempt((attempt) => attempt + 1);
+  };
 
   return (
     <header
@@ -119,21 +198,130 @@ export default function Header({ onOpenWizard }: HeaderProps) {
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center space-x-7">
             {!isDashboard && navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className={`font-sans text-sm font-semibold transition-all relative py-1.5 cursor-pointer ${
-                  isActive(link.path)
-                    ? "text-immersive-primary"
-                    : "text-immersive-text-secondary hover:text-immersive-text-primary"
-                }`}
-              >
-                <span>{link.label}</span>
-                {isActive(link.path) && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-immersive-primary rounded-full" />
-                )}
-              </Link>
+              link.path === "/careers" ? (
+                <div
+                  key={link.path}
+                  className="relative"
+                  onMouseEnter={() => setIsCareerMenuOpen(true)}
+                  onMouseLeave={() => setIsCareerMenuOpen(false)}
+                >
+                  <button
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded={isCareerMenuOpen}
+                    onFocus={() => setIsCareerMenuOpen(true)}
+                    onClick={() => setIsCareerMenuOpen((open) => !open)}
+                    className={`relative flex items-center gap-1.5 py-1.5 font-sans text-sm font-semibold transition-colors ${
+                      activePath.startsWith("/careers") || isCareerMenuOpen
+                        ? "text-immersive-primary"
+                        : "text-immersive-text-secondary hover:text-immersive-text-primary"
+                    }`}
+                  >
+                    {link.label}
+                    <ChevronDown size={14} className={`transition-transform ${isCareerMenuOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+                    {(activePath.startsWith("/careers") || isCareerMenuOpen) && <span className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-immersive-primary" />}
+                  </button>
+
+                  {isCareerMenuOpen && !isDashboard && (
+                    <div className="absolute left-1/2 top-full z-[60] w-[min(calc(100vw-2rem),1480px)] -translate-x-1/2 pt-4">
+                      <div className="overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-2xl shadow-immersive-shadow">
+                        <div className="grid gap-7 p-6 md:grid-cols-2 xl:grid-cols-[1fr_1.25fr_1fr_0.9fr]">
+                          <section>
+                            <div className="flex items-center justify-between gap-2">
+                              <h2 className="text-sm font-bold">Explore roles</h2>
+                              <Link to="/careers/roles" className="text-xs font-semibold text-immersive-primary hover:underline">View all</Link>
+                            </div>
+                            <div className="mt-3 space-y-1">
+                              {featuredCareerRoles.map((role) => (
+                                <Link key={`${role.category.slug}-${role.slug}`} to={getCareerRolePath(role.category, role.name)} className="block rounded-lg px-2 py-1.5 text-sm text-immersive-text-secondary transition hover:bg-immersive-bg hover:text-immersive-primary">
+                                  {role.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </section>
+
+                          <section>
+                            <div className="flex items-center justify-between gap-2">
+                              <h2 className="text-sm font-bold">Explore categories</h2>
+                              <Link to="/careers/categories" className="text-xs font-semibold text-immersive-primary hover:underline">View all</Link>
+                            </div>
+                            <div className="mt-3 grid max-h-[390px] grid-cols-2 gap-x-3 gap-y-1 overflow-y-auto pr-1">
+                              {careerCategories.map((category) => (
+                                <Link key={category.slug} to={getCareerCategoryPath(category)} className="rounded-lg px-2 py-1.5 text-sm leading-5 text-immersive-text-secondary transition hover:bg-immersive-bg hover:text-immersive-primary">
+                                  {category.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </section>
+
+                          <section>
+                            <h2 className="text-sm font-bold">Earn a professional certificate</h2>
+                            {careerMenuLoading ? (
+                              <p role="status" className="mt-3 text-sm text-immersive-text-secondary">Loading certificate courses…</p>
+                            ) : careerMenuError ? (
+                              <div role="alert" className="mt-3 text-sm text-rose-700 dark:text-rose-300">
+                                <p>{careerMenuError}</p>
+                                <button type="button" onClick={handleCareerMenuRetry} className="mt-2 font-semibold underline">Retry</button>
+                              </div>
+                            ) : certifiedCourses.length ? (
+                              <div className="mt-3 space-y-1">
+                                {certifiedCourses.map((course) => (
+                                  <Link key={course.id} to={`/careers/course/${encodeURIComponent(course.id)}`} className="block rounded-lg px-2 py-1.5 text-sm leading-5 text-immersive-text-secondary transition hover:bg-immersive-bg hover:text-immersive-primary">
+                                    {course.certification || course.title}
+                                  </Link>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="mt-3 text-sm leading-6 text-immersive-text-secondary">Certificate course links will appear here when they are listed in the catalog.</p>
+                            )}
+                            <Link to="/careers" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-immersive-primary hover:underline">
+                              Browse courses <ArrowRight size={13} aria-hidden="true" />
+                            </Link>
+                          </section>
+
+                          <section>
+                            <h2 className="text-sm font-bold">Explore trending skills</h2>
+                            {careerMenuLoading ? (
+                              <p role="status" className="mt-3 text-sm text-immersive-text-secondary">Loading catalog skills…</p>
+                            ) : trendingSkills.length ? (
+                              <div className="mt-3 space-y-1">
+                                {trendingSkills.map((skill) => (
+                                  <Link key={skill} to={getCareerSkillPath(skill)} className="block rounded-lg px-2 py-1.5 text-sm text-immersive-text-secondary transition hover:bg-immersive-bg hover:text-immersive-primary">
+                                    {skill}
+                                  </Link>
+                                ))}
+                              </div>
+                            ) : careerMenuError ? (
+                              <p role="status" className="mt-3 text-sm text-immersive-text-secondary">Catalog skills could not be loaded.</p>
+                            ) : (
+                              <p className="mt-3 text-sm leading-6 text-immersive-text-secondary">Skill links will appear here when the catalog is available.</p>
+                            )}
+                            <button type="button" onClick={() => { setIsCareerMenuOpen(false); onOpenWizard(); }} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-immersive-primary hover:underline">
+                              Help me choose <ArrowRight size={13} aria-hidden="true" />
+                            </button>
+                          </section>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className={`font-sans text-sm font-semibold transition-all relative py-1.5 cursor-pointer ${
+                    isActive(link.path)
+                      ? "text-immersive-primary"
+                      : "text-immersive-text-secondary hover:text-immersive-text-primary"
+                  }`}
+                >
+                  <span>{link.label}</span>
+                  {isActive(link.path) && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-immersive-primary rounded-full" />
+                  )}
+                </Link>
+              )
             ))}
           </nav>
 
@@ -317,21 +505,104 @@ export default function Header({ onOpenWizard }: HeaderProps) {
         <div className="lg:hidden bg-immersive-bg/98 border-b border-immersive-border px-4 py-6 space-y-4 animate-in fade-in slide-in-from-top duration-200 shadow-xl shadow-immersive-shadow">
           <div className="flex flex-col space-y-3">
             {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className={`text-base font-semibold py-1.5 text-left border-l-2 pl-3 transition-colors ${
-                  isActive(link.path)
-                    ? "border-immersive-primary text-immersive-primary bg-immersive-primary/5"
-                    : "border-transparent text-immersive-text-secondary hover:text-immersive-text-primary"
-                }`}
-              >
-                {link.label}
-              </Link>
+              link.path === "/careers" ? (
+                <section key={link.path} className="border-l-2 border-transparent pl-3">
+                  <button
+                    type="button"
+                    aria-expanded={isMobileCareerMenuOpen}
+                    onClick={() => setIsMobileCareerMenuOpen((open) => !open)}
+                    className={`flex w-full items-center justify-between py-1.5 text-left text-base font-semibold ${
+                      activePath.startsWith("/careers") || isMobileCareerMenuOpen ? "text-immersive-primary" : "text-immersive-text-secondary"
+                    }`}
+                  >
+                    Careers <ChevronDown size={17} className={`transition-transform ${isMobileCareerMenuOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+                  </button>
+                  {isMobileCareerMenuOpen && (
+                    <div className="mt-2 max-h-[55vh] space-y-4 overflow-y-auto rounded-xl border border-immersive-border bg-immersive-card p-3">
+                      <Link to="/careers" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg bg-immersive-primary/10 px-3 py-2 text-sm font-bold text-immersive-primary">
+                        Career explorer overview
+                      </Link>
+                      <div>
+                        <div className="mb-1 flex items-center justify-between">
+                          <h2 className="text-xs font-bold uppercase tracking-wider text-immersive-text-secondary">Featured roles</h2>
+                          <Link to="/careers/roles" onClick={() => setIsMobileMenuOpen(false)} className="text-xs font-semibold text-immersive-primary">View all</Link>
+                        </div>
+                        <div className="space-y-1">
+                          {featuredCareerRoles.map((role) => (
+                            <Link key={`${role.category.slug}-${role.slug}`} to={getCareerRolePath(role.category, role.name)} onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg px-2 py-2 text-sm text-immersive-text-secondary hover:bg-immersive-bg hover:text-immersive-primary">
+                              {role.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="mb-1 flex items-center justify-between">
+                          <h2 className="text-xs font-bold uppercase tracking-wider text-immersive-text-secondary">Categories</h2>
+                          <Link to="/careers/categories" onClick={() => setIsMobileMenuOpen(false)} className="text-xs font-semibold text-immersive-primary">View all</Link>
+                        </div>
+                        <div className="space-y-1">
+                          {careerCategories.map((category) => (
+                            <Link key={category.slug} to={getCareerCategoryPath(category)} onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg px-2 py-2 text-sm leading-5 text-immersive-text-secondary hover:bg-immersive-bg hover:text-immersive-primary">
+                              {category.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h2 className="mb-1 text-xs font-bold uppercase tracking-wider text-immersive-text-secondary">Professional certificates</h2>
+                        {careerMenuLoading ? (
+                          <p role="status" className="px-2 py-2 text-sm text-immersive-text-secondary">Loading certificate courses…</p>
+                        ) : careerMenuError ? (
+                          <div role="alert" className="px-2 py-2 text-sm text-rose-700 dark:text-rose-300">
+                            <p>{careerMenuError}</p>
+                            <button type="button" onClick={handleCareerMenuRetry} className="mt-2 font-semibold underline">Retry</button>
+                          </div>
+                        ) : certifiedCourses.length ? (
+                          certifiedCourses.map((course) => (
+                            <Link key={course.id} to={`/careers/course/${encodeURIComponent(course.id)}`} onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg px-2 py-2 text-sm text-immersive-text-secondary hover:bg-immersive-bg hover:text-immersive-primary">
+                              {course.certification || course.title}
+                            </Link>
+                          ))
+                        ) : (
+                          <p className="px-2 py-2 text-sm text-immersive-text-secondary">Certificate course links will appear here when listed in the catalog.</p>
+                        )}
+                      </div>
+                      <div>
+                        <h2 className="mb-1 text-xs font-bold uppercase tracking-wider text-immersive-text-secondary">Trending skills</h2>
+                        {careerMenuLoading ? (
+                          <p role="status" className="px-2 py-2 text-sm text-immersive-text-secondary">Loading catalog skills…</p>
+                        ) : trendingSkills.length ? (
+                          trendingSkills.map((skill) => (
+                            <Link key={skill} to={getCareerSkillPath(skill)} onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg px-2 py-2 text-sm text-immersive-text-secondary hover:bg-immersive-bg hover:text-immersive-primary">
+                              {skill}
+                            </Link>
+                          ))
+                        ) : careerMenuError ? (
+                          <p role="status" className="px-2 py-2 text-sm text-immersive-text-secondary">Catalog skills could not be loaded.</p>
+                        ) : (
+                          <p className="px-2 py-2 text-sm text-immersive-text-secondary">Skill links will appear here when the catalog is available.</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </section>
+              ) : (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`text-base font-semibold py-1.5 text-left border-l-2 pl-3 transition-colors ${
+                    isActive(link.path)
+                      ? "border-immersive-primary text-immersive-primary bg-immersive-primary/5"
+                      : "border-transparent text-immersive-text-secondary hover:text-immersive-text-primary"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
           </div>
 
