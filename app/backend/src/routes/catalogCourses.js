@@ -37,6 +37,11 @@ const careerFocuses = {
 };
 
 const normalizeCareerId = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const getCourseCategory = (course) =>
+  course.marketSubcategory?.trim()
+  || course.subcategory?.trim()
+  || course.marketCategory
+  || course.category;
 const bundledCourseDetailsPath = path.resolve(import.meta.dirname, '..', 'data', 'course-details.json');
 let bundledCourseDetails;
 
@@ -197,24 +202,31 @@ async function getTrackDetails(courseId) {
 catalogCoursesRoute.post('/recommend', async (c) => {
   const body = await c.req.json();
   const careerId = normalizeCareerId(body.selectedCareerId);
+  const courseCategory = String(body.courseCategory || '').trim();
   const limits = recommendationLimits[body.careerGoal];
   const learnerStage = String(body.learnerStage || '').toLowerCase();
   const careerFocus = careerFocuses[careerId];
 
-  if (!limits || !Object.keys(limits).includes(learnerStage) || !careerId) {
-    return c.json({success: false, error: 'Career goal, career, and learner stage are required'}, 400);
+  if (!limits || !Object.keys(limits).includes(learnerStage) || (!careerId && !courseCategory)) {
+    return c.json({success: false, error: 'Career goal, course category, and learner stage are required'}, 400);
   }
-  if (body.careerFocusId && (!careerFocus || !Object.hasOwn(careerFocus, body.careerFocusId))) {
+  if (!courseCategory && body.careerFocusId && (!careerFocus || !Object.hasOwn(careerFocus, body.careerFocusId))) {
     return c.json({success: false, error: 'The selected career focus is invalid'}, 400);
   }
 
-  const links = await db.select({courseId: catalogCourseCareers.courseId})
-    .from(catalogCourseCareers)
-    .where(eq(catalogCourseCareers.careerId, careerId));
-  const linkedIds = links.map((link) => link.courseId);
-  const linkedCourses = linkedIds.length
-    ? await db.select().from(catalogCourses).where(inArray(catalogCourses.id, linkedIds))
-    : [];
+  let linkedCourses;
+  if (courseCategory) {
+    const allCourses = await db.select().from(catalogCourses);
+    linkedCourses = allCourses.filter((course) => getCourseCategory(course) === courseCategory);
+  } else {
+    const links = await db.select({courseId: catalogCourseCareers.courseId})
+      .from(catalogCourseCareers)
+      .where(eq(catalogCourseCareers.careerId, careerId));
+    const linkedIds = links.map((link) => link.courseId);
+    linkedCourses = linkedIds.length
+      ? await db.select().from(catalogCourses).where(inArray(catalogCourses.id, linkedIds))
+      : [];
+  }
   const levelCourses = linkedCourses.filter((course) => Object.prototype.hasOwnProperty.call(limits, String(course.level || '').toLowerCase()));
   const candidateIds = levelCourses.map((course) => course.id);
   const lessonRows = candidateIds.length
@@ -224,7 +236,8 @@ catalogCoursesRoute.post('/recommend', async (c) => {
   const candidateCourses = levelCourses.filter((course) => coursesWithLessons.has(course.id));
 
   if (!candidateCourses.length) {
-    return c.json({success: false, error: 'No courses with an available learning curriculum are linked to this career'}, 404);
+    const scope = courseCategory ? `in the ${courseCategory} category` : 'linked to this career';
+    return c.json({success: false, error: `No courses with an available learning curriculum are ${scope}`}, 404);
   }
 
   const insufficientLevels = Object.entries(limits)
@@ -257,9 +270,9 @@ catalogCoursesRoute.post('/recommend', async (c) => {
   }));
   const prompt = `Rank the canonical catalog course IDs for a learner.
 Goal: ${body.careerGoal}
-Career ID: ${careerId}
+${courseCategory ? `Course category: ${courseCategory}` : `Career ID: ${careerId}`}
 Learner stage: ${learnerStage}
-Learner's selected focus: ${careerFocus?.[body.careerFocusId] || 'No specific focus selected'}
+Learner's selected focus: ${courseCategory ? 'The selected course category' : careerFocus?.[body.careerFocusId] || 'No specific focus selected'}
 
 Canonical catalog metadata:
 ${JSON.stringify(metadata)}

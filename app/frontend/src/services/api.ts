@@ -249,7 +249,7 @@ export interface CatalogCoursesResponse {
 
 export const catalogCourseApi = {
   getAll: () => fetchApi<CatalogCoursesResponse>('/catalog-courses'),
-  recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string; careerFocusId?: string }) =>
+  recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string; careerFocusId?: string; courseCategory?: string }) =>
     fetchApi<{
       success: boolean;
       data?: {

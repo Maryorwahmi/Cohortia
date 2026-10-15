@@ -52,26 +52,23 @@ const goals: Array<{
   },
 ];
 
-const careers: Array<{
+interface CourseCategory {
   id: string;
   label: string;
-  summary: string;
-  focusQuestion: string;
-  focusOptions: Array<{id: string; label: string; description: string}>;
-}> = [
-  { id: "frontend-development", label: "Frontend Development", summary: "Build the interfaces people use in websites and web apps.", focusQuestion: "What would you most like to create?", focusOptions: [{id:"interfaces",label:"Responsive interfaces",description:"Accessible pages that work across devices."},{id:"performance",label:"Fast experiences",description:"Smooth, reliable interfaces that load quickly."},{id:"applications",label:"Interactive applications",description:"Rich app flows, components, and state."}] },
-  { id: "backend-development", label: "Backend Development", summary: "Create the APIs, services, and data systems behind applications.", focusQuestion: "Which backend challenge interests you most?", focusOptions: [{id:"apis",label:"APIs and integrations",description:"Design services that connect applications."},{id:"data",label:"Databases and data",description:"Model and manage reliable application data."},{id:"architecture",label:"Scalable architecture",description:"Build secure services that grow with demand."}] },
-  { id: "data-analytics", label: "Data Analytics", summary: "Turn datasets into reports, dashboards, and decisions.", focusQuestion: "How do you want to use data?", focusOptions: [{id:"reporting",label:"Reporting and dashboards",description:"Make insights easy to understand and act on."},{id:"sql",label:"SQL and data quality",description:"Query, prepare, and validate useful data."},{id:"decisions",label:"Business decisions",description:"Use metrics to answer practical questions."}] },
-  { id: "data-science", label: "Data Science", summary: "Use statistics, experiments, and models to answer complex questions.", focusQuestion: "Which part of data science do you want to explore?", focusOptions: [{id:"modelling",label:"Predictive modelling",description:"Build and evaluate statistical and ML models."},{id:"experiments",label:"Experiments and evaluation",description:"Test hypotheses and interpret evidence."},{id:"pipelines",label:"Data workflows",description:"Prepare data and build reproducible analyses."}] },
-  { id: "ai-ml-engineering", label: "AI/ML Engineering", summary: "Build, evaluate, and deploy AI and machine-learning products.", focusQuestion: "What AI work sounds most interesting?", focusOptions: [{id:"models",label:"Machine-learning models",description:"Train, evaluate, and serve predictive models."},{id:"generative",label:"Generative AI",description:"Build useful applications with language models."},{id:"production",label:"Production AI systems",description:"Monitor, scale, and responsibly deploy AI."}] },
-  { id: "cybersecurity", label: "Cybersecurity", summary: "Protect systems and data by finding risks and improving defenses.", focusQuestion: "Which security area would you like to focus on?", focusOptions: [{id:"defense",label:"Threat detection",description:"Recognize threats and respond to security events."},{id:"application",label:"Application security",description:"Test software and reduce vulnerabilities."},{id:"governance",label:"Risk and governance",description:"Manage identity, policy, and security risk."}] },
-  { id: "cloud-engineering", label: "Cloud Engineering", summary: "Design and operate secure infrastructure on cloud platforms.", focusQuestion: "What cloud work are you aiming for?", focusOptions: [{id:"architecture",label:"Cloud architecture",description:"Choose and connect cloud infrastructure."},{id:"security",label:"Cloud security",description:"Protect cloud identities, networks, and workloads."},{id:"operations",label:"Cloud operations",description:"Improve reliability, performance, and cost."}] },
-  { id: "devops-engineering", label: "DevOps Engineering", summary: "Automate software delivery and make production systems reliable.", focusQuestion: "Which DevOps capability matters most to you?", focusOptions: [{id:"automation",label:"CI/CD automation",description:"Build repeatable test and release pipelines."},{id:"infrastructure",label:"Infrastructure as code",description:"Provision and configure infrastructure safely."},{id:"reliability",label:"Reliability and observability",description:"Monitor services and respond to incidents."}] },
-  { id: "ux-ui-design", label: "UX/UI Design", summary: "Research user needs and turn them into clear, usable digital products.", focusQuestion: "Which part of design would you like to practice?", focusOptions: [{id:"research",label:"User research",description:"Understand needs and test usability."},{id:"interaction",label:"Interaction design",description:"Map flows and prototype how products work."},{id:"systems",label:"Visual systems",description:"Create accessible interfaces and reusable design systems."}] },
-  { id: "qa-testing", label: "QA/Testing", summary: "Find defects early and help teams ship dependable software.", focusQuestion: "What kind of quality work interests you?", focusOptions: [{id:"automation",label:"Test automation",description:"Build automated checks and maintainable test suites."},{id:"quality",label:"Test planning",description:"Design effective test coverage and workflows."},{id:"delivery",label:"API and performance testing",description:"Validate services and production readiness."}] },
-  { id: "product-management", label: "Product Management", summary: "Decide what to build by connecting customer needs, business goals, and delivery.", focusQuestion: "Which product skill do you want to build?", focusOptions: [{id:"discovery",label:"Customer discovery",description:"Identify user needs and define the right problem."},{id:"strategy",label:"Strategy and prioritization",description:"Set direction and make focused roadmap choices."},{id:"analytics",label:"Product analytics",description:"Use metrics and experiments to improve outcomes."}] },
-  { id: "full-stack-development", label: "Full-Stack Development", summary: "Build complete applications across the user interface, APIs, and data layer.", focusQuestion: "Where would you like your full-stack path to lean?", focusOptions: [{id:"frontend",label:"Frontend and experience",description:"Build polished, accessible application interfaces."},{id:"backend",label:"Backend and data",description:"Design APIs, services, and data models."},{id:"delivery",label:"End-to-end delivery",description:"Take complete applications from idea to deployment."}] },
-];
+  count: number;
+}
+
+function getCourseCategory(course: CatalogCourse): string {
+  return course.marketSubcategory?.trim()
+    || course.subcategory?.trim()
+    || course.marketCategory
+    || course.category;
+}
+
+function getCategoryId(label: string): string {
+  return label.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 const levels: RoadmapLevel[] = ["beginner", "intermediate", "advanced"];
 const quotas: Record<RoadmapGoal, Partial<Record<RoadmapLevel, { options: number; choose: number }>>> = {
   "Pivot into a new career": { beginner: { options: 4, choose: 2 }, intermediate: { options: 3, choose: 2 }, advanced: { options: 2, choose: 1 } },
@@ -95,8 +92,11 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
   const location = useLocation();
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState<RoadmapGoal>(goals[0].id);
-  const [career, setCareer] = useState(careers[0]);
-  const [careerFocusId, setCareerFocusId] = useState("");
+  const [courseCategories, setCourseCategories] = useState<CourseCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<CourseCategory | null>(null);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState("");
+  const [categoriesAttempt, setCategoriesAttempt] = useState(0);
   const [optionsByLevel, setOptionsByLevel] = useState<Record<RoadmapLevel, CatalogCourse[]>>({ beginner: [], intermediate: [], advanced: [] });
   const [selected, setSelected] = useState<Record<RoadmapLevel, CatalogCourse[]>>({ beginner: [], intermediate: [], advanced: [] });
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
@@ -109,7 +109,35 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
 
   const activeLevels = (Object.keys(quotas[goal]) as RoadmapLevel[]);
   useEffect(() => {
-    if (step !== 3) return;
+    let cancelled = false;
+    setCategoriesLoading(true);
+    setCategoriesError("");
+    catalogCourseApi.getAll().then((response) => {
+      if (!response.success || !response.data?.courses) {
+        throw new Error(response.error || "Unable to load Career page course categories.");
+      }
+      const counts = new Map<string, number>();
+      response.data.courses.forEach((course) => {
+        const label = getCourseCategory(course);
+        if (label) counts.set(label, (counts.get(label) || 0) + 1);
+      });
+      const categories = [...counts.entries()]
+        .map(([label, count]) => ({id: getCategoryId(label), label, count}))
+        .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
+      if (!cancelled) setCourseCategories(categories);
+    }).catch((error: unknown) => {
+      if (!cancelled) {
+        setCourseCategories([]);
+        setCategoriesError(error instanceof Error ? error.message : "Unable to load Career page course categories.");
+      }
+    }).finally(() => {
+      if (!cancelled) setCategoriesLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [categoriesAttempt]);
+
+  useEffect(() => {
+    if (step !== 3 || !selectedCategory) return;
     let cancelled = false;
     setRecommending(true);
     setRecommendationError("");
@@ -117,9 +145,9 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
     setOptionsByLevel({ beginner: [], intermediate: [], advanced: [] });
     catalogCourseApi.recommend({
       careerGoal: goal,
-      selectedCareerId: career.id,
+      selectedCareerId: selectedCategory.id,
       learnerStage: activeLevels[0],
-      careerFocusId,
+      courseCategory: selectedCategory.label,
     }).then((response) => {
       if (!response.success || !response.data) {
         throw new Error(response.error || "Unable to recommend courses for this career and goal.");
@@ -144,7 +172,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
       if (!cancelled) setRecommending(false);
     });
     return () => { cancelled = true; };
-  }, [goal, career.id, careerFocusId, activeLevels[0], step, recommendationAttempt]);
+  }, [goal, selectedCategory, activeLevels[0], step, recommendationAttempt]);
 
   const loadCourseDetails = async (courseId: string) => {
     if (courseDetails[courseId]?.details || courseDetails[courseId]?.loading) return;
@@ -168,7 +196,6 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
   }, [step, goal, selected]);
 
   const totalSelected = Object.values(selected).flat().length;
-  const selectedFocus = career.focusOptions.find((option) => option.id === careerFocusId);
   const canContinue = activeLevels.every((level) => selected[level].length === quotas[goal][level]?.choose);
   const courseDetailsLoading = activeLevels.flatMap((level) => selected[level]).some((course) => courseDetails[course.id]?.loading);
   const toggleCourse = (level: RoadmapLevel, course: CatalogCourse) => {
@@ -193,7 +220,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
         skills: (details?.skills || parseCourseSkills(course.skills)).slice(0, 6),
       };
     }));
-    return { careerGoal: goal, learningStage: activeLevels[0], selectedCareerId: career.id, selectedCareer: career.label, careerFocusId, careerFocusLabel: selectedFocus?.label, selectedCourses, roadmapOrder: activeLevels.flatMap((level) => selectedCourses[level]), courseInfo };
+    return { careerGoal: goal, learningStage: activeLevels[0], selectedCareerId: selectedCategory?.id || "", selectedCareer: selectedCategory?.label || "", selectedCourses, roadmapOrder: activeLevels.flatMap((level) => selectedCourses[level]), courseInfo };
   };
 
   const continueToSignup = () => {
@@ -209,7 +236,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
         signupDraft = undefined;
       }
     }
-    navigate("/signup", { state: { roadmapSelection, selectedTrackId: career.id, signupDraft } });
+    navigate("/signup", { state: { roadmapSelection, selectedTrackId: selectedCategory?.id, signupDraft } });
   };
 
   return (
@@ -243,31 +270,43 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
             {step === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-2xl font-extrabold text-immersive-text-primary">Choose your career lane</h3>
-                  <p className="text-sm text-immersive-text-secondary mt-2">Each lane describes the kind of work you would practice. Your answer to the focus question helps the AI rank relevant courses.</p>
+                  <h3 className="text-2xl font-extrabold text-immersive-text-primary">Choose a course category</h3>
+                  <p className="text-sm text-immersive-text-secondary mt-2">Choose from the same current course categories shown on the Career page.</p>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {careers.map((item) => (
-                    <button key={item.id} type="button" aria-pressed={career.id === item.id} onClick={() => { setCareer(item); setCareerFocusId(""); setSelected({ beginner: [], intermediate: [], advanced: [] }); }} className={`p-4 rounded-xl border text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${career.id === item.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}>
-                      <span className="text-base font-bold text-immersive-text-primary">{item.label}</span>
-                      <span className="block text-sm leading-relaxed text-immersive-text-secondary mt-2">{item.summary}</span>
+                {categoriesLoading ? (
+                  <div role="status" className="flex items-center gap-2 text-sm text-immersive-text-secondary">
+                    <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
+                    Loading course categories...
+                  </div>
+                ) : categoriesError ? (
+                  <div role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-700 dark:text-rose-200">
+                    {categoriesError}
+                    <button type="button" onClick={() => setCategoriesAttempt((attempt) => attempt + 1)} className="ml-2 underline">
+                      Retry
                     </button>
-                  ))}
-                </div>
-                <fieldset className="rounded-2xl border border-immersive-border p-4 sm:p-5">
-                  <legend className="px-2 text-sm font-bold text-immersive-text-primary">{career.focusQuestion}</legend>
-                  <div className="grid md:grid-cols-3 gap-2">
-                    {career.focusOptions.map((option) => (
-                      <button key={option.id} type="button" aria-pressed={careerFocusId === option.id} onClick={() => setCareerFocusId(option.id)} className={`rounded-xl border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${careerFocusId === option.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}>
-                        <span className="block text-sm font-bold text-immersive-text-primary">{option.label}</span>
-                        <span className="block text-sm text-immersive-text-secondary mt-1">{option.description}</span>
+                  </div>
+                ) : (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {courseCategories.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        aria-pressed={selectedCategory?.id === item.id}
+                        onClick={() => {
+                          setSelectedCategory(item);
+                          setSelected({ beginner: [], intermediate: [], advanced: [] });
+                        }}
+                        className={`flex items-start justify-between gap-3 rounded-xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${selectedCategory?.id === item.id ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border hover:border-immersive-secondary/60"}`}
+                      >
+                        <span className="text-sm font-bold leading-relaxed text-immersive-text-primary">{item.label}</span>
+                        <span className="shrink-0 text-xs text-immersive-text-secondary">{item.count}</span>
                       </button>
                     ))}
                   </div>
-                </fieldset>
+                )}
                 <div className="flex gap-3">
                   <button type="button" onClick={() => setStep(1)} className="secondary-action"><ChevronLeft aria-hidden="true" className="w-4 h-4" /> Back</button>
-                  <button type="button" disabled={!careerFocusId} onClick={() => setStep(3)} className="primary-action disabled:opacity-40">Browse {career.label} courses <ArrowRight aria-hidden="true" className="w-4 h-4" /></button>
+                  <button type="button" disabled={!selectedCategory || categoriesLoading || Boolean(categoriesError)} onClick={() => setStep(3)} className="primary-action disabled:opacity-40">Browse {selectedCategory?.label || "category"} courses <ArrowRight aria-hidden="true" className="w-4 h-4" /></button>
                 </div>
               </div>
             )}
@@ -276,7 +315,7 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                 <div>
                   <h3 className="text-2xl font-extrabold text-immersive-text-primary">Build your course bundle</h3>
                   <p className="text-sm text-immersive-text-secondary mt-2">
-                    Choose the courses from the {career.label} catalog for your goal, stage, and focus on {selectedFocus?.label.toLowerCase()}.
+                    Choose courses from {selectedCategory?.label} for your goal and learning stage.
                   </p>
                 </div>
                 {recommending ? (
@@ -376,8 +415,8 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
               <div className="space-y-6">
                 <div>
                   <span className="text-xs font-mono tracking-widest text-[#FF4B3E]">ROADMAP READY</span>
-                  <h3 className="text-2xl font-extrabold text-immersive-text-primary mt-2">{career.label} / {goal}</h3>
-                  <p className="text-sm text-immersive-text-secondary mt-2">Your {totalSelected}-course progression starts with the foundations and builds toward your focus: {selectedFocus?.label.toLowerCase()}.</p>
+                  <h3 className="text-2xl font-extrabold text-immersive-text-primary mt-2">{selectedCategory?.label} / {goal}</h3>
+                  <p className="text-sm text-immersive-text-secondary mt-2">Your {totalSelected}-course progression follows the {selectedCategory?.label} category from foundations to advanced learning.</p>
                 </div>
                 <div className="space-y-3">
                   {activeLevels.flatMap((level) => selected[level].map((course) => ({level, course}))).map(({level, course}, index) => {
