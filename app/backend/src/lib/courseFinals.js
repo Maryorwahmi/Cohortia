@@ -7,9 +7,9 @@ const clean = (value) => String(value || '')
   .trim();
 
 function frontmatter(markdown) {
-  const block = String(markdown).match(/^---\s*\n([\s\S]*?)\n---/);
+  const block = String(markdown).match(/^(?:---\s*\r?\n([\s\S]*?)\r?\n---|```(?:yaml|yml)?\s*\r?\n([\s\S]*?)\r?\n```)/i);
   const values = {};
-  for (const line of block?.[1]?.split(/\r?\n/) || []) {
+  for (const line of (block?.[1] || block?.[2] || '').split(/\r?\n/)) {
     const match = line.match(/^([\w-]+):\s*(.*)$/);
     if (match) values[match[1]] = match[2].trim().replace(/^['"]|['"]$/g, '');
   }

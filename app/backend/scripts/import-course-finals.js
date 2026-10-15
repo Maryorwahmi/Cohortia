@@ -39,7 +39,21 @@ for (const file of files) {
   const finals = parseCourseFinals(markdown, path.relative(repoRoot, file));
   if (!finals.courseId || (!finals.capstone.length && !finals.exam)) continue;
   if (requestedCourse && finals.courseId !== requestedCourse) continue;
-  const courseId = finals.courseId;
+  const courseLookup = await client.execute({
+    sql: 'SELECT id FROM tracks WHERE id = ? OR lower(id) = lower(?) UNION SELECT course_id AS id FROM learning_board_courses WHERE course_id = ? OR lower(course_id) = lower(?) LIMIT 1',
+    args: [finals.courseId, finals.courseId, finals.courseId, finals.courseId],
+  });
+  const courseId = courseLookup.rows[0]?.id || finals.courseId;
+  if (courseId !== finals.courseId) {
+    const legacyExamId = `${finals.courseId}-final-exam`;
+    await client.batch([
+      {sql: 'DELETE FROM course_final_exam_questions WHERE exam_id = ?', args: [legacyExamId]},
+      {sql: 'DELETE FROM course_final_exams WHERE course_id = ?', args: [finals.courseId]},
+      {sql: 'DELETE FROM course_capstones WHERE course_id = ?', args: [finals.courseId]},
+      {sql: 'DELETE FROM course_final_packages WHERE course_id = ?', args: [finals.courseId]},
+    ], 'write');
+    console.log(`${finals.courseId}: normalized to canonical course ID ${courseId}`);
+  }
   if (seenCourseIds.has(courseId)) {
     console.log(`${courseId}: skipped duplicate source file ${path.relative(repoRoot, file)}`);
     continue;
@@ -59,10 +73,7 @@ for (const file of files) {
     ? finals.exam.questions.some((question, index, questions) =>
       questions.findIndex((candidate) => candidate.questionNumber === question.questionNumber) !== index)
     : false;
-  const courseMatch = await client.execute({
-    sql: 'SELECT id FROM tracks WHERE id = ? UNION SELECT id FROM learning_board_courses WHERE course_id = ? LIMIT 1',
-    args: [courseId, courseId],
-  });
+  const courseMatch = courseLookup;
   const validation = validateCourseFinalPackage({
     courseId,
     capstones: finals.capstone,
