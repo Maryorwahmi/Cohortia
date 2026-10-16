@@ -560,34 +560,6 @@ export default function ProductDemoSection() {
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header: Clarified as an illustrative simulation */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 space-y-4">
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs font-mono font-bold text-[#FF4B3E] uppercase tracking-widest px-3.5 py-1.5 rounded-full bg-[#FF4B3E]/10 border border-[#FF4B3E]/20 inline-flex items-center gap-2">
-              <Terminal className="w-3.5 h-3.5" />
-              <span>INTERACTIVE BOARD SIMULATION • 4.5-MINUTE CURRICULUM PREVIEW</span>
-            </span>
-            <span className="text-xs font-mono font-bold text-blue-400 uppercase tracking-widest px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 inline-flex items-center gap-1.5">
-              <GraduationCap className="w-3.5 h-3.5" />
-              <span>C++ Certified Professional Programmer (CPP)</span>
-            </span>
-          </div>
-
-          <h2 className="text-3xl sm:text-5xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-tight">
-            Explore the <span className="text-[#FF4B3E]">Practical Learning Board</span> Simulation
-          </h2>
-          
-          <p className="text-sm sm:text-base text-immersive-text-secondary font-medium leading-relaxed max-w-2xl mx-auto">
-            This interactive walkthrough illustrates how Cohortia's <strong>Practical Learning Board</strong> guides you through hands-on activities. Experience an illustrative simulation of <strong>Designing a Hierarchical Logging System</strong> with step-by-step code construction, simulated compiler diagnostics, and warm pedagogical voice narration.
-          </p>
-
-          {/* Quick Notice Pill clarifying simulation status */}
-          <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px] ${isDark ? "border-white/10 bg-white/[0.04] text-slate-400" : "border-slate-200 bg-white text-slate-600"}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span>Illustrative simulation: Pre-rendered walkthrough showcasing curriculum structure</span>
-          </div>
-        </div>
-
         {/* FULL WIDTH PRACTICAL LEARNING BOARD CONTAINER */}
         <div className="w-full">
           <div className={playerShellClass} style={{ width: "min(100%, calc(76vh * 16 / 9))" }}>
