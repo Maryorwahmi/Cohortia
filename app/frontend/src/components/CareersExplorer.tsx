@@ -16,157 +16,94 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Clock3,
   Code2,
-  Star,
 } from "lucide-react";
 
 export interface FeaturedCourse {
   id: string;
   number: number;
   title: string;
-  provider: "Meta" | "IBM" | "Harvard University" | "University of Michigan" | "FreeCodeCamp";
+  provider: string;
   providerLogoColor: string;
-  level: "Beginner" | "Intermediate" | "Advanced" | "Beginner to Intermediate" | "Beginner to Advanced";
-  category: "Full-Stack" | "Backend" | "Frontend" | "Foundations";
-  marketCategory?: string | null;
+  level: string;
+  category: string;
+  examCode: string;
   description: string;
-  careerImpact: string;
-  duration: string;
-  rating: number;
-  reviewsCount: string;
-  skills: string[];
-  trackTier: string;
+  credentialType: string;
   popularBadge: string;
   image: string;
 }
 
 export const FEATURED_COURSES: FeaturedCourse[] = [
   {
-    id: "ibm-fullstack",
+    id: "comptia-security-plus",
     number: 1,
-    title: "IBM Full-Stack Software Developer Professional Certificate",
-    provider: "IBM",
-    providerLogoColor: "from-blue-600 to-indigo-600",
-    level: "Beginner to Intermediate",
-    category: "Full-Stack",
-    description: "Broad full-stack foundation covering front-end, back-end, databases, APIs, Git, containers and development workflows.",
-    careerImpact: "Very useful as a career-transition anchor into modern software engineering.",
-    duration: "4 - 6 months (hands-on)",
-    rating: 4.9,
-    reviewsCount: "28,400+ reviews",
-    skills: ["React & Node.js", "Cloud Native & Docker", "Python & Microservices", "CI/CD & Git", "SQL & NoSQL"],
-    trackTier: "Included in Pivot ($23) & Upskill ($30)",
-    popularBadge: "MOST POPULAR CAREER ANCHOR",
-    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=85",
+    title: "CompTIA Security+ (SY0-701)",
+    provider: "CompTIA",
+    providerLogoColor: "from-blue-600 to-cyan-600",
+    level: "Foundational",
+    category: "Cyber Defense",
+    examCode: "SY0-701",
+    description: "Build foundational cybersecurity knowledge across security concepts, threats, architecture, operations, and security program management.",
+    credentialType: "Certification exam",
+    popularBadge: "SECURITY FOUNDATIONS",
+    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=85",
   },
   {
-    id: "meta-backend",
+    id: "comptia-cysa-plus",
     number: 2,
-    title: "Meta Back-End Developer Professional Certificate",
-    provider: "Meta",
-    providerLogoColor: "from-blue-500 to-cyan-500",
+    title: "CompTIA Cybersecurity Analyst (CySA+)",
+    provider: "CompTIA",
+    providerLogoColor: "from-cyan-600 to-teal-600",
     level: "Intermediate",
-    category: "Backend",
-    description: "Strong specialization for backend careers, with practical backend technologies and modern distributed development concepts.",
-    careerImpact: "Tailored for engineers targeting dedicated backend, API, and cloud services roles.",
-    duration: "3 - 5 months (hands-on)",
-    rating: 4.8,
-    reviewsCount: "19,200+ reviews",
-    skills: ["Python & Django", "REST APIs & JSON", "Database Tuning & MySQL", "Linux & Git", "Server Security"],
-    trackTier: "Included in Upskill ($30) & Lead ($45)",
-    popularBadge: "HIGH INDUSTRY DEMAND",
-    image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=1200&q=85",
+    category: "Cyber Defense",
+    examCode: "CySA+",
+    description: "Focus on behavioral analytics, threat detection, vulnerability management, incident response, and security monitoring.",
+    credentialType: "Certification exam",
+    popularBadge: "THREAT DETECTION & RESPONSE",
+    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1200&q=85",
   },
   {
-    id: "meta-frontend",
+    id: "certified-ethical-hacker",
     number: 3,
-    title: "Meta Front-End Developer Professional Certificate",
-    provider: "Meta",
-    providerLogoColor: "from-blue-500 to-sky-500",
-    level: "Beginner to Intermediate",
-    category: "Frontend",
-    description: "Strong entry point into modern frontend development and suitable for learners building toward professional frontend roles.",
-    careerImpact: "Builds production-grade client apps with React, UI state management, and UX design principles.",
-    duration: "3 - 5 months (hands-on)",
-    rating: 4.9,
-    reviewsCount: "34,100+ reviews",
-    skills: ["React 19 & JavaScript", "HTML5 & Modern CSS", "UI/UX & Accessibility", "Jest Testing", "Client Routing"],
-    trackTier: "Included in Pivot ($23) & Upskill ($30)",
-    popularBadge: "TOP RATED FRONTEND",
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85",
+    title: "Certified Ethical Hacker (CEH v13)",
+    provider: "EC-Council",
+    providerLogoColor: "from-rose-600 to-orange-600",
+    level: "Advanced",
+    category: "Offensive Security",
+    examCode: "CEH v13",
+    description: "Explore ethical hacking methods and tools for assessing systems, identifying weaknesses, and understanding attack techniques.",
+    credentialType: "Certification exam",
+    popularBadge: "ETHICAL HACKING",
+    image: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=1200&q=85",
   },
   {
-    id: "meta-fullstack",
+    id: "cissp",
     number: 4,
-    title: "Meta Full-Stack Developer: Front-End & Back-End from Scratch Specialization",
-    provider: "Meta",
-    providerLogoColor: "from-indigo-600 to-blue-500",
-    level: "Beginner to Advanced",
-    category: "Full-Stack",
-    description: "End-to-end development curriculum connecting client user experiences directly to high-throughput backend services.",
-    careerImpact: "Particularly valuable for learners who want an end-to-end development path rather than specializing immediately.",
-    duration: "6 - 8 months (hands-on)",
-    rating: 4.9,
-    reviewsCount: "22,800+ reviews",
-    skills: ["Full-Stack Architecture", "React & Django/Node", "System Design", "Cloud Deployment", "Capstone Project"],
-    trackTier: "Included in Pivot ($23) & Lead ($45)",
-    popularBadge: "COMPREHENSIVE PATHWAY",
-    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=85",
+    title: "CISSP – Certified Information Systems Security Professional",
+    provider: "ISC2",
+    providerLogoColor: "from-indigo-600 to-violet-600",
+    level: "Advanced",
+    category: "Cybersecurity Leadership",
+    examCode: "CISSP",
+    description: "Cover broad security leadership domains including security architecture, risk management, asset protection, and operations.",
+    credentialType: "Certification exam",
+    popularBadge: "SECURITY LEADERSHIP",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=85",
   },
   {
-    id: "python-everybody",
+    id: "aws-certified-security-specialty",
     number: 5,
-    title: "Python for Everybody Specialization",
-    provider: "University of Michigan",
-    providerLogoColor: "from-amber-600 to-yellow-500",
-    level: "Beginner",
-    category: "Foundations",
-    description: "Extremely accessible entry point into programming, data structures, and computer logic using Python.",
-    careerImpact: "Useful for beginners and career pivots into technical, automation, or data-related fields.",
-    duration: "2 - 3 months (hands-on)",
-    rating: 4.9,
-    reviewsCount: "115,000+ reviews",
-    skills: ["Python Fundamentals", "Data Structures", "Web Scraping & APIs", "Databases & SQLite", "Data Visualization"],
-    trackTier: "Included in Pivot ($23) Track",
-    popularBadge: "EASIEST ENTRY POINT",
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85",
-  },
-  {
-    id: "js-algorithms",
-    number: 6,
-    title: "JavaScript Algorithms and Data Structures",
-    provider: "FreeCodeCamp",
-    providerLogoColor: "from-emerald-600 to-teal-500",
-    level: "Intermediate",
-    category: "Foundations",
-    description: "Master computational algorithms, time/space complexity (Big-O), recursion, and essential data structures.",
-    careerImpact: "Builds a fundamental programming skill that supports frontend, backend and full-stack technical interviews.",
-    duration: "2 - 4 months (hands-on)",
-    rating: 4.8,
-    reviewsCount: "68,000+ reviews",
-    skills: ["Big-O Complexity", "Sorting & Searching", "Graphs & Trees", "Dynamic Programming", "ES6+ Standards"],
-    trackTier: "Included in Pivot ($23) & Upskill ($30)",
-    popularBadge: "TECHNICAL INTERVIEW READY",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=85",
-  },
-  {
-    id: "harvard-cs50",
-    number: 7,
-    title: "CS50's Introduction to Computer Science",
-    provider: "Harvard University",
-    providerLogoColor: "from-rose-600 to-red-700",
-    level: "Beginner to Intermediate",
-    category: "Foundations",
-    description: "World-renowned computational thinking and computer science foundation covering algorithms, memory, and web technology.",
-    careerImpact: "Particularly useful for someone entering technology without a strong technical background.",
-    duration: "3 - 5 months (hands-on)",
-    rating: 5.0,
-    reviewsCount: "142,000+ reviews",
-    skills: ["C & Low-Level Memory", "Data Structures & Pointers", "Python & SQL", "Web Fundamentals", "Computational Thinking"],
-    trackTier: "Included in Pivot ($23) & Upskill ($30)",
-    popularBadge: "GOLD STANDARD CS FOUNDATION",
-    image: "/vision-boards/cs50s-introduction-to-computer-science/module-00/chapter-00/Overview.jpg",
+    title: "AWS Certified Security – Specialty",
+    provider: "AWS",
+    providerLogoColor: "from-amber-500 to-orange-600",
+    level: "Specialty",
+    category: "Cloud Security",
+    examCode: "SCS-C02",
+    description: "Validate skills in securing AWS workloads, including identity, data protection, infrastructure security, monitoring, and incident response.",
+    credentialType: "Certification exam",
+    popularBadge: "CLOUD SECURITY",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=85",
   },
 ];
 
@@ -338,17 +275,17 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
           <div className="max-w-2xl">
             <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#ff4b3e]/20 bg-[#ff4b3e]/[0.07] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#e83e32] dark:text-[#ff786e]">
               <Award className="h-3.5 w-3.5" aria-hidden="true" />
-              Learn with leading institutions
+              Industry-recognized security certifications
             </span>
             <h2 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-immersive-text-primary sm:text-5xl lg:text-[3.5rem]">
-              Explore computer science courses
+              Explore cybersecurity certifications
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-immersive-text-secondary sm:text-lg">
-              Learn from respected universities and industry leaders, then turn new skills into work you can show.
+              Build skills across cyber defense, ethical hacking, security leadership, and cloud protection.
             </p>
           </div>
           <div className="flex flex-wrap gap-2.5 lg:justify-end">
-            {["Meta", "IBM", "Harvard", "University of Michigan"].map((partner) => (
+            {["CompTIA", "EC-Council", "ISC2", "AWS"].map((partner) => (
               <span key={partner} className="rounded-full border border-immersive-border bg-immersive-card px-4 py-2 text-sm font-semibold text-immersive-text-secondary shadow-sm">
                 {partner}
               </span>
@@ -360,7 +297,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
           <div className="relative z-10 flex flex-col items-start justify-center p-7 sm:p-10 lg:p-14">
             <div className="mb-6 flex items-center gap-3">
               <span className={`grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br ${selectedCourse.providerLogoColor} text-sm font-extrabold text-white shadow-lg`}>
-                {selectedCourse.provider === "Harvard University" ? "H" : selectedCourse.provider.slice(0, 1)}
+                {selectedCourse.provider.slice(0, 1)}
               </span>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">Featured learning path</p>
@@ -403,12 +340,9 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
             />
             <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/10 lg:from-slate-950/15 lg:via-transparent lg:to-slate-950/10" />
             <div className="absolute bottom-7 right-7 hidden max-w-xs rounded-2xl border border-white/20 bg-slate-950/70 p-4 text-white shadow-2xl backdrop-blur-md sm:block lg:bottom-8 lg:right-8">
-              <div className="flex items-center gap-1.5 text-sm font-bold">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
-                {selectedCourse.rating.toFixed(1)}
-                <span className="text-xs font-medium text-white/60">({selectedCourse.reviewsCount})</span>
-              </div>
-              <p className="mt-2 line-clamp-2 text-sm font-semibold leading-snug">{selectedCourse.title}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Exam code</p>
+            <p className="mt-1 text-sm font-bold">{selectedCourse.examCode}</p>
+            <p className="mt-2 line-clamp-2 text-sm font-semibold leading-snug">{selectedCourse.title}</p>
             </div>
           </div>
         </div>
@@ -417,10 +351,10 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
           <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.17em] text-[#e83e32] dark:text-[#ff786e]">The course catalog</p>
-              <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">Find your next skill</h3>
+              <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">Cyber Defense, Offensive Security &amp; Cloud Security</h3>
             </div>
             <p className="text-sm text-immersive-text-secondary">
-              Showing <span className="font-semibold text-immersive-text-primary">{filteredCourses.length}</span> courses
+              Showing <span className="font-semibold text-immersive-text-primary">{filteredCourses.length}</span> certifications
             </p>
           </div>
 
@@ -500,10 +434,9 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                             <div className="flex flex-1 flex-col p-5 sm:p-6">
                               <div className="flex items-center justify-between gap-2 text-xs text-immersive-text-secondary">
                                 <span className="inline-flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5" aria-hidden="true" /> {course.level}</span>
-                                <span className="inline-flex shrink-0 items-center gap-1 text-amber-500">
-                                  <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
-                                  <span className="font-bold">{course.rating.toFixed(1)}</span>
-                                  <span className="text-immersive-text-secondary">({course.reviewsCount})</span>
+                                <span className="inline-flex shrink-0 items-center gap-1 text-immersive-text-secondary">
+                                  <Award className="h-3.5 w-3.5 text-[#e83e32] dark:text-[#ff786e]" aria-hidden="true" />
+                                  <span className="font-semibold">{course.examCode}</span>
                                 </span>
                               </div>
                               <button
@@ -517,8 +450,8 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                               </button>
                               <p className="mt-3 line-clamp-3 text-sm leading-6 text-immersive-text-secondary">{course.description}</p>
                               <div className="mt-5 flex items-center gap-4 border-t border-immersive-border/70 pt-4 text-xs font-medium text-immersive-text-secondary">
-                                <span className="inline-flex items-center gap-1.5"><Clock3 className="h-3.5 w-3.5" aria-hidden="true" /> {course.duration}</span>
-                                <span className="inline-flex items-center gap-1.5"><Code2 className="h-3.5 w-3.5" aria-hidden="true" /> {course.marketCategory || course.category}</span>
+                                <span className="inline-flex items-center gap-1.5"><Award className="h-3.5 w-3.5" aria-hidden="true" /> {course.credentialType}</span>
+                                <span className="inline-flex items-center gap-1.5"><Code2 className="h-3.5 w-3.5" aria-hidden="true" /> {course.category}</span>
                               </div>
                               <button
                                 type="button"
