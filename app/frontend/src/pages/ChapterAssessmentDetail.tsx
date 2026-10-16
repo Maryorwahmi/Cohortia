@@ -139,7 +139,7 @@ export default function ChapterAssessmentDetail() {
             ← Back
           </button>
           <div>
-            <h1 className="text-3xl font-bold mb-1">
+            <h1 className="mb-1 break-words text-2xl font-bold sm:text-3xl">
               {chapterData.assessment.moduleTitle} - {chapterData.assessment.chapterTitle}
             </h1>
             <p className="text-purple-100">{chapterData.assessment.courseTitle}</p>
@@ -147,18 +147,18 @@ export default function ChapterAssessmentDetail() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         {showResults ? (
           // Results View
           <div className="space-y-6">
-            <div className="bg-slate-800 rounded-lg p-8 text-center border border-slate-700">
-              <h2 className="text-3xl font-bold text-white mb-2">Assessment Completed!</h2>
+            <div className="bg-slate-800 rounded-lg border border-slate-700 p-4 text-center sm:p-8">
+              <h2 className="mb-2 text-2xl font-bold text-white sm:text-3xl">Assessment Completed!</h2>
               <p className="text-gray-400 mb-6">
                 You answered {Object.keys(answers).length} out of{' '}
                 {chapterData.questions.length} questions
               </p>
 
-              <div className="flex gap-4 justify-center mb-8">
+              <div className="mb-8 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
                 <button
                   onClick={() => {
                     setCurrentQuestionIndex(0);
@@ -187,7 +187,7 @@ export default function ChapterAssessmentDetail() {
                 return (
                   <div
                     key={q.id}
-                    className="flex items-center gap-3 p-3 bg-slate-800 rounded-lg border border-slate-700"
+                    className="flex items-center gap-3 rounded-lg border border-slate-700 bg-slate-800 p-3"
                   >
                     <div
                       className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${
@@ -198,10 +198,10 @@ export default function ChapterAssessmentDetail() {
                     >
                       {idx + 1}
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <p className="text-gray-300 text-sm line-clamp-1">{q.question}</p>
                     </div>
-                    <span className="ml-auto">
+                    <span className="ml-auto shrink-0">
                       {userAnswer !== undefined ? '✓' : '✕'}
                     </span>
                   </div>
@@ -231,7 +231,7 @@ export default function ChapterAssessmentDetail() {
             </div>
 
             {/* Question */}
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg border border-slate-700 p-8 mb-8">
+            <div className="mb-8 rounded-lg border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-4 sm:p-8">
               <QuestionDisplay
                 question={currentQuestion}
                 answer={answers[currentQuestion.id]}
@@ -240,16 +240,16 @@ export default function ChapterAssessmentDetail() {
             </div>
 
             {/* Navigation */}
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
               <button
                 onClick={handlePrevious}
                 disabled={currentQuestionIndex === 0}
-                className="px-6 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition"
+                className="rounded-lg bg-slate-800 px-4 py-2 text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
               >
                 ← Previous
               </button>
 
-              <div className="flex gap-2">
+              <div className="flex max-w-[35vw] gap-2 overflow-x-auto py-2">
                 {chapterData.questions.map((_, idx) => (
                   <button
                     key={idx}
@@ -268,14 +268,14 @@ export default function ChapterAssessmentDetail() {
               {currentQuestionIndex === chapterData.questions.length - 1 ? (
                 <button
                   onClick={handleSubmit}
-                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium"
+                  className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition hover:bg-green-700 sm:px-6"
                 >
                   Submit →
                 </button>
               ) : (
                 <button
                   onClick={handleNext}
-                  className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition"
+                  className="rounded-lg bg-purple-600 px-4 py-2 text-white transition hover:bg-purple-700 sm:px-6"
                 >
                   Next →
                 </button>

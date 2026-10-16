@@ -87,7 +87,7 @@ export default function CourseAssessmentDetail() {
   if (error || !courseData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
           <button
             onClick={() => navigate(-1)}
             className="mb-6 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition"
@@ -126,13 +126,13 @@ export default function CourseAssessmentDetail() {
           >
             ← Back
           </button>
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">{courseData.course.courseTitle}</h1>
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-start">
+            <div className="min-w-0">
+              <h1 className="mb-2 break-words text-2xl font-bold sm:text-4xl">{courseData.course.courseTitle}</h1>
               <p className="text-purple-100 capitalize">{courseData.course.category}</p>
             </div>
             <span
-              className={`px-4 py-2 rounded-full text-sm font-semibold ${
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${
                 levelColors[courseData.course.level.toLowerCase()]
               }`}
             >
@@ -143,7 +143,7 @@ export default function CourseAssessmentDetail() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
           <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">

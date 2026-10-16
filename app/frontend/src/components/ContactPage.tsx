@@ -93,8 +93,8 @@ export default function ContactPage() {
   return (
     <div className="pt-20 pb-8 min-h-screen bg-immersive-bg relative">
       {/* Background Graphic Accents */}
-      <div className="absolute top-1/4 left-10 w-[400px] h-[400px] bg-[#FF4B3E]/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-10 w-[400px] h-[400px] bg-immersive-secondary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 left-10 hidden h-[400px] w-[400px] rounded-full bg-[#FF4B3E]/5 blur-3xl pointer-events-none sm:block" />
+      <div className="absolute right-10 bottom-1/4 hidden h-[400px] w-[400px] rounded-full bg-immersive-secondary/5 blur-3xl pointer-events-none sm:block" />
 
       {/* Page Header */}
       <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 text-center mt-6 mb-10">

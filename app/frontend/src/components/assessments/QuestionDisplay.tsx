@@ -90,7 +90,7 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
                 <p className="text-sm font-medium text-gray-300">
                   Starter Code ({question.language || 'text'}):
                 </p>
-                <pre className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 overflow-x-auto whitespace-pre text-sm text-green-400 font-mono">
+                <pre className="max-w-full overflow-x-auto rounded-lg border border-slate-600 bg-slate-700/50 p-4 font-mono text-sm whitespace-pre text-green-400">
                   {question.code}
                 </pre>
               </div>
@@ -133,7 +133,7 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
                     📋 Copy
                   </button>
                 </div>
-                <pre className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 overflow-x-auto whitespace-pre text-sm text-green-400 font-mono">
+                <pre className="max-w-full overflow-x-auto rounded-lg border border-slate-600 bg-slate-700/50 p-4 font-mono text-sm whitespace-pre text-green-400">
                   {question.code}
                 </pre>
               </div>
@@ -142,7 +142,7 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
             {question.expectedOutput && (
               <div className="space-y-2">
                 <p className="text-sm font-medium text-gray-300">Expected Output:</p>
-                <pre className="bg-slate-700/50 border border-slate-600 rounded-lg p-3 font-mono text-sm text-blue-400 max-h-32 overflow-y-auto">
+                <pre className="max-h-32 max-w-full overflow-auto rounded-lg border border-slate-600 bg-slate-700/50 p-3 font-mono text-sm text-blue-400">
                   {question.expectedOutput}
                 </pre>
               </div>

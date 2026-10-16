@@ -305,8 +305,8 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   return (
     <div className="pt-28 lg:pt-32 min-h-screen bg-immersive-bg flex items-center justify-center relative p-4 md:p-8">
       {/* Background Graphic Accents */}
-      <div className="absolute top-10 left-1/4 w-[500px] h-[500px] bg-immersive-primary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-immersive-secondary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-10 left-1/4 hidden h-[500px] w-[500px] rounded-full bg-immersive-primary/5 blur-3xl pointer-events-none sm:block" />
+      <div className="absolute right-1/4 bottom-10 hidden h-[500px] w-[500px] rounded-full bg-immersive-secondary/5 blur-3xl pointer-events-none sm:block" />
 
       {/* Main Unified Split-Pane Card */}
       <div className="bg-immersive-card border border-immersive-border rounded-[32px] w-full max-w-5xl min-h-[640px] grid grid-cols-1 lg:grid-cols-12 overflow-hidden shadow-2xl shadow-immersive-shadow relative text-left animate-in zoom-in-98 duration-300">

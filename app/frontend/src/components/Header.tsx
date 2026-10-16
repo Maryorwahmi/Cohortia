@@ -681,7 +681,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-immersive-bg/98 border-b border-immersive-border px-4 py-6 space-y-4 animate-in fade-in slide-in-from-top duration-200 shadow-xl shadow-immersive-shadow">
+        <div className="lg:hidden max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain bg-immersive-bg/98 border-b border-immersive-border px-4 py-6 space-y-4 animate-in fade-in slide-in-from-top duration-200 shadow-xl shadow-immersive-shadow">
           {renderSearch(true)}
           <div className="flex flex-col space-y-3">
             {navLinks.map((link) => (
