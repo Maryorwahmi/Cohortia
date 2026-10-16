@@ -40,14 +40,14 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
             
             <div className="space-y-3">
               <span className="text-xs font-mono font-extrabold text-immersive-secondary uppercase tracking-widest block">
-                — YOUR GROWTH STARTS HERE —
+                — THE COHORTIA STORY —
               </span>
 
               {userProfile ? (
                 <div className="space-y-2 animate-in fade-in slide-in-from-left duration-300">
                   <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-5xl 2xl:text-6xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.1]">
                     Welcome Back, <span className="bg-immersive-primary bg-clip-text text-transparent">{userProfile.name}</span>.<br />
-                    Accelerate Your <span className="text-immersive-secondary">Career</span>.
+                    Your next chapter starts <span className="text-immersive-secondary">now</span>.
                   </h1>
                   <div className="inline-flex items-center space-x-2 bg-immersive-primary/10 border border-immersive-border rounded-xl px-3.5 py-1.5 text-xs font-mono font-bold text-immersive-secondary mt-2 animate-pulse">
                     <Star className="w-3.5 h-3.5 text-immersive-secondary fill-immersive-secondary" />
@@ -56,15 +56,15 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
                 </div>
               ) : (
                 <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-5xl 2xl:text-7xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-[1.08]">
-                  Build Skills.<br />
-                  Gain <span className="bg-immersive-primary bg-clip-text text-transparent">Experience.</span><br />
-                  Move Forward.
+                  Learn the path.<br />
+                  Build the proof.<br />
+                  <span className="bg-immersive-primary bg-clip-text text-transparent">Launch the career.</span>
                 </h1>
               )}
             </div>
 
             <p className="text-base sm:text-lg text-immersive-text-secondary leading-relaxed max-w-xl font-medium">
-              Cohortia is a guided career-growth platform where you learn with a community, get Cohortia mentorship, experience real-world work, and build proof of progress.
+              Cohortia turns uncertainty into momentum: discover the path that fits you, work through real briefs, and turn every milestone into visible career evidence.
             </p>
 
             {/* Action Buttons */}
@@ -84,6 +84,20 @@ export default function Hero({ userProfile, onOpenWizard }: HeroProps) {
                 <Compass className="w-4.5 h-4.5 text-immersive-secondary" />
                 <span>Explore Careers</span>
               </Link>
+            </div>
+
+            <div className="grid gap-3 pt-4 sm:grid-cols-3">
+              {[
+                { label: "01", title: "Discover", copy: "Map your strengths to a career path." },
+                { label: "02", title: "Build", copy: "Ship portfolio work with guided feedback." },
+                { label: "03", title: "Launch", copy: "Show proof and align with opportunities." },
+              ].map((step) => (
+                <div key={step.label} className="rounded-2xl border border-immersive-border bg-immersive-card/70 p-3 shadow-sm shadow-immersive-shadow/20">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-immersive-secondary">{step.label}</p>
+                  <h3 className="mt-2 text-sm font-extrabold text-immersive-text-primary">{step.title}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-immersive-text-secondary">{step.copy}</p>
+                </div>
+              ))}
             </div>
 
             {/* Interactive Stats quick view */}

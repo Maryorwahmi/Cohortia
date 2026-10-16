@@ -62,17 +62,15 @@ export default function AboutUs() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-immersive-primary/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 relative z-10 text-left">
-        
-        {/* Header Section */}
-        <div className="max-w-3xl mb-16">
-          <span className="text-xs font-mono font-extrabold text-immersive-secondary tracking-widest uppercase block mb-2">
+        <div className="mb-16 max-w-3xl">
+          <span className="mb-2 block text-xs font-mono font-extrabold uppercase tracking-[0.2em] text-immersive-secondary">
             WHO WE ARE
           </span>
-          <h2 className="text-3xl sm:text-4xl font-sans font-black text-immersive-text-primary tracking-tight leading-none">
-            We are redefining professional career preparation.
+          <h2 className="text-3xl font-sans font-black leading-none tracking-tight text-immersive-text-primary sm:text-4xl">
+            A learning model built around momentum, not passive theory.
           </h2>
-          <p className="text-sm sm:text-base text-immersive-text-secondary mt-4 leading-relaxed font-medium">
-            Cohortia was born out of a simple, urgent observation: traditional courses leave learners high and dry with zero practical proof. We built an experiential workspace where your credentials are earned by doing real-world work.
+          <p className="mt-4 text-sm font-medium leading-relaxed text-immersive-text-secondary sm:text-base">
+            We created Cohortia to help learners move from uncertainty to evidence — with a clear path, real work, and a network that turns effort into opportunity.
           </p>
         </div>
 
