@@ -316,7 +316,6 @@ export default function ProductDemoSection() {
   const [isVoiceMuted, setIsVoiceMuted] = useState(false);
   const [activeTab, setActiveTab] = useState<"code" | "terminal" | "spec">("code");
   const [showFullTranscript, setShowFullTranscript] = useState(false);
-  const [activeStoryIndex, setActiveStoryIndex] = useState(0);
 
   // Accurate voice state
   const [voiceDisplayName, setVoiceDisplayName] = useState<string>("Detecting browser voice...");
@@ -329,7 +328,6 @@ export default function ProductDemoSection() {
   const previousTimeRef = useRef<number | null>(null);
   const currentSpokenPhaseRef = useRef<number | null>(null);
   const voiceInstanceRef = useRef<SpeechSynthesisVoice | null>(null);
-  const storyRefs = useRef<Array<HTMLElement | null>>([]);
 
   // Detect reduced motion preferences
   useEffect(() => {
@@ -340,31 +338,6 @@ export default function ProductDemoSection() {
       mediaQuery.addEventListener("change", listener);
       return () => mediaQuery.removeEventListener("change", listener);
     }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const storyElements = storyRefs.current.filter(Boolean) as HTMLElement[];
-    if (!storyElements.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        if (visibleEntry) {
-          const index = Number((visibleEntry.target as HTMLElement).dataset.storyIndex ?? 0);
-          setActiveStoryIndex(index);
-        }
-      },
-      { threshold: [0.2, 0.45, 0.7], rootMargin: "-10% 0px -20% 0px" }
-    );
-
-    storyElements.forEach((element) => observer.observe(element));
-
-    return () => observer.disconnect();
   }, []);
 
   // Voice detection: accurate label without false claims
@@ -440,7 +413,6 @@ export default function ProductDemoSection() {
   }
 
   const activePhase = PHASES[activePhaseIndex];
-  const storyPhase = PHASES[activeStoryIndex] ?? PHASES[0];
   const phaseElapsed = currentTime - activePhase.startSec;
   const activePhaseProgress = Math.min(1, Math.max(0, phaseElapsed / activePhase.duration));
 
@@ -587,129 +559,6 @@ export default function ProductDemoSection() {
       <div className="absolute bottom-10 right-10 w-[550px] h-[550px] bg-blue-500/5 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="mx-auto mb-10 max-w-4xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#FF4B3E]/20 bg-[#FF4B3E]/10 px-3 py-1 text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[#FF4B3E]">
-            <Radio className="w-3.5 h-3.5" />
-            Scroll-triggered storytelling
-          </span>
-          <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-immersive-text-primary sm:text-5xl">
-            Learn by building the story, one chapter at a time.
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm text-immersive-text-secondary sm:text-base">
-            Each scroll reveals a new decision, a new pattern, and a practical takeaway — turning the homepage into a guided narrative instead of a static product screenshot.
-          </p>
-        </div>
-
-        <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr] xl:items-start">
-          <div className="xl:sticky xl:top-24">
-            <div className={`${playerShellClass} !min-h-[420px] !lg:min-h-[480px]`} style={{ width: "min(100%, calc(68vh * 16 / 9))" }}>
-              <div className={`flex flex-wrap items-center justify-between gap-3 border-b p-3.5 sm:p-4 ${isDark ? "border-white/10 bg-black/50" : "border-slate-200 bg-slate-50"}`}>
-                <div className="flex items-center gap-2.5">
-                  <div className="flex space-x-1.5" aria-hidden="true">
-                    <span className="w-2.5 h-2.5 bg-rose-500 rounded-full" />
-                    <span className="w-2.5 h-2.5 bg-amber-500 rounded-full" />
-                    <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
-                  </div>
-                  <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                    {storyPhase.stepNumber}
-                  </span>
-                </div>
-                <span className="rounded-full border border-[#FF4B3E]/30 bg-[#FF4B3E]/10 px-2.5 py-1 font-mono text-[10px] font-bold text-[#FF4B3E]">
-                  {storyPhase.accessRule}
-                </span>
-              </div>
-
-              <div className="flex-1 p-4 sm:p-5">
-                <div className={`mb-4 rounded-2xl border p-3 ${isDark ? "border-white/10 bg-white/[0.04]" : "border-slate-200 bg-slate-50"}`}>
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF4B3E]">Scene</span>
-                    <span className={`font-mono text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                      {storyPhase.badge}
-                    </span>
-                  </div>
-                  <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                    {storyPhase.title}
-                  </h3>
-                  <p className={`mt-2 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                    {storyPhase.subtitle}
-                  </p>
-                </div>
-
-                <div className={`${codePaneClass} overflow-hidden rounded-2xl border p-3 font-mono text-[11px] sm:text-[12px]`}>
-                  {storyPhase.codeLines.slice(0, 7).map((line, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex items-start gap-2 ${line.highlight ? (isDark ? "bg-blue-500/10 text-white" : "bg-blue-50 text-slate-950") : ""}`}
-                    >
-                      <span className="w-5 shrink-0 text-right text-slate-500">{idx + 1}</span>
-                      <span className="flex-1 min-w-0">{renderHighlightedCode(line.text, isDark)}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className={`mt-4 rounded-2xl border p-3 ${isDark ? "border-emerald-500/20 bg-emerald-500/10" : "border-emerald-200 bg-emerald-50"}`}>
-                  <p className={`text-[10px] font-mono uppercase tracking-[0.2em] ${isDark ? "text-emerald-300" : "text-emerald-700"}`}>
-                    Why this matters
-                  </p>
-                  <p className={`mt-2 text-sm leading-relaxed ${isDark ? "text-slate-200" : "text-slate-700"}`}>
-                    {storyPhase.keyTakeaway}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {PHASES.map((phase, index) => {
-              const isActive = activeStoryIndex === index;
-
-              return (
-                <article
-                  key={phase.id}
-                  ref={(el) => {
-                    storyRefs.current[index] = el;
-                  }}
-                  data-story-index={index}
-                  className={`rounded-3xl border p-5 shadow-lg transition-all duration-300 ${
-                    isActive
-                      ? isDark
-                        ? "border-[#FF4B3E]/40 bg-[#111827]/90 shadow-[#FF4B3E]/10"
-                        : "border-[#FF4B3E]/30 bg-white shadow-[#FF4B3E]/10"
-                      : isDark
-                        ? "border-white/10 bg-[#0b1020]/80"
-                        : "border-slate-200 bg-white/80"
-                  } ${isActive ? "translate-y-0 opacity-100" : "translate-y-1 opacity-90"}`}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF4B3E]">
-                      {phase.stepNumber}
-                    </span>
-                    <span className={`font-mono text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                      {phase.badge}
-                    </span>
-                  </div>
-
-                  <h3 className={`mt-3 text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                    {phase.title}
-                  </h3>
-                  <p className={`mt-2 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                    {phase.subtitle}
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span className={`rounded-full border px-2 py-1 font-mono text-[10px] ${isDark ? "border-white/10 bg-white/[0.04] text-slate-300" : "border-slate-200 bg-slate-50 text-slate-600"}`}>
-                      {phase.accessRule}
-                    </span>
-                    <span className={`rounded-full border px-2 py-1 font-mono text-[10px] ${isDark ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
-                      {phase.terminalContent.status.replace(/\s*\(.*?\)/, "")}
-                    </span>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-
         {/* FULL WIDTH PRACTICAL LEARNING BOARD CONTAINER */}
         <div className="w-full mt-12">
           <div className={playerShellClass} style={{ width: "min(100%, calc(76vh * 16 / 9))" }}>
