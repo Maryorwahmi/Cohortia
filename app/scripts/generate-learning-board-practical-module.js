@@ -429,7 +429,7 @@ async function buildModuleEntries({
   return entries;
 }
 
-async function generateModule(options) {
+async function generateModule(options, { importPractical = importGeneratedPractical } = {}) {
   const repoRoot = path.resolve(options["repo-root"] || REPOSITORY_ROOT);
   if (options.provider) {
     const provider = String(options.provider).trim().toLowerCase();
@@ -471,47 +471,90 @@ async function generateModule(options) {
 
   const outputRoot = resolveInputPath(options.output || "generated/learning-board-practicals", repoRoot);
   let entries = allEntries;
+  const chaptersToImport = [];
   if (options["dry-run"] !== true && options.force !== true) {
     const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
-    const recordedChapters = generationRecord.completedChapters || {};
+    const completedChapters = { ...(generationRecord.completedChapters || {}) };
     const pendingEntries = [];
     for (const entry of allEntries) {
       const chapterKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
-      const recordEntry = recordedChapters[chapterKey];
+      const recordEntry = completedChapters[chapterKey];
       const artifactPath = recordEntry?.artifactPath
         ? path.resolve(outputRoot, recordEntry.artifactPath)
         : path.join(outputRoot, resolvedCourseId, `m${entry.metadata.moduleNumber}-c${entry.metadata.chapterNumber}`, "practical.json");
-      let reusable = recordEntry
-        && (recordEntry.status === "generated" || recordEntry.status === "completed")
-        && recordEntry.sourceHash === entry.metadata.sourceHash;
-      if (reusable) {
-        try {
-          const manifest = JSON.parse(await fs.readFile(artifactPath, "utf8"));
-          reusable = manifest.courseId === resolvedCourseId
-            && manifest.moduleNumber === entry.metadata.moduleNumber
-            && manifest.chapterNumber === entry.metadata.chapterNumber
-            && manifest.practical;
-        } catch {
-          reusable = false;
-        }
+      let manifest;
+      try {
+        manifest = JSON.parse(await fs.readFile(artifactPath, "utf8"));
+      } catch (error) {
+        if (error.code !== "ENOENT" && !(error instanceof SyntaxError)) throw error;
       }
-      if (reusable) {
-        console.log(`Resuming from record.json: skipping practical ${resolvedCourseId} ${chapterKey}.`);
-      } else {
+
+      const reusable = Boolean(manifest
+        && manifest.courseId === resolvedCourseId
+        && manifest.moduleNumber === entry.metadata.moduleNumber
+        && manifest.chapterNumber === entry.metadata.chapterNumber
+        && manifest.practical
+        && manifest.practical.source?.sourceHash === entry.metadata.sourceHash
+        && (!recordEntry || recordEntry.sourceHash === entry.metadata.sourceHash));
+
+      if (!reusable) {
         pendingEntries.push(entry);
+        continue;
+      }
+
+      const artifactRelativePath = path.relative(outputRoot, artifactPath).replaceAll("\\", "/");
+      if (!recordEntry || !["generated", "completed"].includes(recordEntry.status)) {
+        completedChapters[chapterKey] = {
+          status: "generated",
+          kind: "practical",
+          module: entry.metadata.moduleNumber,
+          chapter: entry.metadata.chapterNumber,
+          sourceHash: entry.metadata.sourceHash,
+          artifactPath: artifactRelativePath,
+          generatedAt: new Date().toISOString(),
+        };
+        await writeCourseGenerationRecord(outputRoot, {
+          id: resolvedCourseId,
+          title: entry.sourceContext.courseTitle || resolvedCourseId,
+        }, syllabusPath, { completedChapters });
+      }
+      console.log(`Resuming from record.json: reusing practical ${resolvedCourseId} ${chapterKey}.`);
+      if (completedChapters[chapterKey].status !== "completed") {
+        chaptersToImport.push({ entry, artifactPath });
       }
     }
     entries = pendingEntries;
-    if (!entries.length) {
-      return {
-        status: "resumed",
-        courseId: resolvedCourseId,
-        moduleNumber,
-        chapters: allEntries.map((entry) => `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`),
-        targets: [],
-        imports: [],
-      };
-    }
+  }
+
+  const imports = [];
+  for (const { entry, artifactPath } of chaptersToImport) {
+    if (options["skip-import"] === true) continue;
+    const imported = await importPractical(artifactPath);
+    imports.push(imported.practicalPath);
+    const chapterKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
+    const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
+    const completedChapters = { ...(generationRecord.completedChapters || {}) };
+    completedChapters[chapterKey] = {
+      ...completedChapters[chapterKey],
+      status: "completed",
+      importedAt: new Date().toISOString(),
+    };
+    await writeCourseGenerationRecord(outputRoot, {
+      id: resolvedCourseId,
+      title: entry.sourceContext.courseTitle || resolvedCourseId,
+    }, syllabusPath, { completedChapters });
+    console.log(`✓ Imported practical into Turso: ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`);
+  }
+
+  if (!entries.length) {
+    return {
+      status: "resumed",
+      courseId: resolvedCourseId,
+      moduleNumber,
+      chapters: allEntries.map((entry) => `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`),
+      targets: [],
+      imports,
+    };
   }
 
   const promptTemplate = options["prompt-template"]
@@ -566,7 +609,6 @@ async function generateModule(options) {
   }
   const normalized = normalizeModuleResponse(result.data, entries);
   const targets = [];
-  const imports = [];
   const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
   const completedChapters = { ...(generationRecord.completedChapters || {}) };
   for (const entry of normalized) {
@@ -598,7 +640,7 @@ async function generateModule(options) {
     }, syllabusPath, { completedChapters });
 
     if (options["skip-import"] !== true) {
-      const imported = await importGeneratedPractical(path.join(target, "practical.json"));
+      const imported = await importPractical(path.join(target, "practical.json"));
       imports.push(imported.practicalPath);
       completedChapters[chapterKey] = {
         ...completedChapters[chapterKey],
@@ -635,6 +677,7 @@ function usage() {
     "The generator sends all selected chapters in one Gemini request, writes",
     "one validated practical manifest per chapter, then imports each generated chapter into Turso.",
     "Omit --chapter to generate every hands-on practical in the module.",
+    "Progress is checkpointed in <output>/record.json per chapter; rerun the same command to retry pending imports without regenerating saved practicals.",
     "Use --skip-import only when you explicitly need JSON files without publishing them.",
   ].join("\n");
 }

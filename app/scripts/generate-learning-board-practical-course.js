@@ -107,10 +107,10 @@ function wait(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-async function generateModuleWithRetries(options, moduleNumber, pendingEntries, outputRoot, resolvedCourseId, syllabusPath, repoRoot) {
+async function generateModuleWithRetries(options, moduleNumber, chapterEntries, outputRoot, resolvedCourseId, syllabusPath, repoRoot) {
   const retryLimit = positiveIntegerOption(options["module-retries"], 3);
-  const chapterList = pendingEntries.length
-    ? pendingEntries.map((entry) => entry.metadata.chapterNumber).join(",")
+  const chapterList = chapterEntries.length
+    ? chapterEntries.map((entry) => entry.metadata.chapterNumber).join(",")
     : undefined;
   let lastError;
   for (let attempt = 1; attempt <= retryLimit; attempt += 1) {
@@ -280,12 +280,11 @@ async function generateCourse(options) {
         }
       }
     }
-    const pendingEntries = validEntries.filter((entry) => !existingByChapter.has(entry.metadata.chapterNumber));
-    if (options["dry-run"] === true || pendingEntries.length > 0) {
+    if (options["dry-run"] === true || validEntries.length > 0) {
       const result = await generateModuleWithRetries(
         { ...options, model },
         moduleNumber,
-        pendingEntries.length ? pendingEntries : validEntries,
+        validEntries,
         outputRoot,
         resolvedCourseId,
         syllabusPath,
@@ -469,6 +468,7 @@ function usage() {
     "Use --list-only with --subcategory to preview the matched courses and syllabus paths.",
     "Chapters without a hands-on activity are listed as skipped.",
     "Matching existing chapter practicals are reused by source hash; use --force to regenerate them.",
+    "Progress is checkpointed in <output>/record.json per chapter; rerun the same command to resume generation and retry pending imports.",
     "Use --module by itself to generate the complete module. Add --chapters only to retry a small subset; the resulting course manifest contains only that selected subset.",
     "When a module request fails, the generator retries that module (default 3 attempts) before moving to the next course. Configure --module-retries <count> when needed.",
     "Use --skip-import only when you explicitly do not want generated practicals published to Turso.",

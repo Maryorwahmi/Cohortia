@@ -86,6 +86,15 @@ catalog courses and whether each course syllabus was found. The subcategory
 match is case-insensitive. Add `--module <number>` to limit generation to one
 module; if omitted, all modules are generated.
 
+Generation progress is checkpointed in
+`generated/learning-board-practicals/record.json`. Each course entry records a
+source hash and each chapter's generated/imported status. If generation or a
+database import is interrupted, rerun the same command: matching practicals
+are reused, pending imports are retried, and only missing or outdated practicals
+are sent for generation. Use `--force` to regenerate matching practicals.
+When using `--output` or `COHORTIA_PRACTICALS_DIR`, the record is stored in that
+output directory instead.
+
 To generate only the original six-activity pilot:
 
 ```bash
