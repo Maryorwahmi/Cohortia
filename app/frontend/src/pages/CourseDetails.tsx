@@ -3,6 +3,7 @@ import {Link, useNavigate, useParams} from 'react-router-dom';
 import {ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Clock3, GraduationCap, Layers3, Users} from 'lucide-react';
 import {catalogCourseApi, CatalogCourse, trackApi} from '../services/api';
 import {useAuth} from '../context/AuthContext';
+import {getCourseImage} from '../data/courseImages';
 
 interface CourseDetailsData {
   overview: string;
@@ -62,6 +63,7 @@ export default function CourseDetails() {
         <Link to="/careers" className="mb-8 inline-flex items-center gap-2 text-xs font-bold text-immersive-text-secondary hover:text-immersive-secondary"><ArrowLeft className="h-4 w-4" /> Back to Careers</Link>
         <header className="grid gap-8 border-b border-immersive-border pb-10 lg:grid-cols-[1fr_320px] lg:items-end">
           <div>
+            {getCourseImage(course.id, course.image) && <img src={getCourseImage(course.id, course.image)} alt="" className="mb-6 h-48 w-full rounded-2xl object-cover sm:h-64" />}
             <span className="mb-3 block text-xs font-mono font-bold uppercase tracking-widest text-[#FF4B3E]">Course overview</span>
             <h1 className="max-w-4xl text-3xl font-extrabold leading-tight text-immersive-text-primary sm:text-5xl">{course.title}</h1>
             <p className="mt-4 text-sm font-medium text-immersive-text-secondary">{course.provider || course.platform || 'Cohortia'} · {course.level || 'Self-paced'} · {course.type || 'Course'}</p>

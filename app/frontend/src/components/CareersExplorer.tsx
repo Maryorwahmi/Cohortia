@@ -8,6 +8,7 @@ import {
   type TransitionEvent as ReactTransitionEvent,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import {getCourseImage} from "../data/courseImages";
 import {
   ArrowRight,
   Award,
@@ -395,7 +396,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
           </div>
           <div className="absolute inset-0 lg:relative">
             <img
-              src={selectedCourse.image}
+              src={getCourseImage(selectedCourse.id, selectedCourse.image)}
               alt=""
               className="h-full w-full object-cover opacity-35 lg:opacity-100"
               fetchPriority="high"
@@ -487,7 +488,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                               aria-pressed={isSelected}
                               className="relative block aspect-[16/9] w-full overflow-hidden bg-slate-900 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#ff4b3e]"
                             >
-                              <img src={course.image} alt="" loading="lazy" draggable={false} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                              <img src={getCourseImage(course.id, course.image)} alt="" loading="lazy" draggable={false} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/10" />
                               <span className={`absolute left-4 top-4 rounded-full bg-gradient-to-r ${course.providerLogoColor} px-3 py-1.5 text-xs font-bold text-white shadow-lg`}>
                                 {course.provider}

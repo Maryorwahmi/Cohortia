@@ -13,6 +13,7 @@ import {
   getCareerRolePath,
   slugify,
 } from "../data/careerDirectory";
+import {getCourseImage} from "../data/courseImages";
 
 function readList(value?: string | string[] | null): string[] {
   if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
@@ -61,8 +62,8 @@ function CourseCard({course}: {key?: string; course: CatalogCourse}) {
   return (
     <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card shadow-sm shadow-immersive-shadow transition hover:-translate-y-0.5 hover:border-immersive-primary/40 hover:shadow-lg">
       <div className="relative flex aspect-[16/8] items-center justify-center overflow-hidden bg-gradient-to-br from-immersive-primary/15 via-immersive-bg to-immersive-secondary/15">
-        {course.image ? (
-          <img src={course.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" onError={(event) => event.currentTarget.remove()} />
+        {getCourseImage(course.id, course.image) ? (
+          <img src={getCourseImage(course.id, course.image)} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" onError={(event) => event.currentTarget.remove()} />
         ) : (
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-immersive-primary/15 bg-immersive-card/80 text-immersive-primary">
             <GraduationCap size={27} aria-hidden="true" />
