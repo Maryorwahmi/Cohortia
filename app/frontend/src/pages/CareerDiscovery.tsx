@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {Link, useParams} from "react-router-dom";
-import {ArrowLeft, ArrowRight, BookOpen, BriefcaseBusiness, ChevronRight, GraduationCap, Search, Sparkles} from "lucide-react";
+import {ArrowLeft, ArrowRight, BookOpen, BriefcaseBusiness, ChevronLeft, ChevronRight, GraduationCap, Search, Shield, Sparkles} from "lucide-react";
 import type {ReactNode} from "react";
 import type {CatalogCourse} from "../services/api";
 import {catalogCourseApi} from "../services/api";
@@ -145,6 +145,185 @@ function RoleLink({category, role}: {key?: string; category: (typeof careerCateg
   );
 }
 
+function getRoleCardPalette(index: number) {
+  const palettes = [
+    {
+      shell: "from-violet-500/30 via-violet-400/20 to-violet-100",
+      iconWrap: "bg-violet-500",
+      icon: "text-white",
+      tag: "bg-violet-100 text-violet-800",
+    },
+    {
+      shell: "from-blue-500/30 via-blue-400/20 to-blue-100",
+      iconWrap: "bg-blue-500",
+      icon: "text-white",
+      tag: "bg-sky-100 text-sky-800",
+    },
+    {
+      shell: "from-emerald-500/30 via-emerald-400/20 to-emerald-100",
+      iconWrap: "bg-emerald-500",
+      icon: "text-white",
+      tag: "bg-emerald-100 text-emerald-800",
+    },
+    {
+      shell: "from-fuchsia-500/30 via-fuchsia-400/20 to-fuchsia-100",
+      iconWrap: "bg-fuchsia-500",
+      icon: "text-white",
+      tag: "bg-fuchsia-100 text-fuchsia-800",
+    },
+    {
+      shell: "from-orange-500/30 via-orange-400/20 to-orange-100",
+      iconWrap: "bg-orange-500",
+      icon: "text-white",
+      tag: "bg-orange-100 text-orange-800",
+    },
+    {
+      shell: "from-cyan-500/30 via-cyan-400/20 to-cyan-100",
+      iconWrap: "bg-cyan-500",
+      icon: "text-white",
+      tag: "bg-cyan-100 text-cyan-800",
+    },
+  ];
+
+  return palettes[index % palettes.length];
+}
+
+function getRoleCardIcon(index: number) {
+  const icons = [
+    <Shield key="shield" size={22} aria-hidden="true" />,
+    <BriefcaseBusiness key="briefcase" size={22} aria-hidden="true" />,
+    <Search key="search" size={22} aria-hidden="true" />,
+    <Sparkles key="sparkles" size={22} aria-hidden="true" />,
+    <BookOpen key="book" size={22} aria-hidden="true" />,
+    <GraduationCap key="graduation" size={22} aria-hidden="true" />,
+  ];
+
+  return icons[index % icons.length];
+}
+
+function RoleCarousel({category}: {category: (typeof careerCategories)[number]}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  useEffect(() => {
+    const updateVisibleCount = () => {
+      const width = window.innerWidth;
+      if (width < 768) setVisibleCount(1);
+      else if (width < 1100) setVisibleCount(2);
+      else if (width < 1400) setVisibleCount(3);
+      else setVisibleCount(5);
+    };
+
+    updateVisibleCount();
+    window.addEventListener("resize", updateVisibleCount);
+    return () => window.removeEventListener("resize", updateVisibleCount);
+  }, []);
+
+  const total = category.roles.length;
+
+  const visibleRoles = Array.from({length: visibleCount}, (_, offset) => {
+    const roleIndex = (activeIndex + offset) % total;
+    return {role: category.roles[roleIndex], index: roleIndex};
+  });
+
+  const move = (direction: 1 | -1) => {
+    setActiveIndex((current) => {
+      const next = current + direction;
+      if (next < 0) return total - 1;
+      if (next >= total) return 0;
+      return next;
+    });
+  };
+
+  return (
+    <div className="relative">
+      <div className="mb-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          aria-label="Previous role"
+          onClick={() => move(-1)}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition hover:border-immersive-primary hover:text-immersive-primary"
+        >
+          <ChevronLeft size={18} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          aria-label="Next role"
+          onClick={() => move(1)}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition hover:border-immersive-primary hover:text-immersive-primary"
+        >
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div className="overflow-hidden">
+        <div className="flex gap-4">
+          {visibleRoles.map(({role, index}) => {
+            const palette = getRoleCardPalette(index);
+            const roleSlug = getCareerRolePath(category, role);
+
+            return (
+              <Link
+                key={`${role}-${index}`}
+                to={roleSlug}
+                className="group flex min-w-0 flex-1 shrink-0 flex-col overflow-hidden rounded-[1.6rem] border border-[#efdedf] bg-[#f7f3f7] p-4 shadow-[0_1px_0_rgba(16,24,40,0.02)] transition duration-200 hover:-translate-y-1 hover:border-immersive-primary/40"
+                style={{
+                  maxWidth: visibleCount === 1 ? "100%" : `calc((100% - ${(visibleCount - 1) * 16}px) / ${visibleCount})`,
+                }}
+              >
+                <div className={`relative mb-4 flex h-20 items-center justify-between overflow-hidden rounded-[1.2rem] bg-gradient-to-br ${palette.shell}`}>
+                  <div className={`ml-4 flex h-12 w-12 items-center justify-center rounded-xl ${palette.iconWrap} ${palette.icon}`}>
+                    {getRoleCardIcon(index)}
+                  </div>
+                  <div className="absolute right-0 top-1/2 h-20 w-20 -translate-y-1/2 rounded-full bg-white/15 blur-xl" />
+                  <span className="mr-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/20 text-white transition group-hover:translate-x-0.5">
+                    <ChevronRight size={15} aria-hidden="true" />
+                  </span>
+                </div>
+
+                <div className="min-h-[138px]">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">{category.name}</p>
+                  <h3 className="mt-3 text-[1.05rem] font-bold leading-[1.15] text-slate-900 sm:text-[1.2rem]">{role}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    {index % 2 === 0
+                      ? "Design, implement and maintain secure systems, networks, and infrastructure."
+                      : "Monitor threats, investigate risk, and improve defense strategies in a modern security environment."}
+                  </p>
+                </div>
+
+                <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                  {[
+                    index % 2 === 0 ? "Security" : "Monitoring",
+                    index % 3 === 0 ? "Threat Detection" : index % 3 === 1 ? "Policy" : "Incident Response",
+                  ].map((tag) => (
+                    <span key={tag} className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${palette.tag}`}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-6 flex items-center justify-center gap-2">
+        {category.roles.map((_, dotIndex) => (
+          <button
+            key={`dot-${dotIndex}`}
+            type="button"
+            aria-label={`Go to role ${dotIndex + 1}`}
+            onClick={() => setActiveIndex(dotIndex)}
+            className={`h-2.5 rounded-full transition-all ${
+              activeIndex === dotIndex ? "w-8 bg-immersive-primary" : "w-2.5 bg-slate-300 hover:bg-slate-400"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function CareerDirectoryPage({mode}: {mode: "roles" | "categories"}) {
   const [query, setQuery] = useState("");
   const {courses, loading, error, retry} = useCatalogCourses();
@@ -278,12 +457,14 @@ export function CareerCategoryPage() {
                 </div>
               </div>
             </div>
-            <div className="relative mx-auto flex h-64 w-64 items-center justify-center sm:h-80 sm:w-80">
-              <div className="absolute inset-0 rounded-full border border-immersive-primary/20" />
-              <div className="absolute inset-5 rounded-full border border-immersive-secondary/25" />
-              <span className="absolute right-2 top-8 h-3 w-3 rounded-full bg-immersive-primary shadow-lg shadow-immersive-primary/30" />
-              <span className="absolute bottom-10 left-1 h-2.5 w-2.5 rounded-full bg-immersive-secondary" />
-              <div className="relative z-10 h-48 w-48 overflow-hidden rounded-full border-4 border-immersive-card bg-immersive-card shadow-[0_0_30px_var(--immersive-shadow)] sm:h-60 sm:w-60">
+            <div className="relative mx-auto flex h-72 w-72 items-center justify-center sm:h-96 sm:w-96">
+              <div className="absolute inset-0 rounded-full border border-immersive-primary/20 motion-safe:animate-[spin_28s_linear_infinite]" />
+              <div className="absolute inset-5 rounded-full border border-immersive-secondary/25 motion-safe:animate-[spin_38s_linear_infinite_reverse]" />
+              <div className="absolute inset-0 motion-safe:animate-[spin_24s_linear_infinite]">
+                <span className="absolute right-5 top-8 h-3 w-3 rounded-full bg-immersive-primary shadow-lg shadow-immersive-primary/30" />
+                <span className="absolute bottom-12 left-2 h-2.5 w-2.5 rounded-full bg-immersive-secondary" />
+              </div>
+              <div className="relative z-10 h-56 w-56 overflow-hidden rounded-full border-4 border-immersive-card bg-immersive-card shadow-[0_0_30px_var(--immersive-shadow)] sm:h-72 sm:w-72">
                 {categoryImage ? <img src={categoryImage} alt={`${category.name} visual`} className="h-full w-full object-cover transition duration-700 hover:scale-105" /> : <div className="h-full w-full bg-gradient-to-br from-immersive-primary/20 via-immersive-card to-immersive-secondary/20" />}
               </div>
             </div>
