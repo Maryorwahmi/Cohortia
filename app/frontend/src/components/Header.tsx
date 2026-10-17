@@ -43,6 +43,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isCareerMenuOpen, setIsCareerMenuOpen] = useState(false);
+  const careerMenuCloseTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isMobileCareerMenuOpen, setIsMobileCareerMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,6 +58,26 @@ export default function Header({ onOpenWizard }: HeaderProps) {
 
   const activePath = location.pathname;
   const isDashboard = activePath.startsWith("/dashboard");
+
+  const cancelCareerMenuClose = () => {
+    if (careerMenuCloseTimeout.current !== null) {
+      clearTimeout(careerMenuCloseTimeout.current);
+      careerMenuCloseTimeout.current = null;
+    }
+  };
+
+  const openCareerMenu = () => {
+    cancelCareerMenuClose();
+    setIsCareerMenuOpen(true);
+  };
+
+  const scheduleCareerMenuClose = () => {
+    cancelCareerMenuClose();
+    careerMenuCloseTimeout.current = setTimeout(() => {
+      setIsCareerMenuOpen(false);
+      careerMenuCloseTimeout.current = null;
+    }, 300);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -102,6 +123,7 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   }, [careerMenuAttempt, careerMenuLoaded, isCareerMenuOpen, isMobileCareerMenuOpen, isSearchFocused]);
 
   useEffect(() => {
+    cancelCareerMenuClose();
     setIsCareerMenuOpen(false);
     setIsMobileCareerMenuOpen(false);
   }, [location.pathname]);
@@ -109,11 +131,18 @@ export default function Header({ onOpenWizard }: HeaderProps) {
   useEffect(() => {
     if (!isCareerMenuOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsCareerMenuOpen(false);
+      if (event.key === "Escape") {
+        cancelCareerMenuClose();
+        setIsCareerMenuOpen(false);
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isCareerMenuOpen]);
+
+  useEffect(() => () => {
+    if (careerMenuCloseTimeout.current !== null) clearTimeout(careerMenuCloseTimeout.current);
+  }, []);
 
   useEffect(() => {
     if (!isSearchFocused) return;
@@ -380,15 +409,15 @@ export default function Header({ onOpenWizard }: HeaderProps) {
                 <div
                   key={link.path}
                   className="relative"
-                  onMouseEnter={() => setIsCareerMenuOpen(true)}
-                  onMouseLeave={() => setIsCareerMenuOpen(false)}
+                  onMouseEnter={openCareerMenu}
+                  onMouseLeave={scheduleCareerMenuClose}
                 >
                   <button
                     type="button"
                     aria-haspopup="true"
                     aria-expanded={isCareerMenuOpen}
-                    onFocus={() => setIsCareerMenuOpen(true)}
-                    onClick={() => setIsCareerMenuOpen((open) => !open)}
+                    onFocus={openCareerMenu}
+                    onClick={openCareerMenu}
                     className={`relative flex items-center gap-1.5 py-1.5 font-sans text-sm font-semibold transition-colors ${
                       activePath.startsWith("/careers") || isCareerMenuOpen
                         ? "text-immersive-primary"
@@ -401,7 +430,11 @@ export default function Header({ onOpenWizard }: HeaderProps) {
                   </button>
 
                   {isCareerMenuOpen && !isDashboard && (
-                    <div className={`fixed left-1/2 z-[60] w-[min(calc(100vw-2rem),1480px)] -translate-x-1/2 pt-2 ${isScrolled ? "top-[66px]" : "top-[82px]"}`}>
+                    <div
+                      className={`fixed left-1/2 z-[60] w-[min(calc(100vw-2rem),1480px)] -translate-x-1/2 pt-2 ${isScrolled ? "top-[66px]" : "top-[82px]"}`}
+                      onMouseEnter={openCareerMenu}
+                      onMouseLeave={scheduleCareerMenuClose}
+                    >
                       <div className="overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-2xl shadow-immersive-shadow">
                         <div className="grid gap-7 p-6 md:grid-cols-2 xl:grid-cols-[1fr_1.25fr_1fr_0.9fr]">
                           <section>
