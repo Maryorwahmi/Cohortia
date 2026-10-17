@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import {Link} from 'react-router-dom';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -332,14 +333,13 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                 Explore courses
                 <ArrowRight size={17} aria-hidden="true" />
               </button>
-              <button
-                type="button"
-                onClick={onOpenWizard}
+              <Link
+                to="/experience"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-immersive-border bg-immersive-card px-6 py-3 text-sm font-semibold text-immersive-text-primary transition hover:border-immersive-primary hover:bg-immersive-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-bg"
               >
                 Help me choose
                 <Compass size={17} aria-hidden="true" />
-              </button>
+              </Link>
             </div>
 
             <div className="mt-10 grid max-w-lg grid-cols-3 divide-x divide-immersive-border rounded-2xl border border-immersive-border bg-immersive-card px-2 py-4 shadow-sm backdrop-blur">

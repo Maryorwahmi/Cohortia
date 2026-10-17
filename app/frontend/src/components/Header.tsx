@@ -8,10 +8,6 @@ import { catalogCourseApi, type CatalogCourse } from "../services/api";
 import { careerCategories, careerRoles, featuredCareerRoles, getCareerCategoryPath, getCareerRolePath, getCareerSkillPath } from "../data/careerDirectory";
 import Logo from "./Logo";
 
-interface HeaderProps {
-  onOpenWizard: () => void;
-}
-
 interface SearchSuggestion {
   href: string;
   label: string;
@@ -31,7 +27,7 @@ function readMenuList(value?: string | string[] | null): string[] {
   return value.split(/[,;]/).map((item) => item.trim()).filter(Boolean);
 }
 
-export default function Header({ onOpenWizard }: HeaderProps) {
+export default function Header() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -507,9 +503,9 @@ export default function Header({ onOpenWizard }: HeaderProps) {
                             ) : (
                               <p className="mt-3 text-sm leading-6 text-immersive-text-secondary">Skill links will appear here when the catalog is available.</p>
                             )}
-                            <button type="button" onClick={() => { setIsCareerMenuOpen(false); onOpenWizard(); }} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-immersive-primary hover:underline">
+                            <Link to="/experience" onClick={() => setIsCareerMenuOpen(false)} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-immersive-primary hover:underline">
                               Help me choose <ArrowRight size={13} aria-hidden="true" />
-                            </button>
+                            </Link>
                           </section>
                         </div>
                       </div>
