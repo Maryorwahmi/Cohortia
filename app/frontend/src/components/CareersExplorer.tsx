@@ -7,8 +7,9 @@ import {
   type PointerEvent as ReactPointerEvent,
   type TransitionEvent as ReactTransitionEvent,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {getCourseImage} from "../data/courseImages";
+import {careerCategories, getCareerCategoryPath} from "../data/careerDirectory";
 import {
   ArrowRight,
   Award,
@@ -252,6 +253,12 @@ const AI_ML_COURSES: FeaturedCourse[] = [
     image: "",
   },
 ];
+
+function getCareerCategoryHref(name: string): string {
+  const category = careerCategories.find((item) => item.name === name);
+  if (!category) throw new Error(`Career category not found: ${name}`);
+  return getCareerCategoryPath(category);
+}
 
 interface CourseCarouselProps {
   courses: FeaturedCourse[];
@@ -797,14 +804,16 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
         </div>
 
         <div id="course-catalog" className="scroll-mt-24">
-          <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.17em] text-[#e83e32] dark:text-[#ff786e]">The course catalog</p>
-              <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">Cyber Defense, Offensive Security &amp; Cloud Security</h3>
-            </div>
-            <p className="text-sm text-immersive-text-secondary">
-              Showing <span className="font-semibold text-immersive-text-primary">{filteredCourses.length}</span> certifications
-            </p>
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <Link
+              to={getCareerCategoryHref("Cyber Defense, Offensive Security & Cloud Security")}
+              className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-[#ff4b3e] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
+            >
+              Explore Career <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <h3 className="font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">
+              Cyber Defense, Offensive Security &amp; Cloud Security
+            </h3>
           </div>
 
           <div
@@ -955,16 +964,16 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
         </div>
 
         <div className="mt-14 border-t border-immersive-border/60 pt-10">
-          <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.17em] text-[#e83e32] dark:text-[#ff786e]">The course catalog</p>
-              <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">
-                Cloud Architecture, DevOps &amp; Platform Reliability
-              </h3>
-            </div>
-            <p className="text-sm text-immersive-text-secondary">
-              Showing <span className="font-semibold text-immersive-text-primary">{PLATFORM_COURSES.length}</span> courses
-            </p>
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <Link
+              to={getCareerCategoryHref("Cloud Architecture, DevOps & Platform Reliability")}
+              className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-[#ff4b3e] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
+            >
+              Explore Career <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <h3 className="font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">
+              Cloud Architecture, DevOps &amp; Platform Reliability
+            </h3>
           </div>
 
           <CourseCarousel
@@ -975,16 +984,16 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
         </div>
 
         <div className="mt-14 border-t border-immersive-border/60 pt-10">
-          <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.17em] text-[#e83e32] dark:text-[#ff786e]">The course catalog</p>
-              <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">
-                Machine Learning, Deep Learning &amp; Computer Vision
-              </h3>
-            </div>
-            <p className="text-sm text-immersive-text-secondary">
-              Showing <span className="font-semibold text-immersive-text-primary">{AI_ML_COURSES.length}</span> courses
-            </p>
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <Link
+              to={getCareerCategoryHref("Machine Learning, Deep Learning & Computer Vision")}
+              className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-[#ff4b3e] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
+            >
+              Explore Career <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <h3 className="font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">
+              Machine Learning, Deep Learning &amp; Computer Vision
+            </h3>
           </div>
 
           <CourseCarousel
