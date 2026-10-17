@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {Link, useParams} from "react-router-dom";
-import {ArrowLeft, ArrowRight, BookOpen, BriefcaseBusiness, ChevronLeft, ChevronRight, GraduationCap, Search, Shield, Sparkles} from "lucide-react";
-import type {ReactNode} from "react";
+import {Activity, ArrowLeft, ArrowRight, BarChart3, BookOpen, BrainCircuit, BriefcaseBusiness, Bug, CheckCircle2, ChevronLeft, ChevronRight, Cloud, Code2, Cpu, Database, FileSearch, Fingerprint, Gamepad2, GitBranch, GraduationCap, Layers3, LockKeyhole, Network, Pause, Play, Search, Server, ShieldCheck, Smartphone, Sparkles, Workflow, type LucideIcon} from "lucide-react";
+import type {ReactNode, TransitionEvent} from "react";
 import type {CatalogCourse} from "../services/api";
 import {catalogCourseApi} from "../services/api";
 import {
@@ -188,22 +188,153 @@ function getRoleCardPalette(index: number) {
   return palettes[index % palettes.length];
 }
 
-function getRoleCardIcon(index: number) {
-  const icons = [
-    <Shield key="shield" size={22} aria-hidden="true" />,
-    <BriefcaseBusiness key="briefcase" size={22} aria-hidden="true" />,
-    <Search key="search" size={22} aria-hidden="true" />,
-    <Sparkles key="sparkles" size={22} aria-hidden="true" />,
-    <BookOpen key="book" size={22} aria-hidden="true" />,
-    <GraduationCap key="graduation" size={22} aria-hidden="true" />,
-  ];
+const ROLE_DESCRIPTIONS: Record<string, string> = {
+  "Cybersecurity Analyst": "Hunt for suspicious activity, investigate alerts, and help stop attacks before they disrupt a business.",
+  "Cybersecurity Engineer": "Build the safeguards, monitoring, and response systems that keep networks and applications resilient.",
+  "Security Operations Center (SOC) Analyst": "Monitor security alerts around the clock, connect the clues, and coordinate a fast response to threats.",
+  "Information Security Analyst": "Assess an organization's security risks and turn policy, controls, and evidence into stronger protection.",
+  "Penetration Tester": "Safely simulate real attacks to expose exploitable weaknesses before criminals can find them.",
+  "Ethical Hacker": "Use attacker techniques with permission to uncover flaws and show teams how to close them.",
+  "Vulnerability Assessment Analyst": "Scan systems, verify weaknesses, and help teams prioritize the fixes that reduce the most risk.",
+  "Security Consultant": "Help organizations make security decisions, close control gaps, and prepare for changing threats.",
+  "Digital Forensics Analyst": "Recover and examine digital evidence to reconstruct incidents and support investigations.",
+  "Incident Response Analyst": "Contain active security incidents, trace their cause, and guide systems safely back to service.",
+  "Threat Intelligence Analyst": "Turn attacker behavior and threat data into timely warnings defenders can act on.",
+  "Malware Analyst": "Dissect malicious software to reveal how it works, what it targets, and how to detect it.",
+  "Application Security Engineer": "Build security into the software lifecycle and help developers prevent flaws before release.",
+  "Cloud Security Engineer": "Protect cloud workloads with hardened configurations, strong identity controls, and useful monitoring.",
+  "Cloud Security Architect": "Design cloud security patterns that protect data and services without blocking delivery.",
+  "Network Security Engineer": "Defend network traffic and infrastructure with layered controls, segmentation, and continuous monitoring.",
+  "Security Auditor": "Test security controls against standards and give organizations a clear path to compliance.",
+  "Governance, Risk & Compliance (GRC) Analyst": "Translate regulations and business risks into practical controls, evidence, and clear reporting.",
+  "Identity and Access Management (IAM) Engineer": "Make sure the right people and services get the right access—and no more than they need.",
+  "Red Team Specialist": "Challenge defenses with realistic, authorized attack campaigns that reveal gaps in people and technology.",
+  "Blue Team Specialist": "Strengthen detection and response by investigating attacker techniques and improving defensive controls.",
+  "Security Researcher": "Investigate emerging weaknesses and attack methods, then share findings that make technology safer.",
+  "Data Analyst": "Turn raw data into clear dashboards and recommendations that help teams make better decisions.",
+  "Data Scientist": "Use statistics and machine learning to explain patterns, test ideas, and forecast what may happen next.",
+  "Data Engineer": "Build dependable pipelines that move clean, usable data from its source to the people and systems that need it.",
+  "Big Data Engineer": "Design distributed data platforms that process high-volume information reliably and at scale.",
+  "Database Administrator (DBA)": "Keep databases secure, available, and fast through careful tuning, backups, and recovery planning.",
+  "Database Developer": "Design schemas, queries, and database logic that make applications' data reliable and efficient.",
+  "Business Intelligence (BI) Analyst": "Connect business questions to trusted metrics and dashboards that make performance easier to understand.",
+  "Business Intelligence Developer": "Build the data models, reporting pipelines, and dashboards teams rely on to track results.",
+  "Analytics Engineer": "Turn raw warehouse data into clean, tested models that analysts can use with confidence.",
+  "Data Architect": "Shape how data is stored, governed, and shared so platforms can grow without losing trust or control.",
+  "Data Warehouse Engineer": "Create and operate analytical warehouses that make complex business data ready for reporting.",
+  "ETL Developer": "Build reliable extract, transform, and load jobs that move data accurately between systems.",
+  "Data Quality Analyst": "Find inconsistencies and gaps in critical datasets, then help teams make the underlying data trustworthy.",
+  "Data Governance Analyst": "Define ownership, quality, privacy, and access practices so data is used responsibly.",
+  "Data Visualization Specialist": "Turn complex datasets into visual stories that reveal trends without obscuring the evidence.",
+  "Reporting Analyst": "Deliver accurate, timely reports that help stakeholders spot changes and act on them.",
+  "SQL Developer": "Write and tune SQL queries, procedures, and data structures that power dependable reporting and applications.",
+  "Business Analyst (Data-focused)": "Translate business needs into measurable data questions, requirements, and actionable recommendations.",
+  "Machine Learning Data Engineer": "Prepare high-quality training data and scalable pipelines that keep machine-learning systems production-ready.",
+  "Cloud Data Engineer": "Build secure cloud data pipelines and platforms that scale with changing workloads.",
+  "Data Operations Engineer": "Keep data services and pipelines observable, reliable, and ready for the teams that depend on them.",
+  "Research Data Analyst": "Analyze study data with care, making methods and findings clear enough to support sound conclusions.",
+  "Cloud Engineer": "Provision cloud infrastructure and automate the services that keep applications dependable as demand grows.",
+  "Cloud Architect": "Choose cloud platforms and shape secure, scalable designs around real business and technical needs.",
+  "AWS Solutions Architect": "Design AWS systems that meet workload needs while balancing resilience, security, and cost.",
+  "DevOps Engineer": "Automate the path from code to production so teams can ship changes safely and often.",
+  "Site Reliability Engineer (SRE)": "Use software and measurable reliability targets to keep critical services available under pressure.",
+  "Platform Engineer": "Build self-service tools and paved roads that help developers deliver software without fighting infrastructure.",
+  "Kubernetes Engineer": "Operate Kubernetes clusters and deployment patterns that keep containerized services scalable and healthy.",
+  "Software Engineer": "Turn product requirements into dependable software, from system design through testing and release.",
+  "Software Developer": "Build and maintain applications that solve user problems with clear, reliable code.",
+  "Python Developer": "Use Python to build practical applications, automation, and data tools that remove busywork.",
+  "Frontend Developer": "Create fast, accessible interfaces that make complex products feel intuitive to use.",
+  "Backend Developer": "Build the APIs, business logic, and data services that make applications work behind the scenes.",
+  "Full-Stack Developer": "Connect polished user experiences to robust services and databases across the whole application.",
+  "Web Developer": "Build responsive websites and web applications that work smoothly across devices.",
+  "Machine Learning Engineer": "Turn trained models into reliable products by building the pipelines and services around them.",
+  "Artificial Intelligence Engineer": "Apply AI models to real workflows, integrating them into useful, dependable products.",
+  "Generative AI Engineer": "Build AI features that generate useful content while addressing quality, safety, and latency.",
+  "Product Manager": "Set product direction by connecting customer needs, business goals, and a focused delivery roadmap.",
+  "Technical Product Manager": "Translate complex technical capabilities into product priorities that solve customer problems.",
+  "Robotics Engineer": "Bring robots to life by integrating sensors, software, and control systems for real-world tasks.",
+  "Android Developer": "Build Android apps that feel native, perform well, and serve people across a range of devices.",
+  "iOS Developer": "Create polished iPhone and iPad apps with thoughtful interaction, performance, and privacy.",
+  "Game Developer": "Bring interactive worlds to life by building gameplay systems, tools, and responsive experiences.",
+  "Network Engineer": "Design and troubleshoot connected infrastructure so data moves securely and reliably.",
+  "Systems Administrator": "Keep an organization's servers and operating systems secure, patched, and available.",
+};
 
-  return icons[index % icons.length];
+function getRoleCardIcon(role: string, category: (typeof careerCategories)[number]): LucideIcon {
+  const name = role.toLowerCase();
+  if (/malware/.test(name)) return Bug;
+  if (/security|hacker|penetration|threat|vulnerability|forensics|incident|red team|blue team/.test(name)) return ShieldCheck;
+  if (/identity|access management|iam/.test(name)) return Fingerprint;
+  if (/database|data warehouse|etl|sql|data engineer/.test(name)) return Database;
+  if (/data analyst|reporting|business intelligence|visualization|analytics/.test(name)) return BarChart3;
+  if (/scientist|machine learning|artificial intelligence|ai |language model|nlp|generative ai|llm/.test(name)) return BrainCircuit;
+  if (/network|telecommunications|wireless|routing|voip|wan|lan/.test(name)) return Network;
+  if (/cloud/.test(name)) return Cloud;
+  if (/robot|embedded|firmware|iot|hardware|microcontroller|drone|control systems/.test(name)) return Cpu;
+  if (/game|unity|unreal|graphics|xr|virtual reality|ar developer/.test(name)) return Gamepad2;
+  if (/mobile|android|ios|flutter|wearable/.test(name)) return Smartphone;
+  if (/test|quality assurance|\(qa\)|auditor|compliance/.test(name)) return CheckCircle2;
+  if (/support|administrator|help desk|service desk|server/.test(name)) return Server;
+  if (/architect|architecture/.test(name)) return Workflow;
+  if (/product|project|program|scrum|agile|delivery|portfolio|manager|director|officer/.test(name)) return Layers3;
+  if (/developer|programmer|software|engineer|coder/.test(name)) return Code2;
+  if (/research|forensic|investigator/.test(name)) return FileSearch;
+  if (/operations|reliability|performance|automation/.test(name)) return Activity;
+  if (/devops|ci\/cd|release|build/.test(name)) return GitBranch;
+  if (/security/.test(category.name.toLowerCase())) return LockKeyhole;
+  return BriefcaseBusiness;
+}
+
+function getRoleDescription(role: string, category: (typeof careerCategories)[number]): string {
+  const curated = ROLE_DESCRIPTIONS[role];
+  if (curated) return curated;
+
+  const title = role.replace(/\s*\([^)]*\)/g, "");
+  const focus = title
+    .replace(/\b(analyst|scientist|engineer|developer|programmer|architect|administrator|specialist|consultant|manager|lead|director|officer|technician|designer|owner|coach|master|researcher|artist|support|tester|auditor|strategist|operator|coordinator|executive|advisor|principal|staff|associate|senior|junior)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+  const subject = focus || category.name.toLowerCase();
+
+  if (/analyst|reporter/.test(title.toLowerCase())) {
+    return `Investigate ${subject} and turn the evidence into clear findings and practical next steps.`;
+  }
+  if (/scientist|researcher/.test(title.toLowerCase())) {
+    return `Use experiments, evidence, and advanced methods to answer hard questions in ${subject}.`;
+  }
+  if (/architect/.test(title.toLowerCase())) {
+    return `Design ${subject} systems that balance scale, security, cost, and long-term maintainability.`;
+  }
+  if (/engineer/.test(title.toLowerCase())) {
+    return `Build and operate ${subject} systems, solving the reliability and performance challenges behind them.`;
+  }
+  if (/developer|programmer|coder/.test(title.toLowerCase())) {
+    return `Create useful ${subject} applications and tools, turning real needs into software people can rely on.`;
+  }
+  if (/manager|director|officer|lead|owner|coach|master/.test(title.toLowerCase())) {
+    return `Guide ${subject} teams from priorities to delivery, keeping people aligned on outcomes that matter.`;
+  }
+  if (/support|technician|administrator/.test(title.toLowerCase())) {
+    return `Keep ${subject} services working smoothly by resolving issues, improving access, and preventing repeat problems.`;
+  }
+  if (/designer|artist/.test(title.toLowerCase())) {
+    return `Shape engaging ${subject} experiences, balancing creative ideas with the needs of real users.`;
+  }
+  if (/consultant|advisor|specialist|auditor|tester/.test(title.toLowerCase())) {
+    return `Bring focused ${subject} expertise to complex challenges and help teams make measurable improvements.`;
+  }
+  return `${category.description} Build practical expertise in ${subject} and turn it into work people can see and use.`;
 }
 
 function RoleCarousel({category}: {category: (typeof careerCategories)[number]}) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(1);
   const [visibleCount, setVisibleCount] = useState(6);
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     const updateVisibleCount = () => {
@@ -220,31 +351,75 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
     return () => window.removeEventListener("resize", updateVisibleCount);
   }, []);
 
-  const pageCount = Math.max(1, Math.ceil(category.roles.length / visibleCount));
   useEffect(() => {
-    setActiveIndex((current) => Math.min(current, pageCount - 1));
-  }, [pageCount]);
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches);
+    updateMotionPreference();
+    mediaQuery.addEventListener("change", updateMotionPreference);
+    return () => mediaQuery.removeEventListener("change", updateMotionPreference);
+  }, []);
 
-  const visibleRoles = category.roles
-    .slice(activeIndex * visibleCount, (activeIndex + 1) * visibleCount)
-    .map((role, index) => ({role, index: activeIndex * visibleCount + index}));
+  const pages = Array.from({length: Math.ceil(category.roles.length / visibleCount)}, (_, pageIndex) =>
+    category.roles
+      .slice(pageIndex * visibleCount, (pageIndex + 1) * visibleCount)
+      .map((role, index) => ({role, index: pageIndex * visibleCount + index})),
+  );
+  const pageCount = Math.max(1, pages.length);
+  const loopedPages = [pages[pageCount - 1] || [], ...pages, pages[0] || []];
+
+  useEffect(() => {
+    setActiveIndex(1);
+  }, [visibleCount, category.slug]);
+
+  useEffect(() => {
+    if (isPaused || isHovered || isFocused || prefersReducedMotion || pageCount < 2) return;
+    const timer = window.setInterval(() => setActiveIndex((current) => current + 1), 5000);
+    return () => window.clearInterval(timer);
+  }, [isPaused, isHovered, isFocused, prefersReducedMotion, pageCount]);
+
+  useEffect(() => {
+    if (transitionEnabled) return;
+    const frame = window.requestAnimationFrame(() => setTransitionEnabled(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, [transitionEnabled]);
 
   const move = (direction: 1 | -1) => {
-    setActiveIndex((current) => {
-      const next = current + direction;
-      if (next < 0) return pageCount - 1;
-      if (next >= pageCount) return 0;
-      return next;
-    });
+    if (prefersReducedMotion) {
+      setActiveIndex((current) => {
+        const currentPage = current === 0 ? pageCount : current === pageCount + 1 ? 1 : current;
+        return ((currentPage - 1 + direction + pageCount) % pageCount) + 1;
+      });
+      return;
+    }
+    setActiveIndex((current) => current + direction);
+  };
+
+  const handleTrackTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget || !event.propertyName.includes("transform")) return;
+    if (activeIndex === 0 || activeIndex === pageCount + 1) {
+      setTransitionEnabled(false);
+      setActiveIndex(activeIndex === 0 ? pageCount : 1);
+    }
   };
 
   return (
-    <div className="relative" aria-roledescription="carousel" aria-label={`${category.name} career roles`}>
+    <div
+      className="relative"
+      aria-roledescription="carousel"
+      aria-label={`${category.name} career roles`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocusCapture={() => setIsFocused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsFocused(false);
+      }}
+    >
       <div className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-between">
         <button
           type="button"
           aria-label="Previous roles"
           onClick={() => move(-1)}
+          disabled={pageCount < 2}
           className="pointer-events-auto -ml-5 flex h-12 w-12 items-center justify-center rounded-full border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-lg transition hover:border-immersive-primary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary sm:-ml-6"
         >
           <ChevronLeft size={18} aria-hidden="true" />
@@ -253,6 +428,7 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
           type="button"
           aria-label="Next roles"
           onClick={() => move(1)}
+          disabled={pageCount < 2}
           className="pointer-events-auto -mr-5 flex h-12 w-12 items-center justify-center rounded-full border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-lg transition hover:border-immersive-primary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary sm:-mr-6"
         >
           <ChevronRight size={18} aria-hidden="true" />
@@ -260,41 +436,53 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
       </div>
 
       <div className="overflow-hidden px-1 py-2">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
-          {visibleRoles.map(({role, index}) => {
-            const palette = getRoleCardPalette(index);
+        <div
+          className={`flex ${transitionEnabled ? "transition-transform duration-700 ease-in-out motion-reduce:transition-none" : ""}`}
+          style={{transform: `translateX(-${activeIndex * (100 / loopedPages.length)}%)`}}
+          onTransitionEnd={handleTrackTransitionEnd}
+        >
+          {loopedPages.map((page, pageIndex) => (
+            <div key={`page-${pageIndex}`} className="w-full shrink-0" aria-hidden={pageIndex === 0 || pageIndex === pageCount + 1}>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {page.map(({role, index}) => {
+                  const palette = getRoleCardPalette(index);
+                  const RoleIcon = getRoleCardIcon(role, category);
 
-            return (
-              <Link
-                key={`${role}-${index}`}
-                to={getCareerRolePath(category, role)}
-                className="group flex min-h-[330px] min-w-0 flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card p-4 shadow-sm shadow-immersive-shadow transition duration-200 hover:-translate-y-1 hover:border-immersive-primary/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
-              >
-                <div className={`relative mb-4 flex h-20 shrink-0 items-center justify-between overflow-hidden rounded-[1.2rem] bg-gradient-to-br ${palette.shell}`}>
-                  <div className={`relative z-10 ml-3 flex h-12 w-12 items-center justify-center rounded-xl shadow-sm ${palette.iconWrap} ${palette.icon}`}>
-                    {getRoleCardIcon(index)}
-                  </div>
-                  <div className="absolute right-5 top-1/2 h-14 w-14 -translate-y-1/2 rounded-full bg-white/30 blur-lg" />
-                  <span className="relative z-10 mr-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/60 text-immersive-text-primary shadow-sm transition group-hover:translate-x-0.5">
-                    <ChevronRight size={15} aria-hidden="true" />
-                  </span>
-                </div>
+                  return (
+                    <Link
+                      key={`${role}-${index}`}
+                      to={getCareerRolePath(category, role)}
+                      tabIndex={pageIndex === 0 || pageIndex === pageCount + 1 ? -1 : undefined}
+                      className="group flex min-h-[330px] min-w-0 flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card p-4 shadow-sm shadow-immersive-shadow transition duration-200 hover:-translate-y-1 hover:border-immersive-primary/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
+                    >
+                      <div className={`relative mb-4 flex h-20 shrink-0 items-center justify-between overflow-hidden rounded-[1.2rem] bg-gradient-to-br ${palette.shell}`}>
+                        <div className={`relative z-10 ml-3 flex h-12 w-12 items-center justify-center rounded-xl shadow-sm ${palette.iconWrap} ${palette.icon}`}>
+                          <RoleIcon size={24} strokeWidth={2.2} aria-hidden="true" />
+                        </div>
+                        <div className="absolute right-5 top-1/2 h-14 w-14 -translate-y-1/2 rounded-full bg-white/30 blur-lg" />
+                        <span className="relative z-10 mr-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/60 text-immersive-text-primary shadow-sm transition group-hover:translate-x-0.5">
+                          <ChevronRight size={15} aria-hidden="true" />
+                        </span>
+                      </div>
 
-                <div className="flex-1">
-                  <p className="line-clamp-1 text-[10px] font-bold uppercase tracking-[0.16em] text-immersive-primary">{category.name}</p>
-                  <h3 className="mt-2 line-clamp-2 min-h-12 text-lg font-bold leading-6 text-immersive-text-primary">{role}</h3>
-                  <p className="mt-3 line-clamp-3 text-sm leading-5 text-immersive-text-secondary">
-                    Explore the learning path, skills, and courses related to becoming a {role}.
-                  </p>
-                </div>
+                      <div className="flex-1">
+                        <p className="line-clamp-1 text-[10px] font-bold uppercase tracking-[0.16em] text-immersive-primary">{category.name}</p>
+                        <h3 className="mt-2 line-clamp-2 min-h-12 text-lg font-bold leading-6 text-immersive-text-primary">{role}</h3>
+                        <p className="mt-3 line-clamp-3 text-sm leading-5 text-immersive-text-secondary">
+                          {getRoleDescription(role, category)}
+                        </p>
+                      </div>
 
-                <div className="mt-auto flex flex-wrap gap-2 pt-4">
-                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${palette.tag}`}>Career path</span>
-                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${palette.tag}`}>Courses</span>
-                </div>
-              </Link>
-            );
-          })}
+                      <div className="mt-auto flex flex-wrap gap-2 pt-4">
+                        <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${palette.tag}`}>Career path</span>
+                        <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${palette.tag}`}>Courses</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -304,11 +492,26 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
             key={`dot-${dotIndex}`}
             type="button"
             aria-label={`Go to roles page ${dotIndex + 1}`}
-            aria-current={activeIndex === dotIndex ? "true" : undefined}
-            onClick={() => setActiveIndex(dotIndex)}
-            className={`h-2.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 ${activeIndex === dotIndex ? "w-8 bg-immersive-primary" : "w-2.5 bg-slate-300 hover:bg-slate-400"}`}
+            aria-current={activeIndex === dotIndex + 1 || (activeIndex === 0 && dotIndex === pageCount - 1) || (activeIndex === pageCount + 1 && dotIndex === 0) ? "true" : undefined}
+            onClick={() => setActiveIndex(dotIndex + 1)}
+            className={`h-2.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 ${activeIndex === dotIndex + 1 || (activeIndex === 0 && dotIndex === pageCount - 1) || (activeIndex === pageCount + 1 && dotIndex === 0) ? "w-8 bg-immersive-primary" : "w-2.5 bg-slate-300 hover:bg-slate-400"}`}
           />
         ))}
+        {pageCount > 1 && <button
+          type="button"
+          aria-label={isPaused ? "Resume automatic role carousel" : "Pause automatic role carousel"}
+          onClick={() => {
+            const resume = isPaused;
+            setIsPaused(!isPaused);
+            if (resume) {
+              setIsHovered(false);
+              setIsFocused(false);
+            }
+          }}
+          className="ml-2 flex h-8 w-8 items-center justify-center rounded-full border border-immersive-border bg-immersive-card text-immersive-text-secondary transition hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
+        >
+          {isPaused ? <Play size={13} aria-hidden="true" /> : <Pause size={13} aria-hidden="true" />}
+        </button>}
       </div>
     </div>
   );
