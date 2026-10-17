@@ -133,18 +133,6 @@ function SectionHeading({eyebrow, title, description}: {eyebrow: string; title: 
   );
 }
 
-function RoleLink({category, role}: {key?: string; category: (typeof careerCategories)[number]; role: string}) {
-  return (
-    <Link
-      to={getCareerRolePath(category, role)}
-      className="group flex min-h-14 items-center justify-between gap-3 rounded-xl border border-immersive-border bg-immersive-card px-4 py-3 text-sm font-semibold text-immersive-text-primary transition hover:border-immersive-primary/40 hover:bg-immersive-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
-    >
-      <span>{role}</span>
-      <ChevronRight size={16} className="shrink-0 text-immersive-text-secondary transition group-hover:translate-x-0.5 group-hover:text-immersive-primary" aria-hidden="true" />
-    </Link>
-  );
-}
-
 function getRoleCardPalette(index: number) {
   const palettes = [
     {
@@ -327,7 +315,10 @@ function getRoleDescription(role: string, category: (typeof careerCategories)[nu
   return `${category.description} Build practical expertise in ${subject} and turn it into work people can see and use.`;
 }
 
-function RoleCarousel({category}: {category: (typeof careerCategories)[number]}) {
+function RoleCarousel({category, roles = category.roles}: {
+  category: (typeof careerCategories)[number];
+  roles?: string[];
+}) {
   const [slidesPerView, setSlidesPerView] = useState(3);
   const [trackIndex, setTrackIndex] = useState(1);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
@@ -339,8 +330,8 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
   const dragRef = useRef<{pointerId: number; startX: number; moved: boolean} | null>(null);
   const suppressClickRef = useRef(false);
   const rolePages: Array<Array<{role: string; index: number}>> = [];
-  for (let index = 0; index < category.roles.length; index += slidesPerView) {
-    rolePages.push(category.roles.slice(index, index + slidesPerView).map((role, offset) => ({role, index: index + offset})));
+  for (let index = 0; index < roles.length; index += slidesPerView) {
+    rolePages.push(roles.slice(index, index + slidesPerView).map((role, offset) => ({role, index: index + offset})));
   }
   const pageCount = rolePages.length;
   const pagesWithClones = pageCount > 1 ? [rolePages[pageCount - 1], ...rolePages, rolePages[0]] : rolePages;
@@ -508,7 +499,7 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
                 key={`page-${pageIndex}`}
                 role="group"
                 aria-roledescription="slide"
-                aria-label={`Roles ${page[0].index + 1} to ${page[page.length - 1].index + 1} of ${category.roles.length}`}
+                aria-label={`Roles ${page[0].index + 1} to ${page[page.length - 1].index + 1} of ${roles.length}`}
                 aria-hidden={isClone || !isCurrentPage}
                 className="grid w-full flex-none auto-rows-fr grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
               >
@@ -663,9 +654,7 @@ export function CareerDirectoryPage({mode}: {mode: "roles" | "categories"}) {
                       View category <ArrowRight size={14} aria-hidden="true" />
                     </Link>
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {matchingRoles.map((role) => <RoleLink key={role} category={category} role={role} />)}
-                  </div>
+                  <RoleCarousel category={category} roles={matchingRoles} />
                 </section>
               );
             })}
