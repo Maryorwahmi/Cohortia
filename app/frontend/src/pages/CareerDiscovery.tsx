@@ -258,19 +258,24 @@ export function CareerCategoryPage() {
         <Link to="/careers/categories" className="inline-flex items-center gap-2 text-sm font-semibold text-immersive-secondary hover:text-immersive-primary">
           <ArrowLeft size={16} aria-hidden="true" /> All categories
         </Link>
-        <section className="relative mt-6 grid overflow-hidden rounded-[2rem] border border-immersive-border bg-gradient-to-br from-immersive-primary/10 via-immersive-card to-immersive-secondary/10 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="relative z-10 p-6 sm:p-10">
-            <p className="text-xs font-bold uppercase tracking-[0.17em] text-immersive-primary">Career category</p>
-            <h1 className="mt-3 max-w-4xl text-3xl font-extrabold tracking-tight sm:text-5xl">{category.name}</h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-immersive-text-secondary">{category.description}</p>
-            <div className="mt-6 flex flex-wrap gap-3 text-sm">
-              <span className="rounded-full border border-immersive-border bg-immersive-card px-3 py-1.5 font-semibold">{loading ? "Loading courses…" : `${categoryCourses.length} catalog courses`}</span>
-              <span className="rounded-full border border-immersive-border bg-immersive-card px-3 py-1.5 font-semibold">{category.roles.length} career roles</span>
+        <section className="group relative mt-6 min-h-[390px] overflow-hidden rounded-[2rem] border border-slate-800/20 bg-[#102541] text-white shadow-xl shadow-slate-900/10">
+          {categoryImage && <img src={categoryImage} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]" />}
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,20,38,.96)_0%,rgba(8,20,38,.86)_43%,rgba(8,20,38,.32)_78%,rgba(8,20,38,.18)_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent" />
+          <div className="relative flex min-h-[390px] max-w-3xl flex-col justify-center p-7 sm:p-10 lg:p-14">
+            <p className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.17em] text-white/85 backdrop-blur-sm">Career category</p>
+            <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">{category.name}</h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/80 sm:text-lg">{category.description}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-sm">
+                <p className="text-2xl font-extrabold">{loading ? "—" : categoryCourses.length}</p>
+                <p className="mt-0.5 text-xs font-medium text-white/70">catalog courses</p>
+              </div>
+              <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-sm">
+                <p className="text-2xl font-extrabold">{category.roles.length}</p>
+                <p className="mt-0.5 text-xs font-medium text-white/70">career roles</p>
+              </div>
             </div>
-          </div>
-          <div className="relative min-h-56 overflow-hidden lg:min-h-full">
-            {categoryImage && <img src={categoryImage} alt="" className="absolute inset-0 h-full w-full object-cover" />}
-            <div className="absolute inset-0 bg-gradient-to-r from-immersive-card via-transparent to-transparent lg:from-immersive-card/70 lg:via-transparent" />
           </div>
         </section>
 

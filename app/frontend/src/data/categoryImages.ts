@@ -6,10 +6,6 @@ const localImages = import.meta.glob('../../Category-images/*.jpg', {
   import: 'default',
 }) as Record<string, string>;
 
-const imageUrls = Object.fromEntries(
-  Object.entries(localImages).map(([path, url]) => [path.split('/').pop() || path, url]),
-);
-
 const categoryImageFiles: Record<string, string> = {
   'cyber-defense-offensive-security-cloud-security': 'digital-eye-watching-artificial-intelligence-cybernetics-concept_1163370-15921.jpg',
   'data-engineering-analytics-databases': 'big-data-technologies-analysis-virtual-screen-neural-networks_1067138-717.jpg',
@@ -30,5 +26,10 @@ const categoryImageFiles: Record<string, string> = {
 
 export function getCategoryImage(category: Pick<CareerCategory, 'slug'>): string | undefined {
   const filename = categoryImageFiles[category.slug];
-  return filename ? imageUrls[filename] : undefined;
+  if (!filename) return undefined;
+
+  // Keep the exact Vite glob key. This works reliably for assets outside src/data
+  // on both the local Windows build and the Cloudflare production build.
+  return localImages[`../../Category-images/${filename}`]
+    || Object.entries(localImages).find(([path]) => path.endsWith(`/${filename}`))?.[1];
 }
