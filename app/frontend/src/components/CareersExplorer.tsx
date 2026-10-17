@@ -36,7 +36,7 @@ export interface FeaturedCourse {
 
 export const FEATURED_COURSES: FeaturedCourse[] = [
   {
-    id: "comptia-security-plus",
+    id: "comptia-security-sy0-701",
     number: 1,
     title: "CompTIA Security+ (SY0-701)",
     provider: "CompTIA",
@@ -50,7 +50,7 @@ export const FEATURED_COURSES: FeaturedCourse[] = [
     image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=85",
   },
   {
-    id: "comptia-cysa-plus",
+    id: "comptia-cybersecurity-analyst-cysa",
     number: 2,
     title: "CompTIA Cybersecurity Analyst (CySA+)",
     provider: "CompTIA",
@@ -64,7 +64,7 @@ export const FEATURED_COURSES: FeaturedCourse[] = [
     image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1200&q=85",
   },
   {
-    id: "certified-ethical-hacker",
+    id: "certified-ethical-hacker-ceh-v13",
     number: 3,
     title: "Certified Ethical Hacker (CEH v13)",
     provider: "EC-Council",
@@ -78,7 +78,7 @@ export const FEATURED_COURSES: FeaturedCourse[] = [
     image: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=1200&q=85",
   },
   {
-    id: "cissp",
+    id: "cissp-certified-information-systems-security-professional",
     number: 4,
     title: "CISSP – Certified Information Systems Security Professional",
     provider: "ISC2",
@@ -113,7 +113,7 @@ interface CareersExplorerProps {
 
 export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) {
   const navigate = useNavigate();
-  const [selectedCourse, setSelectedCourse] = useState<FeaturedCourse>(FEATURED_COURSES[0]);
+  const selectedCourse = FEATURED_COURSES[0];
   const [slidesPerView, setSlidesPerView] = useState(3);
   const [trackIndex, setTrackIndex] = useState(1);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
@@ -265,6 +265,10 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
     else navigate("/signup");
   };
 
+  const viewCourse = (course: FeaturedCourse) => {
+    navigate(`/careers/course/${encodeURIComponent(course.id)}`);
+  };
+
   return (
     <section id="courses-explorer" className="relative overflow-hidden border-t border-immersive-border/40 bg-immersive-bg py-16 text-left sm:py-24">
       <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full bg-[#ff4b3e]/[0.07] blur-3xl" />
@@ -406,20 +410,16 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                       className="grid w-full flex-none auto-rows-fr grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3"
                     >
                       {page.map((course) => {
-                        const isSelected = selectedCourse.id === course.id;
                         return (
                           <article
                             key={`${pageIndex}-${course.id}`}
-                            data-selected={isSelected}
-                            className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-immersive-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/10 ${
-                              isSelected ? "border-[#ff4b3e]/60 ring-1 ring-[#ff4b3e]/30" : "border-immersive-border"
-                            }`}
+                            className="group flex h-full flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/10"
                           >
                             <button
                               type="button"
                               tabIndex={isClone || !isCurrentPage ? -1 : undefined}
-                              onClick={() => setSelectedCourse(course)}
-                              aria-pressed={isSelected}
+                              onClick={() => viewCourse(course)}
+                              aria-label={`View course details for ${course.title}`}
                               className="relative block aspect-[16/9] w-full overflow-hidden bg-slate-900 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#ff4b3e]"
                             >
                               <img src={getCourseImage(course.id, course.image)} alt="" loading="lazy" draggable={false} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
@@ -442,8 +442,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                               <button
                                 type="button"
                                 tabIndex={isClone || !isCurrentPage ? -1 : undefined}
-                                onClick={() => setSelectedCourse(course)}
-                                aria-pressed={isSelected}
+                                onClick={() => viewCourse(course)}
                                 className="mt-3 text-left font-display text-lg font-bold leading-snug text-immersive-text-primary transition hover:text-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#ff4b3e] sm:text-xl"
                               >
                                 {course.title}
@@ -456,10 +455,10 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                               <button
                                 type="button"
                                 tabIndex={isClone ? -1 : undefined}
-                                onClick={enroll}
+                                onClick={() => viewCourse(course)}
                                 className="mt-auto inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-immersive-border px-4 py-2.5 text-sm font-bold text-immersive-text-primary transition hover:border-[#ff4b3e] hover:bg-[#ff4b3e] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
                               >
-                                Explore learning path <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                                View course <ArrowRight className="h-4 w-4" aria-hidden="true" />
                               </button>
                             </div>
                           </article>
