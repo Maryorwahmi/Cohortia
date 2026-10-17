@@ -254,6 +254,113 @@ const AI_ML_COURSES: FeaturedCourse[] = [
   },
 ];
 
+type CareerCourseEntry = readonly [id: string, title: string, provider: string];
+
+function createCareerCourses(
+  category: string,
+  displayCategory: string,
+  providerLogoColor: string,
+  entries: readonly CareerCourseEntry[],
+): FeaturedCourse[] {
+  return entries.map(([id, title, provider], index) => ({
+    id,
+    number: index + 1,
+    title,
+    provider,
+    providerLogoColor,
+    level: "All levels",
+    category: displayCategory,
+    examCode: "COURSE",
+    description: `Explore ${title} and build practical skills across ${category.toLowerCase()}.`,
+    credentialType: "Course",
+    popularBadge: displayCategory.toUpperCase(),
+    image: "",
+  }));
+}
+
+const ADDITIONAL_COURSE_SECTIONS: Array<{category: string; courses: FeaturedCourse[]}> = [
+  {
+    category: "Frontend, Backend & Full-Stack Web",
+    courses: createCareerCourses("Frontend, Backend & Full-Stack Web", "Web Development", "from-blue-600 to-cyan-600", [
+      ["meta-full-stack-developer-front-end-back-end-from-scratch-specialization", "Meta Full-Stack Developer: Front-End & Back-End from Scratch Specialization", "Meta / Coursera"],
+      ["ibm-full-stack-software-developer-professional-certificate", "IBM Full-Stack Software Developer Professional Certificate", "IBM / Coursera"],
+      ["meta-front-end-developer-professional-certificate", "Meta Front-End Developer Professional Certificate", "Meta / Coursera"],
+      ["meta-back-end-developer-professional-certificate", "Meta Back-End Developer Professional Certificate", "Meta / Coursera"],
+      ["the-complete-nodejs-developer-course", "The Complete Node.js Developer Course", "Udemy"],
+    ]),
+  },
+  {
+    category: "Game Engines, Graphics & Interactive Development",
+    courses: createCareerCourses("Game Engines, Graphics & Interactive Development", "Game Development", "from-violet-600 to-fuchsia-600", [
+      ["unreal-engine-5-c-developer", "Unreal Engine 5 C++ Developer", "GameDev.tv / Udemy"],
+      ["roblox-game-development", "Roblox Game Development", "Roblox / Udemy"],
+      ["arvr-development-with-unity", "AR/VR Development with Unity", "Unity / Coursera"],
+      ["3d-modeling-with-blender", "3D Modeling with Blender", "Blender / Udemy"],
+      ["godot-engine-complete-course", "Godot Engine: Complete Course", "Godot / Udemy"],
+    ]),
+  },
+  {
+    category: "Android, iOS & Cross-Platform",
+    courses: createCareerCourses("Android, iOS & Cross-Platform", "Mobile Development", "from-emerald-600 to-teal-600", [
+      ["android-app-development-with-kotlin", "Android App Development with Kotlin", "Udacity"],
+      ["android-basics-with-compose", "Android Basics with Compose", "Google"],
+      ["developing-mobile-apps-with-flutter-specialization", "Developing Mobile Apps with Flutter Specialization", "IBM / Coursera"],
+      ["meta-react-native-specialization", "Meta React Native Specialization", "Meta / Coursera"],
+      ["swiftui-masterclass", "SwiftUI Masterclass", "Udemy"],
+    ]),
+  },
+  {
+    category: "Blockchain, Web3 & FinTech Infrastructure",
+    courses: createCareerCourses("Blockchain, Web3 & FinTech Infrastructure", "Blockchain & Web3", "from-orange-500 to-amber-600", [
+      ["solana-development-course", "Solana Development Course", "Solana Foundation / Udemy"],
+      ["ethereum-and-solidity-the-complete-developers-guide", "Ethereum and Solidity: The Complete Developer’s Guide", "Udemy"],
+      ["chainlink-developer-certification", "Chainlink Developer Certification", "Chainlink"],
+      ["hyperledger-fabric-developer", "Hyperledger Fabric Developer", "Linux Foundation"],
+      ["polkadot-substrate-developer", "Polkadot / Substrate Developer", "Parity / Udemy"],
+    ]),
+  },
+  {
+    category: "Architecture, Quality Engineering & Technical Leadership",
+    courses: createCareerCourses("Architecture, Quality Engineering & Technical Leadership", "Software Architecture", "from-slate-600 to-blue-700", [
+      ["grokking-the-system-design-interview", "Grokking the System Design Interview", "Design Gurus / Udemy"],
+      ["system-design-interview-an-insiders-guide", "System Design Interview – An Insider’s Guide", "Educative / Book"],
+      ["software-architecture-patterns", "Software Architecture Patterns", "Coursera"],
+      ["site-reliability-engineering-sre", "Site Reliability Engineering (SRE)", "Google / Coursera"],
+      ["test-driven-development", "Test-Driven Development", "Udemy / Coursera"],
+    ]),
+  },
+  {
+    category: "Robotics, Embedded Systems & Edge Computing",
+    courses: createCareerCourses("Robotics, Embedded Systems & Edge Computing", "Robotics & Embedded Systems", "from-cyan-600 to-blue-700", [
+      ["robotics-specialization", "Robotics Specialization", "UPenn / Coursera"],
+      ["ros-for-beginners", "ROS for Beginners", "Udemy"],
+      ["embedded-systems-essentials", "Embedded Systems Essentials", "UT Austin / edX"],
+      ["fpga-design-for-embedded-systems", "FPGA Design for Embedded Systems", "CU Boulder / Coursera"],
+      ["an-introduction-to-programming-the-internet-of-things-iot", "An Introduction to Programming the Internet of Things (IoT)", "UC Irvine / Coursera"],
+    ]),
+  },
+  {
+    category: "Networks, Infrastructure & Network Operations",
+    courses: createCareerCourses("Networks, Infrastructure & Network Operations", "Networking", "from-sky-600 to-indigo-700", [
+      ["cisco-certified-network-associate-ccna", "Cisco Certified Network Associate (CCNA)", "Cisco"],
+      ["cisco-certified-network-professional-ccnp-enterprise", "Cisco Certified Network Professional (CCNP) Enterprise", "Cisco"],
+      ["cisco-certified-internetwork-expert-ccie-enterprise-infrastructure", "Cisco Certified Internetwork Expert (CCIE) Enterprise Infrastructure", "Cisco"],
+      ["comptia-network-n10-009", "CompTIA Network+ (N10-009)", "CompTIA"],
+      ["juniper-networks-certified-internet-associate-jncia-junos", "Juniper Networks Certified Internet Associate (JNCIA-Junos)", "Juniper"],
+    ]),
+  },
+  {
+    category: "Product Management, Agile & AI Strategy",
+    courses: createCareerCourses("Product Management, Agile & AI Strategy", "Product & Agile", "from-rose-600 to-orange-500", [
+      ["agile-development-specialization", "Agile Development Specialization", "University of Virginia / Coursera"],
+      ["artificial-intelligence-implications-for-business-strategy", "Artificial Intelligence: Implications for Business Strategy", "MIT Sloan / edX"],
+      ["jira-fundamentals", "Jira Fundamentals", "Atlassian"],
+      ["software-development-processes-and-methodologies", "Software Development Processes and Methodologies", "University of Minnesota / Coursera"],
+      ["google-ux-design-professional-certificate", "Google UX Design Professional Certificate", "Google / Coursera"],
+    ]),
+  },
+];
+
 function getCareerCategoryHref(name: string): string {
   const category = careerCategories.find((item) => item.name === name);
   if (!category) throw new Error(`Career category not found: ${name}`);
@@ -1002,6 +1109,27 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
             ariaLabel="Machine learning and computer vision course carousel"
           />
         </div>
+
+        {ADDITIONAL_COURSE_SECTIONS.map(({category, courses}) => (
+          <div key={category} className="mt-14 border-t border-immersive-border/60 pt-10">
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <Link
+                to={getCareerCategoryHref(category)}
+                className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-[#ff4b3e] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
+              >
+                Explore Career <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <h3 className="font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">
+                {category}
+              </h3>
+            </div>
+            <CourseCarousel
+              courses={courses}
+              onViewCourse={viewCourse}
+              ariaLabel={`${category} course carousel`}
+            />
+          </div>
+        ))}
 
       </div>
     </section>
