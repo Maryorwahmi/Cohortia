@@ -14,6 +14,7 @@ import {
   slugify,
 } from "../data/careerDirectory";
 import {getCourseImage} from "../data/courseImages";
+import {getCategoryImage} from "../data/categoryImages";
 
 function readList(value?: string | string[] | null): string[] {
   if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
@@ -179,15 +180,22 @@ export function CareerDirectoryPage({mode}: {mode: "roles" | "categories"}) {
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {careerCategories.filter((category) => !normalizedQuery || `${category.name} ${category.description}`.toLowerCase().includes(normalizedQuery)).map((category) => {
               const count = courses.filter((course) => getCourseCategory(course) === category.name).length;
+              const categoryImage = getCategoryImage(category);
               return (
-                <article key={category.slug} className="flex flex-col rounded-2xl border border-immersive-border bg-immersive-card p-5 shadow-sm shadow-immersive-shadow">
-                  <p className="text-xs font-bold text-immersive-primary">{loading ? "Loading catalog count…" : `${count} courses in the catalog`}</p>
-                  <h2 className="mt-2 text-lg font-bold leading-snug">{category.name}</h2>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-immersive-text-secondary">{category.description}</p>
-                  <p className="mt-4 text-xs text-immersive-text-secondary">{category.roles.length} career roles</p>
-                  <Link to={getCareerCategoryPath(category)} className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-immersive-primary hover:underline">
+                <article key={category.slug} className="group flex flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card shadow-sm shadow-immersive-shadow transition hover:-translate-y-0.5 hover:border-immersive-primary/40 hover:shadow-lg">
+                  <div className="relative h-36 overflow-hidden bg-gradient-to-br from-immersive-primary/15 via-immersive-bg to-immersive-secondary/15">
+                    {categoryImage && <img src={categoryImage} alt="" loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-slate-950/10 to-transparent" />
+                    <p className="absolute bottom-3 left-4 text-xs font-bold text-white">{loading ? "Loading catalog count…" : `${count} courses in the catalog`}</p>
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <h2 className="text-lg font-bold leading-snug">{category.name}</h2>
+                    <p className="mt-2 flex-1 text-sm leading-6 text-immersive-text-secondary">{category.description}</p>
+                    <p className="mt-4 text-xs text-immersive-text-secondary">{category.roles.length} career roles</p>
+                    <Link to={getCareerCategoryPath(category)} className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-immersive-primary hover:underline">
                     Explore category <ArrowRight size={15} aria-hidden="true" />
-                  </Link>
+                    </Link>
+                  </div>
                 </article>
               );
             })}
@@ -242,6 +250,7 @@ export function CareerCategoryPage() {
   }), [categoryCourses, level, query]);
 
   if (!category) return <NotFoundDiscoveryPage message="We couldn’t find that career category." />;
+  const categoryImage = getCategoryImage(category);
 
   return (
     <PageShell>
@@ -249,14 +258,19 @@ export function CareerCategoryPage() {
         <Link to="/careers/categories" className="inline-flex items-center gap-2 text-sm font-semibold text-immersive-secondary hover:text-immersive-primary">
           <ArrowLeft size={16} aria-hidden="true" /> All categories
         </Link>
-        <section className="relative mt-6 overflow-hidden rounded-[2rem] border border-immersive-border bg-gradient-to-br from-immersive-primary/10 via-immersive-card to-immersive-secondary/10 p-6 sm:p-10">
-          <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-immersive-primary/10 blur-3xl" />
-          <p className="relative text-xs font-bold uppercase tracking-[0.17em] text-immersive-primary">Career category</p>
-          <h1 className="relative mt-3 max-w-4xl text-3xl font-extrabold tracking-tight sm:text-5xl">{category.name}</h1>
-          <p className="relative mt-4 max-w-3xl text-base leading-7 text-immersive-text-secondary">{category.description}</p>
-          <div className="relative mt-6 flex flex-wrap gap-3 text-sm">
-            <span className="rounded-full border border-immersive-border bg-immersive-card px-3 py-1.5 font-semibold">{loading ? "Loading courses…" : `${categoryCourses.length} catalog courses`}</span>
-            <span className="rounded-full border border-immersive-border bg-immersive-card px-3 py-1.5 font-semibold">{category.roles.length} career roles</span>
+        <section className="relative mt-6 grid overflow-hidden rounded-[2rem] border border-immersive-border bg-gradient-to-br from-immersive-primary/10 via-immersive-card to-immersive-secondary/10 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="relative z-10 p-6 sm:p-10">
+            <p className="text-xs font-bold uppercase tracking-[0.17em] text-immersive-primary">Career category</p>
+            <h1 className="mt-3 max-w-4xl text-3xl font-extrabold tracking-tight sm:text-5xl">{category.name}</h1>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-immersive-text-secondary">{category.description}</p>
+            <div className="mt-6 flex flex-wrap gap-3 text-sm">
+              <span className="rounded-full border border-immersive-border bg-immersive-card px-3 py-1.5 font-semibold">{loading ? "Loading courses…" : `${categoryCourses.length} catalog courses`}</span>
+              <span className="rounded-full border border-immersive-border bg-immersive-card px-3 py-1.5 font-semibold">{category.roles.length} career roles</span>
+            </div>
+          </div>
+          <div className="relative min-h-56 overflow-hidden lg:min-h-full">
+            {categoryImage && <img src={categoryImage} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+            <div className="absolute inset-0 bg-gradient-to-r from-immersive-card via-transparent to-transparent lg:from-immersive-card/70 lg:via-transparent" />
           </div>
         </section>
 
