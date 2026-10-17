@@ -257,6 +257,7 @@ export const catalogCourseApi = {
         goal: string;
         learnerStage: string;
         courses: Record<string, CatalogCourse[]>;
+        selectionFeasible?: boolean;
         availability?: Record<string, {required: number; available: number}>;
         rankingMethod: 'ai' | 'mixed' | 'catalog-order';
         rankingNotice?: string | null;
