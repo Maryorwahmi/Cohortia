@@ -258,22 +258,33 @@ export function CareerCategoryPage() {
         <Link to="/careers/categories" className="inline-flex items-center gap-2 text-sm font-semibold text-immersive-secondary hover:text-immersive-primary">
           <ArrowLeft size={16} aria-hidden="true" /> All categories
         </Link>
-        <section className="group relative mt-6 min-h-[390px] overflow-hidden rounded-[2rem] border border-slate-800/20 bg-[#102541] text-white shadow-xl shadow-slate-900/10">
-          {categoryImage && <img src={categoryImage} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]" />}
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,20,38,.96)_0%,rgba(8,20,38,.86)_43%,rgba(8,20,38,.32)_78%,rgba(8,20,38,.18)_100%)]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent" />
-          <div className="relative flex min-h-[390px] max-w-3xl flex-col justify-center p-7 sm:p-10 lg:p-14">
-            <p className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.17em] text-white/85 backdrop-blur-sm">Career category</p>
-            <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">{category.name}</h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/80 sm:text-lg">{category.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-sm">
-                <p className="text-2xl font-extrabold">{loading ? "—" : categoryCourses.length}</p>
-                <p className="mt-0.5 text-xs font-medium text-white/70">catalog courses</p>
+        <section className="relative mt-6 overflow-hidden rounded-[2rem] border border-immersive-border bg-immersive-bg shadow-sm shadow-immersive-shadow">
+          <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-immersive-primary/10 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-immersive-secondary/10 blur-3xl" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(17,17,17,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(17,17,17,0.045)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-50" />
+          <div className="relative grid items-center gap-10 px-6 py-10 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-14 lg:py-14">
+            <div className="relative z-10 max-w-3xl">
+              <p className="inline-flex items-center rounded-full border border-immersive-border bg-immersive-card px-3 py-1.5 text-xs font-bold uppercase tracking-[0.17em] text-immersive-primary">Career category</p>
+              <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-tight text-immersive-text-primary sm:text-5xl lg:text-6xl">{category.name}</h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-immersive-text-secondary sm:text-lg">{category.description}</p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <div className="rounded-2xl border border-immersive-border bg-immersive-card px-4 py-3 shadow-sm">
+                  <p className="text-2xl font-extrabold text-immersive-text-primary">{loading ? "—" : categoryCourses.length}</p>
+                  <p className="mt-0.5 text-xs font-medium text-immersive-text-secondary">catalog courses</p>
+                </div>
+                <div className="rounded-2xl border border-immersive-border bg-immersive-card px-4 py-3 shadow-sm">
+                  <p className="text-2xl font-extrabold text-immersive-text-primary">{category.roles.length}</p>
+                  <p className="mt-0.5 text-xs font-medium text-immersive-text-secondary">career roles</p>
+                </div>
               </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-sm">
-                <p className="text-2xl font-extrabold">{category.roles.length}</p>
-                <p className="mt-0.5 text-xs font-medium text-white/70">career roles</p>
+            </div>
+            <div className="relative mx-auto flex h-64 w-64 items-center justify-center sm:h-80 sm:w-80">
+              <div className="absolute inset-0 rounded-full border border-immersive-primary/20" />
+              <div className="absolute inset-5 rounded-full border border-immersive-secondary/25" />
+              <span className="absolute right-2 top-8 h-3 w-3 rounded-full bg-immersive-primary shadow-lg shadow-immersive-primary/30" />
+              <span className="absolute bottom-10 left-1 h-2.5 w-2.5 rounded-full bg-immersive-secondary" />
+              <div className="relative z-10 h-48 w-48 overflow-hidden rounded-full border-4 border-immersive-card bg-immersive-card shadow-[0_0_30px_var(--immersive-shadow)] sm:h-60 sm:w-60">
+                {categoryImage ? <img src={categoryImage} alt={`${category.name} visual`} className="h-full w-full object-cover transition duration-700 hover:scale-105" /> : <div className="h-full w-full bg-gradient-to-br from-immersive-primary/20 via-immersive-card to-immersive-secondary/20" />}
               </div>
             </div>
           </div>
