@@ -1,7 +1,7 @@
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {Link, useParams} from "react-router-dom";
-import {Activity, ArrowLeft, ArrowRight, BarChart3, BookOpen, BrainCircuit, BriefcaseBusiness, Bug, CheckCircle2, ChevronLeft, ChevronRight, Cloud, Code2, Cpu, Database, FileSearch, Fingerprint, Gamepad2, GitBranch, GraduationCap, Layers3, LockKeyhole, Network, Pause, Play, Search, Server, ShieldCheck, Smartphone, Sparkles, Workflow, type LucideIcon} from "lucide-react";
-import type {ReactNode, TransitionEvent} from "react";
+import {Activity, ArrowLeft, ArrowRight, BarChart3, BookOpen, BrainCircuit, BriefcaseBusiness, Bug, CheckCircle2, ChevronLeft, ChevronRight, Cloud, Code2, Cpu, Database, FileSearch, Fingerprint, Gamepad2, GitBranch, GraduationCap, Layers3, LockKeyhole, Network, Search, Server, ShieldCheck, Smartphone, Sparkles, Workflow, type LucideIcon} from "lucide-react";
+import type {KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode, TransitionEvent as ReactTransitionEvent} from "react";
 import type {CatalogCourse} from "../services/api";
 import {catalogCourseApi} from "../services/api";
 import {
@@ -328,27 +328,45 @@ function getRoleDescription(role: string, category: (typeof careerCategories)[nu
 }
 
 function RoleCarousel({category}: {category: (typeof careerCategories)[number]}) {
-  const [activeIndex, setActiveIndex] = useState(1);
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [slidesPerView, setSlidesPerView] = useState(3);
+  const [trackIndex, setTrackIndex] = useState(1);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
-  const [isPaused, setIsPaused] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const dragRef = useRef<{pointerId: number; startX: number; moved: boolean} | null>(null);
+  const suppressClickRef = useRef(false);
+  const rolePages: Array<Array<{role: string; index: number}>> = [];
+  for (let index = 0; index < category.roles.length; index += slidesPerView) {
+    rolePages.push(category.roles.slice(index, index + slidesPerView).map((role, offset) => ({role, index: index + offset})));
+  }
+  const pageCount = rolePages.length;
+  const pagesWithClones = pageCount > 1 ? [rolePages[pageCount - 1], ...rolePages, rolePages[0]] : rolePages;
+  const currentPage = pageCount === 0
+    ? 0
+    : trackIndex === 0
+      ? pageCount - 1
+      : trackIndex === pageCount + 1
+        ? 0
+        : trackIndex - 1;
 
   useEffect(() => {
-    const updateVisibleCount = () => {
-      const width = window.innerWidth;
-      if (width < 640) setVisibleCount(1);
-      else if (width < 1024) setVisibleCount(2);
-      else if (width < 1280) setVisibleCount(3);
-      else if (width < 1536) setVisibleCount(4);
-      else setVisibleCount(6);
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    const tabletQuery = window.matchMedia("(min-width: 640px)");
+    const updateSlidesPerView = () => {
+      setSlidesPerView(desktopQuery.matches ? 3 : tabletQuery.matches ? 2 : 1);
     };
-
-    updateVisibleCount();
-    window.addEventListener("resize", updateVisibleCount);
-    return () => window.removeEventListener("resize", updateVisibleCount);
+    updateSlidesPerView();
+    desktopQuery.addEventListener("change", updateSlidesPerView);
+    tabletQuery.addEventListener("change", updateSlidesPerView);
+    window.addEventListener("resize", updateSlidesPerView);
+    return () => {
+      desktopQuery.removeEventListener("change", updateSlidesPerView);
+      tabletQuery.removeEventListener("change", updateSlidesPerView);
+      window.removeEventListener("resize", updateSlidesPerView);
+    };
   }, []);
 
   useEffect(() => {
@@ -359,54 +377,100 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
     return () => mediaQuery.removeEventListener("change", updateMotionPreference);
   }, []);
 
-  const pages = Array.from({length: Math.ceil(category.roles.length / visibleCount)}, (_, pageIndex) =>
-    category.roles
-      .slice(pageIndex * visibleCount, (pageIndex + 1) * visibleCount)
-      .map((role, index) => ({role, index: pageIndex * visibleCount + index})),
-  );
-  const pageCount = Math.max(1, pages.length);
-  const loopedPages = [pages[pageCount - 1] || [], ...pages, pages[0] || []];
+  useLayoutEffect(() => {
+    setTransitionEnabled(false);
+    setTrackIndex(pageCount > 1 ? 1 : 0);
+    setDragOffset(0);
+    const frame = requestAnimationFrame(() => setTransitionEnabled(true));
+    return () => cancelAnimationFrame(frame);
+  }, [category.slug, pageCount, slidesPerView]);
 
-  useEffect(() => {
-    setActiveIndex(1);
-  }, [visibleCount, category.slug]);
-
-  useEffect(() => {
-    if (isPaused || isHovered || isFocused || prefersReducedMotion || pageCount < 2) return;
-    const timer = window.setInterval(() => setActiveIndex((current) => current + 1), 5000);
-    return () => window.clearInterval(timer);
-  }, [isPaused, isHovered, isFocused, prefersReducedMotion, pageCount]);
-
-  useEffect(() => {
-    if (transitionEnabled) return;
-    const frame = window.requestAnimationFrame(() => setTransitionEnabled(true));
-    return () => window.cancelAnimationFrame(frame);
-  }, [transitionEnabled]);
-
-  const move = (direction: 1 | -1) => {
-    if (prefersReducedMotion) {
-      setActiveIndex((current) => {
-        const currentPage = current === 0 ? pageCount : current === pageCount + 1 ? 1 : current;
-        return ((currentPage - 1 + direction + pageCount) % pageCount) + 1;
-      });
-      return;
-    }
-    setActiveIndex((current) => current + direction);
+  const goToNextPage = () => {
+    if (pageCount < 2) return;
+    const nextPage = (currentPage + 1) % pageCount;
+    setTrackIndex(prefersReducedMotion ? nextPage + 1 : nextPage === 0 ? pageCount + 1 : nextPage + 1);
   };
 
-  const handleTrackTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
-    if (event.target !== event.currentTarget || !event.propertyName.includes("transform")) return;
-    if (activeIndex === 0 || activeIndex === pageCount + 1) {
-      setTransitionEnabled(false);
-      setActiveIndex(activeIndex === 0 ? pageCount : 1);
+  const goToPreviousPage = () => {
+    if (pageCount < 2) return;
+    const previousPage = (currentPage - 1 + pageCount) % pageCount;
+    setTrackIndex(prefersReducedMotion ? previousPage + 1 : previousPage === pageCount - 1 ? 0 : previousPage + 1);
+  };
+
+  useEffect(() => {
+    if (pageCount < 2 || isHovered || isFocused || isDragging || prefersReducedMotion) return;
+    const timer = window.setInterval(goToNextPage, 2000);
+    return () => window.clearInterval(timer);
+  }, [currentPage, isDragging, isFocused, isHovered, pageCount, prefersReducedMotion]);
+
+  const handleTrackTransitionEnd = (event: ReactTransitionEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget || event.propertyName !== "transform") return;
+    if (trackIndex !== 0 && trackIndex !== pageCount + 1) return;
+    setTransitionEnabled(false);
+    setTrackIndex(trackIndex === 0 ? pageCount : 1);
+    requestAnimationFrame(() => setTransitionEnabled(true));
+  };
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+    if ((event.target as HTMLElement).closest("[data-carousel-control]")) return;
+    dragRef.current = {pointerId: event.pointerId, startX: event.clientX, moved: false};
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const offset = event.clientX - drag.startX;
+    if (Math.abs(offset) > 5 && !drag.moved) {
+      drag.moved = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setIsDragging(true);
+    }
+    if (drag.moved) setDragOffset(offset);
+  };
+
+  const finishPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const offset = event.clientX - drag.startX;
+    if (drag.moved) {
+      suppressClickRef.current = true;
+      window.setTimeout(() => { suppressClickRef.current = false; }, 0);
+      if (Math.abs(offset) > 50) {
+        if (offset < 0) goToNextPage();
+        else goToPreviousPage();
+      }
+    }
+    dragRef.current = null;
+    setDragOffset(0);
+    setIsDragging(false);
+  };
+
+  const cancelPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragRef.current?.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    setDragOffset(0);
+    setIsDragging(false);
+  };
+
+  const handleCarouselKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      goToPreviousPage();
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      goToNextPage();
     }
   };
 
   return (
     <div
-      className="relative"
+      role="region"
+      tabIndex={0}
+      className="relative outline-none focus-visible:rounded-2xl focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-4 focus-visible:ring-offset-immersive-bg"
       aria-roledescription="carousel"
       aria-label={`${category.name} career roles`}
+      onKeyDown={handleCarouselKeyDown}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocusCapture={() => setIsFocused(true)}
@@ -414,36 +478,40 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsFocused(false);
       }}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-between">
-        <button
-          type="button"
-          aria-label="Previous roles"
-          onClick={() => move(-1)}
-          disabled={pageCount < 2}
-          className="pointer-events-auto -ml-5 flex h-12 w-12 items-center justify-center rounded-full border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-lg transition hover:border-immersive-primary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary sm:-ml-6"
-        >
-          <ChevronLeft size={18} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          aria-label="Next roles"
-          onClick={() => move(1)}
-          disabled={pageCount < 2}
-          className="pointer-events-auto -mr-5 flex h-12 w-12 items-center justify-center rounded-full border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-lg transition hover:border-immersive-primary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary sm:-mr-6"
-        >
-          <ChevronRight size={18} aria-hidden="true" />
-        </button>
-      </div>
-
-      <div className="overflow-hidden px-1 py-2">
+      <div
+        className="overflow-hidden touch-pan-y"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishPointerDrag}
+        onPointerCancel={cancelPointerDrag}
+        onClickCapture={(event) => {
+          if (!suppressClickRef.current) return;
+          suppressClickRef.current = false;
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+      >
         <div
-          className={`flex ${transitionEnabled ? "transition-transform duration-700 ease-in-out motion-reduce:transition-none" : ""}`}
-          style={{transform: `translateX(-${activeIndex * (100 / loopedPages.length)}%)`}}
+          className={`flex ${transitionEnabled && !prefersReducedMotion && !isDragging ? "transition-transform duration-500 ease-in-out" : "transition-none"} ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          style={{transform: `translate3d(calc(${-trackIndex * 100}% + ${dragOffset}px), 0, 0)`}}
           onTransitionEnd={handleTrackTransitionEnd}
         >
-          {loopedPages.map((page, pageIndex) => (
-            <div key={`page-${pageIndex}`} className="w-full shrink-0" aria-hidden={pageIndex === 0 || pageIndex === pageCount + 1}>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+          {pagesWithClones.map((page, pageIndex) => {
+            const isClone = pageCount > 1 && (pageIndex === 0 || pageIndex === pagesWithClones.length - 1);
+            const actualPageIndex = isClone
+              ? pageIndex === 0 ? pageCount - 1 : 0
+              : pageIndex - (pageCount > 1 ? 1 : 0);
+            const isCurrentPage = actualPageIndex === currentPage;
+
+            return (
+              <div
+                key={`page-${pageIndex}`}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`Roles ${page[0].index + 1} to ${page[page.length - 1].index + 1} of ${category.roles.length}`}
+                aria-hidden={isClone || !isCurrentPage}
+                className="grid w-full flex-none auto-rows-fr grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
+              >
                 {page.map(({role, index}) => {
                   const palette = getRoleCardPalette(index);
                   const RoleIcon = getRoleCardIcon(role, category);
@@ -452,7 +520,7 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
                     <Link
                       key={`${role}-${index}`}
                       to={getCareerRolePath(category, role)}
-                      tabIndex={pageIndex === 0 || pageIndex === pageCount + 1 ? -1 : undefined}
+                      tabIndex={isClone || !isCurrentPage ? -1 : undefined}
                       className="group flex min-h-[330px] min-w-0 flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card p-4 shadow-sm shadow-immersive-shadow transition duration-200 hover:-translate-y-1 hover:border-immersive-primary/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
                     >
                       <div className={`relative mb-4 flex h-20 shrink-0 items-center justify-between overflow-hidden rounded-[1.2rem] bg-gradient-to-br ${palette.shell}`}>
@@ -479,39 +547,46 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
                       </div>
                     </Link>
                   );
-                })}
+                  })}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
+      <button
+        type="button"
+        data-carousel-control
+        onClick={goToPreviousPage}
+        disabled={pageCount < 2}
+        aria-label="Previous roles"
+        className="absolute left-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-immersive-border bg-immersive-card/95 text-immersive-text-primary shadow-lg transition hover:border-immersive-primary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary disabled:cursor-not-allowed disabled:opacity-40 sm:-left-5"
+      >
+        <ChevronLeft size={18} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        data-carousel-control
+        onClick={goToNextPage}
+        disabled={pageCount < 2}
+        aria-label="Next roles"
+        className="absolute right-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-immersive-border bg-immersive-card/95 text-immersive-text-primary shadow-lg transition hover:border-immersive-primary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary disabled:cursor-not-allowed disabled:opacity-40 sm:-right-5"
+      >
+        <ChevronRight size={18} aria-hidden="true" />
+      </button>
+
       <div className="mt-5 flex items-center justify-center gap-2" role="group" aria-label="Choose role carousel page">
-        {Array.from({length: pageCount}, (_, dotIndex) => (
+        {rolePages.map((_, dotIndex) => (
           <button
-            key={`dot-${dotIndex}`}
+            key={dotIndex}
             type="button"
-            aria-label={`Go to roles page ${dotIndex + 1}`}
-            aria-current={activeIndex === dotIndex + 1 || (activeIndex === 0 && dotIndex === pageCount - 1) || (activeIndex === pageCount + 1 && dotIndex === 0) ? "true" : undefined}
-            onClick={() => setActiveIndex(dotIndex + 1)}
-            className={`h-2.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 ${activeIndex === dotIndex + 1 || (activeIndex === 0 && dotIndex === pageCount - 1) || (activeIndex === pageCount + 1 && dotIndex === 0) ? "w-8 bg-immersive-primary" : "w-2.5 bg-slate-300 hover:bg-slate-400"}`}
+            data-carousel-control
+            aria-label={`Go to roles page ${dotIndex + 1} of ${pageCount}`}
+            aria-current={currentPage === dotIndex ? "true" : undefined}
+            onClick={() => setTrackIndex(dotIndex + 1)}
+            className={`h-2.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 ${currentPage === dotIndex ? "w-7 bg-immersive-primary" : "w-2.5 bg-immersive-text-secondary/30 hover:bg-immersive-text-secondary/60"}`}
           />
         ))}
-        {pageCount > 1 && <button
-          type="button"
-          aria-label={isPaused ? "Resume automatic role carousel" : "Pause automatic role carousel"}
-          onClick={() => {
-            const resume = isPaused;
-            setIsPaused(!isPaused);
-            if (resume) {
-              setIsHovered(false);
-              setIsFocused(false);
-            }
-          }}
-          className="ml-2 flex h-8 w-8 items-center justify-center rounded-full border border-immersive-border bg-immersive-card text-immersive-text-secondary transition hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
-        >
-          {isPaused ? <Play size={13} aria-hidden="true" /> : <Pause size={13} aria-hidden="true" />}
-        </button>}
       </div>
     </div>
   );
