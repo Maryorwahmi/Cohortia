@@ -123,11 +123,11 @@ function PageShell({children}: {children: ReactNode}) {
   return <main className="min-h-screen bg-immersive-bg pb-16 pt-24 text-immersive-text-primary sm:pt-28">{children}</main>;
 }
 
-function SectionHeading({eyebrow, title, description}: {eyebrow: string; title: string; description?: string}) {
+function SectionHeading({eyebrow, title, description, id}: {eyebrow: string; title: string; description?: string; id?: string}) {
   return (
     <div className="mb-5">
       <p className="text-xs font-bold uppercase tracking-[0.15em] text-immersive-primary">{eyebrow}</p>
-      <h2 className="mt-2 text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">{title}</h2>
+      <h2 id={id} className="mt-2 text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">{title}</h2>
       {description && <p className="mt-2 max-w-3xl text-sm leading-6 text-immersive-text-secondary">{description}</p>}
     </div>
   );
@@ -801,8 +801,8 @@ export function CareerRolePage() {
           <div className="relative mt-8 grid grid-cols-2 gap-3 lg:mt-0">
             <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
               <BookOpen size={18} className="text-amber-300" aria-hidden="true" />
-              <p className="mt-3 text-2xl font-bold">{loading ? "—" : roleCourses.length}</p>
-              <p className="mt-1 text-xs leading-5 text-white/75">role-matched courses</p>
+              <p className="mt-3 text-2xl font-bold">{loading ? "—" : roleCourses.length || categoryCourses.length}</p>
+              <p className="mt-1 text-xs leading-5 text-white/75">{roleCourses.length ? "role-matched courses" : "courses in this field"}</p>
             </div>
             <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
               <Sparkles size={18} className="text-amber-300" aria-hidden="true" />
@@ -822,12 +822,46 @@ export function CareerRolePage() {
         )}
 
         <section className="mt-10" aria-labelledby="role-courses-title">
-          <SectionHeading eyebrow="Recommended learning" title="Courses matched to this role" description={`Courses surfaced from catalog career tags, course titles, descriptions, and skill tags for ${role.name}.`} />
-          <CourseGrid courses={roleCourses} loading={loading} error={error} retry={retry} emptyMessage="There are no direct catalog matches for this role yet. Explore the category courses below while role-specific mappings are expanded." />
+          <SectionHeading
+            id="role-courses-title"
+            eyebrow={roleCourses.length ? "Recommended learning" : "Your learning path"}
+            title={roleCourses.length ? "Courses matched to this role" : `Build skills for ${role.name}`}
+            description={roleCourses.length
+              ? `Courses surfaced from catalog career tags, course titles, descriptions, and skill tags for ${role.name}.`
+              : `Start with courses across ${role.category.name} and build practical skills you can apply in ${role.name}.`}
+          />
+          {loading || error || roleCourses.length > 0 ? (
+            <CourseGrid courses={roleCourses} loading={loading} error={error} retry={retry} emptyMessage="" />
+          ) : (
+            <div className="rounded-2xl border border-immersive-primary/15 bg-immersive-card p-5 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
+              <div>
+                <p className="text-sm font-bold text-immersive-text-primary">
+                  {categoryCourses.length
+                    ? `Explore ${categoryCourses.length} courses in ${role.category.name}`
+                    : `Explore the wider field of ${role.category.name}`}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-immersive-text-secondary">
+                  {categoryCourses.length
+                    ? `These courses build skills that can support your path toward ${role.name}.`
+                    : `Browse the category to discover learning options and related paths for ${role.name}.`}
+                </p>
+              </div>
+              <a href="#category-courses-role-title" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-xl bg-immersive-primary px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 sm:mt-0">
+                Explore courses <ArrowRight size={15} aria-hidden="true" />
+              </a>
+            </div>
+          )}
         </section>
 
         <section className="mt-12" aria-labelledby="category-courses-role-title">
-          <SectionHeading eyebrow="Explore the wider field" title={`More courses in ${role.category.name}`} description="These additional courses belong to the selected category and complement the direct role matches." />
+          <SectionHeading
+            id="category-courses-role-title"
+            eyebrow="Explore the wider field"
+            title={roleCourses.length ? `More courses in ${role.category.name}` : `Courses in ${role.category.name}`}
+            description={roleCourses.length
+              ? "These additional courses belong to the selected category and complement the direct role matches."
+              : `Build a strong foundation for ${role.name} with courses from across this field.`}
+          />
           <CourseGrid courses={featuredCategoryCourses} loading={loading} error={error} retry={retry} emptyMessage="No additional courses are currently listed in this category." />
           {categoryCourses.length > featuredCategoryCourses.length && (
             <Link to={getCareerCategoryPath(role.category)} className="mt-5 inline-flex items-center gap-2 rounded-xl border border-immersive-border bg-immersive-card px-4 py-2.5 text-sm font-semibold text-immersive-text-primary hover:border-immersive-primary/40">
