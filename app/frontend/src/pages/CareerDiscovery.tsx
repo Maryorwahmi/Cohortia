@@ -203,15 +203,16 @@ function getRoleCardIcon(index: number) {
 
 function RoleCarousel({category}: {category: (typeof careerCategories)[number]}) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(5);
+  const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
     const updateVisibleCount = () => {
       const width = window.innerWidth;
-      if (width < 768) setVisibleCount(1);
-      else if (width < 1100) setVisibleCount(2);
-      else if (width < 1400) setVisibleCount(3);
-      else setVisibleCount(5);
+      if (width < 640) setVisibleCount(1);
+      else if (width < 1024) setVisibleCount(2);
+      else if (width < 1280) setVisibleCount(3);
+      else if (width < 1536) setVisibleCount(4);
+      else setVisibleCount(6);
     };
 
     updateVisibleCount();
@@ -219,87 +220,77 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
     return () => window.removeEventListener("resize", updateVisibleCount);
   }, []);
 
-  const total = category.roles.length;
+  const pageCount = Math.max(1, Math.ceil(category.roles.length / visibleCount));
+  useEffect(() => {
+    setActiveIndex((current) => Math.min(current, pageCount - 1));
+  }, [pageCount]);
 
-  const visibleRoles = Array.from({length: visibleCount}, (_, offset) => {
-    const roleIndex = (activeIndex + offset) % total;
-    return {role: category.roles[roleIndex], index: roleIndex};
-  });
+  const visibleRoles = category.roles
+    .slice(activeIndex * visibleCount, (activeIndex + 1) * visibleCount)
+    .map((role, index) => ({role, index: activeIndex * visibleCount + index}));
 
   const move = (direction: 1 | -1) => {
     setActiveIndex((current) => {
       const next = current + direction;
-      if (next < 0) return total - 1;
-      if (next >= total) return 0;
+      if (next < 0) return pageCount - 1;
+      if (next >= pageCount) return 0;
       return next;
     });
   };
 
   return (
-    <div className="relative">
-      <div className="mb-4 flex items-center justify-end gap-3">
+    <div className="relative" aria-roledescription="carousel" aria-label={`${category.name} career roles`}>
+      <div className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-between">
         <button
           type="button"
-          aria-label="Previous role"
+          aria-label="Previous roles"
           onClick={() => move(-1)}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition hover:border-immersive-primary hover:text-immersive-primary"
+          className="pointer-events-auto -ml-5 flex h-12 w-12 items-center justify-center rounded-full border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-lg transition hover:border-immersive-primary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary sm:-ml-6"
         >
           <ChevronLeft size={18} aria-hidden="true" />
         </button>
         <button
           type="button"
-          aria-label="Next role"
+          aria-label="Next roles"
           onClick={() => move(1)}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition hover:border-immersive-primary hover:text-immersive-primary"
+          className="pointer-events-auto -mr-5 flex h-12 w-12 items-center justify-center rounded-full border border-immersive-border bg-immersive-card text-immersive-text-primary shadow-lg transition hover:border-immersive-primary hover:text-immersive-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary sm:-mr-6"
         >
           <ChevronRight size={18} aria-hidden="true" />
         </button>
       </div>
 
-      <div className="overflow-hidden">
-        <div className="flex gap-4">
+      <div className="overflow-hidden px-1 py-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
           {visibleRoles.map(({role, index}) => {
             const palette = getRoleCardPalette(index);
-            const roleSlug = getCareerRolePath(category, role);
 
             return (
               <Link
                 key={`${role}-${index}`}
-                to={roleSlug}
-                className="group flex min-w-0 flex-1 shrink-0 flex-col overflow-hidden rounded-[1.6rem] border border-[#efdedf] bg-[#f7f3f7] p-4 shadow-[0_1px_0_rgba(16,24,40,0.02)] transition duration-200 hover:-translate-y-1 hover:border-immersive-primary/40"
-                style={{
-                  maxWidth: visibleCount === 1 ? "100%" : `calc((100% - ${(visibleCount - 1) * 16}px) / ${visibleCount})`,
-                }}
+                to={getCareerRolePath(category, role)}
+                className="group flex min-h-[330px] min-w-0 flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card p-4 shadow-sm shadow-immersive-shadow transition duration-200 hover:-translate-y-1 hover:border-immersive-primary/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary"
               >
-                <div className={`relative mb-4 flex h-20 items-center justify-between overflow-hidden rounded-[1.2rem] bg-gradient-to-br ${palette.shell}`}>
-                  <div className={`ml-4 flex h-12 w-12 items-center justify-center rounded-xl ${palette.iconWrap} ${palette.icon}`}>
+                <div className={`relative mb-4 flex h-20 shrink-0 items-center justify-between overflow-hidden rounded-[1.2rem] bg-gradient-to-br ${palette.shell}`}>
+                  <div className={`relative z-10 ml-3 flex h-12 w-12 items-center justify-center rounded-xl shadow-sm ${palette.iconWrap} ${palette.icon}`}>
                     {getRoleCardIcon(index)}
                   </div>
-                  <div className="absolute right-0 top-1/2 h-20 w-20 -translate-y-1/2 rounded-full bg-white/15 blur-xl" />
-                  <span className="mr-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/20 text-white transition group-hover:translate-x-0.5">
+                  <div className="absolute right-5 top-1/2 h-14 w-14 -translate-y-1/2 rounded-full bg-white/30 blur-lg" />
+                  <span className="relative z-10 mr-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/60 text-immersive-text-primary shadow-sm transition group-hover:translate-x-0.5">
                     <ChevronRight size={15} aria-hidden="true" />
                   </span>
                 </div>
 
-                <div className="min-h-[138px]">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">{category.name}</p>
-                  <h3 className="mt-3 text-[1.05rem] font-bold leading-[1.15] text-slate-900 sm:text-[1.2rem]">{role}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    {index % 2 === 0
-                      ? "Design, implement and maintain secure systems, networks, and infrastructure."
-                      : "Monitor threats, investigate risk, and improve defense strategies in a modern security environment."}
+                <div className="flex-1">
+                  <p className="line-clamp-1 text-[10px] font-bold uppercase tracking-[0.16em] text-immersive-primary">{category.name}</p>
+                  <h3 className="mt-2 line-clamp-2 min-h-12 text-lg font-bold leading-6 text-immersive-text-primary">{role}</h3>
+                  <p className="mt-3 line-clamp-3 text-sm leading-5 text-immersive-text-secondary">
+                    Explore the learning path, skills, and courses related to becoming a {role}.
                   </p>
                 </div>
 
-                <div className="mt-auto flex flex-wrap gap-2 pt-5">
-                  {[
-                    index % 2 === 0 ? "Security" : "Monitoring",
-                    index % 3 === 0 ? "Threat Detection" : index % 3 === 1 ? "Policy" : "Incident Response",
-                  ].map((tag) => (
-                    <span key={tag} className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${palette.tag}`}>
-                      {tag}
-                    </span>
-                  ))}
+                <div className="mt-auto flex flex-wrap gap-2 pt-4">
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${palette.tag}`}>Career path</span>
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${palette.tag}`}>Courses</span>
                 </div>
               </Link>
             );
@@ -307,16 +298,15 @@ function RoleCarousel({category}: {category: (typeof careerCategories)[number]})
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-center gap-2">
-        {category.roles.map((_, dotIndex) => (
+      <div className="mt-5 flex items-center justify-center gap-2" role="group" aria-label="Choose role carousel page">
+        {Array.from({length: pageCount}, (_, dotIndex) => (
           <button
             key={`dot-${dotIndex}`}
             type="button"
-            aria-label={`Go to role ${dotIndex + 1}`}
+            aria-label={`Go to roles page ${dotIndex + 1}`}
+            aria-current={activeIndex === dotIndex ? "true" : undefined}
             onClick={() => setActiveIndex(dotIndex)}
-            className={`h-2.5 rounded-full transition-all ${
-              activeIndex === dotIndex ? "w-8 bg-immersive-primary" : "w-2.5 bg-slate-300 hover:bg-slate-400"
-            }`}
+            className={`h-2.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 ${activeIndex === dotIndex ? "w-8 bg-immersive-primary" : "w-2.5 bg-slate-300 hover:bg-slate-400"}`}
           />
         ))}
       </div>
@@ -473,9 +463,7 @@ export function CareerCategoryPage() {
 
         <section className="mt-10" aria-labelledby="category-roles-title">
           <SectionHeading eyebrow="Career paths" title="Roles in this category" description="Choose a role to see a focused learning page with matching courses, the wider category catalog, and related roles." />
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {category.roles.map((role) => <RoleLink key={role} category={category} role={role} />)}
-          </div>
+          <RoleCarousel category={category} />
         </section>
 
         <section className="mt-12 scroll-mt-28" id="category-courses" aria-labelledby="category-courses-title">
