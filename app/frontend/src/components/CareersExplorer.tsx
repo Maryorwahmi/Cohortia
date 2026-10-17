@@ -107,6 +107,79 @@ export const FEATURED_COURSES: FeaturedCourse[] = [
   },
 ];
 
+const PLATFORM_COURSES: FeaturedCourse[] = [
+  {
+    id: "aws-certified-solutions-architect-associate",
+    number: 1,
+    title: "AWS Certified Solutions Architect – Associate",
+    provider: "AWS",
+    providerLogoColor: "from-amber-500 to-orange-600",
+    level: "Intermediate",
+    category: "Cloud Architecture",
+    examCode: "SAA-C03",
+    description: "Design secure, reliable, and cost-optimized architectures for workloads on AWS.",
+    credentialType: "Certification exam",
+    popularBadge: "CLOUD ARCHITECTURE",
+    image: "",
+  },
+  {
+    id: "aws-certified-developer-associate",
+    number: 2,
+    title: "AWS Certified Developer – Associate",
+    provider: "AWS",
+    providerLogoColor: "from-amber-500 to-orange-600",
+    level: "Intermediate",
+    category: "Cloud Development",
+    examCode: "DVA-C02",
+    description: "Build, deploy, and maintain applications using AWS services, SDKs, and CI/CD practices.",
+    credentialType: "Certification exam",
+    popularBadge: "CLOUD DEVELOPMENT",
+    image: "",
+  },
+  {
+    id: "aws-certified-devops-engineer-professional",
+    number: 3,
+    title: "AWS Certified DevOps Engineer – Professional",
+    provider: "AWS",
+    providerLogoColor: "from-amber-500 to-orange-600",
+    level: "Advanced",
+    category: "DevOps",
+    examCode: "DOP-C02",
+    description: "Automate delivery and operations with CI/CD, infrastructure as code, monitoring, and resilient AWS systems.",
+    credentialType: "Certification exam",
+    popularBadge: "DEVOPS ENGINEERING",
+    image: "",
+  },
+  {
+    id: "google-professional-cloud-devops-engineer",
+    number: 4,
+    title: "Google Professional Cloud DevOps Engineer",
+    provider: "Google Cloud",
+    providerLogoColor: "from-blue-500 to-green-500",
+    level: "Advanced",
+    category: "Cloud DevOps",
+    examCode: "SRE · CI/CD",
+    description: "Apply site reliability engineering and delivery practices to build and operate services on Google Cloud.",
+    credentialType: "Certification exam",
+    popularBadge: "CLOUD DEVOPS",
+    image: "",
+  },
+  {
+    id: "prometheus-grafana",
+    number: 5,
+    title: "Prometheus + Grafana",
+    provider: "Udemy",
+    providerLogoColor: "from-orange-500 to-rose-600",
+    level: "All levels",
+    category: "Observability",
+    examCode: "METRICS · DASHBOARDS",
+    description: "Monitor systems with Prometheus metrics and create actionable dashboards with Grafana.",
+    credentialType: "Course",
+    popularBadge: "OBSERVABILITY",
+    image: "",
+  },
+];
+
 interface CareersExplorerProps {
   onOpenWizard?: () => void;
 }
@@ -506,6 +579,73 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
                 />
               ))}
             </div>
+          </div>
+        </div>
+
+        <div className="mt-14 border-t border-immersive-border/60 pt-10">
+          <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.17em] text-[#e83e32] dark:text-[#ff786e]">The course catalog</p>
+              <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">
+                Cloud Architecture, DevOps &amp; Platform Reliability
+              </h3>
+            </div>
+            <p className="text-sm text-immersive-text-secondary">
+              Showing <span className="font-semibold text-immersive-text-primary">{PLATFORM_COURSES.length}</span> courses
+            </p>
+          </div>
+
+          <div className="grid auto-rows-fr grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {PLATFORM_COURSES.map((course) => (
+              <article
+                key={course.id}
+                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/10"
+              >
+                <button
+                  type="button"
+                  onClick={() => viewCourse(course)}
+                  aria-label={`View course details for ${course.title}`}
+                  className="relative block aspect-[16/9] w-full overflow-hidden bg-slate-900 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#ff4b3e]"
+                >
+                  <img src={getCourseImage(course.id, course.image)} alt="" loading="lazy" draggable={false} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/10" />
+                  <span className={`absolute left-4 top-4 rounded-full bg-gradient-to-r ${course.providerLogoColor} px-3 py-1.5 text-xs font-bold text-white shadow-lg`}>
+                    {course.provider}
+                  </span>
+                  <span className="absolute bottom-4 left-4 rounded-full border border-white/20 bg-slate-950/45 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur">
+                    {course.popularBadge}
+                  </span>
+                </button>
+                <div className="flex flex-1 flex-col p-5 sm:p-6">
+                  <div className="flex items-center justify-between gap-2 text-xs text-immersive-text-secondary">
+                    <span className="inline-flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5" aria-hidden="true" /> {course.level}</span>
+                    <span className="inline-flex shrink-0 items-center gap-1 text-immersive-text-secondary">
+                      <Award className="h-3.5 w-3.5 text-[#e83e32] dark:text-[#ff786e]" aria-hidden="true" />
+                      <span className="font-semibold">{course.examCode}</span>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => viewCourse(course)}
+                    className="mt-3 text-left font-display text-lg font-bold leading-snug text-immersive-text-primary transition hover:text-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#ff4b3e] sm:text-xl"
+                  >
+                    {course.title}
+                  </button>
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-immersive-text-secondary">{course.description}</p>
+                  <div className="mt-5 flex items-center gap-4 border-t border-immersive-border/70 pt-4 text-xs font-medium text-immersive-text-secondary">
+                    <span className="inline-flex items-center gap-1.5"><Award className="h-3.5 w-3.5" aria-hidden="true" /> {course.credentialType}</span>
+                    <span className="inline-flex items-center gap-1.5"><Code2 className="h-3.5 w-3.5" aria-hidden="true" /> {course.category}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => viewCourse(course)}
+                    className="mt-auto inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-immersive-border px-4 py-2.5 text-sm font-bold text-immersive-text-primary transition hover:border-[#ff4b3e] hover:bg-[#ff4b3e] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
+                  >
+                    View course <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
 
