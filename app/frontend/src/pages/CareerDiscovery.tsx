@@ -331,7 +331,8 @@ function RoleCarousel({category, roles = category.roles}: {
   const suppressClickRef = useRef(false);
   const rolePages: Array<Array<{role: string; index: number}>> = [];
   for (let index = 0; index < roles.length; index += slidesPerView) {
-    rolePages.push(roles.slice(index, index + slidesPerView).map((role, offset) => ({role, index: index + offset})));
+    const pageStart = Math.min(index, Math.max(0, roles.length - slidesPerView));
+    rolePages.push(roles.slice(pageStart, pageStart + slidesPerView).map((role, offset) => ({role, index: pageStart + offset})));
   }
   const pageCount = rolePages.length;
   const pagesWithClones = pageCount > 1 ? [rolePages[pageCount - 1], ...rolePages, rolePages[0]] : rolePages;
@@ -390,7 +391,7 @@ function RoleCarousel({category, roles = category.roles}: {
 
   useEffect(() => {
     if (pageCount < 2 || isHovered || isFocused || isDragging || prefersReducedMotion) return;
-    const timer = window.setInterval(goToNextPage, 2000);
+    const timer = window.setInterval(goToNextPage, 4000);
     return () => window.clearInterval(timer);
   }, [currentPage, isDragging, isFocused, isHovered, pageCount, prefersReducedMotion]);
 
