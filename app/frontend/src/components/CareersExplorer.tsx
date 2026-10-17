@@ -180,6 +180,79 @@ const PLATFORM_COURSES: FeaturedCourse[] = [
   },
 ];
 
+const AI_ML_COURSES: FeaturedCourse[] = [
+  {
+    id: "machine-learning-specialization",
+    number: 1,
+    title: "Machine Learning Specialization",
+    provider: "Stanford / DeepLearning.AI",
+    providerLogoColor: "from-violet-600 to-indigo-600",
+    level: "Beginner–Intermediate",
+    category: "Machine Learning",
+    examCode: "SUPERVISED · UNSUPERVISED",
+    description: "Build a practical foundation in supervised and unsupervised machine learning, including core model development with Python.",
+    credentialType: "Course",
+    popularBadge: "MACHINE LEARNING",
+    image: "",
+  },
+  {
+    id: "aws-certified-machine-learning-specialty",
+    number: 2,
+    title: "AWS Certified Machine Learning – Specialty",
+    provider: "AWS",
+    providerLogoColor: "from-amber-500 to-orange-600",
+    level: "Advanced",
+    category: "Cloud Machine Learning",
+    examCode: "MLS-C01",
+    description: "Validate skills in building, training, tuning, and deploying machine learning models on AWS.",
+    credentialType: "Certification exam",
+    popularBadge: "CLOUD ML",
+    image: "",
+  },
+  {
+    id: "fundamentals-of-google-ai-for-web-based-machine-learning",
+    number: 3,
+    title: "Fundamentals of Google AI for Web-Based Machine Learning",
+    provider: "Google / edX",
+    providerLogoColor: "from-blue-500 to-green-500",
+    level: "Beginner",
+    category: "Web-Based Machine Learning",
+    examCode: "TENSORFLOW.JS",
+    description: "Explore the foundations of AI and machine learning in the browser with web-based tools such as TensorFlow.js.",
+    credentialType: "Course",
+    popularBadge: "AI FOUNDATIONS",
+    image: "",
+  },
+  {
+    id: "ibm-applied-ai-professional-certificate",
+    number: 4,
+    title: "IBM Applied AI Professional Certificate",
+    provider: "IBM / Coursera",
+    providerLogoColor: "from-blue-700 to-cyan-600",
+    level: "Beginner",
+    category: "Applied AI",
+    examCode: "PYTHON · COMPUTER VISION",
+    description: "Develop applied AI skills through Python, chatbots, Watson tools, and computer vision projects.",
+    credentialType: "Professional Certificate",
+    popularBadge: "APPLIED AI",
+    image: "",
+  },
+  {
+    id: "microsoft-certified-azure-ai-fundamentals-ai-900",
+    number: 5,
+    title: "Microsoft Certified: Azure AI Fundamentals (AI-900)",
+    provider: "Microsoft",
+    providerLogoColor: "from-sky-500 to-blue-700",
+    level: "Beginner",
+    category: "AI Fundamentals",
+    examCode: "AI-900",
+    description: "Learn foundational AI and machine learning concepts and how Azure AI services can be applied.",
+    credentialType: "Certification exam",
+    popularBadge: "AI FUNDAMENTALS",
+    image: "",
+  },
+];
+
 interface CourseCarouselProps {
   courses: FeaturedCourse[];
   onViewCourse: (course: FeaturedCourse) => void;
@@ -898,6 +971,26 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
             courses={PLATFORM_COURSES}
             onViewCourse={viewCourse}
             ariaLabel="Cloud architecture and DevOps course carousel"
+          />
+        </div>
+
+        <div className="mt-14 border-t border-immersive-border/60 pt-10">
+          <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.17em] text-[#e83e32] dark:text-[#ff786e]">The course catalog</p>
+              <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-immersive-text-primary sm:text-3xl">
+                Machine Learning, Deep Learning &amp; Computer Vision
+              </h3>
+            </div>
+            <p className="text-sm text-immersive-text-secondary">
+              Showing <span className="font-semibold text-immersive-text-primary">{AI_ML_COURSES.length}</span> courses
+            </p>
+          </div>
+
+          <CourseCarousel
+            courses={AI_ML_COURSES}
+            onViewCourse={viewCourse}
+            ariaLabel="Machine learning and computer vision course carousel"
           />
         </div>
 
