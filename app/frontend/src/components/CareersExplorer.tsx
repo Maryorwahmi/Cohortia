@@ -180,6 +180,305 @@ const PLATFORM_COURSES: FeaturedCourse[] = [
   },
 ];
 
+interface CourseCarouselProps {
+  courses: FeaturedCourse[];
+  onViewCourse: (course: FeaturedCourse) => void;
+  ariaLabel: string;
+}
+
+function CourseCarousel({ courses, onViewCourse, ariaLabel }: CourseCarouselProps) {
+  const [slidesPerView, setSlidesPerView] = useState(3);
+  const [trackIndex, setTrackIndex] = useState(1);
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const dragRef = useRef<{ pointerId: number; startX: number; moved: boolean } | null>(null);
+  const suppressClickRef = useRef(false);
+  const coursePages: FeaturedCourse[][] = [];
+  for (let index = 0; index < courses.length; index += slidesPerView) {
+    const page = courses.slice(index, index + slidesPerView);
+    if (page.length < slidesPerView && coursePages.length > 0) {
+      coursePages.push(courses.slice(-slidesPerView));
+      break;
+    }
+    coursePages.push(page);
+  }
+  const pageCount = coursePages.length;
+  const pagesWithClones = pageCount > 1
+    ? [coursePages[pageCount - 1], ...coursePages, coursePages[0]]
+    : coursePages;
+  const currentPage = pageCount === 0
+    ? 0
+    : trackIndex === 0
+      ? pageCount - 1
+      : trackIndex === pageCount + 1
+        ? 0
+        : trackIndex - 1;
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    const tabletQuery = window.matchMedia("(min-width: 640px)");
+    const updateSlidesPerView = () => {
+      setSlidesPerView(desktopQuery.matches ? 3 : tabletQuery.matches ? 2 : 1);
+    };
+    updateSlidesPerView();
+    desktopQuery.addEventListener("change", updateSlidesPerView);
+    tabletQuery.addEventListener("change", updateSlidesPerView);
+    window.addEventListener("resize", updateSlidesPerView);
+    return () => {
+      desktopQuery.removeEventListener("change", updateSlidesPerView);
+      tabletQuery.removeEventListener("change", updateSlidesPerView);
+      window.removeEventListener("resize", updateSlidesPerView);
+    };
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateReducedMotion = () => setPrefersReducedMotion(mediaQuery.matches);
+    updateReducedMotion();
+    mediaQuery.addEventListener("change", updateReducedMotion);
+    return () => mediaQuery.removeEventListener("change", updateReducedMotion);
+  }, []);
+
+  useLayoutEffect(() => {
+    setTransitionEnabled(false);
+    setTrackIndex(pageCount > 1 ? 1 : 0);
+    setDragOffset(0);
+    requestAnimationFrame(() => setTransitionEnabled(true));
+  }, [pageCount, slidesPerView]);
+
+  const goToNextPage = () => {
+    if (pageCount < 2) return;
+    const nextPage = (currentPage + 1) % pageCount;
+    setTrackIndex(prefersReducedMotion
+      ? nextPage + 1
+      : nextPage === 0 ? pageCount + 1 : nextPage + 1);
+  };
+
+  const goToPreviousPage = () => {
+    if (pageCount < 2) return;
+    const previousPage = (currentPage - 1 + pageCount) % pageCount;
+    setTrackIndex(prefersReducedMotion
+      ? previousPage + 1
+      : previousPage === pageCount - 1 ? 0 : previousPage + 1);
+  };
+
+  useEffect(() => {
+    if (pageCount < 2 || isHovered || isFocused || isDragging || prefersReducedMotion) return;
+    const timer = window.setInterval(goToNextPage, 5000);
+    return () => window.clearInterval(timer);
+  }, [currentPage, isDragging, isFocused, isHovered, pageCount, prefersReducedMotion]);
+
+  const handleTrackTransitionEnd = (event: ReactTransitionEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget || event.propertyName !== "transform") return;
+    if (trackIndex !== 0 && trackIndex !== pageCount + 1) return;
+    setTransitionEnabled(false);
+    setTrackIndex(trackIndex === 0 ? pageCount : 1);
+    requestAnimationFrame(() => setTransitionEnabled(true));
+  };
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+    if ((event.target as HTMLElement).closest("[data-carousel-control]")) return;
+    dragRef.current = { pointerId: event.pointerId, startX: event.clientX, moved: false };
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const offset = event.clientX - drag.startX;
+    if (Math.abs(offset) > 5 && !drag.moved) {
+      drag.moved = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setIsDragging(true);
+    }
+    if (drag.moved) setDragOffset(offset);
+  };
+
+  const finishPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const offset = event.clientX - drag.startX;
+    if (drag.moved) {
+      suppressClickRef.current = true;
+      window.setTimeout(() => { suppressClickRef.current = false; }, 0);
+      if (Math.abs(offset) > 50) {
+        if (offset < 0) goToNextPage();
+        else goToPreviousPage();
+      }
+    }
+    dragRef.current = null;
+    setDragOffset(0);
+    setIsDragging(false);
+  };
+
+  const cancelPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragRef.current?.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    setDragOffset(0);
+    setIsDragging(false);
+  };
+
+  const handleCarouselKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      goToPreviousPage();
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      goToNextPage();
+    }
+  };
+
+  return (
+    <div
+      role="region"
+      aria-label={ariaLabel}
+      aria-roledescription="carousel"
+      tabIndex={0}
+      onKeyDown={handleCarouselKeyDown}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocusCapture={() => setIsFocused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsFocused(false);
+      }}
+      className="relative outline-none focus-visible:rounded-2xl focus-visible:ring-2 focus-visible:ring-[#ff4b3e] focus-visible:ring-offset-4 focus-visible:ring-offset-immersive-bg"
+    >
+      <div
+        className="overflow-hidden touch-pan-y"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishPointerDrag}
+        onPointerCancel={cancelPointerDrag}
+        onClickCapture={(event) => {
+          if (!suppressClickRef.current) return;
+          suppressClickRef.current = false;
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+      >
+        <div
+          className={`flex ${transitionEnabled && !prefersReducedMotion && !isDragging ? "transition-transform duration-500 ease-in-out" : "transition-none"} ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          style={{ transform: `translate3d(calc(${-trackIndex * 100}% + ${dragOffset}px), 0, 0)` }}
+          onTransitionEnd={handleTrackTransitionEnd}
+        >
+          {pagesWithClones.map((page, pageIndex) => {
+            const isClone = pageCount > 1 && (pageIndex === 0 || pageIndex === pagesWithClones.length - 1);
+            const actualPageIndex = isClone
+              ? pageIndex === 0 ? pageCount - 1 : 0
+              : pageIndex - (pageCount > 1 ? 1 : 0);
+            const isCurrentPage = actualPageIndex === currentPage;
+            return (
+              <div
+                key={`page-${pageIndex}`}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`Courses ${page[0].number} to ${page[page.length - 1].number} of ${courses.length}`}
+                aria-hidden={isClone || !isCurrentPage}
+                className="grid w-full flex-none auto-rows-fr grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3"
+              >
+                {page.map((course) => (
+                  <article
+                    key={`${pageIndex}-${course.id}`}
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/10"
+                  >
+                    <button
+                      type="button"
+                      tabIndex={isClone || !isCurrentPage ? -1 : undefined}
+                      onClick={() => onViewCourse(course)}
+                      aria-label={`View course details for ${course.title}`}
+                      className="relative block aspect-[16/9] w-full overflow-hidden bg-slate-900 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#ff4b3e]"
+                    >
+                      <img src={getCourseImage(course.id, course.image)} alt="" loading="lazy" draggable={false} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/10" />
+                      <span className={`absolute left-4 top-4 rounded-full bg-gradient-to-r ${course.providerLogoColor} px-3 py-1.5 text-xs font-bold text-white shadow-lg`}>
+                        {course.provider}
+                      </span>
+                      <span className="absolute bottom-4 left-4 rounded-full border border-white/20 bg-slate-950/45 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur">
+                        {course.popularBadge}
+                      </span>
+                    </button>
+                    <div className="flex flex-1 flex-col p-5 sm:p-6">
+                      <div className="flex items-center justify-between gap-2 text-xs text-immersive-text-secondary">
+                        <span className="inline-flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5" aria-hidden="true" /> {course.level}</span>
+                        <span className="inline-flex shrink-0 items-center gap-1 text-immersive-text-secondary">
+                          <Award className="h-3.5 w-3.5 text-[#e83e32] dark:text-[#ff786e]" aria-hidden="true" />
+                          <span className="font-semibold">{course.examCode}</span>
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        tabIndex={isClone || !isCurrentPage ? -1 : undefined}
+                        onClick={() => onViewCourse(course)}
+                        className="mt-3 text-left font-display text-lg font-bold leading-snug text-immersive-text-primary transition hover:text-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#ff4b3e] sm:text-xl"
+                      >
+                        {course.title}
+                      </button>
+                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-immersive-text-secondary">{course.description}</p>
+                      <div className="mt-5 flex items-center gap-4 border-t border-immersive-border/70 pt-4 text-xs font-medium text-immersive-text-secondary">
+                        <span className="inline-flex items-center gap-1.5"><Award className="h-3.5 w-3.5" aria-hidden="true" /> {course.credentialType}</span>
+                        <span className="inline-flex items-center gap-1.5"><Code2 className="h-3.5 w-3.5" aria-hidden="true" /> {course.category}</span>
+                      </div>
+                      <button
+                        type="button"
+                        tabIndex={isClone || !isCurrentPage ? -1 : undefined}
+                        onClick={() => onViewCourse(course)}
+                        className="mt-auto inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-immersive-border px-4 py-2.5 text-sm font-bold text-immersive-text-primary transition hover:border-[#ff4b3e] hover:bg-[#ff4b3e] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
+                      >
+                        View course <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        data-carousel-control
+        onClick={goToPreviousPage}
+        disabled={pageCount < 2}
+        aria-label="Previous courses"
+        className="absolute left-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-immersive-border bg-immersive-card/95 text-immersive-text-primary shadow-lg transition hover:border-[#ff4b3e] hover:text-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e] disabled:cursor-not-allowed disabled:opacity-40 sm:-left-5"
+      >
+        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        data-carousel-control
+        onClick={goToNextPage}
+        disabled={pageCount < 2}
+        aria-label="Next courses"
+        className="absolute right-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-immersive-border bg-immersive-card/95 text-immersive-text-primary shadow-lg transition hover:border-[#ff4b3e] hover:text-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e] disabled:cursor-not-allowed disabled:opacity-40 sm:-right-5"
+      >
+        <ChevronRight className="h-5 w-5" aria-hidden="true" />
+      </button>
+
+      <div className="mt-6 flex min-h-3 items-center justify-center gap-2" role="group" aria-label="Choose course carousel page">
+        {coursePages.map((_, pageIndex) => (
+          <button
+            key={pageIndex}
+            type="button"
+            data-carousel-control
+            onClick={() => setTrackIndex(pageIndex + 1)}
+            aria-label={`Go to course page ${pageIndex + 1} of ${pageCount}`}
+            aria-current={currentPage === pageIndex ? "true" : undefined}
+            className={`h-2.5 rounded-full transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e] ${
+              currentPage === pageIndex ? "w-7 bg-[#ff4b3e]" : "w-2.5 bg-immersive-text-secondary/30 hover:bg-immersive-text-secondary/60"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface CareersExplorerProps {
   onOpenWizard?: () => void;
 }
@@ -595,58 +894,11 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
             </p>
           </div>
 
-          <div className="grid auto-rows-fr grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {PLATFORM_COURSES.map((course) => (
-              <article
-                key={course.id}
-                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-immersive-border bg-immersive-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/10"
-              >
-                <button
-                  type="button"
-                  onClick={() => viewCourse(course)}
-                  aria-label={`View course details for ${course.title}`}
-                  className="relative block aspect-[16/9] w-full overflow-hidden bg-slate-900 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#ff4b3e]"
-                >
-                  <img src={getCourseImage(course.id, course.image)} alt="" loading="lazy" draggable={false} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                  <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/10" />
-                  <span className={`absolute left-4 top-4 rounded-full bg-gradient-to-r ${course.providerLogoColor} px-3 py-1.5 text-xs font-bold text-white shadow-lg`}>
-                    {course.provider}
-                  </span>
-                  <span className="absolute bottom-4 left-4 rounded-full border border-white/20 bg-slate-950/45 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur">
-                    {course.popularBadge}
-                  </span>
-                </button>
-                <div className="flex flex-1 flex-col p-5 sm:p-6">
-                  <div className="flex items-center justify-between gap-2 text-xs text-immersive-text-secondary">
-                    <span className="inline-flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5" aria-hidden="true" /> {course.level}</span>
-                    <span className="inline-flex shrink-0 items-center gap-1 text-immersive-text-secondary">
-                      <Award className="h-3.5 w-3.5 text-[#e83e32] dark:text-[#ff786e]" aria-hidden="true" />
-                      <span className="font-semibold">{course.examCode}</span>
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => viewCourse(course)}
-                    className="mt-3 text-left font-display text-lg font-bold leading-snug text-immersive-text-primary transition hover:text-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#ff4b3e] sm:text-xl"
-                  >
-                    {course.title}
-                  </button>
-                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-immersive-text-secondary">{course.description}</p>
-                  <div className="mt-5 flex items-center gap-4 border-t border-immersive-border/70 pt-4 text-xs font-medium text-immersive-text-secondary">
-                    <span className="inline-flex items-center gap-1.5"><Award className="h-3.5 w-3.5" aria-hidden="true" /> {course.credentialType}</span>
-                    <span className="inline-flex items-center gap-1.5"><Code2 className="h-3.5 w-3.5" aria-hidden="true" /> {course.category}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => viewCourse(course)}
-                    className="mt-auto inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-immersive-border px-4 py-2.5 text-sm font-bold text-immersive-text-primary transition hover:border-[#ff4b3e] hover:bg-[#ff4b3e] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff4b3e]"
-                  >
-                    View course <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
+          <CourseCarousel
+            courses={PLATFORM_COURSES}
+            onViewCourse={viewCourse}
+            ariaLabel="Cloud architecture and DevOps course carousel"
+          />
         </div>
 
       </div>
