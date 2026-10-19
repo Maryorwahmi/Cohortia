@@ -58,11 +58,11 @@ export default function CourseDetails() {
     return `${finalText.slice(0, 220).trim()}…`;
   };
 
-  const heroDescription = normalizeCourseText(course.description) || 'A practical learning path designed to help you build career-ready skills and confidence in the field.';
-  const learningSummary = normalizeCourseText(details?.overview || course.description) || 'Build the practical knowledge and confidence needed to apply your learning in real-world situations.';
-
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-immersive-bg font-mono text-sm text-immersive-secondary">Loading course...</div>;
   if (error || !course) return <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-immersive-bg px-4 text-center"><p className="text-sm text-rose-500">{error || 'Course not found.'}</p><Link to="/careers" className="font-bold text-immersive-secondary">Back to careers</Link></div>;
+
+  const heroDescription = normalizeCourseText(course.description) || 'A practical learning path designed to help you build career-ready skills and confidence in the field.';
+  const learningSummary = normalizeCourseText(details?.overview || course.description) || 'Build the practical knowledge and confidence needed to apply your learning in real-world situations.';
 
   let skills: string[] = [];
   try {
