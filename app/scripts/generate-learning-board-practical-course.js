@@ -194,6 +194,10 @@ async function findSubcategorySyllabi(repoRoot, category, courses) {
 }
 
 async function generateCourse(options) {
+  if (options.force === true) {
+    console.warn("--force is enabled: matching practicals will be regenerated. Omit --force to resume and retry pending imports.");
+  }
+
   const repoRoot = path.resolve(options["repo-root"] || REPOSITORY_ROOT);
   const courseId = courseIdFrom(options);
   const requestedSyllabus = await resolveSyllabusPath(options, courseId);
@@ -467,7 +471,8 @@ function usage() {
     "Use --category and --subcategory to generate every module for every course in that catalog subcategory; add --module to limit generation to one module.",
     "Use --list-only with --subcategory to preview the matched courses and syllabus paths.",
     "Chapters without a hands-on activity are listed as skipped.",
-    "Matching existing chapter practicals are reused by source hash; use --force to regenerate them.",
+    "Matching existing chapter practicals are reused by source hash; omit --force to resume and retry pending imports.",
+    "Use --force only when you intentionally want to regenerate matching practicals.",
     "Progress is checkpointed in <output>/record.json per chapter; rerun the same command to resume generation and retry pending imports.",
     "Use --module by itself to generate the complete module. Add --chapters only to retry a small subset; the resulting course manifest contains only that selected subset.",
     "When a module request fails, the generator retries that module (default 3 attempts) before moving to the next course. Configure --module-retries <count> when needed.",
