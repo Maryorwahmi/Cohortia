@@ -2,6 +2,7 @@ export interface SpeechNarrationOptions {
   voice?: SpeechSynthesisVoice | null;
   rate?: number;
   pitch?: number;
+  startProgress?: number;
   onSpeakingChange?: (isSpeaking: boolean) => void;
   onProgress?: (progress: number) => void;
   onComplete?: () => void;
@@ -94,9 +95,37 @@ export class SpeechNarrationQueue {
 
     const generation = ++this.generation;
     const totalCharacters = this.chunks.reduce((total, chunk) => total + chunk.length, 0);
+    const startProgress = Math.min(1, Math.max(0, options.startProgress ?? 0));
+    const targetCharacters = Math.floor(totalCharacters * startProgress);
     let completedCharacters = 0;
+    let startIndex = 0;
+    while (
+      startIndex < this.chunks.length
+      && targetCharacters >= completedCharacters + this.chunks[startIndex].length
+    ) {
+      completedCharacters += this.chunks[startIndex].length;
+      startIndex += 1;
+    }
+    if (startIndex < this.chunks.length) {
+      const chunk = this.chunks[startIndex];
+      const offset = targetCharacters - completedCharacters;
+      const nextWordStart = chunk.indexOf(" ", offset);
+      if (offset > 0 && nextWordStart === -1) {
+        completedCharacters += chunk.length;
+        startIndex += 1;
+      } else if (offset > 0) {
+        completedCharacters += nextWordStart + 1;
+        this.chunks[startIndex] = chunk.slice(nextWordStart + 1);
+      }
+    }
     options.onSpeakingChange?.(true);
-    options.onProgress?.(0);
+    options.onProgress?.(totalCharacters ? completedCharacters / totalCharacters : 0);
+
+    if (startIndex >= this.chunks.length) {
+      options.onSpeakingChange?.(false);
+      options.onComplete?.();
+      return;
+    }
 
     const speakNext = (index: number) => {
       if (generation !== this.generation || index >= this.chunks.length) {
@@ -130,7 +159,7 @@ export class SpeechNarrationQueue {
       window.speechSynthesis.speak(utterance);
     };
 
-    speakNext(0);
+    speakNext(startIndex);
   }
 
   cancel() {

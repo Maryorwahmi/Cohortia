@@ -130,12 +130,14 @@ export default function AnimatedCodeAlongPlayer({
   const [narratorVoice, setNarratorVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [voiceReady, setVoiceReady] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const currentTimeRef = useRef(currentTime);
   const [activePlaylistIndex, setActivePlaylistIndex] = useState(0);
   const requestRef = useRef<number | null>(null);
   const previousTimeRef = useRef<number | null>(null);
   const spokenLessonRef = useRef<string | null>(null);
   const narrationQueueRef = useRef(new SpeechNarrationQueue());
   const transitionStartedRef = useRef(false);
+  currentTimeRef.current = currentTime;
 
   const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
   const lessonDuration = (script: string) => narrationDuration(script) + 3;
@@ -326,7 +328,7 @@ export default function AnimatedCodeAlongPlayer({
     moveToExperiment();
   }, [activeDurationSeconds, activePlaylistIndex, currentTime, isPlaying, teachingPlaylist.length]);
 
-  const speakActiveLesson = () => {
+  const speakActiveLesson = (startProgress = 0) => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     if (assignedVoiceUnavailable) return;
     spokenLessonRef.current = null;
@@ -334,6 +336,7 @@ export default function AnimatedCodeAlongPlayer({
       voice: narratorVoice,
       rate: TEACHER_SPEECH_RATE,
       pitch: 1.02,
+      startProgress,
       onSpeakingChange: setIsNarrating,
       onProgress: (progress) => setCurrentTime(activeDurationSeconds * progress),
       onComplete: () => {
@@ -347,9 +350,9 @@ export default function AnimatedCodeAlongPlayer({
     if (!isPlaying || isMuted || !voiceReady || typeof window === "undefined" || !window.speechSynthesis) return;
     if (assignedVoiceUnavailable) return;
     if (spokenLessonRef.current === activePlaylist.id) return;
-    speakActiveLesson();
+    speakActiveLesson(activeDurationSeconds > 0 ? currentTimeRef.current / activeDurationSeconds : 0);
     return () => narrationQueueRef.current.cancel();
-  }, [activePlaylist.id, activeNarrationScript, isMuted, isPlaying, narratorVoice, voiceReady, assignedVoiceUnavailable]);
+  }, [activePlaylist.id, activeNarrationScript, activeDurationSeconds, isMuted, isPlaying, narratorVoice, voiceReady, assignedVoiceUnavailable]);
 
   return (
     <div className={`h-full min-h-0 w-full overflow-hidden ${isDark ? "bg-[#101522]" : "bg-slate-50"}`}>
