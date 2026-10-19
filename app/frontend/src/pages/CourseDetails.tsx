@@ -100,11 +100,12 @@ export default function CourseDetails() {
               </div>
             </div>
             <div className="relative mx-auto flex aspect-square w-full max-w-[360px] items-center justify-center sm:max-w-[410px] lg:max-w-[440px]">
-              <div className="absolute inset-[3%] rounded-full border border-immersive-primary/15 animate-[spin_20s_linear_infinite]" aria-hidden="true" />
-              <div className="absolute inset-[10%] rounded-full border border-immersive-primary/20" aria-hidden="true" />
-              <div className="absolute inset-[17%] rounded-full border border-immersive-primary/25" aria-hidden="true" />
-              <span className="absolute left-[10%] top-[26%] h-3.5 w-3.5 rounded-full bg-immersive-primary/80 shadow-[0_0_0_6px_rgba(255,75,62,0.12)]" aria-hidden="true" />
-              <span className="absolute right-[7%] top-[70%] h-4 w-4 rounded-full bg-immersive-primary shadow-[0_0_0_7px_rgba(255,75,62,0.12)]" aria-hidden="true" />
+              <div className="pointer-events-none absolute inset-0 rounded-full border border-immersive-primary/20 motion-safe:animate-[spin_28s_linear_infinite]" aria-hidden="true" />
+              <div className="pointer-events-none absolute inset-5 rounded-full border border-immersive-secondary/25 motion-safe:animate-[spin_38s_linear_infinite_reverse]" aria-hidden="true" />
+              <div className="pointer-events-none absolute inset-0 motion-safe:animate-[spin_24s_linear_infinite]" aria-hidden="true">
+                <span className="absolute right-5 top-8 h-3 w-3 rounded-full bg-immersive-primary shadow-lg shadow-immersive-primary/30" />
+                <span className="absolute bottom-12 left-2 h-2.5 w-2.5 rounded-full bg-immersive-secondary" />
+              </div>
               <div className="relative h-[78%] w-[78%] overflow-hidden rounded-full border-4 border-immersive-card bg-gradient-to-br from-immersive-primary/20 via-immersive-bg to-immersive-secondary/20 shadow-[0_20px_40px_rgba(14,18,26,0.12)]">
                 {courseImage ? (
                   <img src={courseImage} alt="" className="h-full w-full object-cover" />
