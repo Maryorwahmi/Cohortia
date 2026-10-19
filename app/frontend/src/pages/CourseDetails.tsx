@@ -46,6 +46,21 @@ export default function CourseDetails() {
     }
   };
 
+  const normalizeCourseText = (value?: string) => {
+    const raw = (value || '').replace(/\s+/g, ' ').trim();
+    if (!raw) return '';
+
+    const withoutWelcome = raw.replace(/^welcome to the\s+/i, '').trim();
+    const withoutIntroSentence = withoutWelcome.replace(/^cohortia\s+[A-Za-z0-9\s&'’\-]+?\b(?:certificate|specialization|program|pathway)\b[^.]*\.\s*/i, '').trim();
+    const finalText = withoutIntroSentence || withoutWelcome;
+
+    if (finalText.length <= 220) return finalText;
+    return `${finalText.slice(0, 220).trim()}…`;
+  };
+
+  const heroDescription = normalizeCourseText(course.description) || 'A practical learning path designed to help you build career-ready skills and confidence in the field.';
+  const learningSummary = normalizeCourseText(details?.overview || course.description) || 'Build the practical knowledge and confidence needed to apply your learning in real-world situations.';
+
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-immersive-bg font-mono text-sm text-immersive-secondary">Loading course...</div>;
   if (error || !course) return <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-immersive-bg px-4 text-center"><p className="text-sm text-rose-500">{error || 'Course not found.'}</p><Link to="/careers" className="font-bold text-immersive-secondary">Back to careers</Link></div>;
 
@@ -70,7 +85,7 @@ export default function CourseDetails() {
               <span className="inline-flex items-center rounded-full border border-immersive-primary/20 bg-immersive-card px-3 py-1.5 text-xs font-bold uppercase tracking-[0.17em] text-immersive-primary">Course overview</span>
               <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-immersive-text-primary sm:text-5xl lg:text-6xl">{course.title}</h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-immersive-text-secondary sm:text-lg">
-                {course.description?.trim() || details?.overview || 'Build practical knowledge and skills with this structured course.'}
+                {heroDescription}
               </p>
               <div className="mt-6 flex flex-wrap gap-2 text-sm">
                 {[course.provider || course.platform || 'Cohortia', course.level || 'Self-paced', course.type || 'Course'].map((item, index) => (
@@ -84,13 +99,13 @@ export default function CourseDetails() {
                 <span className="inline-flex items-center gap-2 text-sm font-medium text-immersive-text-secondary"><Clock3 className="h-4 w-4 text-immersive-primary" /> {course.duration || 'Self-paced'}</span>
               </div>
             </div>
-            <div className="relative mx-auto flex aspect-square w-full max-w-[300px] items-center justify-center sm:max-w-[340px] lg:max-w-[360px]">
-              <div className="absolute inset-0 rounded-full border border-immersive-primary/15" />
-              <div className="absolute inset-[6%] rounded-full border border-immersive-primary/20" />
-              <div className="absolute inset-[12%] rounded-full border border-immersive-primary/25" />
-              <span className="absolute left-[4%] top-[28%] h-3 w-3 rounded-full bg-immersive-primary/80" aria-hidden="true" />
-              <span className="absolute right-[3%] top-[68%] h-3.5 w-3.5 rounded-full bg-immersive-primary" aria-hidden="true" />
-              <div className="relative h-[70%] w-[70%] overflow-hidden rounded-full border-4 border-immersive-card bg-gradient-to-br from-immersive-primary/20 via-immersive-bg to-immersive-secondary/20 shadow-xl shadow-immersive-shadow">
+            <div className="relative mx-auto flex aspect-square w-full max-w-[360px] items-center justify-center sm:max-w-[410px] lg:max-w-[440px]">
+              <div className="absolute inset-[3%] rounded-full border border-immersive-primary/15 animate-[spin_20s_linear_infinite]" aria-hidden="true" />
+              <div className="absolute inset-[10%] rounded-full border border-immersive-primary/20" aria-hidden="true" />
+              <div className="absolute inset-[17%] rounded-full border border-immersive-primary/25" aria-hidden="true" />
+              <span className="absolute left-[10%] top-[26%] h-3.5 w-3.5 rounded-full bg-immersive-primary/80 shadow-[0_0_0_6px_rgba(255,75,62,0.12)]" aria-hidden="true" />
+              <span className="absolute right-[7%] top-[70%] h-4 w-4 rounded-full bg-immersive-primary shadow-[0_0_0_7px_rgba(255,75,62,0.12)]" aria-hidden="true" />
+              <div className="relative h-[78%] w-[78%] overflow-hidden rounded-full border-4 border-immersive-card bg-gradient-to-br from-immersive-primary/20 via-immersive-bg to-immersive-secondary/20 shadow-[0_20px_40px_rgba(14,18,26,0.12)]">
                 {courseImage ? (
                   <img src={courseImage} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -105,7 +120,7 @@ export default function CourseDetails() {
           <section className="grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
             <div className="rounded-2xl border border-immersive-border bg-immersive-card p-6 sm:p-8">
               <div className="mb-4 flex items-center gap-3"><BookOpen className="h-5 w-5 text-immersive-primary" /><h2 className="text-xl font-extrabold text-immersive-text-primary">What you will learn</h2></div>
-              <p className="whitespace-pre-line text-sm leading-7 text-immersive-text-secondary">{details?.overview || course.description || 'Explore this structured course and build practical skills step by step.'}</p>
+              <p className="whitespace-pre-line text-sm leading-7 text-immersive-text-secondary">{learningSummary}</p>
               <Link to={`/community?courseId=${encodeURIComponent(course.id)}`} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-immersive-secondary px-5 py-3 text-sm font-bold text-immersive-secondary transition hover:bg-immersive-secondary/10"><Users className="h-4 w-4" /> Join course community</Link>
             </div>
             <div className="rounded-2xl border border-immersive-border bg-immersive-card p-6 sm:p-8"><div className="mb-4 flex items-center gap-3"><Layers3 className="h-5 w-5 text-immersive-secondary" /><h2 className="text-xl font-extrabold text-immersive-text-primary">Skills</h2></div><div className="flex flex-wrap gap-2">{skills.length ? skills.map((skill) => <span key={skill} className="rounded-lg border border-immersive-border bg-immersive-bg px-3 py-2 text-xs font-semibold text-immersive-text-secondary">{skill}</span>) : <span className="text-sm text-immersive-text-secondary">Skills are mapped throughout the course.</span>}</div></div>
