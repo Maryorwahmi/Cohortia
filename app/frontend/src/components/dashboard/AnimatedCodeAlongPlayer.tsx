@@ -131,6 +131,7 @@ export default function AnimatedCodeAlongPlayer({
   const [voiceReady, setVoiceReady] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const currentTimeRef = useRef(currentTime);
+  const [isSeeking, setIsSeeking] = useState(false);
   const [activePlaylistIndex, setActivePlaylistIndex] = useState(0);
   const requestRef = useRef<number | null>(null);
   const previousTimeRef = useRef<number | null>(null);
@@ -299,7 +300,7 @@ export default function AnimatedCodeAlongPlayer({
     // Browser speech reports word-boundary progress. When narration is audible,
     // use that real progress so typing never outruns or lags behind the teacher.
     // The time-based clock remains only for muted playback and browsers without TTS.
-    if (!isPlaying || (!isMuted && !assignedVoiceUnavailable)) {
+    if (!isPlaying || isSeeking || (!isMuted && !assignedVoiceUnavailable)) {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       previousTimeRef.current = null;
       setIsNarrating(false);
@@ -315,7 +316,7 @@ export default function AnimatedCodeAlongPlayer({
     };
     requestRef.current = requestAnimationFrame(animate);
     return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current); };
-  }, [isPlaying, isMuted, activeDurationSeconds, activePlaylistIndex, teachingPlaylist.length, assignedVoiceUnavailable]);
+  }, [isPlaying, isSeeking, isMuted, activeDurationSeconds, activePlaylistIndex, teachingPlaylist.length, assignedVoiceUnavailable]);
 
   useEffect(() => {
     if (!isPlaying || currentTime < activeDurationSeconds) return;
@@ -346,13 +347,21 @@ export default function AnimatedCodeAlongPlayer({
     });
   };
 
+  const beginSeeking = () => {
+    setIsSeeking(true);
+    narrationQueueRef.current.cancel();
+    setIsNarrating(false);
+    spokenLessonRef.current = null;
+  };
+  const endSeeking = () => setIsSeeking(false);
+
   useEffect(() => {
-    if (!isPlaying || isMuted || !voiceReady || typeof window === "undefined" || !window.speechSynthesis) return;
+    if (!isPlaying || isSeeking || isMuted || !voiceReady || typeof window === "undefined" || !window.speechSynthesis) return;
     if (assignedVoiceUnavailable) return;
     if (spokenLessonRef.current === activePlaylist.id) return;
     speakActiveLesson(activeDurationSeconds > 0 ? currentTimeRef.current / activeDurationSeconds : 0);
     return () => narrationQueueRef.current.cancel();
-  }, [activePlaylist.id, activeNarrationScript, activeDurationSeconds, isMuted, isPlaying, narratorVoice, voiceReady, assignedVoiceUnavailable]);
+  }, [activePlaylist.id, activeNarrationScript, activeDurationSeconds, isSeeking, isMuted, isPlaying, narratorVoice, voiceReady, assignedVoiceUnavailable]);
 
   return (
     <div className={`h-full min-h-0 w-full overflow-hidden ${isDark ? "bg-[#101522]" : "bg-slate-50"}`}>
@@ -430,7 +439,16 @@ export default function AnimatedCodeAlongPlayer({
             max={activeDurationSeconds}
             step={0.1}
             value={Math.min(currentTime, activeDurationSeconds)}
-            onChange={(event) => setCurrentTime(Number(event.target.value))}
+            onPointerDown={beginSeeking}
+            onPointerUp={endSeeking}
+            onKeyDown={beginSeeking}
+            onKeyUp={endSeeking}
+            onBlur={endSeeking}
+            onChange={(event) => {
+              const time = Math.min(activeDurationSeconds, Math.max(0, Number(event.target.value)));
+              currentTimeRef.current = time;
+              setCurrentTime(time);
+            }}
             aria-label="Walkthrough progress"
             className="h-1.5 w-full cursor-pointer accent-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500"
           />

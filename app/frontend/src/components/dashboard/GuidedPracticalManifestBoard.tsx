@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Lightbulb, LoaderCircle, Play, RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Bot, CheckCircle2, Lightbulb, LoaderCircle, Play, RotateCcw, Send } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
-import type { ChatLearningContext } from "../../services/api";
+import { chatApi, type ChatLearningContext } from "../../services/api";
 import { learningBoardsApi, type LearningBoardPractical, type LearningBoardPracticalTask } from "../../services/learningBoardsApi";
 import { executePython } from "../../services/pyodideRunner";
 import { evaluatePracticalChecks } from "../../lib/practicalCheckEvaluator";
@@ -32,6 +32,11 @@ type TeacherGuide = {
   narration: string;
   prompt: string;
   focus?: string;
+};
+
+type PracticalChatMessage = {
+  sender: "user" | "assistant";
+  text: string;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -106,6 +111,11 @@ export default function GuidedPracticalManifestBoard({
   const [checkResults, setCheckResults] = useState<Record<string, boolean>>({});
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [isCheckingAnswer, setIsCheckingAnswer] = useState(false);
+  const [hortBotMessages, setHortBotMessages] = useState<PracticalChatMessage[]>([]);
+  const [hortBotInput, setHortBotInput] = useState("");
+  const [hortBotError, setHortBotError] = useState("");
+  const [isHortBotTyping, setIsHortBotTyping] = useState(false);
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [teacherGuide, setTeacherGuide] = useState<TeacherGuide | null>(null);
   const workspaceRef = useRef<HTMLElement>(null);
@@ -129,6 +139,22 @@ export default function GuidedPracticalManifestBoard({
     window.requestAnimationFrame(() => workspaceRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }, []);
   const handleGuideChange = useCallback((guide: TeacherGuide) => setTeacherGuide(guide), []);
+  const practicalTeachingContext = [
+    practical.teacher?.opening,
+    practical.teacher?.realWorldContext,
+    practical.teacher?.learningPromise,
+    practical.lessonContext?.courseIntroduction,
+    practical.lessonContext?.chapterIntroduction,
+    practical.lessonContext?.learningObjectives?.length
+      ? `Learning objectives: ${practical.lessonContext.learningObjectives.join("; ")}`
+      : "",
+    practical.lessonContext?.keyConcepts?.length
+      ? `Key concepts: ${practical.lessonContext.keyConcepts.join("; ")}`
+      : "",
+    practical.lessonContext?.lessonScreens?.length
+      ? `Lesson sections: ${practical.lessonContext.lessonScreens.map((screen) => `${screen.title}: ${screen.summary}`).join("; ")}`
+      : "",
+  ].filter(Boolean).join("\n");
 
   useEffect(() => {
     setActiveTaskIndex(0);
@@ -142,10 +168,20 @@ export default function GuidedPracticalManifestBoard({
     setCompletedTasks({});
     setCheckResults({});
     setOutput("");
+    setIsCheckingAnswer(false);
+    setHortBotMessages([]);
+    setHortBotInput("");
+    setHortBotError("");
     setTeacherGuide(null);
     setIsWorkspaceOpen(false);
     completionTriggeredRef.current = false;
   }, [practical.id, practicalFiles]);
+
+  useEffect(() => {
+    setHortBotMessages([]);
+    setHortBotInput("");
+    setHortBotError("");
+  }, [activeTask?.id]);
 
   useEffect(() => {
     if (!practical.id) return;
@@ -201,14 +237,32 @@ export default function GuidedPracticalManifestBoard({
       return;
     }
     const getContext = (): ChatLearningContext => ({
+      assistant: "hortbot",
       practicalTitle: practical.title,
       practicalInstructions: practical.instructions || undefined,
       practicalObjectives: practical.objectives || [],
+      practicalTeachingContext: practicalTeachingContext || undefined,
+      practicalTasks: tasks.map((task) => ({
+        title: task.title || "Practical task",
+        instruction: task.instruction,
+        learningGoal: task.teaching?.learningGoal || undefined,
+        teacherTalk: task.teaching?.teacherTalk || undefined,
+        realWorldExample: task.teaching?.realWorldExample || undefined,
+        questions: task.teaching?.questions || [],
+        requiredConcepts: task.requiredConcepts,
+      })),
       currentFile: activeFilePath,
       currentCode,
       currentTaskTitle: activeTask.title || undefined,
       currentTaskInstruction: activeTask.instruction,
+      currentTaskGoal: activeTask.teaching?.learningGoal || undefined,
+      currentTaskQuestions: activeTask.teaching?.questions || [],
+      currentTaskConcepts: activeTask.requiredConcepts,
       currentTaskHint: activeTask.hints.slice(0, revealedHints[activeTask.id] || 0).at(-1),
+      interactiveExercisePrompt: activeTask.interactiveExercise?.prompt,
+      currentAnswer: exerciseAnswers[activeTask.id],
+      currentPrediction: prediction,
+      lastCheckResult: output || undefined,
       currentTaskIndex: activeTaskIndex,
       totalTasks: tasks.length,
       completedTasks: completedCount,
@@ -224,22 +278,96 @@ export default function GuidedPracticalManifestBoard({
     activeTaskIndex,
     completedCount,
     currentCode,
+    exerciseAnswers,
     onMentorContextReady,
     output,
+    prediction,
     practical.instructions,
+    practicalTeachingContext,
     practical.objectives,
     practical.title,
     revealedHints,
     tasks.length,
   ]);
 
+  const sendHortBotMessage = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const message = hortBotInput.trim();
+    if (!message || !activeTask || isHortBotTyping) return;
+
+    const userMessage: PracticalChatMessage = { sender: "user", text: message };
+    const history = [...hortBotMessages, userMessage];
+    setHortBotMessages(history);
+    setHortBotInput("");
+    setHortBotError("");
+    setIsHortBotTyping(true);
+
+    try {
+      const response = await chatApi.sendMessage(
+        message,
+        history,
+        "tutor",
+        "text",
+        null,
+        {
+          assistant: "hortbot",
+          courseId: practical.courseId,
+          practicalTitle: practical.title,
+          practicalInstructions: practical.instructions || undefined,
+          practicalObjectives: practical.objectives || [],
+          practicalTeachingContext: practicalTeachingContext || undefined,
+          practicalTasks: tasks.map((task) => ({
+            title: task.title || "Practical task",
+            instruction: task.instruction,
+            learningGoal: task.teaching?.learningGoal || undefined,
+            teacherTalk: task.teaching?.teacherTalk || undefined,
+            realWorldExample: task.teaching?.realWorldExample || undefined,
+            questions: task.teaching?.questions || [],
+            requiredConcepts: task.requiredConcepts,
+          })),
+          currentFile: activeFilePath,
+          currentCode,
+          currentTaskTitle: activeTask.title || undefined,
+          currentTaskInstruction: activeTask.instruction,
+          currentTaskGoal: activeTask.teaching?.learningGoal || undefined,
+          currentTaskQuestions: activeTask.teaching?.questions || [],
+          currentTaskConcepts: activeTask.requiredConcepts,
+          currentTaskHint: activeTask.hints.slice(0, revealedHints[activeTask.id] || 0).at(-1),
+          interactiveExercisePrompt: activeTask.interactiveExercise?.prompt,
+          currentAnswer: exerciseAnswers[activeTask.id],
+          currentPrediction: prediction,
+          lastCheckResult: output || undefined,
+          currentTaskIndex: activeTaskIndex,
+          totalTasks: tasks.length,
+          completedTasks: completedCount,
+          hasErrors: /NOT YET|error|failed/i.test(output),
+          lastOutput: output,
+          page: "guided practical",
+        },
+      );
+      const reply = response.data?.reply;
+      if (!response.success || !reply) {
+        throw new Error(response.error || "HortBot could not respond. Please try again.");
+      }
+      setHortBotMessages((previous) => [...previous, { sender: "assistant", text: reply }]);
+    } catch (error) {
+      console.error("HortBot practical chat failed:", error);
+      setHortBotError(error instanceof Error ? error.message : "HortBot could not respond. Please try again.");
+    } finally {
+      setIsHortBotTyping(false);
+    }
+  };
+
   const runPractical = async () => {
     if (activeTask.interactiveExercise?.type === "binary_conversion") {
+      if (isCheckingAnswer) return;
       const answer = exerciseAnswers[activeTask.id]?.trim() || "";
       if (!answer) {
         setOutput("Enter your answer before checking it.");
         return;
       }
+      setIsCheckingAnswer(true);
+      setOutput("Checking your answer...");
       const normalizeAnswer = (value: string) => value
         .trim()
         .toLowerCase()
@@ -277,6 +405,8 @@ export default function GuidedPracticalManifestBoard({
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         setOutput(`Your answer was checked, but progress could not be saved: ${message}`);
+      } finally {
+        setIsCheckingAnswer(false);
       }
       return;
     }
@@ -500,7 +630,7 @@ export default function GuidedPracticalManifestBoard({
             <button
               key={task.id}
               type="button"
-              onClick={() => { setActiveTaskIndex(index); setPrediction(""); }}
+              onClick={() => { setActiveTaskIndex(index); setPrediction(""); setOutput(""); }}
               className={`shrink-0 rounded-lg border px-3 py-2 text-left text-xs font-semibold ${
                 activeTaskIndex === index
                   ? `border-[#FF4B3E] bg-[#FF4B3E]/10 ${accentText}`
@@ -566,7 +696,16 @@ export default function GuidedPracticalManifestBoard({
                 autoComplete="off"
                 name={`binary-answer-${activeTask.id}`}
                 value={exerciseAnswers[activeTask.id] || ""}
-                onChange={(event) => setExerciseAnswers((previous) => ({ ...previous, [activeTask.id]: event.target.value }))}
+                disabled={isCheckingAnswer}
+                onChange={(event) => {
+                  setExerciseAnswers((previous) => ({ ...previous, [activeTask.id]: event.target.value }));
+                  setExerciseFeedback((previous) => {
+                    const next = { ...previous };
+                    delete next[activeTask.id];
+                    return next;
+                  });
+                  setOutput("");
+                }}
                 placeholder="Enter your answer…"
                 className={`rounded-lg border p-3 font-mono text-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF4B3E] ${isDark ? "border-white/10 bg-[#0b0d14] text-slate-100" : "border-slate-200 bg-white text-slate-900"}`}
               />
@@ -580,7 +719,10 @@ export default function GuidedPracticalManifestBoard({
               <textarea
                 id={`practical-prediction-${activeTask.id}`}
                 value={prediction}
-                onChange={(event) => setPrediction(event.target.value)}
+                onChange={(event) => {
+                  setPrediction(event.target.value);
+                  setOutput("");
+                }}
                 placeholder="How did you work it out?…"
                 className={`min-h-20 resize-y rounded-lg border p-3 text-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF4B3E] ${isDark ? "border-white/10 bg-[#0b0d14] text-slate-100" : "border-slate-200 bg-white text-slate-900"}`}
               />
@@ -589,10 +731,11 @@ export default function GuidedPracticalManifestBoard({
                 <button
                   type="button"
                   onClick={() => void runPractical()}
-                  disabled={isRunning || !exerciseAnswers[activeTask.id]?.trim()}
+                  disabled={isRunning || isCheckingAnswer || !exerciseAnswers[activeTask.id]?.trim()}
                   className={`inline-flex items-center gap-1.5 rounded-lg ${accentBackground} px-3 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50`}
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5" />Check answer
+                  {isCheckingAnswer ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                  {isCheckingAnswer ? "Checking…" : "Check answer"}
                 </button>
               </div>
             </div>
@@ -630,8 +773,57 @@ export default function GuidedPracticalManifestBoard({
         </div>
 
         <aside className={`flex min-h-[520px] min-w-0 flex-col gap-3 rounded-xl border p-3 ${surface}`}>
-          <div>
-            <h3 className={`text-xs font-bold ${darkText}`}>Inline guidance</h3>
+          <section className={`flex min-h-[230px] max-h-[280px] flex-col rounded-lg border p-3 ${isDark ? "border-cyan-300/20 bg-[#0d1421]" : "border-cyan-200 bg-cyan-50/40"}`}>
+            <div className="flex items-center gap-2">
+              <Bot className={`h-4 w-4 ${accentText}`} aria-hidden="true" />
+              <div>
+                <h3 className={`text-xs font-bold ${darkText}`}>HortBot</h3>
+                <p className={`text-[10px] ${mutedText}`}>Practical learning assistant</p>
+              </div>
+            </div>
+            <div aria-live="polite" className="mt-2 min-h-0 flex-1 space-y-2 overflow-y-auto rounded-md p-1">
+              {hortBotMessages.length === 0 && (
+                <p className={`rounded-lg p-2 text-xs leading-relaxed ${isDark ? "bg-white/5 text-slate-300" : "bg-white text-slate-600"}`}>
+                  Hi, I’m HortBot. I can help with this practical and your current task. Ask me about the instructions, your approach, or a check result.
+                </p>
+              )}
+              {hortBotMessages.map((message, index) => (
+                <p
+                  key={`${message.sender}-${index}`}
+                  className={`whitespace-pre-wrap rounded-lg p-2 text-xs leading-relaxed ${
+                    message.sender === "user"
+                      ? isDark ? "ml-5 bg-immersive-primary/20 text-slate-100" : "ml-5 bg-immersive-primary/10 text-slate-800"
+                      : isDark ? "mr-5 bg-white/5 text-slate-300" : "mr-5 bg-white text-slate-700"
+                  }`}
+                >
+                  {message.text}
+                </p>
+              ))}
+              {isHortBotTyping && <p className={`text-xs ${mutedText}`}>HortBot is thinking…</p>}
+              {hortBotError && <p role="alert" className="rounded-md bg-rose-500/10 p-2 text-xs text-rose-600">{hortBotError}</p>}
+            </div>
+            <form onSubmit={(event) => void sendHortBotMessage(event)} className="mt-2 flex gap-2">
+              <label className="sr-only" htmlFor="hortbot-practical-message">Ask HortBot about this practical</label>
+              <input
+                id="hortbot-practical-message"
+                value={hortBotInput}
+                onChange={(event) => setHortBotInput(event.target.value)}
+                placeholder="Ask about your practical…"
+                disabled={isHortBotTyping}
+                className={`min-w-0 flex-1 rounded-md border px-2 py-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] disabled:opacity-60 ${isDark ? "border-slate-700 bg-[#080c14] text-slate-100" : "border-slate-200 bg-white text-slate-900"}`}
+              />
+              <button
+                type="submit"
+                disabled={isHortBotTyping || !hortBotInput.trim()}
+                aria-label="Send message to HortBot"
+                className={`rounded-md px-3 text-white disabled:cursor-not-allowed disabled:opacity-50 ${accentBackground}`}
+              >
+                <Send className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </form>
+          </section>
+          <section>
+            <h3 className={`text-xs font-bold ${darkText}`}>Practical hints</h3>
             <div className="mt-2 flex flex-wrap gap-2">
               {activeTask.hints.map((hint, index) => {
                 const revealedCount = revealedHints[activeTask.id] || 0;
@@ -678,7 +870,7 @@ export default function GuidedPracticalManifestBoard({
                 ))}
               </div>
             )}
-          </div>
+          </section>
           <div className="min-h-0 flex-1">
             <h3 className={`text-xs font-bold ${darkText}`}>Run output and checks</h3>
             <pre aria-live="polite" className={`mt-2 h-[min(28vh,220px)] min-h-[150px] overflow-auto whitespace-pre-wrap rounded-lg border p-3 font-mono text-[11px] ${

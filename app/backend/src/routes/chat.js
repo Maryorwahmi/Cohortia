@@ -463,14 +463,38 @@ chat.post('/message', async (c) => {
     if (learningContext.lessonContent) learningContextText += `Lesson content:\n${String(learningContext.lessonContent).slice(0, 12000)}\n`;
     if (learningContext.practicalTitle) learningContextText += `Hands-on practical: ${learningContext.practicalTitle}\n`;
     if (learningContext.practicalInstructions) learningContextText += `Practical instructions:\n${String(learningContext.practicalInstructions).slice(0, 6000)}\n`;
+    if (learningContext.practicalTeachingContext) learningContextText += `Practical teaching context:\n${String(learningContext.practicalTeachingContext).slice(0, 6000)}\n`;
     if (Array.isArray(learningContext.practicalObjectives) && learningContext.practicalObjectives.length) {
       learningContextText += `Practical objectives: ${learningContext.practicalObjectives.join('; ')}\n`;
+    }
+    if (Array.isArray(learningContext.practicalTasks) && learningContext.practicalTasks.length) {
+      learningContextText += 'Practical task sequence:\n';
+      learningContext.practicalTasks.slice(0, 20).forEach((task, index) => {
+        if (!task || typeof task !== 'object') return;
+        learningContextText += `${index + 1}. ${String(task.title || 'Task').slice(0, 200)}: ${String(task.instruction || '').slice(0, 1500)}\n`;
+        if (task.learningGoal) learningContextText += `   Learning goal: ${String(task.learningGoal).slice(0, 500)}\n`;
+        if (task.teacherTalk) learningContextText += `   Teaching explanation: ${String(task.teacherTalk).slice(0, 1000)}\n`;
+        if (task.realWorldExample) learningContextText += `   Real-world example: ${String(task.realWorldExample).slice(0, 500)}\n`;
+        if (Array.isArray(task.questions)) learningContextText += `   Reflection questions: ${task.questions.slice(0, 5).join('; ')}\n`;
+        if (Array.isArray(task.requiredConcepts)) learningContextText += `   Concepts: ${task.requiredConcepts.slice(0, 12).join('; ')}\n`;
+      });
     }
     if (learningContext.page) learningContextText += `Current page: ${learningContext.page}\n`;
     if (learningContext.currentFile) learningContextText += `Current file: ${learningContext.currentFile}\n`;
     if (learningContext.currentTaskTitle) learningContextText += `Current task: ${learningContext.currentTaskTitle}\n`;
     if (learningContext.currentTaskInstruction) learningContextText += `Current task instruction: ${String(learningContext.currentTaskInstruction).slice(0, 5000)}\n`;
+    if (learningContext.currentTaskGoal) learningContextText += `Current task learning goal: ${String(learningContext.currentTaskGoal).slice(0, 2000)}\n`;
+    if (Array.isArray(learningContext.currentTaskQuestions) && learningContext.currentTaskQuestions.length) {
+      learningContextText += `Current task reflection questions: ${learningContext.currentTaskQuestions.slice(0, 8).join('; ')}\n`;
+    }
+    if (Array.isArray(learningContext.currentTaskConcepts) && learningContext.currentTaskConcepts.length) {
+      learningContextText += `Current task concepts: ${learningContext.currentTaskConcepts.slice(0, 20).join('; ')}\n`;
+    }
     if (learningContext.currentTaskHint) learningContextText += `Available concept hint: ${String(learningContext.currentTaskHint).slice(0, 2000)}\n`;
+    if (learningContext.interactiveExercisePrompt) learningContextText += `Current interactive exercise:\n${String(learningContext.interactiveExercisePrompt).slice(0, 3000)}\n`;
+    if (learningContext.currentAnswer) learningContextText += `Learner's current answer: ${String(learningContext.currentAnswer).slice(0, 2000)}\n`;
+    if (learningContext.currentPrediction) learningContextText += `Learner's reasoning or prediction: ${String(learningContext.currentPrediction).slice(0, 3000)}\n`;
+    if (learningContext.lastCheckResult) learningContextText += `Latest practical check result: ${String(learningContext.lastCheckResult).slice(0, 4000)}\n`;
     if (learningContext.currentTaskIndex !== undefined) learningContextText += `Task position: ${Number(learningContext.currentTaskIndex) + 1} of ${learningContext.totalTasks || '?'}\n`;
     if (learningContext.completedTasks !== undefined) learningContextText += `Completed tasks: ${learningContext.completedTasks}\n`;
     if (learningContext.hasErrors !== undefined) learningContextText += `Recent run has errors: ${learningContext.hasErrors ? 'yes' : 'no'}\n`;
@@ -482,6 +506,9 @@ chat.post('/message', async (c) => {
       learningContextText += 'For practical mentoring, scaffold before solving: start with one focused question or concept hint, then a structural hint, and provide a complete solution only after the learner has made an attempt or explicitly requests the final answer.\n';
     }
   }
+  const hortBotInstruction = learningContext?.assistant === 'hortbot'
+    ? 'For this practical conversation, you are HortBot, Cohortia’s practical-learning assistant. Help only with the supplied practical and its active learner task. Use the practical task sequence, instructions, current exercise, learner answer, code, prediction, and check output as context. Give focused, actionable guidance, explain why an answer or approach needs revision, and scaffold rather than revealing expected answers or complete solutions before the learner has attempted them. Do not claim to run checks or inspect files beyond the context provided.\n\n'
+    : '';
   if (courseSyllabus) {
     learningContextText += '\n\nCOURSE SYLLABUS FROM DATABASE (authoritative):\n';
     learningContextText += `Course: ${courseSyllabus.courseTitle}\n`;
@@ -496,7 +523,7 @@ chat.post('/message', async (c) => {
   // Output format instruction
   const formatInstruction = 'Respond with clean Markdown that the app can render: use a short opening, meaningful headings when useful, blank lines between paragraphs, concise bullet lists, numbered steps for procedures, and fenced code blocks for code. Avoid one giant paragraph. Use emphasis sparingly for important terms.';
 
-  const systemPrompt = `${MENTOR_PERSONA}\n\n${modeInstruction}\n\n${formatInstruction}${memoryContext}${userContextText}${roadmapContextText}${learningContextText}\n\n${COURSE_MENTOR_POLICY}\n\nCRITICAL: You are speaking directly to the user. Use their name if known. Reference their specific goals and progress. End with a question, task, or next step. Never be generic. Never sound like an AI. Be a real mentor.`;
+  const systemPrompt = `${MENTOR_PERSONA}\n\n${modeInstruction}\n\n${hortBotInstruction}${formatInstruction}${memoryContext}${userContextText}${roadmapContextText}${learningContextText}\n\n${COURSE_MENTOR_POLICY}\n\nCRITICAL: You are speaking directly to the user. Use their name if known. Reference their specific goals and progress. End with a question, task, or next step. Never be generic. Never sound like an AI. Be a real mentor.`;
 
   const conversationContext = history
     .map((h) => `${h.role === 'user' ? 'User' : 'Cohortia'}: ${h.content}`)

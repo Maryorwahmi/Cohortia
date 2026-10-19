@@ -625,6 +625,7 @@ export interface EvidenceFile {
 
 // Chat
 export interface ChatLearningContext {
+  assistant?: 'hortbot' | 'public' | string;
   courseId?: string;
   courseTitle?: string;
   courseCategory?: string;
@@ -637,11 +638,28 @@ export interface ChatLearningContext {
   practicalTitle?: string;
   practicalInstructions?: string;
   practicalObjectives?: string[];
+  practicalTeachingContext?: string;
+  practicalTasks?: Array<{
+    title: string;
+    instruction: string;
+    learningGoal?: string;
+    teacherTalk?: string;
+    realWorldExample?: string;
+    questions?: string[];
+    requiredConcepts?: string[];
+  }>;
   currentFile?: string;
   currentCode?: string;
   currentTaskTitle?: string;
   currentTaskInstruction?: string;
+  currentTaskGoal?: string;
+  currentTaskQuestions?: string[];
+  currentTaskConcepts?: string[];
   currentTaskHint?: string;
+  interactiveExercisePrompt?: string;
+  currentAnswer?: string;
+  currentPrediction?: string;
+  lastCheckResult?: string;
   currentTaskIndex?: number;
   completedTasks?: number;
   totalTasks?: number;
