@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep, PracticalTeachingStep } from "../../services/learningBoardsApi";
 import { isMicrosoftEdge, resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
-import { estimateSpeechDurationSeconds, SpeechNarrationQueue } from "../../lib/speechNarration";
+import { estimateSpeechDurationSeconds, prepareSpeechText, SpeechNarrationQueue } from "../../lib/speechNarration";
 import { useTheme } from "../../context/ThemeContext";
 
 const TEACHER_SPEECH_RATE = 0.82;
@@ -207,9 +207,11 @@ export default function AnimatedCodeAlongPlayer({
     : activeWalkthrough.length
       ? activeWalkthrough.map((step) => step.speakerText).filter(Boolean).join(" ")
       : activePlaylist.narratorScript;
-  const activeNarrationScript = activePlaylistIndex === 0 && narratorGuide
-    ? `${narratorGuide.trim()} ${sceneNarration}`.trim()
-    : sceneNarration;
+  const activeNarrationScript = activityKind === "binary_exercise"
+    ? sceneNarration
+    : activePlaylistIndex === 0 && narratorGuide
+      ? `${narratorGuide.trim()} ${sceneNarration}`.trim()
+      : sceneNarration;
   const calculatedDurationSeconds = activeTeachingSteps.length
     ? activeTeachingSteps.reduce((total, step) => total + generatedDuration(step.durationSeconds, step.speakerText || step.explanation || step.displayText), 0)
     : activeWalkthrough.length
@@ -219,13 +221,23 @@ export default function AnimatedCodeAlongPlayer({
     generatedDuration(activePlaylist.durationSeconds, activeNarrationScript || "") || calculatedDurationSeconds,
     activePlaylistIndex === 0 ? narrationDuration(activeNarrationScript) : 0,
   );
+  const synchronizedTeachingSteps = activityKind === "binary_exercise" && activeTeachingSteps.length
+    ? (() => {
+        const stepWeights = activeTeachingSteps.map((step) => Math.max(1, prepareSpeechText(step.speakerText).length));
+        const totalWeight = stepWeights.reduce((total, weight) => total + weight, 0);
+        return activeTeachingSteps.map((step, index) => ({
+          ...step,
+          durationSeconds: activeDurationSeconds * stepWeights[index] / totalWeight,
+        }));
+      })()
+    : activeTeachingSteps;
   const activeFile = activeWalkthrough.find((step) => step.file)?.file || files[0]?.path || "workspace";
   const activeFileContent = files.find((file) => file.path === activeFile)?.content || files[0]?.content || "";
   const priorWalkthrough = walkthrough
     .filter((step) => step.file === activeFile && step.stepNumber < (activeWalkthrough[0]?.stepNumber || 0))
     .sort((left, right) => left.stepNumber - right.stepNumber);
   const codeReveal = revealWalkthroughCode(activeWalkthrough, currentTime);
-  const teachingReveal = revealTeachingText(activeTeachingSteps, currentTime);
+  const teachingReveal = revealTeachingText(synchronizedTeachingSteps, currentTime);
   const displayedCode = activeWalkthrough.length
     ? [...priorWalkthrough.map((step) => step.codeLine), codeReveal.code].filter(Boolean).join("\n")
     : activeFileContent || "// No starter code was provided for this practical.";
