@@ -56,21 +56,48 @@ export default function CourseDetails() {
     skills = course.skills?.split(/,\s*/).map((skill) => skill.trim()).filter(Boolean) || [];
   }
   if (!skills.length && details?.skills?.length) skills = details.skills;
+  const courseImage = getCourseImage(course.id, course.image);
 
   return (
     <div className="min-h-screen bg-immersive-bg pb-16 pt-24 text-left">
       <div className="mx-auto w-full max-w-[1600px] px-3 sm:px-4 lg:px-6">
         <Link to="/careers" className="mb-8 inline-flex items-center gap-2 text-xs font-bold text-immersive-text-secondary hover:text-immersive-secondary"><ArrowLeft className="h-4 w-4" /> Back to Careers</Link>
-        <header className="grid gap-8 border-b border-immersive-border pb-10 lg:grid-cols-[1fr_320px] lg:items-end">
-          <div>
-            {getCourseImage(course.id, course.image) && <img src={getCourseImage(course.id, course.image)} alt="" className="mb-6 h-48 w-full rounded-2xl object-cover sm:h-64" />}
-            <span className="mb-3 block text-xs font-mono font-bold uppercase tracking-widest text-[#FF4B3E]">Course overview</span>
-            <h1 className="max-w-4xl text-3xl font-extrabold leading-tight text-immersive-text-primary sm:text-5xl">{course.title}</h1>
-            <p className="mt-4 text-sm font-medium text-immersive-text-secondary">{course.provider || course.platform || 'Cohortia'} · {course.level || 'Self-paced'} · {course.type || 'Course'}</p>
-          </div>
-            <div className="rounded-2xl border border-immersive-border bg-immersive-card p-5 shadow-lg shadow-immersive-shadow">
-            <div className="mb-4 flex items-center gap-3 text-xs text-immersive-text-secondary"><Clock3 className="h-4 w-4 text-immersive-secondary" /> {course.duration || 'Self-paced'}</div>
-            <button type="button" onClick={handleStartCourse} className="flex w-full items-center justify-center gap-2 rounded-xl bg-immersive-primary px-5 py-3 text-sm font-bold text-white transition hover:brightness-110"><span>{user ? 'Start this course' : 'Sign up to start'}</span><ArrowRight className="h-4 w-4" /></button>
+        <header className="relative isolate overflow-hidden rounded-[2rem] border border-immersive-primary/15 bg-immersive-bg shadow-sm shadow-immersive-shadow">
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(17,17,17,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(17,17,17,0.045)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-50" />
+          <div className="pointer-events-none absolute -right-16 -top-24 h-80 w-80 rounded-full bg-immersive-primary/10 blur-3xl" />
+          <div className="relative z-10 grid items-center gap-10 px-6 py-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12 lg:px-14 lg:py-14">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center rounded-full border border-immersive-primary/20 bg-immersive-card px-3 py-1.5 text-xs font-bold uppercase tracking-[0.17em] text-immersive-primary">Course overview</span>
+              <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-immersive-text-primary sm:text-5xl lg:text-6xl">{course.title}</h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-immersive-text-secondary sm:text-lg">
+                {course.description?.trim() || details?.overview || 'Build practical knowledge and skills with this structured course.'}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2 text-sm">
+                {[course.provider || course.platform || 'Cohortia', course.level || 'Self-paced', course.type || 'Course'].map((item, index) => (
+                  <span key={`${item}-${index}`} className="rounded-full border border-immersive-border bg-immersive-card px-3 py-1.5 font-semibold text-immersive-text-secondary">{item}</span>
+                ))}
+              </div>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <button type="button" onClick={handleStartCourse} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-immersive-primary px-6 py-3 text-sm font-bold text-white shadow-md shadow-immersive-shadow transition hover:-translate-y-0.5 hover:brightness-110">
+                  <span>{user ? 'Start this course' : 'Sign up to start'}</span><ArrowRight className="h-4 w-4" />
+                </button>
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-immersive-text-secondary"><Clock3 className="h-4 w-4 text-immersive-primary" /> {course.duration || 'Self-paced'}</span>
+              </div>
+            </div>
+            <div className="relative mx-auto flex aspect-square w-full max-w-[300px] items-center justify-center sm:max-w-[340px] lg:max-w-[360px]">
+              <div className="absolute inset-0 rounded-full border border-immersive-primary/15" />
+              <div className="absolute inset-[6%] rounded-full border border-immersive-primary/20" />
+              <div className="absolute inset-[12%] rounded-full border border-immersive-primary/25" />
+              <span className="absolute left-[4%] top-[28%] h-3 w-3 rounded-full bg-immersive-primary/80" aria-hidden="true" />
+              <span className="absolute right-[3%] top-[68%] h-3.5 w-3.5 rounded-full bg-immersive-primary" aria-hidden="true" />
+              <div className="relative h-[70%] w-[70%] overflow-hidden rounded-full border-4 border-immersive-card bg-gradient-to-br from-immersive-primary/20 via-immersive-bg to-immersive-secondary/20 shadow-xl shadow-immersive-shadow">
+                {courseImage ? (
+                  <img src={courseImage} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-immersive-primary"><GraduationCap className="h-20 w-20" aria-hidden="true" /></div>
+                )}
+              </div>
+            </div>
           </div>
         </header>
 
