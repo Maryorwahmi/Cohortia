@@ -63,23 +63,23 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
       <header className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 py-10 text-center">
         <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase bg-[#FF4B3E]/10 border border-[#FF4B3E]/20 px-3.5 py-1 rounded-full inline-flex items-center gap-1.5 mb-4">
           <Award className="w-3.5 h-3.5" />
-          <span>CAREER TRACK PRICING & EXPERIENCE</span>
+          <span>CAREER ROADMAP & EXPERIENCE</span>
         </span>
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-immersive-text-primary tracking-tight leading-tight">
-          Cohortia — Career Track <span className="text-[#FF4B3E]">Pricing & Experience</span>
+          Build a Career Path <span className="text-[#FF4B3E]">That Fits You</span>
         </h1>
         <p className="mt-5 text-base sm:text-lg text-immersive-text-secondary max-w-3xl mx-auto leading-relaxed font-medium">
-          Cohortia offers three career-development paths designed around the learner’s current career situation and desired outcome. Each Career Track provides a structured learning journey, practical experience, AI-powered assistance, mentorship, community engagement, and career progression support.
+          Choose a career direction and your current skill level. Follow a guided roadmap through courses at the right stages, combine multiple courses to grow your skills, and build practical experience for your next career move.
         </p>
       </header>
 
       <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6">
         <div className="text-center mb-5">
           <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">
-            | ROADMAP SANDBOX
+            | INTERACTIVE CAREER ROADMAP
           </span>
           <h2 className="text-3xl font-extrabold text-immersive-text-primary mt-2">
-            Try It Out Interactive
+            Plan Your Learning Journey
           </h2>
         </div>
         <ExperienceTrackSim userProfile={userProfile} onOpenWizard={onOpenWizard} />
