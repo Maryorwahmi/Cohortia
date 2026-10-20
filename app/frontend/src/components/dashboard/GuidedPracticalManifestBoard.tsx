@@ -603,6 +603,14 @@ export default function GuidedPracticalManifestBoard({
           <p className={`text-sm leading-relaxed ${isDark ? "text-slate-200" : "text-slate-600"}`}>{teacherGuide.narration}</p>
           <p className={`mt-2 text-sm font-medium leading-relaxed ${isDark ? "text-amber-200" : "text-amber-700"}`}>Think first: {teacherGuide.prompt}</p>
           {teacherGuide.focus && <p className={`mt-2 text-sm leading-relaxed ${isDark ? "text-emerald-300" : "text-emerald-700"}`}>Focus: {teacherGuide.focus}</p>}
+          {activeTask?.teaching && (
+            <div className={`mt-4 grid gap-3 border-t pt-3 text-sm leading-relaxed sm:grid-cols-2 ${isDark ? "border-slate-700 text-slate-200" : "border-slate-200 text-slate-600"}`}>
+              {activeTask.teaching.chapterConnection && <p><span className="font-semibold">Why this connects:</span> {activeTask.teaching.chapterConnection}</p>}
+              {activeTask.teaching.realWorldExample && <p><span className="font-semibold">Real-world example:</span> {activeTask.teaching.realWorldExample}</p>}
+              {activeTask.teaching.workedExample && <p className="sm:col-span-2"><span className="font-semibold">Worked example:</span> {activeTask.teaching.workedExample}</p>}
+              {activeTask.teaching.recap && <p className="sm:col-span-2"><span className="font-semibold">Remember:</span> {activeTask.teaching.recap}</p>}
+            </div>
+          )}
         </section>
       )}
 

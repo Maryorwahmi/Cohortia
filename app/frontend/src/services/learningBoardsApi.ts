@@ -250,16 +250,21 @@ export interface PracticalTeacherContext {
 export interface PracticalTeaching {
   learningGoal: string;
   teacherTalk: string;
+  chapterConnection?: string;
+  conceptExplanation?: string;
   realWorldExample: string;
+  workedExample?: string;
   guidedSteps: string[];
   questions: string[];
   expectedObservations: string[];
+  commonMistakes?: string[];
   feedback?: {
     success?: string;
     misconception?: string;
     retry?: string;
   };
   recap: string;
+  transferTask?: string;
   waitForLearner: boolean;
   estimatedMinutes?: number;
 }

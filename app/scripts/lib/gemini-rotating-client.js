@@ -590,6 +590,25 @@ export async function generateCompleteJson({ prompt, systemPrompt, responseSchem
     return { success: true, data: parsed, raw: fullText };
   }
 
+  // Providers sometimes return an incomplete JSON document without marking the
+  // response as truncated. Give the model one focused repair opportunity before
+  // failing the generation, while keeping the original response for debugging.
+  if (fullText && maxContinuations > 0) {
+    console.log("  JSON was incomplete; requesting one repair response...");
+    const repair = await callGeminiDirect({
+      prompt: `Repair the following model response into one complete valid JSON object matching the requested schema. Preserve all content that is already present, fill only structurally missing closures or required values, and output JSON only. Do not use markdown fences.\n\n${fullText}`,
+      systemPrompt,
+      responseSchema,
+      maxTokens,
+      temperature: 0.2,
+      model,
+    });
+    if (repair.success) {
+      const repaired = extractJson(repair.text);
+      if (repaired) return { success: true, data: repaired, raw: `${fullText}\n${repair.text}` };
+    }
+  }
+
   // Log first 500 chars of the response for debugging
   const preview = fullText.substring(0, 500);
   const suffix = fullText.length > 500 ? `... (${fullText.length} total chars)` : '';

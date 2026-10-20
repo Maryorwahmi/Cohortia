@@ -73,6 +73,7 @@ const PRACTICAL_SCHEMA = {
     language: { type: "string", description: "Primary programming language" },
     runtime: { type: "string", description: "Runtime or compiler (e.g., clang, python, node)" },
     title: { type: "string", description: "Practical title from activity or inferred" },
+    summary: { type: "string", description: "A concise learner-facing explanation of what will be built and why it matters." },
     activityKind: {
       type: "string",
       enum: ["terminal_code_along", "cloud_console_walkthrough", "evidence_inquiry", "binary_exercise", "algorithm_design", "design_decision", "scenario_analysis", "guided_exercise"],
@@ -152,6 +153,27 @@ const PRACTICAL_SCHEMA = {
           title: { type: "string" },
           instruction: { type: "string", description: "Step instruction from HANDS-ON ACTIVITY" },
           narratorGuide: { type: "string", description: "Intensive, task-specific narrator guidance (~100-150 words). Explains the conceptual 'why' behind this specific step, uses analogies, and anticipates common novice pitfalls." },
+          teaching: {
+            type: "object",
+            description: "Teacher-led content for this task. Every field must be specific to the chapter and activity.",
+            properties: {
+              learningGoal: { type: "string" },
+              teacherTalk: { type: "string" },
+              chapterConnection: { type: "string" },
+              conceptExplanation: { type: "string" },
+              realWorldExample: { type: "string" },
+              workedExample: { type: "string" },
+              guidedSteps: { type: "array", items: { type: "string" }, minItems: 3 },
+              questions: { type: "array", items: { type: "string" }, minItems: 1 },
+              expectedObservations: { type: "array", items: { type: "string" }, minItems: 1 },
+              commonMistakes: { type: "array", items: { type: "string" }, minItems: 1 },
+              feedback: { type: "object" },
+              recap: { type: "string" },
+              transferTask: { type: "string" },
+              waitForLearner: { type: "boolean" }
+            },
+            required: ["learningGoal", "teacherTalk", "chapterConnection", "conceptExplanation", "realWorldExample", "workedExample", "guidedSteps", "questions", "expectedObservations", "commonMistakes", "recap", "transferTask"]
+          },
           stepType: { type: "string", enum: ["observe", "modify", "experiment", "verify"], description: "Pedagogical phase of this milestone" },
           requiredConcepts: { type: "array", items: { type: "string" } },
           hints: { type: "array", items: { type: "string" }, description: "Hints or 3-tier progressive guidance" },
@@ -620,6 +642,65 @@ function asStringText(value) {
     if (typeof value.narration === "string") return value.narration.trim();
   }
   return "";
+}
+
+function containsTeachingPlaceholder(value) {
+  return /small real[- ]world program|compare the result with your prediction|apply .* in a real project|follow the instructions/i.test(String(value || ""));
+}
+
+function buildTeachingFallback(task, sourceContext, index) {
+  const concepts = asStringArray(task.requiredConcepts);
+  const concept = concepts[0] || sourceContext.lessonContext?.keyConcepts?.[index] || "the main idea in this chapter";
+  const cleanConcept = concept.replace(/[`*_]/g, "").replace(/:.*/, "").replace(/\s+/g, " ").trim();
+  const chapterTitle = sourceContext.lessonChapter?.title || `chapter ${sourceContext.source.sourceKey.split("/").pop()}`;
+  const title = task.title || `task ${index + 1}`;
+  const instruction = task.instruction || "complete the practical step";
+  const existing = task.teaching && typeof task.teaching === "object" ? task.teaching : {};
+  const lowerTitle = `${sourceContext.activityTitle || ""} ${sourceContext.activityChapter?.handsOnActivity || ""} ${title}`.toLowerCase();
+  const isGreeting = /greet|hello|personaliz/.test(lowerTitle);
+  const isCalculator = /calculator|sum|difference|product|quotient|division/.test(lowerTitle);
+  const weakChapterConnection = /this practical applies .* from chapter .* by turning the chapter idea/i.test(existing.chapterConnection);
+  const weakConceptExplanation = /is the idea we need in order to understand/i.test(existing.conceptExplanation);
+  const weakWorkedExample = /first, predict what should happen[\s\S]*then use the starter code/i.test(existing.workedExample);
+  const weakRealWorldExample = containsTeachingPlaceholder(existing.realWorldExample)
+    || /imagine a .* being used in a real application/i.test(existing.realWorldExample)
+    || /a real application uses .* when it needs to process information reliably/i.test(existing.realWorldExample);
+  const scenario = weakRealWorldExample
+    ? isGreeting
+      ? `A command-line tool often greets a person, prints a status message, or displays a confirmation. The message inside printf is the program's user-facing text, just like the message on a login screen or receipt.`
+      : isCalculator
+        ? `A shopping receipt, restaurant bill, or exam-score calculator stores values, applies arithmetic, and prints a result. The variables in this program play the same role as the labelled values in those everyday tools.`
+        : `A real application uses ${cleanConcept} when it needs to process information reliably and show a useful result to a person.`
+    : existing.realWorldExample;
+  const workedExample = isGreeting
+    ? `Teacher example: start with printf("Hello, World!\\n");. After compiling with clang greeting.c -o greeting, run ./greeting and expect the terminal to print Hello, World! on one line. Change only the words inside the quotation marks to printf("Hello, Ada!\\n");, compile again, and expect Hello, Ada!. The quotation marks contain the string literal; printf sends that string to the console.`
+    : isCalculator
+      ? `Teacher example: enter 10 and 5. The program stores 10 in num1 and 5 in num2, so the sum is 15, the difference is 5, the product is 50, and the quotient is 2.0. Predict those four results before running the program, then compare each line of output with your prediction. Notice that decimal division requires a floating-point value.`
+      : ((!weakWorkedExample && existing.workedExample) || `Teacher example: ${instruction} First, predict what should happen. Then use the starter code with a simple example input, observe the exact output, and explain which part of the code produced it.`);
+  return {
+    learningGoal: existing.learningGoal || `Understand and apply ${concept}.`,
+    teacherTalk: existing.teacherTalk || task.narratorGuide || `Let's slow down and connect this task to ${chapterTitle}. We are working with ${concept}. I will model one small example first, then you will make a controlled change and explain what you observe.`,
+    chapterConnection: !weakChapterConnection && existing.chapterConnection || `In ${chapterTitle}, you learned about ${cleanConcept}. This practical is the next step: you will use that idea in a working program, observe its behavior, and explain the result in your own words.`,
+    conceptExplanation: !weakConceptExplanation && existing.conceptExplanation || `${cleanConcept} means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.`,
+    realWorldExample: scenario || `A real application uses ${concept} when it needs to process information reliably and show a useful result to a person.`,
+    workedExample,
+    guidedSteps: Array.isArray(existing.guidedSteps) && existing.guidedSteps.length >= 3
+      ? existing.guidedSteps
+      : [`I do: read the starter code and predict the result.`, `We do: make one small change and run the exact command.`, `You do: try a new input or variation and explain the evidence.`],
+    questions: Array.isArray(existing.questions) && existing.questions.length ? existing.questions : [`What do you predict will happen before you run this step?`],
+    expectedObservations: Array.isArray(existing.expectedObservations) && existing.expectedObservations.length && !containsTeachingPlaceholder(existing.expectedObservations.join(" "))
+      ? existing.expectedObservations
+      : [`The program should produce an observable result that can be explained using ${concept}.`],
+    commonMistakes: Array.isArray(existing.commonMistakes) && existing.commonMistakes.length ? existing.commonMistakes : [`A common beginner mistake is changing several things at once; change one part, run the program, and use the output to locate the cause.`],
+    feedback: existing.feedback || {
+      success: `Good work. Explain how the output proves that ${concept} is working.`,
+      misconception: `Let's compare the output with the rule for ${concept} and identify the exact line that caused the difference.`,
+      retry: `Make one small change, run the program again, and describe what changed.`
+    },
+    recap: existing.recap || `You used ${concept} in a working program and explained the result instead of only following a command.`,
+    transferTask: existing.transferTask || `Use the same idea in a new example related to everyday input, such as a receipt, score, message, or measurement.`,
+    waitForLearner: existing.waitForLearner !== false,
+  };
 }
 
 function clampInteger(value, fallback, minimum, maximum) {
@@ -1094,12 +1175,13 @@ function normalizePractical(raw, sourceContext, metadata) {
       if (checkIds.has(declaredId) && !taskCheckIds.includes(declaredId)) taskCheckIds.push(declaredId);
     }
 
+    const normalizedTeaching = buildTeachingFallback(task, sourceContext, index);
     return {
       id: taskId,
       title: task.title || `Task ${index + 1}`,
       instruction: task.instruction || task.instructions || instructions,
       narratorGuide: asStringText(task.narratorGuide) || undefined,
-      teaching: task.teaching && typeof task.teaching === "object" ? task.teaching : undefined,
+      teaching: normalizedTeaching,
       required: task.required !== false,
       stepType: ["observe", "modify", "experiment", "verify"].includes(task.stepType) ? task.stepType : undefined,
       requiredConcepts: asStringArray(task.requiredConcepts),
@@ -1544,7 +1626,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       requiredUi: experienceProfile.requiredUi,
     },
     title,
-    summary: raw.summary || "",
+    summary: raw.summary || `In this practical, you will ${instructions.replace(/\s+/g, " ").trim().replace(/[.!?]+$/, "")}. You will connect the task to ${sourceContext.lessonContext?.chapterIntroduction?.split(/[.!?]/)[0] || "the chapter concepts"} and explain what your program does.`,
     level: raw.level || sourceContext.level || undefined,
     labType,
     mode: experienceProfile.experienceType === "terminal_coding_lab"
@@ -1776,6 +1858,18 @@ function validatePractical(practical) {
     for (const task of practical.tasks) {
       if (!task.id || !task.title || !task.instruction || !Array.isArray(task.checkIds)) errors.push(`task ${task.id || "unknown"} is incomplete`);
       if (typeof task.narratorGuide !== "string" || task.narratorGuide.trim().length < 40) errors.push(`task ${task.id || "unknown"} is missing teacher narration`);
+      const teaching = task.teaching;
+      const teachingFields = ["learningGoal", "teacherTalk", "chapterConnection", "conceptExplanation", "realWorldExample", "workedExample", "recap", "transferTask"];
+      for (const field of teachingFields) {
+        if (typeof teaching?.[field] !== "string" || teaching[field].trim().length < 25 || containsTeachingPlaceholder(teaching[field])) {
+          errors.push(`task ${task.id || "unknown"} needs specific teaching.${field}`);
+        }
+      }
+      for (const field of ["guidedSteps", "questions", "expectedObservations", "commonMistakes"]) {
+        if (!Array.isArray(teaching?.[field]) || teaching[field].length < 1 || teaching[field].some((item) => typeof item !== "string" || containsTeachingPlaceholder(item))) {
+          errors.push(`task ${task.id || "unknown"} needs meaningful teaching.${field}`);
+        }
+      }
       if (taskIds.has(task.id)) errors.push(`duplicate task id ${task.id}`);
       taskIds.add(task.id);
       for (const checkId of task.checkIds || []) if (!checkIds.has(checkId)) errors.push(`task ${task.id} references missing check ${checkId}`);
@@ -2033,7 +2127,7 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
        "timeIntoScene": 3000  // ms: when to run in scene
      }]
 
-2A. TEACHER-LED LEARNING PATH:
+   2A. TEACHER-LED LEARNING PATH:
    Teach the supplied HANDS-ON ACTIVITY itself, not a generic substitute.
    Assume the learner may be seeing the concept for the first time: define each
    term before using it, show the smallest possible example, explain what the
@@ -2041,9 +2135,17 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
    Never replace teaching with phrases such as "follow the instructions" or
    "observe the result" without explaining what to look for and why.
    Break it into CONNECT, OBSERVE, CHANGE, TEST, EXPLAIN, and EXTEND paths.
-   Each task must include a worked example, a different real-world example,
-   one warm teacher question, an expected observation, and an explicit pause
-   before the learner continues. Use the exact starter file and commands.
+   Each task must include all of the following as concrete, task-specific content:
+   - chapterConnection: explicitly explain which chapter idea this uses and why this activity comes next
+   - conceptExplanation: define every new term before using it
+   - workedExample: show exact input, output, code/result, and a line-by-line explanation
+   - realWorldExample: name a real system or human situation and explain the exact connection
+   - guidedSteps: at least three steps following I DO, WE DO, YOU DO
+   - one prediction question and one check-for-understanding question
+   - expectedObservations: describe the actual output or behavior the learner should see
+   - commonMistakes: name the mistake, why a beginner makes it, and how to fix it
+   - recap and transferTask: connect the idea back to the chapter and apply it in a new situation
+   Use the exact starter file and commands. Never write phrases like "connect this to a small real-world program", "compare the result with your prediction", or "follow the instructions" as a substitute for teaching.
 
 3. SCAFFOLDED COMPLEXITY:
    - Task 1: Pre-written code, learner OBSERVES output
@@ -2092,7 +2194,7 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
    - Mix of: observe (easy), modify (medium), experiment (challenging)
    - Final check: "Can learner extend this to a new scenario?"
 
-8. JSON SCHEMA EXTENSIONS:
+   8. JSON SCHEMA EXTENSIONS:
    Return the standard schema PLUS these fields on each task:
    {
      "codeAnimationSegments": [...],  // Line-by-line narrator sync
@@ -2206,6 +2308,7 @@ export {
   buildGeminiPrompt,
   extractChapter,
   normalizePractical,
+  enhanceWithAnimationTiming,
   resolveSourceContext,
   safeRelativePath,
   validatePractical,
