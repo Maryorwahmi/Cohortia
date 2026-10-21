@@ -1263,7 +1263,8 @@ learning.post('/practical-execute', authMiddleware, async (c) => {
     if (sandboxResult) {
       return c.json({ success: sandboxResult.ok, data: sandboxResult, error: sandboxResult.ok ? undefined : sandboxResult.error }, sandboxResult.ok ? 200 : 400);
     }
-    if (process.env.COHORTIA_ALLOW_UNSANDBOXED_NATIVE_EXECUTION !== 'true') {
+    if (process.env.NODE_ENV === 'production'
+      || process.env.COHORTIA_ALLOW_UNSANDBOXED_NATIVE_EXECUTION !== 'true') {
       return c.json({
         success: false,
         error: 'Native execution is disabled until the Cloudflare isolated executor is configured. Python practicals continue to run in the browser.',
