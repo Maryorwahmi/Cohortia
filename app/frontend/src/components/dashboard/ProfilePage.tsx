@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode} from 'react';
-import {Award, Check, Clock, Compass, Download, ExternalLink, ImagePlus, LoaderCircle, LockKeyhole, Mail, Map, Pencil, Phone, ShieldCheck, Target, TrendingUp, User, X} from 'lucide-react';
+import {Award, Check, Clock, Compass, Download, ExternalLink, ImagePlus, LoaderCircle, LockKeyhole, Mail, Map as MapIcon, Pencil, Phone, ShieldCheck, Target, TrendingUp, User, X} from 'lucide-react';
 import {PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip} from 'recharts';
 import type {BackendUser, CatalogCourse, Lesson} from '../../services/api';
 import {authApi, roadmapApi, userApi} from '../../services/api';
@@ -511,7 +511,7 @@ export default function ProfilePage({
                   <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-immersive-secondary">Selected roadmap</span>
                   <h2 className="mt-1 text-base font-extrabold text-immersive-text-primary">Enrolled Track</h2>
                 </div>
-                <Map className="h-5 w-5 text-immersive-secondary" />
+                <MapIcon className="h-5 w-5 text-immersive-secondary" />
               </div>
               <p className="mt-3 text-sm font-semibold text-immersive-text-primary">
                 {userProfile.roadmapSelection?.selectedCareer || 'No career roadmap selected'}
