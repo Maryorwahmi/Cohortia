@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AssessmentQuestionContent from './AssessmentQuestionContent';
 
 interface Question {
   id: string;
@@ -68,7 +69,7 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
                 value={answer || ''}
                 onChange={(e) => onAnswer(e.target.value)}
                 placeholder="Write your answer here..."
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 min-h-40 resize-none"
+                className="select-text w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 min-h-40 resize-none"
               />
             </div>
 
@@ -104,7 +105,7 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
                 value={answer || ''}
                 onChange={(e) => onAnswer(e.target.value)}
                 placeholder="Write your solution here..."
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 min-h-48 resize-none font-mono text-sm"
+                className="select-text w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 min-h-48 resize-none font-mono text-sm"
               />
             </div>
           </div>
@@ -124,14 +125,6 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
                   <p className="text-sm font-medium text-gray-300">
                     Code ({question.language || 'text'}):
                   </p>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(question.code!);
-                    }}
-                    className="text-xs text-purple-400 hover:text-purple-300 transition"
-                  >
-                    📋 Copy
-                  </button>
                 </div>
                 <pre className="max-w-full overflow-x-auto rounded-lg border border-slate-600 bg-slate-700/50 p-4 font-mono text-sm whitespace-pre text-green-400">
                   {question.code}
@@ -156,7 +149,7 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
                 value={answer || ''}
                 onChange={(e) => onAnswer(e.target.value)}
                 placeholder="Enter the output..."
-                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 min-h-32 resize-none font-mono text-sm"
+                className="select-text w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 min-h-32 resize-none font-mono text-sm"
               />
             </div>
           </div>
@@ -170,7 +163,7 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
               value={answer || ''}
               onChange={(e) => onAnswer(e.target.value)}
               placeholder="Write your answer here..."
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 min-h-32 resize-none"
+              className="select-text w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 min-h-32 resize-none"
             />
           </div>
         );
@@ -180,7 +173,7 @@ export default function QuestionDisplay({ question, answer, onAnswer }: Props) {
   return (
     <div className="space-y-6">
       {/* Question Content */}
-      {renderQuestion()}
+      <AssessmentQuestionContent>{renderQuestion()}</AssessmentQuestionContent>
 
       {/* Explanation Section */}
       {question.explanation && (

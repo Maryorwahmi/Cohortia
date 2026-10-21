@@ -4,6 +4,7 @@ import { UserPreferences, CohortTrackId } from "../../types";
 import type { ImmersiveAssessment } from "../immersive/ImmersiveChapterViewer";
 import { learningBoardsApi } from "../../services/learningBoardsApi";
 import type { AssessmentAnswerEvaluation } from "../../services/learningBoardsApi";
+import AssessmentQuestionContent from "../assessments/AssessmentQuestionContent";
 
 interface AssessmentEngineProps {
   userProfile: UserPreferences;
@@ -353,7 +354,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
           <span className="text-[#FF4B3E]">Assessment</span>
                 </div>
 
-                <div className="space-y-4">
+                <AssessmentQuestionContent className="space-y-4">
                   <h4 className="text-sm sm:text-base font-extrabold text-immersive-text-primary leading-relaxed">
                     {questions[currentQuestionIdx].question}
                   </h4>
@@ -425,7 +426,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
                         onChange={(e) => handleWrittenAnswerChange(questions[currentQuestionIdx].id, e.target.value)}
                         disabled={submittedCaseStudies[questions[currentQuestionIdx].id] || answerEvaluations[questions[currentQuestionIdx].id]?.status === "evaluating"}
                         placeholder="Write your answer for assessment-key grading..."
-                        className="w-full bg-white border border-slate-300 p-3 rounded-xl text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#FF4B3E]/60 resize-none h-32 leading-relaxed"
+                        className="select-text w-full bg-white border border-slate-300 p-3 rounded-xl text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#FF4B3E]/60 resize-none h-32 leading-relaxed"
                       />
                       {!submittedCaseStudies[questions[currentQuestionIdx].id] ? (
                         <button
@@ -466,7 +467,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
                         disabled={submittedCaseStudies[questions[currentQuestionIdx].id] || answerEvaluations[questions[currentQuestionIdx].id]?.status === "evaluating"}
                         placeholder="Write your solution here..."
                         spellCheck={false}
-                        className="h-36 w-full resize-none rounded-xl border border-slate-300 bg-white p-3 font-mono text-xs leading-relaxed text-slate-900 placeholder:text-slate-400 focus:border-[#FF4B3E]/60 focus:outline-none"
+                        className="select-text h-36 w-full resize-none rounded-xl border border-slate-300 bg-white p-3 font-mono text-xs leading-relaxed text-slate-900 placeholder:text-slate-400 focus:border-[#FF4B3E]/60 focus:outline-none"
                       />
                       {!submittedCaseStudies[questions[currentQuestionIdx].id] ? (
                         <button
@@ -501,7 +502,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
                             onChange={(e) => handleWrittenAnswerChange(questions[currentQuestionIdx].id, e.target.value)}
                             placeholder="Write your answer and explain your reasoning..."
                             spellCheck={false}
-                            className="h-28 w-full resize-none rounded-xl border border-slate-300 bg-white p-3 font-mono text-xs leading-relaxed text-slate-900 placeholder:text-slate-400 focus:border-[#FF4B3E]/60 focus:outline-none"
+                            className="select-text h-28 w-full resize-none rounded-xl border border-slate-300 bg-white p-3 font-mono text-xs leading-relaxed text-slate-900 placeholder:text-slate-400 focus:border-[#FF4B3E]/60 focus:outline-none"
                           />
                           <button
                             onClick={() => handleEvaluateAnswer(questions[currentQuestionIdx])}
@@ -537,7 +538,7 @@ export default function AssessmentEngine({ userProfile, selectedLesson, onUpdate
                   )}
                   {renderAnswerEvaluation(questions[currentQuestionIdx].id)}
 
-                </div>
+                </AssessmentQuestionContent>
               </>
             ) : (
               <div className="py-10 text-center">

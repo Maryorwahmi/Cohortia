@@ -1,6 +1,7 @@
 import {useEffect, useState, type ChangeEvent} from 'react';
 import {AlertCircle, CheckCircle2, ChevronDown, Clock3, Code2, ListChecks} from 'lucide-react';
 import {CourseFinalExamAttempt, CourseFinalPackage, EvidenceFile, projectApi} from '../../services/api';
+import AssessmentQuestionContent from '../assessments/AssessmentQuestionContent';
 
 interface CourseFinalBoardProps {
   courseFinal: CourseFinalPackage;
@@ -431,12 +432,14 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
                 const options = [...question.prompt.matchAll(/^\s*([A-D])[.)]\s*(.+)$/gim)]
                   .map((match) => ({letter: match[1].toUpperCase(), text: match[2].trim()}));
                 const prompt = question.prompt.replace(/^\s*([A-D])[.)]\s*.+$/gim, '').trim();
-                return <div key={question.id} className="rounded-xl border border-immersive-border p-3 space-y-2">
+                return <div key={question.id}>
+                  <AssessmentQuestionContent className="rounded-xl border border-immersive-border p-3 space-y-2">
                   <p className="text-xs uppercase font-mono tracking-wide text-[#FF4B3E]">{question.section} · Question {question.questionNumber}</p>
                   <p className="text-base font-semibold leading-relaxed text-immersive-text-primary whitespace-pre-line">{prompt}</p>
                   {options.length ? <div className="space-y-2">{options.map((option) => <label key={option.letter} className="flex items-start gap-2 text-sm leading-relaxed text-immersive-text-secondary"><input type="radio" name={question.id} value={option.letter} disabled={!canEditAnswers || examBusy} checked={answers[question.id] === option.letter} onChange={() => setAnswers((current) => ({...current, [question.id]: option.letter}))} onBlur={() => void saveAnswer(question.id)} /><span><strong className="mr-1">{option.letter}.</strong>{option.text}</span></label>)}</div>
-                    : <textarea aria-label={`Answer to question ${question.questionNumber}`} disabled={!canEditAnswers || examBusy} value={answers[question.id] || ''} onChange={(event) => setAnswers((current) => ({...current, [question.id]: event.target.value}))} onBlur={() => void saveAnswer(question.id)} rows={5} maxLength={12_000} className="w-full rounded-lg border border-immersive-border bg-immersive-bg p-3 text-sm leading-relaxed text-immersive-text-primary disabled:opacity-60" placeholder="Write your answer..." />}
+                    : <textarea aria-label={`Answer to question ${question.questionNumber}`} disabled={!canEditAnswers || examBusy} value={answers[question.id] || ''} onChange={(event) => setAnswers((current) => ({...current, [question.id]: event.target.value}))} onBlur={() => void saveAnswer(question.id)} rows={5} maxLength={12_000} className="select-text w-full rounded-lg border border-immersive-border bg-immersive-bg p-3 text-sm leading-relaxed text-immersive-text-primary disabled:opacity-60" placeholder="Write your answer..." />}
                   {currentAttempt.answers.find((answer) => answer.questionId === question.id)?.feedback && <p className="text-sm text-immersive-text-secondary">{currentAttempt.answers.find((answer) => answer.questionId === question.id)?.feedback}</p>}
+                  </AssessmentQuestionContent>
                 </div>;
               })}
             </div>
