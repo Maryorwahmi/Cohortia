@@ -1038,7 +1038,6 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
         question: question.question,
         explanation: question.explanation,
         options: question.options ? JSON.parse(question.options) : undefined,
-        correctOption: question.correctOption,
         language: question.language,
         code: question.code,
         expectedOutput: question.expectedOutput,
