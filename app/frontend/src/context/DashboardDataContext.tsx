@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "./AuthContext";
-import { learningApi, mentorApi, projectApi, roadmapApi, trackApi, userApi, type Lesson, type Track } from "../services/api";
-import { learningBoardsApi } from "../services/learningBoardsApi";
+import { learningApi, roadmapApi, trackApi, userApi, type Lesson, type Track } from "../services/api";
 import { DashboardMilestone } from "../data/dashboardData";
 import { trackLessonsToDashboardMilestones, LessonProgress } from "../lib/roadmap";
 
@@ -126,39 +125,6 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void load();
   }, [load]);
-
-  useEffect(() => {
-    if (!user || loading || !track?.id || isRoadmap) return;
-
-    let cancelled = false;
-    const prefetch = () => {
-      if (cancelled) return;
-
-      void Promise.allSettled([
-        learningBoardsApi.getCourses().then(async (courses) => {
-          const course = courses.find((candidate) =>
-            candidate.courseId === track.id || candidate.course.trim().toLowerCase() === track.title.trim().toLowerCase(),
-          );
-          if (!course) return;
-          await Promise.allSettled([
-            learningBoardsApi.getCourseChapters(course.courseId),
-            learningBoardsApi.getCourseProgress(course.courseId),
-          ]);
-        }),
-        mentorApi.getContext(),
-        projectApi.getSubmissions(),
-      ]);
-    };
-
-    const idleWindow = typeof window.requestIdleCallback === "function"
-      ? window.requestIdleCallback(prefetch, { timeout: 1500 })
-      : window.setTimeout(prefetch, 0);
-
-    return () => {
-      cancelled = true;
-      if (typeof idleWindow === "number") window.clearTimeout(idleWindow);
-    };
-  }, [isRoadmap, loading, track, user]);
 
   const completeLesson = useCallback(async (lessonId: string) => {
     await learningApi.completeLesson(lessonId);

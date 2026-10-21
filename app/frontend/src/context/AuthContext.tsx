@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { authApi, BackendUser, AuthResponse } from '../services/api.js';
 import { invalidateRequestCache } from '../services/requestCache';
+import { prefetchDashboardAfterAuth } from '../services/dashboardPrefetch';
 
 interface AuthState {
   user: BackendUser | null;
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const res = await authApi.getMe();
           if (res.success && res.data?.user) {
             setUser(res.data.user);
+            prefetchDashboardAfterAuth(res.data.user);
           } else {
             localStorage.removeItem('cohortia_token');
           }
@@ -47,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.success && res.data?.token) {
         localStorage.setItem('cohortia_token', res.data.token);
         setUser(res.data.user || null);
+        prefetchDashboardAfterAuth(res.data.user || null);
         return { success: true, adminRole: res.data.user?.adminRole };
       }
       return { success: false, message: res.error || 'Login failed' };
@@ -65,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.success && res.data?.token) {
         localStorage.setItem('cohortia_token', res.data.token);
         setUser(res.data.user || null);
+        prefetchDashboardAfterAuth(res.data.user || null);
         return { success: true };
       }
       return {
@@ -93,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await authApi.getMe();
     if (res.success && res.data?.user) {
       setUser(res.data.user);
+      prefetchDashboardAfterAuth(res.data.user);
       return true;
     }
     localStorage.removeItem('cohortia_token');

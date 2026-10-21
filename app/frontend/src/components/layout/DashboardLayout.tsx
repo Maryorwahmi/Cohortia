@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {Suspense, useState} from 'react';
 import {Outlet} from 'react-router-dom';
 import DashboardSidebar from '../dashboard/DashboardSidebar';
 import Header from '../Header';
@@ -15,7 +15,9 @@ export default function DashboardLayout() {
         <div className={`flex min-h-screen min-w-0 flex-col relative transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
           <Header />
           <main className="min-h-[calc(100vh-80px)] flex flex-col pt-20 md:pt-0">
-            <Outlet />
+            <Suspense fallback={<div className="min-h-[calc(100vh-80px)] animate-pulse bg-immersive-bg" aria-label="Loading dashboard page" />}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </div>

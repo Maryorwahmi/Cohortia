@@ -30,7 +30,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
-      <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-immersive-bg text-sm text-immersive-text-secondary">Loading workspace…</div>}>
+      <Suspense fallback={<div className="min-h-screen bg-immersive-bg" aria-label="Loading page" />}>
       <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />

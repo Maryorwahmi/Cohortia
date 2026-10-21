@@ -27,16 +27,13 @@ export default function Progress() {
     );
   }, [track, lessons, milestones, progress, completedSteps, practicalAttempts]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-immersive-bg flex items-center justify-center">
-        <div className="animate-pulse text-immersive-secondary font-mono text-sm">Loading progress...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative">
+      {loading && (
+        <div className="pointer-events-none fixed right-4 top-20 z-40 rounded-full border border-immersive-border bg-immersive-card/90 px-3 py-1.5 text-[10px] font-mono text-immersive-text-secondary shadow-lg">
+          Updating progress…
+        </div>
+      )}
       <RoadmapSummary selection={userProfile.roadmapSelection} completedSteps={completedSteps} />
       {error && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-xl text-xs font-mono font-bold">
