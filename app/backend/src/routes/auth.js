@@ -449,7 +449,7 @@ auth.get('/google', (c) => {
 
   const state = jwt.sign(
     { purpose: 'google_oauth', nonce: crypto.randomBytes(32).toString('base64url') },
-    jwtSecret(),
+    getJwtSecret(),
     { expiresIn: '10m' }
   );
   setOAuthStateCookie(c, state);
