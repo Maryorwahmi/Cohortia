@@ -20,7 +20,7 @@ import {
   FileCode2,
   Terminal
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ExperienceTrackSim from "./ExperienceTrack";
 import { UserPreferences } from "../types";
 
@@ -31,7 +31,10 @@ interface ExperienceTrackPageProps {
 
 export default function ExperienceTrackPage({ userProfile, onOpenWizard }: ExperienceTrackPageProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activePlanTab, setActivePlanTab] = useState<"pivot" | "upskill" | "lead">("pivot");
+  const onboardingMessage = new URLSearchParams(location.search).get("onboarding");
+  const showOnboardingMessage = onboardingMessage === "required" || onboardingMessage === "google";
 
   const comparisonRows = [
     { feature: "Career Goal", pivot: "Change careers into tech", upskill: "Grow in current role", lead: "Lead & specialize" },
@@ -58,6 +61,13 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
 
   return (
     <main className="pt-24 pb-16 min-h-screen bg-immersive-bg text-left">
+      {showOnboardingMessage && (
+        <div className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 pt-6">
+          <div className="rounded-2xl border border-[#FF4B3E]/40 bg-[#FF4B3E]/10 px-4 py-3 text-center text-sm font-bold tracking-wide text-[#FF4B3E]">
+            Complete your roadmap to continue
+          </div>
+        </div>
+      )}
       
       {/* 1. Header / Hero */}
       <header className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 py-10 text-center">
