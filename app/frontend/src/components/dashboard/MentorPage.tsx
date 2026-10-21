@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Send, Paperclip, Check, User, Mic } from "lucide-react";
+import { Sparkles, Send, Paperclip, User, Mic } from "lucide-react";
 import { UserPreferences } from "../../types";
 import { chatApi } from "../../services/api";
 
@@ -15,18 +15,10 @@ interface MentorContext {
   goals?: string[];
 }
 
-interface CheckIn {
-  id?: string;
-  createdAt?: string;
-  notes?: string;
-  mood?: string;
-}
-
 interface MentorPageProps {
   userProfile: UserPreferences;
   mentorContext?: MentorContext;
   onUpdateContext?: (update: MentorContext) => void | Promise<void>;
-  checkIns?: CheckIn[];
 }
 
 interface ActiveLearningContext {
@@ -59,7 +51,7 @@ interface SpeechRecognitionLike {
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
-export default function MentorPage({ userProfile, mentorContext, onUpdateContext, checkIns }: MentorPageProps) {
+export default function MentorPage({ userProfile, mentorContext, onUpdateContext }: MentorPageProps) {
   const [activeLearningContext] = useState<ActiveLearningContext | null>(() => {
     if (typeof window === "undefined") return null;
     try {
@@ -236,11 +228,6 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
     recognition.start();
   };
 
-  const triggerWeeklyCheckin = () => {
-    const checkinPrompt = "Let's perform my weekly check-in! Review my commitment style and give me an action plan for this week.";
-    handleSendMessage(checkinPrompt);
-  };
-
   const renderFormattedMessage = (text: string) => {
     if (!text) return null;
     const lines = text.split("\n");
@@ -367,127 +354,7 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
         </div>
 
         <div className="mentor-workspace grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch h-auto lg:h-[calc(100vh-180px)] min-h-[420px] lg:min-h-[600px]">
-          
-          {/* Left Panel: Tuning & Mode Controls - 4 columns */}
-          <div className="lg:col-span-4 flex flex-col space-y-6 overflow-y-auto pr-2 scrollbar-thin pb-4">
-            
-            {/* Mentor Memory Card */}
-            <div className="bg-immersive-card border border-immersive-border rounded-3xl p-5 sm:p-6 text-left space-y-3.5 shadow-xl shadow-immersive-shadow">
-              <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest block">
-                Your Mentor Memory
-              </span>
-              <div className="space-y-2 text-xs font-medium text-immersive-text-secondary">
-                <p>
-                  • Experience: <span className="text-immersive-text-primary font-bold capitalize">{userProfile.experience}</span>
-                </p>
-                <p>
-                  • Commitment: <span className="text-immersive-text-primary font-bold capitalize">{userProfile.commitment === "fulltime" ? "Full-Time" : "Part-Time"}</span>
-                </p>
-                <p>
-                  • Curated Target: <span className="text-immersive-text-primary font-bold uppercase">{userProfile.track} track</span>
-                </p>
-                {mentorContext?.pendingAction && (
-                  <p>
-                    • Next Action: <span className="text-[#FF4B3E] font-bold">{mentorContext.pendingAction}</span>
-                  </p>
-                )}
-                {mentorContext?.conversationSummary && (
-                  <p className="text-[10px] text-immersive-text-secondary/70 line-clamp-3">
-                    {mentorContext.conversationSummary.slice(0, 200)}...
-                  </p>
-                )}
-              </div>
-              <div className="pt-2.5 border-t border-immersive-border/30">
-                <button
-                  onClick={triggerWeeklyCheckin}
-                  className="w-full py-2 px-4 rounded-xl text-xs font-bold text-immersive-bg bg-immersive-secondary hover:bg-white transition-all cursor-pointer flex items-center justify-center space-x-1.5 shadow"
-                >
-                  <span>Weekly Check-in ➔</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Check-in History */}
-            {checkIns && checkIns.length > 0 && (
-              <div className="bg-immersive-card border border-immersive-border rounded-3xl p-5 sm:p-6 text-left space-y-3.5 shadow-xl shadow-immersive-shadow">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest block">
-                    Check-in History
-                  </span>
-                  <Check className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
-                  {checkIns.slice(0, 5).map((ci, idx) => (
-                    <div key={ci.id || idx} className="p-2.5 bg-immersive-bg/50 border border-immersive-border/40 rounded-xl">
-                      <span className="text-[9px] font-mono text-immersive-text-secondary/70 block">
-                        {ci.createdAt ? new Date(ci.createdAt).toLocaleDateString() : "Recent"}
-                      </span>
-                      <p className="text-[11px] text-immersive-text-primary font-medium line-clamp-2">
-                        {ci.notes || ci.mood || "Check-in recorded"}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Coaching Availability Slots */}
-            <div className="bg-immersive-card border border-immersive-border rounded-3xl p-5 sm:p-6 text-left space-y-3.5 shadow-xl shadow-immersive-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-immersive-secondary uppercase tracking-widest block">
-                  Book Live Coaching
-                </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              </div>
-              <p className="text-[10px] text-immersive-text-secondary/80 font-medium">
-                Select an available real-time 1-on-1 session:
-              </p>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {[
-                  { time: "10:00 AM", available: true },
-                  { time: "11:30 AM", available: false },
-                  { time: "02:00 PM", available: true },
-                  { time: "04:15 PM", available: true },
-                ].map((slot, idx) => (
-                  <button
-                    key={idx}
-                    disabled={!slot.available}
-                    onClick={() => alert(`Booked coaching session for ${slot.time}`)}
-                    className={`p-2 rounded-xl text-xs font-bold transition-all border ${
-                      slot.available
-                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-immersive-bg cursor-pointer"
-                        : "border-immersive-border/40 bg-immersive-bg/50 text-immersive-text-secondary/40 cursor-not-allowed"
-                    }`}
-                  >
-                    {slot.time}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Audit Request */}
-            <div className="bg-immersive-card border border-immersive-border rounded-3xl p-5 sm:p-6 text-left space-y-3.5 shadow-xl shadow-immersive-shadow relative overflow-hidden group">
-              <div className="absolute inset-0 bg-immersive-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative z-10">
-                <span className="text-xs font-mono font-bold text-[#FF4B3E] uppercase tracking-widest block mb-2">
-                  Project Evaluation
-                </span>
-                <p className="text-[10px] text-immersive-text-secondary font-medium mb-4">
-                  Finished a milestone? Request a full code review and project audit from your mentor.
-                </p>
-                <button
-                  onClick={() => handleSendMessage("I have completed my latest project milestone. Please perform a full code review and structural project audit.")}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-immersive-text-primary bg-immersive-primary hover:brightness-110 transition-all cursor-pointer shadow-md shadow-immersive-shadow"
-                >
-                  Request Project Audit
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Right Panel: Chat Interface - 8 columns */}
-          <div className="lg:col-span-8 flex flex-col justify-between bg-immersive-card border border-immersive-border rounded-3xl shadow-xl shadow-immersive-shadow overflow-hidden h-full">
+          <div className="lg:col-span-12 flex flex-col justify-between bg-immersive-card border border-immersive-border rounded-3xl shadow-xl shadow-immersive-shadow overflow-hidden h-full">
             
             {/* Chat Top Bar */}
             <div className="px-6 py-4 border-b border-immersive-border/60 bg-immersive-bg/40 flex items-center justify-between">

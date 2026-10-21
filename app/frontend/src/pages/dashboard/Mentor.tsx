@@ -10,32 +10,17 @@ interface MentorContext {
   goals?: string[];
 }
 
-interface CheckIn {
-  id?: string;
-  createdAt?: string;
-  notes?: string;
-  mood?: string;
-}
-
 export default function Mentor() {
   const {user} = useAuth();
   const [mentorContext, setMentorContext] = useState<MentorContext | undefined>(undefined);
-  const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [contextRes, checkInsRes] = await Promise.all([
-          mentorApi.getContext(),
-          mentorApi.getCheckIns(),
-        ]);
+        const contextRes = await mentorApi.getContext();
         const ctx = contextRes.data?.context as MentorContext | undefined;
         if (ctx) setMentorContext(ctx);
-        const checks = Array.isArray(checkInsRes.data?.checkIns)
-          ? (checkInsRes.data?.checkIns as CheckIn[])
-          : [];
-        setCheckIns(checks);
       } catch (err) {
         console.error("Failed to load mentor context", err);
       } finally {
@@ -74,7 +59,6 @@ export default function Mentor() {
       userProfile={userProfile}
       mentorContext={mentorContext}
       onUpdateContext={handleUpdateContext}
-      checkIns={checkIns}
     />
   );
 }
