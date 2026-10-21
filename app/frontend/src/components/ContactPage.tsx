@@ -15,7 +15,7 @@ const INITIAL_FAQS: FAQItem[] = [
   },
   {
     q: "How does the 14-day refund policy operate?",
-    a: "We offer a 100% full tuition refund guarantee up to 14 days after your cohort launch date. If you decide the pacing, platform, or collaborative structure isn't a fit for you, simply file a ticket. No questions asked, and zero processing fees.",
+    a: "Refund eligibility depends on the terms shown for your enrollment. If you have questions about a purchase or need help with a refund request, send us a message using the contact form and our team can review it with you.",
     open: false
   },
   {
@@ -25,7 +25,42 @@ const INITIAL_FAQS: FAQItem[] = [
   },
   {
     q: "What is the Cohort Placement Rate?",
-    a: "Over 91.5% of verified candidates who complete all 5 milestone sprint blocks find relevant high-paying offers in their field within 180 days of graduation. Placement pipelines directly hook your project reviews to recruiter databases at partner networks.",
+    a: "Cohortia provides learning paths, practical experience, and progress tracking to support your career development. Outcomes depend on your experience, effort, and the opportunities available; we do not guarantee a job or placement.",
+    open: false
+  },
+  {
+    q: "How do I choose the right courses for my career goal?",
+    a: "Use the Experience Track roadmap builder to choose a career direction and learning goal, then review and select courses for the available learning levels. The roadmap keeps your chosen courses together in a suggested progression.",
+    open: false
+  },
+  {
+    q: "Can I take more than one course?",
+    a: "Yes. You can select multiple courses while building your roadmap. Your selected courses are shown together in the order of your learning path.",
+    open: false
+  },
+  {
+    q: "Can I start if I am new to technology?",
+    a: "Yes. Choose a beginner learning stage when building your roadmap. The available course recommendations depend on the career direction and goal you select.",
+    open: false
+  },
+  {
+    q: "What is included in a course?",
+    a: "Course content is organized into modules and chapters. Depending on the course, you may also find practical activities, assessments, and a final examination. Open a course page to see its specific content.",
+    open: false
+  },
+  {
+    q: "How is my learning progress tracked?",
+    a: "Your profile and learning dashboard use your selected roadmap and recorded course activity to show your course progress. Complete lessons in your chosen courses to keep that progress up to date.",
+    open: false
+  },
+  {
+    q: "How do course certificates work?",
+    a: "Certificate availability depends on the course. For courses that offer certification, complete the course lessons and pass its final examination to meet the completion requirements.",
+    open: false
+  },
+  {
+    q: "How can I get help with my account or learning?",
+    a: "Send us a message using the contact form on this page. Include the email address on your account and a brief description of what you need help with. Do not include your password or verification codes.",
     open: false
   }
 ];
