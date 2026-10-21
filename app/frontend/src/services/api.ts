@@ -393,6 +393,11 @@ export const adminApi = {
     });
     return response;
   },
+  deleteUser: (userId: string, confirmEmail: string) =>
+    fetchApi<{success: boolean; message?: string; warning?: string; error?: string}>(`/admin/users/${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
+      body: JSON.stringify({confirmEmail}),
+    }),
   getCommunityReports: () => fetchApi<{success: boolean; data?: {reports: Array<Record<string, unknown>>}; error?: string}>('/admin/community/reports'),
   getCommunityStats: () => fetchApi<{success: boolean; data?: {totalPosts: number; openReports: number; hiddenPosts: number}; error?: string}>('/admin/community/stats'),
   moderateCommunityPost: (postId: string, data: {status?: 'published' | 'hidden' | 'removed'; isPinned?: boolean; isLocked?: boolean; isSolved?: boolean; reason?: string}) =>

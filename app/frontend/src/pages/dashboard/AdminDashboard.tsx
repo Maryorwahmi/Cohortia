@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {BookOpen, Check, ClipboardCheck, Search, ShieldCheck, TerminalSquare, UserRoundCog, X} from 'lucide-react';
+import {BookOpen, Check, ClipboardCheck, Search, ShieldCheck, TerminalSquare, Trash2, UserRoundCog, X} from 'lucide-react';
 import {adminApi, AdminCourse, AdminCoursePermission, AdminManagedUser} from '../../services/api';
 import {useAuth} from '../../context/AuthContext';
 
@@ -36,6 +36,8 @@ export default function AdminDashboard() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteEmailConfirmation, setDeleteEmailConfirmation] = useState('');
   const [communityReports, setCommunityReports] = useState<Array<Record<string, any>>>([]);
   const [communityStats, setCommunityStats] = useState({totalPosts: 0, openReports: 0, hiddenPosts: 0});
 
@@ -178,6 +180,26 @@ export default function AdminDashboard() {
     }
   };
 
+  const deleteSelectedUser = async () => {
+    if (!selectedUser || deleteEmailConfirmation.trim().toLowerCase() !== selectedUser.email.toLowerCase()) return;
+    setSaving(true);
+    setError('');
+    setNotice('');
+    try {
+      const response = await adminApi.deleteUser(selectedUser.id, deleteEmailConfirmation);
+      setUsers((current) => current.filter((account) => account.id !== selectedUser.id));
+      setSelectedUserId('');
+      setGrants({});
+      setDeleteDialogOpen(false);
+      setDeleteEmailConfirmation('');
+      setNotice(`${response.message || `Account deleted for ${selectedUser.name}.`}${response.warning ? ` ${response.warning}` : ''}`);
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : 'Could not delete this account.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const openCourseBoard = (course: AdminCourse, mode: 'screens' | 'practicals') => {
     localStorage.setItem('cohortia_active_learning_context', JSON.stringify({
       courseId: course.id,
@@ -239,7 +261,12 @@ export default function AdminDashboard() {
             <select
               aria-label="Select a user to manage admin access"
               value={selectedUserId}
-              onChange={(event) => { setSelectedUserId(event.target.value); setNotice(''); }}
+              onChange={(event) => {
+                setSelectedUserId(event.target.value);
+                setNotice('');
+                setDeleteDialogOpen(false);
+                setDeleteEmailConfirmation('');
+              }}
               className="min-w-0 flex-1 rounded-xl border border-immersive-border bg-immersive-bg px-3 py-3 text-sm text-immersive-text-primary"
             >
               <option value="">Choose a registered user</option>
@@ -259,6 +286,15 @@ export default function AdminDashboard() {
                     Revoke
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => { setDeleteDialogOpen(true); setDeleteEmailConfirmation(''); setError(''); }}
+                  disabled={saving}
+                  className="inline-flex items-center gap-2 rounded-xl border border-rose-500/40 px-4 py-3 text-sm font-bold text-rose-400 disabled:opacity-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete account
+                </button>
               </div>
             )}
           </div>
@@ -329,6 +365,50 @@ export default function AdminDashboard() {
             </>
           )}
         </section>
+      )}
+
+      {isAlphaAdmin && selectedUser && deleteDialogOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4" role="presentation">
+          <section
+            aria-labelledby="delete-account-title"
+            aria-modal="true"
+            className="w-full max-w-lg rounded-2xl border border-rose-500/30 bg-immersive-card p-6 shadow-2xl"
+            role="alertdialog"
+          >
+            <h2 id="delete-account-title" className="text-lg font-extrabold text-rose-400">Permanently delete this account?</h2>
+            <p className="mt-3 text-sm text-immersive-text-secondary">
+              This deletes <strong className="text-immersive-text-primary">{selectedUser.name}</strong> and their private learning data. Their public community posts and comments remain but are anonymized. This cannot be undone.
+            </p>
+            <label className="mt-5 block text-sm font-semibold text-immersive-text-primary" htmlFor="delete-account-email">
+              Enter <span className="font-mono">{selectedUser.email}</span> to confirm
+            </label>
+            <input
+              autoComplete="off"
+              id="delete-account-email"
+              onChange={(event) => setDeleteEmailConfirmation(event.target.value)}
+              value={deleteEmailConfirmation}
+              className="mt-2 w-full rounded-xl border border-immersive-border bg-immersive-bg px-3 py-3 text-sm text-immersive-text-primary"
+            />
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => { setDeleteDialogOpen(false); setDeleteEmailConfirmation(''); }}
+                disabled={saving}
+                className="rounded-xl border border-immersive-border px-4 py-2.5 text-sm font-bold text-immersive-text-secondary disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void deleteSelectedUser()}
+                disabled={saving || deleteEmailConfirmation.trim().toLowerCase() !== selectedUser.email.toLowerCase()}
+                className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? 'Deleting…' : 'Permanently delete'}
+              </button>
+            </div>
+          </section>
+        </div>
       )}
 
       <section>

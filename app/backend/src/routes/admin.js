@@ -3,21 +3,52 @@ import { and, eq, inArray, notInArray } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import {
   adminCoursePermissions,
+  aiLessons,
+  automationJobs,
+  bookings,
   catalogCourses,
   csAssessments,
+  communityBookmarks,
+  communityComments,
+  communityModerationActions,
+  communityPosts,
+  communityReactions,
+  communityReports,
+  courseFinalExamAttemptAnswers,
+  courseFinalExamAttemptGrants,
+  courseFinalExamAttempts,
+  courseFinalReviewAudit,
+  eventRsvps,
+  enrollments,
+  internshipSubmissions,
   learningBoardChapters,
   learningBoardPracticals,
+  learningBoardProgress,
   learningBoardScreens,
+  mentorContext,
+  notifications,
+  progress,
+  projectTemplates,
+  studentPracticalAttempts,
+  studentPracticalProgress,
+  studyRoomParticipants,
+  studyRooms,
+  userActivityLog,
+  userActionTokens,
+  userCourseFinalProgress,
+  userLessonProgress,
+  userProjectSubmissionFiles,
+  userProjectSubmissions,
+  userRoadmaps,
   users,
-  communityPosts,
-  communityReports,
-  communityModerationActions,
 } from '../db/schema.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { desc, sql } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { deleteR2Object, isR2Configured } from '../lib/r2Storage.js';
 
 const admin = new Hono();
+const ANONYMIZED_USER_ID = 'deleted-account';
 
 admin.use('*', authMiddleware);
 admin.use('*', async (c, next) => {
@@ -205,6 +236,149 @@ admin.delete('/users/:userId/access', async (c) => {
   await db.delete(adminCoursePermissions).where(eq(adminCoursePermissions.adminUserId, userId));
   await db.update(users).set({ adminRole: null, updatedAt: new Date().toISOString() }).where(eq(users.id, userId));
   return c.json({ success: true, message: 'Admin access revoked' });
+});
+
+admin.delete('/users/:userId', async (c) => {
+  if (!isAlphaAdmin(c)) return c.json({ success: false, error: 'Only the alpha admin can delete user accounts' }, 403);
+
+  const userId = c.req.param('userId');
+  if (userId === c.get('userId')) {
+    return c.json({ success: false, error: 'You cannot delete your own account' }, 400);
+  }
+
+  const body = await c.req.json().catch(() => null);
+  const deletion = await db.transaction(async (tx) => {
+    const [currentAccount] = await tx.select({
+      id: users.id,
+      email: users.email,
+      adminRole: users.adminRole,
+      avatarObjectKey: users.avatarObjectKey,
+    }).from(users).where(eq(users.id, userId)).limit(1);
+    if (!currentAccount) return {status: 404, error: 'User not found'};
+    if (currentAccount.adminRole === 'alpha') {
+      return {status: 400, error: 'Alpha admin accounts cannot be deleted here'};
+    }
+    if (currentAccount.id === c.get('userId')) {
+      return {status: 400, error: 'You cannot delete your own account'};
+    }
+    if (typeof body?.confirmEmail !== 'string' || body.confirmEmail.trim().toLowerCase() !== currentAccount.email.toLowerCase()) {
+      return {status: 400, error: 'Enter the account email to confirm deletion'};
+    }
+
+    const files = await tx.select({objectKey: userProjectSubmissionFiles.objectKey})
+      .from(userProjectSubmissionFiles)
+      .where(eq(userProjectSubmissionFiles.userId, userId));
+    const objectKeys = [...new Set([
+      currentAccount.avatarObjectKey,
+      ...files.map((file) => file.objectKey),
+    ].filter(Boolean))];
+    if (objectKeys.length && !isR2Configured()) {
+      return {
+        status: 503,
+        error: 'Account files cannot be deleted because object storage is not configured. The account was not deleted.',
+      };
+    }
+
+    const roadmaps = await tx.select({id: userRoadmaps.id})
+      .from(userRoadmaps)
+      .where(eq(userRoadmaps.userId, userId));
+    const examAttempts = await tx.select({id: courseFinalExamAttempts.id})
+      .from(courseFinalExamAttempts)
+      .where(eq(courseFinalExamAttempts.userId, userId));
+    const submissions = await tx.select({id: userProjectSubmissions.id})
+      .from(userProjectSubmissions)
+      .where(eq(userProjectSubmissions.userId, userId));
+    const roomParticipants = await tx.select({roomId: studyRoomParticipants.roomId})
+      .from(studyRoomParticipants)
+      .where(eq(studyRoomParticipants.userId, userId));
+    const roadmapIds = roadmaps.map((roadmap) => roadmap.id);
+    const examAttemptIds = examAttempts.map((attempt) => attempt.id);
+    const submissionIds = submissions.map((submission) => submission.id);
+    const participantCounts = new Map();
+    for (const participant of roomParticipants) {
+      participantCounts.set(participant.roomId, (participantCounts.get(participant.roomId) || 0) + 1);
+    }
+
+    if (roadmapIds.length) {
+      await tx.delete(userLessonProgress).where(inArray(userLessonProgress.roadmapId, roadmapIds));
+      await tx.delete(aiLessons).where(inArray(aiLessons.roadmapId, roadmapIds));
+      await tx.delete(projectTemplates).where(inArray(projectTemplates.roadmapId, roadmapIds));
+    }
+    if (examAttemptIds.length) {
+      await tx.delete(courseFinalExamAttemptAnswers)
+        .where(inArray(courseFinalExamAttemptAnswers.attemptId, examAttemptIds));
+    }
+    if (submissionIds.length) {
+      await tx.delete(courseFinalReviewAudit)
+        .where(inArray(courseFinalReviewAudit.submissionId, submissionIds));
+    }
+
+    await tx.update(communityPosts).set({userId: ANONYMIZED_USER_ID}).where(eq(communityPosts.userId, userId));
+    await tx.update(communityComments).set({userId: ANONYMIZED_USER_ID}).where(eq(communityComments.userId, userId));
+    await tx.update(communityReports).set({resolvedByUserId: null}).where(eq(communityReports.resolvedByUserId, userId));
+    await tx.update(communityModerationActions).set({moderatorUserId: ANONYMIZED_USER_ID})
+      .where(eq(communityModerationActions.moderatorUserId, userId));
+    await tx.update(communityModerationActions).set({targetUserId: null})
+      .where(eq(communityModerationActions.targetUserId, userId));
+    await tx.update(courseFinalReviewAudit).set({reviewerId: ANONYMIZED_USER_ID})
+      .where(eq(courseFinalReviewAudit.reviewerId, userId));
+    await tx.update(courseFinalExamAttemptGrants).set({grantedBy: ANONYMIZED_USER_ID})
+      .where(eq(courseFinalExamAttemptGrants.grantedBy, userId));
+    await tx.update(userProjectSubmissions).set({reviewedBy: null})
+      .where(eq(userProjectSubmissions.reviewedBy, userId));
+    await tx.update(studyRooms).set({hostUserId: null, updatedAt: new Date().toISOString()})
+      .where(eq(studyRooms.hostUserId, userId));
+    await tx.update(automationJobs).set({requestedByUserId: ANONYMIZED_USER_ID, updatedAt: new Date().toISOString()})
+      .where(eq(automationJobs.requestedByUserId, userId));
+    for (const [roomId, participantCount] of participantCounts) {
+      await tx.update(studyRooms).set({
+        activeParticipants: sql`MAX(0, ${studyRooms.activeParticipants} - ${participantCount})`,
+        updatedAt: new Date().toISOString(),
+      }).where(eq(studyRooms.id, roomId));
+    }
+
+    await tx.delete(userActionTokens).where(eq(userActionTokens.userId, userId));
+    await tx.delete(adminCoursePermissions).where(eq(adminCoursePermissions.adminUserId, userId));
+    await tx.delete(enrollments).where(eq(enrollments.userId, userId));
+    await tx.delete(progress).where(eq(progress.userId, userId));
+    await tx.delete(communityReports).where(eq(communityReports.reporterUserId, userId));
+    await tx.delete(communityReactions).where(eq(communityReactions.userId, userId));
+    await tx.delete(communityBookmarks).where(eq(communityBookmarks.userId, userId));
+    await tx.delete(internshipSubmissions).where(eq(internshipSubmissions.userId, userId));
+    await tx.delete(userLessonProgress).where(eq(userLessonProgress.userId, userId));
+    await tx.delete(userRoadmaps).where(eq(userRoadmaps.userId, userId));
+    await tx.delete(userCourseFinalProgress).where(eq(userCourseFinalProgress.userId, userId));
+    await tx.delete(courseFinalExamAttemptGrants).where(eq(courseFinalExamAttemptGrants.userId, userId));
+    await tx.delete(courseFinalExamAttempts).where(eq(courseFinalExamAttempts.userId, userId));
+    await tx.delete(userProjectSubmissionFiles).where(eq(userProjectSubmissionFiles.userId, userId));
+    await tx.delete(userProjectSubmissions).where(eq(userProjectSubmissions.userId, userId));
+    await tx.delete(eventRsvps).where(eq(eventRsvps.userId, userId));
+    await tx.delete(studyRoomParticipants).where(eq(studyRoomParticipants.userId, userId));
+    await tx.delete(userActivityLog).where(eq(userActivityLog.userId, userId));
+    await tx.delete(mentorContext).where(eq(mentorContext.userId, userId));
+    await tx.delete(notifications).where(eq(notifications.userId, userId));
+    await tx.delete(bookings).where(eq(bookings.userId, userId));
+    await tx.delete(learningBoardProgress).where(eq(learningBoardProgress.userId, userId));
+    await tx.delete(studentPracticalAttempts).where(eq(studentPracticalAttempts.userId, userId));
+    await tx.delete(studentPracticalProgress).where(eq(studentPracticalProgress.userId, userId));
+    await tx.delete(users).where(eq(users.id, userId));
+
+    return {status: 200, objectKeys};
+  });
+
+  if (deletion.status !== 200) {
+    return c.json({success: false, error: deletion.error}, deletion.status);
+  }
+  const storageResults = await Promise.allSettled(deletion.objectKeys.map((key) => deleteR2Object(key)));
+  const failedObjectKeys = deletion.objectKeys.filter((_, index) => storageResults[index].status === 'rejected');
+  if (failedObjectKeys.length) {
+    console.error(`[admin] Account ${userId} was deleted, but storage cleanup failed for objects: ${failedObjectKeys.join(', ')}`);
+  }
+  return c.json({
+    success: true,
+    message: 'User account and private learning data deleted; community contributions anonymized.',
+    ...(failedObjectKeys.length ? {warning: 'The account was deleted, but some stored files require manual cleanup.'} : {}),
+  });
 });
 
 admin.get('/community/reports', async (c) => {
