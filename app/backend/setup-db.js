@@ -29,8 +29,23 @@ const statements = [
     skills_known TEXT,
     availability TEXT,
     portfolio_link TEXT,
+    avatar_object_key TEXT,
+    two_factor_secret TEXT,
+    two_factor_enabled INTEGER NOT NULL DEFAULT 0,
+    two_factor_recovery_codes TEXT,
+    two_factor_last_counter INTEGER,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS user_action_tokens (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    action TEXT NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    used_at TEXT
   )`,
   `CREATE TABLE IF NOT EXISTS admin_course_permissions (
     admin_user_id TEXT NOT NULL,

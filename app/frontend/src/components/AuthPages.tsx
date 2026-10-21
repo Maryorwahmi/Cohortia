@@ -56,7 +56,7 @@ function RoadmapSignupSummary({selection}: {selection: RoadmapSelection}) {
 export default function AuthPages({ initialTab }: AuthPagesProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, signup, completeExternalLogin } = useAuth();
+  const { login, signup, completeExternalLogin, completeTwoFactorLogin } = useAuth();
   const routeState = location.state as LocationState | null;
   const pendingRoadmap = routeState?.roadmapSelection || readPendingRoadmap();
   const signupDraft = routeState?.signupDraft || (pendingRoadmap ? readPendingSignupDraft() : undefined);
@@ -87,6 +87,8 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   // STEP 4: Account Security
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [mfaChallengeToken, setMfaChallengeToken] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
   const [agreeHonorCode, setAgreeHonorCode] = useState(true);
 
   // Status
@@ -99,9 +101,16 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     const params = new URLSearchParams(location.search);
     const googleToken = params.get("google_token");
     const googleError = params.get("google_error");
-    if (!googleToken && !googleError) return;
+    const googleMfaChallenge = params.get("google_mfa_challenge");
+    if (!googleToken && !googleError && !googleMfaChallenge) return;
 
     navigate(location.pathname, { replace: true });
+    if (googleMfaChallenge) {
+      setActiveTab("login");
+      setMfaChallengeToken(googleMfaChallenge);
+      setErrorMsg("");
+      return;
+    }
     if (googleError) {
       setErrorMsg(googleError);
       return;
@@ -264,6 +273,12 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     const result = await login(email, password);
     setIsSubmitting(false);
 
+    if (result.mfaRequired && result.challengeToken) {
+      setMfaChallengeToken(result.challengeToken);
+      setErrorMsg("");
+      return;
+    }
+
     if (result.success) {
       setSuccessMsg("Welcome back! Session authorized successfully.");
       setTimeout(() => {
@@ -273,6 +288,24 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       }, 1200);
     } else {
       setErrorMsg(result.message || "Login failed. Please check your credentials.");
+    }
+  };
+
+  const handleMfaSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!mfaChallengeToken) return;
+    setIsSubmitting(true);
+    setErrorMsg("");
+    const result = await completeTwoFactorLogin(mfaChallengeToken, mfaCode.trim());
+    setIsSubmitting(false);
+    if (result.success) {
+      setSuccessMsg("Authenticator verification successful.");
+      setTimeout(() => {
+        const state = location.state as LocationState;
+        navigate(state?.from?.pathname || (result.adminRole ? "/admin" : "/dashboard"));
+      }, 700);
+    } else {
+      setErrorMsg(result.message || "Authenticator verification failed.");
     }
   };
 
@@ -1009,6 +1042,46 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
 
             </div>
             </>
+          ) : mfaChallengeToken ? (
+            <div className="flex-1 py-10 flex flex-col justify-center max-w-md mx-auto w-full">
+              <div className="space-y-2 mb-8">
+                <h2 className="text-3xl font-extrabold text-immersive-text-primary tracking-tight">Two-factor <span className="text-immersive-primary">verification</span></h2>
+                <p className="text-sm text-immersive-text-secondary">
+                  Enter a current code from your authenticator app or one of your unused recovery codes.
+                </p>
+              </div>
+              <form onSubmit={handleMfaSubmit} className="space-y-5">
+                <label className="block space-y-2 text-left">
+                  <span className="text-[10px] font-mono text-immersive-secondary font-bold uppercase tracking-wider">Authenticator or recovery code</span>
+                  <input
+                    required
+                    autoComplete="one-time-code"
+                    value={mfaCode}
+                    onChange={(event) => setMfaCode(event.target.value)}
+                    placeholder="123456 or recovery code"
+                    className="w-full px-4 py-3.5 bg-immersive-bg border border-immersive-border focus:border-immersive-secondary rounded-xl text-sm text-immersive-text-primary focus:outline-none"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !mfaCode.trim()}
+                  className="w-full py-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 disabled:opacity-60 transition-all"
+                >
+                  {isSubmitting ? "Verifying..." : "Verify and log in"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMfaChallengeToken("");
+                    setMfaCode("");
+                    setErrorMsg("");
+                  }}
+                  className="w-full py-2 text-xs font-bold text-immersive-text-secondary hover:text-immersive-text-primary"
+                >
+                  Back to login
+                </button>
+              </form>
+            </div>
           ) : (
             /* LOGIN TAB */
             <div className="flex-1 py-10 flex flex-col justify-center max-w-md mx-auto w-full">

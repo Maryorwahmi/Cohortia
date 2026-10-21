@@ -7,7 +7,8 @@ interface AuthState {
   user: BackendUser | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string; adminRole?: BackendUser['adminRole'] }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; message?: string; adminRole?: BackendUser['adminRole']; mfaRequired?: boolean; challengeToken?: string }>;
+  completeTwoFactorLogin: (challengeToken: string, code: string) => Promise<{success: boolean; message?: string; adminRole?: BackendUser['adminRole']}>;
   signup: (userData: Record<string, unknown>) => Promise<{ success: boolean; message?: string; details?: Record<string, string[]> }>;
   completeExternalLogin: (token: string) => Promise<boolean>;
   logout: () => void;
@@ -46,6 +47,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       const res = await authApi.login({ email, password });
+      if (res.success && res.data?.twoFactorRequired && res.data.challengeToken) {
+        return {
+          success: false,
+          mfaRequired: true,
+          challengeToken: res.data.challengeToken,
+          message: 'Enter your authenticator or recovery code to finish signing in.',
+        };
+      }
       if (res.success && res.data?.token) {
         localStorage.setItem('cohortia_token', res.data.token);
         setUser(res.data.user || null);
@@ -54,13 +63,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return { success: false, message: res.error || 'Login failed' };
     } catch (error) {
-      const apiError = error as { data?: { message?: string }; message?: string };
+      const apiError = error as { data?: { message?: string; error?: string }; message?: string };
       return {
         success: false,
-        message: apiError.data?.message || apiError.message || 'Unable to reach the server. Please make sure the backend is running.',
+        message: apiError.data?.message || apiError.data?.error || apiError.message || 'Unable to reach the server. Please make sure the backend is running.',
       };
     }
   };
+
+  const completeTwoFactorLogin = useCallback(async (challengeToken: string, code: string) => {
+    try {
+      const res = await authApi.completeTwoFactorLogin(challengeToken, code);
+      if (res.success && res.data?.token) {
+        localStorage.setItem('cohortia_token', res.data.token);
+        setUser(res.data.user || null);
+        prefetchDashboardAfterAuth(res.data.user || null);
+        return {success: true, adminRole: res.data.user?.adminRole};
+      }
+      return {success: false, message: res.error || 'Authenticator verification failed.'};
+    } catch (error) {
+      const apiError = error as {data?: {error?: string}; message?: string};
+      return {success: false, message: apiError.data?.error || apiError.message || 'Authenticator verification failed.'};
+    }
+  }, []);
 
   const signup = async (userData: Record<string, unknown>) => {
     try {
@@ -125,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!user,
     loading,
     login,
+    completeTwoFactorLogin,
     signup,
     completeExternalLogin,
     logout,

@@ -24,6 +24,12 @@ npm run dev         # Start development server
 
 Set a private `ADMIN_BOOTSTRAP_PASSWORD` (at least 12 characters) in the backend environment and, optionally, set `ALPHA_ADMIN_EMAIL`. Run `npm run db:migrate-schema`, then `npm run admin:bootstrap` from the backend directory. The initial alpha administrator signs in with username `Admin` and the configured password; the password is hashed before storage and is never included in source code. To intentionally reset an existing alpha admin's password, also set `ADMIN_BOOTSTRAP_RESET_PASSWORD=true` for that bootstrap run.
 
+### Authenticator-based two-factor authentication
+
+Set `TOTP_ENCRYPTION_KEY` in the backend environment to a private random value of at least 32 characters before learners can enable an authenticator app. The backend derives an AES-256-GCM key from this value and encrypts authenticator secrets at rest. Keep the value private and consistent across deployments; changing it makes existing authenticator secrets unreadable. Each learner receives one-time recovery codes when enabling two-factor authentication.
+
+Profile images and syllabus exports use the authenticated users API. Profile image uploads require the same Cloudflare R2 bucket configuration and browser CORS policy used by course project evidence uploads.
+
 The alpha administrator can grant existing registered users admin access and independently select course permissions for learning screens, assessments, practicals, and course overviews for courses without those content types. Bulk selectors can grant all available access or target one content type. Only the alpha administrator can manage other admins; the alpha account retains access to every catalog course.
 
 ## API Routes

@@ -48,6 +48,8 @@ export interface AuthResponse {
   data?: {
     token?: string;
     user?: BackendUser;
+    twoFactorRequired?: boolean;
+    challengeToken?: string;
   };
 }
 
@@ -72,6 +74,8 @@ export interface BackendUser {
   skillsKnown?: string | null;
   availability?: string | null;
   portfolioLink?: string | null;
+  avatarUrl?: string | null;
+  twoFactorEnabled?: boolean;
   educationLevel?: string | null;
   ageRange?: string | null;
   learningStyle?: string | null;
@@ -132,6 +136,17 @@ export const authApi = {
       body: JSON.stringify(credentials),
     }),
 
+  completeTwoFactorLogin: (challengeToken: string, code: string) =>
+    fetchApi<AuthResponse>('/auth/verify-two-factor', {
+      method: 'POST',
+      body: JSON.stringify({challengeToken, code}),
+    }),
+
+  startGoogleExportReauthentication: () =>
+    fetchApi<{success: boolean; data?: {url: string}; error?: string}>('/auth/google/export-reauth-url', {
+      method: 'POST',
+    }),
+
   getMe: () => fetchApi<AuthResponse>('/auth/me'),
 };
 
@@ -148,6 +163,7 @@ export interface ProgressResponse {
     progress: Array<Record<string, unknown>>;
     practicalAttempts?: Array<Record<string, unknown>>;
     practicalTaskProgress?: Array<Record<string, unknown>>;
+    courseFinalAttempts?: Array<Record<string, unknown>>;
   };
   error?: string;
 }
@@ -173,6 +189,60 @@ export const userApi = {
     return fetchApi<ProgressResponse>(`/users/progress${query ? `?${query}` : ''}`);
   },
   getEnrollments: () => fetchApi<EnrollmentsResponse>('/users/enrollments'),
+  createProfileImageUploadUrl: (contentType: string) =>
+    fetchApi<{success: boolean; data?: {objectKey: string; uploadUrl: string}; error?: string}>('/users/profile/image/upload-url', {
+      method: 'POST',
+      body: JSON.stringify({contentType}),
+    }),
+  completeProfileImageUpload: (objectKey: string) =>
+    fetchApi<ProfileResponse>('/users/profile/image/complete', {
+      method: 'POST',
+      body: JSON.stringify({objectKey}),
+    }),
+  setupTwoFactor: () =>
+    fetchApi<{success: boolean; data?: {secret: string; otpauthUrl: string; challengeToken: string}; error?: string}>('/users/two-factor/setup', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
+  enableTwoFactor: (code: string, challengeToken: string) =>
+    fetchApi<{success: boolean; data?: {enabled: boolean; recoveryCodes: string[]}; error?: string}>('/users/two-factor/enable', {
+      method: 'POST',
+      body: JSON.stringify({code, challengeToken}),
+    }),
+  startTwoFactorDisable: () =>
+    fetchApi<{success: boolean; data?: {challengeToken: string}; error?: string}>('/users/two-factor/disable/setup', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
+  disableTwoFactor: (code: string, challengeToken: string) =>
+    fetchApi<{success: boolean; data?: {enabled: boolean}; error?: string}>('/users/two-factor/disable', {
+      method: 'POST',
+      body: JSON.stringify({code, challengeToken}),
+    }),
+  verifyCourseExport: (data: {password?: string; code?: string; googleProof?: string}) =>
+    fetchApi<{success: boolean; data?: {verificationToken: string}; error?: string}>('/users/export/verify', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getCourseSyllabusExport: (verificationToken: string) =>
+    fetch(`${API_BASE_URL}/users/export/course-syllabus`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(localStorage.getItem('cohortia_token')
+          ? {Authorization: `Bearer ${localStorage.getItem('cohortia_token')}`}
+          : {}),
+      },
+      body: JSON.stringify({verificationToken}),
+    }).then(async (response) => {
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({})) as {error?: string; message?: string};
+        const error: ApiError = new Error(data.message || data.error || `Request failed with status ${response.status}`);
+        error.status = response.status;
+        throw error;
+      }
+      return response.blob();
+    }),
 };
 
 export interface DailyActivitySummary {

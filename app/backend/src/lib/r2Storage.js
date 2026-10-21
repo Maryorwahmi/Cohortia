@@ -64,6 +64,21 @@ export async function inspectR2Object(key) {
   };
 }
 
+export async function readR2Object(key) {
+  const configuration = r2Configuration();
+  if (!configuration) throw new Error('R2 is not configured.');
+  const result = await getR2Client(configuration).send(new GetObjectCommand({
+    Bucket: configuration.bucket,
+    Key: key,
+  }));
+  if (!result.Body) throw new Error('The uploaded object could not be read from storage.');
+  return {
+    contentType: result.ContentType || '',
+    byteSize: Number(result.ContentLength) || 0,
+    bytes: Buffer.from(await result.Body.transformToByteArray()),
+  };
+}
+
 export async function deleteR2Object(key) {
   const configuration = r2Configuration();
   if (!configuration) throw new Error('R2 is not configured.');

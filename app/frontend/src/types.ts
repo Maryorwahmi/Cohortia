@@ -69,6 +69,10 @@ export interface UserPreferences {
   availability?: string;
   portfolioLink?: string;
   roadmapSelection?: RoadmapSelection;
+  avatarUrl?: string;
+  twoFactorEnabled?: boolean;
+  experienceLevel?: string;
+  weeklyHours?: string;
 }
 
 export function backendUserToPreferences(user: {
@@ -84,6 +88,8 @@ export function backendUserToPreferences(user: {
   careerGoal?: string | null;
   availability?: string | null;
   portfolioLink?: string | null;
+  avatarUrl?: string | null;
+  twoFactorEnabled?: boolean;
   roadmapSelection?: string | null;
 }): UserPreferences {
   const desiredField = user.desiredField || user.role || "frontend";
@@ -136,6 +142,10 @@ export function backendUserToPreferences(user: {
     availability: user.availability || undefined,
     portfolioLink: user.portfolioLink || undefined,
     roadmapSelection,
+    avatarUrl: user.avatarUrl || undefined,
+    twoFactorEnabled: Boolean(user.twoFactorEnabled),
+    experienceLevel: user.experienceLevel || undefined,
+    weeklyHours: user.weeklyHours || user.learningPace || undefined,
   };
 }
 

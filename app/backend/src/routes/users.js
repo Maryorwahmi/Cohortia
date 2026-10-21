@@ -1,9 +1,47 @@
 import { db } from '../db/index.js';
-import { users, progress, enrollments, lessons, learningBoardProgress, learningBoardPracticals, studentPracticalAttempts, studentPracticalProgress } from '../db/schema.js';
+import { users, progress, enrollments, lessons, learningBoardProgress, learningBoardPracticals, studentPracticalAttempts, studentPracticalProgress, courseFinalExamAttempts } from '../db/schema.js';
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
+import { createR2DownloadUrl, createR2UploadUrl, deleteR2Object, inspectR2Object, isR2Configured, readR2Object } from '../lib/r2Storage.js';
+import { createUserActionToken, findUserActionToken, consumeUserActionToken, recordFailedActionTokenAttempt } from '../lib/userActionTokens.js';
+import { createRecoveryCodes, decryptTotpSecret, encryptTotpSecret, generateTotpSecret, hashRecoveryCode, isTotpEncryptionConfigured, makeOtpAuthUrl, verifyTotpCode } from '../lib/totp.js';
+import { verifyAndConsumeSecondFactor } from '../lib/twoFactor.js';
+import { serializePublicUser } from '../lib/userProfile.js';
+import { createCourseSyllabusPdf } from '../lib/courseSyllabusPdf.js';
+import { getCatalogCourseDetails } from './catalogCourses.js';
 
 const usersRoute = new Hono();
+const MAX_PROFILE_IMAGE_BYTES = 800 * 1024;
+const PROFILE_IMAGE_TYPES = new Map([
+  ['image/jpeg', 'jpg'],
+  ['image/png', 'png'],
+  ['image/gif', 'gif'],
+  ['image/webp', 'webp'],
+]);
+
+function hasMatchingImageSignature(contentType, bytes) {
+  if (contentType === 'image/jpeg') return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  if (contentType === 'image/png') return bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  if (contentType === 'image/gif') return ['GIF87a', 'GIF89a'].includes(bytes.subarray(0, 6).toString('ascii'));
+  if (contentType === 'image/webp') return bytes.length >= 12 && bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP';
+  return false;
+}
+
+async function activeRoadmapCourseIds(user) {
+  let selection;
+  try {
+    selection = JSON.parse(user.roadmapSelection || 'null');
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(selection?.roadmapOrder)) return null;
+  const courseIds = selection.roadmapOrder
+    .map((course) => typeof course === 'string' ? course : course?.id)
+    .filter((id) => typeof id === 'string' && id.trim());
+  return [...new Set(courseIds)];
+}
 
 // Get current user profile
 usersRoute.get('/profile', async (c) => {
@@ -19,10 +57,7 @@ usersRoute.get('/profile', async (c) => {
     return c.json({ success: false, error: 'User not found' }, 404);
   }
 
-  const user = userResult[0];
-  delete user.password;
-
-  return c.json({ success: true, data: { user } });
+  return c.json({ success: true, data: { user: await serializePublicUser(userResult[0]) } });
 });
 
 // Update user profile
@@ -34,10 +69,7 @@ usersRoute.put('/profile', async (c) => {
     name: body.name,
     phone: body.phone,
     country: body.country,
-    currentStatus: body.currentStatus,
     careerGoal: body.careerGoal,
-    desiredField: body.desiredField,
-    roadmapSelection: body.roadmapSelection,
     availability: body.availability,
     portfolioLink: body.portfolioLink,
     updatedAt: new Date().toISOString(),
@@ -59,10 +91,285 @@ usersRoute.put('/profile', async (c) => {
     .where(eq(users.id, userId))
     .limit(1);
 
-  const user = updatedUser[0];
-  delete user.password;
+  return c.json({ success: true, data: { user: await serializePublicUser(updatedUser[0]) } });
+});
 
-  return c.json({ success: true, data: { user } });
+usersRoute.post('/profile/image/upload-url', async (c) => {
+  const userId = c.get('userId');
+  const {contentType} = await c.req.json();
+  const normalizedType = String(contentType || '').toLowerCase();
+  const extension = PROFILE_IMAGE_TYPES.get(normalizedType);
+  if (!extension) {
+    return c.json({success: false, error: 'Choose a JPEG, PNG, GIF, or WebP image.'}, 415);
+  }
+  if (!isR2Configured()) {
+    return c.json({success: false, error: 'Profile image storage is not configured yet.'}, 503);
+  }
+
+  const objectKey = `avatars/${userId}/${uuidv4()}.${extension}`;
+  const upload = await createR2UploadUrl(objectKey, normalizedType);
+  return c.json({
+    success: true,
+    data: {objectKey, uploadUrl: upload.url, expiresInSeconds: upload.expiresInSeconds},
+  });
+});
+
+usersRoute.post('/profile/image/complete', async (c) => {
+  const userId = c.get('userId');
+  const {objectKey} = await c.req.json();
+  if (typeof objectKey !== 'string' || !objectKey.startsWith(`avatars/${userId}/`)) {
+    return c.json({success: false, error: 'The profile image upload could not be verified.'}, 400);
+  }
+  if (!isR2Configured()) {
+    return c.json({success: false, error: 'Profile image storage is not configured yet.'}, 503);
+  }
+
+  const metadata = await inspectR2Object(objectKey);
+  if (metadata.byteSize <= 0 || metadata.byteSize > MAX_PROFILE_IMAGE_BYTES) {
+    await deleteR2Object(objectKey);
+    return c.json({success: false, error: 'Profile images must be smaller than 800 KB.'}, 413);
+  }
+  const object = await readR2Object(objectKey);
+  if (!PROFILE_IMAGE_TYPES.has(object.contentType.toLowerCase())) {
+    await deleteR2Object(objectKey);
+    return c.json({success: false, error: 'Upload a valid JPEG, PNG, GIF, or WebP image.'}, 415);
+  }
+  if (object.byteSize !== metadata.byteSize || !hasMatchingImageSignature(object.contentType.toLowerCase(), object.bytes)) {
+    await deleteR2Object(objectKey);
+    return c.json({success: false, error: 'The uploaded file is not a valid image of its declared type.'}, 415);
+  }
+
+  const [existingUser] = await db.select({avatarObjectKey: users.avatarObjectKey})
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  await db.update(users).set({
+    avatarObjectKey: objectKey,
+    updatedAt: new Date().toISOString(),
+  }).where(eq(users.id, userId));
+  if (existingUser?.avatarObjectKey && existingUser.avatarObjectKey !== objectKey) {
+    try {
+      await deleteR2Object(existingUser.avatarObjectKey);
+    } catch (error) {
+      console.error(`[users] Saved the new profile image but failed to delete the previous image for user ${userId}:`, error);
+    }
+  }
+  const [updatedUser] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return c.json({success: true, data: {user: await serializePublicUser(updatedUser)}});
+});
+
+usersRoute.post('/two-factor/setup', async (c) => {
+  const userId = c.get('userId');
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user) return c.json({success: false, error: 'User not found.'}, 404);
+  if (user.twoFactorEnabled) {
+    return c.json({success: false, error: 'Disable two-factor authentication before setting up a new authenticator.'}, 409);
+  }
+  if (!isTotpEncryptionConfigured()) {
+    return c.json({
+      success: false,
+      error: 'Authenticator setup is unavailable until TOTP_ENCRYPTION_KEY is configured on the server.',
+    }, 503);
+  }
+
+  const secret = generateTotpSecret();
+  await db.update(users).set({
+    twoFactorSecret: encryptTotpSecret(secret),
+    twoFactorRecoveryCodes: null,
+    twoFactorLastCounter: null,
+    updatedAt: new Date().toISOString(),
+  }).where(eq(users.id, userId));
+  const challengeToken = await createUserActionToken(userId, 'mfa_setup', 900, true);
+  return c.json({
+    success: true,
+    data: {secret, otpauthUrl: makeOtpAuthUrl(user.email, secret), challengeToken},
+  });
+});
+
+usersRoute.post('/two-factor/enable', async (c) => {
+  const userId = c.get('userId');
+  const {code, challengeToken} = await c.req.json();
+  const challenge = await findUserActionToken(challengeToken, userId, 'mfa_setup');
+  if (!challenge) {
+    return c.json({success: false, error: 'Authenticator setup expired. Start setup again.'}, 401);
+  }
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user?.twoFactorSecret || user.twoFactorEnabled) {
+    await consumeUserActionToken(challenge);
+    return c.json({success: false, error: 'Start authenticator setup before confirming it.'}, 409);
+  }
+
+  const secret = decryptTotpSecret(user.twoFactorSecret);
+  const matchedCounter = verifyTotpCode(secret, code);
+  if (matchedCounter === null) {
+    await recordFailedActionTokenAttempt(challenge);
+    return c.json({success: false, error: 'That code is invalid or expired. Check your authenticator and try again.'}, 400);
+  }
+
+  const recoveryCodes = createRecoveryCodes();
+  const recoveryCodeHashes = recoveryCodes.map((recoveryCode) => hashRecoveryCode(userId, recoveryCode));
+  const [enabledUser] = await db.update(users).set({
+    twoFactorEnabled: true,
+    twoFactorRecoveryCodes: JSON.stringify(recoveryCodeHashes),
+    twoFactorLastCounter: matchedCounter,
+    updatedAt: new Date().toISOString(),
+  }).where(and(eq(users.id, userId), eq(users.twoFactorEnabled, false))).returning({id: users.id});
+  if (!enabledUser) {
+    await consumeUserActionToken(challenge);
+    return c.json({success: false, error: 'Authenticator setup changed. Reload the page and try again.'}, 409);
+  }
+  if (!await consumeUserActionToken(challenge)) {
+    await db.update(users).set({
+      twoFactorEnabled: false,
+      twoFactorRecoveryCodes: null,
+      twoFactorLastCounter: null,
+      updatedAt: new Date().toISOString(),
+    }).where(eq(users.id, userId));
+    return c.json({success: false, error: 'Authenticator setup expired. Start setup again.'}, 401);
+  }
+  return c.json({success: true, data: {enabled: true, recoveryCodes}});
+});
+
+usersRoute.post('/two-factor/disable', async (c) => {
+  const userId = c.get('userId');
+  const {code, challengeToken} = await c.req.json();
+  const challenge = await findUserActionToken(challengeToken, userId, 'mfa_disable');
+  if (!challenge) {
+    return c.json({success: false, error: 'Two-factor settings verification expired. Try again.'}, 401);
+  }
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user?.twoFactorEnabled) {
+    await consumeUserActionToken(challenge);
+    return c.json({success: false, error: 'Two-factor authentication is not enabled.'}, 409);
+  }
+  if (!await verifyAndConsumeSecondFactor(user, code)) {
+    await recordFailedActionTokenAttempt(challenge);
+    return c.json({success: false, error: 'The authenticator or recovery code is incorrect.'}, 401);
+  }
+  if (!await consumeUserActionToken(challenge)) {
+    return c.json({success: false, error: 'Two-factor settings verification expired. Try again.'}, 401);
+  }
+  await db.update(users).set({
+    twoFactorSecret: null,
+    twoFactorEnabled: false,
+    twoFactorRecoveryCodes: null,
+    twoFactorLastCounter: null,
+    updatedAt: new Date().toISOString(),
+  }).where(eq(users.id, userId));
+  return c.json({success: true, data: {enabled: false}});
+});
+
+usersRoute.post('/two-factor/disable/setup', async (c) => {
+  const userId = c.get('userId');
+  const [user] = await db.select({twoFactorEnabled: users.twoFactorEnabled})
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  if (!user?.twoFactorEnabled) {
+    return c.json({success: false, error: 'Two-factor authentication is not enabled.'}, 409);
+  }
+  const challengeToken = await createUserActionToken(userId, 'mfa_disable', 300, true);
+  return c.json({success: true, data: {challengeToken}});
+});
+
+usersRoute.post('/export/verify', async (c) => {
+  const userId = c.get('userId');
+  const user = c.get('user');
+  const {password, code, googleProof} = await c.req.json();
+  let verified = false;
+  let proofRecord;
+
+  if (typeof password === 'string' && password.length > 0) {
+    verified = await bcrypt.compare(password, user.password);
+  } else if (typeof googleProof === 'string') {
+    proofRecord = await findUserActionToken(googleProof, userId, 'google_export_proof');
+    verified = Boolean(proofRecord);
+  }
+
+  if (!verified) {
+    return c.json({success: false, error: 'Account verification failed. Try again or verify with Google.'}, 401);
+  }
+  if (user.twoFactorEnabled && !await verifyAndConsumeSecondFactor(user, code)) {
+    return c.json({success: false, error: 'A valid authenticator or recovery code is required.'}, 401);
+  }
+  if (proofRecord && !await consumeUserActionToken(proofRecord)) {
+    return c.json({success: false, error: 'Google account verification has expired. Verify your account again.'}, 401);
+  }
+
+  const verificationToken = await createUserActionToken(userId, 'course_syllabus_export', 180);
+  return c.json({success: true, data: {verificationToken}});
+});
+
+usersRoute.post('/export/course-syllabus', async (c) => {
+  const userId = c.get('userId');
+  const {verificationToken} = await c.req.json();
+  const verification = await findUserActionToken(verificationToken, userId, 'course_syllabus_export');
+  if (!verification || !await consumeUserActionToken(verification)) {
+    return c.json({success: false, error: 'Verify your account again before downloading course details.'}, 401);
+  }
+
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  const courseIds = await activeRoadmapCourseIds(user);
+  if (!courseIds?.length) {
+    return c.json({success: false, error: 'Choose a roadmap before exporting course details.'}, 409);
+  }
+  let roadmapSelection;
+  try {
+    roadmapSelection = JSON.parse(user.roadmapSelection || 'null');
+  } catch {
+    return c.json({success: false, error: 'Your selected roadmap could not be read. Rebuild it before exporting.'}, 409);
+  }
+
+  const lessonRows = await db.select().from(lessons)
+    .where(inArray(lessons.trackId, courseIds))
+    .orderBy(lessons.trackId, lessons.moduleIndex, lessons.order);
+  const lessonsByCourse = new Map();
+  for (const lesson of lessonRows) {
+    if (!lessonsByCourse.has(lesson.trackId)) lessonsByCourse.set(lesson.trackId, []);
+    lessonsByCourse.get(lesson.trackId).push(lesson);
+  }
+
+  const courseResults = await Promise.all(courseIds.map(async (courseId) => {
+    const courseDetails = await getCatalogCourseDetails(courseId);
+    if (!courseDetails) return null;
+    const moduleMap = new Map();
+    for (const lesson of lessonsByCourse.get(courseId) || []) {
+      const moduleKey = String(lesson.moduleIndex);
+      if (!moduleMap.has(moduleKey)) {
+        moduleMap.set(moduleKey, {
+          title: lesson.moduleTitle || `Module ${lesson.moduleIndex + 1}`,
+          description: lesson.moduleGoal || '',
+          chapters: [],
+        });
+      }
+      moduleMap.get(moduleKey).chapters.push({
+        title: lesson.title,
+        description: lesson.description || '',
+        duration: lesson.duration || '',
+      });
+    }
+    return {
+      ...courseDetails,
+      modules: [...moduleMap.values()],
+    };
+  }));
+  if (courseResults.some((course) => !course)) {
+    return c.json({success: false, error: 'A course in your saved roadmap is no longer available.'}, 409);
+  }
+  const courses = courseResults;
+
+  const pdf = createCourseSyllabusPdf({
+    userName: user.name,
+    roadmapTitle: roadmapSelection?.selectedCareer || user.desiredField || 'Career roadmap',
+    courses,
+  });
+  return new Response(pdf, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="cohortia-course-syllabus.pdf"',
+      'Cache-Control': 'no-store',
+    },
+  });
 });
 
 // Get user progress
@@ -169,11 +476,29 @@ usersRoute.get('/progress', async (c) => {
       .orderBy(desc(studentPracticalProgress.updatedAt))
       .limit(recentOnly ? 500 : 5000);
 
-  const [progressData, boardProgressData, practicalAttempts, practicalTaskProgress] = await Promise.all([
+  const courseFinalAttemptsQuery = db
+    .select({
+      courseId: courseFinalExamAttempts.courseId,
+      status: courseFinalExamAttempts.status,
+      score: courseFinalExamAttempts.score,
+      passed: courseFinalExamAttempts.passed,
+      submittedAt: courseFinalExamAttempts.submittedAt,
+    })
+    .from(courseFinalExamAttempts)
+    .where(and(
+      eq(courseFinalExamAttempts.userId, userId),
+      eq(courseFinalExamAttempts.passed, true),
+      ...(courseIds.length ? [inArray(courseFinalExamAttempts.courseId, courseIds)] : []),
+    ))
+    .orderBy(desc(courseFinalExamAttempts.submittedAt))
+    .limit(recentOnly ? 100 : 1000);
+
+  const [progressData, boardProgressData, practicalAttempts, practicalTaskProgress, courseFinalAttempts] = await Promise.all([
     progressQuery,
     boardProgressQuery,
     practicalAttemptsQuery,
     practicalTaskProgressQuery,
+    courseFinalAttemptsQuery,
   ]);
 
   const boardProgress = boardProgressData.map((item) => ({
@@ -198,6 +523,7 @@ usersRoute.get('/progress', async (c) => {
       progress: [...progressData, ...boardProgress],
       practicalAttempts,
       practicalTaskProgress,
+      courseFinalAttempts,
     },
   });
 });

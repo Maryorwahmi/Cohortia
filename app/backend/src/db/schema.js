@@ -23,6 +23,11 @@ export const users = sqliteTable('users', {
   skillsKnown: text('skills_known'), // JSON array as string
   availability: text('availability'),
   portfolioLink: text('portfolio_link'),
+  avatarObjectKey: text('avatar_object_key'),
+  twoFactorSecret: text('two_factor_secret'),
+  twoFactorEnabled: integer('two_factor_enabled', { mode: 'boolean' }).notNull().default(false),
+  twoFactorRecoveryCodes: text('two_factor_recovery_codes'),
+  twoFactorLastCounter: integer('two_factor_last_counter'),
   educationLevel: text('education_level'),
   ageRange: text('age_range'),
   learningStyle: text('learning_style'),
@@ -34,6 +39,19 @@ export const users = sqliteTable('users', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+export const userActionTokens = sqliteTable('user_action_tokens', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  action: text('action').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  attempts: integer('attempts').notNull().default(0),
+  createdAt: text('created_at').notNull(),
+  expiresAt: text('expires_at').notNull(),
+  usedAt: text('used_at'),
+}, (table) => ({
+  userActionExpiryIdx: index('user_action_tokens_user_action_expiry_idx').on(table.userId, table.action, table.expiresAt),
+}));
 
 export const adminCoursePermissions = sqliteTable('admin_course_permissions', {
   adminUserId: text('admin_user_id').notNull(),

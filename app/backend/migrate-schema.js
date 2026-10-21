@@ -16,6 +16,11 @@ const columnsToAdd = [
   { name: 'roadmap_selection', type: 'TEXT' },
   { name: 'username', type: 'TEXT' },
   { name: 'admin_role', type: 'TEXT' },
+  { name: 'avatar_object_key', type: 'TEXT' },
+  { name: 'two_factor_secret', type: 'TEXT' },
+  { name: 'two_factor_enabled', type: 'INTEGER NOT NULL DEFAULT 0' },
+  { name: 'two_factor_recovery_codes', type: 'TEXT' },
+  { name: 'two_factor_last_counter', type: 'INTEGER' },
 ];
 
 async function migrate() {
@@ -43,6 +48,18 @@ async function migrate() {
   }
   try {
     await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS users_username_unique ON users (username)`);
+    await client.execute(`CREATE TABLE IF NOT EXISTS user_action_tokens (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      action TEXT NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      used_at TEXT
+    )`);
+    await client.execute(`CREATE INDEX IF NOT EXISTS user_action_tokens_user_action_expiry_idx
+      ON user_action_tokens (user_id, action, expires_at)`);
     await client.execute(`CREATE TABLE IF NOT EXISTS admin_course_permissions (
       admin_user_id TEXT NOT NULL,
       course_id TEXT NOT NULL,

@@ -46,6 +46,7 @@ const getCourseCategory = (course) =>
   || course.category;
 const bundledCourseDetailsPath = path.resolve(import.meta.dirname, '..', 'data', 'course-details.json');
 let bundledCourseDetails;
+let syllabusFilesIndexPromise;
 
 async function loadBundledCourseDetails() {
   if (bundledCourseDetails !== undefined) return bundledCourseDetails;
@@ -57,36 +58,42 @@ async function loadBundledCourseDetails() {
   return bundledCourseDetails;
 }
 
-async function findSyllabusFile(courseId) {
+async function loadSyllabusFilesIndex() {
+  if (syllabusFilesIndexPromise) return syllabusFilesIndexPromise;
   const roots = [
     path.resolve(import.meta.dirname, '..', '..', '..', '..', 'docs'),
     path.resolve(import.meta.dirname, '..', '..', '..', 'docs'),
     path.resolve(process.cwd(), '..', 'docs'),
     path.resolve(process.cwd(), '..', '..', 'docs'),
   ];
-  const visit = async (directory) => {
-    let entries;
-    try {
-      entries = await fs.readdir(directory, {withFileTypes: true});
-    } catch {
-      return null;
-    }
-    for (const entry of entries) {
-      const filePath = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        const match = await visit(filePath);
-        if (match) return match;
-      } else if (entry.isFile() && entry.name.toLowerCase() === `${courseId.toLowerCase()}.md`) {
-        return filePath;
+  syllabusFilesIndexPromise = (async () => {
+    const index = new Map();
+    const visit = async (directory) => {
+      let entries;
+      try {
+        entries = await fs.readdir(directory, {withFileTypes: true});
+      } catch {
+        return;
       }
-    }
-    return null;
-  };
-  for (const root of roots) {
-    const match = await visit(root);
-    if (match) return match;
-  }
-  return null;
+      for (const entry of entries) {
+        const filePath = path.join(directory, entry.name);
+        if (entry.isDirectory()) {
+          await visit(filePath);
+        } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.md')) {
+          const courseId = path.parse(entry.name).name.toLowerCase();
+          if (!index.has(courseId)) index.set(courseId, filePath);
+        }
+      }
+    };
+    for (const root of roots) await visit(root);
+    return index;
+  })();
+  return syllabusFilesIndexPromise;
+}
+
+async function findSyllabusFile(courseId) {
+  const index = await loadSyllabusFilesIndex();
+  return index.get(courseId.toLowerCase()) || null;
 }
 
 function extractCourseDetails(markdown) {
@@ -362,20 +369,19 @@ Rank only IDs from the canonical metadata. Keep each level in sensible learning 
   });
 });
 
-catalogCoursesRoute.get('/:id/details', async (c) => {
-  const courseId = c.req.param('id');
+export async function getCatalogCourseDetails(courseId) {
   const course = await db.select().from(catalogCourses).where(eq(catalogCourses.id, courseId)).limit(1);
-  if (course.length === 0) return c.json({success: false, error: 'Course not found'}, 404);
+  if (course.length === 0) return null;
 
   const trackDetails = await getTrackDetails(courseId);
   if (trackDetails) {
-    return c.json({success: true, data: {course: course[0], details: trackDetails}});
+    return {course: course[0], details: trackDetails};
   }
 
   const syllabusFile = await findSyllabusFile(courseId);
   if (syllabusFile) {
     const markdown = await fs.readFile(syllabusFile, 'utf8');
-    return c.json({success: true, data: {course: course[0], details: extractCourseDetails(markdown)}});
+    return {course: course[0], details: extractCourseDetails(markdown)};
   }
 
   const details = (await loadBundledCourseDetails())[courseId] || {
@@ -385,7 +391,13 @@ catalogCoursesRoute.get('/:id/details', async (c) => {
     keyConcepts: [],
     skills: [],
   };
-  return c.json({success: true, data: {course: course[0], details}});
+  return {course: course[0], details};
+}
+
+catalogCoursesRoute.get('/:id/details', async (c) => {
+  const result = await getCatalogCourseDetails(c.req.param('id'));
+  if (!result) return c.json({success: false, error: 'Course not found'}, 404);
+  return c.json({success: true, data: result});
 });
 
 catalogCoursesRoute.get('/', async (c) => {

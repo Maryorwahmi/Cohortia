@@ -9,6 +9,9 @@ import { Hono } from 'hono';
 import { logActivity } from '../lib/activity.js';
 import crypto from 'node:crypto';
 import {courseMatchesRoadmapLevel} from '../lib/courseLevels.js';
+import {createUserActionToken, findUserActionToken, consumeUserActionToken, recordFailedActionTokenAttempt} from '../lib/userActionTokens.js';
+import {verifyAndConsumeSecondFactor} from '../lib/twoFactor.js';
+import {serializePublicUser} from '../lib/userProfile.js';
 
 const auth = new Hono();
 const jwtSecret = () => process.env.JWT_SECRET || 'cohortia-dev-secret';
@@ -45,6 +48,19 @@ function redirectToFrontend(path, params = {}) {
   const url = new URL(path, `${frontendUrl()}/`);
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
   return url.toString();
+}
+
+function buildGoogleAuthUrl(state) {
+  const clientId = String(process.env.GOOGLE_CLIENT_ID || '').trim();
+  return `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: googleRedirectUrl(),
+    response_type: 'code',
+    scope: 'openid email profile',
+    state,
+    access_type: 'online',
+    prompt: 'select_account',
+  }).toString()}`;
 }
 
 // Validation schemas
@@ -365,7 +381,15 @@ auth.post('/login', async (c) => {
     }, 401);
   }
 
-  // Generate token
+  if (user.twoFactorEnabled) {
+    const challengeToken = await createUserActionToken(user.id, 'mfa_login', 300);
+    return c.json({
+      success: true,
+      message: 'Authenticator verification is required.',
+      data: {twoFactorRequired: true, challengeToken},
+    });
+  }
+
   const token = jwt.sign(
     { userId: user.id, email: user.email },
     jwtSecret(),
@@ -377,20 +401,39 @@ auth.post('/login', async (c) => {
     message: 'Login successful',
     data: {
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        username: user.username,
-        role: user.role,
-        adminRole: user.adminRole,
-        phone: user.phone,
-        country: user.country,
-        currentStatus: user.currentStatus,
-        desiredField: user.desiredField,
-        onboardingGoal: user.onboardingGoal,
-        experienceLevel: user.experienceLevel,
-      },
+      user: await serializePublicUser(user),
+    },
+  });
+});
+
+auth.post('/verify-two-factor', async (c) => {
+  const body = await c.req.json();
+  const challenge = await findUserActionToken(body.challengeToken, undefined, 'mfa_login');
+  if (!challenge) {
+    return c.json({success: false, error: 'This verification session has expired. Please log in again.'}, 401);
+  }
+
+  const [user] = await db.select().from(users).where(eq(users.id, challenge.userId)).limit(1);
+  if (!user || !user.twoFactorEnabled) {
+    await consumeUserActionToken(challenge);
+    return c.json({success: false, error: 'This verification session is no longer valid. Please log in again.'}, 401);
+  }
+
+  const validCode = await verifyAndConsumeSecondFactor(user, body.code);
+  if (!validCode) {
+    await recordFailedActionTokenAttempt(challenge);
+    return c.json({success: false, error: 'The authenticator or recovery code is incorrect.'}, 401);
+  }
+  if (!await consumeUserActionToken(challenge)) {
+    return c.json({success: false, error: 'This verification session has already been used. Please log in again.'}, 401);
+  }
+
+  return c.json({
+    success: true,
+    message: 'Login successful.',
+    data: {
+      token: createToken(user),
+      user: await serializePublicUser(user),
     },
   });
 });
@@ -411,18 +454,38 @@ auth.get('/google', (c) => {
   );
   setOAuthStateCookie(c, state);
 
-  const googleUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  googleUrl.search = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: googleRedirectUrl(),
-    response_type: 'code',
-    scope: 'openid email profile',
-    state,
-    access_type: 'online',
-    prompt: 'select_account',
-  }).toString();
+  return c.redirect(buildGoogleAuthUrl(state));
+});
 
-  return c.redirect(googleUrl.toString());
+auth.post('/google/export-reauth-url', async (c) => {
+  const token = c.req.header('Authorization')?.replace(/^Bearer\s+/i, '');
+  if (!token) return c.json({success: false, error: 'Sign in again before downloading your course details.'}, 401);
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, jwtSecret());
+  } catch {
+    return c.json({success: false, error: 'Your sign-in has expired. Please log in again.'}, 401);
+  }
+
+  const [user] = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
+  if (!user) return c.json({success: false, error: 'Your account could not be verified.'}, 401);
+  const clientId = String(process.env.GOOGLE_CLIENT_ID || '').trim();
+  const clientSecret = String(process.env.GOOGLE_CLIENT_SECRET || '').trim();
+  if (!clientId || !clientSecret) {
+    return c.json({success: false, error: 'Google sign-in is not configured on the server.'}, 503);
+  }
+
+  const state = jwt.sign(
+    {
+      purpose: 'google_export_reauth',
+      userId: user.id,
+      nonce: crypto.randomBytes(32).toString('base64url'),
+    },
+    jwtSecret(),
+    {expiresIn: '10m'},
+  );
+  return c.json({success: true, data: {url: buildGoogleAuthUrl(state)}});
 });
 
 // Complete Google OAuth
@@ -438,7 +501,8 @@ auth.get('/google/callback', async (c) => {
     verifiedState = null;
   }
 
-  if (!verifiedState || typeof verifiedState !== 'object' || verifiedState.purpose !== 'google_oauth') {
+  if (!verifiedState || typeof verifiedState !== 'object'
+    || !['google_oauth', 'google_export_reauth'].includes(verifiedState.purpose)) {
     return c.redirect(redirectToFrontend('/login', {
       google_error: 'Google sign-in could not be verified. Please try again.',
     }));
@@ -493,6 +557,12 @@ auth.get('/google/callback', async (c) => {
       .limit(1);
 
     let user = existingUsers[0];
+    if (verifiedState.purpose === 'google_export_reauth'
+      && (!user || user.id !== verifiedState.userId)) {
+      return c.redirect(redirectToFrontend('/dashboard/profile', {
+        google_export_error: 'Choose the Google account linked to your Cohortia profile.',
+      }));
+    }
     const now = new Date().toISOString();
 
     if (!user) {
@@ -519,6 +589,16 @@ auth.get('/google/callback', async (c) => {
         entityId: user.id,
         metadata: { source: 'google_oauth' },
       });
+    }
+
+    if (verifiedState.purpose === 'google_export_reauth') {
+      const proofToken = await createUserActionToken(user.id, 'google_export_proof', 300);
+      return c.redirect(redirectToFrontend('/dashboard/profile', {google_export_proof: proofToken}));
+    }
+
+    if (user.twoFactorEnabled) {
+      const challengeToken = await createUserActionToken(user.id, 'mfa_login', 300);
+      return c.redirect(redirectToFrontend('/login', {google_mfa_challenge: challengeToken}));
     }
 
     return c.redirect(redirectToFrontend('/login', {
@@ -553,9 +633,8 @@ auth.get('/me', async (c) => {
     }
 
     const user = userResult[0];
-    delete user.password;
 
-    return c.json({ success: true, data: { user } });
+    return c.json({ success: true, data: { user: await serializePublicUser(user) } });
   } catch (error) {
     return c.json({ success: false, error: 'Invalid token' }, 401);
   }

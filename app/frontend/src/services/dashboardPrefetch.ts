@@ -51,7 +51,7 @@ export function prefetchDashboardAfterAuth(user: BackendUser | null) {
     scheduleIdle(() => {
       void Promise.allSettled([
         learningBoardsApi.getCourses().then(async (courses) => {
-          const roadmapNames = new Map(courseNames.map((course) => [course.courseId, course.course]));
+          const roadmapNames = new Map<string, string>(courseNames.map((course) => [course.courseId, course.course]));
           const matchingCourses = courses.filter((candidate: PrefetchCourse) =>
             courseIds.includes(candidate.courseId)
             || candidate.course.trim().toLowerCase() === roadmapNames.get(candidate.courseId)?.trim().toLowerCase(),

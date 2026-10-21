@@ -5,22 +5,14 @@ import {useAuth} from '../../context/AuthContext';
 import {userApi} from '../../services/api';
 import {BackendUser} from '../../services/api';
 import {backendUserToPreferences, UserPreferences} from '../../types';
-
-const PAGE_PATHS: Record<string, string> = {
-  overview: '/dashboard',
-  'learning-board': '/dashboard/learning',
-  mentor: '/dashboard/mentor',
-  projects: '/dashboard/projects',
-  progress: '/dashboard/progress',
-  profile: '/dashboard/profile',
-  community: '/community',
-};
+import {ApiError} from '../../services/api';
 
 export default function Profile() {
   const navigate = useNavigate();
   const {user, logout, refreshUser} = useAuth();
   const [profile, setProfile] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -40,10 +32,10 @@ export default function Profile() {
         if (backendUser) {
           setProfile(backendUserToPreferences(backendUser));
         } else {
-          setProfile(backendUserToPreferences(user));
+          throw new Error('Your profile could not be loaded from the server.');
         }
-      } catch {
-        // The authenticated snapshot remains usable if revalidation is unavailable.
+      } catch (error) {
+        setLoadError(error instanceof Error ? error.message : 'Your profile could not be loaded from the server.');
       }
     };
 
@@ -62,21 +54,20 @@ export default function Profile() {
     try {
       await userApi.updateProfile({
         name: updated.name,
-        desiredField: updated.track,
-        experienceLevel: updated.experience,
-        weeklyHours: updated.commitment === 'fulltime' ? '35-40 hrs/week' : '12-15 hrs/week',
         phone: updated.phone,
         country: updated.country,
         careerGoal: updated.careerGoal,
         availability: updated.availability,
         portfolioLink: updated.portfolioLink,
-        roadmapSelection: updated.roadmapSelection ? JSON.stringify(updated.roadmapSelection) : undefined,
       });
-      setProfile(updated);
+      const response = await userApi.getProfile();
+      const backendUser = response.data?.user as BackendUser | undefined;
+      if (!backendUser) throw new Error('Your profile was saved but could not be reloaded.');
+      setProfile(backendUserToPreferences(backendUser));
+      setLoadError(null);
       await refreshUser();
-    } catch {
-      // Keep local UI state even if backend save fails
-      setProfile(updated);
+    } catch (error) {
+      throw error as ApiError;
     }
   };
 
@@ -90,7 +81,20 @@ export default function Profile() {
       userProfile={profile}
       onUpdateProfile={handleUpdateProfile}
       onResetProfile={handleResetProfile}
-      onChangePage={(page) => navigate(PAGE_PATHS[page] || `/dashboard/${page}`)}
+      loadError={loadError}
+      onProfileUpdated={async (updatedUser) => {
+        if (updatedUser) {
+          setProfile(backendUserToPreferences(updatedUser));
+          setLoadError(null);
+        }
+        const refreshedUser = await refreshUser();
+        if (!updatedUser && refreshedUser) {
+          setProfile(backendUserToPreferences(refreshedUser));
+        }
+        if (!updatedUser && !refreshedUser) {
+          throw new Error('Your security settings changed, but your profile could not be refreshed. Reload the page to confirm the update.');
+        }
+      }}
     />
   );
 }
