@@ -37,6 +37,7 @@ import adminRoutes from './routes/admin.js';
 import { automationExecutionMode, startAutomationWorker } from './lib/automationJobs.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
+import { getJwtSecret } from './lib/jwtSecret.js';
 
 const app = new Hono();
 
@@ -149,6 +150,8 @@ app.notFound((c) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+getJwtSecret();
 
 console.log(`🚀 Cohortia API starting on port ${PORT}...`);
 

@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
+import { getJwtSecret } from '../lib/jwtSecret.js';
 
 export const authMiddleware = async (c, next) => {
   const authHeader = c.req.header('Authorization');
@@ -17,7 +18,7 @@ export const authMiddleware = async (c, next) => {
   const token = authHeader.replace('Bearer ', '');
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'cohortia-dev-secret');
+    const decoded = jwt.verify(token, getJwtSecret());
     
     // Verify user still exists
     const userResult = await db

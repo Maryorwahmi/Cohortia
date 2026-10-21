@@ -107,5 +107,5 @@ Error responses:
 |----------|-------------|---------|
 | `PORT` | Server port | `3000` |
 | `CORS_ORIGIN` | Frontend origin | `http://localhost:5173` |
-| `JWT_SECRET` | JWT signing secret | `cohortia-dev-secret` |
+| `JWT_SECRET` | Required JWT signing secret; at least 32 bytes, with no insecure default | None |
 | `NODE_ENV` | Environment | `development` |

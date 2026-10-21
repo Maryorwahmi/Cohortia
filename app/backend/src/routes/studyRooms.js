@@ -5,6 +5,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../lib/jwtSecret.js';
 
 const rooms = new Hono();
 
@@ -21,7 +22,7 @@ async function optionalAuth(c, next) {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.replace('Bearer ', '');
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'cohortia-dev-secret');
+      const decoded = jwt.verify(token, getJwtSecret());
       c.set('userId', decoded.userId);
     } catch {
       c.set('userId', null);

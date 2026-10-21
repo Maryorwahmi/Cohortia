@@ -12,15 +12,15 @@ import {courseMatchesRoadmapLevel} from '../lib/courseLevels.js';
 import {createUserActionToken, findUserActionToken, consumeUserActionToken, recordFailedActionTokenAttempt} from '../lib/userActionTokens.js';
 import {verifyAndConsumeSecondFactor} from '../lib/twoFactor.js';
 import {serializePublicUser} from '../lib/userProfile.js';
+import {getJwtSecret} from '../lib/jwtSecret.js';
 
 const auth = new Hono();
-const jwtSecret = () => process.env.JWT_SECRET || 'cohortia-dev-secret';
 const frontendUrl = () => (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
 
 function createToken(user) {
   return jwt.sign(
     { userId: user.id, email: user.email },
-    jwtSecret(),
+    getJwtSecret(),
     { expiresIn: '7d' }
   );
 }
@@ -283,7 +283,7 @@ auth.post('/signup', async (c) => {
   // Generate token
   const token = jwt.sign(
     { userId, email: data.email },
-    jwtSecret(),
+    getJwtSecret(),
     { expiresIn: '7d' }
   );
 
@@ -392,7 +392,7 @@ auth.post('/login', async (c) => {
 
   const token = jwt.sign(
     { userId: user.id, email: user.email },
-    jwtSecret(),
+    getJwtSecret(),
     { expiresIn: '7d' }
   );
 
@@ -463,7 +463,7 @@ auth.post('/google/export-reauth-url', async (c) => {
 
   let decoded;
   try {
-    decoded = jwt.verify(token, jwtSecret());
+    decoded = jwt.verify(token, getJwtSecret());
   } catch {
     return c.json({success: false, error: 'Your sign-in has expired. Please log in again.'}, 401);
   }
@@ -482,7 +482,7 @@ auth.post('/google/export-reauth-url', async (c) => {
       userId: user.id,
       nonce: crypto.randomBytes(32).toString('base64url'),
     },
-    jwtSecret(),
+    getJwtSecret(),
     {expiresIn: '10m'},
   );
   return c.json({success: true, data: {url: buildGoogleAuthUrl(state)}});
@@ -496,7 +496,7 @@ auth.get('/google/callback', async (c) => {
 
   let verifiedState;
   try {
-    verifiedState = state ? jwt.verify(state, jwtSecret()) : null;
+    verifiedState = state ? jwt.verify(state, getJwtSecret()) : null;
   } catch {
     verifiedState = null;
   }
@@ -621,7 +621,7 @@ auth.get('/me', async (c) => {
   }
 
   try {
-    const decoded = jwt.verify(token, jwtSecret());
+    const decoded = jwt.verify(token, getJwtSecret());
     const userResult = await db
       .select()
       .from(users)
