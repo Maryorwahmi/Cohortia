@@ -94,7 +94,9 @@ app.route('/api/v1/community', communityRoutes);
 app.route('/api/v1/community', communityReactionsRoutes);
 app.route('/api/v1/community', studyRoomsRoutes);
 // Dev-only generated content preview
-app.route('/api/v1/dev/generated', generatedRoutes);
+if (process.env.NODE_ENV !== 'production') {
+  app.route('/api/v1/dev/generated', generatedRoutes);
+}
 
 // Public learning board endpoints (read-only)
 app.route('/api/v1/learning-boards', learningRoutes);
