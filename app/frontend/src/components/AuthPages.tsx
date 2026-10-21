@@ -7,6 +7,7 @@ import {
 import Logo from "./Logo";
 import { useAuth } from "../context/AuthContext";
 import { hasRoadmapSelection, RoadmapSelection, SignupDraft } from "../types";
+import { API_BASE_URL } from "../config/api";
 
 interface AuthPagesProps {
   initialTab: "signup" | "login";
@@ -321,14 +322,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       return;
     }
 
-    const googleAuthUrl = String(import.meta.env.VITE_GOOGLE_AUTH_URL || "").trim();
-
-    if (!googleAuthUrl) {
-      setErrorMsg("Google sign-in is not configured yet. Please use your email and password for now.");
-      return;
-    }
-
-    window.location.assign(googleAuthUrl);
+    window.location.assign(`${API_BASE_URL}/auth/google`);
   };
 
   const learningMethodOptions = [

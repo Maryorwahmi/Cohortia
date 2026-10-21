@@ -146,7 +146,7 @@ The platform utilizes a customized, glassy design language centered on CSS varia
 
 ### Environment variables
 
-Copy `.env.example` to `.env` (already done). The default `VITE_API_URL=/api/v1` works with the Vite dev proxy.
+Copy `.env.example` to `.env` (already done). The default `VITE_API_URL=/api/v1` works with the Vite dev proxy. Production API calls and Google sign-in use `https://api.cohortia.study/api/v1`.
 
 ### Share the app with ngrok
 
