@@ -139,7 +139,10 @@ export const enrollments = sqliteTable('enrollments', {
   status: text('status').notNull().default('active'), // active, completed, paused
   enrolledAt: text('enrolled_at').notNull(),
   updatedAt: text('updated_at').notNull(),
-});
+}, (table) => ({
+  userStatusIdx: index('enrollments_user_status_idx').on(table.userId, table.status),
+  userTrackIdx: index('enrollments_user_track_idx').on(table.userId, table.trackId),
+}));
 
 // Progress table
 export const progress = sqliteTable('progress', {
@@ -151,7 +154,10 @@ export const progress = sqliteTable('progress', {
   completedAt: text('completed_at'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
-});
+}, (table) => ({
+  userUpdatedIdx: index('progress_user_updated_idx').on(table.userId, table.updatedAt),
+  userLessonIdx: index('progress_user_lesson_idx').on(table.userId, table.lessonId),
+}));
 
 // Lessons table
 export const lessons = sqliteTable('lessons', {
@@ -734,7 +740,11 @@ export const learningBoardProgress = sqliteTable('learning_board_progress', {
   completedAt: text('completed_at'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
-});
+}, (table) => ({
+  userCourseIdx: index('learning_board_progress_user_course_idx').on(table.userId, table.courseId),
+  userCourseChapterIdx: index('learning_board_progress_user_course_chapter_idx')
+    .on(table.userId, table.courseId, table.module, table.chapter),
+}));
 
 // Chapter practical definitions and learner workspace state.
 export const learningBoardPracticals = sqliteTable('learning_board_practicals', {
@@ -838,7 +848,10 @@ export const studentPracticalAttempts = sqliteTable('student_practical_attempts'
   output: text('output'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
-});
+}, (table) => ({
+  userPracticalCreatedIdx: index('student_practical_attempts_user_practical_created_idx')
+    .on(table.userId, table.practicalId, table.createdAt),
+}));
 
 export const studentPracticalProgress = sqliteTable('student_practical_progress', {
   id: text('id').primaryKey(),
@@ -849,7 +862,10 @@ export const studentPracticalProgress = sqliteTable('student_practical_progress'
   attempts: integer('attempts').notNull().default(0),
   completedAt: text('completed_at'),
   updatedAt: text('updated_at').notNull(),
-});
+}, (table) => ({
+  userPracticalTaskIdx: index('student_practical_progress_user_practical_task_idx')
+    .on(table.userId, table.practicalId, table.taskId),
+}));
 
 // CS Assessments — from markdown files in CS Assessment folder
 export const csAssessments = sqliteTable('cs_assessments', {

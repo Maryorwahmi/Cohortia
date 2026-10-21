@@ -23,13 +23,30 @@ export default function CourseDetails() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    catalogCourseApi.getDetails(courseId)
-      .then((response) => {
+    let active = true;
+    const loadCourse = async () => {
+      try {
+        const [courseResult, staticDetailsResult] = await Promise.allSettled([
+          catalogCourseApi.getDetails(courseId),
+          fetch(`/content/course-details/${encodeURIComponent(courseId)}.json`, {headers: {Accept: 'application/json'}})
+            .then((response) => response.ok ? response.json() as Promise<CourseDetailsData> : null),
+        ]);
+
+        if (!active) return;
+        if (courseResult.status === 'rejected') throw courseResult.reason;
+        const response = courseResult.value;
+        const staticDetails = staticDetailsResult.status === 'fulfilled' ? staticDetailsResult.value : null;
         setCourse(response.data?.course || null);
-        setDetails(response.data?.details || null);
-      })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Unable to load this course.'))
-      .finally(() => setLoading(false));
+        setDetails(staticDetails || response.data?.details || null);
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err.message : 'Unable to load this course.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    void loadCourse();
+    return () => { active = false; };
   }, [courseId]);
 
   const handleStartCourse = async () => {

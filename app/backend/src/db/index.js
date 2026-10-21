@@ -67,6 +67,17 @@ async function ensureCourseFinalTables() {
       content_type TEXT NOT NULL, byte_size INTEGER NOT NULL, upload_expires_at TEXT NOT NULL,
       created_at TEXT NOT NULL
     )`,
+    `CREATE INDEX IF NOT EXISTS enrollments_user_status_idx ON enrollments (user_id, status)`,
+    `CREATE INDEX IF NOT EXISTS enrollments_user_track_idx ON enrollments (user_id, track_id)`,
+    `CREATE INDEX IF NOT EXISTS progress_user_updated_idx ON progress (user_id, updated_at)`,
+    `CREATE INDEX IF NOT EXISTS progress_user_lesson_idx ON progress (user_id, lesson_id)`,
+    `CREATE INDEX IF NOT EXISTS learning_board_progress_user_course_idx ON learning_board_progress (user_id, course_id)`,
+    `CREATE INDEX IF NOT EXISTS learning_board_progress_user_course_chapter_idx
+      ON learning_board_progress (user_id, course_id, module, chapter)`,
+    `CREATE INDEX IF NOT EXISTS student_practical_attempts_user_practical_created_idx
+      ON student_practical_attempts (user_id, practical_id, created_at)`,
+    `CREATE INDEX IF NOT EXISTS student_practical_progress_user_practical_task_idx
+      ON student_practical_progress (user_id, practical_id, task_id)`,
   ];
 
   for (const statement of statements) {

@@ -1,6 +1,6 @@
 import { db } from '../db/index.js';
-import { users, progress, enrollments, learningBoardProgress, studentPracticalAttempts, studentPracticalProgress } from '../db/schema.js';
-import { eq } from 'drizzle-orm';
+import { users, progress, enrollments, lessons, learningBoardProgress, studentPracticalAttempts, studentPracticalProgress } from '../db/schema.js';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { Hono } from 'hono';
 
 const usersRoute = new Hono();
@@ -68,26 +68,88 @@ usersRoute.put('/profile', async (c) => {
 // Get user progress
 usersRoute.get('/progress', async (c) => {
   const userId = c.get('userId');
+  const courseIds = (c.req.query('courseIds') || '')
+    .split(',')
+    .map((courseId) => courseId.trim())
+    .filter(Boolean);
+  const recentOnly = c.req.query('recentOnly') === '1';
 
-  const progressData = await db
-    .select()
-    .from(progress)
-    .where(eq(progress.userId, userId));
+  const progressSelection = {
+    id: progress.id,
+    userId: progress.userId,
+    lessonId: progress.lessonId,
+    status: progress.status,
+    score: progress.score,
+    completedAt: progress.completedAt,
+    createdAt: progress.createdAt,
+    updatedAt: progress.updatedAt,
+  };
+  const progressData = courseIds.length
+    ? await db
+      .select(progressSelection)
+      .from(progress)
+      .innerJoin(lessons, eq(progress.lessonId, lessons.id))
+      .where(and(eq(progress.userId, userId), inArray(lessons.trackId, courseIds)))
+      .orderBy(desc(progress.updatedAt))
+      .limit(recentOnly ? 500 : 5000)
+    : await db
+      .select(progressSelection)
+      .from(progress)
+      .where(eq(progress.userId, userId))
+      .orderBy(desc(progress.updatedAt))
+      .limit(recentOnly ? 500 : 5000);
 
   const boardProgressData = await db
-    .select()
+    .select({
+      lessonId: learningBoardProgress.lessonId,
+      status: learningBoardProgress.explicitComplete,
+      score: learningBoardProgress.score,
+      completedAt: learningBoardProgress.completedAt,
+      createdAt: learningBoardProgress.createdAt,
+      updatedAt: learningBoardProgress.updatedAt,
+      studySeconds: learningBoardProgress.studySeconds,
+      explicitComplete: learningBoardProgress.explicitComplete,
+      watched: learningBoardProgress.watched,
+      assessmentPassed: learningBoardProgress.assessmentPassed,
+      courseId: learningBoardProgress.courseId,
+      module: learningBoardProgress.module,
+      chapter: learningBoardProgress.chapter,
+    })
     .from(learningBoardProgress)
-    .where(eq(learningBoardProgress.userId, userId));
+    .where(and(
+      eq(learningBoardProgress.userId, userId),
+      ...(courseIds.length ? [inArray(learningBoardProgress.courseId, courseIds)] : []),
+    ))
+    .orderBy(desc(learningBoardProgress.updatedAt))
+    .limit(recentOnly ? 500 : 5000);
 
   const practicalAttempts = await db
-    .select()
+    .select({
+      id: studentPracticalAttempts.id,
+      practicalId: studentPracticalAttempts.practicalId,
+      status: studentPracticalAttempts.status,
+      createdAt: studentPracticalAttempts.createdAt,
+      updatedAt: studentPracticalAttempts.updatedAt,
+    })
     .from(studentPracticalAttempts)
-    .where(eq(studentPracticalAttempts.userId, userId));
+    .where(eq(studentPracticalAttempts.userId, userId))
+    .orderBy(desc(studentPracticalAttempts.updatedAt))
+    .limit(recentOnly ? 100 : 1000);
 
   const practicalTaskProgress = await db
-    .select()
+    .select({
+      id: studentPracticalProgress.id,
+      practicalId: studentPracticalProgress.practicalId,
+      taskId: studentPracticalProgress.taskId,
+      status: studentPracticalProgress.status,
+      attempts: studentPracticalProgress.attempts,
+      completedAt: studentPracticalProgress.completedAt,
+      updatedAt: studentPracticalProgress.updatedAt,
+    })
     .from(studentPracticalProgress)
-    .where(eq(studentPracticalProgress.userId, userId));
+    .where(eq(studentPracticalProgress.userId, userId))
+    .orderBy(desc(studentPracticalProgress.updatedAt))
+    .limit(recentOnly ? 500 : 5000);
 
   const boardProgress = boardProgressData.map((item) => ({
     lessonId: item.lessonId,

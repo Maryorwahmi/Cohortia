@@ -23,7 +23,15 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+
+    // Auth already contains the profile needed to render this page. Revalidate without blocking it.
+    setProfile(backendUserToPreferences(user));
+    setLoading(false);
 
     const load = async () => {
       try {
@@ -35,13 +43,11 @@ export default function Profile() {
           setProfile(backendUserToPreferences(user));
         }
       } catch {
-        setProfile(backendUserToPreferences(user));
-      } finally {
-        setLoading(false);
+        // The authenticated snapshot remains usable if revalidation is unavailable.
       }
     };
 
-    load();
+    void load();
   }, [user]);
 
   if (!user || !profile) {

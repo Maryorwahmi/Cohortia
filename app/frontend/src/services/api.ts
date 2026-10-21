@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '../config/api';
 import type { RoadmapSelection } from '../types';
-import { fetchWithReadCache, invalidateRequestCache } from './requestCache';
+import { fetchWithReadCache } from './requestCache';
 
 export interface ApiError extends Error {
   status?: number;
@@ -164,7 +164,13 @@ export const userApi = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  getProgress: () => fetchApi<ProgressResponse>('/users/progress'),
+  getProgress: (options: { courseIds?: string[]; recentOnly?: boolean } = {}) => {
+    const params = new URLSearchParams();
+    if (options.courseIds?.length) params.set('courseIds', options.courseIds.join(','));
+    if (options.recentOnly) params.set('recentOnly', '1');
+    const query = params.toString();
+    return fetchApi<ProgressResponse>(`/users/progress${query ? `?${query}` : ''}`);
+  },
   getEnrollments: () => fetchApi<EnrollmentsResponse>('/users/enrollments'),
 };
 
@@ -304,14 +310,12 @@ export const adminApi = {
       method: 'PUT',
       body: JSON.stringify({coursePermissions}),
     });
-    invalidateRequestCache();
     return response;
   },
   revokeUserAccess: async (userId: string) => {
     const response = await fetchApi<{success: boolean; message?: string; error?: string}>(`/admin/users/${encodeURIComponent(userId)}/access`, {
       method: 'DELETE',
     });
-    invalidateRequestCache();
     return response;
   },
   getCommunityReports: () => fetchApi<{success: boolean; data?: {reports: Array<Record<string, unknown>>}; error?: string}>('/admin/community/reports'),

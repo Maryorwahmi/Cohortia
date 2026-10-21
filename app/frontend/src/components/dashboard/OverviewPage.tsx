@@ -8,7 +8,6 @@ import { learningBoardsApi, LearningBoardChapter, LearningBoardProgress } from "
 import BadgesComponent from "./BadgesComponent";
 import DailyHabitTracker from "./DailyHabitTracker";
 import HabitLogger from "./HabitLogger";
-import SkeletonLoader from "./SkeletonLoader";
 import RoadmapSummary from "./RoadmapSummary";
 import RecentActivity from "./RecentActivity";
 
@@ -38,21 +37,16 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
 
   const [overviewTab, setOverviewTab] = useState<"roadmap" | "syllabus">("roadmap");
   const [courseChapters, setCourseChapters] = useState<LearningBoardChapter[]>([]);
-  const [courseChaptersLoading, setCourseChaptersLoading] = useState(true);
   const [chapterProgress, setChapterProgress] = useState<Record<string, LearningBoardProgress | null>>({});
 
   useEffect(() => {
-    setCourseChaptersLoading(true);
-
     if (isRoadmap) {
       setCourseChapters([]);
-      setCourseChaptersLoading(false);
       return;
     }
 
     if (!track?.id) {
       setCourseChapters([]);
-      setCourseChaptersLoading(false);
       return;
     }
 
@@ -78,19 +72,12 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
       })
       .catch(() => {
         if (!cancelled) setCourseChapters([]);
-      })
-      .finally(() => {
-        if (!cancelled) setCourseChaptersLoading(false);
       });
 
     return () => {
       cancelled = true;
     };
   }, [track?.id, isRoadmap]);
-
-  if (courseChaptersLoading) {
-    return <SkeletonLoader activePage="overview" />;
-  }
 
   const chaptersByModule = new Map<number, LearningBoardChapter[]>();
   courseChapters.forEach((chapter) => {

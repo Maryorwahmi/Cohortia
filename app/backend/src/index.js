@@ -40,6 +40,13 @@ import { authMiddleware } from './middleware/auth.js';
 
 const app = new Hono();
 
+const publicCatalogCache = async (c, next) => {
+  await next();
+  if (c.req.method === 'GET' && c.res.status >= 200 && c.res.status < 400) {
+    c.header('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
+  }
+};
+
 // Global middleware
 app.use('*', logger());
 app.use('*', cors({
@@ -64,7 +71,11 @@ app.get('/health', (c) => {
 // Public routes (no auth required)
 app.route('/api/v1/auth', authRoutes);
 app.route('/api/v1/admin', adminRoutes);
+app.use('/api/v1/careers', publicCatalogCache);
+app.use('/api/v1/careers/*', publicCatalogCache);
 app.route('/api/v1/careers', careerRoutes);
+app.use('/api/v1/catalog-courses', publicCatalogCache);
+app.use('/api/v1/catalog-courses/*', publicCatalogCache);
 app.route('/api/v1/catalog-courses', catalogCoursesRoutes);
 app.route('/api/v1/assessments', assessmentsRoutes);
 app.route('/api/v1/automation', automationRoutes);

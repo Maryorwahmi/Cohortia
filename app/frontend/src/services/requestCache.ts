@@ -1,4 +1,5 @@
 interface CachedResponse {
+  pathname: string;
   body: string;
   expiresAt: number;
   headers: [string, string][];
@@ -97,14 +98,46 @@ function createResponse(cached: CachedResponse): Response {
   });
 }
 
-export function invalidateRequestCache(): void {
-  cacheGeneration += 1;
-  responseCache.clear();
+function pathMatches(pathname: string, patterns: string[]): boolean {
+  if (!pathname) return false;
+  return patterns.some((pattern) => pathname === pattern || pathname.startsWith(`${pattern}/`));
+}
+
+function relatedPathsForMutation(pathname: string): string[] {
+  if (pathname.includes('/users/profile')) return ['/users/profile'];
+  if (pathname.includes('/lessons/') || pathname.includes('/learning/')) {
+    return ['/users/progress', '/learning/board-progress', '/learning/practical-progress', '/learning-boards/boards'];
+  }
+  if (pathname.includes('/projects/')) return ['/projects/submissions', '/projects/course', '/dashboard'];
+  if (pathname.includes('/mentor/')) return ['/mentor'];
+  if (pathname.includes('/tracks/')) return ['/tracks', '/tracks/user/enrolled', '/users/progress'];
+  return [];
+}
+
+export function invalidateRequestCache(patterns?: string[]): void {
+  if (!patterns?.length) {
+    cacheGeneration += 1;
+    responseCache.clear();
+  } else {
+    for (const [key, cached] of responseCache.entries()) {
+      if (pathMatches(cached.pathname, patterns)) responseCache.delete(key);
+    }
+  }
+
   try {
     for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
       const key = sessionStorage.key(index);
-      if (key?.startsWith(SESSION_CACHE_PREFIX)) sessionStorage.removeItem(key);
+      if (!key?.startsWith(SESSION_CACHE_PREFIX) || key === SESSION_CACHE_INDEX) continue;
+      if (!patterns?.length) {
+        sessionStorage.removeItem(key);
+        continue;
+      }
+      const cached = readSessionCache(key);
+      if (cached && pathMatches(cached.pathname, patterns)) sessionStorage.removeItem(key);
     }
+
+    const keys = JSON.parse(sessionStorage.getItem(SESSION_CACHE_INDEX) || '[]') as string[];
+    sessionStorage.setItem(SESSION_CACHE_INDEX, JSON.stringify(keys.filter((key) => sessionStorage.getItem(key))));
   } catch {
     // Browser storage can be unavailable; in-memory invalidation still applies.
   }
@@ -137,6 +170,7 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
       const currentGeneration = cacheGeneration;
       pending = fetch(input, init).then(async (response) => {
         const result: CachedResponse = {
+          pathname: url.pathname,
           body: await response.clone().text(),
           expiresAt: Date.now() + ttlMs,
           headers: Array.from(response.headers.entries()),
@@ -165,10 +199,11 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
     return createResponse(await pending);
   }
 
-  invalidateRequestCache();
+  const url = new URL(String(input), 'http://cohortia.local');
+  invalidateRequestCache(relatedPathsForMutation(url.pathname));
   try {
     return await fetch(input, init);
   } finally {
-    invalidateRequestCache();
+    invalidateRequestCache(relatedPathsForMutation(url.pathname));
   }
 }

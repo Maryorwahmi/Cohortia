@@ -1,3 +1,4 @@
+import {lazy, Suspense} from 'react';
 import {Routes, Route} from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import PublicLayout from './components/layout/PublicLayout';
@@ -16,19 +17,20 @@ import ChapterAssessmentDetail from './pages/ChapterAssessmentDetail';
 import AutomationPage from './pages/AutomationPage';
 import {CareerCategoryPage, CareerDirectoryPage, CareerRolePage, CareerSkillPage} from './pages/CareerDiscovery';
 
-import Overview from './pages/dashboard/Overview';
-import LearningBoard from './pages/dashboard/LearningBoard';
-import HtmlBoardTest from './pages/dashboard/HtmlBoardTest';
-import Mentor from './pages/dashboard/Mentor';
-import Projects from './pages/dashboard/Projects';
-import Progress from './pages/dashboard/Progress';
-import Profile from './pages/dashboard/Profile';
-import AdminDashboard from './pages/dashboard/AdminDashboard';
+const Overview = lazy(() => import('./pages/dashboard/Overview'));
+const LearningBoard = lazy(() => import('./pages/dashboard/LearningBoard'));
+const HtmlBoardTest = lazy(() => import('./pages/dashboard/HtmlBoardTest'));
+const Mentor = lazy(() => import('./pages/dashboard/Mentor'));
+const Projects = lazy(() => import('./pages/dashboard/Projects'));
+const Progress = lazy(() => import('./pages/dashboard/Progress'));
+const Profile = lazy(() => import('./pages/dashboard/Profile'));
+const AdminDashboard = lazy(() => import('./pages/dashboard/AdminDashboard'));
 
 export default function App() {
   return (
     <>
       <ScrollToTop />
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-immersive-bg text-sm text-immersive-text-secondary">Loading workspace…</div>}>
       <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
@@ -68,6 +70,7 @@ export default function App() {
       {/* Temporary public test route for generated HTML learning boards */}
       <Route path="/html-board-test" element={<HtmlBoardTest />} />
     </Routes>
+    </Suspense>
     </>
   );
 }
