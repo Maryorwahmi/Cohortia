@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '../config/api';
 import type { RoadmapSelection } from '../types';
 import { fetchWithReadCache } from './requestCache';
+import { loadStaticCatalog } from '../lib/publicCatalog';
 
 export interface ApiError extends Error {
   status?: number;
@@ -254,7 +255,11 @@ export interface CatalogCoursesResponse {
 }
 
 export const catalogCourseApi = {
-  getAll: () => fetchApi<CatalogCoursesResponse>('/catalog-courses'),
+  getAll: async () => {
+    const staticCatalog = await loadStaticCatalog();
+    if (staticCatalog?.success && staticCatalog.data?.courses) return staticCatalog;
+    return fetchApi<CatalogCoursesResponse>('/catalog-courses');
+  },
   recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string; careerFocusId?: string; courseCategory?: string }) =>
     fetchApi<{
       success: boolean;
