@@ -52,11 +52,6 @@ export default function AutomationPage() {
   const pollTimerRef = useRef<number | null>(null);
   const pollAbortRef = useRef<AbortController | null>(null);
 
-  const authHeaders = () => {
-    const token = localStorage.getItem('cohortia_token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
   useEffect(() => {
     if (authLoading || user?.role !== 'admin') return;
     void loadCourses();
@@ -96,7 +91,7 @@ export default function AutomationPage() {
         const controller = new AbortController();
         pollAbortRef.current = controller;
         const response = await fetch(`${API_ROOT}/automation/jobs/${encodeURIComponent(jobId)}`, {
-          headers: authHeaders(),
+          credentials: 'include',
           signal: controller.signal,
         });
         if (!active) return;
@@ -160,7 +155,6 @@ export default function AutomationPage() {
 
     try {
       const response = await fetchWithReadCache(`${API_ROOT}/automation/courses?category=${encodeURIComponent(category)}`, {
-        headers: authHeaders(),
       });
       const payload = await response.json();
       if (!response.ok || !payload?.success) {
@@ -199,7 +193,7 @@ export default function AutomationPage() {
       const courseId = selectedCourse === ALL_SUBCATEGORY_OPTION ? 'all' : selectedCourse;
       const response = await fetchWithReadCache(`${API_ROOT}/automation/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           category,
           courseId,
@@ -235,7 +229,6 @@ export default function AutomationPage() {
     try {
       const response = await fetchWithReadCache(`${API_ROOT}/automation/jobs/stop-all`, {
         method: 'POST',
-        headers: authHeaders(),
       });
       const payload = await readApiResponse(response);
       setBusy(false);

@@ -72,11 +72,9 @@ The alpha administrator can grant existing registered users admin access and ind
 
 ## Authentication
 
-Include the JWT token in the `Authorization` header:
+Browser login, signup, two-factor completion, and Google sign-in set a server-managed `HttpOnly`, `SameSite=Lax` session cookie. In production it is also `Secure` and scoped to `/api/v1`. The browser must send requests with credentials enabled. Unsafe cookie-authenticated requests are accepted only from configured frontend origins.
 
-```
-Authorization: Bearer <your-token>
-```
+The session JWT is not returned in API response bodies or Google redirect URLs. Existing browser sessions must sign in again after this change because localStorage tokens are no longer accepted.
 
 ## Response Format
 

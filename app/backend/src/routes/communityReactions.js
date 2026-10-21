@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import { getJwtSecret } from '../lib/jwtSecret.js';
+import { getSessionCookieToken } from '../lib/sessionAuth.js';
 
 const reactions = new Hono();
 
@@ -14,9 +15,8 @@ const reactionSchema = z.object({
 });
 
 async function optionalAuth(c, next) {
-  const authHeader = c.req.header('Authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.replace('Bearer ', '');
+  const token = getSessionCookieToken(c);
+  if (token) {
     try {
       const decoded = jwt.verify(token, getJwtSecret());
       c.set('userId', decoded.userId);

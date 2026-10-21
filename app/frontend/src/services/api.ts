@@ -10,19 +10,14 @@ export interface ApiError extends Error {
 
 async function fetchApi<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  const token = localStorage.getItem('cohortia_token');
-
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {}),
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
   const response = await fetchWithReadCache(url, {
     ...options,
+    credentials: options.credentials || 'include',
     headers,
   });
 
@@ -46,7 +41,6 @@ export interface AuthResponse {
   error?: string;
   details?: Record<string, string[]>;
   data?: {
-    token?: string;
     user?: BackendUser;
     twoFactorRequired?: boolean;
     challengeToken?: string;
@@ -142,6 +136,11 @@ export const authApi = {
       body: JSON.stringify({challengeToken, code}),
     }),
 
+  logout: () =>
+    fetchApi<{success: boolean; message?: string}>('/auth/logout', {
+      method: 'POST',
+    }),
+
   startGoogleExportReauthentication: () =>
     fetchApi<{success: boolean; data?: {url: string}; error?: string}>('/auth/google/export-reauth-url', {
       method: 'POST',
@@ -227,11 +226,9 @@ export const userApi = {
   getCourseSyllabusExport: (verificationToken: string) =>
     fetch(`${API_BASE_URL}/users/export/course-syllabus`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        ...(localStorage.getItem('cohortia_token')
-          ? {Authorization: `Bearer ${localStorage.getItem('cohortia_token')}`}
-          : {}),
       },
       body: JSON.stringify({verificationToken}),
     }).then(async (response) => {

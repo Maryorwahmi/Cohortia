@@ -7,11 +7,6 @@ import { API_BASE_URL as API_ROOT } from '../config/api';
 import { fetchWithReadCache } from './requestCache';
 const API_BASE = `${API_ROOT}/learning-boards`;
 
-function authHeaders(): HeadersInit {
-  const token = localStorage.getItem('cohortia_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 export interface LearningBoardCourse {
   id: string;
   courseId: string;
@@ -417,7 +412,6 @@ class LearningBoardsApiService {
 
   async getProgress(courseId: string, module: number, chapter: number): Promise<LearningBoardProgress | null> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
-      headers: authHeaders(),
     });
     if (!response.ok) throw new Error(`Failed to fetch chapter progress: ${response.statusText}`);
     const data = await response.json();
@@ -426,7 +420,6 @@ class LearningBoardsApiService {
 
   async getCourseProgress(courseId: string): Promise<Record<string, LearningBoardProgress>> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}`, {
-      headers: authHeaders(),
     });
     if (!response.ok) throw new Error(`Failed to fetch course progress: ${response.statusText}`);
     const data = await response.json();
@@ -446,7 +439,7 @@ class LearningBoardsApiService {
   ): Promise<{ progress: LearningBoardProgress; completed: boolean }> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/board-progress/${encodeURIComponent(courseId)}/${module}/${chapter}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(update),
     });
     if (!response.ok) throw new Error(`Failed to update chapter progress: ${response.statusText}`);
@@ -463,7 +456,7 @@ class LearningBoardsApiService {
   ): Promise<AssessmentAnswerEvaluation> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/assessment/evaluate`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ courseId, module, chapter, questionId, studentAnswer }),
     });
     const data = await response.json().catch(() => ({}));
@@ -484,7 +477,7 @@ class LearningBoardsApiService {
   ): Promise<{ id: string; status: string }> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-attempts`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...authHeaders() },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ practicalId, files, status, output }),
     });
     const data = await response.json().catch(() => ({}));
@@ -515,7 +508,7 @@ class LearningBoardsApiService {
   }> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-execute`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ files, activeFilePath, language, stdin, enableSanitizers, compileProbes }),
     });
     const data = await response.json().catch(() => ({}));
@@ -538,7 +531,7 @@ class LearningBoardsApiService {
   ): Promise<{ practicalId: string; taskId: string; status: string }> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-task-progress`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...authHeaders() },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ practicalId, taskId, status }),
     });
     const data = await response.json().catch(() => ({}));
@@ -553,7 +546,6 @@ class LearningBoardsApiService {
    */
   async getPracticalProgress(practicalId: string): Promise<{ attempts: any[]; taskProgress: any[] }> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-progress/${encodeURIComponent(practicalId)}`, {
-      headers: authHeaders(),
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.success) {

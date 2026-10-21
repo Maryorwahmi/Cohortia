@@ -16,7 +16,7 @@ The application is structured as a responsive, state-driven full-stack applicati
 
 ### 2. Full-Stack API Integration
 *   **Cohortia Backend API**: All data and AI features are served by the backend at `http://localhost:3000/api/v1`. The Vite dev server proxies `/api` requests to the backend during development.
-*   **Authentication**: Real JWT-based signup/login (`/api/v1/auth`) with token persistence in `localStorage`.
+*   **Authentication**: Signup/login (`/api/v1/auth`) uses a server-managed `HttpOnly` session cookie; the session token is not exposed to frontend JavaScript or persisted in browser storage.
 *   **AI Mentor & Chat**: AI conversations are handled by the backend (`/api/v1/chat/message`, `/api/v1/mentor/context`) which manages Gemini integration and persistent mentor memory.
 *   **Dynamic Tuning Modes**: Allows students to calibrate the AI's behavior (Mentor, Coach, Tutor, Interviewer) and desired output format (Standard Text, Slide Outlines, Technical Docs, Voice Transcripts, Screencast Scripts).
 

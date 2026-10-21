@@ -11,7 +11,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string; adminRole?: BackendUser['adminRole']; mfaRequired?: boolean; challengeToken?: string }>;
   completeTwoFactorLogin: (challengeToken: string, code: string) => Promise<{success: boolean; message?: string; adminRole?: BackendUser['adminRole']; requiresRoadmap?: boolean}>;
   signup: (userData: Record<string, unknown>) => Promise<{ success: boolean; message?: string; details?: Record<string, string[]> }>;
-  completeExternalLogin: (token: string) => Promise<BackendUser | null>;
+  completeExternalLogin: () => Promise<BackendUser | null>;
   logout: () => void;
   refreshUser: () => Promise<BackendUser | null>;
 }
@@ -22,22 +22,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<BackendUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check for stored token and validate on mount
+  // Check the server-managed session cookie on mount.
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('cohortia_token');
-      if (token) {
-        try {
-          const res = await authApi.getMe();
-          if (res.success && res.data?.user) {
-            setUser(res.data.user);
-            prefetchDashboardAfterAuth(res.data.user);
-          } else {
-            localStorage.removeItem('cohortia_token');
-          }
-        } catch {
-          localStorage.removeItem('cohortia_token');
+      localStorage.removeItem('cohortia_token');
+      try {
+        const res = await authApi.getMe();
+        if (res.success && res.data?.user) {
+          setUser(res.data.user);
+          prefetchDashboardAfterAuth(res.data.user);
         }
+      } catch {
+        // No valid session cookie is an unauthenticated state.
       }
       setLoading(false);
     };
@@ -56,8 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           message: 'Enter your authenticator or recovery code to finish signing in.',
         };
       }
-      if (res.success && res.data?.token) {
-        localStorage.setItem('cohortia_token', res.data.token);
+      if (res.success && res.data?.user) {
+        invalidateRequestCache();
         setUser(res.data.user || null);
         prefetchDashboardAfterAuth(res.data.user || null);
         return { success: true, adminRole: res.data.user?.adminRole };
@@ -75,8 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const completeTwoFactorLogin = useCallback(async (challengeToken: string, code: string) => {
     try {
       const res = await authApi.completeTwoFactorLogin(challengeToken, code);
-      if (res.success && res.data?.token) {
-        localStorage.setItem('cohortia_token', res.data.token);
+      if (res.success && res.data?.user) {
+        invalidateRequestCache();
         setUser(res.data.user || null);
         prefetchDashboardAfterAuth(res.data.user || null);
         return {
@@ -95,8 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signup = async (userData: Record<string, unknown>) => {
     try {
       const res: AuthResponse = await authApi.signup(userData as unknown as Parameters<typeof authApi.signup>[0]);
-      if (res.success && res.data?.token) {
-        localStorage.setItem('cohortia_token', res.data.token);
+      if (res.success && res.data?.user) {
+        invalidateRequestCache();
         setUser(res.data.user || null);
         prefetchDashboardAfterAuth(res.data.user || null);
         return { success: true };
@@ -116,28 +112,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('cohortia_token');
     invalidateRequestCache();
-  };
+    void authApi.logout().catch((error) => {
+      console.error('Unable to clear the server session cookie:', error);
+    });
+  }, []);
 
-  const completeExternalLogin = useCallback(async (token: string): Promise<BackendUser | null> => {
-    localStorage.setItem('cohortia_token', token);
+  const completeExternalLogin = useCallback(async (): Promise<BackendUser | null> => {
+    invalidateRequestCache();
     const res = await authApi.getMe();
     if (res.success && res.data?.user) {
       setUser(res.data.user);
       prefetchDashboardAfterAuth(res.data.user);
       return res.data.user;
     }
-    localStorage.removeItem('cohortia_token');
     return null;
   }, []);
 
   const refreshUser = async () => {
-    const token = localStorage.getItem('cohortia_token');
-    if (!token) return null;
-
     try {
       const res = await authApi.getMe();
       if (res.success && res.data?.user) {

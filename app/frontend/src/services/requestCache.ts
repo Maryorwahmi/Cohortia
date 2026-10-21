@@ -19,13 +19,10 @@ let cacheGeneration = 0;
 const MAX_CACHED_RESPONSES = 300;
 
 function getCacheTtl(pathname: string): number {
-  if (/\/auth\/me(?:\/|$)/.test(pathname)) return 0;
-  if (/\/(?:board-progress|practical-progress|users|lessons\/progress|projects\/submissions|internships\/submissions|tracks\/user\/enrolled)(?:\/|$)/.test(pathname)) {
-    return 10_000;
-  }
+  if (pathMatches(pathname, ['/tracks/user/enrolled'])) return 0;
   if (/\/learning-boards\/boards(?:\/|$)/.test(pathname)) return 5 * 60_000;
   if (/\/(?:catalog-courses|careers|tracks|assessments)(?:\/|$)/.test(pathname)) return 2 * 60_000;
-  return 30_000;
+  return 0;
 }
 
 async function getPersistentCacheKey(requestKey: string): Promise<string | null> {
@@ -145,9 +142,15 @@ export function invalidateRequestCache(patterns?: string[]): void {
 
 export async function fetchWithReadCache(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
   const method = (init.method || 'GET').toUpperCase();
+  const requestOptions: RequestInit = {
+    ...init,
+    credentials: init.credentials || 'include',
+  };
   if (method === 'GET') {
     const url = new URL(String(input), 'http://cohortia.local');
     const ttlMs = getCacheTtl(url.pathname);
+    if (ttlMs === 0) return fetch(input, requestOptions);
+
     const headers = new Headers(init.headers);
     const requestHeaders = Array.from(headers.entries()).sort(([left], [right]) => left.localeCompare(right));
     const requestKey = `${url.href}\n${JSON.stringify(requestHeaders)}`;
@@ -168,7 +171,7 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
     let pending = inFlightRequests.get(key);
     if (!pending) {
       const currentGeneration = cacheGeneration;
-      pending = fetch(input, init).then(async (response) => {
+      pending = fetch(input, requestOptions).then(async (response) => {
         const result: CachedResponse = {
           pathname: url.pathname,
           body: await response.clone().text(),
@@ -202,7 +205,7 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
   const url = new URL(String(input), 'http://cohortia.local');
   invalidateRequestCache(relatedPathsForMutation(url.pathname));
   try {
-    return await fetch(input, init);
+    return await fetch(input, requestOptions);
   } finally {
     invalidateRequestCache(relatedPathsForMutation(url.pathname));
   }

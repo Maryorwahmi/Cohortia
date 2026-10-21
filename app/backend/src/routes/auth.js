@@ -13,6 +13,7 @@ import {createUserActionToken, findUserActionToken, consumeUserActionToken, reco
 import {verifyAndConsumeSecondFactor} from '../lib/twoFactor.js';
 import {serializePublicUser} from '../lib/userProfile.js';
 import {getJwtSecret} from '../lib/jwtSecret.js';
+import {clearSessionCookie, getSessionCookieToken, setSessionCookie} from '../lib/sessionAuth.js';
 
 const auth = new Hono();
 const frontendUrl = () => (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
@@ -28,14 +29,16 @@ function createToken(user) {
 function setOAuthStateCookie(c, state) {
   c.header(
     'Set-Cookie',
-    `cohortia_google_oauth_state=${state}; Max-Age=600; Path=/api/v1/auth; HttpOnly; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+    `cohortia_google_oauth_state=${state}; Max-Age=600; Path=/api/v1/auth; HttpOnly; SameSite=Lax${process.env.NODE_ENV === 'production' || process.env.RENDER === 'true' ? '; Secure' : ''}`,
+    {append: true},
   );
 }
 
 function clearOAuthStateCookie(c) {
   c.header(
     'Set-Cookie',
-    'cohortia_google_oauth_state=; Max-Age=0; Path=/api/v1/auth; HttpOnly; SameSite=Lax'
+    `cohortia_google_oauth_state=; Max-Age=0; Path=/api/v1/auth; HttpOnly; SameSite=Lax${process.env.NODE_ENV === 'production' || process.env.RENDER === 'true' ? '; Secure' : ''}`,
+    {append: true},
   );
 }
 
@@ -280,13 +283,6 @@ auth.post('/signup', async (c) => {
     updatedAt: now,
   });
 
-  // Generate token
-  const token = jwt.sign(
-    { userId, email: data.email },
-    getJwtSecret(),
-    { expiresIn: '7d' }
-  );
-
   // Auto-enrol user in their selected course/track if it exists
   if (data.desiredField) {
     const track = await db
@@ -315,11 +311,11 @@ auth.post('/signup', async (c) => {
     metadata: { source: 'email_signup', role: data.role, track: data.desiredField },
   });
 
+  setSessionCookie(c, createToken({id: userId, email: data.email}));
   return c.json({
     success: true,
     message: 'Account created successfully',
     data: {
-      token,
       user: {
         id: userId,
         name: data.name,
@@ -390,17 +386,12 @@ auth.post('/login', async (c) => {
     });
   }
 
-  const token = jwt.sign(
-    { userId: user.id, email: user.email },
-    getJwtSecret(),
-    { expiresIn: '7d' }
-  );
+  setSessionCookie(c, createToken(user));
 
   return c.json({
     success: true,
     message: 'Login successful',
     data: {
-      token,
       user: await serializePublicUser(user),
     },
   });
@@ -428,14 +419,19 @@ auth.post('/verify-two-factor', async (c) => {
     return c.json({success: false, error: 'This verification session has already been used. Please log in again.'}, 401);
   }
 
+  setSessionCookie(c, createToken(user));
   return c.json({
     success: true,
     message: 'Login successful.',
     data: {
-      token: createToken(user),
       user: await serializePublicUser(user),
     },
   });
+});
+
+auth.post('/logout', (c) => {
+  clearSessionCookie(c);
+  return c.json({success: true, message: 'Logged out successfully.'});
 });
 
 // Start Google OAuth
@@ -458,7 +454,7 @@ auth.get('/google', (c) => {
 });
 
 auth.post('/google/export-reauth-url', async (c) => {
-  const token = c.req.header('Authorization')?.replace(/^Bearer\s+/i, '');
+  const token = getSessionCookieToken(c);
   if (!token) return c.json({success: false, error: 'Sign in again before downloading your course details.'}, 401);
 
   let decoded;
@@ -601,9 +597,8 @@ auth.get('/google/callback', async (c) => {
       return c.redirect(redirectToFrontend('/login', {google_mfa_challenge: challengeToken}));
     }
 
-    return c.redirect(redirectToFrontend('/login', {
-      google_token: createToken(user),
-    }));
+    setSessionCookie(c, createToken(user));
+    return c.redirect(redirectToFrontend('/login', {google_success: '1'}));
   } catch (error) {
     console.error('Google OAuth callback failed:', error);
     return c.redirect(redirectToFrontend('/login', {
@@ -614,7 +609,7 @@ auth.get('/google/callback', async (c) => {
 
 // Get current user
 auth.get('/me', async (c) => {
-  const token = c.req.header('Authorization')?.replace('Bearer ', '');
+  const token = getSessionCookieToken(c);
   
   if (!token) {
     return c.json({ success: false, error: 'No token provided' }, 401);

@@ -4,6 +4,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
+import { createCsrfMiddleware } from './middleware/csrf.js';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -68,6 +69,8 @@ app.get('/health', (c) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.use('/api/v1/*', createCsrfMiddleware());
 
 // Public routes (no auth required)
 app.route('/api/v1/auth', authRoutes);

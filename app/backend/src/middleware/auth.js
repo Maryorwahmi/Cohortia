@@ -3,19 +3,18 @@ import { db } from '../db/index.js';
 import { users } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { getJwtSecret } from '../lib/jwtSecret.js';
+import { getSessionCookieToken } from '../lib/sessionAuth.js';
 
 export const authMiddleware = async (c, next) => {
-  const authHeader = c.req.header('Authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const token = getSessionCookieToken(c);
+
+  if (!token) {
     return c.json({
       success: false,
       error: 'Unauthorized',
-      message: 'Access token is required',
+      message: 'Authentication is required',
     }, 401);
   }
-
-  const token = authHeader.replace('Bearer ', '');
 
   try {
     const decoded = jwt.verify(token, getJwtSecret());

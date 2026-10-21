@@ -100,10 +100,10 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const googleToken = params.get("google_token");
+    const googleSuccess = params.get("google_success");
     const googleError = params.get("google_error");
     const googleMfaChallenge = params.get("google_mfa_challenge");
-    if (!googleToken && !googleError && !googleMfaChallenge) return;
+    if (!googleSuccess && !googleError && !googleMfaChallenge) return;
 
     navigate(location.pathname, { replace: true });
     if (googleMfaChallenge) {
@@ -117,7 +117,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       return;
     }
 
-    completeExternalLogin(googleToken)
+    completeExternalLogin()
       .then((user) => {
         if (user) {
           setSuccessMsg("Welcome to Cohortia! Google sign-in was successful.");
