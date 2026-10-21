@@ -24,6 +24,16 @@ export interface RoadmapSelection {
   courseInfo?: RoadmapCourseSelection[];
 }
 
+export function hasRoadmapSelection(value?: string | null): boolean {
+  if (!value) return false;
+  try {
+    const selection = JSON.parse(value) as { roadmapOrder?: unknown };
+    return Array.isArray(selection.roadmapOrder) && selection.roadmapOrder.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export interface SignupDraft {
   name: string;
   phone: string;

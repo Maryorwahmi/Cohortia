@@ -2,15 +2,16 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { authApi, BackendUser, AuthResponse } from '../services/api.js';
 import { invalidateRequestCache } from '../services/requestCache';
 import { prefetchDashboardAfterAuth } from '../services/dashboardPrefetch';
+import { hasRoadmapSelection } from '../types';
 
 interface AuthState {
   user: BackendUser | null;
   isAuthenticated: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string; adminRole?: BackendUser['adminRole']; mfaRequired?: boolean; challengeToken?: string }>;
-  completeTwoFactorLogin: (challengeToken: string, code: string) => Promise<{success: boolean; message?: string; adminRole?: BackendUser['adminRole']}>;
+  completeTwoFactorLogin: (challengeToken: string, code: string) => Promise<{success: boolean; message?: string; adminRole?: BackendUser['adminRole']; requiresRoadmap?: boolean}>;
   signup: (userData: Record<string, unknown>) => Promise<{ success: boolean; message?: string; details?: Record<string, string[]> }>;
-  completeExternalLogin: (token: string) => Promise<boolean>;
+  completeExternalLogin: (token: string) => Promise<BackendUser | null>;
   logout: () => void;
   refreshUser: () => Promise<BackendUser | null>;
 }
@@ -78,7 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('cohortia_token', res.data.token);
         setUser(res.data.user || null);
         prefetchDashboardAfterAuth(res.data.user || null);
-        return {success: true, adminRole: res.data.user?.adminRole};
+        return {
+          success: true,
+          adminRole: res.data.user?.adminRole,
+          requiresRoadmap: !res.data.user?.adminRole && !hasRoadmapSelection(res.data.user?.roadmapSelection),
+        };
       }
       return {success: false, message: res.error || 'Authenticator verification failed.'};
     } catch (error) {
@@ -117,16 +122,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     invalidateRequestCache();
   };
 
-  const completeExternalLogin = useCallback(async (token: string) => {
+  const completeExternalLogin = useCallback(async (token: string): Promise<BackendUser | null> => {
     localStorage.setItem('cohortia_token', token);
     const res = await authApi.getMe();
     if (res.success && res.data?.user) {
       setUser(res.data.user);
       prefetchDashboardAfterAuth(res.data.user);
-      return true;
+      return res.data.user;
     }
     localStorage.removeItem('cohortia_token');
-    return false;
+    return null;
   }, []);
 
   const refreshUser = async () => {

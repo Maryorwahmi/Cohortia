@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import Logo from "./Logo";
 import { useAuth } from "../context/AuthContext";
-import { RoadmapSelection, SignupDraft } from "../types";
+import { hasRoadmapSelection, RoadmapSelection, SignupDraft } from "../types";
 
 interface AuthPagesProps {
   initialTab: "signup" | "login";
@@ -117,10 +117,13 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     }
 
     completeExternalLogin(googleToken)
-      .then((success) => {
-        if (success) {
+      .then((user) => {
+        if (user) {
           setSuccessMsg("Welcome to Cohortia! Google sign-in was successful.");
-          setTimeout(() => navigate("/dashboard"), 500);
+          const destination = hasRoadmapSelection(user.roadmapSelection)
+            ? "/dashboard"
+            : "/experience?onboarding=google";
+          setTimeout(() => navigate(destination, {replace: true}), 500);
         } else {
           setErrorMsg("Google sign-in could not be completed. Please try again.");
         }
@@ -302,7 +305,10 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
       setSuccessMsg("Authenticator verification successful.");
       setTimeout(() => {
         const state = location.state as LocationState;
-        navigate(state?.from?.pathname || (result.adminRole ? "/admin" : "/dashboard"));
+        const destination = result.requiresRoadmap
+          ? "/experience?onboarding=google"
+          : state?.from?.pathname || (result.adminRole ? "/admin" : "/dashboard");
+        navigate(destination, {replace: true});
       }, 700);
     } else {
       setErrorMsg(result.message || "Authenticator verification failed.");

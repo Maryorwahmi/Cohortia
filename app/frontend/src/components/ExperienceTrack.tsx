@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, Clock3, LoaderCircle, Route } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { catalogCourseApi } from "../services/api";
+import { catalogCourseApi, userApi } from "../services/api";
 import type { ApiError, CatalogCourse, CatalogCourseDetails } from "../services/api";
 import { RoadmapCourseSelection, RoadmapGoal, RoadmapLevel, RoadmapSelection, SignupDraft } from "../types";
+import { useAuth } from "../context/AuthContext";
 
 interface ExperienceTrackProps {
   userProfile?: unknown;
@@ -114,6 +115,7 @@ function parseCourseSkills(value?: string | null): string[] {
 export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, refreshUser } = useAuth();
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState<RoadmapGoal>(goals[0].id);
   const [courseCategories, setCourseCategories] = useState<CourseCategory[]>([]);
@@ -132,6 +134,8 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
   const [courseAvailability, setCourseAvailability] = useState<Partial<Record<RoadmapLevel, {required: number; available: number}>>>({});
   const [selectionFeasible, setSelectionFeasible] = useState<boolean | null>(null);
   const [recommendationAttempt, setRecommendationAttempt] = useState(0);
+  const [savingRoadmap, setSavingRoadmap] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const activeLevels = (Object.keys(quotas[goal]) as RoadmapLevel[]);
   useEffect(() => {
@@ -257,8 +261,36 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
     return { careerGoal: goal, learningStage: activeLevels[0], selectedCareerId: selectedCategory?.id || "", selectedCareer: selectedCategory?.label || "", selectedCourses, roadmapOrder: activeLevels.flatMap((level) => selectedCourses[level]), courseInfo };
   };
 
-  const continueToSignup = () => {
+  const continueToSignup = async () => {
     const roadmapSelection = createSelection();
+    if (isAuthenticated) {
+      setSavingRoadmap(true);
+      setSaveError("");
+      try {
+        const response = await userApi.updateProfile({
+          roadmapSelection: JSON.stringify(roadmapSelection),
+          careerGoal: roadmapSelection.careerGoal,
+          onboardingGoal: roadmapSelection.careerGoal,
+          desiredField: roadmapSelection.selectedCareerId,
+        });
+        if (!response.success || !response.data?.user) {
+          throw new Error(response.error || "Your roadmap could not be saved. Please try again.");
+        }
+        const updatedUser = await refreshUser();
+        if (!updatedUser) {
+          throw new Error("Your roadmap was saved, but your account could not be refreshed. Please reload and try again.");
+        }
+        sessionStorage.removeItem("cohortia_pending_roadmap");
+        sessionStorage.removeItem("cohortia_pending_signup_draft");
+        navigate("/dashboard", {replace: true});
+      } catch (error) {
+        setSaveError(error instanceof Error ? error.message : "Your roadmap could not be saved. Please try again.");
+      } finally {
+        setSavingRoadmap(false);
+      }
+      return;
+    }
+
     sessionStorage.setItem("cohortia_pending_roadmap", JSON.stringify(roadmapSelection));
     const shouldResumeSignup = new URLSearchParams(location.search).get("signup") === "1";
     let signupDraft: SignupDraft | undefined;
@@ -535,8 +567,9 @@ export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) 
                 </div>
                 <div className="flex gap-3">
                   <button type="button" onClick={() => setStep(3)} className="secondary-action"><ChevronLeft aria-hidden="true" className="w-4 h-4" /> Edit bundle</button>
-                  <button type="button" disabled={courseDetailsLoading} onClick={continueToSignup} className="primary-action disabled:opacity-40">
-                    {courseDetailsLoading ? "Loading course details…" : "Continue to sign up"} <ArrowRight aria-hidden="true" className="w-4 h-4" />
+                  {saveError && <p role="alert" className="text-sm font-medium text-red-500">{saveError}</p>}
+                  <button type="button" disabled={courseDetailsLoading || savingRoadmap} onClick={continueToSignup} className="primary-action disabled:opacity-40">
+                    {courseDetailsLoading ? "Loading course details…" : savingRoadmap ? "Saving roadmap…" : isAuthenticated ? "Save roadmap and continue" : "Continue to sign up"} <ArrowRight aria-hidden="true" className="w-4 h-4" />
                   </button>
                 </div>
               </div>

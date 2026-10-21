@@ -1,5 +1,5 @@
 import { db } from '../db/index.js';
-import { users, progress, enrollments, lessons, learningBoardProgress, learningBoardPracticals, studentPracticalAttempts, studentPracticalProgress, courseFinalExamAttempts } from '../db/schema.js';
+import { users, progress, enrollments, lessons, learningBoardProgress, learningBoardPracticals, studentPracticalAttempts, studentPracticalProgress, courseFinalExamAttempts, catalogCourses } from '../db/schema.js';
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { v4 as uuidv4 } from 'uuid';
@@ -65,11 +65,50 @@ usersRoute.put('/profile', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
 
+  if (body.roadmapSelection !== undefined) {
+    if (typeof body.roadmapSelection !== 'string' || body.roadmapSelection.length > 100000) {
+      return c.json({ success: false, error: 'A complete roadmap selection is required' }, 400);
+    }
+
+    let selection;
+    try {
+      selection = JSON.parse(body.roadmapSelection);
+    } catch {
+      return c.json({ success: false, error: 'Roadmap selection must be valid JSON' }, 400);
+    }
+
+    const levels = ['beginner', 'intermediate', 'advanced'];
+    const selectedCourses = selection?.selectedCourses;
+    if (!['Pivot into a new career', 'Up-skill in my current role', 'Lead & Specialize'].includes(selection?.careerGoal)
+      || !selectedCourses || levels.some((level) => !Array.isArray(selectedCourses[level]))) {
+      return c.json({ success: false, error: 'Roadmap selection is invalid' }, 400);
+    }
+
+    const selectedIds = levels.flatMap((level) => selectedCourses[level]);
+    if (!selectedIds.length || selectedIds.some((id) => typeof id !== 'string' || !id.trim())
+      || new Set(selectedIds).size !== selectedIds.length
+      || !Array.isArray(selection.roadmapOrder)
+      || selectedIds.length !== selection.roadmapOrder.length
+      || selectedIds.some((id, index) => id !== selection.roadmapOrder[index])) {
+      return c.json({ success: false, error: 'A complete roadmap selection is required' }, 400);
+    }
+
+    const availableCourses = await db.select({id: catalogCourses.id})
+      .from(catalogCourses)
+      .where(inArray(catalogCourses.id, selectedIds));
+    if (availableCourses.length !== selectedIds.length) {
+      return c.json({ success: false, error: 'One or more selected roadmap courses are unavailable' }, 400);
+    }
+  }
+
   const updateData = {
     name: body.name,
     phone: body.phone,
     country: body.country,
     careerGoal: body.careerGoal,
+    onboardingGoal: body.onboardingGoal,
+    desiredField: body.desiredField,
+    roadmapSelection: body.roadmapSelection,
     availability: body.availability,
     portfolioLink: body.portfolioLink,
     updatedAt: new Date().toISOString(),
