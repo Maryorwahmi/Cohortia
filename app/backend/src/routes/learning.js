@@ -601,7 +601,18 @@ function stripPrivateAssessmentFields(value) {
     ...value,
     questions: value.questions.map((question) => {
       if (!question || typeof question !== 'object') return question;
-      const { referenceAnswer, ...publicQuestion } = question;
+      const {
+        referenceAnswer,
+        expected,
+        expectedAnswer,
+        expectedOutput,
+        expectedValue,
+        answer,
+        correctAnswer,
+        solution,
+        rubric,
+        ...publicQuestion
+      } = question;
       return publicQuestion;
     }),
   };
@@ -1200,7 +1211,6 @@ publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
         options: question.options ? JSON.parse(question.options) : undefined,
         language: question.language,
         code: question.code,
-        expectedOutput: question.expectedOutput,
       })),
     };
   }
