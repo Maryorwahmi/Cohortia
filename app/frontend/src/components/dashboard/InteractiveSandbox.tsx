@@ -370,80 +370,25 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
     setIsRunning(true);
 
     if (practical) {
-      setOutput([`[INFO] Starting execution for "${practical.title}"...`]);
-
-      const isPython =
-        practical.language === "python" ||
-        activeFilePath?.endsWith(".py") ||
-        (practical.files && practical.files.some((f) => f.path.endsWith(".py")));
-      const isNativeC = /^(c|cpp|c\+\+)$/i.test(practical.language || "") ||
-        /\.(c|cc|cpp|cxx)$/i.test(activeFilePath || "");
-
-      if (isPython || isNativeC) {
-        try {
-          if (!practical.id || !practical.courseId || practical.module === undefined || practical.chapter === undefined) {
-            throw new Error("This practical is missing the identifiers required for server-side grading.");
-          }
-          const filePath = activeFilePath || (isPython ? "workspace.py" : "main.c");
-          const result = await learningBoardsApi.gradePractical(
-            practical.id,
-            practical.courseId,
-            practical.module,
-            practical.chapter,
-            { ...fileContents, [filePath]: code },
-            filePath,
-          );
-          const newCheckResults: Record<string, boolean> = {};
-          result.checks.forEach((check) => {
-            newCheckResults[check.checkId] = check.passed;
-          });
-          setCheckResults(newCheckResults);
-          const taskResultById = new Map(result.taskResults.map((task) => [task.taskId, task.passed]));
-          const newlyChecked: Record<number, boolean> = {};
-          (practical.tasks || []).forEach((task, index) => {
-            if (taskResultById.get(task.id) === true) newlyChecked[index] = true;
-          });
-          setCheckedItems((previous) => ({ ...previous, ...newlyChecked }));
-          if (result.stdout) setOutput((previous) => [...previous, ...result.stdout!.split(/\r?\n/).filter(Boolean)]);
-          if (result.stderr) setOutput((previous) => [...previous, ...result.stderr!.split(/\r?\n/).filter(Boolean)]);
-          result.checks.forEach((check) => {
-            setOutput((previous) => [...previous, `${check.passed ? "✓ [CHECK PASSED]" : "⚠ [CHECK PENDING]"} ${check.message}`]);
-          });
-          if (result.passed) {
-            setOutput((previous) => [...previous, "✓ All practical checks passed."]);
-            if (learningContext?.courseId && learningContext.module !== undefined && learningContext.chapter !== undefined) {
-              learningBoardsApi.updateProgress(
-                learningContext.courseId,
-                learningContext.module,
-                learningContext.chapter,
-                { explicitComplete: true }
-              ).catch(() => {});
-            }
-          }
-        } catch (err: any) {
-          const details = err?.data?.data || err?.data || {};
-          if (details.stderr) setOutput((prev) => [...prev, ...String(details.stderr).split(/\r?\n/).filter(Boolean)]);
-          setOutput((prev) => [...prev, `❌ ${err.message || "Server-side practical grading failed."}`]);
-        } finally {
-          setIsRunning(false);
-        }
+      const task = practical.tasks?.[activeTaskIndex];
+      const steps = task?.simulation?.steps || [];
+      if (!steps.length) {
+        setOutput([
+          "[SIMULATION ONLY] No authored simulation is available for this task.",
+          "Your source code was not executed or graded.",
+        ]);
+        setIsRunning(false);
         return;
       }
-
-      // Keep unsupported runtimes from receiving a verified pass.
-      setIsRunning(false);
-      const runtime = practical.runtime || practical.language || "this lab";
-      setOutput((prev) => [
-        ...prev,
-        `[INFO] ${runtime} terminal is ready, but native execution is not connected in this browser workspace yet.`,
-        "Save or download the file to run it with the declared compiler, then use the mentor chat for guidance.",
+      setOutput([
+        `[SIMULATION ONLY] Source code for "${practical.title}" was not executed.`,
+        ...steps.flatMap((step, index) => [
+          `[SIMULATED STEP ${index + 1}] ${step.action}`,
+          step.output,
+        ]),
+        "This transcript is instructional and does not verify correctness or complete the task.",
       ]);
-      learningBoardsApi.recordPracticalAttempt(
-        practical.id,
-        { ...fileContents, [activeFilePath || "workspace.txt"]: code },
-        "in_progress",
-        `Saved learner code. Native ${runtime} execution is not connected.`
-      ).catch(() => {});
+      setIsRunning(false);
       return;
     }
 
@@ -743,9 +688,9 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
               </span>
             </div>
             <div className="rounded-lg bg-immersive-bg px-2.5 py-2">
-              <span className="block font-bold uppercase text-immersive-text-secondary">Verification</span>
+              <span className="block font-bold uppercase text-immersive-text-secondary">Simulation</span>
               <span className="mt-1 block text-sky-300">
-                Check definitions stay private; supported runtimes are graded on the server.
+                Source code is not executed or graded. Authored simulation traces are instructional only.
               </span>
             </div>
           </div>

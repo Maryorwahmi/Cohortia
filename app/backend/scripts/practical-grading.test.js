@@ -20,6 +20,10 @@ test('learner practical payloads expose safe check metadata only', () => {
         { id: 'test-1', type: 'file_contents', expected: 'private-test-answer', testData: { hidden: true } },
         { id: 'hidden-test', type: 'file_contents', visibility: 'hidden', expected: 'private-hidden-test-answer' },
       ],
+      simulation: {
+        steps: [{ action: 'Build the sample', output: 'The simulated build completed.' }],
+        expected: 'private-simulation-answer',
+      },
       interactiveExercise: {
         type: 'binary_conversion',
         prompt: 'Convert the value.',
@@ -32,6 +36,9 @@ test('learner practical payloads expose safe check metadata only', () => {
 
   assert.deepEqual(practical.checks, [{ id: 'check-1', type: 'output' }]);
   assert.deepEqual(practical.tasks[0].tests, [{ id: 'test-1', type: 'file_contents' }]);
+  assert.deepEqual(practical.tasks[0].simulation, {
+    steps: [{ action: 'Build the sample', output: 'The simulated build completed.' }],
+  });
   assert.deepEqual(practical.tasks[0].interactiveExercise, {
     type: 'binary_conversion',
     prompt: 'Convert the value.',
@@ -47,6 +54,7 @@ test('learner practical payloads expose safe check metadata only', () => {
     'private-alternate-answer',
     'private-hidden-answer',
     'private-hidden-test-answer',
+    'private-simulation-answer',
   ]) {
     assert.equal(serialized.includes(secret), false);
   }

@@ -42,12 +42,26 @@ function publicCheck(check, index) {
   };
 }
 
+function publicSimulation(simulation) {
+  const record = asRecord(simulation);
+  const steps = Array.isArray(record.steps)
+    ? record.steps.slice(0, 20).map((step) => {
+      const action = asRecord(step).action;
+      const output = asRecord(step).output;
+      if (typeof action !== 'string' || typeof output !== 'string') return null;
+      return { action: action.slice(0, 500), output: output.slice(0, 4000) };
+    }).filter(Boolean)
+    : [];
+  return steps.length ? { steps } : undefined;
+}
+
 function sanitizeValue(value, key = '') {
   const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
   if (PRIVATE_FIELDS.has(normalizedKey)) return undefined;
   if (normalizedKey === 'checks' || normalizedKey === 'tests') {
     return Array.isArray(value) ? value.map(publicCheck).filter(Boolean) : [];
   }
+  if (normalizedKey === 'simulation') return publicSimulation(value);
   if (normalizedKey === 'interactiveexercise') {
     const exercise = asRecord(value);
     return {

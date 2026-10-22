@@ -97,8 +97,7 @@ export default function GuidedPracticalManifestBoard({
   const completedCount = tasks.filter((task) => completedTasks[task.id]).length;
   const language = languageForFile(activeFilePath, practical.language);
   const isBinaryExercise = practical.activityKind === "binary_exercise";
-  const codeMode = ["code_lab", "terminal_lab", "database_lab"].includes(practical.mode)
-    && ["python", "c", "cpp", "c++"].includes(language.toLowerCase());
+  const codeMode = ["code_lab", "terminal_lab", "database_lab"].includes(practical.mode);
   const darkText = isDark ? "text-slate-100" : "text-slate-900";
   const mutedText = isDark ? "text-slate-300" : "text-slate-600";
   const surface = isDark ? "border-white/10 bg-[#11131b]" : "border-slate-200 bg-white";
@@ -369,6 +368,10 @@ export default function GuidedPracticalManifestBoard({
       return;
     }
 
+    if (codeMode && !activeTask.simulation?.steps.length) {
+      setOutput("No authored simulation is available for this task. Your source code was not executed or graded.");
+      return;
+    }
     if (!prediction.trim()) {
       setOutput("Write your prediction before running the practical.");
       return;
@@ -393,49 +396,15 @@ export default function GuidedPracticalManifestBoard({
       return;
     }
 
-    const supportedLanguage = language.toLowerCase();
-    if (!["python", "c", "cpp", "c++"].includes(supportedLanguage)) {
-      setOutput(`Execution is not connected for ${language || "this language"} yet. Your edits are retained, but no test is marked as passed.`);
-      return;
-    }
-    if (!practical.id || !practical.courseId || practical.module === undefined || practical.chapter === undefined) {
-      setOutput("This practical is missing the identifiers required for server-side grading.");
-      return;
-    }
-
-    setIsRunning(true);
-    setOutput("Running your code against the practical checks...");
-    try {
-      const executionFilePath = /\.(h|hpp)$/i.test(activeFilePath)
-        ? practicalFiles.find((file) => /\.(c|cpp|cc|cxx)$/i.test(file.path))?.path || activeFilePath
-        : activeFilePath;
-      const result = await learningBoardsApi.gradePractical(
-        practical.id,
-        practical.courseId,
-        practical.module,
-        practical.chapter,
-        files,
-        executionFilePath,
-        activeTask.id,
-      );
-      const nextResults = { ...checkResults };
-      result.checks.forEach((check) => {
-        nextResults[check.checkId] = check.passed;
-      });
-      setCheckResults(nextResults);
-      const resultOutput = [
-        result.stdout,
-        result.stderr,
-        ...result.checks.map((check) => `${check.passed ? "PASS" : "NOT YET"} — ${check.message}`),
-      ].filter(Boolean).join("\n");
-      if (result.passed) await markTaskComplete(activeTask);
-      setOutput(resultOutput);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      setOutput(`Execution failed: ${message}`);
-    } finally {
-      setIsRunning(false);
-    }
+    const simulationOutput = activeTask.simulation!.steps.flatMap((step, index) => [
+      `[SIMULATED STEP ${index + 1}] ${step.action}`,
+      step.output,
+    ]);
+    setOutput([
+      "SIMULATION ONLY — source code was not executed.",
+      ...simulationOutput,
+      "This transcript is instructional and does not verify correctness or complete the task.",
+    ].join("\n\n"));
   };
 
   if (!activeTask) {
@@ -539,8 +508,18 @@ export default function GuidedPracticalManifestBoard({
             <p className={`text-[10px] font-bold uppercase tracking-widest ${accentText}`}>Your turn · Step {activeTaskIndex + 1}</p>
             <h3 className={`mt-1 text-sm font-bold ${darkText}`}>{activeTask.title || `Task ${activeTaskIndex + 1}`}</h3>
             <p className={`mt-2 text-sm leading-relaxed ${mutedText}`}>
-              {activeTask.teaching?.learningGoal || "Use the starter file to complete this step, then run the checks to verify your work."}
+              {activeTask.teaching?.learningGoal || (codeMode
+                ? "Review the authored simulation steps. Your source code is not executed or graded."
+                : "Use the starter file to complete this step, then submit your response for review.")}
             </p>
+            {codeMode && (
+              <p role="note" className={`mt-2 text-xs ${mutedText}`}>
+                Simulation only: source code is never executed or used to mark completion.
+                {activeTask.simulation?.steps.length
+                  ? " This task has an authored simulation trace."
+                  : " No simulation trace has been authored for this task."}
+              </p>
+            )}
             {activeTask.teaching?.questions?.[0] && (
               <p className={`mt-2 border-l-2 border-[#FF4B3E] pl-3 text-xs leading-relaxed ${mutedText}`}>
                 Think about: {activeTask.teaching.questions[0]}
@@ -649,15 +628,23 @@ export default function GuidedPracticalManifestBoard({
             }`}
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <p className={`text-[10px] ${mutedText}`}>{language ? `${language} practical` : "Guided response activity"} · Suggestions are included in this lesson.</p>
+            <p className={`text-[10px] ${mutedText}`}>
+              {codeMode
+                ? "Simulation only · source code is not executed or graded."
+                : `${language ? `${language} practical` : "Guided response activity"} · Suggestions are included in this lesson.`}
+            </p>
             <button
               type="button"
               onClick={() => void runPractical()}
-              disabled={isRunning || !prediction.trim()}
+              disabled={isRunning || !prediction.trim() || (codeMode && !activeTask.simulation?.steps.length)}
               className={`inline-flex items-center gap-1.5 rounded-lg ${accentBackground} px-3 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50`}
             >
               {isRunning ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
-              {isRunning ? "Running" : codeMode ? "Run and check" : "Submit for review"}
+              {isRunning
+                ? "Running"
+                : codeMode
+                  ? activeTask.simulation?.steps.length ? "Run simulation" : "No simulation authored"
+                  : "Submit for review"}
             </button>
           </div></>}
         </div>

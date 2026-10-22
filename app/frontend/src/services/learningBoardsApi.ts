@@ -174,6 +174,13 @@ export interface LearningBoardPracticalTest {
   type: string;
 }
 
+export interface LearningBoardPracticalSimulation {
+  steps: Array<{
+    action: string;
+    output: string;
+  }>;
+}
+
 export interface CodeWalkthroughSegment {
   taskId?: string;
   stepNumber: number;
@@ -295,6 +302,7 @@ export interface LearningBoardPracticalTask {
     type: 'binary_conversion';
     prompt: string;
   };
+  simulation?: LearningBoardPracticalSimulation;
   tests: LearningBoardPracticalTest[];
   checkIds?: string[];
 }
