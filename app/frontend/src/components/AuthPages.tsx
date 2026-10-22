@@ -40,6 +40,15 @@ function readPendingSignupDraft(): SignupDraft | undefined {
 
 function RoadmapSignupSummary({selection}: {selection: RoadmapSelection}) {
   const courseInfo = new Map((selection.courseInfo || []).map((course) => [course.id, course]));
+  if (selection.mode === "single_course") {
+    const course = courseInfo.get(selection.roadmapOrder[0]);
+    return (
+      <section aria-label="Selected course" className="rounded-2xl border border-immersive-border bg-immersive-card/60 p-4">
+        <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-immersive-secondary">Single course</p>
+        <p className="mt-2 text-sm font-semibold text-immersive-text-primary">{course?.title || selection.roadmapOrder[0]}</p>
+      </section>
+    );
+  }
   return (
     <section aria-label="Selected roadmap courses" className="rounded-2xl border border-immersive-border bg-immersive-card/60 p-4">
       <ul className="space-y-2">

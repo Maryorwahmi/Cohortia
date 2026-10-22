@@ -1,5 +1,5 @@
 import { db } from '../db/index.js';
-import { users, progress, enrollments, lessons, learningBoardProgress, learningBoardPracticals, studentPracticalAttempts, studentPracticalProgress, courseFinalExamAttempts, catalogCourses } from '../db/schema.js';
+import { users, progress, enrollments, lessons, learningBoardProgress, learningBoardPracticals, studentPracticalAttempts, studentPracticalProgress, courseFinalExamAttempts, catalogCourses, learningBoardScreens } from '../db/schema.js';
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,6 +11,7 @@ import { verifyAndConsumeSecondFactor } from '../lib/twoFactor.js';
 import { serializePublicUser } from '../lib/userProfile.js';
 import { createCourseSyllabusPdf } from '../lib/courseSyllabusPdf.js';
 import { getCatalogCourseDetails } from './catalogCourses.js';
+import { courseMatchesRoadmapLevel } from '../lib/courseLevels.js';
 
 const usersRoute = new Hono();
 const MAX_PROFILE_IMAGE_BYTES = 800 * 1024;
@@ -79,12 +80,50 @@ usersRoute.put('/profile', async (c) => {
 
     const levels = ['beginner', 'intermediate', 'advanced'];
     const selectedCourses = selection?.selectedCourses;
-    if (!['Pivot into a new career', 'Up-skill in my current role', 'Lead & Specialize'].includes(selection?.careerGoal)
-      || !selectedCourses || levels.some((level) => !Array.isArray(selectedCourses[level]))) {
+    if (!selectedCourses || levels.some((level) => !Array.isArray(selectedCourses[level]))) {
       return c.json({ success: false, error: 'Roadmap selection is invalid' }, 400);
     }
 
     const selectedIds = levels.flatMap((level) => selectedCourses[level]);
+    if (selection.mode === 'single_course') {
+      const courseId = selection.selectedCourseId;
+      const learningStage = String(selection.learningStage || '').toLowerCase();
+      if (typeof courseId !== 'string' || !courseId
+        || !levels.includes(learningStage)
+        || selectedIds.length !== 1 || selectedIds[0] !== courseId
+        || selectedCourses[learningStage][0] !== courseId
+        || !Array.isArray(selection.roadmapOrder)
+        || selection.roadmapOrder.length !== 1 || selection.roadmapOrder[0] !== courseId) {
+        return c.json({ success: false, error: 'A valid single-course selection is required' }, 400);
+      }
+      const availableCourse = await db.select().from(catalogCourses)
+        .where(eq(catalogCourses.id, courseId))
+        .limit(1);
+      const course = availableCourse[0];
+      if (!course || !courseMatchesRoadmapLevel(course.level, learningStage)) {
+        return c.json({ success: false, error: 'The selected course is unavailable for this learning level' }, 400);
+      }
+      const category = String(
+        course.marketSubcategory?.trim()
+        || course.subcategory?.trim()
+        || course.marketCategory
+        || course.category
+        || '',
+      ).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      if (!category || String(selection.selectedCareerId || '').trim().toLowerCase() !== category) {
+        return c.json({ success: false, error: 'The selected course category is invalid' }, 400);
+      }
+      const [legacyCurriculum, boardCurriculum] = await Promise.all([
+        db.select({trackId: lessons.trackId}).from(lessons).where(eq(lessons.trackId, courseId)).limit(1),
+        db.select({courseId: learningBoardScreens.courseId}).from(learningBoardScreens).where(eq(learningBoardScreens.courseId, courseId)).limit(1),
+      ]);
+      if (!legacyCurriculum.length && !boardCurriculum.length) {
+        return c.json({ success: false, error: 'The selected course does not have a learning curriculum yet' }, 409);
+      }
+    } else if (!['Pivot into a new career', 'Up-skill in my current role', 'Lead & Specialize'].includes(selection?.careerGoal)) {
+      return c.json({ success: false, error: 'Roadmap selection is invalid' }, 400);
+    }
+
     if (!selectedIds.length || selectedIds.some((id) => typeof id !== 'string' || !id.trim())
       || new Set(selectedIds).size !== selectedIds.length
       || !Array.isArray(selection.roadmapOrder)

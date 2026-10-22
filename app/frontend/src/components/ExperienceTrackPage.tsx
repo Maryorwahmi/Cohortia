@@ -15,6 +15,9 @@ import {
   Briefcase, 
   TrendingUp, 
   Award, 
+  BookOpen,
+  LoaderCircle,
+  Search,
   X,
   Minus,
   HelpCircle,
@@ -23,7 +26,10 @@ import {
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ExperienceTrackSim from "./ExperienceTrack";
-import { RoadmapGoal, UserPreferences } from "../types";
+import { catalogCourseApi, userApi } from "../services/api";
+import type { CatalogCourse } from "../services/api";
+import { RoadmapGoal, RoadmapLevel, RoadmapSelection, UserPreferences } from "../types";
+import { useAuth } from "../context/AuthContext";
 
 interface ExperienceTrackPageProps {
   userProfile: UserPreferences | null;
@@ -33,9 +39,20 @@ interface ExperienceTrackPageProps {
 export default function ExperienceTrackPage({ userProfile, onOpenWizard }: ExperienceTrackPageProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const {refreshUser} = useAuth();
   const [activePlanTab, setActivePlanTab] = useState<"pivot" | "upskill" | "lead">("pivot");
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [builderMode, setBuilderMode] = useState<"choice" | "roadmap" | "single_course">("choice");
   const [builderGoal, setBuilderGoal] = useState<RoadmapGoal>("Pivot into a new career");
+  const [catalogCourses, setCatalogCourses] = useState<CatalogCourse[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
+  const [catalogError, setCatalogError] = useState("");
+  const [courseSearch, setCourseSearch] = useState("");
+  const [courseCategory, setCourseCategory] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [courseSubmitting, setCourseSubmitting] = useState(false);
+  const [courseError, setCourseError] = useState("");
   const onboardingMessage = new URLSearchParams(location.search).get("onboarding");
   const showOnboardingMessage = onboardingMessage === "required" || onboardingMessage === "google";
   const shouldOpenBuilder = showOnboardingMessage || new URLSearchParams(location.search).get("signup") === "1";
@@ -43,6 +60,20 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
   useEffect(() => {
     if (shouldOpenBuilder) setBuilderOpen(true);
   }, [shouldOpenBuilder]);
+
+  useEffect(() => {
+    if (!shouldOpenBuilder || new URLSearchParams(location.search).get("onboarding") !== "google") return;
+    try {
+      const pendingSelection = sessionStorage.getItem("cohortia_pending_roadmap");
+      const selection = pendingSelection ? JSON.parse(pendingSelection) as RoadmapSelection : null;
+      if (selection?.mode === "single_course" && selection.selectedCourseId) {
+        setBuilderMode("single_course");
+        setSelectedCourseId(selection.selectedCourseId);
+      }
+    } catch {
+      sessionStorage.removeItem("cohortia_pending_roadmap");
+    }
+  }, [location.search, shouldOpenBuilder]);
 
   useEffect(() => {
     if (!builderOpen) return;
@@ -58,9 +89,115 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
     };
   }, [builderOpen]);
 
-  const openBuilder = (goal: RoadmapGoal = "Pivot into a new career") => {
+  useEffect(() => {
+    if (!builderOpen || builderMode !== "single_course" || catalogLoaded || catalogLoading) return;
+    let cancelled = false;
+    setCatalogLoading(true);
+    setCatalogError("");
+    catalogCourseApi.getAll()
+      .then((response) => {
+        if (!response.success || !response.data?.courses) {
+          throw new Error(response.error || "Courses could not be loaded. Please try again.");
+        }
+        if (!cancelled) {
+          setCatalogCourses(response.data.courses.filter((course) => course.catalogStatus !== "archive"));
+          setCatalogLoaded(true);
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setCatalogError(error instanceof Error ? error.message : "Courses could not be loaded. Please try again.");
+          setCatalogLoaded(true);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setCatalogLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [builderOpen, builderMode, catalogLoaded, catalogLoading]);
+
+  const openBuilder = (goal: RoadmapGoal = "Pivot into a new career", mode: "choice" | "roadmap" | "single_course" = "choice") => {
     setBuilderGoal(goal);
+    setBuilderMode(mode);
+    setCourseError("");
     setBuilderOpen(true);
+  };
+
+  const getCourseCategory = (course: CatalogCourse) =>
+    course.marketSubcategory?.trim() || course.subcategory?.trim() || course.marketCategory || course.category;
+  const courseCategories = Array.from(new Set<string>(
+    catalogCourses.map(getCourseCategory).filter((category): category is string => Boolean(category)),
+  )).sort((left, right) => left.localeCompare(right));
+  const visibleCourses = catalogCourses.filter((course) => {
+    const matchesCategory = !courseCategory || getCourseCategory(course) === courseCategory;
+    const query = courseSearch.trim().toLowerCase();
+    const matchesSearch = !query || `${course.title} ${course.category} ${course.subcategory} ${course.description || ""}`.toLowerCase().includes(query);
+    return matchesCategory && matchesSearch;
+  });
+
+  const continueWithCourse = async () => {
+    const course = catalogCourses.find((item) => item.id === selectedCourseId);
+    if (!course) {
+      setCourseError("Choose a course before continuing.");
+      return;
+    }
+    const rawLevel = (course.level || "beginner").toLowerCase();
+    const level: RoadmapLevel = rawLevel.includes("advanced")
+      ? "advanced"
+      : rawLevel.includes("intermediate")
+        ? "intermediate"
+        : "beginner";
+    const category = getCourseCategory(course);
+    const categoryId = category.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const selection: RoadmapSelection = {
+      mode: "single_course",
+      selectedCourseId: course.id,
+      careerGoal: "Pivot into a new career",
+      learningStage: level,
+      selectedCareerId: categoryId,
+      selectedCareer: category,
+      selectedCourses: {
+        beginner: level === "beginner" ? [course.id] : [],
+        intermediate: level === "intermediate" ? [course.id] : [],
+        advanced: level === "advanced" ? [course.id] : [],
+      },
+      roadmapOrder: [course.id],
+      courseInfo: [{
+        id: course.id,
+        title: course.title,
+        level,
+        description: course.description || null,
+      }],
+    };
+
+    setCourseSubmitting(true);
+    setCourseError("");
+    try {
+      if (userProfile) {
+        const response = await userApi.updateProfile({
+          roadmapSelection: JSON.stringify(selection),
+          careerGoal: selection.careerGoal,
+          onboardingGoal: selection.careerGoal,
+          desiredField: selection.selectedCareerId,
+        });
+        if (!response.success || !response.data?.user) {
+          throw new Error(response.error || "Your course selection could not be saved.");
+        }
+        if (!await refreshUser()) {
+          throw new Error("Your course was saved, but your account could not be refreshed. Please reload and try again.");
+        }
+        sessionStorage.removeItem("cohortia_pending_roadmap");
+        sessionStorage.removeItem("cohortia_pending_signup_draft");
+        navigate("/dashboard", {replace: true});
+      } else {
+        sessionStorage.setItem("cohortia_pending_roadmap", JSON.stringify(selection));
+        navigate("/signup", {state: {roadmapSelection: selection, selectedTrackId: course.id}});
+      }
+    } catch (error) {
+      setCourseError(error instanceof Error ? error.message : "Your course selection could not be saved.");
+    } finally {
+      setCourseSubmitting(false);
+    }
   };
 
   const comparisonRows = [
@@ -91,7 +228,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
       {showOnboardingMessage && (
         <div className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 pt-6">
           <div className="rounded-2xl border border-[#FF4B3E]/40 bg-[#FF4B3E]/10 px-4 py-3 text-center text-sm font-bold tracking-wide text-[#FF4B3E]">
-            Complete your roadmap to continue
+            Choose a roadmap or one course to continue
           </div>
         </div>
       )}
@@ -198,7 +335,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
             <div className="mt-8 pt-4 border-t border-immersive-border/30">
               <button
                 type="button"
-                onClick={() => openBuilder("Pivot into a new career")}
+                onClick={() => openBuilder("Pivot into a new career", "roadmap")}
                 className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-[#FF4B3E]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Select Pivot Track ($23)</span>
@@ -271,7 +408,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
             <div className="mt-8 pt-4 border-t border-immersive-border/30">
               <button
                 type="button"
-                onClick={() => openBuilder("Up-skill in my current role")}
+                onClick={() => openBuilder("Up-skill in my current role", "roadmap")}
                 className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-[#FF4B3E]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Select Upskill Track ($30)</span>
@@ -344,7 +481,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
             <div className="mt-8 pt-4 border-t border-immersive-border/30">
               <button
                 type="button"
-                onClick={() => openBuilder("Lead & Specialize")}
+                onClick={() => openBuilder("Lead & Specialize", "roadmap")}
                 className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-purple-600 hover:brightness-110 shadow-lg shadow-purple-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Select Lead Track ($45)</span>
@@ -470,8 +607,12 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
           >
             <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-immersive-border bg-immersive-card px-4 py-3 sm:px-6">
               <div>
-                <span className="block text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#FF4B3E]">Interactive career roadmap</span>
-                <h2 id="roadmap-builder-title" className="mt-1 text-base font-extrabold text-immersive-text-primary sm:text-lg">Build your learning journey</h2>
+                <span className="block text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#FF4B3E]">
+                  {builderMode === "single_course" ? "Choose a course" : "Interactive career roadmap"}
+                </span>
+                <h2 id="roadmap-builder-title" className="mt-1 text-base font-extrabold text-immersive-text-primary sm:text-lg">
+                  {builderMode === "choice" ? "Choose how you want to learn" : builderMode === "single_course" ? "Start with one course" : "Build your learning journey"}
+                </h2>
               </div>
               <button
                 type="button"
@@ -483,11 +624,108 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
               </button>
             </header>
             <div className="min-h-0 flex-1 overflow-y-auto">
-              <ExperienceTrackSim
-                userProfile={userProfile}
-                onOpenWizard={onOpenWizard}
-                initialGoal={builderGoal}
-              />
+              {builderMode === "choice" ? (
+                <div className="mx-auto grid min-h-full max-w-4xl content-center gap-5 p-5 sm:grid-cols-2 sm:p-10">
+                  <button
+                    type="button"
+                    onClick={() => setBuilderMode("roadmap")}
+                    className="rounded-3xl border border-immersive-border bg-immersive-card p-6 text-left transition hover:border-[#FF4B3E] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] sm:p-8"
+                  >
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF4B3E]/10 text-[#FF4B3E]"><Target aria-hidden="true" className="h-6 w-6" /></span>
+                    <span className="mt-5 block text-xl font-extrabold text-immersive-text-primary">Create a roadmap</span>
+                    <span className="mt-2 block text-sm leading-relaxed text-immersive-text-secondary">Choose a career goal and build a multi-course path across learning levels.</span>
+                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#FF4B3E]">Build a roadmap <ArrowRight aria-hidden="true" className="h-4 w-4" /></span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBuilderMode("single_course")}
+                    className="rounded-3xl border border-immersive-border bg-immersive-card p-6 text-left transition hover:border-[#FF4B3E] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] sm:p-8"
+                  >
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-immersive-secondary/10 text-immersive-secondary"><BookOpen aria-hidden="true" className="h-6 w-6" /></span>
+                    <span className="mt-5 block text-xl font-extrabold text-immersive-text-primary">Choose one course</span>
+                    <span className="mt-2 block text-sm leading-relaxed text-immersive-text-secondary">Pick a course you want to focus on now. You can create a broader roadmap later.</span>
+                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#FF4B3E]">Browse courses <ArrowRight aria-hidden="true" className="h-4 w-4" /></span>
+                  </button>
+                </div>
+              ) : builderMode === "single_course" ? (
+                <div className="mx-auto max-w-5xl space-y-5 p-5 sm:p-8">
+                  <div>
+                    <p className="text-sm text-immersive-text-secondary">Choose one course to add to your account. You can build a multi-course roadmap whenever you are ready.</p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_16rem]">
+                    <label className="relative block">
+                      <span className="sr-only">Search courses</span>
+                      <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-immersive-text-secondary" />
+                      <input
+                        value={courseSearch}
+                        onChange={(event) => setCourseSearch(event.target.value)}
+                        placeholder="Search courses"
+                        className="w-full rounded-xl border border-immersive-border bg-immersive-card py-3 pl-10 pr-3 text-sm text-immersive-text-primary outline-none focus:border-[#FF4B3E]"
+                      />
+                    </label>
+                    <label>
+                      <span className="sr-only">Filter by category</span>
+                      <select
+                        value={courseCategory}
+                        onChange={(event) => setCourseCategory(event.target.value)}
+                        className="w-full rounded-xl border border-immersive-border bg-immersive-card px-3 py-3 text-sm text-immersive-text-primary outline-none focus:border-[#FF4B3E]"
+                      >
+                        <option value="">All categories</option>
+                        {courseCategories.map((category) => <option key={category} value={category}>{category}</option>)}
+                      </select>
+                    </label>
+                  </div>
+                  {catalogLoading && <div role="status" className="flex items-center justify-center gap-2 py-12 text-sm text-immersive-text-secondary"><LoaderCircle aria-hidden="true" className="h-5 w-5 animate-spin" />Loading courses…</div>}
+                  {catalogError && (
+                    <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-300/40 bg-red-500/10 p-4 text-sm text-red-500">
+                      <span>{catalogError}</span>
+                      <button type="button" onClick={() => { setCatalogError(""); setCatalogLoaded(false); }} className="font-bold underline underline-offset-2">Try again</button>
+                    </div>
+                  )}
+                  {!catalogLoading && !catalogError && (
+                    <>
+                      <p className="text-xs font-semibold text-immersive-text-secondary">{visibleCourses.length} courses available</p>
+                      <div className="grid max-h-[45vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+                        {visibleCourses.map((course) => {
+                          const selected = selectedCourseId === course.id;
+                          return (
+                            <button
+                              key={course.id}
+                              type="button"
+                              aria-pressed={selected}
+                              onClick={() => { setSelectedCourseId(course.id); setCourseError(""); }}
+                              className={`rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] ${selected ? "border-[#FF4B3E] bg-[#FF4B3E]/10" : "border-immersive-border bg-immersive-card hover:border-immersive-secondary/60"}`}
+                            >
+                              <span className="flex items-start justify-between gap-3">
+                                <span className="font-bold text-immersive-text-primary">{course.title}</span>
+                                {selected && <Check aria-hidden="true" className="h-5 w-5 shrink-0 text-[#FF4B3E]" />}
+                              </span>
+                              <span className="mt-2 block text-xs text-immersive-secondary">{getCourseCategory(course)} · {course.level || "Beginner"}</span>
+                              {course.description && <span className="mt-2 line-clamp-2 block text-xs leading-relaxed text-immersive-text-secondary">{course.description}</span>}
+                            </button>
+                          );
+                        })}
+                        {!visibleCourses.length && <p className="col-span-full py-8 text-center text-sm text-immersive-text-secondary">No courses match your search. Try another title or category.</p>}
+                      </div>
+                    </>
+                  )}
+                  {courseError && <p role="alert" className="text-sm font-medium text-red-500">{courseError}</p>}
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-immersive-border pt-4">
+                    <button type="button" onClick={() => setBuilderMode("choice")} className="rounded-xl border border-immersive-border px-4 py-3 text-sm font-bold text-immersive-text-secondary transition hover:border-[#FF4B3E] hover:text-immersive-text-primary">Back</button>
+                    <button type="button" onClick={() => void continueWithCourse()} disabled={!selectedCourseId || courseSubmitting} className="inline-flex items-center gap-2 rounded-xl bg-[#FF4B3E] px-5 py-3 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
+                      {courseSubmitting && <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />}
+                      {userProfile ? "Save course and continue" : "Continue to sign up"}
+                      <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <ExperienceTrackSim
+                  userProfile={userProfile}
+                  onOpenWizard={onOpenWizard}
+                  initialGoal={builderGoal}
+                />
+              )}
             </div>
           </section>
         </div>

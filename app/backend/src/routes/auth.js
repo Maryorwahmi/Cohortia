@@ -148,6 +148,49 @@ auth.post('/signup', async (c) => {
       return c.json({ success: false, error: 'Roadmap selection must be valid JSON' }, 400);
     }
 
+    if (selection?.mode === 'single_course') {
+      const selectedCourseId = selection.selectedCourseId;
+      const selectedCourses = selection.selectedCourses;
+      const levels = ['beginner', 'intermediate', 'advanced'];
+      const selectedIds = levels.flatMap((level) => Array.isArray(selectedCourses?.[level]) ? selectedCourses[level] : []);
+      const learningStage = String(selection.learningStage || '').toLowerCase();
+      if (typeof selectedCourseId !== 'string' || !selectedCourseId
+        || !['beginner', 'intermediate', 'advanced'].includes(learningStage)
+        || !selectedCourses || levels.some((level) => !Array.isArray(selectedCourses[level]))
+        || selectedIds.length !== 1 || selectedIds[0] !== selectedCourseId
+        || !Array.isArray(selection.roadmapOrder)
+        || selection.roadmapOrder.length !== 1 || selection.roadmapOrder[0] !== selectedCourseId
+        || selectedCourses[learningStage][0] !== selectedCourseId) {
+        return c.json({ success: false, error: 'A valid single-course selection is required' }, 400);
+      }
+
+      const courseRows = await db.select().from(catalogCourses)
+        .where(eq(catalogCourses.id, selectedCourseId)).limit(1);
+      const course = courseRows[0];
+      if (!course || !courseMatchesRoadmapLevel(course.level, learningStage)) {
+        return c.json({ success: false, error: 'The selected course is unavailable for this learning level' }, 400);
+      }
+
+      const courseCategory = String(
+        course.marketSubcategory?.trim()
+        || course.subcategory?.trim()
+        || course.marketCategory
+        || course.category
+        || '',
+      ).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const requestedCategory = String(selection.selectedCareerId || '').trim().toLowerCase();
+      if (!courseCategory || requestedCategory !== courseCategory) {
+        return c.json({ success: false, error: 'The selected course category is invalid' }, 400);
+      }
+
+      const [legacyCurriculum, boardCurriculum] = await Promise.all([
+        db.select({trackId: lessons.trackId}).from(lessons).where(eq(lessons.trackId, selectedCourseId)).limit(1),
+        db.select({courseId: learningBoardScreens.courseId}).from(learningBoardScreens).where(eq(learningBoardScreens.courseId, selectedCourseId)).limit(1),
+      ]);
+      if (!legacyCurriculum.length && !boardCurriculum.length) {
+        return c.json({ success: false, error: 'The selected course does not have a learning curriculum yet' }, 409);
+      }
+    } else {
     const limitsByGoal = {
       'Pivot into a new career': { beginner: 2, intermediate: 2, advanced: 1 },
       'Up-skill in my current role': { beginner: 2, intermediate: 1, advanced: 1 },
@@ -236,6 +279,7 @@ auth.post('/signup', async (c) => {
     );
     if (allLevels.some((level) => selectedByLevel[level].length !== (limits[level] || 0)) || hasLevelMismatch) {
       return c.json({ success: false, error: 'Roadmap selection exceeds the allowed level limits' }, 400);
+    }
     }
   }
 

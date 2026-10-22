@@ -13,6 +13,8 @@ export interface RoadmapCourseSelection {
 }
 
 export interface RoadmapSelection {
+  mode?: "roadmap" | "single_course";
+  selectedCourseId?: string;
   careerGoal: RoadmapGoal;
   learningStage: RoadmapLevel;
   selectedCareerId: string;

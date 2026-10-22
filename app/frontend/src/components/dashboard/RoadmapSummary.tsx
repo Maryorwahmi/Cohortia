@@ -67,7 +67,7 @@ export default function RoadmapSummary({ selection, completedSteps = [] }: Roadm
   return (
     <section className="mb-8 bg-immersive-card border border-immersive-border rounded-3xl p-5 sm:p-6 shadow-xl shadow-immersive-shadow">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
-        <div><span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">| ACTIVE LEARNING LANE</span><h2 className="text-xl font-extrabold text-immersive-text-primary mt-1">{selection.selectedCareer}</h2><p className="text-xs text-immersive-text-secondary mt-1">{selection.careerGoal} · {selection.roadmapOrder.length} courses in progression order</p></div><Route className="w-5 h-5 text-immersive-secondary" />
+        <div><span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase">| ACTIVE LEARNING LANE</span><h2 className="text-xl font-extrabold text-immersive-text-primary mt-1">{selection.selectedCareer}</h2><p className="text-xs text-immersive-text-secondary mt-1">{selection.mode === "single_course" ? "One course selected · You can build a roadmap later" : `${selection.careerGoal} · ${selection.roadmapOrder.length} courses in progression order`}</p></div><Route className="w-5 h-5 text-immersive-secondary" />
       </div>
       {loading && <div className="flex items-center gap-2 text-xs text-immersive-text-secondary mb-3"><LoaderCircle className="w-3.5 h-3.5 animate-spin" /> Loading course progress...</div>}
       {error && <p role="alert" className="mb-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">{error}</p>}
