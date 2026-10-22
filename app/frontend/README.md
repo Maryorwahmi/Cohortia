@@ -25,6 +25,11 @@ The application is structured as a responsive, state-driven full-stack applicati
 *   **Step Progress Tracker**: Checks completed milestones and lessons dynamically across the curriculum, instantly computing percent completeness, active project states, and cumulative mentorship hours.
 *   **Active Theme Sync**: Light and dark transitions are controlled dynamically via script-injected DOM classes, updating variables for text, borders, glass cards, and background cards.
 
+### 4. Generated Lesson Content Security
+* Generated HTML and SVG are sanitized with a strict DOMPurify allowlist before rendering. Scripts, event handlers, arbitrary CSS, embedded documents, and network URLs are excluded.
+* Generated lesson iframes are sandboxed without script or same-origin permissions and use a restrictive CSP that blocks network access.
+* Cloudflare Pages response headers are defined in `public/_headers`. The application CSP is currently report-only; review CSP violation messages in browser developer tools before switching to enforcement. Pages `_headers` applies to static responses, not Pages Function responses.
+
 ---
 
 ## 📂 Comprehensive Page & Module Directory
