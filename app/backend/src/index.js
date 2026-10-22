@@ -13,7 +13,7 @@ import careerRoutes from './routes/careers.js';
 import trackRoutes from './routes/tracks.js';
 import communityRoutes from './routes/community.js';
 import internshipRoutes from './routes/internships.js';
-import learningRoutes from './routes/learning.js';
+import learningRoutes, {protectedLearning as protectedLearningRoutes} from './routes/learning.js';
 import contactRoutes from './routes/contact.js';
 import chatRoutes from './routes/chat.js';
 import roadmapRoutes from './routes/roadmaps.js';
@@ -40,6 +40,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 import { apiOriginMiddleware, assertApiOriginSecretConfigured } from './middleware/apiOrigin.js';
 import { getJwtSecret } from './lib/jwtSecret.js';
+import { randomUUID } from 'node:crypto';
 
 const app = new Hono();
 
@@ -52,6 +53,12 @@ const publicCatalogCache = async (c, next) => {
 
 // Global middleware
 app.use('*', logger());
+app.use('*', async (c, next) => {
+  const requestId = randomUUID();
+  c.set('requestId', requestId);
+  c.header('X-Request-ID', requestId);
+  await next();
+});
 app.use('*', cors({
   origin: (process.env.CORS_ORIGIN || 'http://localhost:5173')
     .split(',')
@@ -103,7 +110,7 @@ if (process.env.NODE_ENV !== 'production') {
   app.route('/api/v1/dev/generated', generatedRoutes);
 }
 
-// Public learning board endpoints (read-only)
+// Public learning read routes and authenticated learning/progress routes are separate routers.
 app.route('/api/v1/learning-boards', learningRoutes);
 
 // Protected routes (auth required)
@@ -115,8 +122,7 @@ app.route('/api/v1/tracks', trackRoutes);
 app.use('/api/v1/internships/*', authMiddleware);
 app.route('/api/v1/internships', internshipRoutes);
 
-app.use('/api/v1/learning/*', authMiddleware);
-app.route('/api/v1/learning', learningRoutes);
+app.route('/api/v1/learning', protectedLearningRoutes);
 
 app.use('/api/v1/roadmaps/*', authMiddleware);
 app.route('/api/v1/roadmaps', roadmapRoutes);
@@ -141,6 +147,7 @@ app.get('*', async (c) => {
     success: false,
     error: c.req.path.startsWith('/api/') ? 'Not Found' : 'API service only',
     message: 'Use the Cloudflare frontend or an /api/v1 endpoint.',
+    requestId: c.get('requestId') || 'unavailable',
   }, 404);
 });
 
@@ -149,10 +156,12 @@ app.onError(errorHandler);
 
 // 404 handler
 app.notFound((c) => {
+  const requestId = c.get('requestId') || 'unavailable';
   return c.json({
     success: false,
     error: 'Not Found',
-    message: `Route ${c.req.url} not found`,
+    message: 'The requested route was not found.',
+    requestId,
   }, 404);
 });
 

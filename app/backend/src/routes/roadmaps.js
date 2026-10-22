@@ -492,7 +492,25 @@ roadmaps.get('/me', async (c) => {
 // Generate a standalone AI roadmap. Active dashboard progression uses the selected catalog bundle.
 roadmaps.post('/generate', async (c) => {
   const userId = c.get('userId');
-  const user = c.get('user');
+  const [user] = await db.select({
+    desiredField: users.desiredField,
+    experienceLevel: users.experienceLevel,
+    weeklyHours: users.weeklyHours,
+    learningPace: users.learningPace,
+    currentStatus: users.currentStatus,
+    careerGoal: users.careerGoal,
+    skillsKnown: users.skillsKnown,
+    availability: users.availability,
+    onboardingGoal: users.onboardingGoal,
+    educationLevel: users.educationLevel,
+    ageRange: users.ageRange,
+    learningStyle: users.learningStyle,
+    jobReadyTimeline: users.jobReadyTimeline,
+    motivation: users.motivation,
+    biggestChallenge: users.biggestChallenge,
+    previousField: users.previousField,
+    wantsRealWorldExperience: users.wantsRealWorldExperience,
+  }).from(users).where(eq(users.id, userId)).limit(1);
   const body = await c.req.json();
 
   const {

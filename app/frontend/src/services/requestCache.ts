@@ -16,6 +16,40 @@ const MAX_PERSISTED_RESPONSE_BYTES = 512_000;
 const responseCache = new Map<string, CachedResponse>();
 const inFlightRequests = new Map<string, Promise<CachedResponse>>();
 let cacheGeneration = 0;
+let refreshInFlight: Promise<boolean> | null = null;
+
+function requestUrl(input: RequestInfo | URL) {
+  return new URL(typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url, window.location.href);
+}
+
+async function rawFetch(input: RequestInfo | URL, options: RequestInit) {
+  return fetch(input, options);
+}
+
+async function fetchWithSessionRefresh(input: RequestInfo | URL, options: RequestInit): Promise<Response> {
+  const retryInput = input instanceof Request ? input.clone() : input;
+  const response = await rawFetch(input, options);
+  if (response.status !== 401 || !options.credentials || options.credentials === 'omit') return response;
+
+  const url = requestUrl(input);
+  const apiPath = url.pathname;
+  const apiPrefixMatch = apiPath.match(/^(.*?\/api\/v1)(?:\/|$)/);
+  if (!apiPrefixMatch || /\/auth\/(?:login|google\/exchange|session\/refresh)$/.test(apiPath)) return response;
+
+  if (!refreshInFlight) {
+    const refreshUrl = `${url.origin}${apiPrefixMatch[1]}/auth/session/refresh`;
+    refreshInFlight = rawFetch(refreshUrl, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {'Content-Type': 'application/json'},
+    }).then((refreshResponse) => refreshResponse.ok).finally(() => {
+      refreshInFlight = null;
+    });
+  }
+
+  if (!await refreshInFlight) return response;
+  return rawFetch(retryInput, options);
+}
 const MAX_CACHED_RESPONSES = 300;
 
 function getCacheTtl(pathname: string): number {
@@ -149,7 +183,7 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
   if (method === 'GET') {
     const url = new URL(String(input), 'http://cohortia.local');
     const ttlMs = getCacheTtl(url.pathname);
-    if (ttlMs === 0) return fetch(input, requestOptions);
+    if (ttlMs === 0) return fetchWithSessionRefresh(input, requestOptions);
 
     const headers = new Headers(init.headers);
     const requestHeaders = Array.from(headers.entries()).sort(([left], [right]) => left.localeCompare(right));
@@ -171,7 +205,7 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
     let pending = inFlightRequests.get(key);
     if (!pending) {
       const currentGeneration = cacheGeneration;
-      pending = fetch(input, requestOptions).then(async (response) => {
+      pending = fetchWithSessionRefresh(input, requestOptions).then(async (response) => {
         const result: CachedResponse = {
           pathname: url.pathname,
           body: await response.clone().text(),
@@ -205,7 +239,7 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
   const url = new URL(String(input), 'http://cohortia.local');
   invalidateRequestCache(relatedPathsForMutation(url.pathname));
   try {
-    return await fetch(input, requestOptions);
+    return await fetchWithSessionRefresh(input, requestOptions);
   } finally {
     invalidateRequestCache(relatedPathsForMutation(url.pathname));
   }

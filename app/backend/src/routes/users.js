@@ -352,7 +352,15 @@ usersRoute.post('/two-factor/disable/setup', async (c) => {
 
 usersRoute.post('/export/verify', async (c) => {
   const userId = c.get('userId');
-  const user = c.get('user');
+  const [user] = await db.select({
+    id: users.id,
+    password: users.password,
+    twoFactorEnabled: users.twoFactorEnabled,
+    twoFactorSecret: users.twoFactorSecret,
+    twoFactorRecoveryCodes: users.twoFactorRecoveryCodes,
+    twoFactorLastCounter: users.twoFactorLastCounter,
+  }).from(users).where(eq(users.id, userId)).limit(1);
+  if (!user) return c.json({success: false, error: 'Account verification failed.'}, 401);
   const {password, code, googleProof} = await c.req.json();
   let verified = false;
   let proofRecord;

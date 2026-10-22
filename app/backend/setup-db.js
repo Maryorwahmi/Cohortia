@@ -47,6 +47,16 @@ const statements = [
     expires_at TEXT NOT NULL,
     used_at TEXT
   )`,
+  `CREATE TABLE IF NOT EXISTS user_sessions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    refresh_token_hash TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    last_used_at TEXT NOT NULL,
+    revoked_at TEXT
+  )`,
+  `CREATE INDEX IF NOT EXISTS user_sessions_user_expiry_idx ON user_sessions (user_id, expires_at)`,
   `CREATE TABLE IF NOT EXISTS admin_course_permissions (
     admin_user_id TEXT NOT NULL,
     course_id TEXT NOT NULL,

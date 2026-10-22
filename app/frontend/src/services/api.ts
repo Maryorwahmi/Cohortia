@@ -150,6 +150,17 @@ export const authApi = {
       method: 'POST',
     }),
 
+  logoutAllDevices: () =>
+    fetchApi<{success: boolean; message?: string}>('/auth/session/logout-all', {
+      method: 'POST',
+    }),
+
+  changePassword: (currentPassword: string, newPassword: string, code?: string) =>
+    fetchApi<{success: boolean; message?: string; error?: string}>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({currentPassword, newPassword, ...(code ? {code} : {})}),
+    }),
+
   startGoogleExportReauthentication: () =>
     fetchApi<{success: boolean; data?: {url: string}; error?: string}>('/auth/google/export-reauth-url', {
       method: 'POST',

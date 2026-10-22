@@ -6,6 +6,25 @@ import { eq, and, sql, inArray } from 'drizzle-orm';
 
 const router = new Hono();
 
+function assessmentFailure(c, error) {
+  const requestId = c.get('requestId') || 'unavailable';
+  console.error(JSON.stringify({
+    requestId,
+    path: c.req.path,
+    error: {
+      name: error?.name || 'Error',
+      message: error?.message || String(error),
+      stack: error?.stack,
+    },
+  }));
+  return c.json({
+    success: false,
+    error: 'Internal Server Error',
+    message: 'The assessment request could not be completed.',
+    requestId,
+  }, 500);
+}
+
 // Helper to get DB instance
 function getDb() {
   const dbUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
@@ -41,8 +60,7 @@ router.get('/', async (c) => {
       count: courses.length,
     });
   } catch (error) {
-    console.error('Error fetching assessments:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 
@@ -91,8 +109,7 @@ router.get('/:courseId', async (c) => {
       totalQuestions: chapters.reduce((sum, ch) => sum + (ch.totalQuestions || 0), 0),
     });
   } catch (error) {
-    console.error('Error fetching course chapters:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 
@@ -161,8 +178,7 @@ router.get('/:courseId/:module/:chapter', async (c) => {
       questions: questionsFormatted,
     });
   } catch (error) {
-    console.error('Error fetching chapter questions:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 
@@ -216,8 +232,7 @@ router.get('/quiz/random', async (c) => {
       filters: { type, level, requested: count },
     });
   } catch (error) {
-    console.error('Error fetching random questions:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 
@@ -246,8 +261,7 @@ router.get('/category/:category', async (c) => {
       count: courses.length,
     });
   } catch (error) {
-    console.error('Error fetching category courses:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 
@@ -296,8 +310,7 @@ router.get('/stats/overview', async (c) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching statistics:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 
@@ -352,8 +365,7 @@ router.get('/filter/by-level-category', async (c) => {
       limit,
     });
   } catch (error) {
-    console.error('Error fetching filtered courses:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 
@@ -375,8 +387,7 @@ router.get('/filter/categories', async (c) => {
       count: categories.length,
     });
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 
@@ -398,8 +409,7 @@ router.get('/filter/levels', async (c) => {
       count: levels.length,
     });
   } catch (error) {
-    console.error('Error fetching levels:', error);
-    return c.json({ success: false, error: error.message }, 500);
+    return assessmentFailure(c, error);
   }
 });
 

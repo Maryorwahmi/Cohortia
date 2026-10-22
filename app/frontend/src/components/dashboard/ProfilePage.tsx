@@ -3,6 +3,7 @@ import {Award, Check, Clock, Compass, Download, ExternalLink, ImagePlus, LoaderC
 import {PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip} from 'recharts';
 import type {BackendUser, CatalogCourse, Lesson} from '../../services/api';
 import {authApi, roadmapApi, userApi} from '../../services/api';
+import {invalidateRequestCache} from '../../services/requestCache';
 import type {UserPreferences} from '../../types';
 
 interface ProfilePageProps {
@@ -81,6 +82,11 @@ export default function ProfilePage({
   const [exportCode, setExportCode] = useState('');
   const [googleProof, setGoogleProof] = useState('');
   const processingGoogleExchange = useRef(false);
+  const [sessionActionBusy, setSessionActionBusy] = useState(false);
+  const [sessionActionMessage, setSessionActionMessage] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordChangeCode, setPasswordChangeCode] = useState('');
 
   useEffect(() => {
     setFormData(emptyForm(userProfile));
@@ -369,6 +375,37 @@ export default function ProfilePage({
     }
   };
 
+  const handleSignOutAllDevices = async () => {
+    setSessionActionBusy(true);
+    setSessionActionMessage('');
+    try {
+      await authApi.logoutAllDevices();
+      invalidateRequestCache();
+      window.location.assign('/login');
+    } catch (error) {
+      setSessionActionMessage(error instanceof Error ? error.message : 'Could not sign out other devices.');
+      setSessionActionBusy(false);
+    }
+  };
+
+  const handleChangePassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSessionActionBusy(true);
+    setSessionActionMessage('');
+    try {
+      const response = await authApi.changePassword(currentPassword, newPassword, passwordChangeCode.trim());
+      setSessionActionMessage(response.message || 'Password changed. Sign in again.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setPasswordChangeCode('');
+      invalidateRequestCache();
+      window.location.assign('/login');
+    } catch (error) {
+      setSessionActionMessage(error instanceof Error ? error.message : 'Could not change your password.');
+      setSessionActionBusy(false);
+    }
+  };
+
   const roadmapSelected = Boolean(userProfile.roadmapSelection?.roadmapOrder?.length);
   const enrolledCourseCount = courses.length;
 
@@ -634,6 +671,23 @@ export default function ProfilePage({
                   {twoFactorBusy ? 'Preparing setup…' : 'Set up authenticator app'}
                 </button>
               )}
+            </section>
+
+            <section className="rounded-3xl border border-immersive-border bg-immersive-card p-5 shadow-xl shadow-immersive-shadow sm:p-6">
+              <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-immersive-secondary">Sessions and password</h2>
+              <p className="mt-2 text-xs text-immersive-text-secondary">Access sessions expire quickly. Refresh sessions rotate and expire after 30 days.</p>
+              {sessionActionMessage && <p role="status" className="mt-3 text-xs text-rose-400">{sessionActionMessage}</p>}
+              <form onSubmit={handleChangePassword} className="mt-4 space-y-2">
+                <input required type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} placeholder="Current password" className="w-full rounded-xl border border-immersive-border bg-immersive-bg px-3 py-2.5 text-sm text-immersive-text-primary" />
+                <input required type="password" autoComplete="new-password" minLength={12} maxLength={200} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} placeholder="New password (12+ characters)" className="w-full rounded-xl border border-immersive-border bg-immersive-bg px-3 py-2.5 text-sm text-immersive-text-primary" />
+                {userProfile.twoFactorEnabled && <input required value={passwordChangeCode} onChange={(event) => setPasswordChangeCode(event.target.value)} placeholder="Authenticator or recovery code" className="w-full rounded-xl border border-immersive-border bg-immersive-bg px-3 py-2.5 text-sm text-immersive-text-primary" />}
+                <button disabled={sessionActionBusy || !currentPassword || newPassword.length < 12 || (Boolean(userProfile.twoFactorEnabled) && !passwordChangeCode.trim())} className="w-full rounded-xl border border-immersive-border px-3 py-2.5 text-xs font-bold text-immersive-text-primary disabled:opacity-60">
+                  {sessionActionBusy ? 'Updating…' : 'Change password and sign out'}
+                </button>
+              </form>
+              <button type="button" disabled={sessionActionBusy} onClick={() => void handleSignOutAllDevices()} className="mt-3 w-full rounded-xl border border-rose-500/30 bg-rose-500/5 px-3 py-2.5 text-xs font-bold text-rose-400 disabled:opacity-60">
+                Sign out all devices
+              </button>
             </section>
 
             <section className="rounded-3xl border border-rose-500/25 bg-immersive-card p-5 shadow-xl shadow-immersive-shadow sm:p-6">

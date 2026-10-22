@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  clearSessionCookie,
+  clearSessionCookies,
+  getRefreshCookieToken,
   getSessionCookieToken,
-  setSessionCookie,
-  SESSION_COOKIE_NAME,
+  setSessionCookies,
+  sessionDurations,
 } from '../src/lib/sessionAuth.js';
 import {createCsrfMiddleware} from '../src/middleware/csrf.js';
 
@@ -29,46 +30,52 @@ function createContext(method, headers = {}) {
   };
 }
 
-test('session cookie is HttpOnly, scoped, and Secure in production', () => {
+test('session cookies have separate lifetimes, scopes, and hardened production names', () => {
   const c = createContext('POST');
-  setSessionCookie(c, 'signed-session-token', {NODE_ENV: 'production'});
+  setSessionCookies(c, 'access-token', 'refresh-token', {NODE_ENV: 'production'});
 
-  assert.equal(
-    c.responseHeaders['set-cookie'][0],
-    `${SESSION_COOKIE_NAME}=signed-session-token; Max-Age=604800; Path=/api/v1; HttpOnly; SameSite=Lax; Secure`,
-  );
+  assert.equal(sessionDurations.accessSeconds, 900);
+  assert.equal(sessionDurations.refreshSeconds, 2592000);
+  assert.deepEqual(c.responseHeaders['set-cookie'], [
+    '__Host-cohortia_access=access-token; Max-Age=900; Path=/; HttpOnly; SameSite=Lax; Secure',
+    '__Secure-cohortia_refresh=refresh-token; Max-Age=2592000; Path=/api/v1/auth/session/refresh; HttpOnly; SameSite=Lax; Secure',
+  ]);
 });
 
-test('session cookie can be read and cleared without replacing other cookies', () => {
+test('session cookies can be read and cleared without replacing other cookies', () => {
   const c = createContext('GET', {
-    Cookie: `other=value; ${SESSION_COOKIE_NAME}=signed-token`,
+    Cookie: 'other=value; cohortia_access=access-token; cohortia_refresh=refresh-token',
   });
-  assert.equal(getSessionCookieToken(c), 'signed-token');
+  assert.equal(getSessionCookieToken(c), 'access-token');
+  assert.equal(getRefreshCookieToken(c), 'refresh-token');
 
-  clearSessionCookie(c, {RENDER: 'true'});
-  assert.equal(
-    c.responseHeaders['set-cookie'][0],
-    `${SESSION_COOKIE_NAME}=; Max-Age=0; Path=/api/v1; HttpOnly; SameSite=Lax; Secure`,
-  );
+  clearSessionCookies(c, {NODE_ENV: 'development'});
+  assert.deepEqual(c.responseHeaders['set-cookie'], [
+    'cohortia_access=; Max-Age=0; Path=/api/v1; HttpOnly; SameSite=Lax',
+    'cohortia_refresh=; Max-Age=0; Path=/api/v1/auth/session/refresh; HttpOnly; SameSite=Lax',
+    'cohortia_session=; Max-Age=0; Path=/api/v1; HttpOnly; SameSite=Lax',
+  ]);
 });
 
 test('session auth does not read JWTs from Authorization headers', () => {
-  const c = createContext('GET', {Authorization: 'Bearer legacy-token'});
+  const c = createContext('GET', {Authorization: 'Bearer token'});
   assert.equal(getSessionCookieToken(c), null);
 });
 
 test('CSRF middleware rejects untrusted and missing origins for session-cookie writes', async () => {
   const middleware = createCsrfMiddleware(['https://cohortia.study']);
 
-  for (const origin of ['https://attacker.example', undefined]) {
-    const c = createContext('POST', {
-      Cookie: `${SESSION_COOKIE_NAME}=signed-token`,
-      ...(origin ? {Origin: origin} : {}),
-    });
-    let continued = false;
-    const response = await middleware(c, async () => { continued = true; });
-    assert.equal(response.status, 403);
-    assert.equal(continued, false);
+  for (const cookie of ['cohortia_access=signed-token', 'cohortia_refresh=refresh-token']) {
+    for (const origin of ['https://attacker.example', undefined]) {
+      const c = createContext('POST', {
+        Cookie: cookie,
+        ...(origin ? {Origin: origin} : {}),
+      });
+      let continued = false;
+      const response = await middleware(c, async () => { continued = true; });
+      assert.equal(response.status, 403);
+      assert.equal(continued, false);
+    }
   }
 });
 
@@ -76,7 +83,7 @@ test('CSRF middleware accepts configured origins and does not block requests wit
   const middleware = createCsrfMiddleware(['https://cohortia.study']);
 
   const trustedContext = createContext('POST', {
-    Cookie: `${SESSION_COOKIE_NAME}=signed-token`,
+    Cookie: 'cohortia_refresh=refresh-token',
     Origin: 'https://cohortia.study',
   });
   let trustedContinued = false;

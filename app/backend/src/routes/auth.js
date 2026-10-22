@@ -12,21 +12,33 @@ import {createUserActionToken, findUserActionToken, consumeUserActionToken, reco
 import {verifyAndConsumeSecondFactor} from '../lib/twoFactor.js';
 import {serializePublicUser} from '../lib/userProfile.js';
 import {getJwtSecret} from '../lib/jwtSecret.js';
-import {clearSessionCookie, getSessionCookieToken, setSessionCookie} from '../lib/sessionAuth.js';
+import {
+  clearSessionCookie,
+  createSession,
+  getRefreshCookieToken,
+  getSessionCookieToken,
+  revokeSession,
+  revokeSessionByRefreshToken,
+  revokeUserSessions,
+  rotateSession,
+} from '../lib/sessionAuth.js';
 import {enforceRateLimits, getRateLimitClientIp} from '../lib/rateLimit.js';
 import {statesMatch} from '../lib/oauthState.js';
+import {authMiddleware} from '../middleware/auth.js';
 
 const auth = new Hono();
 const GOOGLE_OAUTH_STATE_USER_ID = 'google-oauth';
 const frontendUrl = () => (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
 
-function createToken(user) {
+function createToken(user, sessionId) {
   return jwt.sign(
-    { userId: user.id, email: user.email },
+    { userId: user.id, email: user.email, sid: sessionId },
     getJwtSecret(),
-    { expiresIn: '7d' }
+    { expiresIn: '15m' }
   );
 }
+
+const issueSession = (c, user) => createSession(c, user, createToken);
 
 function setOAuthStateCookie(c, state) {
   c.header(
@@ -402,7 +414,7 @@ auth.post('/signup', async (c) => {
     metadata: { source: 'email_signup', role: data.role, track: data.desiredField },
   });
 
-  setSessionCookie(c, createToken({id: userId, email: data.email}));
+  await issueSession(c, {id: userId, email: data.email});
   return c.json({
     success: true,
     message: 'Account created successfully',
@@ -485,7 +497,7 @@ auth.post('/login', async (c) => {
     });
   }
 
-  setSessionCookie(c, createToken(user));
+  await issueSession(c, user);
 
   return c.json({
     success: true,
@@ -526,7 +538,7 @@ auth.post('/verify-two-factor', async (c) => {
     return c.json({success: false, error: 'This verification session has already been used. Please log in again.'}, 401);
   }
 
-  setSessionCookie(c, createToken(user));
+  await issueSession(c, user);
   return c.json({
     success: true,
     message: 'Login successful.',
@@ -536,9 +548,74 @@ auth.post('/verify-two-factor', async (c) => {
   });
 });
 
-auth.post('/logout', (c) => {
+auth.post('/logout', async (c) => {
+  const token = getSessionCookieToken(c);
+  let decoded;
+  if (token) {
+    try {
+      decoded = jwt.verify(token, getJwtSecret());
+    } catch {
+      decoded = null;
+    }
+  }
+  if (decoded && typeof decoded === 'object' && typeof decoded.sid === 'string') await revokeSession(decoded.sid);
+  await revokeSessionByRefreshToken(getRefreshCookieToken(c));
   clearSessionCookie(c);
   return c.json({success: true, message: 'Logged out successfully.'});
+});
+
+auth.post('/session/refresh', async (c) => {
+  const user = await rotateSession(c, createToken);
+  if (!user) {
+    clearSessionCookie(c);
+    return c.json({success: false, error: 'Your session has expired. Please sign in again.'}, 401);
+  }
+  return c.json({success: true});
+});
+
+auth.post('/session/logout-all', authMiddleware, async (c) => {
+  await revokeUserSessions(c.get('userId'));
+  clearSessionCookie(c);
+  return c.json({success: true, message: 'All signed-in devices have been signed out.'});
+});
+
+auth.post('/change-password', authMiddleware, async (c) => {
+  const body = await c.req.json();
+  const parsed = z.object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(12).max(200),
+    code: z.string().optional(),
+  }).safeParse(body);
+  if (!parsed.success) {
+    return c.json({success: false, error: 'Use a new password with at least 12 characters.'}, 400);
+  }
+
+  const [user] = await db.select({
+    id: users.id,
+    password: users.password,
+    twoFactorEnabled: users.twoFactorEnabled,
+    twoFactorSecret: users.twoFactorSecret,
+    twoFactorRecoveryCodes: users.twoFactorRecoveryCodes,
+    twoFactorLastCounter: users.twoFactorLastCounter,
+  })
+    .from(users).where(eq(users.id, c.get('userId'))).limit(1);
+  if (!user || !await bcrypt.compare(parsed.data.currentPassword, user.password)) {
+    return c.json({success: false, error: 'Your current password is incorrect.'}, 401);
+  }
+  if (user.twoFactorEnabled) {
+    const validCode = await verifyAndConsumeSecondFactor({...user, id: c.get('userId')}, parsed.data.code);
+    if (!validCode) {
+      return c.json({success: false, error: 'Your authenticator or recovery code is incorrect.'}, 401);
+    }
+  }
+
+  await revokeUserSessions(user.id);
+  await db.update(users).set({
+    password: await bcrypt.hash(parsed.data.newPassword, 12),
+    updatedAt: new Date().toISOString(),
+  }).where(eq(users.id, user.id));
+  clearSessionCookie(c);
+  return c.json({success: true, message: 'Password changed. Sign in again on this device.'});
 });
 
 // Start Google OAuth
@@ -556,18 +633,8 @@ auth.get('/google', async (c) => {
   return c.redirect(buildGoogleAuthUrl(state));
 });
 
-auth.post('/google/export-reauth-url', async (c) => {
-  const token = getSessionCookieToken(c);
-  if (!token) return c.json({success: false, error: 'Sign in again before downloading your course details.'}, 401);
-
-  let decoded;
-  try {
-    decoded = jwt.verify(token, getJwtSecret());
-  } catch {
-    return c.json({success: false, error: 'Your sign-in has expired. Please log in again.'}, 401);
-  }
-
-  const [user] = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
+auth.post('/google/export-reauth-url', authMiddleware, async (c) => {
+  const [user] = await db.select({id: users.id}).from(users).where(eq(users.id, c.get('userId'))).limit(1);
   if (!user) return c.json({success: false, error: 'Your account could not be verified.'}, 401);
   const clientId = String(process.env.GOOGLE_CLIENT_ID || '').trim();
   const clientSecret = String(process.env.GOOGLE_CLIENT_SECRET || '').trim();
@@ -742,36 +809,15 @@ auth.post('/google/exchange', async (c) => {
     });
   }
 
-  setSessionCookie(c, createToken(user));
+  await issueSession(c, user);
   return c.json({success: true});
 });
 
 // Get current user
-auth.get('/me', async (c) => {
-  const token = getSessionCookieToken(c);
-  
-  if (!token) {
-    return c.json({ success: false, error: 'No token provided' }, 401);
-  }
-
-  try {
-    const decoded = jwt.verify(token, getJwtSecret());
-    const userResult = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, decoded.userId))
-      .limit(1);
-
-    if (userResult.length === 0) {
-      return c.json({ success: false, error: 'User not found' }, 404);
-    }
-
-    const user = userResult[0];
-
-    return c.json({ success: true, data: { user: await serializePublicUser(user) } });
-  } catch (error) {
-    return c.json({ success: false, error: 'Invalid token' }, 401);
-  }
+auth.get('/me', authMiddleware, async (c) => {
+  const [user] = await db.select().from(users).where(eq(users.id, c.get('userId'))).limit(1);
+  if (!user) return c.json({success: false, error: 'User not found'}, 404);
+  return c.json({success: true, data: {user: await serializePublicUser(user)}});
 });
 
 export default auth;

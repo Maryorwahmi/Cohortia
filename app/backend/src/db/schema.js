@@ -53,6 +53,18 @@ export const userActionTokens = sqliteTable('user_action_tokens', {
   userActionExpiryIdx: index('user_action_tokens_user_action_expiry_idx').on(table.userId, table.action, table.expiresAt),
 }));
 
+export const userSessions = sqliteTable('user_sessions', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  refreshTokenHash: text('refresh_token_hash').notNull().unique(),
+  createdAt: text('created_at').notNull(),
+  expiresAt: text('expires_at').notNull(),
+  lastUsedAt: text('last_used_at').notNull(),
+  revokedAt: text('revoked_at'),
+}, (table) => ({
+  userSessionExpiryIdx: index('user_sessions_user_expiry_idx').on(table.userId, table.expiresAt),
+}));
+
 export const rateLimitWindows = sqliteTable('rate_limit_windows', {
   key: text('key').primaryKey(),
   windowStart: integer('window_start').notNull(),

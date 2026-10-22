@@ -60,6 +60,17 @@ async function migrate() {
     )`);
     await client.execute(`CREATE INDEX IF NOT EXISTS user_action_tokens_user_action_expiry_idx
       ON user_action_tokens (user_id, action, expires_at)`);
+    await client.execute(`CREATE TABLE IF NOT EXISTS user_sessions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      refresh_token_hash TEXT NOT NULL UNIQUE,
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      last_used_at TEXT NOT NULL,
+      revoked_at TEXT
+    )`);
+    await client.execute(`CREATE INDEX IF NOT EXISTS user_sessions_user_expiry_idx
+      ON user_sessions (user_id, expires_at)`);
     await client.execute(`CREATE TABLE IF NOT EXISTS admin_course_permissions (
       admin_user_id TEXT NOT NULL,
       course_id TEXT NOT NULL,

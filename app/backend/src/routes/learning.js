@@ -16,6 +16,8 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
 const learning = new Hono();
+const publicLearning = new Hono();
+learning.use('*', authMiddleware);
 
 const MAX_SOURCE_BYTES = 128 * 1024;
 const MAX_OUTPUT_BYTES = 64 * 1024;
@@ -647,13 +649,13 @@ await db.run(sql`
 `);
 
 // Get all lessons
-learning.get('/lessons', async (c) => {
+publicLearning.get('/lessons', async (c) => {
   const allLessons = await db.select().from(lessons);
   return c.json({ success: true, data: { lessons: allLessons } });
 });
 
 // Get lesson by ID
-learning.get('/lessons/:id', async (c) => {
+publicLearning.get('/lessons/:id', async (c) => {
   const lessonId = c.req.param('id');
   
   const lesson = await db
@@ -709,7 +711,7 @@ learning.post('/lessons/:id/complete', async (c) => {
 
 // ===== Learning Board Endpoints =====
 
-learning.post('/assessment/evaluate', authMiddleware, async (c) => {
+learning.post('/assessment/evaluate', async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const courseId = typeof body.courseId === 'string' ? body.courseId.trim() : '';
   const module = Number(body.module);
@@ -801,7 +803,7 @@ learning.post('/assessment/evaluate', authMiddleware, async (c) => {
 });
 
 // Get all learning board courses
-learning.get('/boards', async (c) => {
+publicLearning.get('/boards', async (c) => {
   if (boardsCache && boardsCacheExpiresAt > Date.now()) {
     return c.json({ success: true, data: { courses: boardsCache } });
   }
@@ -873,7 +875,7 @@ learning.get('/boards', async (c) => {
 });
 
 // Get learning board course by ID
-learning.get('/boards/:courseId', async (c) => {
+publicLearning.get('/boards/:courseId', async (c) => {
   const courseId = c.req.param('courseId');
   let courseManifest = null;
   try {
@@ -954,7 +956,7 @@ learning.get('/boards/:courseId', async (c) => {
 
 // Get chapter by course ID, module, and chapter number
 // Route format: /boards/:courseId/:module/:chapter
-learning.get('/boards/:courseId/:module/:chapter', async (c) => {
+publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
   const courseId = c.req.param('courseId');
   const module = c.req.param('module');
   const chapter = c.req.param('chapter');
@@ -1306,8 +1308,6 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
 });
 
 // Get the current user's progress for one learning-board chapter.
-learning.use('/board-progress/:courseId', authMiddleware);
-learning.use('/board-progress/*', authMiddleware);
 learning.get('/board-progress/:courseId', async (c) => {
   const userId = c.get('userId');
   const records = await db
@@ -1412,7 +1412,7 @@ learning.patch('/board-progress/:courseId/:module/:chapter', async (c) => {
 });
 
 // Execute native C/C++ practical code with a fixed, non-shell compiler command.
-learning.post('/practical-execute', authMiddleware, async (c) => {
+learning.post('/practical-execute', async (c) => {
   const userId = c.get('userId');
   const rateLimitResponse = await enforceRateLimits(c, [
     {scope: 'practical-execute-user-5m', actor: userId, limit: 10, windowSeconds: 5 * 60},
@@ -1609,7 +1609,7 @@ function languageForPractical(definition, activeFilePath) {
   return null;
 }
 
-learning.post('/practical-grade', authMiddleware, async (c) => {
+learning.post('/practical-grade', async (c) => {
   const userId = c.get('userId');
   const rateLimitResponse = await enforceRateLimits(c, [
     {scope: 'practical-execute-user-5m', actor: userId, limit: 10, windowSeconds: 5 * 60},
@@ -1780,7 +1780,7 @@ learning.post('/practical-grade', authMiddleware, async (c) => {
 });
 
 // Record practical attempt (code run, submission, output)
-learning.post('/practical-attempts', authMiddleware, async (c) => {
+learning.post('/practical-attempts', async (c) => {
   const userId = c.get('userId');
   const body = asObject(await c.req.json());
   const { practicalId, files, status = 'started', output = '' } = body;
@@ -1809,7 +1809,7 @@ learning.post('/practical-attempts', authMiddleware, async (c) => {
 });
 
 // Update progress for an individual practical task/milestone
-learning.post('/practical-task-progress', authMiddleware, async (c) => {
+learning.post('/practical-task-progress', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   const { practicalId, taskId, status = 'completed' } = body;
@@ -1825,7 +1825,7 @@ learning.post('/practical-task-progress', authMiddleware, async (c) => {
 });
 
 // Retrieve student practical history and task progress
-learning.get('/practical-progress/:practicalId', authMiddleware, async (c) => {
+learning.get('/practical-progress/:practicalId', async (c) => {
   const userId = c.get('userId');
   const practicalId = c.req.param('practicalId');
   const attempts = await db
@@ -1850,7 +1850,7 @@ learning.get('/practical-progress/:practicalId', authMiddleware, async (c) => {
 });
 
 // Get single screen
-learning.get('/boards/:courseId/:module/:chapter/:screen', async (c) => {
+publicLearning.get('/boards/:courseId/:module/:chapter/:screen', async (c) => {
   const courseId = c.req.param('courseId');
   const module = c.req.param('module');
   const chapter = c.req.param('chapter');
@@ -1894,4 +1894,5 @@ learning.get('/boards/:courseId/:module/:chapter/:screen', async (c) => {
   });
 });
 
-export default learning;
+export {learning as protectedLearning};
+export default publicLearning;

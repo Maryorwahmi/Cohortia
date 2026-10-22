@@ -78,7 +78,9 @@ The alpha administrator can grant existing registered users admin access and ind
 
 Browser login, signup, two-factor completion, and Google sign-in set a server-managed `HttpOnly`, `SameSite=Lax` session cookie. In production it is also `Secure` and scoped to `/api/v1`. The browser must send requests with credentials enabled. Unsafe cookie-authenticated requests are accepted only from configured frontend origins.
 
-The session JWT is not returned in API response bodies or Google redirect URLs. Existing browser sessions must sign in again after this change because localStorage tokens are no longer accepted.
+The session JWT is not returned in API response bodies or Google redirect URLs. Access sessions expire after 15 minutes and are backed by revocable server-side session records; refresh tokens rotate and expire after 30 days. Password changes and sign-out-all revoke every active session. Existing browser sessions must sign in again after this change because localStorage tokens are no longer accepted.
+
+Before deploying the session changes to an existing database, run `npm run db:migrate-schema` from `app/backend` to create the `user_sessions` table and its index. Do not deploy the new backend against a database that has not been migrated.
 
 ### API rate limits
 

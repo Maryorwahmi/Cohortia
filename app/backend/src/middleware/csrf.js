@@ -1,4 +1,4 @@
-import { getSessionCookieToken } from '../lib/sessionAuth.js';
+import { getRefreshCookieToken, getSessionCookieToken } from '../lib/sessionAuth.js';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
@@ -10,7 +10,7 @@ export function createCsrfMiddleware(
     .concat(['https://cohortia.study', 'https://www.cohortia.study']),
 ) {
   return async (c, next) => {
-    if (SAFE_METHODS.has(c.req.method) || !getSessionCookieToken(c)) {
+    if (SAFE_METHODS.has(c.req.method) || (!getSessionCookieToken(c) && !getRefreshCookieToken(c))) {
       await next();
       return;
     }
