@@ -147,6 +147,22 @@ export interface AssessmentAnswerEvaluation {
   confidence?: 'high' | 'review-needed' | string;
 }
 
+export interface PracticalGradeCheck {
+  checkId: string;
+  passed: boolean;
+  message: string;
+  type: string;
+}
+
+export interface PracticalGradeResult {
+  passed: boolean;
+  stdout?: string;
+  stderr?: string;
+  phase?: string;
+  checks: PracticalGradeCheck[];
+  taskResults: Array<{ taskId: string; passed: boolean }>;
+}
+
 export interface LearningBoardPracticalFile {
   id?: string;
   path: string;
@@ -156,12 +172,6 @@ export interface LearningBoardPracticalFile {
 export interface LearningBoardPracticalTest {
   id?: string;
   type: string;
-  expected?: string | null;
-  explanation?: string | null;
-  passCondition?: unknown;
-  matchMode?: string;
-  command?: string;
-  testData?: Record<string, unknown>;
 }
 
 export interface CodeWalkthroughSegment {
@@ -284,9 +294,6 @@ export interface LearningBoardPracticalTask {
   interactiveExercise?: {
     type: 'binary_conversion';
     prompt: string;
-    expectedAnswer: string;
-    acceptedAnswers?: string[];
-    explanation: string;
   };
   tests: LearningBoardPracticalTest[];
   checkIds?: string[];
@@ -355,7 +362,7 @@ export interface LearningBoardPractical {
   lessonContext?: PracticalLessonContext | null;
   activityMapping?: PracticalActivityMapping[];
   completionRule: string;
-  checks?: Record<string, unknown>[];
+  checks?: LearningBoardPracticalTest[];
   hints?: Record<string, unknown>[];
   evidence?: Record<string, unknown>[];
   environment?: Record<string, unknown> | null;
@@ -472,7 +479,7 @@ class LearningBoardsApiService {
   async recordPracticalAttempt(
     practicalId: string,
     files: Record<string, string>,
-    status: "started" | "in_progress" | "passed" | "failed" | "submitted",
+    status: "started" | "in_progress" | "failed" | "submitted",
     output: string
   ): Promise<{ id: string; status: string }> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-attempts`, {
@@ -521,13 +528,54 @@ class LearningBoardsApiService {
     throw new Error('Native practical execution returned an invalid response.');
   }
 
+  async gradePractical(
+    practicalId: string,
+    courseId: string,
+    module: number,
+    chapter: number,
+    files: Record<string, string>,
+    activeFilePath: string,
+    taskId?: string,
+  ): Promise<PracticalGradeResult> {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-grade`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ practicalId, courseId, module, chapter, files, activeFilePath, taskId }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Failed to grade the practical on the server.');
+    }
+    return data.data;
+  }
+
+  async gradePracticalAnswer(
+    practicalId: string,
+    courseId: string,
+    module: number,
+    chapter: number,
+    taskId: string,
+    answer: string,
+  ): Promise<{ passed: boolean; message: string }> {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-grade`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ practicalId, courseId, module, chapter, taskId, answer }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Failed to grade the practical answer on the server.');
+    }
+    return data.data;
+  }
+
   /**
    * Update progress for a practical task/milestone
    */
   async updatePracticalTaskProgress(
     practicalId: string,
     taskId: string,
-    status: "not_started" | "in_progress" | "completed" = "completed"
+    status: "not_started" | "in_progress" = "in_progress"
   ): Promise<{ practicalId: string; taskId: string; status: string }> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-task-progress`, {
       method: "POST",

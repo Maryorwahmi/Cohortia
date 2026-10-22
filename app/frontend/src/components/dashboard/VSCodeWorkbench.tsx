@@ -132,7 +132,7 @@ export default function VSCodeWorkbench({
   const languageLabel = language || (fileName.endsWith(".c") ? "C" : fileName.endsWith(".cpp") ? "C++" : fileName.endsWith(".sql") ? "SQL" : "Python");
   const terminalCommand = isNonCode ? "submit" : `${languageLabel.toLowerCase()} ${fileName}`;
   const isPractical = Boolean(practicalStatus || practicalSource);
-  const visibleChecks = checks.filter((check) => check.visibility !== "hidden");
+  const visibleChecks = checks;
   const [activeViewMode, setActiveViewMode] = React.useState<"code_along" | "sandbox">(
     supportsCodeAlong ? "code_along" : "sandbox",
   );

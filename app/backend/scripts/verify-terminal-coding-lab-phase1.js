@@ -49,6 +49,27 @@ function practicalSummary(practical) {
   };
 }
 
+function verifyPracticalHasNoPrivateGradingData(practical, failures) {
+  if (!practical) return;
+  const serialized = JSON.stringify(practical);
+  if (/"(?:acceptedAnswers|answerKey|command|correctAnswer|correctOption|expected|expectedAnswer|expectedDiagnostic|expectedOutput|expectedValue|expectCompileSuccess|generator|grader|grading|matchMode|metadata|passCondition|sourceContent|sourceHash|sourcePath|stdin|testData|variableCheck)"\s*:/i.test(serialized)) {
+    addFailure(failures, 'Practical response contains a private grading field.');
+  }
+  for (const check of [...(practical.checks || []), ...(practical.tasks || []).flatMap((task) => task.tests || [])]) {
+    if (Object.keys(check).some((key) => !['id', 'type'].includes(key))) {
+      addFailure(failures, 'Practical response exposed fields beyond the safe check ID and type.');
+      break;
+    }
+  }
+  for (const task of practical.tasks || []) {
+    const exercise = task.interactiveExercise;
+    if (exercise && Object.keys(exercise).some((key) => !['type', 'prompt'].includes(key))) {
+      addFailure(failures, 'Practical response exposed a private interactive-exercise answer field.');
+      break;
+    }
+  }
+}
+
 async function verifySourceOnlyPilot(pilot, failures) {
   const result = await requestChapter(pilot.courseId, pilot.module, pilot.chapter);
   const practical = result.body?.data?.practical;
@@ -68,6 +89,7 @@ async function verifySourceOnlyPilot(pilot, failures) {
   for (const field of ['version', 'schemaVersion', 'generatorVersion', 'classifierVersion', 'labType']) {
     if (!Object.prototype.hasOwnProperty.call(practical || {}, field)) addFailure(failures, `Practical response is missing explicit ${field}.`);
   }
+  verifyPracticalHasNoPrivateGradingData(practical, failures);
   if ((result.rawBody.match(/"practical"\s*:/g) || []).length !== 1) addFailure(failures, 'Serialized chapter response contains duplicate practical keys.');
 
   return summary;
@@ -115,6 +137,7 @@ async function verifyStructuredPractical(failures) {
   if (summary.fileCount !== expectedFiles) addFailure(failures, `Structured practical returned ${summary.fileCount} files; expected ${expectedFiles}.`);
   if (summary.taskCount !== expectedTasks) addFailure(failures, `Structured practical returned ${summary.taskCount} tasks; expected ${expectedTasks}.`);
   if (summary.testCount !== expectedTests) addFailure(failures, `Structured practical returned ${summary.testCount} tests; expected ${expectedTests}.`);
+  verifyPracticalHasNoPrivateGradingData(practical, failures);
 
   return { ...summary, expectedFiles, expectedTasks, expectedTests };
 }

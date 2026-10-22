@@ -3,9 +3,6 @@ import { Bot, CheckCircle2, Lightbulb, LoaderCircle, Play, RotateCcw, Send } fro
 import { useTheme } from "../../context/ThemeContext";
 import { chatApi, type ChatLearningContext } from "../../services/api";
 import { learningBoardsApi, type LearningBoardPractical, type LearningBoardPracticalTask } from "../../services/learningBoardsApi";
-import { executePython } from "../../services/pyodideRunner";
-import { evaluatePracticalChecks } from "../../lib/practicalCheckEvaluator";
-import { simulateIntroductoryC } from "../../lib/cPracticeSimulator";
 import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
 
 interface GuidedPracticalManifestBoardProps {
@@ -18,13 +15,6 @@ interface GuidedPracticalManifestBoardProps {
 type CheckDefinition = {
   id: string;
   type: string;
-  command?: string;
-  expected?: string | null;
-  passCondition?: unknown;
-  matchMode?: string;
-  variableCheck?: { name: string; expected: unknown };
-  explanation?: string;
-  testData?: Record<string, unknown>;
 };
 
 type TeacherGuide = {
@@ -39,10 +29,6 @@ type PracticalChatMessage = {
   text: string;
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
 function normalizeChecks(practical: LearningBoardPractical): CheckDefinition[] {
   const declaredChecks = Array.isArray(practical.checks) ? practical.checks : [];
   const taskChecks = (Array.isArray(practical.tasks) ? practical.tasks : []).flatMap((task) =>
@@ -53,26 +39,10 @@ function normalizeChecks(practical: LearningBoardPractical): CheckDefinition[] {
   );
   const source = declaredChecks.length ? declaredChecks : taskChecks;
 
-  return source.flatMap((item, index) => {
-    if (!isRecord(item) || typeof item.id !== "string" || typeof item.type !== "string") return [];
-    const variableCheck = isRecord(item.variableCheck)
-      && typeof item.variableCheck.name === "string"
-      ? { name: item.variableCheck.name, expected: item.variableCheck.expected }
-      : undefined;
-    return [{
-      id: item.id || `check-${index + 1}`,
-      type: item.type,
-      ...(typeof item.command === "string" ? { command: item.command } : {}),
-      ...(typeof item.expected === "string" ? { expected: item.expected } : {}),
-      ...(item.passCondition !== undefined
-        ? { passCondition: item.passCondition }
-        : isRecord(item.testData) ? { passCondition: item.testData } : {}),
-      ...(typeof item.matchMode === "string" ? { matchMode: item.matchMode } : {}),
-      ...(variableCheck ? { variableCheck } : {}),
-      ...(typeof item.explanation === "string" ? { explanation: item.explanation } : {}),
-      ...(isRecord(item.testData) ? { testData: item.testData } : {}),
-    }];
-  }).filter((check) => !["manual", "submission"].includes(check.type.toLowerCase()));
+  return source
+    .filter((item): item is CheckDefinition => Boolean(item?.id && item?.type))
+    .map(({ id, type }) => ({ id, type }))
+    .filter((check) => !["manual", "submission"].includes(check.type.toLowerCase()));
 }
 
 function languageForFile(path: string, fallback: string | null | undefined): string {
@@ -208,10 +178,6 @@ export default function GuidedPracticalManifestBoard({
 
   const markTaskComplete = async (task: LearningBoardPracticalTask) => {
     if (completedTasks[task.id]) return;
-    if (!practical.id) {
-      throw new Error("This practical has no saved identifier, so task completion cannot be recorded.");
-    }
-    await learningBoardsApi.updatePracticalTaskProgress(practical.id, task.id, "completed");
     const nextCompleted = { ...completedTasks, [task.id]: true };
     setCompletedTasks(nextCompleted);
     const nextIncompleteIndex = tasks.findIndex((item) => !nextCompleted[item.id]);
@@ -368,43 +334,35 @@ export default function GuidedPracticalManifestBoard({
       }
       setIsCheckingAnswer(true);
       setOutput("Checking your answer...");
-      const normalizeAnswer = (value: string) => value
-        .trim()
-        .toLowerCase()
-        .replace(/^0b/, "")
-        .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, "")
-        .replace(/[\s,_]/g, "");
       const exercise = activeTask.interactiveExercise;
-      const acceptedAnswers = [exercise.expectedAnswer, ...(exercise.acceptedAnswers || [])];
-      const correct = acceptedAnswers.some((expected) => normalizeAnswer(expected) === normalizeAnswer(answer));
-      setExerciseFeedback((previous) => ({
-        ...previous,
-        [activeTask.id]: {
-          correct,
-          message: correct
-            ? "That’s correct. Your conversion matches the place-value rule."
-            : "Not quite yet. Recheck the place values and try again.",
-          explanation: exercise.explanation,
-        },
-      }));
-
       const savedResponse = `${exercise.prompt}\n\nYour answer: ${answer}\nPrediction: ${prediction || "Not provided"}`;
       const updatedFiles = { ...files, [activeFilePath]: savedResponse };
       setFiles(updatedFiles);
-      setOutput(correct ? "Correct — your answer has been checked." : "Not yet — revise your answer and check again.");
       try {
-        if (practical.id) {
-          await learningBoardsApi.recordPracticalAttempt(
-            practical.id,
-            updatedFiles,
-            correct ? "passed" : "in_progress",
-            savedResponse,
-          );
+        if (!practical.id || !practical.courseId || practical.module === undefined || practical.chapter === undefined) {
+          throw new Error("This practical is missing the identifiers required for server-side grading.");
         }
-        if (correct) await markTaskComplete(activeTask);
+        const result = await learningBoardsApi.gradePracticalAnswer(
+          practical.id,
+          practical.courseId,
+          practical.module,
+          practical.chapter,
+          activeTask.id,
+          answer,
+        );
+        setExerciseFeedback((previous) => ({
+          ...previous,
+          [activeTask.id]: {
+            correct: result.passed,
+            message: result.message,
+            explanation: "",
+          },
+        }));
+        setOutput(result.message);
+        if (result.passed) await markTaskComplete(activeTask);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        setOutput(`Your answer was checked, but progress could not be saved: ${message}`);
+        setOutput(`Could not check your answer: ${message}`);
       } finally {
         setIsCheckingAnswer(false);
       }
@@ -435,118 +393,42 @@ export default function GuidedPracticalManifestBoard({
       return;
     }
 
-    const taskCheckIds = new Set(activeTask.checkIds || []);
-    const taskChecks = checks.filter((check) =>
-      taskCheckIds.size === 0 || taskCheckIds.has(check.id)
-    );
-    if (!taskChecks.length) {
-      setOutput("No executable checks are attached to this task, so it cannot be marked passed from compilation alone.");
-      return;
-    }
-    const compileProbes = taskChecks.flatMap((check) => {
-      if (check.type.toLowerCase() !== "compile_probe" || !isRecord(check.passCondition)) return [];
-      const { source, expectCompileSuccess, expectedDiagnostic } = check.passCondition;
-      if (typeof source !== "string" || typeof expectCompileSuccess !== "boolean") return [];
-      if (!expectCompileSuccess && typeof expectedDiagnostic !== "string") return [];
-      return [{
-        id: check.id,
-        source,
-        expectCompileSuccess,
-        ...(typeof expectedDiagnostic === "string" ? { expectedDiagnostic } : {}),
-      }];
-    });
-
     const supportedLanguage = language.toLowerCase();
     if (!["python", "c", "cpp", "c++"].includes(supportedLanguage)) {
       setOutput(`Execution is not connected for ${language || "this language"} yet. Your edits are retained, but no test is marked as passed.`);
+      return;
+    }
+    if (!practical.id || !practical.courseId || practical.module === undefined || practical.chapter === undefined) {
+      setOutput("This practical is missing the identifiers required for server-side grading.");
       return;
     }
 
     setIsRunning(true);
     setOutput("Running your code against the practical checks...");
     try {
-      let stdout = "";
-      let stderr = "";
-      let executionError = "";
-      let executionSuccess = false;
-      let globals: Record<string, unknown> = {};
-      let artifacts: Record<string, string> = {};
-      let sanitizers: string[] = [];
-      let compileProbeResults: Array<{ id: string; passed: boolean; message: string }> = [];
-      if (supportedLanguage === "python") {
-        const result = await executePython(currentCode, { files });
-        stdout = result.stdout;
-        stderr = result.stderr;
-        globals = result.globals || {};
-        executionSuccess = result.success;
-      } else {
-        const executionFilePath = /\.(h|hpp)$/i.test(activeFilePath)
-          ? practicalFiles.find((file) => /\.(c|cpp|cc|cxx)$/i.test(file.path))?.path || activeFilePath
-          : activeFilePath;
-        try {
-          const result = await learningBoardsApi.executeNativePractical(
-            files,
-            executionFilePath,
-            supportedLanguage,
-            "",
-            taskChecks.some((check) => check.type.toLowerCase() === "sanitizer"),
-            compileProbes
-          );
-          stdout = result.stdout || "";
-          stderr = result.stderr || "";
-          executionError = result.error || "";
-          executionSuccess = result.ok;
-          artifacts = result.artifacts || {};
-          sanitizers = result.sanitizers || [];
-          compileProbeResults = result.compileProbes || [];
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          if (!/Native execution is disabled until an isolated sandbox executor is configured/i.test(message)) throw error;
-          const simulated = simulateIntroductoryC(currentCode);
-          stdout = simulated.stdout;
-          stderr = simulated.stderr;
-          executionSuccess = simulated.success;
-        }
-      }
-
-      const evaluations = evaluatePracticalChecks({
-        checks: taskChecks,
-        stdout,
-        stderr,
-        globals,
+      const executionFilePath = /\.(h|hpp)$/i.test(activeFilePath)
+        ? practicalFiles.find((file) => /\.(c|cpp|cc|cxx)$/i.test(file.path))?.path || activeFilePath
+        : activeFilePath;
+      const result = await learningBoardsApi.gradePractical(
+        practical.id,
+        practical.courseId,
+        practical.module,
+        practical.chapter,
         files,
-        artifacts,
-        sanitizers,
-        compileProbes: compileProbeResults,
-        executionSuccess,
-      });
+        executionFilePath,
+        activeTask.id,
+      );
       const nextResults = { ...checkResults };
-      evaluations.forEach((result) => {
-        nextResults[result.checkId] = result.passed;
+      result.checks.forEach((check) => {
+        nextResults[check.checkId] = check.passed;
       });
       setCheckResults(nextResults);
-      const passed = evaluations.every((result) => result.passed);
       const resultOutput = [
-        stdout,
-        stderr,
-        ...evaluations.map((result) => `${result.passed ? "PASS" : "NOT YET"} — ${result.message}`),
-        executionError,
+        result.stdout,
+        result.stderr,
+        ...result.checks.map((check) => `${check.passed ? "PASS" : "NOT YET"} — ${check.message}`),
       ].filter(Boolean).join("\n");
-      try {
-        if (practical.id) {
-          await learningBoardsApi.recordPracticalAttempt(
-            practical.id,
-            files,
-            passed ? "passed" : "in_progress",
-            [stdout, stderr].filter(Boolean).join("\n")
-          );
-        }
-        if (passed) await markTaskComplete(activeTask);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        setOutput([resultOutput, `Could not save practical progress: ${message}`].filter(Boolean).join("\n\n"));
-        return;
-      }
+      if (result.passed) await markTaskComplete(activeTask);
       setOutput(resultOutput);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

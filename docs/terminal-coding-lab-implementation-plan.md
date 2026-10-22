@@ -1,6 +1,6 @@
 # Terminal Coding Lab Implementation Plan
 
-**Status:** Phases 1-3 implemented; Phase 4 generation work in progress  
+**Status:** Phases 1-3 implemented; Phase 4 generation work in progress. Server-side practical grading for Python/C/C++ is implemented, pending deployment.
 **Scope:** Terminal Coding Lab activities, with contracts that can later support the other practical categories  
 **Repository:** Cohortia  
 **Primary pilot surface:** Existing VS Code-style learning board workbench
@@ -70,7 +70,8 @@ Batch generation of all 2,780 Terminal Coding Labs comes after this contract is 
 | API client types | `frontend/src/services/learningBoardsApi.ts` | Defines frontend learning-board and practical response types |
 | Learning board page | `frontend/src/components/dashboard/LearningBoardPage.tsx` | Fetches a chapter and switches between read, practical, and assessment views |
 | Workbench | `frontend/src/components/dashboard/VSCodeWorkbench.tsx` | Provides editor, output, mentor chat, tasks, hints, narrator, and non-code presentation modes |
-| Practical container | `frontend/src/components/dashboard/InteractiveSandbox.tsx` | Loads starter files and local state; currently has hard-coded, simulated run behavior |
+| Practical workspace | `frontend/src/components/dashboard/InteractiveSandbox.tsx` | Loads starter files and local state, then submits supported practicals for server-side grading |
+| Isolated executor | `cloudflare-practical-executor/` | Runs supported Python/C/C++ workspaces in a network-disabled Cloudflare sandbox |
 
 ### 2.2 Imported data baseline
 
@@ -98,9 +99,9 @@ The import audit confirmed:
 2. **Contract gap:** The database has a source category, but no formal internal `labType` or structured environment/safety/check metadata.
 3. **Identity gap:** New raw imports use a `practical-...` convention, while existing rows may retain `activity-...` IDs. The Phase 3 migration preserves both forms and the generated importer no longer deletes and recreates referenced parents or tasks.
 4. **Generation gap:** The generator knows about files, tasks, hints, tests, narrator guidance, and completion rules, but not the complete environment, safety, evidence, cleanup, or execution contract required for terminal labs.
-5. **Execution gap:** The frontend simulates run behavior and does not call a practical execution or validation API.
+5. **Execution gap:** Supported Python/C/C++ practicals now execute in the isolated Cloudflare sandbox and are graded server-side. Other runtimes and non-code activities still require a compatible execution or review adapter.
 6. **Product gap:** The workbench has a `mode` prop, but the caller does not consistently derive or pass mode from practical metadata.
-7. **Safety gap:** Terminal, system, cloud, network, and security activities cannot execute arbitrary learner commands on the application host.
+7. **Safety gap:** Learner code must remain isolated from the application host. The current executor disables network access and supports only bounded Python/C/C++ practicals; terminal, system, cloud, network, and security activities still require domain-specific safe adapters.
 8. **Operational gap:** The database now has generation state and version records, but there is still no generation queue, review workflow, version-owned child projection, or batch report for the remaining corpus.
 
 ## 3. Goals and Non-Goals

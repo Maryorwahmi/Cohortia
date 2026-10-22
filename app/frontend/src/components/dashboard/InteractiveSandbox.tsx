@@ -7,8 +7,6 @@ import VSCodeWorkbench from "./VSCodeWorkbench";
 import type { LearningBoardPractical } from "../../services/learningBoardsApi";
 import { learningBoardsApi } from "../../services/learningBoardsApi";
 import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
-import { executePython } from "../../services/pyodideRunner";
-import { evaluatePracticalChecks } from "../../lib/practicalCheckEvaluator";
 import { SpeechNarrationQueue } from "../../lib/speechNarration";
 
 interface InteractiveSandboxProps {
@@ -381,64 +379,38 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
       const isNativeC = /^(c|cpp|c\+\+)$/i.test(practical.language || "") ||
         /\.(c|cc|cpp|cxx)$/i.test(activeFilePath || "");
 
-      if (isPython) {
+      if (isPython || isNativeC) {
         try {
-          const result = await executePython(code, {
-            files: fileContents,
-            onOutput: (line) => {
-              setOutput((prev) => [...prev, line]);
-            },
-            onProgress: (status) => {
-              setOutput((prev) => [...prev, `[PYODIDE] ${status}`]);
-            },
-          });
-
-          setOutput((prev) => [
-            ...prev,
-            `[INFO] Execution finished in ${result.executionTimeMs}ms (engine: ${result.engine}).`,
-          ]);
-
-          // Evaluate declared checks against real runtime
-          const evaluations = evaluatePracticalChecks({
-            checks: (practical.checks || []) as any,
-            stdout: result.stdout,
-            stderr: result.stderr,
-            globals: result.globals,
-            files: { ...fileContents, [activeFilePath || "workspace.py"]: code },
-            executionSuccess: result.success,
-          });
-
-          const newCheckResults: Record<string, boolean> = {};
-          for (const ev of evaluations) {
-            newCheckResults[ev.checkId] = ev.passed;
-            if (ev.passed) {
-              setOutput((prev) => [...prev, `✓ [CHECK PASSED] ${ev.message}`]);
-            } else {
-              setOutput((prev) => [...prev, `⚠ [CHECK PENDING] ${ev.message}`]);
-            }
+          if (!practical.id || !practical.courseId || practical.module === undefined || practical.chapter === undefined) {
+            throw new Error("This practical is missing the identifiers required for server-side grading.");
           }
-          setCheckResults(newCheckResults);
-
-          // Update tasks
-          const newlyChecked: Record<number, boolean> = {};
-          (practical.tasks || []).forEach((task, idx) => {
-            const allTaskChecksPass = (task.checkIds || []).length > 0
-              ? task.checkIds.every((id) => newCheckResults[id])
-              : result.success;
-
-            if (allTaskChecksPass) {
-              newlyChecked[idx] = true;
-              learningBoardsApi.updatePracticalTaskProgress(practical.id, task.id, "completed").catch(() => {});
-            }
+          const filePath = activeFilePath || (isPython ? "workspace.py" : "main.c");
+          const result = await learningBoardsApi.gradePractical(
+            practical.id,
+            practical.courseId,
+            practical.module,
+            practical.chapter,
+            { ...fileContents, [filePath]: code },
+            filePath,
+          );
+          const newCheckResults: Record<string, boolean> = {};
+          result.checks.forEach((check) => {
+            newCheckResults[check.checkId] = check.passed;
           });
-          setCheckedItems((prev) => ({ ...prev, ...newlyChecked }));
-
-          const allChecksPass = evaluations.length > 0 && evaluations.every((e) => e.passed);
-          if (allChecksPass) {
-            setOutput((prev) => [
-              ...prev,
-              "🎉 All milestones verified! Excellent work completing this practical lab.",
-            ]);
+          setCheckResults(newCheckResults);
+          const taskResultById = new Map(result.taskResults.map((task) => [task.taskId, task.passed]));
+          const newlyChecked: Record<number, boolean> = {};
+          (practical.tasks || []).forEach((task, index) => {
+            if (taskResultById.get(task.id) === true) newlyChecked[index] = true;
+          });
+          setCheckedItems((previous) => ({ ...previous, ...newlyChecked }));
+          if (result.stdout) setOutput((previous) => [...previous, ...result.stdout!.split(/\r?\n/).filter(Boolean)]);
+          if (result.stderr) setOutput((previous) => [...previous, ...result.stderr!.split(/\r?\n/).filter(Boolean)]);
+          result.checks.forEach((check) => {
+            setOutput((previous) => [...previous, `${check.passed ? "✓ [CHECK PASSED]" : "⚠ [CHECK PENDING]"} ${check.message}`]);
+          });
+          if (result.passed) {
+            setOutput((previous) => [...previous, "✓ All practical checks passed."]);
             if (learningContext?.courseId && learningContext.module !== undefined && learningContext.chapter !== undefined) {
               learningBoardsApi.updateProgress(
                 learningContext.courseId,
@@ -448,76 +420,17 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
               ).catch(() => {});
             }
           }
-
-          // Record attempt to backend persistence
-          learningBoardsApi.recordPracticalAttempt(
-            practical.id,
-            { ...fileContents, [activeFilePath || "workspace.py"]: code },
-            allChecksPass ? "passed" : "in_progress",
-            result.stdout
-          ).catch((e) => console.warn("Failed to record practical attempt:", e));
-        } catch (err: any) {
-          setOutput((prev) => [...prev, `❌ Execution error: ${err.message || String(err)}`]);
-        } finally {
-          setIsRunning(false);
-        }
-        return;
-      }
-
-      if (isNativeC) {
-        try {
-          const result = await learningBoardsApi.executeNativePractical(
-            { ...fileContents, [activeFilePath || "main.c"]: code },
-            activeFilePath || "main.c",
-            practical.language || "C",
-          );
-          if (result.stdout) setOutput((prev) => [...prev, ...result.stdout!.split(/\r?\n/).filter(Boolean)]);
-          if (result.stderr) setOutput((prev) => [...prev, ...result.stderr!.split(/\r?\n/).filter(Boolean)]);
-          setOutput((prev) => [...prev, `[INFO] ${result.phase === "compile" ? "Compilation" : "Execution"} finished successfully.`]);
-
-          const evaluations = evaluatePracticalChecks({
-            checks: (practical.checks || []) as any,
-            stdout: result.stdout || "",
-            stderr: result.stderr || "",
-            globals: {},
-            files: { ...fileContents, [activeFilePath || "main.c"]: code },
-            executionSuccess: result.ok,
-          });
-          const newCheckResults: Record<string, boolean> = {};
-          evaluations.forEach((evaluation) => {
-            newCheckResults[evaluation.checkId] = evaluation.passed;
-            setOutput((prev) => [...prev, `${evaluation.passed ? "✓ [CHECK PASSED]" : "⚠ [CHECK PENDING]"} ${evaluation.message}`]);
-          });
-          setCheckResults(newCheckResults);
-
-          const allChecksPass = evaluations.length > 0 && evaluations.every((evaluation) => evaluation.passed);
-          if (allChecksPass) {
-            setOutput((prev) => [...prev, "✓ All practical checks passed."]);
-            (practical.tasks || []).forEach((task, index) => {
-              const taskChecks = (task as any).checkIds || [];
-              if (!taskChecks.length || taskChecks.every((id: string) => newCheckResults[id])) {
-                setCheckedItems((previous) => ({ ...previous, [index]: true }));
-                learningBoardsApi.updatePracticalTaskProgress(practical.id, task.id, "completed").catch(() => {});
-              }
-            });
-          }
-          learningBoardsApi.recordPracticalAttempt(
-            practical.id,
-            { ...fileContents, [activeFilePath || "main.c"]: code },
-            allChecksPass ? "passed" : "in_progress",
-            `${result.stdout || ""}${result.stderr || ""}`,
-          ).catch(() => {});
         } catch (err: any) {
           const details = err?.data?.data || err?.data || {};
           if (details.stderr) setOutput((prev) => [...prev, ...String(details.stderr).split(/\r?\n/).filter(Boolean)]);
-          setOutput((prev) => [...prev, `❌ ${err.message || "Native execution failed."}`]);
+          setOutput((prev) => [...prev, `❌ ${err.message || "Server-side practical grading failed."}`]);
         } finally {
           setIsRunning(false);
         }
         return;
       }
 
-      // Keep non-Python labs honest until a native runtime adapter is available.
+      // Keep unsupported runtimes from receiving a verified pass.
       setIsRunning(false);
       const runtime = practical.runtime || practical.language || "this lab";
       setOutput((prev) => [
@@ -831,10 +744,8 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
             </div>
             <div className="rounded-lg bg-immersive-bg px-2.5 py-2">
               <span className="block font-bold uppercase text-immersive-text-secondary">Verification</span>
-              <span className={`mt-1 block ${practical.checks?.length ? "text-emerald-400" : "text-amber-300"}`}>
-                {practical.checks?.length
-                  ? `${practical.checks.length} automated checks available`
-                  : "Manual evidence checklist · no automated checks published"}
+              <span className="mt-1 block text-sky-300">
+                Check definitions stay private; supported runtimes are graded on the server.
               </span>
             </div>
           </div>

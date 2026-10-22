@@ -8,6 +8,7 @@ import { authMiddleware } from '../middleware/auth.js';
 import { enforceRateLimits } from '../lib/rateLimit.js';
 import { logActivity } from '../lib/activity.js';
 import { evaluateAssessmentAnswer } from '../lib/deterministicAssessment.js';
+import { evaluatePracticalChecks, sanitizePracticalForLearner } from '../lib/practicalGrading.js';
 import { mkdir, mkdtemp, readdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -305,7 +306,7 @@ async function executeNativeC({
   }
 }
 
-async function executeCloudflareNativeSandbox(request) {
+async function executeCloudflareNativeSandbox(request, trustedOptions = {}, timeoutMs = 25_000) {
   const executorUrl = process.env.COHORTIA_SANDBOX_EXECUTOR_URL;
   const executorSecret = process.env.COHORTIA_SANDBOX_EXECUTOR_SECRET;
   if (!executorUrl || !executorSecret) return null;
@@ -321,7 +322,7 @@ async function executeCloudflareNativeSandbox(request) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25_000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -334,6 +335,10 @@ async function executeCloudflareNativeSandbox(request) {
         files: request.files,
         activeFilePath: request.activeFilePath,
         language: request.language,
+        stdin: typeof request.stdin === 'string' ? request.stdin.slice(0, 4096) : '',
+        enableSanitizers: trustedOptions.enableSanitizers === true,
+        compileProbes: Array.isArray(trustedOptions.compileProbes) ? trustedOptions.compileProbes : [],
+        artifactPaths: Array.isArray(trustedOptions.artifactPaths) ? trustedOptions.artifactPaths : [],
       }),
       signal: controller.signal,
     });
@@ -365,6 +370,158 @@ function parseJson(value, fallback) {
 
 function asObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function normalizePracticalTest(test, fallbackId) {
+  const record = asObject(test);
+  const testData = asObject(typeof record.testData === 'string' ? parseJson(record.testData, {}) : record.testData);
+  return {
+    ...testData,
+    ...record,
+    id: typeof record.id === 'string' && record.id ? record.id : fallbackId,
+    type: record.type || record.testType || 'manual',
+    expected: record.expected ?? testData.expected,
+    passCondition: record.passCondition ?? testData.passCondition,
+    matchMode: record.matchMode ?? testData.matchMode,
+    testData,
+  };
+}
+
+async function loadPracticalDefinitionForGrading({ practicalId, courseId, module, chapter }) {
+  const storedRows = await db.select()
+    .from(learningBoardPracticals)
+    .where(eq(learningBoardPracticals.id, practicalId))
+    .limit(1);
+  const practicalRecord = storedRows[0];
+
+  if (practicalRecord) {
+    if (practicalRecord.courseId !== courseId
+      || practicalRecord.module !== module
+      || practicalRecord.chapter !== chapter) return null;
+
+    const practicalPayload = {
+      ...asObject(parseJson(practicalRecord.practicalJson, {})),
+      ...asObject(parseJson(practicalRecord.metadata, {})),
+    };
+    const metadataTasks = Array.isArray(practicalPayload.tasks) ? practicalPayload.tasks : [];
+    const taskRows = await db.select()
+      .from(learningBoardPracticalTasks)
+      .where(eq(learningBoardPracticalTasks.practicalId, practicalId))
+      .orderBy(learningBoardPracticalTasks.taskOrder);
+    const testRows = taskRows.length
+      ? await db.select()
+        .from(learningBoardPracticalTests)
+        .where(inArray(learningBoardPracticalTests.taskId, taskRows.map((task) => task.id)))
+        .orderBy(learningBoardPracticalTests.testOrder)
+      : [];
+    const testsByTaskId = new Map();
+    for (const test of testRows) {
+      const normalized = normalizePracticalTest({
+        id: test.id,
+        type: test.testType,
+        expected: test.expected,
+        testData: test.testData,
+      }, test.id);
+      const tests = testsByTaskId.get(test.taskId) || [];
+      tests.push(normalized);
+      testsByTaskId.set(test.taskId, tests);
+    }
+
+    const tasks = taskRows.length
+      ? taskRows.map((task, index) => {
+        const metadataTask = metadataTasks.find((item) => item?.id === task.taskKey) || metadataTasks[index] || {};
+        const tests = testsByTaskId.get(task.id) || (Array.isArray(metadataTask.tests) ? metadataTask.tests : []);
+        return {
+          ...metadataTask,
+          id: metadataTask.id || task.taskKey,
+          taskKey: task.taskKey,
+          databaseId: task.id,
+          tests: tests.map((test, testIndex) => normalizePracticalTest(test, `${task.taskKey}-test-${testIndex + 1}`)),
+        };
+      })
+      : metadataTasks.map((task, index) => ({
+        ...asObject(task),
+        id: task.id || `task-${index + 1}`,
+        tests: (Array.isArray(task.tests) ? task.tests : []).map((test, testIndex) => (
+          normalizePracticalTest(test, `${task.id || `task-${index + 1}`}-test-${testIndex + 1}`)
+        )),
+      }));
+
+    return {
+      id: practicalRecord.id,
+      courseId: practicalRecord.courseId,
+      module: practicalRecord.module,
+      chapter: practicalRecord.chapter,
+      language: practicalRecord.language || practicalPayload.language || practicalRecord.runtime || practicalPayload.runtime,
+      practical: practicalPayload,
+      tasks,
+      checks: (Array.isArray(practicalPayload.checks) ? practicalPayload.checks : [])
+        .map((check, index) => normalizePracticalTest(check, `check-${index + 1}`)),
+    };
+  }
+
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(String(courseId || ''))
+    || !Number.isInteger(module) || !Number.isInteger(chapter)) return null;
+
+  let courseManifest = null;
+  try {
+    courseManifest = await readGeneratedCourseManifest(courseId);
+  } catch (error) {
+    console.error(`Could not load generated practical manifest for ${courseId}:`, error);
+    throw error;
+  }
+  let practical = findGeneratedCoursePractical(courseManifest, module, chapter);
+  if (!practical) {
+    const chapterRows = await db.select()
+      .from(learningBoardChapters)
+      .where(and(
+        eq(learningBoardChapters.courseId, courseId),
+        eq(learningBoardChapters.module, module),
+        eq(learningBoardChapters.chapter, chapter),
+      ))
+      .limit(1);
+    practical = asObject(parseJson(chapterRows[0]?.manifestData, {})).practical || null;
+  }
+  if (!practical || (practical.id || practical.practicalId) !== practicalId) return null;
+
+  return {
+    id: practical.id || practical.practicalId,
+    courseId,
+    module,
+    chapter,
+    language: practical.language || practical.runtime,
+    practical,
+    tasks: (Array.isArray(practical.tasks) ? practical.tasks : []).map((task, index) => ({
+      ...asObject(task),
+      id: task.id || `task-${index + 1}`,
+      tests: (Array.isArray(task.tests) ? task.tests : []).map((test, testIndex) => (
+        normalizePracticalTest(test, `${task.id || `task-${index + 1}`}-test-${testIndex + 1}`)
+      )),
+    })),
+    checks: (Array.isArray(practical.checks) ? practical.checks : [])
+      .map((check, index) => normalizePracticalTest(check, `check-${index + 1}`)),
+  };
+}
+
+function checksForPracticalTask(definition, taskId) {
+  if (taskId) {
+    const task = definition.tasks.find((item) => (
+      item.id === taskId || item.taskKey === taskId || item.databaseId === taskId
+    ));
+    if (!task) return null;
+    if (task.tests.length) return { task, checks: task.tests };
+
+    const checkIds = new Set(Array.isArray(task.checkIds) ? task.checkIds : []);
+    const relatedChecks = definition.checks.filter((check) => (
+      check.taskId === task.id || check.taskKey === task.id || checkIds.has(check.id)
+    ));
+    return { task, checks: relatedChecks.length ? relatedChecks : definition.checks };
+  }
+
+  const checks = definition.checks.length
+    ? definition.checks
+    : definition.tasks.flatMap((task) => task.tests);
+  return { task: null, checks };
 }
 
 function sourceMetadataForPractical(practical) {
@@ -1141,7 +1298,7 @@ learning.get('/boards/:courseId/:module/:chapter', async (c) => {
       learningObjectives,
       keyConcepts,
       handsOn,
-      practical,
+      practical: sanitizePracticalForLearner(practical),
       assessment,
       screens: responseScreens,
     },
@@ -1211,7 +1368,7 @@ learning.patch('/board-progress/:courseId/:module/:chapter', async (c) => {
   const next = {
     explicitComplete: typeof body.explicitComplete === 'boolean' ? body.explicitComplete : Boolean(current.explicitComplete),
     watched: typeof body.watched === 'boolean' ? body.watched : Boolean(current.watched),
-    practicalsComplete: typeof body.practicalsComplete === 'boolean' ? body.practicalsComplete : Boolean(current.practicalsComplete),
+    practicalsComplete: Boolean(current.practicalsComplete),
     assessmentPassed: typeof body.assessmentPassed === 'boolean' ? body.assessmentPassed : Boolean(current.assessmentPassed),
     score: typeof body.score === 'number' ? body.score : current.score,
     studySeconds: typeof body.studySeconds === 'number'
@@ -1288,45 +1445,14 @@ learning.post('/practical-execute', authMiddleware, async (c) => {
   }
 });
 
-// Record practical attempt (code run, submission, output)
-learning.post('/practical-attempts', authMiddleware, async (c) => {
-  const userId = c.get('userId');
-  const body = await c.req.json();
-  const { practicalId, files, status = 'started', output = '' } = body;
-  if (!practicalId) {
-    return c.json({ success: false, error: 'practicalId is required' }, 400);
-  }
-  const id = uuidv4();
+async function updatePracticalTaskProgress(userId, practicalId, taskId, status) {
   const now = new Date().toISOString();
-  await db.insert(studentPracticalAttempts).values({
-    id,
-    userId,
-    practicalId,
-    files: typeof files === 'string' ? files : JSON.stringify(files || {}),
-    status,
-    output: typeof output === 'string' ? output : JSON.stringify(output || ''),
-    createdAt: now,
-    updatedAt: now,
-  });
-  return c.json({ success: true, data: { id, status } });
-});
-
-// Update progress for an individual practical task/milestone
-learning.post('/practical-task-progress', authMiddleware, async (c) => {
-  const userId = c.get('userId');
-  const body = await c.req.json();
-  const { practicalId, taskId, status = 'completed' } = body;
-  if (!practicalId || !taskId) {
-    return c.json({ success: false, error: 'practicalId and taskId are required' }, 400);
-  }
-  const now = new Date().toISOString();
-  const existing = await db
-    .select()
+  const existing = await db.select()
     .from(studentPracticalProgress)
     .where(and(
       eq(studentPracticalProgress.userId, userId),
       eq(studentPracticalProgress.practicalId, practicalId),
-      eq(studentPracticalProgress.taskId, taskId)
+      eq(studentPracticalProgress.taskId, taskId),
     ))
     .limit(1);
 
@@ -1350,39 +1476,351 @@ learning.post('/practical-task-progress', authMiddleware, async (c) => {
     });
   }
 
-  if (status === 'completed') {
-    const [taskCount] = await db
-      .select({ count: sql`COUNT(*)`.as('count') })
-      .from(learningBoardPracticalTasks)
-      .where(eq(learningBoardPracticalTasks.practicalId, practicalId));
-    const [completedTaskCount] = await db
-      .select({ count: sql`COUNT(*)`.as('count') })
+  if (status !== 'completed') return;
+  const [taskCount] = await db.select({ count: sql`COUNT(*)`.as('count') })
+    .from(learningBoardPracticalTasks)
+    .where(eq(learningBoardPracticalTasks.practicalId, practicalId));
+  const [completedTaskCount] = await db.select({ count: sql`COUNT(*)`.as('count') })
+    .from(studentPracticalProgress)
+    .where(and(
+      eq(studentPracticalProgress.userId, userId),
+      eq(studentPracticalProgress.practicalId, practicalId),
+      eq(studentPracticalProgress.status, 'completed'),
+    ));
+  if (Number(taskCount?.count || 0) > 0 && Number(completedTaskCount?.count || 0) >= Number(taskCount.count)) {
+    const priorCompletion = await db.select({ id: userActivityLog.id })
+      .from(userActivityLog)
+      .where(and(
+        eq(userActivityLog.userId, userId),
+        eq(userActivityLog.activityType, 'practical_completed'),
+        eq(userActivityLog.entityId, practicalId),
+      ))
+      .limit(1);
+    if (priorCompletion.length === 0) {
+      await logActivity({
+        userId,
+        activityType: 'practical_completed',
+        entityId: practicalId,
+        metadata: { taskCount: Number(taskCount.count) },
+      });
+    }
+  }
+}
+
+async function syncChapterPracticalCompletion(userId, definition, passed) {
+  if (!passed) return;
+
+  const taskIds = definition.tasks.map((task) => task.id);
+  if (taskIds.length > 0) {
+    const completedTasks = await db.select({ taskId: studentPracticalProgress.taskId })
       .from(studentPracticalProgress)
       .where(and(
         eq(studentPracticalProgress.userId, userId),
-        eq(studentPracticalProgress.practicalId, practicalId),
+        eq(studentPracticalProgress.practicalId, definition.id),
         eq(studentPracticalProgress.status, 'completed'),
       ));
-    if (Number(taskCount?.count || 0) > 0 && Number(completedTaskCount?.count || 0) >= Number(taskCount.count)) {
-      const priorCompletion = await db
-        .select({ id: userActivityLog.id })
-        .from(userActivityLog)
-        .where(and(
-          eq(userActivityLog.userId, userId),
-          eq(userActivityLog.activityType, 'practical_completed'),
-          eq(userActivityLog.entityId, practicalId),
-        ))
-        .limit(1);
-      if (priorCompletion.length === 0) {
-        await logActivity({
-          userId,
-          activityType: 'practical_completed',
-          entityId: practicalId,
-          metadata: { taskCount: Number(taskCount.count) },
-        });
-      }
-    }
+    const completedTaskIds = new Set(completedTasks.map((task) => task.taskId));
+    if (!taskIds.every((taskId) => completedTaskIds.has(taskId))) return;
   }
+
+  const now = new Date().toISOString();
+  const existing = await db.select()
+    .from(learningBoardProgress)
+    .where(and(
+      eq(learningBoardProgress.userId, userId),
+      eq(learningBoardProgress.courseId, definition.courseId),
+      eq(learningBoardProgress.module, definition.module),
+      eq(learningBoardProgress.chapter, definition.chapter),
+    ))
+    .limit(1);
+
+  if (existing[0]) {
+    await db.update(learningBoardProgress)
+      .set({ practicalsComplete: true, updatedAt: now })
+      .where(eq(learningBoardProgress.id, existing[0].id));
+    return;
+  }
+
+  await db.insert(learningBoardProgress).values({
+    id: uuidv4(),
+    userId,
+    courseId: definition.courseId,
+    lessonId: `${definition.courseId}-m${definition.module}-c${definition.chapter}-lesson`,
+    module: definition.module,
+    chapter: definition.chapter,
+    explicitComplete: false,
+    watched: false,
+    practicalsComplete: true,
+    assessmentPassed: false,
+    score: null,
+    studySeconds: 0,
+    notes: null,
+    completedAt: null,
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+function artifactPathsForChecks(checks) {
+  return [...new Set(checks.flatMap((check) => {
+    if (!['file', 'file_exists', 'file_contents'].includes(String(check.type).toLowerCase())) return [];
+    const condition = asObject(check.passCondition);
+    const testData = asObject(check.testData);
+    const nestedCondition = asObject(testData.passCondition);
+    const filePath = condition.path
+      || condition.filePath
+      || nestedCondition.path
+      || nestedCondition.filePath
+      || (['file', 'file_exists'].includes(String(check.type).toLowerCase())
+        ? condition.expected ?? nestedCondition.expected
+        : undefined)
+      || check.expected
+      || check.command;
+    return typeof filePath === 'string' && filePath ? [filePath.replaceAll('\\', '/')] : [];
+  }))];
+}
+
+function compileProbesForChecks(checks, language) {
+  if (!['cpp', 'c++'].includes(String(language).toLowerCase())) return [];
+  return checks.flatMap((check, index) => {
+    if (String(check.type).toLowerCase() !== 'compile_probe') return [];
+    const condition = asObject(check.passCondition);
+    if (typeof condition.source !== 'string' || typeof condition.expectCompileSuccess !== 'boolean') return [];
+    if (!condition.expectCompileSuccess && typeof condition.expectedDiagnostic !== 'string') return [];
+    return [{
+      id: `probe-${index + 1}`,
+      source: condition.source,
+      expectCompileSuccess: condition.expectCompileSuccess,
+      ...(typeof condition.expectedDiagnostic === 'string' ? { expectedDiagnostic: condition.expectedDiagnostic } : {}),
+      checkId: check.id,
+    }];
+  });
+}
+
+function languageForPractical(definition, activeFilePath) {
+  const extension = path.extname(activeFilePath).toLowerCase();
+  if (extension === '.py') return 'python';
+  if (extension === '.c') return 'c';
+  if (['.cpp', '.cc', '.cxx'].includes(extension)) return 'cpp';
+  const declared = String(definition.language || '').toLowerCase();
+  if (declared === 'python') return 'python';
+  if (declared === 'c') return 'c';
+  if (['cpp', 'c++'].includes(declared)) return 'cpp';
+  return null;
+}
+
+learning.post('/practical-grade', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+  const rateLimitResponse = await enforceRateLimits(c, [
+    {scope: 'practical-execute-user-5m', actor: userId, limit: 10, windowSeconds: 5 * 60},
+    {scope: 'practical-execute-user-1d', actor: userId, limit: 100, windowSeconds: 24 * 60 * 60},
+  ]);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  try {
+    const body = await c.req.json();
+    const request = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
+    const practicalId = typeof request.practicalId === 'string' ? request.practicalId : '';
+    const courseId = typeof request.courseId === 'string' ? request.courseId : '';
+    const module = Number(request.module);
+    const chapter = Number(request.chapter);
+    const taskId = typeof request.taskId === 'string' ? request.taskId : '';
+    if (!practicalId || practicalId.length > 128 || (taskId && taskId.length > 128)) {
+      return c.json({ success: false, error: 'A valid practicalId and taskId are required.' }, 400);
+    }
+
+    const definition = await loadPracticalDefinitionForGrading({ practicalId, courseId, module, chapter });
+    if (!definition) return c.json({ success: false, error: 'Practical not found.' }, 404);
+    const selected = checksForPracticalTask(definition, taskId);
+    if (!selected || (taskId && !selected.task)) return c.json({ success: false, error: 'Practical task not found.' }, 404);
+
+    if (typeof request.answer === 'string') {
+      const exercise = asObject(selected.task?.interactiveExercise);
+      if (exercise.type !== 'binary_conversion' || typeof exercise.expectedAnswer !== 'string') {
+        return c.json({ success: false, error: 'This practical does not support answer grading.' }, 400);
+      }
+      const normalizeAnswer = (value) => String(value)
+        .trim()
+        .toLowerCase()
+        .replace(/^0b/, '')
+        .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, '')
+        .replace(/[\s,_]/g, '');
+      const acceptedAnswers = [
+        exercise.expectedAnswer,
+        ...(Array.isArray(exercise.acceptedAnswers) ? exercise.acceptedAnswers : []),
+      ];
+      const passed = acceptedAnswers.some((expected) => normalizeAnswer(expected) === normalizeAnswer(request.answer));
+      const id = uuidv4();
+      const now = new Date().toISOString();
+      await db.insert(studentPracticalAttempts).values({
+        id,
+        userId,
+        practicalId,
+        files: '{}',
+        status: passed ? 'passed' : 'in_progress',
+        output: 'Binary conversion answer evaluated by the server.',
+        createdAt: now,
+        updatedAt: now,
+      });
+      await updatePracticalTaskProgress(userId, practicalId, selected.task.id, passed ? 'completed' : 'in_progress');
+      await syncChapterPracticalCompletion(userId, definition, passed);
+      return c.json({
+        success: true,
+        data: {
+          passed,
+          message: passed ? 'Your answer is correct.' : 'Not quite yet. Recheck the place values and try again.',
+        },
+      });
+    }
+
+    if (!request.files || typeof request.files !== 'object' || Array.isArray(request.files)) {
+      return c.json({ success: false, error: 'A workspace file map is required.' }, 400);
+    }
+    const entries = Object.entries(request.files);
+    const totalSourceBytes = entries.reduce((total, [, content]) => (
+      total + (typeof content === 'string' ? Buffer.byteLength(content, 'utf8') : MAX_SOURCE_BYTES + 1)
+    ), 0);
+    const safeFilePathPattern = /^(?!.*(?:^|[\\/])\.\.(?:[\\/]|$))[a-zA-Z0-9][a-zA-Z0-9._/-]{0,159}$/;
+    if (!entries.length || entries.length > 20 || totalSourceBytes > 512 * 1024
+      || entries.some(([filePath, content]) => (
+        !safeFilePathPattern.test(filePath.replaceAll('\\', '/'))
+        || typeof content !== 'string'
+        || Buffer.byteLength(content, 'utf8') > MAX_SOURCE_BYTES
+      ))) {
+      return c.json({ success: false, error: 'Workspace files exceed the supported limits or contain an invalid path.' }, 400);
+    }
+    const activeFilePath = typeof request.activeFilePath === 'string'
+      ? request.activeFilePath.replaceAll('\\', '/')
+      : '';
+    if (!activeFilePath || !Object.prototype.hasOwnProperty.call(request.files, activeFilePath)
+      && !Object.keys(request.files).some((filePath) => filePath.replaceAll('\\', '/') === activeFilePath)) {
+      return c.json({ success: false, error: 'The active source file is missing.' }, 400);
+    }
+    const language = languageForPractical(definition, activeFilePath);
+    if (!language) return c.json({ success: false, error: 'This practical runtime is not supported for verified grading.' }, 409);
+
+    const executableChecks = selected.checks.filter((check) => (
+      !['manual', 'submission'].includes(String(check.type).toLowerCase())
+    ));
+    if (!executableChecks.length) {
+      return c.json({ success: false, error: 'No automatic checks are available for this task.' }, 409);
+    }
+    const compileProbes = compileProbesForChecks(executableChecks, language);
+    const sandboxResult = await executeCloudflareNativeSandbox({
+      files: Object.fromEntries(entries.map(([filePath, content]) => [filePath.replaceAll('\\', '/'), content])),
+      activeFilePath,
+      language,
+    }, {
+      enableSanitizers: executableChecks.some((check) => String(check.type).toLowerCase() === 'sanitizer'),
+      artifactPaths: artifactPathsForChecks(executableChecks),
+      compileProbes,
+    }, 60_000);
+    if (!sandboxResult) {
+      return c.json({ success: false, error: 'Verified grading is unavailable because the isolated executor is not configured.' }, 503);
+    }
+
+    const probeResults = (sandboxResult.compileProbes || []).map((probe) => ({
+      ...probe,
+      id: compileProbes.find((item) => item.id === probe.id)?.checkId || probe.id,
+    }));
+    const checks = evaluatePracticalChecks({
+      checks: executableChecks,
+      stdout: typeof sandboxResult.stdout === 'string' ? sandboxResult.stdout : '',
+      stderr: typeof sandboxResult.stderr === 'string' ? sandboxResult.stderr : '',
+      artifacts: asObject(sandboxResult.artifacts),
+      sanitizers: Array.isArray(sandboxResult.sanitizers) ? sandboxResult.sanitizers : [],
+      compileProbes: probeResults,
+      executionSuccess: sandboxResult.ok === true,
+    });
+    const checkResults = Object.fromEntries(checks.map((result) => [result.checkId, result.passed]));
+    const taskResults = (taskId
+      ? [selected.task]
+      : definition.tasks).map((task) => {
+      const taskSelection = checksForPracticalTask(definition, task.id);
+      const taskCheckIds = new Set((taskSelection?.checks || []).map((check) => check.id));
+      const taskChecks = checks.filter((check) => taskCheckIds.has(check.checkId));
+      return {
+        taskId: task.id,
+        passed: taskChecks.length > 0 && taskChecks.every((check) => check.passed),
+      };
+    });
+    const passed = checks.length > 0 && checks.every((check) => check.passed);
+    const now = new Date().toISOString();
+    await db.insert(studentPracticalAttempts).values({
+      id: uuidv4(),
+      userId,
+      practicalId,
+      files: JSON.stringify(request.files),
+      status: passed ? 'passed' : 'in_progress',
+      output: [sandboxResult.stdout, sandboxResult.stderr].filter(Boolean).join('\n').slice(0, MAX_OUTPUT_BYTES),
+      createdAt: now,
+      updatedAt: now,
+    });
+    for (const result of taskResults) {
+      if (result.passed) await updatePracticalTaskProgress(userId, practicalId, result.taskId, 'completed');
+      else if (taskId) await updatePracticalTaskProgress(userId, practicalId, result.taskId, 'in_progress');
+    }
+    await syncChapterPracticalCompletion(userId, definition, passed);
+
+    return c.json({
+      success: true,
+      data: {
+        passed,
+        stdout: typeof sandboxResult.stdout === 'string' ? sandboxResult.stdout : '',
+        stderr: typeof sandboxResult.stderr === 'string' ? sandboxResult.stderr : '',
+        phase: typeof sandboxResult.phase === 'string' ? sandboxResult.phase : 'run',
+        checks,
+        taskResults,
+      },
+    });
+  } catch (error) {
+    console.error('Server-side practical grading failed:', error);
+    return c.json({ success: false, error: 'The practical grading service failed unexpectedly.' }, 500);
+  }
+});
+
+// Record practical attempt (code run, submission, output)
+learning.post('/practical-attempts', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+  const body = asObject(await c.req.json());
+  const { practicalId, files, status = 'started', output = '' } = body;
+  if (!practicalId) {
+    return c.json({ success: false, error: 'practicalId is required' }, 400);
+  }
+  if (status === 'passed') {
+    return c.json({ success: false, error: 'A practical attempt can only be marked passed by server-side grading.' }, 403);
+  }
+  if (!['started', 'in_progress', 'failed', 'submitted'].includes(status)) {
+    return c.json({ success: false, error: 'Invalid practical attempt status.' }, 400);
+  }
+  const id = uuidv4();
+  const now = new Date().toISOString();
+  await db.insert(studentPracticalAttempts).values({
+    id,
+    userId,
+    practicalId,
+    files: typeof files === 'string' ? files : JSON.stringify(files || {}),
+    status,
+    output: (typeof output === 'string' ? output : JSON.stringify(output || '')).slice(0, MAX_OUTPUT_BYTES),
+    createdAt: now,
+    updatedAt: now,
+  });
+  return c.json({ success: true, data: { id, status } });
+});
+
+// Update progress for an individual practical task/milestone
+learning.post('/practical-task-progress', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json();
+  const { practicalId, taskId, status = 'completed' } = body;
+  if (!practicalId || !taskId) {
+    return c.json({ success: false, error: 'practicalId and taskId are required' }, 400);
+  }
+  if (status === 'completed') {
+    return c.json({ success: false, error: 'Task completion can only be recorded by server-side practical grading.' }, 403);
+  }
+  if (!['not_started', 'in_progress'].includes(status)) return c.json({ success: false, error: 'Invalid task progress status.' }, 400);
+  await updatePracticalTaskProgress(userId, practicalId, taskId, status);
   return c.json({ success: true, data: { practicalId, taskId, status } });
 });
 
