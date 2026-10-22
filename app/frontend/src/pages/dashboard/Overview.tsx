@@ -18,7 +18,7 @@ const PAGE_PATHS: Record<string, string> = {
 export default function Overview() {
   const navigate = useNavigate();
   const {user, refreshUser} = useAuth();
-  const {track, milestones, completedSteps, loading, error, completeLesson, isRoadmap} = useTrackCurriculum();
+  const {track, milestones, completedSteps, loading, error, completeLesson, refresh, isRoadmap} = useTrackCurriculum();
 
   const userProfile = useMemo<UserPreferences | null>(() => {
     if (!user) return null;
@@ -43,16 +43,6 @@ export default function Overview() {
 
   return (
     <div className="relative">
-      {error && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-xl text-xs font-mono font-bold">
-          {error}
-        </div>
-      )}
-      {loading && !track && (
-        <div className="pointer-events-none fixed right-4 top-20 z-40 rounded-full border border-immersive-border bg-immersive-card/90 px-3 py-1.5 text-[10px] font-mono text-immersive-text-secondary shadow-lg">
-          Preparing your learning path…
-        </div>
-      )}
       <OverviewPage
         userProfile={userProfile}
         track={track}
@@ -61,6 +51,9 @@ export default function Overview() {
         curriculum={milestones.length ? milestones : undefined}
         onToggleLesson={handleToggleLesson}
         isRoadmap={isRoadmap}
+        isLoading={loading}
+        loadError={error}
+        onRetry={() => { void refresh(); }}
       />
     </div>
   );

@@ -67,7 +67,7 @@ function RoadmapSignupSummary({selection}: {selection: RoadmapSelection}) {
 export default function AuthPages({ initialTab }: AuthPagesProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, signup, completeExternalLogin, completeTwoFactorLogin } = useAuth();
+  const { login, signup, completeExternalLogin, completeTwoFactorLogin, refreshUser } = useAuth();
   const processingGoogleExchange = useRef(false);
   const routeState = location.state as LocationState | null;
   const pendingRoadmap = routeState?.roadmapSelection || readPendingRoadmap();
@@ -101,6 +101,10 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [mfaChallengeToken, setMfaChallengeToken] = useState("");
   const [mfaCode, setMfaCode] = useState("");
+  const [emailVerificationRequired, setEmailVerificationRequired] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationMessage, setVerificationMessage] = useState("");
   const [agreeHonorCode, setAgreeHonorCode] = useState(true);
 
   // Status
@@ -269,6 +273,18 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
 
     setIsSubmitting(false);
 
+    if (result.verificationRequired) {
+      sessionStorage.removeItem("cohortia_pending_roadmap");
+      sessionStorage.removeItem("cohortia_pending_signup_draft");
+      setVerificationEmail(result.email || email.trim().toLowerCase());
+      setVerificationCode("");
+      setEmailVerificationRequired(true);
+      setSuccessMsg("");
+      setErrorMsg(result.success ? "" : result.message || "The verification code could not be sent.");
+      setVerificationMessage(result.success ? result.message || "We sent a six-digit code to your email." : "");
+      return;
+    }
+
     if (result.success) {
       sessionStorage.removeItem("cohortia_pending_roadmap");
       sessionStorage.removeItem("cohortia_pending_signup_draft");
@@ -293,6 +309,40 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
           ])
         ));
       }
+    }
+  };
+
+  const handleEmailVerification = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setErrorMsg("");
+    try {
+      const response = await authApi.verifyEmailCode(verificationEmail, verificationCode.trim());
+      if (!response.success) throw new Error(response.error || "Email verification failed.");
+      const user = await refreshUser();
+      if (!user) throw new Error("Your email was verified, but the account session could not be started. Please sign in.");
+      setEmailVerificationRequired(false);
+      setSuccessMsg("Email verified. Welcome to Cohortia!");
+      window.setTimeout(() => navigate("/dashboard", {replace: true}), 900);
+    } catch (error) {
+      setErrorMsg(error instanceof Error ? error.message : "Email verification failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendVerificationCode = async () => {
+    setIsSubmitting(true);
+    setErrorMsg("");
+    setVerificationMessage("");
+    try {
+      const response = await authApi.resendSignupVerification(verificationEmail);
+      if (!response.success) throw new Error(response.error || "A new verification code could not be requested.");
+      setVerificationMessage(response.message || "If your account still needs verification, a new code will be sent shortly.");
+    } catch (error) {
+      setErrorMsg(error instanceof Error ? error.message : "A new verification code could not be requested.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -448,7 +498,42 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
             </div>
           )}
 
-          {successMsg ? (
+          {emailVerificationRequired ? (
+            <div className="flex-1 py-10 flex flex-col justify-center max-w-md mx-auto w-full">
+              <div className="space-y-2 mb-8">
+                <h2 className="text-3xl font-extrabold text-immersive-text-primary tracking-tight">Verify your <span className="text-immersive-primary">email</span></h2>
+                <p className="text-sm text-immersive-text-secondary">
+                  Enter the six-digit code we sent to <strong className="text-immersive-text-primary">{verificationEmail}</strong>. The code expires after 10 minutes.
+                </p>
+              </div>
+              <form onSubmit={handleEmailVerification} className="space-y-5">
+                <label className="block space-y-2 text-left">
+                  <span className="text-[10px] font-mono text-immersive-secondary font-bold uppercase tracking-wider">Verification code</span>
+                  <input
+                    required
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
+                    value={verificationCode}
+                    onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="000000"
+                    className="w-full px-4 py-3.5 bg-immersive-bg border border-immersive-border focus:border-immersive-secondary rounded-xl text-lg tracking-[0.45em] text-immersive-text-primary text-center focus:outline-none"
+                  />
+                </label>
+                {verificationMessage && <p role="status" className="text-xs text-emerald-400">{verificationMessage}</p>}
+                <button type="submit" disabled={isSubmitting || verificationCode.length !== 6} className="w-full py-3.5 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 transition-all disabled:opacity-50">
+                  {isSubmitting ? "Verifying..." : "Verify email and continue"}
+                </button>
+                <button type="button" disabled={isSubmitting} onClick={handleResendVerificationCode} className="w-full py-2 text-xs font-bold text-immersive-secondary hover:underline disabled:opacity-50">
+                  {isSubmitting ? "Please wait..." : "Resend verification code"}
+                </button>
+                <button type="button" disabled={isSubmitting} onClick={() => {setEmailVerificationRequired(false); setVerificationCode(""); setErrorMsg(""); setVerificationMessage("");}} className="w-full py-2 text-xs font-bold text-immersive-text-secondary hover:text-immersive-text-primary">
+                  Use a different email
+                </button>
+              </form>
+            </div>
+          ) : successMsg ? (
             <div className="py-16 text-center space-y-6 max-w-md mx-auto">
               <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 flex items-center justify-center mx-auto animate-bounce">
                 <ShieldCheck className="w-8 h-8" />

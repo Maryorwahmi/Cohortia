@@ -7,6 +7,7 @@ import { sql } from 'drizzle-orm';
 import { authMiddleware } from '../middleware/auth.js';
 import { enforceRateLimits } from '../lib/rateLimit.js';
 import { logActivity } from '../lib/activity.js';
+import { createNotification } from '../lib/notifications.js';
 import { evaluateAssessmentAnswer } from '../lib/deterministicAssessment.js';
 import { evaluatePracticalChecks, sanitizePracticalForLearner } from '../lib/practicalGrading.js';
 import { mkdir, mkdtemp, readdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
@@ -1410,6 +1411,13 @@ learning.patch('/board-progress/:courseId/:module/:chapter', async (c) => {
       entityId: `${courseId}-m${module}-c${chapter}`,
       metadata: { courseId, module, chapter, lessonId: body.lessonId || null },
     });
+    await createNotification({
+      userId,
+      type: 'achievement',
+      title: 'Chapter completed',
+      message: `You completed chapter ${chapter} in module ${module}. Keep building your momentum!`,
+      link: '/dashboard/profile',
+    });
   }
 
   const saved = await db.select().from(learningBoardProgress).where(and(
@@ -1512,6 +1520,13 @@ async function updatePracticalTaskProgress(userId, practicalId, taskId, status) 
         activityType: 'practical_completed',
         entityId: practicalId,
         metadata: { taskCount: Number(taskCount.count) },
+      });
+      await createNotification({
+        userId,
+        type: 'achievement',
+        title: 'Practical completed',
+        message: `You completed the ${practicalId} practical. Your hands-on skills are growing!`,
+        link: '/dashboard/profile',
       });
     }
   }

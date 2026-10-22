@@ -10,7 +10,7 @@ interface AuthState {
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string; adminRole?: BackendUser['adminRole']; mfaRequired?: boolean; challengeToken?: string }>;
   completeTwoFactorLogin: (challengeToken: string, code: string) => Promise<{success: boolean; message?: string; adminRole?: BackendUser['adminRole']; requiresRoadmap?: boolean}>;
-  signup: (userData: Record<string, unknown>) => Promise<{ success: boolean; message?: string; details?: Record<string, string[]> }>;
+  signup: (userData: Record<string, unknown>) => Promise<{ success: boolean; message?: string; details?: Record<string, string[]>; verificationRequired?: boolean; email?: string }>;
   completeExternalLogin: () => Promise<BackendUser | null>;
   logout: () => void;
   refreshUser: () => Promise<BackendUser | null>;
@@ -91,6 +91,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signup = async (userData: Record<string, unknown>) => {
     try {
       const res: AuthResponse = await authApi.signup(userData as unknown as Parameters<typeof authApi.signup>[0]);
+      if (res.success && res.data?.verificationRequired) {
+        return {
+          success: true,
+          message: res.message,
+          verificationRequired: true,
+          email: res.data.email,
+        };
+      }
       if (res.success && res.data?.user) {
         invalidateRequestCache();
         setUser(res.data.user || null);
@@ -103,11 +111,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         details: res.details,
       };
     } catch (error) {
-      const apiError = error as { data?: { message?: string; details?: Record<string, string[]> }; message?: string };
+      const apiError = error as {
+        data?: {
+          message?: string;
+          error?: string;
+          details?: Record<string, string[]>;
+          data?: {verificationRequired?: boolean; email?: string};
+        };
+        message?: string;
+      };
       return {
         success: false,
-        message: apiError.data?.message || apiError.message || 'Unable to reach the server. Please make sure the backend is running on http://localhost:3000.',
+        message: apiError.data?.message || apiError.data?.error || apiError.message || 'Unable to reach the server. Please make sure the backend is running on http://localhost:3000.',
         details: apiError.data?.details || undefined,
+        verificationRequired: apiError.data?.data?.verificationRequired,
+        email: apiError.data?.data?.email,
       };
     }
   };

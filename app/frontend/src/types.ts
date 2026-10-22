@@ -83,6 +83,7 @@ export interface UserPreferences {
   roadmapSelection?: RoadmapSelection;
   avatarUrl?: string;
   twoFactorEnabled?: boolean;
+  emailNotificationsEnabled?: boolean;
   experienceLevel?: string;
   weeklyHours?: string;
 }
@@ -102,6 +103,7 @@ export function backendUserToPreferences(user: {
   portfolioLink?: string | null;
   avatarUrl?: string | null;
   twoFactorEnabled?: boolean;
+  emailNotificationsEnabled?: boolean;
   roadmapSelection?: string | null;
 }): UserPreferences {
   const desiredField = user.desiredField || user.role || "frontend";
@@ -156,6 +158,7 @@ export function backendUserToPreferences(user: {
     roadmapSelection,
     avatarUrl: user.avatarUrl || undefined,
     twoFactorEnabled: Boolean(user.twoFactorEnabled),
+    emailNotificationsEnabled: user.emailNotificationsEnabled !== false,
     experienceLevel: user.experienceLevel || undefined,
     weeklyHours: user.weeklyHours || user.learningPace || undefined,
   };

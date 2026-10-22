@@ -44,6 +44,8 @@ export interface AuthResponse {
     user?: BackendUser;
     twoFactorRequired?: boolean;
     challengeToken?: string;
+    verificationRequired?: boolean;
+    email?: string;
   };
 }
 
@@ -70,6 +72,7 @@ export interface BackendUser {
   portfolioLink?: string | null;
   avatarUrl?: string | null;
   twoFactorEnabled?: boolean;
+  emailNotificationsEnabled?: boolean;
   educationLevel?: string | null;
   ageRange?: string | null;
   learningStyle?: string | null;
@@ -122,6 +125,18 @@ export const authApi = {
     fetchApi<AuthResponse>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(userData),
+    }),
+
+  verifyEmailCode: (email: string, code: string) =>
+    fetchApi<AuthResponse>('/auth/signup/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({email, code}),
+    }),
+
+  resendSignupVerification: (email: string) =>
+    fetchApi<{success: boolean; message?: string; error?: string}>('/auth/signup/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({email}),
     }),
 
   login: (credentials: LoginCredentials) =>

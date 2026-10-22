@@ -1,10 +1,11 @@
 import { db } from '../db/index.js';
 import { users, tracks, catalogCourses, catalogCourseCareers, lessons, learningBoardScreens, enrollments } from '../db/schema.js';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, sql } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import { Hono } from 'hono';
 import { logActivity } from '../lib/activity.js';
 import {courseMatchesRoadmapLevel} from '../lib/courseLevels.js';
@@ -25,6 +26,7 @@ import {
 import {enforceRateLimits, getRateLimitClientIp} from '../lib/rateLimit.js';
 import {statesMatch} from '../lib/oauthState.js';
 import {authMiddleware} from '../middleware/auth.js';
+import {sendBrandedEmail} from '../lib/emailTemplates.js';
 
 const auth = new Hono();
 const GOOGLE_OAUTH_STATE_USER_ID = 'google-oauth';
@@ -39,6 +41,47 @@ function createToken(user, sessionId) {
 }
 
 const issueSession = (c, user) => createSession(c, user, createToken);
+const emailVerificationLifetimeMs = 10 * 60 * 1000;
+const emailVerificationResendCooldownMs = 60 * 1000;
+
+function hashEmailVerificationCode(code) {
+  return createHmac('sha256', getJwtSecret()).update(code).digest('hex');
+}
+
+function createEmailVerificationCode() {
+  return String(randomInt(0, 1_000_000)).padStart(6, '0');
+}
+
+async function sendEmailVerificationCode(user, code) {
+  await sendBrandedEmail(user.email, {
+    subject: 'Your Cohortia verification code',
+    preheader: 'Use this code to verify your email and finish creating your account.',
+    eyebrow: 'ACCOUNT SECURITY',
+    heading: 'Verify your email',
+    greeting: `Hi ${user.name},`,
+    verificationCode: code,
+    paragraphs: ['Enter this code in Cohortia to verify your email address. It expires in 10 minutes. If you did not try to create an account, you can ignore this message.'],
+    footerNote: 'Your learning journey starts here.',
+  });
+}
+
+async function sendWelcomeEmail(user) {
+  const paragraphs = ['Your email is verified and your Cohortia account is ready. Explore your learning path, build practical skills, and celebrate each milestone along the way.'];
+  if (user.roadmapSelection || user.desiredField) {
+    paragraphs.push('The learning direction and course choices you made during signup are saved and ready in your dashboard.');
+  }
+  await sendBrandedEmail(user.email, {
+    subject: 'Welcome to Cohortia',
+    preheader: 'Your account is ready. Let’s build your next chapter.',
+    eyebrow: 'WELCOME ABOARD',
+    heading: 'Your next chapter starts here',
+    greeting: `Hi ${user.name},`,
+    paragraphs,
+    buttonLabel: 'Go to your dashboard',
+    buttonUrl: `${frontendUrl()}/dashboard`,
+    footerNote: 'Learning and career growth, together.',
+  });
+}
 
 function setOAuthStateCookie(c, state) {
   c.header(
@@ -173,7 +216,7 @@ auth.post('/signup', async (c) => {
     }, 400);
   }
 
-  const data = result.data;
+  const data = {...result.data, email: result.data.email.trim().toLowerCase()};
 
   if (data.desiredField && !data.roadmapSelection) {
     const selectedTrack = await db
@@ -333,14 +376,20 @@ auth.post('/signup', async (c) => {
     }
   }
 
-  // Check if user already exists
-  const existingUser = await db
+  const [existingUser] = await db
     .select()
     .from(users)
     .where(eq(users.email, data.email))
     .limit(1);
 
-  if (existingUser.length > 0) {
+  if (existingUser) {
+    if (!existingUser.emailVerified && await bcrypt.compare(data.password, existingUser.password)) {
+      return c.json({
+        success: true,
+        message: 'Enter the verification code sent to your email.',
+        data: {verificationRequired: true, email: data.email},
+      });
+    }
     return c.json({
       success: false,
       error: 'Email already registered',
@@ -353,6 +402,7 @@ auth.post('/signup', async (c) => {
   // Create user
   const userId = uuidv4();
   const now = new Date().toISOString();
+  const verificationCode = createEmailVerificationCode();
 
   await db.insert(users).values({
     id: userId,
@@ -382,59 +432,212 @@ auth.post('/signup', async (c) => {
     biggestChallenge: data.biggestChallenge || null,
     previousField: data.previousField || null,
     wantsRealWorldExperience: data.wantsRealWorldExperience || false,
+    emailVerified: false,
+    emailVerificationCodeHash: hashEmailVerificationCode(verificationCode),
+    emailVerificationExpiresAt: new Date(Date.now() + emailVerificationLifetimeMs).toISOString(),
+    emailVerificationAttempts: 0,
+    emailVerificationLastSentAt: now,
     createdAt: now,
     updatedAt: now,
   });
 
-  // Auto-enrol user in their selected course/track if it exists
-  if (data.desiredField) {
-    const track = await db
-      .select()
-      .from(tracks)
-      .where(eq(tracks.id, data.desiredField))
-      .limit(1);
+  const pendingUser = {id: userId, name: data.name, email: data.email};
+  try {
+    await sendEmailVerificationCode(pendingUser, verificationCode);
+  } catch (error) {
+    await db.update(users).set({
+      emailVerificationCodeHash: null,
+      emailVerificationExpiresAt: null,
+      emailVerificationLastSentAt: null,
+      updatedAt: new Date().toISOString(),
+    }).where(and(
+      eq(users.id, userId),
+      eq(users.emailVerified, false),
+    ));
+    console.error('[auth] Signup verification email delivery failed:', error.message);
+    return c.json({
+      success: false,
+      error: 'Your account is awaiting verification, but the code could not be emailed. Please request a new code.',
+      data: {verificationRequired: true, email: data.email},
+    }, 502);
+  }
 
-    if (track.length > 0) {
+  return c.json({
+    success: true,
+    message: 'Enter the verification code sent to your email.',
+    data: {
+      verificationRequired: true,
+      email: data.email,
+    },
+  }, 201);
+});
+
+auth.post('/signup/verify-email', async (c) => {
+  const rateLimitResponse = await enforceRateLimits(c, [{
+    scope: 'auth-email-verification-ip',
+    actor: getRateLimitClientIp(c),
+    limit: 10,
+    windowSeconds: 15 * 60,
+  }]);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const body = await c.req.json();
+  const parsed = z.object({
+    email: z.string().trim().email().max(255),
+    code: z.string().regex(/^\d{6}$/),
+  }).safeParse(body);
+  if (!parsed.success) {
+    return c.json({success: false, error: 'Enter the six-digit code sent to your email.'}, 400);
+  }
+
+  const email = parsed.data.email.toLowerCase();
+  const emailLimit = await enforceRateLimits(c, [{
+    scope: 'auth-email-verification-address',
+    actor: email,
+    limit: 5,
+    windowSeconds: 15 * 60,
+  }]);
+  if (emailLimit) return emailLimit;
+
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const expiresAt = Date.parse(user?.emailVerificationExpiresAt || '');
+  if (!user || user.emailVerified || !user.emailVerificationCodeHash
+    || user.emailVerificationAttempts >= 5
+    || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+    return c.json({success: false, error: 'This verification code is invalid or expired. Request a new code and try again.'}, 400);
+  }
+
+  const submittedHash = Buffer.from(hashEmailVerificationCode(parsed.data.code), 'hex');
+  const storedHash = Buffer.from(user.emailVerificationCodeHash, 'hex');
+  if (submittedHash.length !== storedHash.length || !timingSafeEqual(submittedHash, storedHash)) {
+    await db.update(users).set({
+      emailVerificationAttempts: sql`${users.emailVerificationAttempts} + 1`,
+      updatedAt: new Date().toISOString(),
+    }).where(and(
+      eq(users.id, user.id),
+      eq(users.emailVerified, false),
+      eq(users.emailVerificationCodeHash, user.emailVerificationCodeHash),
+    ));
+    return c.json({success: false, error: 'That verification code is incorrect. Check the code and try again.'}, 400);
+  }
+
+  const [verifiedUser] = await db.update(users).set({
+    emailVerified: true,
+    emailVerificationCodeHash: null,
+    emailVerificationExpiresAt: null,
+    emailVerificationAttempts: 0,
+    emailVerificationLastSentAt: null,
+    updatedAt: new Date().toISOString(),
+  }).where(and(
+    eq(users.id, user.id),
+    eq(users.emailVerified, false),
+    eq(users.emailVerificationCodeHash, user.emailVerificationCodeHash),
+  )).returning();
+  if (!verifiedUser) {
+    return c.json({success: false, error: 'This verification code has already been used. Please sign in.'}, 409);
+  }
+
+  if (verifiedUser.desiredField) {
+    const [track] = await db.select({id: tracks.id})
+      .from(tracks)
+      .where(eq(tracks.id, verifiedUser.desiredField))
+      .limit(1);
+    if (track) {
       await db.insert(enrollments).values({
         id: uuidv4(),
-        userId,
-        trackId: data.desiredField,
+        userId: verifiedUser.id,
+        trackId: verifiedUser.desiredField,
         status: 'active',
-        enrolledAt: now,
-        updatedAt: now,
+        enrolledAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
     }
   }
 
-  // Log signup activity
   await logActivity({
-    userId,
+    userId: verifiedUser.id,
     activityType: 'signup',
-    entityId: userId,
-    metadata: { source: 'email_signup', role: data.role, track: data.desiredField },
+    entityId: verifiedUser.id,
+    metadata: {source: 'email_signup', role: verifiedUser.role, track: verifiedUser.desiredField},
   });
+  try {
+    await sendWelcomeEmail(verifiedUser);
+  } catch (error) {
+    console.error('[auth] Welcome email delivery failed after verification:', error.message);
+  }
 
-  await issueSession(c, {id: userId, email: data.email});
+  await issueSession(c, verifiedUser);
   return c.json({
     success: true,
-    message: 'Account created successfully',
-    data: {
-      user: {
-        id: userId,
-        name: data.name,
-        email: data.email,
-        username: null,
-        role: data.role,
-        adminRole: null,
-        onboardingGoal: data.onboardingGoal || null,
-        experienceLevel: data.experienceLevel || null,
-        currentStatus: data.currentStatus || null,
-        careerGoal: data.careerGoal || null,
-        desiredField: data.desiredField || null,
-        roadmapSelection: data.roadmapSelection || null,
-      },
-    },
-  }, 201);
+    message: 'Your email is verified. Welcome to Cohortia!',
+    data: {user: await serializePublicUser(verifiedUser)},
+  });
+});
+
+auth.post('/signup/resend-verification', async (c) => {
+  const rateLimitResponse = await enforceRateLimits(c, [{
+    scope: 'auth-email-verification-resend-ip',
+    actor: getRateLimitClientIp(c),
+    limit: 5,
+    windowSeconds: 15 * 60,
+  }]);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const parsed = z.object({email: z.string().trim().email().max(255)}).safeParse(await c.req.json());
+  if (!parsed.success) {
+    return c.json({success: false, error: 'Enter a valid email address.'}, 400);
+  }
+  const email = parsed.data.email.toLowerCase();
+  const addressLimit = await enforceRateLimits(c, [{
+    scope: 'auth-email-verification-resend-address',
+    actor: email,
+    limit: 3,
+    windowSeconds: 15 * 60,
+  }]);
+  if (addressLimit) return addressLimit;
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  if (!user || user.emailVerified) {
+    return c.json({success: true, message: 'If your account still needs verification, a new code will be sent shortly.'});
+  }
+
+  const lastSentAt = Date.parse(user.emailVerificationLastSentAt || '');
+  if (Number.isFinite(lastSentAt) && Date.now() - lastSentAt < emailVerificationResendCooldownMs) {
+    return c.json({success: true, message: 'If your account still needs verification, a new code will be sent shortly.'});
+  }
+
+  const code = createEmailVerificationCode();
+  const now = new Date().toISOString();
+  const [updatedUser] = await db.update(users).set({
+    emailVerificationCodeHash: hashEmailVerificationCode(code),
+    emailVerificationExpiresAt: new Date(Date.now() + emailVerificationLifetimeMs).toISOString(),
+    emailVerificationAttempts: 0,
+    emailVerificationLastSentAt: now,
+    updatedAt: now,
+  }).where(and(
+    eq(users.id, user.id),
+    eq(users.emailVerified, false),
+  )).returning();
+  if (!updatedUser) {
+    return c.json({success: true, message: 'If your account still needs verification, a new code will be sent shortly.'});
+  }
+
+  try {
+    await sendEmailVerificationCode(updatedUser, code);
+  } catch (error) {
+    await db.update(users).set({
+      emailVerificationCodeHash: null,
+      emailVerificationExpiresAt: null,
+      emailVerificationLastSentAt: null,
+      updatedAt: new Date().toISOString(),
+    }).where(and(
+      eq(users.id, updatedUser.id),
+      eq(users.emailVerified, false),
+      eq(users.emailVerificationCodeHash, hashEmailVerificationCode(code)),
+    ));
+    console.error('[auth] Verification code resend failed:', error.message);
+    return c.json({success: false, error: 'The verification code could not be sent. Please try again later.'}, 502);
+  }
+  return c.json({success: true, message: 'If your account still needs verification, a new code will be sent shortly.'});
 });
 
 // Login
@@ -459,7 +662,7 @@ auth.post('/login', async (c) => {
   }
 
   const { email, password } = result.data;
-  const identifier = email.trim();
+  const identifier = email.trim().toLowerCase();
 
   // Find user
   const userResult = await db
@@ -486,6 +689,13 @@ auth.post('/login', async (c) => {
       success: false,
       error: 'Invalid email or password',
     }, 401);
+  }
+
+  if (!user.emailVerified) {
+    return c.json({
+      success: false,
+      error: 'Verify your email before signing in. Use the code sent to your inbox.',
+    }, 403);
   }
 
   if (user.twoFactorEnabled) {
@@ -726,6 +936,7 @@ auth.get('/google/callback', async (c) => {
       .limit(1);
 
     let user = existingUsers[0];
+    let sendWelcome = false;
     if (verifiedState.purpose === 'google_export_reauth'
       && (!user || user.id !== verifiedState.userId)) {
       return c.redirect(redirectToFrontend('/dashboard/profile', {
@@ -748,9 +959,11 @@ auth.get('/google/callback', async (c) => {
         email: user.email,
         password: await bcrypt.hash(uuidv4(), 12),
         role: user.role,
+        emailVerified: true,
         createdAt: now,
         updatedAt: now,
       });
+      sendWelcome = true;
 
       await logActivity({
         userId: user.id,
@@ -758,6 +971,24 @@ auth.get('/google/callback', async (c) => {
         entityId: user.id,
         metadata: { source: 'google_oauth' },
       });
+    } else if (!user.emailVerified) {
+      [user] = await db.update(users).set({
+        emailVerified: true,
+        emailVerificationCodeHash: null,
+        emailVerificationExpiresAt: null,
+        emailVerificationAttempts: 0,
+        emailVerificationLastSentAt: null,
+        updatedAt: now,
+      }).where(eq(users.id, user.id)).returning();
+      sendWelcome = true;
+    }
+
+    if (sendWelcome) {
+      try {
+        await sendWelcomeEmail(user);
+      } catch (error) {
+        console.error('[auth] Google signup welcome email delivery failed:', error.message);
+      }
     }
 
     if (verifiedState.purpose === 'google_export_reauth') {

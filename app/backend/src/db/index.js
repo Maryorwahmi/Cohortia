@@ -116,6 +116,12 @@ async function ensureProfileSecurityTables() {
     ['two_factor_enabled', 'INTEGER NOT NULL DEFAULT 0'],
     ['two_factor_recovery_codes', 'TEXT'],
     ['two_factor_last_counter', 'INTEGER'],
+    ['email_verified', 'INTEGER NOT NULL DEFAULT 1'],
+    ['email_verification_code_hash', 'TEXT'],
+    ['email_verification_expires_at', 'TEXT'],
+    ['email_verification_attempts', 'INTEGER NOT NULL DEFAULT 0'],
+    ['email_verification_last_sent_at', 'TEXT'],
+    ['email_notifications_enabled', 'INTEGER NOT NULL DEFAULT 1'],
   ];
 
   for (const [name, definition] of columns) {
@@ -162,6 +168,7 @@ async function ensureNewsletterSubscriptionColumns() {
     ['confirmation_token_hash', 'TEXT'],
     ['confirmation_expires_at', 'TEXT'],
     ['unsubscribe_token_hash', 'TEXT'],
+    ['previous_unsubscribe_token_hash', 'TEXT'],
     ['unsubscribed_at', 'TEXT'],
   ];
 

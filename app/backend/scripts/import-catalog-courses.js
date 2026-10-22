@@ -5,10 +5,12 @@ import { createClient } from '@libsql/client';
 
 const inputPath = process.argv[2] || '../../docs/computer-science/catalog-courses-by-subcategory.json';
 const catalogPath = resolve(process.cwd(), inputPath);
+const levelInferencePath = resolve(process.cwd(), 'src', 'data', 'catalog-course-level-inferences.json');
 const databaseUrl = process.env.DATABASE_URL || 'file:./cohortia.db';
 const client = createClient({url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN});
 
 const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
+const levelInferences = JSON.parse(await readFile(levelInferencePath, 'utf8')).levels || {};
 const now = new Date().toISOString();
 
 await client.execute(`
@@ -144,7 +146,7 @@ for (const subcategory of catalog.subcategories || []) {
         course.title,
         course.provider ?? null,
         course.platform ?? null,
-        course.level ?? null,
+        course.level || levelInferences[course.id]?.level || null,
         course.type ?? null,
         course.duration ?? null,
         course.cost == null ? null : String(course.cost),
@@ -162,7 +164,7 @@ for (const subcategory of catalog.subcategories || []) {
         course.marketSubcategory ?? null,
         JSON.stringify(course.careerPaths || []),
         JSON.stringify(course.skillTags || course.skills || []),
-        course.catalogStatus || 'active',
+        levelInferences[course.id]?.reviewRequired ? 'review' : course.catalogStatus || 'active',
         course.source ?? null,
         now,
         now,

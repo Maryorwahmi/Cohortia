@@ -630,6 +630,15 @@ projects.post('/final-exam-attempts/:attemptId/submit', async (c) => {
     userId, activityType: 'final_exam_submitted', entityId: attempt.examId,
     metadata: { attemptId, score, passed, reviewRequired, timedOut },
   });
+  if (passed) {
+    await createNotification({
+      userId,
+      type: 'achievement',
+      title: 'Final assessment passed',
+      message: `Congratulations! You passed your final assessment with a score of ${score}%.`,
+      link: '/dashboard/profile',
+    });
+  }
 
   const [gradedAttempt] = await db.select().from(courseFinalExamAttempts)
     .where(eq(courseFinalExamAttempts.id, attemptId)).limit(1);
@@ -737,6 +746,15 @@ projects.post('/admin/capstone-submissions/:submissionId/review', async (c) => {
     eq(userCourseFinalProgress.userId, submission.userId),
     eq(userCourseFinalProgress.courseId, capstone.courseId),
   ));
+  await createNotification({
+    userId: submission.userId,
+    type: body.status === 'approved' ? 'achievement' : 'system',
+    title: body.status === 'approved' ? 'Capstone approved' : 'Capstone review complete',
+    message: body.status === 'approved'
+      ? `Your capstone was approved with a score of ${finalScore}%. ${feedback}`
+      : `Your capstone needs revision. Reviewer feedback: ${feedback}`,
+    link: '/dashboard/profile',
+  });
   return c.json({success: true, data: {submissionId, status: body.status, score: finalScore}});
 });
 
@@ -775,6 +793,15 @@ projects.post('/admin/final-exam-attempts/:attemptId/review', async (c) => {
     score, passed: score >= exam.passingScore, reviewRequired: false, status: 'graded',
     reviewedBy: reviewer.id, reviewerFeedback: body.feedback.trim().slice(0, 4000), reviewedAt: now, updatedAt: now,
   }).where(eq(courseFinalExamAttempts.id, attemptId));
+  await createNotification({
+    userId: attempt.userId,
+    type: score >= exam.passingScore ? 'achievement' : 'system',
+    title: score >= exam.passingScore ? 'Final assessment passed' : 'Final assessment reviewed',
+    message: score >= exam.passingScore
+      ? `Congratulations! You passed your final assessment with a score of ${score}%.`
+      : `Your final assessment has been reviewed. Reviewer feedback: ${body.feedback.trim().slice(0, 4000)}`,
+    link: '/dashboard/profile',
+  });
   return c.json({ success: true, data: { attemptId, score, passed: score >= exam.passingScore } });
 });
 

@@ -12,6 +12,7 @@ import { serializePublicUser } from '../lib/userProfile.js';
 import { createCourseSyllabusPdf } from '../lib/courseSyllabusPdf.js';
 import { getCatalogCourseDetails } from './catalogCourses.js';
 import { courseMatchesRoadmapLevel } from '../lib/courseLevels.js';
+import { sendBrandedEmail } from '../lib/emailTemplates.js';
 
 const usersRoute = new Hono();
 const MAX_PROFILE_IMAGE_BYTES = 800 * 1024;
@@ -65,7 +66,20 @@ usersRoute.get('/profile', async (c) => {
 usersRoute.put('/profile', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
+  if (body.emailNotificationsEnabled !== undefined && typeof body.emailNotificationsEnabled !== 'boolean') {
+    return c.json({success: false, error: 'Email notification preference must be true or false.'}, 400);
+  }
+  const [existingUser] = await db.select({
+    id: users.id,
+    name: users.name,
+    email: users.email,
+    roadmapSelection: users.roadmapSelection,
+    emailNotificationsEnabled: users.emailNotificationsEnabled,
+  }).from(users).where(eq(users.id, userId)).limit(1);
+  if (!existingUser) return c.json({success: false, error: 'User not found'}, 404);
 
+  let selectedCourseTitles = [];
+  let roadmapSelectionChanged = false;
   if (body.roadmapSelection !== undefined) {
     if (typeof body.roadmapSelection !== 'string' || body.roadmapSelection.length > 100000) {
       return c.json({ success: false, error: 'A complete roadmap selection is required' }, 400);
@@ -138,6 +152,12 @@ usersRoute.put('/profile', async (c) => {
     if (availableCourses.length !== selectedIds.length) {
       return c.json({ success: false, error: 'One or more selected roadmap courses are unavailable' }, 400);
     }
+    const coursesWithTitles = await db.select({id: catalogCourses.id, title: catalogCourses.title})
+      .from(catalogCourses)
+      .where(inArray(catalogCourses.id, selectedIds));
+    const titlesById = new Map(coursesWithTitles.map((course) => [course.id, course.title]));
+    selectedCourseTitles = selectedIds.map((id) => titlesById.get(id) || id);
+    roadmapSelectionChanged = existingUser.roadmapSelection !== body.roadmapSelection;
   }
 
   const updateData = {
@@ -150,6 +170,7 @@ usersRoute.put('/profile', async (c) => {
     roadmapSelection: body.roadmapSelection,
     availability: body.availability,
     portfolioLink: body.portfolioLink,
+    emailNotificationsEnabled: body.emailNotificationsEnabled,
     updatedAt: new Date().toISOString(),
   };
 
@@ -168,6 +189,27 @@ usersRoute.put('/profile', async (c) => {
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
+
+  if (roadmapSelectionChanged && updatedUser[0]?.emailNotificationsEnabled && selectedCourseTitles.length) {
+    try {
+      await sendBrandedEmail(existingUser.email, {
+        subject: 'Your Cohortia learning path is ready',
+        preheader: 'Your selected courses are saved and ready for you.',
+        eyebrow: 'LEARNING PLAN UPDATED',
+        heading: 'Your learning path is ready',
+        greeting: `Hi ${existingUser.name},`,
+        paragraphs: [
+          `You’ve saved ${selectedCourseTitles.length === 1 ? 'this course' : 'these courses'} to your Cohortia learning path: ${selectedCourseTitles.join(', ')}.`,
+          'Your plan is saved to your profile, so you can pick up where you left off whenever you are ready.',
+        ],
+        buttonLabel: 'View my learning path',
+        buttonUrl: `${process.env.FRONTEND_URL?.replace(/\/+$/, '') || 'http://localhost:5173'}/dashboard/profile`,
+        footerNote: 'You can manage optional email notifications from your profile settings.',
+      });
+    } catch (error) {
+      console.error('[users] Learning path email delivery failed:', error.message);
+    }
+  }
 
   return c.json({ success: true, data: { user: await serializePublicUser(updatedUser[0]) } });
 });

@@ -7,6 +7,10 @@ export async function serializePublicUser(user) {
     twoFactorSecret,
     twoFactorRecoveryCodes,
     twoFactorLastCounter,
+    emailVerificationCodeHash,
+    emailVerificationExpiresAt,
+    emailVerificationAttempts,
+    emailVerificationLastSentAt,
     ...publicUser
   } = user;
 

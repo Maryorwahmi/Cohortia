@@ -1,9 +1,10 @@
 import { Hono } from 'hono';
 import { db } from '../db/index.js';
-import { tracks, progress, enrollments, lessons } from '../db/schema.js';
+import { tracks, progress, enrollments, lessons, users } from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware } from '../middleware/auth.js';
+import { sendBrandedEmail } from '../lib/emailTemplates.js';
 
 const tracksRoute = new Hono();
 const LESSONS_CACHE_TTL_MS = 300_000;
@@ -76,7 +77,7 @@ tracksRoute.post('/:id/enroll', async (c) => {
   const trackId = c.req.param('id');
 
   const track = await db
-    .select({id: tracks.id})
+    .select({id: tracks.id, title: tracks.title, description: tracks.description})
     .from(tracks)
     .where(eq(tracks.id, trackId))
     .limit(1);
@@ -106,6 +107,33 @@ tracksRoute.post('/:id/enroll', async (c) => {
     enrolledAt: now,
     updatedAt: now,
   });
+
+  const [learner] = await db.select({
+    name: users.name,
+    email: users.email,
+    emailNotificationsEnabled: users.emailNotificationsEnabled,
+  }).from(users).where(eq(users.id, userId)).limit(1);
+  if (learner?.emailNotificationsEnabled) {
+    try {
+      await sendBrandedEmail(learner.email, {
+        subject: `You’re enrolled in ${track[0].title}`,
+        preheader: 'Your course is ready when you are.',
+        eyebrow: 'COURSE ENROLLMENT',
+        heading: 'You’re enrolled',
+        greeting: `Hi ${learner.name},`,
+        paragraphs: [
+          `You’re now enrolled in ${track[0].title}.`,
+          track[0].description,
+          'Your course is ready in your Cohortia learning dashboard.',
+        ],
+        buttonLabel: 'Start learning',
+        buttonUrl: `${process.env.FRONTEND_URL?.replace(/\/+$/, '') || 'http://localhost:5173'}/dashboard`,
+        footerNote: 'You can manage optional email notifications from your profile settings.',
+      });
+    } catch (error) {
+      console.error('[tracks] Course enrollment email delivery failed:', error.message);
+    }
+  }
 
   return c.json({
     success: true,

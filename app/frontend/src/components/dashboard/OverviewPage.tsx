@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, Play, Lock, BookOpen, Clock, Users, ArrowRight, RefreshCw, Trophy, GraduationCap, Award, Building2 } from "lucide-react";
+import { CheckCircle, Play, Lock, BookOpen, Clock, Users, ArrowRight, RefreshCw, Trophy, GraduationCap, Award, Building2, LoaderCircle } from "lucide-react";
 import { UserPreferences } from "../../types";
-import { TRACK_CURRICULA, DashboardMilestone, DashboardLesson } from "../../data/dashboardData";
+import { DashboardMilestone } from "../../data/dashboardData";
 import type { Track } from "../../services/api";
 import { parseTrackSkills } from "../../lib/lessonMetadata";
 import { learningBoardsApi, LearningBoardChapter, LearningBoardProgress } from "../../services/learningBoardsApi";
@@ -19,11 +19,14 @@ interface OverviewPageProps {
   curriculum?: DashboardMilestone[];
   onToggleLesson?: (lessonId: string) => void | Promise<void>;
   isRoadmap?: boolean;
+  isLoading?: boolean;
+  loadError?: string | null;
+  onRetry?: () => void;
 }
 
-export default function OverviewPage({ userProfile, track, onUpdateProfile, onChangePage, curriculum: curriculumProp, onToggleLesson, isRoadmap = false }: OverviewPageProps) {
-  const activeTrackId = userProfile.track || "cpp";
-  const baseCurriculum = curriculumProp || TRACK_CURRICULA[activeTrackId] || TRACK_CURRICULA.frontend;
+export default function OverviewPage({ userProfile, track, onUpdateProfile, onChangePage, curriculum: curriculumProp, onToggleLesson, isRoadmap = false, isLoading = false, loadError, onRetry }: OverviewPageProps) {
+  const activeTrackId = track?.id.toLowerCase() || userProfile.track || "cpp";
+  const baseCurriculum = curriculumProp || [];
   const overviewSummary = track?.overview
     ?.split(/(?<=[.!?])\s+/)
     .slice(0, 3)
@@ -32,12 +35,16 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
   
   // Local state for completed lessons, initialized from userProfile or default
   const [completedLessons, setCompletedLessons] = useState<string[]>(() => {
-    return userProfile.completedSteps || ["cpp_l1"]; // default starts with first C++ lesson checked
+    return userProfile.completedSteps || [];
   });
 
   const [overviewTab, setOverviewTab] = useState<"roadmap" | "syllabus">("roadmap");
   const [courseChapters, setCourseChapters] = useState<LearningBoardChapter[]>([]);
   const [chapterProgress, setChapterProgress] = useState<Record<string, LearningBoardProgress | null>>({});
+
+  useEffect(() => {
+    setCompletedLessons(userProfile.completedSteps || []);
+  }, [userProfile.completedSteps]);
 
   useEffect(() => {
     if (isRoadmap) {
@@ -78,6 +85,34 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
       cancelled = true;
     };
   }, [track?.id, isRoadmap]);
+
+  if (isLoading || !track || !curriculumProp?.length) {
+    const waiting = isLoading;
+    const message = waiting
+      ? "Loading your enrolled course and curriculum. We’ll show your learning path as soon as it’s ready."
+      : loadError || "Course information is unavailable right now.";
+    return (
+      <div className="pt-20 pb-8 min-h-screen bg-immersive-bg text-left">
+        <div className="mx-auto max-w-3xl px-4 py-16">
+          <section className="rounded-3xl border border-immersive-border bg-immersive-card p-8 text-center shadow-xl shadow-immersive-shadow">
+            {waiting && <LoaderCircle className="mx-auto mb-4 h-8 w-8 animate-spin text-immersive-secondary" aria-hidden="true" />}
+            <h1 className="text-xl font-extrabold text-immersive-text-primary">
+              {waiting ? "Preparing your dashboard" : "Your course isn’t ready to display"}
+            </h1>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-immersive-text-secondary" role={waiting ? undefined : "alert"}>
+              {message}
+            </p>
+            {!waiting && onRetry && (
+              <button type="button" onClick={onRetry} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-immersive-secondary px-4 py-2.5 text-sm font-bold text-white">
+                <RefreshCw className="h-4 w-4" />
+                Try again
+              </button>
+            )}
+          </section>
+        </div>
+      </div>
+    );
+  }
 
   const chaptersByModule = new Map<number, LearningBoardChapter[]>();
   courseChapters.forEach((chapter) => {
@@ -458,7 +493,7 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
             ) : (
               /* Course Syllabus & Overview view */
               <div id="syllabus-view-container" className="space-y-8">
-                {activeTrackId === "cpp" ? (
+                {track?.id.toLowerCase() === "cpp" ? (
                   <>
                     {/* Course Overview Section */}
                     <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl shadow-immersive-shadow">

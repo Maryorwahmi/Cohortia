@@ -57,6 +57,9 @@ export default function ProfilePage({
   const [isSaving, setIsSaving] = useState(false);
   const [pageError, setPageError] = useState<string | null>(loadError || null);
   const [saved, setSaved] = useState(false);
+  const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(userProfile.emailNotificationsEnabled !== false);
+  const [emailNotificationBusy, setEmailNotificationBusy] = useState(false);
+  const [emailNotificationMessage, setEmailNotificationMessage] = useState('');
   const [courses, setCourses] = useState<RoadmapCourse[]>([]);
   const [progress, setProgress] = useState<Record<string, unknown>[]>([]);
   const [courseFinalAttempts, setCourseFinalAttempts] = useState<Record<string, unknown>[]>([]);
@@ -90,6 +93,7 @@ export default function ProfilePage({
 
   useEffect(() => {
     setFormData(emptyForm(userProfile));
+    setEmailNotificationsEnabled(userProfile.emailNotificationsEnabled !== false);
     setPageError(loadError || null);
   }, [loadError, userProfile]);
 
@@ -229,6 +233,25 @@ export default function ProfilePage({
     setFormData(emptyForm(userProfile));
     setIsEditing(false);
     setPageError(null);
+  };
+
+  const handleEmailNotificationChange = async (enabled: boolean) => {
+    setEmailNotificationBusy(true);
+    setEmailNotificationMessage('');
+    setPageError(null);
+    try {
+      const response = await userApi.updateProfile({emailNotificationsEnabled: enabled});
+      if (!response.success || !response.data?.user) {
+        throw new Error(response.error || 'Your email notification preference could not be saved.');
+      }
+      setEmailNotificationsEnabled(enabled);
+      await onProfileUpdated(response.data.user);
+      setEmailNotificationMessage(enabled ? 'Email notifications are on.' : 'Email notifications are off.');
+    } catch (error) {
+      setPageError(error instanceof Error ? error.message : 'Your email notification preference could not be saved.');
+    } finally {
+      setEmailNotificationBusy(false);
+    }
   };
 
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -498,6 +521,33 @@ export default function ProfilePage({
                 <ReadOnlyValue label="Weekly commitment" value={userProfile.weeklyHours || 'Not set'} />
               </div>
             </div>
+
+            <section className="rounded-3xl border border-immersive-border bg-immersive-card p-5 shadow-xl shadow-immersive-shadow sm:p-7">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <Mail className="mt-0.5 h-5 w-5 text-[#FF4B3E]" />
+                  <div>
+                    <h2 className="text-base font-extrabold text-immersive-text-primary">Email notifications</h2>
+                    <p className="mt-1 max-w-xl text-xs leading-relaxed text-immersive-text-secondary">
+                      Receive roadmap and course confirmations, learning milestones, and your in-app notifications by email. Verification, welcome, and essential account-security emails are always sent.
+                    </p>
+                  </div>
+                </div>
+                <label className="inline-flex cursor-pointer items-center gap-3 text-xs font-bold text-immersive-text-primary">
+                  <span>{emailNotificationsEnabled ? 'On' : 'Off'}</span>
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    aria-label="Email notifications"
+                    checked={emailNotificationsEnabled}
+                    disabled={emailNotificationBusy}
+                    onChange={(event) => void handleEmailNotificationChange(event.target.checked)}
+                    className="h-5 w-9 cursor-pointer accent-[#FF4B3E] disabled:cursor-wait"
+                  />
+                </label>
+              </div>
+              {emailNotificationMessage && <p role="status" className="mt-3 text-xs text-emerald-400">{emailNotificationMessage}</p>}
+            </section>
 
             <section aria-labelledby="course-tabs-heading" className="rounded-3xl border border-immersive-border bg-immersive-card p-5 shadow-xl shadow-immersive-shadow sm:p-7">
               <div className="mb-5 flex flex-wrap items-end justify-between gap-3">

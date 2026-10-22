@@ -5,6 +5,7 @@ import { eq, desc, and, inArray } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { generateCompleteJson } from '../lib/gemini.js';
 import { buildSyllabus } from '../lib/syllabi.js';
+import { sendBrandedEmail } from '../lib/emailTemplates.js';
 
 const roadmaps = new Hono();
 
@@ -659,6 +660,31 @@ Important:
     .from(userRoadmaps)
     .where(eq(userRoadmaps.id, roadmapId))
     .limit(1);
+  const [roadmapOwner] = await db.select({
+    name: users.name,
+    email: users.email,
+    emailNotificationsEnabled: users.emailNotificationsEnabled,
+  }).from(users).where(eq(users.id, userId)).limit(1);
+  if (roadmapOwner?.emailNotificationsEnabled) {
+    try {
+      await sendBrandedEmail(roadmapOwner.email, {
+        subject: 'Your Cohortia roadmap is ready',
+        preheader: 'Your personalised roadmap has been created.',
+        eyebrow: 'ROADMAP CREATED',
+        heading: 'Your roadmap is ready',
+        greeting: `Hi ${roadmapOwner.name},`,
+        paragraphs: [
+          `Your personalised learning roadmap, “${roadmap[0].title},” has been created and saved to your account.`,
+          roadmap[0].description,
+        ],
+        buttonLabel: 'Open my roadmap',
+        buttonUrl: `${process.env.FRONTEND_URL?.replace(/\/+$/, '') || 'http://localhost:5173'}/dashboard`,
+        footerNote: 'You can manage optional email notifications from your profile settings.',
+      });
+    } catch (error) {
+      console.error('[roadmaps] Roadmap-created email delivery failed:', error.message);
+    }
+  }
 
   return c.json({
     success: true,

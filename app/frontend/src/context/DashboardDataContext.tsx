@@ -1,8 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "./AuthContext";
 import { learningApi, roadmapApi, trackApi, userApi, type Lesson, type Track } from "../services/api";
 import { DashboardMilestone } from "../data/dashboardData";
 import { trackLessonsToDashboardMilestones, LessonProgress } from "../lib/roadmap";
+import { prefetchDashboardCourseContent } from "../services/dashboardPrefetch";
 
 export interface DashboardDataValue {
   track: Track | null;
@@ -31,11 +32,31 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   const [isRoadmap, setIsRoadmap] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const loadSequence = useRef(0);
+  const dataUserId = useRef<string | null>(null);
+
+  const clearDashboardData = useCallback(() => {
+    setTrack(null);
+    setLessons([]);
+    setProgress([]);
+    setPracticalAttempts([]);
+    setPracticalTaskProgress([]);
+    setIsRoadmap(false);
+  }, []);
 
   const load = useCallback(async () => {
+    const sequence = ++loadSequence.current;
     if (!user) {
+      dataUserId.current = null;
+      clearDashboardData();
+      setError(null);
       setLoading(false);
       return;
+    }
+
+    if (dataUserId.current !== user.id) {
+      clearDashboardData();
+      dataUserId.current = user.id;
     }
 
     setLoading(true);
@@ -57,12 +78,19 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
         throw new Error("Your saved roadmap could not be loaded. Please try again or rebuild your roadmap.");
       }
 
+      let nextTrack: Track | null;
+      let nextLessons: Lesson[];
+      let nextProgress: LessonProgress[];
+      let nextPracticalAttempts: Array<Record<string, unknown>>;
+      let nextPracticalTaskProgress: Array<Record<string, unknown>>;
+      let nextIsRoadmap: boolean;
+      let courseNames: Array<{courseId: string; course: string}>;
+
       if (activeRoadmap) {
         const progressRes = await userApi.getProgress({courseIds: activeRoadmap.courses.map((course) => course.id)});
-        const progressData = Array.isArray(progressRes.data?.progress) ? progressRes.data.progress as LessonProgress[] : [];
-        setProgress(progressData);
-        setPracticalAttempts(Array.isArray(progressRes.data?.practicalAttempts) ? progressRes.data.practicalAttempts : []);
-        setPracticalTaskProgress(Array.isArray(progressRes.data?.practicalTaskProgress) ? progressRes.data.practicalTaskProgress : []);
+        nextProgress = Array.isArray(progressRes.data?.progress) ? progressRes.data.progress as LessonProgress[] : [];
+        nextPracticalAttempts = Array.isArray(progressRes.data?.practicalAttempts) ? progressRes.data.practicalAttempts : [];
+        nextPracticalTaskProgress = Array.isArray(progressRes.data?.practicalTaskProgress) ? progressRes.data.practicalTaskProgress : [];
         const coursesWithoutLessons = activeRoadmap.courses.filter((course) => course.lessons.length === 0);
         if (coursesWithoutLessons.length) {
           throw new Error(`No learning content is available for: ${coursesWithoutLessons.map((course) => course.title).join(", ")}.`);
@@ -76,51 +104,68 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
             moduleTitle: `${course.title} · ${lesson.moduleTitle || "Curriculum"}`,
           })),
         );
-        setIsRoadmap(true);
-        setTrack({
+        if (!roadmapLessons.length) {
+          throw new Error("No learning content is available for your roadmap yet.");
+        }
+        nextIsRoadmap = true;
+        courseNames = activeRoadmap.courses.map((course) => ({courseId: course.id, course: course.title}));
+        nextTrack = {
           id: firstCourse.id,
           title: `${String(activeRoadmap.selection?.selectedCareer || "Career")} Roadmap`,
           description: "Your ordered multi-course learning roadmap.",
           category: "Roadmap",
           difficulty: "Progressive",
           level: firstCourse.level,
-        });
-        setLessons(roadmapLessons);
-        return;
+        };
+        nextLessons = roadmapLessons;
+      } else {
+        const enrollments = Array.isArray(enrolledRes.data?.enrollments)
+          ? enrolledRes.data.enrollments as { trackId: string; status: string }[]
+          : [];
+        const activeEnrollment = enrollments.find((enrollment) => enrollment.status === "active") || enrollments[0];
+
+        if (!activeEnrollment) {
+          throw new Error("You are not enrolled in any course yet. Please choose a course first.");
+        }
+
+        const [lessonsRes, courseProgressRes] = await Promise.all([
+          trackApi.getLessons(activeEnrollment.trackId),
+          userApi.getProgress({courseIds: [activeEnrollment.trackId]}),
+        ]);
+        if (!lessonsRes.success || !lessonsRes.data?.track) {
+          throw new Error(lessonsRes.error || "Failed to load your enrolled course.");
+        }
+        nextLessons = Array.isArray(lessonsRes.data.lessons) ? lessonsRes.data.lessons : [];
+        if (!nextLessons.length) {
+          throw new Error("No learning content is available for your enrolled course yet.");
+        }
+        nextTrack = lessonsRes.data.track;
+        courseNames = [{courseId: nextTrack.id, course: nextTrack.title}];
+        nextProgress = Array.isArray(courseProgressRes.data?.progress)
+          ? courseProgressRes.data.progress as LessonProgress[]
+          : [];
+        nextPracticalAttempts = Array.isArray(courseProgressRes.data?.practicalAttempts) ? courseProgressRes.data.practicalAttempts : [];
+        nextPracticalTaskProgress = Array.isArray(courseProgressRes.data?.practicalTaskProgress) ? courseProgressRes.data.practicalTaskProgress : [];
+        nextIsRoadmap = false;
       }
 
-      setIsRoadmap(false);
-      const enrollments = Array.isArray(enrolledRes.data?.enrollments)
-        ? enrolledRes.data.enrollments as { trackId: string; status: string }[]
-        : [];
-      const activeEnrollment = enrollments.find((enrollment) => enrollment.status === "active") || enrollments[0];
-
-      if (!activeEnrollment) {
-        setError("You are not enrolled in any course yet. Please choose a course first.");
-        return;
-      }
-
-      const [lessonsRes, courseProgressRes] = await Promise.all([
-        trackApi.getLessons(activeEnrollment.trackId),
-        userApi.getProgress({courseIds: [activeEnrollment.trackId]}),
-      ]);
-      if (!lessonsRes.success || !lessonsRes.data) {
-        throw new Error(lessonsRes.error || "Failed to load course lessons.");
-      }
-      setTrack(lessonsRes.data.track || null);
-      setLessons(Array.isArray(lessonsRes.data.lessons) ? lessonsRes.data.lessons : []);
-      const courseProgressData = Array.isArray(courseProgressRes.data?.progress)
-        ? courseProgressRes.data.progress as LessonProgress[]
-        : [];
-      setProgress(courseProgressData);
-      setPracticalAttempts(Array.isArray(courseProgressRes.data?.practicalAttempts) ? courseProgressRes.data.practicalAttempts : []);
-      setPracticalTaskProgress(Array.isArray(courseProgressRes.data?.practicalTaskProgress) ? courseProgressRes.data.practicalTaskProgress : []);
+      if (sequence !== loadSequence.current) return;
+      setTrack(nextTrack);
+      setLessons(nextLessons);
+      setProgress(nextProgress);
+      setPracticalAttempts(nextPracticalAttempts);
+      setPracticalTaskProgress(nextPracticalTaskProgress);
+      setIsRoadmap(nextIsRoadmap);
+      prefetchDashboardCourseContent(courseNames);
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Failed to load course curriculum.");
+      if (sequence === loadSequence.current) {
+        clearDashboardData();
+        setError(requestError instanceof Error ? requestError.message : "Failed to load course curriculum.");
+      }
     } finally {
-      setLoading(false);
+      if (sequence === loadSequence.current) setLoading(false);
     }
-  }, [user]);
+  }, [clearDashboardData, user]);
 
   useEffect(() => {
     void load();
@@ -148,12 +193,12 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
       practicalAttempts,
       practicalTaskProgress,
       isRoadmap,
-      loading,
+      loading: loading || Boolean(user && dataUserId.current !== user.id),
       error,
       completeLesson,
       refresh: load,
     };
-  }, [completeLesson, error, isRoadmap, lessons, load, loading, practicalAttempts, practicalTaskProgress, progress, track]);
+  }, [completeLesson, error, isRoadmap, lessons, load, loading, practicalAttempts, practicalTaskProgress, progress, track, user]);
 
   return <DashboardDataContext.Provider value={value}>{children}</DashboardDataContext.Provider>;
 }

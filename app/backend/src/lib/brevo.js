@@ -35,7 +35,7 @@ async function brevoRequest(path, options = {}) {
   }
 }
 
-export async function sendNewsletterEmail({email, subject, html, text}) {
+export async function sendTransactionalEmail({email, subject, html, text, tags = ['cohortia-transactional']}) {
   const senderEmail = process.env.BREVO_SENDER_EMAIL?.trim() || 'hello@cohortia.study';
   const senderName = process.env.BREVO_SENDER_NAME?.trim() || 'Cohortia';
   await brevoRequest('/smtp/email', {
@@ -47,9 +47,13 @@ export async function sendNewsletterEmail({email, subject, html, text}) {
       subject,
       htmlContent: html,
       textContent: text,
-      tags: ['newsletter-opt-in'],
+      tags,
     }),
   });
+}
+
+export async function sendNewsletterEmail(options) {
+  return sendTransactionalEmail({...options, tags: ['newsletter-opt-in']});
 }
 
 export async function addNewsletterContact(email) {
