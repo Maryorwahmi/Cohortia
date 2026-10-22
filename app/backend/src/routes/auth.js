@@ -567,7 +567,6 @@ auth.post('/logout', async (c) => {
 auth.post('/session/refresh', async (c) => {
   const user = await rotateSession(c, createToken);
   if (!user) {
-    clearSessionCookie(c);
     return c.json({success: false, error: 'Your session has expired. Please sign in again.'}, 401);
   }
   return c.json({success: true});

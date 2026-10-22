@@ -38,11 +38,15 @@ async function fetchWithSessionRefresh(input: RequestInfo | URL, options: Reques
 
   if (!refreshInFlight) {
     const refreshUrl = `${url.origin}${apiPrefixMatch[1]}/auth/session/refresh`;
-    refreshInFlight = rawFetch(refreshUrl, {
+    const refreshSession = () => rawFetch(refreshUrl, {
       method: 'POST',
       credentials: 'include',
       headers: {'Content-Type': 'application/json'},
-    }).then((refreshResponse) => refreshResponse.ok).finally(() => {
+    }).then((refreshResponse) => refreshResponse.ok);
+    const refreshRequest = 'locks' in navigator
+      ? navigator.locks.request('cohortia-session-refresh', refreshSession)
+      : refreshSession();
+    refreshInFlight = refreshRequest.finally(() => {
       refreshInFlight = null;
     });
   }
