@@ -1,4 +1,4 @@
-import {access, mkdir, readFile, writeFile} from 'node:fs/promises';
+import {access, mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -59,6 +59,42 @@ async function loadCatalogFromLocalDatabase() {
   })).filter((course) => course.catalogStatus !== 'archive');
 }
 
+async function loadCatalogFromStaticFiles() {
+  const docsRoot = path.resolve(frontendRoot, '..', '..', 'docs');
+  const categories = await readdir(docsRoot, {withFileTypes: true});
+  const catalogFiles = categories
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(docsRoot, entry.name, 'catalog-courses-by-subcategory.json'))
+    .sort();
+  const coursesById = new Map();
+
+  for (const catalogPath of catalogFiles) {
+    let catalog;
+    try {
+      catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
+    } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      throw error;
+    }
+
+    if (!Array.isArray(catalog.subcategories)) {
+      throw new Error(`Invalid catalog data in ${catalogPath}`);
+    }
+    for (const subcategory of catalog.subcategories) {
+      for (const course of subcategory.courses || []) {
+        if (course.id && course.title && course.catalogStatus !== 'archive' && !coursesById.has(course.id)) {
+          coursesById.set(course.id, course);
+        }
+      }
+    }
+  }
+
+  if (coursesById.size === 0) {
+    throw new Error(`No catalog courses found in ${docsRoot}`);
+  }
+  return [...coursesById.values()];
+}
+
 async function loadCatalog() {
   try {
     const remoteCatalog = await loadCatalogFromApi();
@@ -69,7 +105,14 @@ async function loadCatalog() {
   try {
     return await loadCatalogFromLocalDatabase();
   } catch (error) {
-    throw new Error(`Unable to export the complete catalog. Set PUBLIC_CONTENT_API_URL or make the backend database available: ${error.message}`);
+    console.warn(`[public-content] local catalog database unavailable: ${error.message}`);
+  }
+  try {
+    const staticCatalog = await loadCatalogFromStaticFiles();
+    console.warn(`[public-content] using ${staticCatalog.length} catalog courses from repository data`);
+    return staticCatalog;
+  } catch (error) {
+    throw new Error(`Unable to export the catalog from the API, local database, or repository data: ${error.message}`);
   }
 }
 
