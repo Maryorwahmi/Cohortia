@@ -633,7 +633,7 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
                   </button>
                   <button
                     type="button"
-                    onClick={() => setBuilderMode("single_course")}
+                    onClick={() => navigate("/careers")}
                     className="rounded-3xl border border-immersive-border bg-immersive-card p-6 text-left transition hover:border-[#FF4B3E] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] sm:p-8"
                   >
                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-immersive-secondary/10 text-immersive-secondary"><BookOpen aria-hidden="true" className="h-6 w-6" /></span>
