@@ -55,7 +55,9 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
   const [courseError, setCourseError] = useState("");
   const onboardingMessage = new URLSearchParams(location.search).get("onboarding");
   const showOnboardingMessage = onboardingMessage === "required" || onboardingMessage === "google";
-  const shouldOpenBuilder = showOnboardingMessage || new URLSearchParams(location.search).get("signup") === "1";
+  const shouldOpenBuilder = showOnboardingMessage
+    || new URLSearchParams(location.search).get("signup") === "1"
+    || new URLSearchParams(location.search).get("builder") === "1";
 
   useEffect(() => {
     if (shouldOpenBuilder) setBuilderOpen(true);
@@ -67,7 +69,6 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
       const pendingSelection = sessionStorage.getItem("cohortia_pending_roadmap");
       const selection = pendingSelection ? JSON.parse(pendingSelection) as RoadmapSelection : null;
       if (selection?.mode === "single_course" && selection.selectedCourseId) {
-        setBuilderMode("single_course");
         setSelectedCourseId(selection.selectedCourseId);
       }
     } catch {
@@ -91,7 +92,6 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
 
   useEffect(() => {
     if (!builderOpen || builderMode !== "single_course" || catalogLoaded || catalogLoading) return;
-    let cancelled = false;
     setCatalogLoading(true);
     setCatalogError("");
     catalogCourseApi.getAll()
@@ -99,22 +99,17 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
         if (!response.success || !response.data?.courses) {
           throw new Error(response.error || "Courses could not be loaded. Please try again.");
         }
-        if (!cancelled) {
-          setCatalogCourses(response.data.courses.filter((course) => course.catalogStatus !== "archive"));
-          setCatalogLoaded(true);
-        }
+        setCatalogCourses(response.data.courses.filter((course) => course.catalogStatus !== "archive"));
+        setCatalogLoaded(true);
       })
       .catch((error: unknown) => {
-        if (!cancelled) {
-          setCatalogError(error instanceof Error ? error.message : "Courses could not be loaded. Please try again.");
-          setCatalogLoaded(true);
-        }
+        setCatalogError(error instanceof Error ? error.message : "Courses could not be loaded. Please try again.");
+        setCatalogLoaded(true);
       })
       .finally(() => {
-        if (!cancelled) setCatalogLoading(false);
+        setCatalogLoading(false);
       });
-    return () => { cancelled = true; };
-  }, [builderOpen, builderMode, catalogLoaded, catalogLoading]);
+  }, [builderOpen, builderMode, catalogLoaded]);
 
   const openBuilder = (goal: RoadmapGoal = "Pivot into a new career", mode: "choice" | "roadmap" | "single_course" = "choice") => {
     setBuilderGoal(goal);
@@ -632,9 +627,9 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
                     className="rounded-3xl border border-immersive-border bg-immersive-card p-6 text-left transition hover:border-[#FF4B3E] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] sm:p-8"
                   >
                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF4B3E]/10 text-[#FF4B3E]"><Target aria-hidden="true" className="h-6 w-6" /></span>
-                    <span className="mt-5 block text-xl font-extrabold text-immersive-text-primary">Create a roadmap</span>
+                    <span className="mt-5 block text-xl font-extrabold text-immersive-text-primary">Choose multiple courses</span>
                     <span className="mt-2 block text-sm leading-relaxed text-immersive-text-secondary">Choose a career goal and build a multi-course path across learning levels.</span>
-                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#FF4B3E]">Build a roadmap <ArrowRight aria-hidden="true" className="h-4 w-4" /></span>
+                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#FF4B3E]">Create a roadmap <ArrowRight aria-hidden="true" className="h-4 w-4" /></span>
                   </button>
                   <button
                     type="button"

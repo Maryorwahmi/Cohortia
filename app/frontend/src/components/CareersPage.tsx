@@ -334,7 +334,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                 <ArrowRight size={17} aria-hidden="true" />
               </button>
               <Link
-                to="/experience"
+                to="/experience?builder=1"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-immersive-border bg-immersive-card px-6 py-3 text-sm font-semibold text-immersive-text-primary transition hover:border-immersive-primary hover:bg-immersive-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-immersive-primary focus-visible:ring-offset-2 focus-visible:ring-offset-immersive-bg"
               >
                 Help me choose

@@ -503,7 +503,7 @@ export default function Header() {
                             ) : (
                               <p className="mt-3 text-sm leading-6 text-immersive-text-secondary">Skill links will appear here when the catalog is available.</p>
                             )}
-                            <Link to="/experience" onClick={() => setIsCareerMenuOpen(false)} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-immersive-primary hover:underline">
+                            <Link to="/experience?builder=1" onClick={() => setIsCareerMenuOpen(false)} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-immersive-primary hover:underline">
                               Help me choose <ArrowRight size={13} aria-hidden="true" />
                             </Link>
                           </section>
