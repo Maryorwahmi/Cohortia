@@ -176,8 +176,17 @@ async function ensureNewsletterSubscriptionColumns() {
     ON newsletter_subscriptions (unsubscribe_token_hash)`);
 }
 
+async function ensureBookingSlotIndex() {
+  await client.execute(`
+    CREATE UNIQUE INDEX IF NOT EXISTS bookings_active_slot_unique
+    ON bookings (date, time)
+    WHERE status IN ('pending', 'confirmed')
+  `);
+}
+
 await ensureProfileSecurityTables();
 await ensureNewsletterSubscriptionColumns();
+await ensureBookingSlotIndex();
 await ensureCourseFinalTables().catch((error) => {
   console.error('[db] Failed to initialize course-final tables:', error);
 });

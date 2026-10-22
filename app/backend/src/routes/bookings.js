@@ -4,6 +4,7 @@ import { bookings } from '../db/schema.js';
 import { eq, and, ne } from 'drizzle-orm';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { enforceRateLimits, getRateLimitClientIp } from '../lib/rateLimit.js';
 
 const bookingsRoute = new Hono();
 
@@ -45,6 +46,14 @@ bookingsRoute.get('/availability', async (c) => {
 
 // Public or auth: create a booking
 bookingsRoute.post('/', async (c) => {
+  const ipLimit = await enforceRateLimits(c, [{
+    scope: 'booking-create-ip',
+    actor: getRateLimitClientIp(c),
+    limit: 5,
+    windowSeconds: 60 * 60,
+  }]);
+  if (ipLimit) return ipLimit;
+
   const body = await c.req.json();
   const result = createBookingSchema.safeParse(body);
   if (!result.success) {
@@ -56,6 +65,14 @@ bookingsRoute.post('/', async (c) => {
   }
 
   const { name, email, track, date, time, notes } = result.data;
+
+  const emailLimit = await enforceRateLimits(c, [{
+    scope: 'booking-create-email',
+    actor: email.trim().toLowerCase(),
+    limit: 3,
+    windowSeconds: 24 * 60 * 60,
+  }]);
+  if (emailLimit) return emailLimit;
 
   if (!AVAILABLE_SLOTS.includes(time)) {
     return c.json({ success: false, error: 'Selected time slot is not available' }, 400);
@@ -78,19 +95,27 @@ bookingsRoute.post('/', async (c) => {
   const userId = c.get('userId') || null;
   const now = new Date().toISOString();
 
-  const [booking] = await db.insert(bookings).values({
-    id: uuidv4(),
-    userId,
-    name,
-    email,
-    track,
-    date,
-    time,
-    notes: notes || null,
-    status: 'pending',
-    createdAt: now,
-    updatedAt: now,
-  }).returning();
+  let booking;
+  try {
+    [booking] = await db.insert(bookings).values({
+      id: uuidv4(),
+      userId,
+      name,
+      email,
+      track,
+      date,
+      time,
+      notes: notes || null,
+      status: 'pending',
+      createdAt: now,
+      updatedAt: now,
+    }).returning();
+  } catch (error) {
+    if (/unique|constraint/i.test(String(error?.message || ''))) {
+      return c.json({ success: false, error: 'Time slot already booked' }, 409);
+    }
+    throw error;
+  }
 
   return c.json({
     success: true,

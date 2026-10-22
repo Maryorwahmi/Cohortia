@@ -78,7 +78,18 @@ function InlineSvg({ svg, className = '' }: { svg?: string; className?: string }
   if (!svg) return null;
   const sanitizedSvg = sanitizeGeneratedSvg(svg);
   if (!sanitizedSvg) return null;
-  return <div className={`w-full h-full ${className}`} dangerouslySetInnerHTML={{ __html: sanitizedSvg }} />;
+  const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(sanitizedSvg)}`;
+  return (
+    <div className={`w-full h-full ${className}`}>
+      <img
+        src={dataUrl}
+        alt=""
+        aria-hidden="true"
+        className="block w-full h-full object-contain"
+        referrerPolicy="no-referrer"
+      />
+    </div>
+  );
 }
 
 function escapeHtml(text: string) {
