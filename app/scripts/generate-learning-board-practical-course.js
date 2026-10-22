@@ -285,23 +285,29 @@ async function generateCourse(options) {
       }
     }
     if (options["dry-run"] === true || validEntries.length > 0) {
-      const result = await generateModuleWithRetries(
-        { ...options, model },
-        moduleNumber,
-        validEntries,
-        outputRoot,
-        resolvedCourseId,
-        syllabusPath,
-        repoRoot,
-      );
+      const batches = options["per-chapter"] === true
+        ? validEntries.map((entry) => [entry])
+        : [validEntries];
 
-      if (result.status === "dry-run") {
-        dryRuns.push({
+      for (const batch of batches) {
+        const result = await generateModuleWithRetries(
+          { ...options, model },
           moduleNumber,
-          title: moduleTitleFrom(markdown, moduleNumber),
-          chapters: result.chapters.map((chapter) => chapter.chapterNumber),
-          promptCharacters: result.promptCharacters,
-        });
+          batch,
+          outputRoot,
+          resolvedCourseId,
+          syllabusPath,
+          repoRoot,
+        );
+
+        if (result.status === "dry-run") {
+          dryRuns.push({
+            moduleNumber,
+            title: moduleTitleFrom(markdown, moduleNumber),
+            chapters: result.chapters.map((chapter) => chapter.chapterNumber),
+            promptCharacters: result.promptCharacters,
+          });
+        }
       }
     }
 
@@ -463,10 +469,11 @@ function usage() {
   return [
     "Usage:",
     "  node scripts/generate-learning-board-practical-course.js --course-id <course-id> --module <number> [--chapters <number[,number...]>] [--module-retries <count>] [--dry-run] [--skip-import]",
-    "  node scripts/generate-learning-board-practical-course.js --category <category> --subcategory <name> [--module <number>] [--module-retries <count>] [--list-only]",
+    "  node scripts/generate-learning-board-practical-course.js --category <category> --subcategory <name> [--module <number>] [--per-chapter] [--module-retries <count>] [--list-only]",
     "  node scripts/generate-learning-board-practical-course.js --syllabus <path> [--course-id <course-id>]",
     "",
-    "The generator creates an entire module's practicals in one model request,",
+    "The generator creates an entire module's practicals in one model request by default.",
+    "Use --per-chapter to make one model request per chapter, which is safer for large modules.",
     "imports every generated chapter into Turso, then writes course-manifest.json.",
     "Use --category and --subcategory to generate every module for every course in that catalog subcategory; add --module to limit generation to one module.",
     "Use --list-only with --subcategory to preview the matched courses and syllabus paths.",
