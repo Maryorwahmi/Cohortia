@@ -880,9 +880,19 @@ export const communityReactionsApi = {
 // Newsletter
 export const newsletterApi = {
   subscribe: (data: { email: string; name?: string }) =>
-    fetchApi<{ success: boolean; message?: string; data?: { subscribed: boolean }; error?: string }>('/newsletter/subscribe', {
+    fetchApi<{ success: boolean; message?: string; data?: { confirmationRequired: boolean }; error?: string }>('/newsletter/subscribe', {
       method: 'POST',
       body: JSON.stringify(data),
+    }),
+  confirm: (token: string) =>
+    fetchApi<{success: boolean; message?: string; error?: string}>('/newsletter/confirm', {
+      method: 'POST',
+      body: JSON.stringify({token}),
+    }),
+  unsubscribe: (token: string) =>
+    fetchApi<{success: boolean; message?: string; error?: string}>('/newsletter/unsubscribe', {
+      method: 'POST',
+      body: JSON.stringify({token}),
     }),
 };
 

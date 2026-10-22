@@ -28,6 +28,10 @@ Set a private `ADMIN_BOOTSTRAP_PASSWORD` (at least 12 characters) in the backend
 
 Set `TOTP_ENCRYPTION_KEY` in the backend environment to a private random value of at least 32 characters before learners can enable an authenticator app. The backend derives an AES-256-GCM key from this value and encrypts authenticator secrets at rest. Keep the value private and consistent across deployments; changing it makes existing authenticator secrets unreadable. Each learner receives one-time recovery codes when enabling two-factor authentication.
 
+### Newsletter subscriptions
+
+The public newsletter form uses Brevo for confirmation emails and for syncing confirmed subscribers to a Brevo contact list. Configure `BREVO_API_KEY` and `BREVO_NEWSLETTER_LIST_ID` as backend environment variables, and verify `hello@cohortia.study` as a sender in Brevo. Set `FRONTEND_URL` to the public site so confirmation and unsubscribe links return to the correct pages. Keep the API key private on the backend. Subscription records are pending until the visitor confirms; confirmation links expire after 24 hours, and unsubscribing removes the address from the configured list and blocks Brevo email delivery for that contact.
+
 Profile images and syllabus exports use the authenticated users API. Profile image uploads require the same Cloudflare R2 bucket configuration and browser CORS policy used by course project evidence uploads.
 
 The alpha administrator can grant existing registered users admin access and independently select course permissions for learning screens, assessments, practicals, and course overviews for courses without those content types. Bulk selectors can grant all available access or target one content type. Only the alpha administrator can manage other admins; the alpha account retains access to every catalog course.
@@ -123,4 +127,8 @@ Error responses:
 | `CORS_ORIGIN` | Frontend origin | `http://localhost:5173` |
 | `JWT_SECRET` | Required JWT signing secret; at least 32 bytes, with no insecure default | None |
 | `COHORTIA_API_ORIGIN_SECRET` | Required on Render or when `NODE_ENV=production`; shared only with the Cloudflare API proxy Worker, at least 32 bytes | None |
+| `BREVO_API_KEY` | Private Brevo API key used for newsletter confirmation emails and contact synchronization | None |
+| `BREVO_NEWSLETTER_LIST_ID` | Brevo list ID for confirmed newsletter subscribers | None |
+| `BREVO_SENDER_EMAIL` | Verified Brevo sender address | `hello@cohortia.study` |
+| `BREVO_SENDER_NAME` | Sender display name | `Cohortia` |
 | `NODE_ENV` | Environment | `development` |

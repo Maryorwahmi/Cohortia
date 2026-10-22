@@ -11,6 +11,7 @@ import Experience from './pages/Experience';
 import Community from './pages/Community';
 import Contact from './pages/Contact';
 import Auth from './pages/Auth';
+import NewsletterAction from './pages/NewsletterAction';
 import CourseDetails from './pages/CourseDetails';
 import CourseAssessmentDetail from './pages/CourseAssessmentDetail';
 import ChapterAssessmentDetail from './pages/ChapterAssessmentDetail';
@@ -43,6 +44,8 @@ export default function App() {
         <Route path="/experience" element={<Experience />} />
         <Route path="/community" element={<Community />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/newsletter/confirm" element={<NewsletterAction action="confirm" />} />
+        <Route path="/newsletter/unsubscribe" element={<NewsletterAction action="unsubscribe" />} />
         <Route path="/careers/course/:courseId" element={<CourseDetails />} />
         <Route path="/assessments/:courseId" element={<CourseAssessmentDetail />} />
         <Route path="/assessments/:courseId/:module/:chapter" element={<ChapterAssessmentDetail />} />

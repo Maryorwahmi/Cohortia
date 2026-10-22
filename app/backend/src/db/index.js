@@ -146,7 +146,38 @@ async function ensureProfileSecurityTables() {
     ON rate_limit_windows (updated_at)`);
 }
 
+async function ensureNewsletterSubscriptionColumns() {
+  await client.execute(`CREATE TABLE IF NOT EXISTS newsletter_subscriptions (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT,
+    subscribed_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`);
+  const result = await client.execute('PRAGMA table_info(newsletter_subscriptions)');
+  const existingColumns = new Set(result.rows.map((row) => row.name));
+  const columns = [
+    ['status', "TEXT NOT NULL DEFAULT 'confirmed'"],
+    ['confirmation_token_hash', 'TEXT'],
+    ['confirmation_expires_at', 'TEXT'],
+    ['unsubscribe_token_hash', 'TEXT'],
+    ['unsubscribed_at', 'TEXT'],
+  ];
+
+  for (const [name, definition] of columns) {
+    if (!existingColumns.has(name)) {
+      await client.execute(`ALTER TABLE newsletter_subscriptions ADD COLUMN ${name} ${definition}`);
+    }
+  }
+  await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS newsletter_subscriptions_confirmation_token_idx
+    ON newsletter_subscriptions (confirmation_token_hash)`);
+  await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS newsletter_subscriptions_unsubscribe_token_idx
+    ON newsletter_subscriptions (unsubscribe_token_hash)`);
+}
+
 await ensureProfileSecurityTables();
+await ensureNewsletterSubscriptionColumns();
 await ensureCourseFinalTables().catch((error) => {
   console.error('[db] Failed to initialize course-final tables:', error);
 });

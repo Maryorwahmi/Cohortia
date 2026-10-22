@@ -2,21 +2,33 @@ import { useState, FormEvent, MouseEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, Sparkles, CheckCircle2 } from "lucide-react";
 import Logo from "./Logo";
+import { newsletterApi } from "../services/api";
 
 export default function Footer() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [subscriptionMessage, setSubscriptionMessage] = useState("");
+  const [subscriptionError, setSubscriptionError] = useState("");
 
-  const handleSubscribe = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubscribe = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email.trim() || !email.includes("@")) {
-      alert("Please enter a valid email address to stay updated.");
-      return;
+    setSubmitting(true);
+    setSubscriptionError("");
+    try {
+      const response = await newsletterApi.subscribe({email});
+      if (!response.success) {
+        throw new Error(response.error || "Your subscription request could not be submitted.");
+      }
+      setSubscribed(true);
+      setSubscriptionMessage(response.message || "Check your inbox for a confirmation link.");
+      setEmail("");
+    } catch (error) {
+      setSubscriptionError(error instanceof Error ? error.message : "Your subscription request could not be submitted.");
+    } finally {
+      setSubmitting(false);
     }
-    setSubscribed(true);
-    localStorage.setItem("cohortia_newsletter_sub", email);
-    setEmail("");
   };
 
   const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, targetId: string, pagePath: string = "/") => {
@@ -105,14 +117,16 @@ export default function Footer() {
               <div className="bg-immersive-secondary/10 border border-immersive-secondary/20 rounded-2xl p-4 flex items-start space-x-2.5 text-xs text-immersive-secondary animate-in zoom-in-95 duration-200">
                 <CheckCircle2 className="w-4.5 h-4.5 text-immersive-secondary mt-0.5 flex-shrink-0" />
                 <div>
-                  <span className="font-bold block">Successfully Subscribed!</span>
-                  <span className="text-immersive-text-secondary font-medium text-[11px] block mt-0.5">We'll alert you as soon as the next Cohort matching cycle goes live.</span>
+                  <span className="font-bold block">Request received</span>
+                  <span className="text-immersive-text-secondary font-medium text-[11px] block mt-0.5">{subscriptionMessage}</span>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2">
+              <form onSubmit={(event) => void handleSubscribe(event)} className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="email"
+                  required
+                  disabled={submitting}
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -120,12 +134,15 @@ export default function Footer() {
                 />
                 <button
                   type="submit"
+                  disabled={submitting}
                   className="bg-immersive-secondary hover:brightness-110 text-immersive-bg font-bold text-xs px-5 py-2.5 rounded-xl shadow-md shadow-immersive-shadow transition cursor-pointer"
                 >
-                  Subscribe
+                  {submitting ? "Sending..." : "Subscribe"}
                 </button>
               </form>
             )}
+            {subscriptionError && <p role="alert" className="text-xs text-rose-500">{subscriptionError}</p>}
+            {!subscribed && <p className="text-[10px] leading-relaxed text-immersive-text-secondary">We’ll email you a confirmation link. You can unsubscribe at any time.</p>}
           </div>
 
         </div>
