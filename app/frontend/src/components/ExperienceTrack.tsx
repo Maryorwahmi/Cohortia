@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 interface ExperienceTrackProps {
   userProfile?: unknown;
   onOpenWizard?: () => void;
+  initialGoal?: RoadmapGoal;
 }
 
 const goals: Array<{ 
@@ -112,12 +113,12 @@ function parseCourseSkills(value?: string | null): string[] {
   return value.split(/[,;]/).map((skill) => skill.trim()).filter(Boolean);
 }
 
-export default function ExperienceTrack({ onOpenWizard }: ExperienceTrackProps) {
+export default function ExperienceTrack({ onOpenWizard, initialGoal }: ExperienceTrackProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, refreshUser } = useAuth();
   const [step, setStep] = useState(1);
-  const [goal, setGoal] = useState<RoadmapGoal>(goals[0].id);
+  const [goal, setGoal] = useState<RoadmapGoal>(initialGoal || goals[0].id);
   const [courseCategories, setCourseCategories] = useState<CourseCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<CourseCategory | null>(null);
   const [categoriesLoading, setCategoriesLoading] = useState(true);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   ArrowRight, 
   Layers3, 
@@ -15,6 +15,7 @@ import {
   Briefcase, 
   TrendingUp, 
   Award, 
+  X,
   Minus,
   HelpCircle,
   FileCode2,
@@ -22,7 +23,7 @@ import {
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ExperienceTrackSim from "./ExperienceTrack";
-import { UserPreferences } from "../types";
+import { RoadmapGoal, UserPreferences } from "../types";
 
 interface ExperienceTrackPageProps {
   userProfile: UserPreferences | null;
@@ -33,8 +34,34 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
   const navigate = useNavigate();
   const location = useLocation();
   const [activePlanTab, setActivePlanTab] = useState<"pivot" | "upskill" | "lead">("pivot");
+  const [builderOpen, setBuilderOpen] = useState(false);
+  const [builderGoal, setBuilderGoal] = useState<RoadmapGoal>("Pivot into a new career");
   const onboardingMessage = new URLSearchParams(location.search).get("onboarding");
   const showOnboardingMessage = onboardingMessage === "required" || onboardingMessage === "google";
+  const shouldOpenBuilder = showOnboardingMessage || new URLSearchParams(location.search).get("signup") === "1";
+
+  useEffect(() => {
+    if (shouldOpenBuilder) setBuilderOpen(true);
+  }, [shouldOpenBuilder]);
+
+  useEffect(() => {
+    if (!builderOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setBuilderOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [builderOpen]);
+
+  const openBuilder = (goal: RoadmapGoal = "Pivot into a new career") => {
+    setBuilderGoal(goal);
+    setBuilderOpen(true);
+  };
 
   const comparisonRows = [
     { feature: "Career Goal", pivot: "Change careers into tech", upskill: "Grow in current role", lead: "Lead & specialize" },
@@ -91,8 +118,17 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
           <h2 className="text-3xl font-extrabold text-immersive-text-primary mt-2">
             Plan Your Learning Journey
           </h2>
+          <p className="mt-3 text-sm text-immersive-text-secondary">
+            Build a personalized course path by choosing a career goal and courses for your learning stage.
+          </p>
+          <button
+            type="button"
+            onClick={() => openBuilder()}
+            className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF4B3E] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#FF4B3E]/20 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E] focus-visible:ring-offset-2"
+          >
+            Build your roadmap <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
-        <ExperienceTrackSim userProfile={userProfile} onOpenWizard={onOpenWizard} />
       </section>
 
       {/* 2. The Three Pricing Cards */}
@@ -160,13 +196,14 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
             </div>
 
             <div className="mt-8 pt-4 border-t border-immersive-border/30">
-              <a 
-                href="#experience-simulator"
+              <button
+                type="button"
+                onClick={() => openBuilder("Pivot into a new career")}
                 className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-[#FF4B3E]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Select Pivot Track ($23)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+              </button>
             </div>
           </div>
 
@@ -232,13 +269,14 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
             </div>
 
             <div className="mt-8 pt-4 border-t border-immersive-border/30">
-              <a 
-                href="#experience-simulator"
+              <button
+                type="button"
+                onClick={() => openBuilder("Up-skill in my current role")}
                 className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-[#FF4B3E] hover:brightness-110 shadow-lg shadow-[#FF4B3E]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Select Upskill Track ($30)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+              </button>
             </div>
           </div>
 
@@ -304,13 +342,14 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
             </div>
 
             <div className="mt-8 pt-4 border-t border-immersive-border/30">
-              <a 
-                href="#experience-simulator"
+              <button
+                type="button"
+                onClick={() => openBuilder("Lead & Specialize")}
                 className="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-white bg-purple-600 hover:brightness-110 shadow-lg shadow-purple-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Select Lead Track ($45)</span>
                 <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+              </button>
             </div>
           </div>
 
@@ -415,6 +454,44 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
           </button>
         </div>
       </section>
+
+      {builderOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-0 backdrop-blur-sm sm:p-4"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setBuilderOpen(false);
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="roadmap-builder-title"
+            className="relative flex h-full max-h-screen w-full flex-col overflow-hidden bg-immersive-bg sm:h-[min(92vh,900px)] sm:max-w-6xl sm:rounded-3xl sm:border sm:border-immersive-border sm:shadow-2xl"
+          >
+            <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-immersive-border bg-immersive-card px-4 py-3 sm:px-6">
+              <div>
+                <span className="block text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#FF4B3E]">Interactive career roadmap</span>
+                <h2 id="roadmap-builder-title" className="mt-1 text-base font-extrabold text-immersive-text-primary sm:text-lg">Build your learning journey</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setBuilderOpen(false)}
+                aria-label="Close roadmap builder"
+                className="rounded-full border border-immersive-border p-2 text-immersive-text-secondary transition hover:border-[#FF4B3E] hover:text-[#FF4B3E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4B3E]"
+              >
+                <X aria-hidden="true" className="h-5 w-5" />
+              </button>
+            </header>
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <ExperienceTrackSim
+                userProfile={userProfile}
+                onOpenWizard={onOpenWizard}
+                initialGoal={builderGoal}
+              />
+            </div>
+          </section>
+        </div>
+      )}
 
     </main>
   );
