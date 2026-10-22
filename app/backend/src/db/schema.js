@@ -53,6 +53,15 @@ export const userActionTokens = sqliteTable('user_action_tokens', {
   userActionExpiryIdx: index('user_action_tokens_user_action_expiry_idx').on(table.userId, table.action, table.expiresAt),
 }));
 
+export const rateLimitWindows = sqliteTable('rate_limit_windows', {
+  key: text('key').primaryKey(),
+  windowStart: integer('window_start').notNull(),
+  requestCount: integer('request_count').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => ({
+  rateLimitUpdatedAtIdx: index('rate_limit_windows_updated_at_idx').on(table.updatedAt),
+}));
+
 export const adminCoursePermissions = sqliteTable('admin_course_permissions', {
   adminUserId: text('admin_user_id').notNull(),
   courseId: text('course_id').notNull(),

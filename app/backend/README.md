@@ -76,6 +76,22 @@ Browser login, signup, two-factor completion, and Google sign-in set a server-ma
 
 The session JWT is not returned in API response bodies or Google redirect URLs. Existing browser sessions must sign in again after this change because localStorage tokens are no longer accepted.
 
+### API rate limits
+
+Rate-limit counters are stored in Turso and created automatically when the backend starts. They use hashed actor keys and fixed UTC windows; old counters are pruned after 48 hours. Like other fixed-window policies, a request burst can straddle a window boundary.
+
+| Request | Limit |
+|----------|-------|
+| Login | 10 per IP per 15 minutes |
+| Signup | 5 per IP per hour |
+| Two-factor verification | 10 per IP per 15 minutes, in addition to the existing five failed attempts per challenge |
+| Public AI chat | 10 per IP per 5 minutes |
+| Signed-in AI chat | 20 per user per 5 minutes and 100 per user per day |
+| Contact form and newsletter subscription | 5 per IP per hour each |
+| Practical execution | 10 per user per 5 minutes and 100 per user per day |
+
+Exceeding a limit returns HTTP 429 with a `Retry-After` header. The Cloudflare API proxy also applies short, per-location burst limits; these complement, but do not replace, the persistent backend windows. The production origin-secret check must be enabled so clients cannot bypass the proxy.
+
 ## Response Format
 
 All responses follow this structure:
@@ -106,4 +122,5 @@ Error responses:
 | `PORT` | Server port | `3000` |
 | `CORS_ORIGIN` | Frontend origin | `http://localhost:5173` |
 | `JWT_SECRET` | Required JWT signing secret; at least 32 bytes, with no insecure default | None |
+| `COHORTIA_API_ORIGIN_SECRET` | Required on Render or when `NODE_ENV=production`; shared only with the Cloudflare API proxy Worker, at least 32 bytes | None |
 | `NODE_ENV` | Environment | `development` |

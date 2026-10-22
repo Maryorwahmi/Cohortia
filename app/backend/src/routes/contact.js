@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
+import { enforceRateLimits, getRateLimitClientIp } from '../lib/rateLimit.js';
 
 const contact = new Hono();
 
@@ -11,6 +12,14 @@ const contactSchema = z.object({
 
 // Submit contact form
 contact.post('/', async (c) => {
+  const rateLimitResponse = await enforceRateLimits(c, [{
+    scope: 'contact-ip',
+    actor: getRateLimitClientIp(c),
+    limit: 5,
+    windowSeconds: 60 * 60,
+  }]);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const body = await c.req.json();
 
   const result = contactSchema.safeParse(body);
@@ -26,7 +35,7 @@ contact.post('/', async (c) => {
 
   // In production, you would send an email or store in a queue
   // For now, just return success
-  console.log('Contact form received:', data);
+  console.info('Contact form received');
 
   return c.json({
     success: true,

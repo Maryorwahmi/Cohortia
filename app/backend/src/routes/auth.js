@@ -14,6 +14,7 @@ import {verifyAndConsumeSecondFactor} from '../lib/twoFactor.js';
 import {serializePublicUser} from '../lib/userProfile.js';
 import {getJwtSecret} from '../lib/jwtSecret.js';
 import {clearSessionCookie, getSessionCookieToken, setSessionCookie} from '../lib/sessionAuth.js';
+import {enforceRateLimits, getRateLimitClientIp} from '../lib/rateLimit.js';
 
 const auth = new Hono();
 const frontendUrl = () => (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
@@ -103,6 +104,14 @@ const loginSchema = z.object({
 
 // Register
 auth.post('/signup', async (c) => {
+  const rateLimitResponse = await enforceRateLimits(c, [{
+    scope: 'auth-signup-ip',
+    actor: getRateLimitClientIp(c),
+    limit: 5,
+    windowSeconds: 60 * 60,
+  }]);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const body = await c.req.json();
   
   const result = signupSchema.safeParse(body);
@@ -336,6 +345,14 @@ auth.post('/signup', async (c) => {
 
 // Login
 auth.post('/login', async (c) => {
+  const rateLimitResponse = await enforceRateLimits(c, [{
+    scope: 'auth-login-ip',
+    actor: getRateLimitClientIp(c),
+    limit: 10,
+    windowSeconds: 15 * 60,
+  }]);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const body = await c.req.json();
 
   const result = loginSchema.safeParse(body);
@@ -398,6 +415,14 @@ auth.post('/login', async (c) => {
 });
 
 auth.post('/verify-two-factor', async (c) => {
+  const rateLimitResponse = await enforceRateLimits(c, [{
+    scope: 'auth-mfa-ip',
+    actor: getRateLimitClientIp(c),
+    limit: 10,
+    windowSeconds: 15 * 60,
+  }]);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const body = await c.req.json();
   const challenge = await findUserActionToken(body.challengeToken, undefined, 'mfa_login');
   if (!challenge) {

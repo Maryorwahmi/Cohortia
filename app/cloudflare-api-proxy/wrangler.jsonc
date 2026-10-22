@@ -1,0 +1,78 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "cohortia-api-origin-proxy",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-21",
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "api.cohortia.study/*",
+      "zone_name": "cohortia.study"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "AUTH_LOGIN_RATE_LIMITER",
+      "namespace_id": "1879302401",
+      "simple": {
+        "limit": 5,
+        "period": 10
+      }
+    },
+    {
+      "name": "AUTH_SIGNUP_RATE_LIMITER",
+      "namespace_id": "1879302402",
+      "simple": {
+        "limit": 3,
+        "period": 10
+      }
+    },
+    {
+      "name": "AUTH_MFA_RATE_LIMITER",
+      "namespace_id": "1879302403",
+      "simple": {
+        "limit": 5,
+        "period": 10
+      }
+    },
+    {
+      "name": "CHAT_RATE_LIMITER",
+      "namespace_id": "1879302404",
+      "simple": {
+        "limit": 10,
+        "period": 10
+      }
+    },
+    {
+      "name": "FORM_RATE_LIMITER",
+      "namespace_id": "1879302405",
+      "simple": {
+        "limit": 3,
+        "period": 10
+      }
+    },
+    {
+      "name": "PRACTICAL_RATE_LIMITER",
+      "namespace_id": "1879302406",
+      "simple": {
+        "limit": 5,
+        "period": 10
+      }
+    }
+  ],
+  "vars": {
+    "API_ORIGIN": "https://cohortia.onrender.com"
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.05
+    },
+    "redact_query_string": true
+  }
+}

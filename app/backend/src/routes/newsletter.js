@@ -4,6 +4,7 @@ import { newsletterSubscriptions, users } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { enforceRateLimits, getRateLimitClientIp } from '../lib/rateLimit.js';
 
 const newsletter = new Hono();
 
@@ -14,6 +15,14 @@ const subscribeSchema = z.object({
 
 // Public: subscribe to newsletter
 newsletter.post('/subscribe', async (c) => {
+  const rateLimitResponse = await enforceRateLimits(c, [{
+    scope: 'newsletter-subscribe-ip',
+    actor: getRateLimitClientIp(c),
+    limit: 5,
+    windowSeconds: 60 * 60,
+  }]);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const body = await c.req.json();
 
   const result = subscribeSchema.safeParse(body);

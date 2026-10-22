@@ -5,8 +5,38 @@ import { users, userRoadmaps, userLessonProgress, mentorContext, tracks, lessons
 import { eq, desc, and, or, like } from 'drizzle-orm';
 import { callGemini } from '../lib/gemini.js';
 import { logActivity } from '../lib/activity.js';
+import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../lib/jwtSecret.js';
+import { getSessionCookieToken } from '../lib/sessionAuth.js';
+import { enforceRateLimits, getRateLimitClientIp } from '../lib/rateLimit.js';
 
 const chat = new Hono();
+
+chat.use('/message', async (c, next) => {
+  const token = getSessionCookieToken(c);
+  if (!token) return next();
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, getJwtSecret());
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) return next();
+    throw error;
+  }
+
+  if (!decoded || typeof decoded !== 'object' || typeof decoded.userId !== 'string') {
+    return next();
+  }
+
+  const [user] = await db
+    .select({id: users.id})
+    .from(users)
+    .where(eq(users.id, decoded.userId))
+    .limit(1);
+  if (user) c.set('userId', user.id);
+
+  await next();
+});
 
 async function buildUserContext(userId, focusRoadmapTitle = null) {
   const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
@@ -329,6 +359,21 @@ RESPONSE CALIBRATION:
 - Every response should resolve confusion, correct a misconception, teach, connect, practice, or move the student toward the next lesson.`;
 
 chat.post('/message', async (c) => {
+  const authenticatedUserId = c.get('userId');
+  const rateLimits = authenticatedUserId
+    ? [
+      {scope: 'chat-user-5m', actor: authenticatedUserId, limit: 20, windowSeconds: 5 * 60},
+      {scope: 'chat-user-1d', actor: authenticatedUserId, limit: 100, windowSeconds: 24 * 60 * 60},
+    ]
+    : [{
+      scope: 'chat-public-ip-5m',
+      actor: getRateLimitClientIp(c),
+      limit: 10,
+      windowSeconds: 5 * 60,
+    }];
+  const rateLimitResponse = await enforceRateLimits(c, rateLimits);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const body = await c.req.json();
   const {
     message,

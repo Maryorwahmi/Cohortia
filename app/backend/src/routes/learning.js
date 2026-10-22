@@ -5,6 +5,7 @@ import { eq, and, inArray, desc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { sql } from 'drizzle-orm';
 import { authMiddleware } from '../middleware/auth.js';
+import { enforceRateLimits } from '../lib/rateLimit.js';
 import { logActivity } from '../lib/activity.js';
 import { evaluateAssessmentAnswer } from '../lib/deterministicAssessment.js';
 import { mkdir, mkdtemp, readdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
@@ -1255,6 +1256,13 @@ learning.patch('/board-progress/:courseId/:module/:chapter', async (c) => {
 
 // Execute native C/C++ practical code with a fixed, non-shell compiler command.
 learning.post('/practical-execute', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+  const rateLimitResponse = await enforceRateLimits(c, [
+    {scope: 'practical-execute-user-5m', actor: userId, limit: 10, windowSeconds: 5 * 60},
+    {scope: 'practical-execute-user-1d', actor: userId, limit: 100, windowSeconds: 24 * 60 * 60},
+  ]);
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const body = await c.req.json();
     const request = body && typeof body === 'object' && !Array.isArray(body) ? body : {};

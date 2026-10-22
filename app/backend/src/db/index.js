@@ -136,6 +136,14 @@ async function ensureProfileSecurityTables() {
   )`);
   await client.execute(`CREATE INDEX IF NOT EXISTS user_action_tokens_user_action_expiry_idx
     ON user_action_tokens (user_id, action, expires_at)`);
+  await client.execute(`CREATE TABLE IF NOT EXISTS rate_limit_windows (
+    key TEXT PRIMARY KEY,
+    window_start INTEGER NOT NULL,
+    request_count INTEGER NOT NULL,
+    updated_at TEXT NOT NULL
+  )`);
+  await client.execute(`CREATE INDEX IF NOT EXISTS rate_limit_windows_updated_at_idx
+    ON rate_limit_windows (updated_at)`);
 }
 
 await ensureProfileSecurityTables();

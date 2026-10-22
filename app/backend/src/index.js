@@ -38,6 +38,7 @@ import adminRoutes from './routes/admin.js';
 import { automationExecutionMode, startAutomationWorker } from './lib/automationJobs.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
+import { apiOriginMiddleware, assertApiOriginSecretConfigured } from './middleware/apiOrigin.js';
 import { getJwtSecret } from './lib/jwtSecret.js';
 
 const app = new Hono();
@@ -60,6 +61,7 @@ app.use('*', cors({
   credentials: true,
 }));
 app.use('*', prettyJSON());
+app.use('/api/v1/*', apiOriginMiddleware);
 
 // Health check
 app.get('/health', (c) => {
@@ -157,6 +159,7 @@ app.notFound((c) => {
 const PORT = process.env.PORT || 3000;
 
 getJwtSecret();
+assertApiOriginSecretConfigured();
 
 console.log(`🚀 Cohortia API starting on port ${PORT}...`);
 
