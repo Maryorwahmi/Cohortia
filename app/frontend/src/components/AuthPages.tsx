@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   User, Mail, Lock, Phone, Globe, Calendar, GraduationCap,
@@ -8,6 +8,7 @@ import Logo from "./Logo";
 import { useAuth } from "../context/AuthContext";
 import { hasRoadmapSelection, RoadmapSelection, SignupDraft } from "../types";
 import { API_BASE_URL } from "../config/api";
+import { authApi } from "../services/api";
 
 interface AuthPagesProps {
   initialTab: "signup" | "login";
@@ -67,6 +68,7 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, signup, completeExternalLogin, completeTwoFactorLogin } = useAuth();
+  const processingGoogleExchange = useRef(false);
   const routeState = location.state as LocationState | null;
   const pendingRoadmap = routeState?.roadmapSelection || readPendingRoadmap();
   const signupDraft = routeState?.signupDraft || (pendingRoadmap ? readPendingSignupDraft() : undefined);
@@ -111,18 +113,38 @@ export default function AuthPages({ initialTab }: AuthPagesProps) {
     const params = new URLSearchParams(location.search);
     const googleSuccess = params.get("google_success");
     const googleError = params.get("google_error");
-    const googleMfaChallenge = params.get("google_mfa_challenge");
-    if (!googleSuccess && !googleError && !googleMfaChallenge) return;
+    const googleExchange = params.get("google_exchange");
+    if (!googleSuccess && !googleError && !googleExchange) return;
 
     navigate(location.pathname, { replace: true });
-    if (googleMfaChallenge) {
-      setActiveTab("login");
-      setMfaChallengeToken(googleMfaChallenge);
-      setErrorMsg("");
-      return;
-    }
     if (googleError) {
       setErrorMsg(googleError);
+      return;
+    }
+
+    if (googleExchange) {
+      if (processingGoogleExchange.current) return;
+      processingGoogleExchange.current = true;
+      authApi.exchangeGoogleCallback()
+        .then(async (result) => {
+          if (result.data?.twoFactorRequired && result.data.challengeToken) {
+            setActiveTab("login");
+            setMfaChallengeToken(result.data.challengeToken);
+            setErrorMsg("");
+            return;
+          }
+          if (!result.success) throw new Error(result.error || "Google sign-in could not be completed.");
+          const user = await completeExternalLogin();
+          if (!user) throw new Error("Google sign-in could not be completed. Please try again.");
+          setSuccessMsg("Welcome to Cohortia! Google sign-in was successful.");
+          const destination = hasRoadmapSelection(user.roadmapSelection)
+            ? "/dashboard"
+            : "/experience?onboarding=google";
+          setTimeout(() => navigate(destination, {replace: true}), 500);
+        })
+        .catch((error) => {
+          setErrorMsg(error instanceof Error ? error.message : "Google sign-in could not be completed. Please try again.");
+        });
       return;
     }
 

@@ -136,6 +136,15 @@ export const authApi = {
       body: JSON.stringify({challengeToken, code}),
     }),
 
+  exchangeGoogleCallback: () =>
+    fetchApi<{
+      success: boolean;
+      error?: string;
+      data?: {twoFactorRequired?: boolean; challengeToken?: string; googleProof?: string};
+    }>('/auth/google/exchange', {
+      method: 'POST',
+    }),
+
   logout: () =>
     fetchApi<{success: boolean; message?: string}>('/auth/logout', {
       method: 'POST',

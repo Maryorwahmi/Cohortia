@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { Hono } from 'hono';
 import { logActivity } from '../lib/activity.js';
-import crypto from 'node:crypto';
 import {courseMatchesRoadmapLevel} from '../lib/courseLevels.js';
 import {createUserActionToken, findUserActionToken, consumeUserActionToken, recordFailedActionTokenAttempt} from '../lib/userActionTokens.js';
 import {verifyAndConsumeSecondFactor} from '../lib/twoFactor.js';
@@ -15,8 +14,10 @@ import {serializePublicUser} from '../lib/userProfile.js';
 import {getJwtSecret} from '../lib/jwtSecret.js';
 import {clearSessionCookie, getSessionCookieToken, setSessionCookie} from '../lib/sessionAuth.js';
 import {enforceRateLimits, getRateLimitClientIp} from '../lib/rateLimit.js';
+import {statesMatch} from '../lib/oauthState.js';
 
 const auth = new Hono();
+const GOOGLE_OAUTH_STATE_USER_ID = 'google-oauth';
 const frontendUrl = () => (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
 
 function createToken(user) {
@@ -31,6 +32,29 @@ function setOAuthStateCookie(c, state) {
   c.header(
     'Set-Cookie',
     `cohortia_google_oauth_state=${state}; Max-Age=600; Path=/api/v1/auth; HttpOnly; SameSite=Lax${process.env.NODE_ENV === 'production' || process.env.RENDER === 'true' ? '; Secure' : ''}`,
+    {append: true},
+  );
+}
+
+function getRequestCookie(c, name) {
+  const cookieHeader = c.req.header('cookie') || '';
+  const prefix = `${name}=`;
+  const item = cookieHeader.split(';').map((cookie) => cookie.trim()).find((cookie) => cookie.startsWith(prefix));
+  return item ? item.slice(prefix.length) : '';
+}
+
+function setOAuthExchangeCookie(c, exchangeCode) {
+  c.header(
+    'Set-Cookie',
+    `cohortia_google_oauth_exchange=${exchangeCode}; Max-Age=60; Path=/api/v1/auth/google/exchange; HttpOnly; SameSite=Lax${process.env.NODE_ENV === 'production' || process.env.RENDER === 'true' ? '; Secure' : ''}`,
+    {append: true},
+  );
+}
+
+function clearOAuthExchangeCookie(c) {
+  c.header(
+    'Set-Cookie',
+    `cohortia_google_oauth_exchange=; Max-Age=0; Path=/api/v1/auth/google/exchange; HttpOnly; SameSite=Lax${process.env.NODE_ENV === 'production' || process.env.RENDER === 'true' ? '; Secure' : ''}`,
     {append: true},
   );
 }
@@ -65,6 +89,20 @@ function buildGoogleAuthUrl(state) {
     access_type: 'online',
     prompt: 'select_account',
   }).toString()}`;
+}
+
+async function createGoogleOAuthState(purpose, userId) {
+  const stateOwnerId = userId || GOOGLE_OAUTH_STATE_USER_ID;
+  const nonce = await createUserActionToken(stateOwnerId, 'google_oauth_state', 600);
+  return jwt.sign(
+    {
+      purpose,
+      ...(userId ? {userId} : {}),
+      nonce,
+    },
+    getJwtSecret(),
+    {expiresIn: '10m'},
+  );
 }
 
 // Validation schemas
@@ -504,7 +542,7 @@ auth.post('/logout', (c) => {
 });
 
 // Start Google OAuth
-auth.get('/google', (c) => {
+auth.get('/google', async (c) => {
   const clientId = String(process.env.GOOGLE_CLIENT_ID || '').trim();
   if (!clientId) {
     return c.redirect(redirectToFrontend('/login', {
@@ -512,11 +550,7 @@ auth.get('/google', (c) => {
     }));
   }
 
-  const state = jwt.sign(
-    { purpose: 'google_oauth', nonce: crypto.randomBytes(32).toString('base64url') },
-    getJwtSecret(),
-    { expiresIn: '10m' }
-  );
+  const state = await createGoogleOAuthState('google_oauth');
   setOAuthStateCookie(c, state);
 
   return c.redirect(buildGoogleAuthUrl(state));
@@ -541,15 +575,8 @@ auth.post('/google/export-reauth-url', async (c) => {
     return c.json({success: false, error: 'Google sign-in is not configured on the server.'}, 503);
   }
 
-  const state = jwt.sign(
-    {
-      purpose: 'google_export_reauth',
-      userId: user.id,
-      nonce: crypto.randomBytes(32).toString('base64url'),
-    },
-    getJwtSecret(),
-    {expiresIn: '10m'},
-  );
+  const state = await createGoogleOAuthState('google_export_reauth', user.id);
+  setOAuthStateCookie(c, state);
   return c.json({success: true, data: {url: buildGoogleAuthUrl(state)}});
 });
 
@@ -557,17 +584,28 @@ auth.post('/google/export-reauth-url', async (c) => {
 auth.get('/google/callback', async (c) => {
   const state = c.req.query('state');
   const code = c.req.query('code');
+  const cookieState = getRequestCookie(c, 'cohortia_google_oauth_state');
   clearOAuthStateCookie(c);
 
   let verifiedState;
   try {
-    verifiedState = state ? jwt.verify(state, getJwtSecret()) : null;
+    verifiedState = statesMatch(cookieState, state) ? jwt.verify(state, getJwtSecret()) : null;
   } catch {
     verifiedState = null;
   }
 
   if (!verifiedState || typeof verifiedState !== 'object'
-    || !['google_oauth', 'google_export_reauth'].includes(verifiedState.purpose)) {
+    || !['google_oauth', 'google_export_reauth'].includes(verifiedState.purpose)
+    || typeof verifiedState.nonce !== 'string'
+    || (verifiedState.purpose === 'google_export_reauth' && typeof verifiedState.userId !== 'string')) {
+    return c.redirect(redirectToFrontend('/login', {
+      google_error: 'Google sign-in could not be verified. Please try again.',
+    }));
+  }
+
+  const stateOwnerId = verifiedState.userId || GOOGLE_OAUTH_STATE_USER_ID;
+  const stateRecord = await findUserActionToken(verifiedState.nonce, stateOwnerId, 'google_oauth_state');
+  if (!stateRecord || !await consumeUserActionToken(stateRecord)) {
     return c.redirect(redirectToFrontend('/login', {
       google_error: 'Google sign-in could not be verified. Please try again.',
     }));
@@ -657,23 +695,55 @@ auth.get('/google/callback', async (c) => {
     }
 
     if (verifiedState.purpose === 'google_export_reauth') {
-      const proofToken = await createUserActionToken(user.id, 'google_export_proof', 300);
-      return c.redirect(redirectToFrontend('/dashboard/profile', {google_export_proof: proofToken}));
+      const exchangeCode = await createUserActionToken(user.id, 'google_export_exchange', 60);
+      setOAuthExchangeCookie(c, exchangeCode);
+      return c.redirect(redirectToFrontend('/dashboard/profile', {google_exchange: '1'}));
     }
 
-    if (user.twoFactorEnabled) {
-      const challengeToken = await createUserActionToken(user.id, 'mfa_login', 300);
-      return c.redirect(redirectToFrontend('/login', {google_mfa_challenge: challengeToken}));
-    }
-
-    setSessionCookie(c, createToken(user));
-    return c.redirect(redirectToFrontend('/login', {google_success: '1'}));
+    const exchangeCode = await createUserActionToken(user.id, 'google_login_exchange', 60);
+    setOAuthExchangeCookie(c, exchangeCode);
+    return c.redirect(redirectToFrontend('/login', {google_exchange: '1'}));
   } catch (error) {
     console.error('Google OAuth callback failed:', error);
     return c.redirect(redirectToFrontend('/login', {
       google_error: 'Google sign-in failed. Please try again.',
     }));
   }
+});
+
+auth.post('/google/exchange', async (c) => {
+  const exchangeCode = getRequestCookie(c, 'cohortia_google_oauth_exchange');
+  clearOAuthExchangeCookie(c);
+  if (!exchangeCode) {
+    return c.json({success: false, error: 'Google sign-in has expired. Please try again.'}, 401);
+  }
+
+  const exchange = await findUserActionToken(exchangeCode, null, 'google_login_exchange')
+    || await findUserActionToken(exchangeCode, null, 'google_export_exchange');
+  if (!exchange || !await consumeUserActionToken(exchange)) {
+    return c.json({success: false, error: 'Google sign-in has expired or has already been used. Please try again.'}, 401);
+  }
+
+  const [user] = await db.select().from(users).where(eq(users.id, exchange.userId)).limit(1);
+  if (!user) {
+    return c.json({success: false, error: 'The Google sign-in account could not be verified.'}, 401);
+  }
+
+  if (exchange.action === 'google_export_exchange') {
+    const proofToken = await createUserActionToken(user.id, 'google_export_proof', 300);
+    return c.json({success: true, data: {googleProof: proofToken}});
+  }
+
+  if (user.twoFactorEnabled) {
+    const challengeToken = await createUserActionToken(user.id, 'mfa_login', 300);
+    return c.json({
+      success: true,
+      data: {twoFactorRequired: true, challengeToken},
+    });
+  }
+
+  setSessionCookie(c, createToken(user));
+  return c.json({success: true});
 });
 
 // Get current user

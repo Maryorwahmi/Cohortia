@@ -80,6 +80,7 @@ export default function ProfilePage({
   const [exportPassword, setExportPassword] = useState('');
   const [exportCode, setExportCode] = useState('');
   const [googleProof, setGoogleProof] = useState('');
+  const processingGoogleExchange = useRef(false);
 
   useEffect(() => {
     setFormData(emptyForm(userProfile));
@@ -113,16 +114,26 @@ export default function ProfilePage({
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const proof = params.get('google_export_proof');
+    const googleExchange = params.get('google_exchange');
     const error = params.get('google_export_error');
-    if (!proof && !error) return;
-    setGoogleProof(proof || '');
+    if (!googleExchange && !error) return;
     setExportDialogOpen(true);
     setExportError(error || '');
-    params.delete('google_export_proof');
+    params.delete('google_exchange');
     params.delete('google_export_error');
     const query = params.toString();
     window.history.replaceState(window.history.state, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+    if (googleExchange && !processingGoogleExchange.current) {
+      processingGoogleExchange.current = true;
+      authApi.exchangeGoogleCallback()
+        .then((response) => {
+          if (!response.data?.googleProof) throw new Error(response.error || 'Google account verification could not be completed.');
+          setGoogleProof(response.data.googleProof);
+        })
+        .catch((exchangeError) => {
+          setExportError(exchangeError instanceof Error ? exchangeError.message : 'Google account verification could not be completed.');
+        });
+    }
   }, []);
 
   const courseProgress = useMemo<CourseProgress[]>(() => courses.map((course) => {
