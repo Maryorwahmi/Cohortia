@@ -68,10 +68,11 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
         if (!course) return;
         const { chapters } = await learningBoardsApi.getCourseChapters(course.courseId);
         if (cancelled) return;
-        // The syllabus is chapter-based. Practical-only rows are separate
-        // activities and must not become duplicate chapters in the overview.
+        // The overview is a syllabus, so it must contain only chapter rows.
+        // Assessments, practicals, and imported activity rows belong to their
+        // own learning-board surfaces and must never appear as chapters here.
         setCourseChapters(chapters.filter((chapter) => (
-          chapter.source !== "practical" && chapter.source !== "course_manifest"
+          !chapter.source || chapter.source === "chapter"
         )));
         try {
           const progress = await learningBoardsApi.getCourseProgress(course.courseId);
