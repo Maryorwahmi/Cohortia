@@ -648,6 +648,18 @@ function containsTeachingPlaceholder(value) {
   return /small real[- ]world program|compare the result with your prediction|apply .* in a real project|follow the instructions/i.test(String(value || ""));
 }
 
+function meaningfulTeachingText(value) {
+  return typeof value === "string"
+    && value.trim().length >= 25
+    && !containsTeachingPlaceholder(value);
+}
+
+function meaningfulTeachingArray(value) {
+  return Array.isArray(value)
+    && value.length > 0
+    && value.every((item) => meaningfulTeachingText(item));
+}
+
 function buildTeachingFallback(task, sourceContext, index) {
   const concepts = asStringArray(task.requiredConcepts);
   const concept = concepts[0] || sourceContext.lessonContext?.keyConcepts?.[index] || "the main idea in this chapter";
@@ -677,28 +689,34 @@ function buildTeachingFallback(task, sourceContext, index) {
     : isCalculator
       ? `Teacher example: enter 10 and 5. The program stores 10 in num1 and 5 in num2, so the sum is 15, the difference is 5, the product is 50, and the quotient is 2.0. Predict those four results before running the program, then compare each line of output with your prediction. Notice that decimal division requires a floating-point value.`
       : ((!weakWorkedExample && existing.workedExample) || `Teacher example: ${instruction} First, predict what should happen. Then use the starter code with a simple example input, observe the exact output, and explain which part of the code produced it.`);
+  const fallbackTeacherTalk = meaningfulTeachingText(task.narratorGuide)
+    ? task.narratorGuide
+    : `Let's slow down and connect this task to ${chapterTitle}. We are working with ${concept}. I will model one small example first, then you will make a controlled change and explain what you observe.`;
+  const fallbackRealWorldExample = `A ${title.toLowerCase()} workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.`;
+  const fallbackGuidedSteps = [`I do: read the starter code and predict the result.`, `We do: make one small change and run the exact command.`, `You do: try a new input or variation and explain the evidence.`];
+  const fallbackQuestions = [`What do you predict will happen before you run this step? Explain which part of ${cleanConcept} supports your prediction.`];
+  const fallbackExpectedObservations = [`The program should produce an observable result that can be explained using ${concept}, and the changed input should affect the output in a predictable way.`];
+  const fallbackCommonMistakes = [`A common beginner mistake is changing several things at once; change one part, run the program, and use the output to locate the cause.`];
   return {
-    learningGoal: existing.learningGoal || `Understand and apply ${concept}.`,
-    teacherTalk: existing.teacherTalk || task.narratorGuide || `Let's slow down and connect this task to ${chapterTitle}. We are working with ${concept}. I will model one small example first, then you will make a controlled change and explain what you observe.`,
-    chapterConnection: !weakChapterConnection && existing.chapterConnection || `In ${chapterTitle}, you learned about ${cleanConcept}. This practical is the next step: you will use that idea in a working program, observe its behavior, and explain the result in your own words.`,
-    conceptExplanation: !weakConceptExplanation && existing.conceptExplanation || `${cleanConcept} means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.`,
-    realWorldExample: scenario || `A real application uses ${concept} when it needs to process information reliably and show a useful result to a person.`,
-    workedExample,
-    guidedSteps: Array.isArray(existing.guidedSteps) && existing.guidedSteps.length >= 3
+    learningGoal: meaningfulTeachingText(existing.learningGoal) ? existing.learningGoal : `Understand and apply ${concept} in this practical activity.`,
+    teacherTalk: meaningfulTeachingText(existing.teacherTalk) ? existing.teacherTalk : fallbackTeacherTalk,
+    chapterConnection: !weakChapterConnection && meaningfulTeachingText(existing.chapterConnection) ? existing.chapterConnection : `In ${chapterTitle}, you learned about ${cleanConcept}. This practical is the next step: you will use that idea in a working program, observe its behavior, and explain the result in your own words.`,
+    conceptExplanation: !weakConceptExplanation && meaningfulTeachingText(existing.conceptExplanation) ? existing.conceptExplanation : `${cleanConcept} means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.`,
+    realWorldExample: meaningfulTeachingText(scenario) ? scenario : fallbackRealWorldExample,
+    workedExample: meaningfulTeachingText(workedExample) ? workedExample : `Teacher example: ${instruction} First, use one simple input and predict the exact output. Run the starter command, record the result, and identify the line or design choice that produced it. Then change one value, run it again, and explain why the output changed.`,
+    guidedSteps: Array.isArray(existing.guidedSteps) && existing.guidedSteps.length >= 3 && existing.guidedSteps.every((item) => meaningfulTeachingText(item))
       ? existing.guidedSteps
-      : [`I do: read the starter code and predict the result.`, `We do: make one small change and run the exact command.`, `You do: try a new input or variation and explain the evidence.`],
-    questions: Array.isArray(existing.questions) && existing.questions.length ? existing.questions : [`What do you predict will happen before you run this step?`],
-    expectedObservations: Array.isArray(existing.expectedObservations) && existing.expectedObservations.length && !containsTeachingPlaceholder(existing.expectedObservations.join(" "))
-      ? existing.expectedObservations
-      : [`The program should produce an observable result that can be explained using ${concept}.`],
-    commonMistakes: Array.isArray(existing.commonMistakes) && existing.commonMistakes.length ? existing.commonMistakes : [`A common beginner mistake is changing several things at once; change one part, run the program, and use the output to locate the cause.`],
+      : fallbackGuidedSteps,
+    questions: meaningfulTeachingArray(existing.questions) ? existing.questions : fallbackQuestions,
+    expectedObservations: meaningfulTeachingArray(existing.expectedObservations) ? existing.expectedObservations : fallbackExpectedObservations,
+    commonMistakes: meaningfulTeachingArray(existing.commonMistakes) ? existing.commonMistakes : fallbackCommonMistakes,
     feedback: existing.feedback || {
       success: `Good work. Explain how the output proves that ${concept} is working.`,
       misconception: `Let's compare the output with the rule for ${concept} and identify the exact line that caused the difference.`,
       retry: `Make one small change, run the program again, and describe what changed.`
     },
-    recap: existing.recap || `You used ${concept} in a working program and explained the result instead of only following a command.`,
-    transferTask: existing.transferTask || `Use the same idea in a new example related to everyday input, such as a receipt, score, message, or measurement.`,
+    recap: meaningfulTeachingText(existing.recap) ? existing.recap : `You used ${concept} in a working program and explained the result instead of only following a command.`,
+    transferTask: meaningfulTeachingText(existing.transferTask) ? existing.transferTask : `Apply ${concept} to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.`,
     waitForLearner: existing.waitForLearner !== false,
   };
 }
@@ -1390,23 +1408,9 @@ function normalizePractical(raw, sourceContext, metadata) {
   tasks = tasks.map((task, index) => ({
     ...task,
     narratorGuide: task.narratorGuide || fallbackTaskNarrator(task, index, practicalTitle),
-    teaching: task.teaching && typeof task.teaching === "object"
-      ? task.teaching
-      : {
-          learningGoal: task.requiredConcepts?.join(", ") || `Understand ${task.title || "this step"}.`,
-          teacherTalk: task.narratorGuide || fallbackTaskNarrator(task, index, practicalTitle),
-          realWorldExample: task.realWorldExample || `Connect ${task.title || "this step"} to a small real-world program or system.`,
-          guidedSteps: [task.instruction],
-          questions: [task.structuredHints?.nudge || "What do you predict will happen before you run it?"],
-          expectedObservations: [task.expectedObservation || "Compare the result with your prediction."],
-          feedback: {
-            success: "Good observation. Explain why the result makes sense before continuing.",
-            misconception: "That result is useful evidence. Let us compare it with the underlying concept.",
-            retry: "Try one small change and observe the result again.",
-          },
-          recap: task.narratorGuide || task.instruction,
-          waitForLearner: true,
-        },
+    // Progressive scenes created below the model response also receive the
+    // same teaching-quality normalization as Gemini-generated tasks.
+    teaching: buildTeachingFallback(task, sourceContext, index),
   }));
   const filePathByLowerCase = new Map(files.map((file) => [file.path.toLowerCase(), file.path]));
   const primarySourceFiles = files.filter((file) => /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql)$/i.test(file.path));
