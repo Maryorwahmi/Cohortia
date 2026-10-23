@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, Play, Lock, BookOpen, Clock, Users, ArrowRight, RefreshCw, Trophy, GraduationCap, Building2, LoaderCircle } from "lucide-react";
+import { CheckCircle, Play, Lock, BookOpen, Clock, Users, ArrowRight, RefreshCw, Trophy, GraduationCap, Award, Building2, LoaderCircle } from "lucide-react";
 import { UserPreferences } from "../../types";
 import { DashboardMilestone } from "../../data/dashboardData";
 import type { Track } from "../../services/api";
