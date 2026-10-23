@@ -1,7 +1,7 @@
 import {useOutletContext} from 'react-router-dom';
 import Hero from '../components/Hero';
 import ProductDemoSection from '../components/ProductDemoSection';
-import CareersExplorer from '../components/CareersExplorer';
+import CareerCategoriesCarousel from '../components/CareerCategoriesCarousel';
 import AboutUs from '../components/AboutUs';
 import {useAuth} from '../context/AuthContext';
 import {backendUserToPreferences} from '../types';
@@ -19,7 +19,7 @@ export default function Home() {
     <>
       <Hero userProfile={userProfile} onOpenWizard={openWizard} />
       <ProductDemoSection />
-      <CareersExplorer onOpenWizard={openWizard} />
+      <CareerCategoriesCarousel />
       <AboutUs />
     </>
   );
