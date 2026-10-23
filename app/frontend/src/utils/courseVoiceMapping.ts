@@ -55,11 +55,6 @@ export async function resolveCourseNarratorVoice(
 ): Promise<SpeechSynthesisVoice | null> {
   const assigned = await getAssignedVoiceForCourse(courseId);
   const assignedMatch = assigned ? findBrowserVoiceByName(assigned.label, allVoices) : null;
-  if (assigned && !assignedMatch) {
-    console.warn(
-      `Assigned voice "${assigned.label}" is unavailable for course "${courseId}".`,
-    );
-  }
   return assignedMatch || findBestBrowserVoice(allVoices);
 }
 

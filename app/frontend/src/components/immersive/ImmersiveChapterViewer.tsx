@@ -6,6 +6,7 @@ import {
   GENERATED_CONTENT_CSP,
   sanitizeGeneratedHtml,
 } from "../../lib/generatedContentSanitizer";
+import appStyles from "../../index.css?inline";
 
 export interface ImmersiveScreen {
   screen: number;
@@ -90,6 +91,7 @@ interface Props {
 }
 
 const RUNTIME_CSS = `*,*::before,*::after{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#f8fafc}body{font-family:ui-sans-serif,system-ui,sans-serif}#cohortia-board{width:100%;height:100%;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:#f8fafc}#cohortia-content{width:100%;height:100%;overflow:hidden;position:relative;transform-origin:center center}#cohortia-content [class~="text-[8px]"]{font-size:0.5rem!important}#cohortia-content [class~="text-[9px]"]{font-size:0.5625rem!important}#cohortia-content [class~="text-xs"]{font-size:0.8125rem!important}#cohortia-content [class~="text-sm"]{font-size:0.9375rem!important}#cohortia-content [class~="text-md"]{font-size:1rem!important}#cohortia-content [class~="text-lg"]{font-size:1.1875rem!important}#cohortia-content [class~="text-xl"]{font-size:1.375rem!important}#cohortia-content [class~="text-2xl"]{font-size:1.625rem!important}#cohortia-content [class~="text-3xl"]{font-size:1.875rem!important}#cohortia-content [class~="text-4xl"]{font-size:2.25rem!important}svg,img,video,canvas{display:block;max-width:100%;height:auto!important}h1,h2,h3,h4,p{overflow-wrap:anywhere;word-break:break-word}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}`;
+const EMBEDDED_APP_STYLES = appStyles.replace(/@import[^;]+;/g, "");
 
 function narrationOf(screen: ImmersiveScreen) { return String(screen.narration?.text || screen.narratorSegment || "").trim(); }
 function durationOf(screen: ImmersiveScreen) { return Math.max(12, Math.min(90, Number(screen.narration?.durationSeconds || screen.durationSeconds || 20))); }
@@ -115,7 +117,7 @@ function buildScreenDocument(screen: ImmersiveScreen) {
     .replace(/<\/style/gi, "<\\/style")
     .replace(/@import|url\s*\(|javascript\s*:|expression\s*\(|-moz-binding|behavior\s*:/gi, "/* blocked */")
     .slice(0, 100_000);
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${GENERATED_CONTENT_CSP}"><style>${RUNTIME_CSS}${authoredCss}</style></head><body><div id="cohortia-board"><div id="cohortia-content">${html}</div></div></body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${GENERATED_CONTENT_CSP}"><style>${EMBEDDED_APP_STYLES}${RUNTIME_CSS}${authoredCss}</style></head><body><div id="cohortia-board"><div id="cohortia-content">${html}</div></div></body></html>`;
 }
 
 function FallbackScreen({ screen }: { screen: ImmersiveScreen }) {
