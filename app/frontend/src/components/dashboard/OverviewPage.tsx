@@ -126,6 +126,18 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
     chaptersByModule.set(chapter.module, moduleChapters);
   });
 
+  const chapterOnlyCurriculum = baseCurriculum
+    .map((milestone) => ({
+      ...milestone,
+      lessons: milestone.lessons.filter((lesson) => (
+        lesson.type !== "checkpoint" &&
+        lesson.type !== "practice" &&
+        lesson.type !== "project" &&
+        !/assessment|hands[- ]?on|practical/i.test(lesson.title)
+      )),
+    }))
+    .filter((milestone) => milestone.lessons.length > 0);
+
   const curriculum = courseChapters.length
     ? Array.from(chaptersByModule.entries())
       .sort(([left], [right]) => left - right)
@@ -149,7 +161,7 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
         };
       })
       .filter((milestone): milestone is DashboardMilestone => Boolean(milestone))
-    : baseCurriculum;
+    : chapterOnlyCurriculum;
 
   // Sync to global profile on change
   const toggleLesson = (lessonId: string, milestoneIndex: number) => {
