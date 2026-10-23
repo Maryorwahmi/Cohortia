@@ -418,7 +418,10 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5">
                         {milestone.lessons.map((lesson, lessonIndex) => {
                           const isLCompleted = completedLessons.includes(lesson.id);
-                          const chapter = moduleChapters[lessonIndex];
+                          const matchedChapter = moduleChapters[lessonIndex];
+                          const chapter = matchedChapter && (
+                            !lesson.courseId || matchedChapter.courseId === lesson.courseId
+                          ) ? matchedChapter : undefined;
                           const assessmentComplete = chapter
                             ? chapterProgress[`${chapter.module}-${chapter.chapter}`]?.assessmentPassed
                             : false;
@@ -453,14 +456,19 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
                                 onClick={() => {
                                   if (!isLocked) {
                                     localStorage.setItem("cohortia_active_lesson_id", lesson.id);
-                                    const chapter = moduleChapters[lessonIndex];
-                                    if (chapter) {
-                                      localStorage.setItem("cohortia_active_learning_board_chapter", JSON.stringify({
-                                        courseId: chapter.courseId,
-                                        module: chapter.module,
-                                        chapter: chapter.chapter,
-                                      }));
-                                    }
+                                    const coordinates = lesson.id.match(/-m(\d+)-c(\d+)-lesson$/);
+                                    const selectedCourseId = chapter?.courseId || lesson.courseId || track?.id;
+                                    const selectedModule = chapter?.module || lesson.moduleIndex || Number(coordinates?.[1]) || 1;
+                                    const selectedChapter = chapter?.chapter || lesson.chapterIndex || Number(coordinates?.[2]) || 1;
+                                    const selectedContext = {
+                                      courseId: selectedCourseId,
+                                      courseTitle: lesson.courseTitle || track?.title,
+                                      module: selectedModule,
+                                      chapter: selectedChapter,
+                                      lessonId: lesson.id,
+                                    };
+                                    localStorage.setItem("cohortia_active_learning_board_chapter", JSON.stringify(selectedContext));
+                                    localStorage.setItem("cohortia_active_learning_context", JSON.stringify(selectedContext));
                                     onChangePage("learning-board");
                                   }
                                 }}

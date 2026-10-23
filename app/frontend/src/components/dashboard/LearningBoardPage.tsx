@@ -395,42 +395,45 @@ export default function LearningBoardPage({
   const [showChapterAssessment, setShowChapterAssessment] = useState(false);
   const [showCompletionPrompt, setShowCompletionPrompt] = useState(false);
   
-  // Get actual course ID from localStorage (set by OverviewPage when user clicks a chapter)
-  // Falls back to track ID if localStorage doesn't have a course ID
-  const getPreviewCourseId = (): string => {
-    if (typeof window === 'undefined') return courseId || '';
+  const getSelectedChapter = () => {
+    if (typeof window === 'undefined') return null;
     try {
-      const selected = JSON.parse(localStorage.getItem('cohortia_active_learning_board_chapter') || 'null');
-      if (selected?.courseId) return selected.courseId;
+      const selected = JSON.parse(localStorage.getItem('cohortia_active_learning_board_chapter') || 'null') as {
+        courseId?: string;
+        module?: number;
+        chapter?: number;
+        lessonId?: string;
+      } | null;
+      if (selected?.courseId && (adminAccess || selected.lessonId === initialLessonId)) return selected;
     } catch {
-      // Fall through to default
+      return null;
     }
-    return courseId || '';
+    return null;
   };
-  const previewCourseId = getPreviewCourseId();
+  const selectedChapter = getSelectedChapter();
+  const initialCoordinates = initialLessonId?.match(/-m(\d+)-c(\d+)-lesson$/);
+  const [previewCourseId, setPreviewCourseId] = useState(
+    selectedChapter?.courseId || selectedLesson.courseId || courseId || '',
+  );
   
-  const [previewModule, setPreviewModule] = useState<string>(() => {
-    if (typeof window === 'undefined') return '01';
-    try {
-      const selected = JSON.parse(localStorage.getItem('cohortia_active_learning_board_chapter') || 'null');
-      return Number.isFinite(Number(selected.module))
-        ? String(selected.module).padStart(2, '0')
-        : '01';
-    } catch {
-      return '01';
-    }
-  });
-  const [previewChapter, setPreviewChapter] = useState<string>(() => {
-    if (typeof window === 'undefined') return '01';
-    try {
-      const selected = JSON.parse(localStorage.getItem('cohortia_active_learning_board_chapter') || 'null');
-      return Number.isFinite(Number(selected.chapter))
-        ? String(selected.chapter).padStart(2, '0')
-        : '01';
-    } catch {
-      return '01';
-    }
-  });
+  const [previewModule, setPreviewModule] = useState<string>(
+    String(selectedChapter?.module || initialCoordinates?.[1] || selectedLesson.moduleIndex || 1).padStart(2, '0'),
+  );
+  const [previewChapter, setPreviewChapter] = useState<string>(
+    String(selectedChapter?.chapter || initialCoordinates?.[2] || selectedLesson.chapterIndex || 1).padStart(2, '0'),
+  );
+  const activeCourseId = adminAccess ? courseId : previewCourseId || courseId;
+
+  useEffect(() => {
+    if (adminAccess) return;
+    const coordinates = selectedLesson.id.match(/-m(\d+)-c(\d+)-lesson$/);
+    const nextCourseId = selectedLesson.courseId || courseId;
+    if (nextCourseId && nextCourseId !== previewCourseId) setPreviewCourseId(nextCourseId);
+    const module = selectedLesson.moduleIndex ?? Number(coordinates?.[1]);
+    const chapter = selectedLesson.chapterIndex ?? Number(coordinates?.[2]);
+    if (Number.isFinite(module) && module > 0) setPreviewModule(String(module).padStart(2, '0'));
+    if (Number.isFinite(chapter) && chapter > 0) setPreviewChapter(String(chapter).padStart(2, '0'));
+  }, [adminAccess, courseId, previewCourseId, selectedLesson]);
   // Course-level catalog discovered from the learning-board database API.
   const [courseCatalog, setCourseCatalog] = useState<{
     course?: string;
@@ -483,6 +486,8 @@ export default function LearningBoardPage({
     const loadPreview = async () => {
       setDevPreviewLoading(true);
       setDevPreviewError(null);
+      setGeneratedPreview(null);
+      setCourseCatalog(null);
 
       try {
         const { course, chapters } = await learningBoardsApi.getCourseChapters(previewCourseId);
@@ -561,8 +566,9 @@ export default function LearningBoardPage({
       module: generatedPreview.module,
       chapter: generatedPreview.chapter,
       chapterTitle: generatedPreview.unitTitle,
+      ...(adminAccess?.mode ? {mode: adminAccess.mode} : {}),
     }));
-  }, [generatedPreview]);
+  }, [adminAccess?.mode, generatedPreview]);
   
   // Collapsed state for the slide-out curriculum drawer (default closed)
   const [isCurriculumCollapsed, setIsCurriculumCollapsed] = useState(true);
@@ -602,10 +608,10 @@ export default function LearningBoardPage({
   }, [selectedLesson.id]);
 
   useEffect(() => {
-    if (!generatedPreview || !courseId) return;
+    if (!generatedPreview || !activeCourseId) return;
     let cancelled = false;
     setChapterProgress(null);
-    learningBoardsApi.getProgress(courseId, generatedPreview.module, generatedPreview.chapter)
+    learningBoardsApi.getProgress(activeCourseId, generatedPreview.module, generatedPreview.chapter)
       .then((stored) => {
         if (cancelled) return;
         setChapterProgress(stored);
@@ -617,7 +623,7 @@ export default function LearningBoardPage({
     return () => {
       cancelled = true;
     };
-  }, [courseId, generatedPreview?.module, generatedPreview?.chapter]);
+  }, [activeCourseId, generatedPreview?.module, generatedPreview?.chapter]);
 
   useEffect(() => () => {
     if (notesSaveTimer.current) clearTimeout(notesSaveTimer.current);
@@ -643,9 +649,9 @@ export default function LearningBoardPage({
   }, [selectedLesson, isAiMentorOpen]);
 
   const persistChapterProgress = async (update: Parameters<typeof learningBoardsApi.updateProgress>[3]) => {
-    if (!courseId || !generatedPreview) return;
+    if (!activeCourseId || !generatedPreview) return;
     const result = await learningBoardsApi.updateProgress(
-      courseId,
+      activeCourseId,
       generatedPreview.module,
       generatedPreview.chapter,
       { lessonId: selectedLesson.id, ...update },
@@ -708,7 +714,7 @@ export default function LearningBoardPage({
 
   const handleTimeUpdate = (time: number) => {
     setCurrentTime(time);
-    if (!courseId || !generatedPreview || time <= 0) return;
+    if (!activeCourseId || !generatedPreview || time <= 0) return;
     if (studySaveTimer.current) clearTimeout(studySaveTimer.current);
     studySaveTimer.current = setTimeout(() => {
       persistChapterProgress({ studySeconds: time }).catch(() => {});
@@ -731,10 +737,10 @@ export default function LearningBoardPage({
     if (adminAccess && !adminAccess.assessments) return;
     // Extract module and chapter numbers from selected lesson ID
     const match = selectedLesson.id.match(/-m(\d+)-c(\d+)-lesson$/);
-    if (match && courseId) {
+    if (match && activeCourseId) {
       const module = parseInt(match[1], 10);
       const chapter = parseInt(match[2], 10);
-      window.location.href = `/assessments/${courseId}/${module}/${chapter}`;
+      window.location.href = `/assessments/${activeCourseId}/${module}/${chapter}`;
     }
   };
 
@@ -775,7 +781,7 @@ export default function LearningBoardPage({
 
   const handleNotesChange = (value: string) => {
     setNotes(value);
-    if (!courseId || !generatedPreview) return;
+    if (!activeCourseId || !generatedPreview) return;
     if (notesSaveTimer.current) clearTimeout(notesSaveTimer.current);
     setNotesStatus("saving");
     notesSaveTimer.current = setTimeout(() => {
@@ -812,8 +818,8 @@ export default function LearningBoardPage({
         "text",
         activeTrackId,
         {
-          courseId,
-          courseTitle,
+          courseId: activeCourseId,
+          courseTitle: generatedPreview?.course || courseCatalog?.course || selectedLesson.courseTitle || courseTitle,
           moduleTitle: curriculum[activeMilestoneIndex]?.title,
           lessonTitle: selectedLesson.title,
           lessonContent: courseLessons?.[selectedLesson.id],
@@ -852,10 +858,7 @@ export default function LearningBoardPage({
   // The database chapter loaded into generatedPreview is the source of truth
   // after read mode advances to practical mode.
   const activeAssessment = previewAssessment || manifestAssessment;
-  const boardCourseTitle = generatedPreview?.course || courseCatalog?.course ||
-    (previewCourseId && previewCourseId !== courseId
-      ? previewCourseId.replace(/(^|-)([a-z])/g, (_match, separator, letter) => `${separator}${letter.toUpperCase()}`)
-      : courseTitle);
+  const boardCourseTitle = generatedPreview?.course || courseCatalog?.course || selectedLesson.courseTitle || courseTitle;
   const boardModule = generatedPreview?.module ?? Number.parseInt(previewModule, 10);
   const boardChapter = generatedPreview?.chapter ?? Number.parseInt(previewChapter, 10);
   const boardChapterCount = courseCatalog?.modules?.reduce(
@@ -877,7 +880,7 @@ export default function LearningBoardPage({
   const boardDisplayTitle = generatedPreview?.unitTitle || selectedLesson.title;
   const lessonCoordinates = selectedLesson.id.match(/-m(\d+)-c(\d+)-lesson$/);
   const assessmentContext = activeAssessment ? {
-    courseId: generatedPreview?.courseId || previewCourseId || courseId || "",
+    courseId: generatedPreview?.courseId || previewCourseId || activeCourseId || "",
     module: generatedPreview?.module || Number.parseInt(lessonCoordinates?.[1] || previewModule, 10),
     chapter: generatedPreview?.chapter || Number.parseInt(lessonCoordinates?.[2] || previewChapter, 10),
   } : undefined;
@@ -1360,7 +1363,7 @@ export default function LearningBoardPage({
                     />
                   ) : (
                     <LessonScenePlayer
-                      courseId={courseId || previewCourseId || undefined}
+                      courseId={activeCourseId || undefined}
                       scenes={generateGenericScenes(details, selectedLesson.title)}
                       theme={theme}
                       loop={false}
@@ -1870,7 +1873,7 @@ export default function LearningBoardPage({
       {showCompletionPrompt && (!adminAccess || adminAccess.assessments) && (
         <ChapterCompletionPrompt
           chapterTitle={selectedLesson?.title || "Chapter"}
-          courseId={courseId}
+          courseId={activeCourseId}
           courseTitle={courseTitle}
           module={manifestChapter ? Number(manifestChapter.index.split('.')[0]) : undefined}
           chapter={manifestChapter ? parseInt(manifestChapter.index.split('.')[1]) : undefined}

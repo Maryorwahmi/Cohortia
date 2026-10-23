@@ -100,6 +100,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
           course.lessons.map((lesson) => ({
             ...lesson,
             trackId: course.id,
+            courseTitle: course.title,
             moduleIndex: courseIndex * 100 + (lesson.moduleIndex || 0),
             moduleTitle: `${course.title} · ${lesson.moduleTitle || "Curriculum"}`,
           })),

@@ -136,9 +136,12 @@ export default function LearningBoard() {
         }
       })()
     : null;
+  const adminCourseContext = user.adminRole && activeLearningContext?.mode
+    ? activeLearningContext
+    : null;
 
   useEffect(() => {
-    if (!user.adminRole || !activeLearningContext?.courseId) {
+    if (!adminCourseContext?.courseId) {
       setAdminCourseAccess(null);
       setAdminAccessLoading(false);
       return;
@@ -149,7 +152,7 @@ export default function LearningBoard() {
     adminApi.getCourses()
       .then((response) => {
         if (cancelled) return;
-        const course = response.data?.courses.find((item) => item.id === activeLearningContext.courseId);
+        const course = response.data?.courses.find((item) => item.id === adminCourseContext.courseId);
         setAdminCourseAccess(course?.access || {screens: false, assessments: false, practicals: false});
       })
       .catch((accessError) => {
@@ -161,7 +164,7 @@ export default function LearningBoard() {
         if (!cancelled) setAdminAccessLoading(false);
       });
     return () => { cancelled = true; };
-  }, [user.adminRole, activeLearningContext?.courseId]);
+  }, [adminCourseContext?.courseId]);
 
   const flatLessons = useMemo(() => {
     return curriculum.reduce<DashboardLesson[]>((acc, m) => [...acc, ...m.lessons], []);
@@ -219,7 +222,7 @@ export default function LearningBoard() {
   if (user.adminRole && adminAccessError) {
     return <div role="alert" className="m-6 rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-400">{adminAccessError}</div>;
   }
-  if (user.adminRole && activeLearningContext?.courseId && !adminCourseAccess?.[activeLearningContext.mode || 'screens']) {
+  if (adminCourseContext?.courseId && !adminCourseAccess?.[adminCourseContext.mode || 'screens']) {
     return <div role="alert" className="m-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-400">Your admin account does not have access to this course section.</div>;
   }
 
@@ -241,11 +244,11 @@ export default function LearningBoard() {
         curriculum={curriculum}
         initialLessonId={initialLessonId}
         lessonContent={lessonContentMap}
-        courseId={activeLearningContext?.courseId || track?.id}
-        courseTitle={activeLearningContext?.courseTitle || track?.title}
-        adminAccess={user.adminRole ? {
+        courseId={adminCourseContext?.courseId || initialLesson?.courseId || track?.id}
+        courseTitle={adminCourseContext?.courseTitle || initialLesson?.courseTitle || track?.title}
+        adminAccess={adminCourseContext ? {
           ...(adminCourseAccess || {screens: false, assessments: false, practicals: false}),
-          mode: activeLearningContext?.mode || 'screens',
+          mode: adminCourseContext?.mode || 'screens',
         } : undefined}
         courseLessons={Object.fromEntries(lessons.map((lesson) => [lesson.id, lesson.content || '']))}
         manifest={manifest}

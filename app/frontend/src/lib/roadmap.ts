@@ -191,6 +191,7 @@ export function findFirstIncompleteLesson(
 export interface BackendLesson {
   id: string;
   trackId: string;
+  courseTitle?: string;
   title: string;
   description?: string;
   content?: string;
@@ -226,12 +227,19 @@ export function trackLessonsToDashboardMilestones(
 
     const dashboardLessons: DashboardLesson[] = moduleLessons
       .filter((l) => l.type !== "project")
-      .map((l) => ({
-        id: l.id,
-        title: l.title,
-        duration: l.duration || "15 min",
-        type: inferLessonType(l.title, l.type),
-      }));
+      .map((l) => {
+        const coordinates = l.id.match(/-m(\d+)-c(\d+)-lesson$/);
+        return {
+          id: l.id,
+          title: l.title,
+          duration: l.duration || "15 min",
+          type: inferLessonType(l.title, l.type),
+          courseId: l.trackId,
+          courseTitle: l.courseTitle,
+          moduleIndex: coordinates ? Number(coordinates[1]) : l.moduleIndex,
+          chapterIndex: coordinates ? Number(coordinates[2]) : undefined,
+        };
+      });
 
     return {
       id: `track-mod-${moduleIndex}`,

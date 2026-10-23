@@ -5,6 +5,10 @@ export interface DashboardLesson {
   title: string;
   duration: string;
   type: "video" | "concept" | "practice" | "project" | "checkpoint" | "connect";
+  courseId?: string;
+  courseTitle?: string;
+  moduleIndex?: number;
+  chapterIndex?: number;
 }
 
 export interface DashboardMilestone {
