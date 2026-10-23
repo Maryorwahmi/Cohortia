@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  GENERATED_CONTENT_CSP,
-  sanitizeGeneratedHtml,
-  sanitizeGeneratedSvg,
-} from '../../lib/generatedContentSanitizer';
-import {
   CheckCircle,
   XCircle,
   Lightbulb,
@@ -76,20 +71,7 @@ function Badge({ children, color = 'indigo' }: { children: React.ReactNode; colo
 
 function InlineSvg({ svg, className = '' }: { svg?: string; className?: string }) {
   if (!svg) return null;
-  const sanitizedSvg = sanitizeGeneratedSvg(svg);
-  if (!sanitizedSvg) return null;
-  const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(sanitizedSvg)}`;
-  return (
-    <div className={`w-full h-full ${className}`}>
-      <img
-        src={dataUrl}
-        alt=""
-        aria-hidden="true"
-        className="block w-full h-full object-contain"
-        referrerPolicy="no-referrer"
-      />
-    </div>
-  );
+  return <div className={`w-full h-full ${className}`} dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
 function escapeHtml(text: string) {
@@ -101,9 +83,9 @@ function escapeHtml(text: string) {
     .replace(/'/g, '&#39;');
 }
 
-function buildHtmlSrcDoc(fragment: string, title: string) {
+function buildHtmlSrcDoc(fragment: string, title: string, css?: string, _theme: 'dark' | 'light' = 'light') {
   const safeTitle = escapeHtml(title || 'Cohortia Lesson');
-  const safeFragment = sanitizeGeneratedHtml(fragment);
+  const safeCss = css ? `<style>${css}</style>` : '';
   const theme = 'light';
   const bg = '#f8fafc';
   const text = '#0f172a';
@@ -112,8 +94,32 @@ function buildHtmlSrcDoc(fragment: string, title: string) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="${GENERATED_CONTENT_CSP}" />
     <title>${safeTitle}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              cohortia: {
+                red: '#FF4B3E',
+                violet: '#a855f7',
+                cyan: '#06b6d4',
+                emerald: '#10b981',
+                amber: '#f59e0b',
+                indigo: '#6366f1',
+              }
+            }
+          }
+        }
+      };
+      (function(){ const t=document.documentElement.getAttribute('data-theme'); if(t==='dark')document.documentElement.classList.add('dark'); })();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <link rel="stylesheet" href="/learning-board-base.css" />
+    <script src="/learning-board-base.js"></script>
+    ${safeCss}
     <style>
       html, body { margin: 0; width: 100%; height: 100%; background: ${bg}; color: ${text}; overflow: hidden; }
       body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
@@ -143,21 +149,22 @@ function buildHtmlSrcDoc(fragment: string, title: string) {
     </style>
   </head>
   <body>
-    ${safeFragment}
+    ${fragment}
   </body>
 </html>`;
 }
 
 function HtmlScreen({ content, title }: { content: Record<string, unknown>; title: string }) {
   const html = String(content.html || '').trim();
+  const css = String(content.css || '').trim();
   return (
     <div className="h-full w-full p-4 md:p-6 overflow-hidden">
       <div className="h-full rounded-3xl overflow-hidden border border-white/10 bg-slate-950 shadow-[0_0_50px_rgba(99,102,241,0.15)]">
         <iframe
           title={title}
           className="h-full w-full border-0 bg-slate-950"
-          srcDoc={buildHtmlSrcDoc(html, title)}
-          sandbox=""
+          srcDoc={buildHtmlSrcDoc(html, title, css)}
+          sandbox="allow-scripts"
           referrerPolicy="no-referrer"
         />
       </div>
@@ -507,26 +514,24 @@ function CodeScreen({ content }: { content: Record<string, unknown> }) {
   }, [code]);
 
   const highlighted = (line: string) => {
-    const keywords = new Set(['def', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'from', 'const', 'let', 'var', 'function']);
-    const tokenPattern = /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\/\/.*$|#.*$|\b[a-zA-Z_]\w*\b/g;
-    const parts: React.ReactNode[] = [];
-    let offset = 0;
-
-    for (const match of line.matchAll(tokenPattern)) {
-      const token = match[0];
-      const start = match.index ?? offset;
-      if (start > offset) parts.push(line.slice(offset, start));
-      const className = /^["'`]/.test(token)
-        ? 'text-emerald-300'
-        : token.startsWith('//') || token.startsWith('#')
-          ? 'text-white/40'
-          : keywords.has(token) ? 'text-purple-300' : '';
-      parts.push(className ? <span key={start} className={className}>{token}</span> : token);
-      offset = start + token.length;
-    }
-
-    if (offset < line.length) parts.push(line.slice(offset));
-    return <span>{parts}</span>;
+    const keywords = ['def', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'from', 'const', 'let', 'var', 'function', '=>'];
+    const strings = line.match(/(['"`].*?['"`])/g) || [];
+    let html = line
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    strings.forEach((s) => {
+      html = html.replace(
+        s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+        `<span class="text-emerald-300">${s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`
+      );
+    });
+    keywords.forEach((kw) => {
+      const re = new RegExp(`\\b${kw}\\b`, 'g');
+      html = html.replace(re, `<span class="text-purple-300">${kw}</span>`);
+    });
+    html = html.replace(/(\/\/.*$)/g, '<span class="text-white/40">$1</span>');
+    return <span dangerouslySetInnerHTML={{ __html: html }} />;
   };
 
   return (
