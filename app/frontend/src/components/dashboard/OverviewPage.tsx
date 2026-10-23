@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, Play, Lock, BookOpen, Clock, Users, ArrowRight, RefreshCw, Trophy, GraduationCap, Award, Building2, LoaderCircle } from "lucide-react";
+import { CheckCircle, Play, Lock, BookOpen, Clock, Users, ArrowRight, RefreshCw, Trophy, GraduationCap, Building2, LoaderCircle } from "lucide-react";
 import { UserPreferences } from "../../types";
 import { DashboardMilestone } from "../../data/dashboardData";
 import type { Track } from "../../services/api";
@@ -68,7 +68,11 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
         if (!course) return;
         const { chapters } = await learningBoardsApi.getCourseChapters(course.courseId);
         if (cancelled) return;
-        setCourseChapters(chapters);
+        // The syllabus is chapter-based. Practical-only rows are separate
+        // activities and must not become duplicate chapters in the overview.
+        setCourseChapters(chapters.filter((chapter) => (
+          chapter.source !== "practical" && chapter.source !== "course_manifest"
+        )));
         try {
           const progress = await learningBoardsApi.getCourseProgress(course.courseId);
           if (!cancelled) setChapterProgress(progress);
@@ -422,9 +426,6 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
                           const chapter = matchedChapter && (
                             !lesson.courseId || matchedChapter.courseId === lesson.courseId
                           ) ? matchedChapter : undefined;
-                          const assessmentComplete = chapter
-                            ? chapterProgress[`${chapter.module}-${chapter.chapter}`]?.assessmentPassed
-                            : false;
                           return (
                             <div
                               key={lesson.id}
@@ -481,12 +482,6 @@ export default function OverviewPage({ userProfile, track, onUpdateProfile, onCh
                                   <span>{lesson.duration}</span>
                                   <span>•</span>
                                   <span className="uppercase text-[9px]">{lesson.type}</span>
-                                </div>
-                                <div className={`flex items-center space-x-1 text-[9px] font-bold uppercase ${
-                                  assessmentComplete ? "text-emerald-400" : "text-immersive-text-secondary/60"
-                                }`}>
-                                  <Award className="w-3 h-3" />
-                                  <span>{assessmentComplete ? "Assessment completed" : "Assessment after chapter"}</span>
                                 </div>
                               </div>
                             </div>

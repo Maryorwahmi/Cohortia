@@ -111,7 +111,11 @@ function buildScreenDocument(screen: ImmersiveScreen) {
   const raw = String(screen.content?.html || "");
   const html = sanitizeGeneratedHtml(raw)
     || "<main><h2>Lesson visual unavailable</h2><p>This generated screen did not pass the safe-content allowlist.</p></main>";
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${GENERATED_CONTENT_CSP}"><style>${RUNTIME_CSS}</style></head><body><div id="cohortia-board"><div id="cohortia-content">${html}</div></div></body></html>`;
+  const authoredCss = String(screen.content?.css || "")
+    .replace(/<\/style/gi, "<\\/style")
+    .replace(/@import|url\s*\(|javascript\s*:|expression\s*\(|-moz-binding|behavior\s*:/gi, "/* blocked */")
+    .slice(0, 100_000);
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${GENERATED_CONTENT_CSP}"><style>${RUNTIME_CSS}${authoredCss}</style></head><body><div id="cohortia-board"><div id="cohortia-content">${html}</div></div></body></html>`;
 }
 
 function FallbackScreen({ screen }: { screen: ImmersiveScreen }) {
@@ -382,7 +386,7 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
                   aria-hidden={!active}
                   className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-150 ${active ? "opacity-100" : "pointer-events-none opacity-0"}`}
                   srcDoc={buildScreenDocument(item)}
-                  sandbox=""
+                  sandbox="allow-scripts"
                   referrerPolicy="no-referrer"
                   onLoad={() => markVisualLoaded(item.screen)}
                 />
