@@ -10,11 +10,11 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import {getCourseImage} from "../data/courseImages";
 import {careerCategories, getCareerCategoryPath} from "../data/careerDirectory";
+import CareerCategoriesCarousel from "./CareerCategoriesCarousel";
 import {
   ArrowRight,
   Award,
   BookOpen,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Code2,
@@ -666,13 +666,8 @@ function CourseCarousel({ courses, onViewCourse, ariaLabel }: CourseCarouselProp
   );
 }
 
-interface CareersExplorerProps {
-  onOpenWizard?: () => void;
-}
-
-export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) {
+export default function CareersExplorer() {
   const navigate = useNavigate();
-  const selectedCourse = FEATURED_COURSES[0];
   const [slidesPerView, setSlidesPerView] = useState(3);
   const [trackIndex, setTrackIndex] = useState(1);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
@@ -819,11 +814,6 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
     }
   };
 
-  const enroll = () => {
-    if (onOpenWizard) onOpenWizard();
-    else navigate("/signup");
-  };
-
   const viewCourse = (course: FeaturedCourse) => {
     navigate(`/careers/course/${encodeURIComponent(course.id)}`);
   };
@@ -834,81 +824,7 @@ export default function CareersExplorer({ onOpenWizard }: CareersExplorerProps) 
       <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-[38rem] h-96 w-96 rounded-full bg-blue-500/[0.06] blur-3xl" />
 
       <div className="relative mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6">
-        <div className="mb-10 grid gap-8 lg:mb-14 lg:grid-cols-[1fr_0.88fr] lg:items-end">
-          <div className="max-w-2xl">
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#ff4b3e]/20 bg-[#ff4b3e]/[0.07] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#e83e32] dark:text-[#ff786e]">
-              <Award className="h-3.5 w-3.5" aria-hidden="true" />
-              Industry-recognized security certifications
-            </span>
-            <h2 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-immersive-text-primary sm:text-5xl lg:text-[3.5rem]">
-              Explore cybersecurity certifications
-            </h2>
-            <p className="mt-5 max-w-xl text-base leading-7 text-immersive-text-secondary sm:text-lg">
-              Build skills across cyber defense, ethical hacking, security leadership, and cloud protection.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2.5 lg:justify-end">
-            {["CompTIA", "EC-Council", "ISC2", "AWS"].map((partner) => (
-              <span key={partner} className="rounded-full border border-immersive-border bg-immersive-card px-4 py-2 text-sm font-semibold text-immersive-text-secondary shadow-sm">
-                {partner}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative mb-12 grid min-h-[390px] overflow-hidden rounded-[2rem] bg-slate-950 shadow-xl shadow-slate-950/10 lg:mb-16 lg:min-h-[430px] lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="relative z-10 flex flex-col items-start justify-center p-7 sm:p-10 lg:p-14">
-            <div className="mb-6 flex items-center gap-3">
-              <span className={`grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br ${selectedCourse.providerLogoColor} text-sm font-extrabold text-white shadow-lg`}>
-                {selectedCourse.provider.slice(0, 1)}
-              </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">Featured learning path</p>
-                <p className="mt-0.5 text-sm font-semibold text-white">{selectedCourse.provider}</p>
-              </div>
-            </div>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-[#ff8177]">{selectedCourse.popularBadge}</p>
-            <h3 className="max-w-xl font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
-              A clearer path from curious to career-ready.
-            </h3>
-            <p className="mt-4 max-w-lg text-sm leading-6 text-slate-300 sm:text-base">
-              Explore {selectedCourse.title} and build practical skills with a guided Cohortia career track.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={enroll}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#ff4b3e] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#ff4b3e]/20 transition hover:bg-[#e83e32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-              >
-                Find your learning path <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-              <a
-                href="#course-catalog"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-              >
-                Browse courses
-              </a>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-white/65">
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-400" aria-hidden="true" /> Hands-on projects</span>
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-400" aria-hidden="true" /> Guided career tracks</span>
-            </div>
-          </div>
-          <div className="absolute inset-0 lg:relative">
-            <img
-              src={getCourseImage(selectedCourse.id, selectedCourse.image)}
-              alt=""
-              className="h-full w-full object-cover opacity-35 lg:opacity-100"
-              fetchPriority="high"
-            />
-            <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/10 lg:from-slate-950/15 lg:via-transparent lg:to-slate-950/10" />
-            <div className="absolute bottom-7 right-7 hidden max-w-xs rounded-2xl border border-white/20 bg-slate-950/70 p-4 text-white shadow-2xl backdrop-blur-md sm:block lg:bottom-8 lg:right-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Exam code</p>
-            <p className="mt-1 text-sm font-bold">{selectedCourse.examCode}</p>
-            <p className="mt-2 line-clamp-2 text-sm font-semibold leading-snug">{selectedCourse.title}</p>
-            </div>
-          </div>
-        </div>
+        <CareerCategoriesCarousel />
 
         <div id="course-catalog" className="scroll-mt-24">
           <div className="mb-6 flex flex-wrap items-center gap-3">
