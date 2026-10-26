@@ -2059,17 +2059,40 @@ async function writePractical(practical, outputRoot, courseId, moduleNum, chapte
   await fs.mkdir(practicalDir, { recursive: true });
 
   const manifest = { courseId, moduleNumber: moduleNum, chapterNumber: chapterNum, practical };
-  await fs.writeFile(path.join(practicalDir, "practical.json"), JSON.stringify(manifest, null, 2), "utf8");
+  const manifestPath = path.join(practicalDir, "practical.json");
+  const pendingManifestPath = `${manifestPath}.${process.pid}.pending`;
+  await fs.writeFile(pendingManifestPath, JSON.stringify(manifest, null, 2), "utf8");
+  await fs.rename(pendingManifestPath, manifestPath);
 
   const filesDir = path.join(practicalDir, "files");
   await fs.mkdir(filesDir, { recursive: true });
+  const expectedFiles = new Set();
   for (const file of practical.files) {
     const relativeFilePath = safeRelativePath(file.path);
     const filePath = path.resolve(filesDir, relativeFilePath);
     if (!isWithinRoot(filesDir, filePath)) throw new Error(`Generated file escapes the files directory: ${file.path}`);
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, file.content, "utf8");
+    expectedFiles.add(relativeFilePath.replaceAll("\\", "/"));
   }
+
+  // A regenerated practical may remove or rename a starter file. Remove only
+  // stale files inside this generated practical's own files directory so the
+  // learner never sees code that is no longer part of the manifest.
+  async function removeStaleFiles(directory, relativeDirectory = "") {
+    for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
+      const relativePath = relativeDirectory ? `${relativeDirectory}/${entry.name}` : entry.name;
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await removeStaleFiles(entryPath, relativePath);
+        const remaining = await fs.readdir(entryPath);
+        if (!remaining.length) await fs.rmdir(entryPath);
+      } else if (!expectedFiles.has(relativePath.replaceAll("\\", "/"))) {
+        await fs.rm(entryPath, { force: true });
+      }
+    }
+  }
+  await removeStaleFiles(filesDir);
 
   if (sourceContext) {
     const sourceDir = path.join(practicalDir, "source");
