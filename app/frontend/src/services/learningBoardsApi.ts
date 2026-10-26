@@ -544,11 +544,12 @@ class LearningBoardsApiService {
     files: Record<string, string>,
     activeFilePath: string,
     taskId?: string,
+    stdin = '',
   ): Promise<PracticalGradeResult> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-grade`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ practicalId, courseId, module, chapter, files, activeFilePath, taskId }),
+      body: JSON.stringify({ practicalId, courseId, module, chapter, files, activeFilePath, taskId, stdin }),
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.success) {

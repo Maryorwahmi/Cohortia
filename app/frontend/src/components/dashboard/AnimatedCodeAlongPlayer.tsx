@@ -405,6 +405,18 @@ export default function AnimatedCodeAlongPlayer({
                         <p className={isDark ? "mb-2 text-xs font-bold text-cyan-300" : "mb-2 text-xs font-bold text-immersive-primary"}>{activeFile}</p>
                         <pre className={`min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded-lg border p-4 font-mono text-xs leading-6 shadow-inner ${isDark ? "border-slate-700 bg-gradient-to-br from-[#222b40] via-[#151b2a] to-[#292f40]" : "border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100"}`}><CodePreview code={displayedCode} dark={isDark} />{activeWalkthrough.length > 0 && codeReveal.progress < 1 ? <span className="animate-pulse text-amber-300">▌</span> : null}</pre>
                         {codeReveal.activeStep && <p className={`rounded-md border px-2 py-1 text-[10px] leading-relaxed ${isDark ? "border-amber-400/30 bg-amber-300/10 text-amber-100" : "border-amber-200 bg-amber-50 text-amber-900"}`}>Line {codeReveal.activeStep.stepNumber}: {codeReveal.activeStep.explanation || codeReveal.activeStep.speakerText}</p>}
+                        {activeTask?.teaching?.guidedSteps?.length ? (
+                          <div className={`rounded-lg border p-3 ${isDark ? "border-cyan-300/20 bg-cyan-300/5" : "border-cyan-200 bg-cyan-50/60"}`}>
+                            <p className={`mb-2 font-mono text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-cyan-200" : "text-cyan-800"}`}>Step-by-step practice</p>
+                            <ol className="grid gap-1.5 sm:grid-cols-3">
+                              {activeTask.teaching.guidedSteps.map((step, index) => (
+                                <li key={`${activeTask.id}-scene-step-${index}`} className={`rounded-md border px-2 py-1.5 text-[10px] leading-relaxed ${isDark ? "border-slate-700 bg-slate-900/50 text-slate-200" : "border-cyan-100 bg-white text-slate-700"}`}>
+                                  <span className={`mr-1 font-mono font-bold ${isDark ? "text-cyan-300" : "text-cyan-700"}`}>{index + 1}.</span>{step}
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+                        ) : null}
                       </>
                     ) : activeTeachingSteps.length > 0 ? (
                       <div className="grid gap-2 font-sans text-left">

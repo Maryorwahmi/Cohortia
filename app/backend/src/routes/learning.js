@@ -1735,6 +1735,7 @@ learning.post('/practical-grade', async (c) => {
       files: Object.fromEntries(entries.map(([filePath, content]) => [filePath.replaceAll('\\', '/'), content])),
       activeFilePath,
       language,
+      stdin: typeof request.stdin === 'string' ? request.stdin.slice(0, 4096) : '',
     }, {
       enableSanitizers: executableChecks.some((check) => String(check.type).toLowerCase() === 'sanitizer'),
       artifactPaths: artifactPathsForChecks(executableChecks),
