@@ -99,7 +99,12 @@ export default function GuidedPracticalManifestBoard({
   const completedCount = tasks.filter((task) => completedTasks[task.id]).length;
   const language = languageForFile(activeFilePath, practical.language);
   const isBinaryExercise = practical.activityKind === "binary_exercise";
-  const codeMode = ["code_lab", "terminal_lab", "database_lab"].includes(practical.mode);
+  // Some older manifests classify executable Python activities as scenario labs.
+  // The learner experience must follow the actual workspace/runtime, otherwise
+  // the editor renders without the terminal controls or verified checks.
+  const hasExecutableSourceFile = practicalFiles.some((file) => /\.(py|c|h|cpp|cc|cxx|sql)$/i.test(file.path));
+  const codeMode = ["code_lab", "terminal_lab", "database_lab"].includes(practical.mode)
+    || hasExecutableSourceFile;
   const darkText = isDark ? "text-slate-100" : "text-slate-900";
   const mutedText = isDark ? "text-slate-300" : "text-slate-600";
   const surface = isDark ? "border-white/10 bg-[#11131b]" : "border-slate-200 bg-white";
