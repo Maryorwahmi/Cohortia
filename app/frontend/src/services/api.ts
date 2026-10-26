@@ -273,7 +273,12 @@ export const userApi = {
         error.status = response.status;
         throw error;
       }
-      return response.blob();
+      const blob = await response.blob();
+      const contentType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+      if (contentType !== 'application/pdf' || await blob.slice(0, 5).text() !== '%PDF-') {
+        throw new Error('The course export did not return a valid PDF. Please try again.');
+      }
+      return blob;
     }),
 };
 

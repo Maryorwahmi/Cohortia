@@ -383,9 +383,11 @@ export default function ProfilePage({
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'cohortia-course-syllabus.json';
+      link.download = 'cohortia-course-syllabus.pdf';
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(url);
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       setExportDialogOpen(false);
       setExportPassword('');
       setExportCode('');
