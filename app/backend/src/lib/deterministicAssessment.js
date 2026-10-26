@@ -91,9 +91,39 @@ function evaluateWritten({ question, studentAnswer, referenceAnswer, explanation
   };
 }
 
+function evaluateBinaryConversion(question, studentAnswer) {
+  const match = String(question || '').match(
+    /\bconvert\s+(?:the\s+)?binary\s+(?:number\s+)?[`'"“]?([01]+)[`'"”]?\s+to\s+(?:its\s+)?decimal\b/i,
+  );
+  if (!match) return null;
+
+  const expected = Number.parseInt(match[1], 2);
+  const values = [...String(studentAnswer || '').matchAll(/-?\d+(?:\.\d+)?/g)];
+  const submitted = values.length ? Number(values[values.length - 1][0]) : Number.NaN;
+  const isCorrect = Number.isFinite(expected) && submitted === expected;
+
+  return {
+    isCorrect,
+    feedback: isCorrect
+      ? 'Correct. The binary value converts to the decimal answer shown.'
+      : 'That decimal result does not match the binary value.',
+    guidance: isCorrect
+      ? 'Continue to the next question.'
+      : 'Multiply each binary digit by its corresponding power of 2, then add the results.',
+    keyPointsMissed: isCorrect ? [] : ['Convert the binary value to its decimal equivalent.'],
+    evaluationSource: 'assessment-key',
+    confidence: 'high',
+  };
+}
+
 export function evaluateAssessmentAnswer({ question, studentAnswer }) {
   const type = String(question?.type || 'case-study');
   const answer = String(studentAnswer || '').trim();
+
+  if (type === 'case-study') {
+    const binaryConversion = evaluateBinaryConversion(question?.question, answer);
+    if (binaryConversion) return binaryConversion;
+  }
 
   if (type === 'multiple-choice') {
     const selected = Number(answer);

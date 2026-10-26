@@ -67,4 +67,20 @@ const ambiguousWritten = evaluate(
 assert.equal(ambiguousWritten.isCorrect, false);
 assert.equal(ambiguousWritten.confidence, 'review-needed');
 
+const binaryConversion = {
+  type: 'case-study',
+  question: 'Convert the binary number `10011` to its decimal equivalent. Show your work.',
+  referenceAnswer: '`10011` binary = (1 * 2^4) + (0 * 2^3) + (0 * 2^2) + (1 * 2^1) + (1 * 2^0) = 19',
+  explanation: 'Multiply each binary digit by its corresponding power of 2 and add the results.',
+};
+const correctBinaryConversion = evaluate(
+  binaryConversion,
+  '10011 = (1 * 2^4) + (0 * 2^3) + (0 * 2^2) + (1 * 2^1) + (1 * 2^0) = 16 + 0 + 0 + 2 + 1 = 19',
+);
+assert.equal(correctBinaryConversion.isCorrect, true);
+assert.equal(correctBinaryConversion.keyPointsMissed.length, 0);
+
+const incorrectBinaryConversion = evaluate(binaryConversion, '10011 = 18');
+assert.equal(incorrectBinaryConversion.isCorrect, false);
+
 console.log('Deterministic assessment grading tests passed.');
