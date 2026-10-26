@@ -693,7 +693,19 @@ function buildTeachingFallback(task, sourceContext, index) {
     ? task.narratorGuide
     : `Let's slow down and connect this task to ${chapterTitle}. We are working with ${concept}. I will model one small example first, then you will make a controlled change and explain what you observe.`;
   const fallbackRealWorldExample = `A ${title.toLowerCase()} workflow appears in real software when a person enters information, the program processes it, and the system shows a result that guides the next decision.`;
-  const fallbackGuidedSteps = [`I do: read the starter code and predict the result.`, `We do: make one small change and run the exact command.`, `You do: try a new input or variation and explain the evidence.`];
+  const codeLabSteps = [
+    `Read the ${title.toLowerCase()} code and underline the values, operations, or output that matter for this scene.`,
+    `Predict the exact terminal output before running the program, then run the provided file and record what actually happened.`,
+    `Change one targeted value or expression, run the program again, and explain why the changed output supports or challenges your prediction.`,
+  ];
+  const fallbackGuidedSteps = [
+    `First, inspect the relevant part of ${title.toLowerCase()} and state what you think it will do.`,
+    `Next, run the practical and compare the exact output with your prediction before changing anything else.`,
+    `Finally, make one controlled variation and explain the evidence using ${cleanConcept}.`,
+  ];
+  const taskGuidedSteps = /terminal|python|variable|data type|operator|arithmetic|conversion|run|output|script/i.test(lowerTitle)
+    ? codeLabSteps
+    : fallbackGuidedSteps;
   const fallbackQuestions = [`What do you predict will happen before you run this step? Explain which part of ${cleanConcept} supports your prediction.`];
   const fallbackExpectedObservations = [`The program should produce an observable result that can be explained using ${concept}, and the changed input should affect the output in a predictable way.`];
   const fallbackCommonMistakes = [`A common beginner mistake is changing several things at once; change one part, run the program, and use the output to locate the cause.`];
@@ -705,8 +717,9 @@ function buildTeachingFallback(task, sourceContext, index) {
     realWorldExample: meaningfulTeachingText(scenario) ? scenario : fallbackRealWorldExample,
     workedExample: meaningfulTeachingText(workedExample) ? workedExample : `Teacher example: ${instruction} First, use one simple input and predict the exact output. Run the starter command, record the result, and identify the line or design choice that produced it. Then change one value, run it again, and explain why the output changed.`,
     guidedSteps: Array.isArray(existing.guidedSteps) && existing.guidedSteps.length >= 3 && existing.guidedSteps.every((item) => meaningfulTeachingText(item))
+      && !existing.guidedSteps.some((item) => /I do: read the starter code|We do: make one small change|You do: try a new input/i.test(item))
       ? existing.guidedSteps
-      : fallbackGuidedSteps,
+      : taskGuidedSteps,
     questions: meaningfulTeachingArray(existing.questions) ? existing.questions : fallbackQuestions,
     expectedObservations: meaningfulTeachingArray(existing.expectedObservations) ? existing.expectedObservations : fallbackExpectedObservations,
     commonMistakes: meaningfulTeachingArray(existing.commonMistakes) ? existing.commonMistakes : fallbackCommonMistakes,
@@ -771,8 +784,80 @@ function inferLanguage(raw, sourceContext, labType) {
 
 function extractFencedCode(text, language) {
   const source = String(text || "");
-  const match = /```[^\r\n]*\r?\n([\s\S]*?)\r?\n```/.exec(source);
-  return match?.[1]?.trim() || "";
+  const match = /^[ \t]*```[^\r\n]*\r?\n([\s\S]*?)\r?\n[ \t]*```/m.exec(source);
+  return dedentCode(match?.[1] || "");
+}
+
+function dedentCode(value) {
+  const lines = String(value || "").replace(/\r\n/g, "\n").split("\n");
+  while (lines.length && !lines[0].trim()) lines.shift();
+  while (lines.length && !lines.at(-1).trim()) lines.pop();
+  const indents = lines.filter((line) => line.trim()).map((line) => (line.match(/^[ \t]*/) || [""])[0].length);
+  const commonIndent = indents.length ? Math.min(...indents) : 0;
+  return lines.map((line) => line.slice(commonIndent)).join("\n").trim();
+}
+
+function extractFencedCodeBlocks(text, language) {
+  const source = String(text || "");
+  const requested = String(language || "").toLowerCase();
+  return [...source.matchAll(/^[ \t]*```([^\r\n]*)\r?\n([\s\S]*?)\r?\n[ \t]*```/gm)]
+    .filter((match) => {
+      const label = String(match[1] || "").trim().toLowerCase();
+      return !requested || !label || label === requested || (requested === "python" && label === "py");
+    })
+    .map((match) => dedentCode(match[2]))
+    .filter(Boolean);
+}
+
+function sourceActivityCode(sourceContext, language) {
+  return extractFencedCodeBlocks(sourceContext.activityChapter.handsOnActivity, language).join("\n\n").trim();
+}
+
+function isPlaceholderStarter(content) {
+  const text = String(content || "");
+  const placeholderComments = (text.match(/#\s*(?:initial setup|step\s*\d|add your|write your|todo)/gi) || []).length;
+  const emptyAssignments = (text.match(/^\s*#?\s*[a-z_]\w*\s*=\s*$/gim) || []).length;
+  const runnableLines = text.split(/\r?\n/).filter((line) => line.trim() && !line.trim().startsWith("#"));
+  return placeholderComments >= 2 || emptyAssignments >= 2 || runnableLines.length <= 1;
+}
+
+function reconcileSourceFiles(files, sourceContext, language, labType) {
+  if (!files.length || !["code", "shell", "database"].includes(labType)) return files;
+  const authoritativeCode = sourceActivityCode(sourceContext, language);
+  if (!authoritativeCode) return files;
+  const sourceIndex = files.findIndex((file) => /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql|sh)$/i.test(file.path));
+  if (sourceIndex < 0) return files;
+  const current = files[sourceIndex];
+  if (!isPlaceholderStarter(current.content) && current.content.trim().length >= authoritativeCode.length * 0.8) return files;
+  return files.map((file, index) => index === sourceIndex
+    ? { ...file, content: authoritativeCode, language: file.language || language }
+    : file);
+}
+
+function walkthroughNarration(codeLine, index, total) {
+  const line = codeLine.trim();
+  if (/\b(float|int|str|bool|type)\b/.test(line)) return `This line makes the value's data type visible. Read the value and the type together so you can connect the stored data to the label printed in the output.`;
+  if (/\b(print|f["']|format)\b/.test(line)) return `This line turns the stored value into evidence for the learner. Predict the exact text first, then notice how the print call combines labels, values, and type information.`;
+  if (/[+\-*/%]|\/\//.test(line) && /=/.test(line)) return `This line performs one operation and saves its result. Identify the operands, predict the value, and then use the terminal output to check your reasoning.`;
+  if (/^[a-z_]\w*\s*=/.test(line)) return `This line creates or updates a named value. Say what the name represents, what type of value it stores, and how a later line can use it.`;
+  return `Read this part of the program as one step in the data flow. Explain what it contributes before moving to the next line; step ${index + 1} of ${total} should make the final behavior easier to predict.`;
+}
+
+function buildSourceWalkthrough(file) {
+  const lines = String(file?.content || "").split(/\r?\n/).map((line) => line.trimEnd()).filter((line) => line.trim());
+  if (!file || !lines.length) return [];
+  const targetCount = Math.min(8, Math.max(6, Math.ceil(lines.length / 4)));
+  const chunkSize = Math.max(1, Math.ceil(lines.length / targetCount));
+  const chunks = [];
+  for (let start = 0; start < lines.length; start += chunkSize) chunks.push(lines.slice(start, start + chunkSize));
+  return chunks.map((chunk, index) => ({
+    stepNumber: index + 1,
+    file: file.path,
+    codeLine: chunk.join("\n"),
+    speakerText: walkthroughNarration(chunk.join("\n"), index, chunks.length),
+    explanation: "Connect this code to the value or behavior it produces, then make a prediction before running the program.",
+    durationSeconds: 8,
+  }));
 }
 
 function fallbackStarterFile(instructions, labType, language) {
@@ -1272,7 +1357,7 @@ function normalizePractical(raw, sourceContext, metadata) {
   }
 
   const executableLab = ["code", "shell", "database"].includes(labType);
-  const files = (Array.isArray(raw.files) ? raw.files : []).map((file, index) => ({
+  let files = (Array.isArray(raw.files) ? raw.files : []).map((file, index) => ({
     path: file.path || `workspace-${index + 1}.txt`,
     content: typeof file.content === "string" ? file.content : "",
     language: file.language || language || undefined,
@@ -1289,6 +1374,7 @@ function normalizePractical(raw, sourceContext, metadata) {
   if (sourceContext.source.category === "Terminal Coding Lab" && !hasSourceFile) {
     files.push(fallbackStarterFile(instructions, labType, language));
   }
+  files = reconcileSourceFiles(files, sourceContext, language, labType);
   if (executableLab && checks.length === 0) {
     for (const fallback of fallbackChecks(labType, language, files, instructions)) {
       addCheck(fallback, fallback.id);
@@ -1442,23 +1528,9 @@ function normalizePractical(raw, sourceContext, metadata) {
     explanation: asStringText(seg.explanation || seg.annotation),
     durationSeconds: clampInteger(seg.durationSeconds, 8, 3, 90),
   })).filter((seg) => seg.speakerText || seg.codeLine).sort((left, right) => left.stepNumber - right.stepNumber);
-  if (sourceContext.source.category === "Terminal Coding Lab" && codeWalkthrough.length < 4) {
+  if (sourceContext.source.category === "Terminal Coding Lab" && codeWalkthrough.length < 6) {
     const fallbackFile = primarySourceFiles[0] || files[0];
-    const lines = String(fallbackFile?.content || "")
-      .split(/\r?\n/)
-      .map((line) => line.trimEnd())
-      .filter((line) => line.trim())
-      .slice(0, 8);
-    if (fallbackFile && lines.length >= 4) {
-      codeWalkthrough = lines.map((codeLine, index) => ({
-        stepNumber: index + 1,
-        file: fallbackFile.path,
-        codeLine,
-        speakerText: `As this line appears, read it slowly and connect its syntax to the program's job. Notice how step ${index + 1} contributes one clear piece of behavior before we run and test the complete program.`,
-        explanation: `Understand the role of this line before moving to the next one.`,
-        durationSeconds: 8,
-      }));
-    }
+    codeWalkthrough = buildSourceWalkthrough(fallbackFile);
   }
   let teachingSteps = (Array.isArray(raw.teachingSteps) ? raw.teachingSteps : [])
     .filter((step) => step && typeof step === "object")
@@ -1561,7 +1633,9 @@ function normalizePractical(raw, sourceContext, metadata) {
         interactionGate: typeof step.interactionGate === "string" ? step.interactionGate : "listen_and_predict",
         completionAction: typeof step.completionAction === "string" ? step.completionAction : undefined,
         durationSeconds: clampInteger(step.durationSeconds, 90, 45, 240),
-        codeSteps: ["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
+        codeSteps: sourceContext.source.category === "Terminal Coding Lab"
+          ? stepsForTask(index)
+          : ["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
           ? stepsForTask(index)
           : Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : stepsForTask(index),
       };
@@ -1833,6 +1907,13 @@ function validatePractical(practical) {
     if (["code", "shell", "database"].includes(practical.labType) && practical.files.length === 0) {
       errors.push(`${practical.labType} practical must include at least one starter file`);
     }
+    if (practical.category === "Terminal Coding Lab") {
+      const sourceFiles = practical.files.filter((file) => /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql|sh)$/i.test(file.path));
+      if (!sourceFiles.length) errors.push("Terminal Coding Lab must include an editable source file");
+      for (const file of sourceFiles) {
+        if (isPlaceholderStarter(file.content)) errors.push(`source file ${file.path} is only a placeholder and cannot support the practical checks`);
+      }
+    }
     const filePaths = new Set();
     for (const file of practical.files) {
       try {
@@ -1885,7 +1966,7 @@ function validatePractical(practical) {
 
   if (practical.category === "Terminal Coding Lab") {
     const walkthrough = Array.isArray(practical.codeWalkthrough) ? practical.codeWalkthrough : [];
-    if (walkthrough.length < 4) errors.push("Terminal Coding Lab must include at least 4 codeWalkthrough steps");
+    if (walkthrough.length < 6) errors.push("Terminal Coding Lab must include at least 6 codeWalkthrough steps");
     const knownFiles = new Set((practical.files || []).map((file) => file.path));
     const seenSteps = new Set();
     for (const step of walkthrough) {
