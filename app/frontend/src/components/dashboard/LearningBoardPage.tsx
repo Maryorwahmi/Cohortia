@@ -382,6 +382,7 @@ export default function LearningBoardPage({
   const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">(
     adminAccess?.mode === 'practicals' ? 'practical' : 'video'
   );
+  const [isPracticalTestMode, setIsPracticalTestMode] = useState(false);
   const [practicalCompleted, setPracticalCompleted] = useState(false);
   // Practical mode is always the manifest-driven guided learning board.
   
@@ -1179,10 +1180,11 @@ export default function LearningBoardPage({
                 <div className="flex items-center bg-immersive-bg border border-immersive-border rounded-xl p-1 shrink-0 self-start sm:self-center">
                   {(!adminAccess || adminAccess.screens) && <button
                     onClick={() => {
+                      setIsPracticalTestMode(false);
                       setDevPreviewEnabled(true);
                     }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider cursor-pointer ${
-                      devPreviewEnabled
+                      devPreviewEnabled && !isPracticalTestMode
                         ? "bg-[#FF4B3E] text-immersive-text-primary shadow-md shadow-immersive-shadow shadow-[#FF4B3E]/10"
                         : "text-immersive-text-secondary hover:text-immersive-text-primary"
                     }`}
@@ -1192,6 +1194,7 @@ export default function LearningBoardPage({
                   </button>}
                   {(!adminAccess || adminAccess.practicals) && <button
                     onClick={() => {
+                      setIsPracticalTestMode(false);
                       setDevPreviewEnabled(false);
                       setViewerMode("practical");
                     }}
@@ -1202,6 +1205,19 @@ export default function LearningBoardPage({
                     }`}
                   >
                     PRACTICAL
+                  </button>}
+                  {(!adminAccess || adminAccess.practicals) && <button
+                    onClick={() => {
+                      setIsPracticalTestMode(true);
+                      setDevPreviewEnabled(true);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider cursor-pointer ${
+                      isPracticalTestMode
+                        ? "bg-[#FF4B3E] text-immersive-text-primary shadow-md shadow-immersive-shadow shadow-[#FF4B3E]/10"
+                        : "text-immersive-text-secondary hover:text-immersive-text-primary"
+                    }`}
+                  >
+                    PRACTICAL TEST
                   </button>}
                 </div>
               </div>
@@ -1238,7 +1254,7 @@ export default function LearningBoardPage({
                 : "relative rounded-lg sm:rounded-2xl bg-immersive-bg border border-immersive-border overflow-hidden min-h-[320px] sm:min-h-[420px] md:min-h-[560px] lg:min-h-[720px] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] flex flex-col justify-between group shadow-inner"}>
                 
                 {/* Read mode / dev preview */}
-                {devPreviewEnabled && (
+                {devPreviewEnabled && !isPracticalTestMode && (
                   <div className="h-full w-full flex overflow-hidden">
                     <div className="flex-1 min-w-0 bg-slate-100 relative">
                       {devPreviewLoading ? (
@@ -1336,6 +1352,116 @@ export default function LearningBoardPage({
                             }
                           }}
                         />
+                        )
+                      ) : (
+                        <div className="h-full flex items-center justify-center px-8 text-center">
+                          <div className="max-w-xl space-y-3">
+                            <div className="text-lg font-bold text-white">No manifest preview loaded</div>
+                            <div className="text-sm text-immersive-text-secondary">
+                              Choose a course manifest and reload the preview.
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Practical Test is an independent copy of the Read Mode viewer. */}
+                {devPreviewEnabled && isPracticalTestMode && (
+                  <div className="h-full w-full flex overflow-hidden">
+                    <div className="flex-1 min-w-0 bg-slate-100 relative">
+                      {devPreviewLoading ? (
+                        <div className="h-full flex items-center justify-center">
+                          <div className="animate-pulse text-immersive-secondary font-mono text-sm">
+                            Loading course manifest preview...
+                          </div>
+                        </div>
+                      ) : devPreviewError ? (
+                        <div className="h-full flex items-center justify-center px-8 text-center">
+                          <div className="max-w-xl space-y-3">
+                            <div className="text-lg font-bold text-white">Preview unavailable</div>
+                            <div className="text-sm text-immersive-text-secondary">{devPreviewError}</div>
+                          </div>
+                        </div>
+                      ) : generatedPreview ? (
+                        showChapterAssessment && (!adminAccess || adminAccess.assessments) ? (
+                          <AssessmentEngine
+                            userProfile={userProfile}
+                            selectedLesson={selectedLesson}
+                            onUpdateProfile={onUpdateProfile}
+                            assessment={activeAssessment}
+                            assessmentContext={assessmentContext}
+                            onSubmitted={handleAssessmentSubmitted}
+                            onMoveToOverview={() => onChangePage("overview")}
+                          />
+                        ) : (
+                          <ImmersiveChapterViewer
+                            manifest={generatedPreview}
+                            onComplete={async () => {
+                              await handleChapterWatched();
+                              setShowChapterAssessment(false);
+                              if (!adminAccess || adminAccess.practicals) {
+                                setIsPracticalTestMode(false);
+                                setDevPreviewEnabled(false);
+                                setViewerMode("practical");
+                              }
+                            }}
+                            onRequestPrevChapter={() => {
+                              const currentMod = Number.parseInt(previewModule, 10);
+                              const currentCh = Number.parseInt(previewChapter, 10);
+                              if (!courseCatalog?.modules?.length) return;
+                              const modIndex = courseCatalog.modules.findIndex((m) => Number(m.module) === currentMod);
+                              if (modIndex < 0) return;
+                              const chapters = courseCatalog.modules[modIndex].chapters || [];
+                              const chIndex = chapters.findIndex((c) => Number(c.chapter) === currentCh);
+                              let previousModule = courseCatalog.modules[modIndex];
+                              let previousChapter = chIndex > 0 ? chapters[chIndex - 1].chapter : null;
+                              if (previousChapter == null && modIndex > 0) {
+                                previousModule = courseCatalog.modules[modIndex - 1];
+                                const previousChapters = previousModule.chapters || [];
+                                previousChapter = previousChapters.length ? previousChapters[previousChapters.length - 1].chapter : null;
+                              }
+                              if (previousChapter == null) return;
+                              setPreviewModule(String(previousModule.module).padStart(2, '0'));
+                              setPreviewChapter(String(previousChapter).padStart(2, '0'));
+                              setGeneratedPreview(null);
+                              setDevPreviewLoading(true);
+                            }}
+                            onRequestNextChapter={() => {
+                              try {
+                                const currentMod = Number.parseInt(previewModule, 10);
+                                const currentCh = Number.parseInt(previewChapter, 10);
+                                if (courseCatalog && Array.isArray(courseCatalog.modules) && courseCatalog.modules.length > 0) {
+                                  const modIndex = courseCatalog.modules.findIndex((m) => Number(m.module) === currentMod);
+                                  let nextModule = modIndex >= 0 ? courseCatalog.modules[modIndex] : courseCatalog.modules[0];
+                                  let nextChapterNum: number | null = null;
+
+                                  if (modIndex >= 0) {
+                                    const chapters = courseCatalog.modules[modIndex].chapters || [];
+                                    const chIndex = chapters.findIndex((c) => Number(c.chapter) === currentCh);
+                                    if (chIndex >= 0 && chIndex < chapters.length - 1) {
+                                      nextChapterNum = chapters[chIndex + 1].chapter;
+                                      nextModule = courseCatalog.modules[modIndex];
+                                    } else if (modIndex < courseCatalog.modules.length - 1) {
+                                      const nextMod = courseCatalog.modules[modIndex + 1];
+                                      nextModule = nextMod;
+                                      nextChapterNum = nextMod.chapters && nextMod.chapters.length > 0 ? nextMod.chapters[0].chapter : null;
+                                    }
+                                  }
+
+                                  if (nextChapterNum == null) return;
+
+                                  setPreviewModule(String(nextModule.module).padStart(2, '0'));
+                                  setPreviewChapter(String(nextChapterNum).padStart(2, '0'));
+                                  setGeneratedPreview(null);
+                                  setDevPreviewLoading(true);
+                                }
+                              } catch (e) {
+                                // best-effort: do nothing on error
+                              }
+                            }}
+                          />
                         )
                       ) : (
                         <div className="h-full flex items-center justify-center px-8 text-center">
