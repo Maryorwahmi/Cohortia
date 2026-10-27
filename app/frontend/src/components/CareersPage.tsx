@@ -108,12 +108,19 @@ function CourseCard({
             onError={(event) => event.currentTarget.remove()}
           />
         )}
-        {course.certification && (
-          <div className="absolute left-3 top-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm">
-              <Check size={12} aria-hidden="true" />
-              Certified
-            </span>
+        {(isFree || course.certification) && (
+          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+            {isFree && (
+              <span className="inline-flex items-center rounded-full bg-sky-500 px-3 py-1.5 text-[10px] font-semibold text-white shadow-sm">
+                Free
+              </span>
+            )}
+            {course.certification && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm">
+                <Check size={12} aria-hidden="true" />
+                Certified
+              </span>
+            )}
           </div>
         )}
         {course.imageSource && !getCourseImage(course.id) && (
