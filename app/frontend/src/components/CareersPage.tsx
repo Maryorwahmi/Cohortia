@@ -19,6 +19,7 @@ import {
 import type { CatalogCourse } from '../services/api';
 import { catalogCourseApi } from '../services/api';
 import { getCourseImage } from '../data/courseImages';
+import { FREE_ON_COHORTIA_COURSE_IDS, isFreeOnCohortia } from '../data/freeOnCohortiaCourses';
 
 interface CareersPageProps {
   onOpenWizard: () => void;
@@ -90,6 +91,7 @@ function CourseCard({
   const skills = getCourseSkills(course).slice(0, 3);
   const image = getCourseImage(course.id, course.image);
   const metadata = [course.platform, course.level, course.duration].filter(Boolean);
+  const isFree = isFreeOnCohortia(course.id);
   const cost = course.cost === null || course.cost === undefined || String(course.cost).trim() === ''
     ? null
     : String(course.cost);
@@ -161,8 +163,15 @@ function CourseCard({
                 </span>
               ))}
             </div>
-            <span className="font-semibold text-immersive-text-primary">{cost || 'Price not listed'}</span>
+            <span className={`font-semibold ${isFree ? 'text-emerald-700 dark:text-emerald-300' : 'text-immersive-text-primary'}`}>
+              {isFree ? 'Free on Cohortia' : cost || 'Price not listed'}
+            </span>
           </div>
+          {isFree && (
+            <p className="mb-3 text-[10px] leading-4 text-immersive-text-secondary">
+              Course and Cohortia exam included. Provider certification exams may cost extra.
+            </p>
+          )}
           <button
             type="button"
             onClick={() => onSelect(course.id)}
@@ -198,6 +207,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [priceFilter, setPriceFilter] = useState<'all' | 'listed' | 'unlisted'>('all');
+  const [freeOnly, setFreeOnly] = useState(false);
   const [certificatesOnly, setCertificatesOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState<'catalog' | 'title'>('catalog');
   const [searchQuery, setSearchQuery] = useState('');
@@ -257,6 +267,10 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
     () => allCourses.filter((course) => course.cost !== null && course.cost !== undefined && String(course.cost).trim() !== '').length,
     [allCourses],
   );
+  const freeCourseCount = useMemo(
+    () => allCourses.filter((course) => isFreeOnCohortia(course.id)).length,
+    [allCourses],
+  );
   const providers = useMemo(
     () => new Set(allCourses.map((course) => course.provider || course.platform).filter(Boolean)).size,
     [allCourses],
@@ -284,11 +298,12 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
         && (selectedCategory === 'all' || getCourseCategory(course) === selectedCategory)
         && (selectedLevels.length === 0 || selectedLevels.includes(normalizeCourseLevel(course.level)))
         && (priceFilter === 'all' || (priceFilter === 'listed' ? hasListedPrice : !hasListedPrice))
+        && (!freeOnly || isFreeOnCohortia(course.id))
         && (!certificatesOnly || Boolean(course.certification));
     });
     if (sortOrder === 'title') filtered.sort((a, b) => a.title.localeCompare(b.title));
     return filtered;
-  }, [allCourses, certificatesOnly, priceFilter, searchQuery, selectedCategory, selectedLevels, sortOrder]);
+  }, [allCourses, certificatesOnly, freeOnly, priceFilter, searchQuery, selectedCategory, selectedLevels, sortOrder]);
   const pageSize = 12;
   const pageCount = Math.ceil(visibleCourses.length / pageSize);
   const displayedPage = Math.min(currentPage, Math.max(1, pageCount));
@@ -298,7 +313,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedLevels, priceFilter, certificatesOnly, searchQuery, sortOrder]);
+  }, [selectedCategory, selectedLevels, priceFilter, freeOnly, certificatesOnly, searchQuery, sortOrder]);
 
   const scrollToCatalog = () => {
     const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
@@ -669,7 +684,27 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
 
               <div className="my-5 border-t border-immersive-border" />
               <fieldset>
-                <legend className="text-sm font-bold text-immersive-text-primary">Price details</legend>
+                <legend className="text-sm font-bold text-immersive-text-primary">Cohortia access</legend>
+                <label className="mt-2 flex cursor-pointer items-center justify-between gap-2 text-xs text-immersive-text-secondary">
+                  <span className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={freeOnly}
+                      onChange={(event) => setFreeOnly(event.target.checked)}
+                      className="h-4 w-4 rounded border-immersive-border accent-immersive-primary focus:ring-immersive-primary"
+                    />
+                    Free course + exam
+                  </span>
+                  <span className="tabular-nums">{allCoursesLoading ? '—' : freeCourseCount}</span>
+                </label>
+                <p className="mt-2 text-[10px] leading-4 text-immersive-text-secondary">
+                  Covers Cohortia assessments; provider certification exams may cost extra.
+                </p>
+              </fieldset>
+
+              <div className="my-5 border-t border-immersive-border" />
+              <fieldset>
+                <legend className="text-sm font-bold text-immersive-text-primary">Provider price details</legend>
                 <div className="mt-2 space-y-2">
                   {[
                     { value: 'listed' as const, label: 'Price listed', count: listedPriceCount },
@@ -750,7 +785,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                       <option value="title">Title A–Z</option>
                     </select>
                   </label>
-                  {(searchQuery || selectedCategory !== 'all' || selectedLevels.length > 0 || priceFilter !== 'all' || certificatesOnly || sortOrder !== 'catalog') && (
+                  {(searchQuery || selectedCategory !== 'all' || selectedLevels.length > 0 || priceFilter !== 'all' || freeOnly || certificatesOnly || sortOrder !== 'catalog') && (
                   <button
                     type="button"
                     onClick={() => {
@@ -758,6 +793,7 @@ export default function CareersPage({ onOpenWizard, onSelectTrack }: CareersPage
                       setSelectedCategory('all');
                       setSelectedLevels([]);
                       setPriceFilter('all');
+                      setFreeOnly(false);
                       setCertificatesOnly(false);
                       setSortOrder('catalog');
                     }}
