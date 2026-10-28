@@ -140,6 +140,73 @@ function checkResult(check, passed, message) {
   };
 }
 
+function normalizeBinaryAnswer(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^0b/, '')
+    .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, '')
+    .replace(/[\s,_]/g, '');
+}
+
+function answerFromBinaryConversionPrompt(prompt) {
+  const text = String(prompt || '').replace(/[`*]/g, '').toLowerCase();
+  const binaryToDecimal = text.match(/\b([01]{2,})\s+from\s+binary\s+to\s+decimal\b/)
+    || text.match(/\bbinary(?:\s+number)?\s+([01]{2,})\b[\s\S]{0,100}\bdecimal\b/);
+  if (binaryToDecimal) {
+    try {
+      return BigInt(`0b${binaryToDecimal[1]}`).toString(10);
+    } catch {
+      return null;
+    }
+  }
+
+  const decimalToBinary = text.match(/\b(\d+)\s+from\s+decimal\s+to\s+binary\b/)
+    || text.match(/\bdecimal(?:\s+number)?\s+(\d+)\b[\s\S]{0,100}\bbinary\b/);
+  if (decimalToBinary) {
+    try {
+      return BigInt(decimalToBinary[1]).toString(2);
+    } catch {
+      return null;
+    }
+  }
+
+  const bitCounts = [...text.matchAll(/\b(\d+)\s*-\s*bits?\b|\b(\d+)\s+bits?\b/g)]
+    .map((match) => Number(match[1] || match[2]))
+    .filter((bits) => Number.isInteger(bits) && bits > 0 && bits <= 4096);
+  if (!bitCounts.length) return null;
+
+  if (/\bhow many\b[\s\S]*\b(?:unique|possible|distinct)\s+values?\b|\bvalues?\b[\s\S]*\brepresented\b/i.test(text)) {
+    return (2n ** BigInt(bitCounts[0])).toString(10);
+  }
+
+  if (/\b(?:maximum|max|largest)\b[\s\S]*\b(?:decimal\s+)?value\b|\bmaximum\s+decimal\s+value\b/i.test(text)) {
+    const eachBits = text.match(/\b(\d+)\s+bits?\s+each\b/);
+    const bits = Number(eachBits?.[1] || bitCounts[bitCounts.length - 1]);
+    if (!Number.isInteger(bits) || bits < 1 || bits > 4096) return null;
+    return ((2n ** BigInt(bits)) - 1n).toString(10);
+  }
+
+  return null;
+}
+
+export function gradeBinaryConversionAnswer(exercise, answer) {
+  const record = asRecord(exercise);
+  if (String(record.type || '').toLowerCase() !== 'binary_conversion') return null;
+
+  const submittedAnswer = normalizeBinaryAnswer(answer);
+  if (!submittedAnswer) return false;
+
+  const acceptedAnswers = [
+    record.expectedAnswer,
+    ...(Array.isArray(record.acceptedAnswers) ? record.acceptedAnswers : []),
+    answerFromBinaryConversionPrompt(record.prompt),
+  ].filter((value) => typeof value === 'string' && value.trim());
+
+  if (!acceptedAnswers.length) return null;
+  return acceptedAnswers.some((expected) => normalizeBinaryAnswer(expected) === submittedAnswer);
+}
+
 export function evaluatePracticalChecks({
   checks,
   stdout = '',

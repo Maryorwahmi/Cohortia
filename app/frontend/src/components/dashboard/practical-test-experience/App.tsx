@@ -490,8 +490,8 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     }
   };
 
-  const handleBinaryAnswerGrade = async (taskId: string, answer: string): Promise<boolean> => {
-    if (!practical?.id) return false;
+  const handleBinaryAnswerGrade = async (taskId: string, answer: string): Promise<boolean | null> => {
+    if (!practical?.id) return null;
     try {
       const result = await learningBoardsApi.gradePracticalAnswer(
         practical.id,
@@ -507,7 +507,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       return result.passed;
     } catch (error) {
       setFeedbackMessage(error instanceof Error ? error.message : 'The server could not grade this answer.');
-      return false;
+      return null;
     }
   };
 

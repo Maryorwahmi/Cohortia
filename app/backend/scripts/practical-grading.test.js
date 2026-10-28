@@ -1,9 +1,45 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  gradeBinaryConversionAnswer,
   evaluatePracticalChecks,
   sanitizePracticalForLearner,
 } from '../src/lib/practicalGrading.js';
+
+test('binary conversion answers are graded from server-held expected values or prompts', () => {
+  const exercises = [
+    { type: 'binary_conversion', prompt: 'Convert the binary number `11010` to its decimal equivalent.' },
+    { type: 'binary_conversion', prompt: 'Convert the decimal number `27` to its binary equivalent.' },
+    { type: 'binary_conversion', prompt: 'How many unique values can be represented by 6 bits?' },
+    { type: 'binary_conversion', prompt: 'If a color is represented by 24 bits (8 bits each for Red, Green, Blue), what is the maximum decimal value for each color component?' },
+  ];
+
+  for (const [exercise, answer] of exercises.map((exercise, index) => [
+    exercise,
+    ['26', '11011', '64', '255'][index],
+  ])) {
+    assert.equal(gradeBinaryConversionAnswer(exercise, answer), true);
+  }
+
+  assert.equal(gradeBinaryConversionAnswer(exercises[0], '0b11010'), false);
+  assert.equal(gradeBinaryConversionAnswer(exercises[1], '11010'), false);
+  assert.equal(gradeBinaryConversionAnswer(
+    { type: 'binary_conversion', prompt: 'Convert the value.' },
+    '26',
+  ), null);
+  assert.equal(gradeBinaryConversionAnswer(
+    { type: 'other', expectedAnswer: '26' },
+    '26',
+  ), null);
+});
+
+test('binary conversion grading accepts configured equivalent answers and formatting', () => {
+  assert.equal(gradeBinaryConversionAnswer({
+    type: 'binary_conversion',
+    expectedAnswer: '1_1011',
+    acceptedAnswers: ['0b11011'],
+  }, '1 1011'), true);
+});
 
 test('learner practical payloads expose safe check metadata only', () => {
   const practical = sanitizePracticalForLearner({

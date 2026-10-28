@@ -9,7 +9,7 @@ import { enforceRateLimits } from '../lib/rateLimit.js';
 import { logActivity } from '../lib/activity.js';
 import { createNotification } from '../lib/notifications.js';
 import { evaluateAssessmentAnswer } from '../lib/deterministicAssessment.js';
-import { evaluatePracticalChecks, sanitizePracticalForLearner } from '../lib/practicalGrading.js';
+import { evaluatePracticalChecks, gradeBinaryConversionAnswer, sanitizePracticalForLearner } from '../lib/practicalGrading.js';
 import { mkdir, mkdtemp, readdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -1664,20 +1664,13 @@ learning.post('/practical-grade', async (c) => {
 
     if (typeof request.answer === 'string') {
       const exercise = asObject(selected.task?.interactiveExercise);
-      if (exercise.type !== 'binary_conversion' || typeof exercise.expectedAnswer !== 'string') {
+      if (exercise.type !== 'binary_conversion') {
         return c.json({ success: false, error: 'This practical does not support answer grading.' }, 400);
       }
-      const normalizeAnswer = (value) => String(value)
-        .trim()
-        .toLowerCase()
-        .replace(/^0b/, '')
-        .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, '')
-        .replace(/[\s,_]/g, '');
-      const acceptedAnswers = [
-        exercise.expectedAnswer,
-        ...(Array.isArray(exercise.acceptedAnswers) ? exercise.acceptedAnswers : []),
-      ];
-      const passed = acceptedAnswers.some((expected) => normalizeAnswer(expected) === normalizeAnswer(request.answer));
+      const passed = gradeBinaryConversionAnswer(exercise, request.answer);
+      if (passed === null) {
+        return c.json({ success: false, error: 'This practical does not have a supported answer key.' }, 400);
+      }
       const id = uuidv4();
       const now = new Date().toISOString();
       await db.insert(studentPracticalAttempts).values({

@@ -27,7 +27,7 @@ interface PracticalWorkspaceProps {
   onUpdateFileContent: (fileName: string, content: string) => void;
   onCommandRun?: (command: string, output: string) => void;
   onSimulationCompleted?: (passed: boolean) => void;
-  onBinaryAnswerGrade?: (taskId: string, answer: string) => Promise<boolean>;
+  onBinaryAnswerGrade?: (taskId: string, answer: string) => Promise<boolean | null>;
   lastSavedTimestamp?: string;
 }
 

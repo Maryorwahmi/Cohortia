@@ -20,7 +20,7 @@ import {
 interface ScenarioDesignWorkspaceProps {
   manifest: PracticalManifest;
   onSimulationCompleted?: (passed: boolean) => void;
-  onBinaryAnswerGrade?: (taskId: string, answer: string) => Promise<boolean>;
+  onBinaryAnswerGrade?: (taskId: string, answer: string) => Promise<boolean | null>;
   lastSavedTimestamp?: string;
 }
 
@@ -108,7 +108,8 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
   const [activeTab, setActiveTab] = useState<'canvas' | 'rubric' | 'export'>('canvas');
   const [binaryAnswers, setBinaryAnswers] = useState<Record<string, string>>({});
   const [binarySubmitted, setBinarySubmitted] = useState(false);
-  const [binaryResults, setBinaryResults] = useState<Record<string, boolean>>({});
+  const [binaryResults, setBinaryResults] = useState<Record<string, boolean | null>>({});
+  const [isGradingBinaryAnswers, setIsGradingBinaryAnswers] = useState(false);
 
   // Planning poker state
   const [teamVotes, setTeamVotes] = useState<Record<string, number | null>>({
@@ -143,17 +144,23 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
   };
 
   const handleBinarySubmit = async () => {
-    setBinarySubmitted(true);
-    const results = Object.fromEntries(await Promise.all(binaryTasks.map(async (task) => {
-      const answer = binaryAnswers[task.id] || '';
-      const passed = onBinaryAnswerGrade
-        ? await onBinaryAnswerGrade(task.id, answer)
-        : checkBinaryAnswer(task);
-      return [task.id, passed];
-    })));
-    setBinaryResults(results);
-    const passed = binaryTasks.length > 0 && binaryTasks.every((task) => results[task.id] === true);
-    onSimulationCompleted?.(passed);
+    setIsGradingBinaryAnswers(true);
+    setBinarySubmitted(false);
+    try {
+      const results = Object.fromEntries(await Promise.all(binaryTasks.map(async (task) => {
+        const answer = binaryAnswers[task.id] || '';
+        const passed = onBinaryAnswerGrade
+          ? await onBinaryAnswerGrade(task.id, answer)
+          : checkBinaryAnswer(task);
+        return [task.id, passed];
+      })));
+      setBinaryResults(results);
+      setBinarySubmitted(true);
+      const passed = binaryTasks.length > 0 && binaryTasks.every((task) => results[task.id] === true);
+      onSimulationCompleted?.(passed);
+    } finally {
+      setIsGradingBinaryAnswers(false);
+    }
   };
 
   const handleUpdateItem = (field: keyof ScenarioItem, val: any) => {
@@ -270,8 +277,9 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                     {binaryTasks.map((task, index) => {
                       const exercise = task.interactiveExercise!;
                       const correct = binarySubmitted && binaryResults[task.id] === true;
+                      const gradingUnavailable = binarySubmitted && binaryResults[task.id] === null;
                       return (
-                        <div key={task.id} className={`p-3 rounded-lg border ${binarySubmitted ? (correct ? 'border-emerald-300 bg-emerald-50/50' : 'border-rose-300 bg-rose-50/50') : 'border-slate-200 bg-white'}`}>
+                        <div key={task.id} className={`p-3 rounded-lg border ${binarySubmitted ? (correct ? 'border-emerald-300 bg-emerald-50/50' : gradingUnavailable ? 'border-amber-300 bg-amber-50/50' : 'border-rose-300 bg-rose-50/50') : 'border-slate-200 bg-white'}`}>
                           <div className="flex items-start gap-2">
                             <span className="text-[10px] font-mono text-slate-400 pt-0.5">{String(index + 1).padStart(2, '0')}</span>
                             <div className="min-w-0 flex-1">
@@ -279,7 +287,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                               <p className="text-xs text-slate-600 mt-1 leading-relaxed">{exercise.prompt}</p>
                               <div className="flex items-center gap-2 mt-2">
                                 <input value={binaryAnswers[task.id] || ''} onChange={(event) => setBinaryAnswers((answers) => ({ ...answers, [task.id]: event.target.value }))} placeholder="Your answer" aria-label={`Answer for ${task.title}`} className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-                                {binarySubmitted && <span className={`text-[10px] font-mono font-bold ${correct ? 'text-emerald-700' : 'text-rose-700'}`}>{correct ? 'CORRECT' : 'RETRY'}</span>}
+                                {binarySubmitted && <span className={`text-[10px] font-mono font-bold ${correct ? 'text-emerald-700' : gradingUnavailable ? 'text-amber-700' : 'text-rose-700'}`}>{correct ? 'CORRECT' : gradingUnavailable ? 'GRADING UNAVAILABLE' : 'RETRY'}</span>}
                               </div>
                               {binarySubmitted && correct && exercise.explanation && <p className="text-[11px] text-emerald-800 mt-1.5">{exercise.explanation}</p>}
                             </div>
@@ -288,7 +296,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                       );
                     })}
                   </div>
-                  <button onClick={handleBinarySubmit} disabled={!binaryTasks.length} className="mt-3 self-end px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer disabled:cursor-not-allowed">Verify conversions</button>
+                  <button onClick={handleBinarySubmit} disabled={!binaryTasks.length || isGradingBinaryAnswers} className="mt-3 self-end px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer disabled:cursor-not-allowed">{isGradingBinaryAnswers ? 'Checking...' : 'Verify conversions'}</button>
                 </div>
               ) : isPlanningPoker ? (
                 <div className="p-3.5 flex-1 flex flex-col justify-between overflow-y-auto min-h-0">
