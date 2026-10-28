@@ -1,0 +1,43 @@
+import { InstructorPersona } from '../types/practical';
+
+export const INSTRUCTOR_PERSONAS: InstructorPersona[] = [
+  {
+    id: 'elena-vance',
+    name: 'Prof. Elena Vance',
+    title: 'Lead Instructor & Foundations Chair',
+    role: 'Computational Thinking & Algorithms',
+    teachingStyle: 'First-principles, deliberate, warm academic mentorship',
+    bio: 'Author of "The Unambiguous Mind" and former university lecturer with 14 years of teaching novices how to break everyday complexity into atomic logic.',
+    voiceGender: 'female',
+    speechPitch: 1.05,
+    speechRate: 0.95,
+    tagline: 'Refuse ambiguity; teach the computer with total precision.',
+    badgeColor: 'amber',
+  },
+  {
+    id: 'marcus-chen',
+    name: 'Marcus Chen',
+    title: 'Principal Systems & Software Mentor',
+    role: 'Python Internals & Production Tooling',
+    teachingStyle: 'Hands-on, direct, pragmatic terminal-first coaching',
+    bio: 'Former infrastructure lead at high-throughput scaleups. Passionate about REPL-driven development, profiling, and the Zen of Python in live codebases.',
+    voiceGender: 'male',
+    speechPitch: 0.95,
+    speechRate: 1.05,
+    tagline: 'Code is meant to be read by humans and executed cleanly by machines.',
+    badgeColor: 'emerald',
+  },
+  {
+    id: 'maya-patel',
+    name: 'Dr. Maya Patel',
+    title: 'Cloud Architecture & Systems Fellow',
+    role: 'Distributed Services & Cloud Infrastructure',
+    teachingStyle: 'Architectural, methodical, enterprise reliability & security',
+    bio: 'Cloud security consultant and distributed systems specialist who trains teams to deploy resilient serverless workloads and audit container state.',
+    voiceGender: 'female',
+    speechPitch: 1.02,
+    speechRate: 1.0,
+    tagline: 'Design for failure, verify every state transition, and isolate your environments.',
+    badgeColor: 'indigo',
+  },
+];
