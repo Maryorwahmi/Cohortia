@@ -466,7 +466,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                       </div>
                     )}
                   </div>
-                ) : (
+                ) : manifest.categoryType === 'terminal_coding' ? (
                   /* 2. If no prediction question, display the full live simulation sandbox */
                   <div className="p-3.5 rounded-xl bg-slate-950 text-slate-100 border border-slate-800 shadow-2xs flex-1 flex flex-col font-mono text-xs min-h-0 justify-between">
                     <div>
@@ -531,6 +531,16 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                       <span>Status: Ready</span>
                       <span className="text-emerald-400">Exit: 0</span>
                     </div>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-center min-h-0">
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-600" />
+                      <span className="text-xs font-bold">Guided practice checkpoint</span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed mt-2">
+                      This practical uses its generated workspace and evidence checks. There is no executable runtime for this category.
+                    </p>
                   </div>
                 )}
 

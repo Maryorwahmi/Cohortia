@@ -27,6 +27,7 @@ interface PracticalWorkspaceProps {
   onUpdateFileContent: (fileName: string, content: string) => void;
   onCommandRun?: (command: string, output: string) => void;
   onSimulationCompleted?: (passed: boolean) => void;
+  onBinaryAnswerGrade?: (taskId: string, answer: string) => Promise<boolean>;
   lastSavedTimestamp?: string;
 }
 
@@ -74,6 +75,7 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
   onUpdateFileContent,
   onCommandRun,
   onSimulationCompleted,
+  onBinaryAnswerGrade,
   lastSavedTimestamp,
 }) => {
   // If the course belongs to Scenario & Design, route to dedicated ScenarioDesignWorkspace
@@ -82,6 +84,7 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
       <ScenarioDesignWorkspace
         manifest={manifest}
         onSimulationCompleted={onSimulationCompleted}
+        onBinaryAnswerGrade={onBinaryAnswerGrade}
         lastSavedTimestamp={lastSavedTimestamp}
       />
     );

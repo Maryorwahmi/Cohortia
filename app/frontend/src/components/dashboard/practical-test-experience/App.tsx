@@ -470,7 +470,13 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
 
   const handleSimulationCompleted = (passed: boolean) => {
     setSimulationPassed(passed);
-    if (practical?.id) return;
+    if (practical?.id) {
+      if (passed) {
+        setFeedbackMessage('All generated answers passed server verification.');
+        void onComplete?.();
+      }
+      return;
+    }
     if (passed) {
       if (activeManifest.id === 'algorithm-draft') {
         if (!completedTaskIds.includes('task-test-simulator')) {
@@ -481,6 +487,27 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
           setCompletedTaskIds((prev) => [...prev, 'task-cloud-deploy']);
         }
       }
+    }
+  };
+
+  const handleBinaryAnswerGrade = async (taskId: string, answer: string): Promise<boolean> => {
+    if (!practical?.id) return false;
+    try {
+      const result = await learningBoardsApi.gradePracticalAnswer(
+        practical.id,
+        practical.courseId || '',
+        practical.module || 0,
+        practical.chapter || 0,
+        taskId,
+        answer,
+      );
+      if (result.passed) {
+        setCompletedTaskIds((previous) => previous.includes(taskId) ? previous : [...previous, taskId]);
+      }
+      return result.passed;
+    } catch (error) {
+      setFeedbackMessage(error instanceof Error ? error.message : 'The server could not grade this answer.');
+      return false;
     }
   };
 
@@ -1041,6 +1068,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                           onUpdateFileContent={handleUpdateFileContent}
                           onCommandRun={handleCommandRun}
                           onSimulationCompleted={handleSimulationCompleted}
+                          onBinaryAnswerGrade={practical?.id ? handleBinaryAnswerGrade : undefined}
                           lastSavedTimestamp={lastSavedTimestamp}
                         />
                       </div>
@@ -1067,6 +1095,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                       onUpdateFileContent={handleUpdateFileContent}
                       onCommandRun={handleCommandRun}
                       onSimulationCompleted={handleSimulationCompleted}
+                      onBinaryAnswerGrade={practical?.id ? handleBinaryAnswerGrade : undefined}
                       lastSavedTimestamp={lastSavedTimestamp}
                     />
                   </div>

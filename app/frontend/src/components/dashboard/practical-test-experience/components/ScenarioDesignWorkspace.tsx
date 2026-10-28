@@ -20,12 +20,14 @@ import {
 interface ScenarioDesignWorkspaceProps {
   manifest: PracticalManifest;
   onSimulationCompleted?: (passed: boolean) => void;
+  onBinaryAnswerGrade?: (taskId: string, answer: string) => Promise<boolean>;
   lastSavedTimestamp?: string;
 }
 
 export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = ({
   manifest,
   onSimulationCompleted,
+  onBinaryAnswerGrade,
   lastSavedTimestamp = 'just now',
 }) => {
   // The generator now declares the interaction subtype explicitly. Keep the
@@ -106,6 +108,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
   const [activeTab, setActiveTab] = useState<'canvas' | 'rubric' | 'export'>('canvas');
   const [binaryAnswers, setBinaryAnswers] = useState<Record<string, string>>({});
   const [binarySubmitted, setBinarySubmitted] = useState(false);
+  const [binaryResults, setBinaryResults] = useState<Record<string, boolean>>({});
 
   // Planning poker state
   const [teamVotes, setTeamVotes] = useState<Record<string, number | null>>({
@@ -139,9 +142,17 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
     return Boolean(answer && accepted.includes(answer));
   };
 
-  const handleBinarySubmit = () => {
+  const handleBinarySubmit = async () => {
     setBinarySubmitted(true);
-    const passed = binaryTasks.length > 0 && binaryTasks.every(checkBinaryAnswer);
+    const results = Object.fromEntries(await Promise.all(binaryTasks.map(async (task) => {
+      const answer = binaryAnswers[task.id] || '';
+      const passed = onBinaryAnswerGrade
+        ? await onBinaryAnswerGrade(task.id, answer)
+        : checkBinaryAnswer(task);
+      return [task.id, passed];
+    })));
+    setBinaryResults(results);
+    const passed = binaryTasks.length > 0 && binaryTasks.every((task) => results[task.id] === true);
     onSimulationCompleted?.(passed);
   };
 
@@ -258,7 +269,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                   <div className="space-y-2.5">
                     {binaryTasks.map((task, index) => {
                       const exercise = task.interactiveExercise!;
-                      const correct = binarySubmitted && checkBinaryAnswer(task);
+                      const correct = binarySubmitted && binaryResults[task.id] === true;
                       return (
                         <div key={task.id} className={`p-3 rounded-lg border ${binarySubmitted ? (correct ? 'border-emerald-300 bg-emerald-50/50' : 'border-rose-300 bg-rose-50/50') : 'border-slate-200 bg-white'}`}>
                           <div className="flex items-start gap-2">
