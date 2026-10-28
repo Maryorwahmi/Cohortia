@@ -61,7 +61,12 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     name: file.path,
     folder: file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '/',
     initialContent: file.content || '',
-    language: file.path.endsWith('.py') ? 'python' as const : file.path.endsWith('.json') ? 'json' as const : file.path.endsWith('.yaml') || file.path.endsWith('.yml') ? 'yaml' as const : 'text' as const,
+    language: /\.py$/i.test(file.path) ? 'python' as const
+      : /\.c$/i.test(file.path) ? 'c' as const
+      : /\.(cpp|cc|cxx)$/i.test(file.path) ? 'cpp' as const
+      : /\.json$/i.test(file.path) ? 'json' as const
+      : /\.(yaml|yml)$/i.test(file.path) ? 'yaml' as const
+      : 'text' as const,
   }));
   const teachingSteps = practical.teachingSteps || [];
   const walkthroughSteps = (practical.codeWalkthrough || []).map((step, index) => ({
@@ -111,7 +116,9 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     categoryType,
     courseName: learnerText(courseTitle || practical.courseId || 'Cohortia course'),
     moduleName: `Module ${practical.module || ''}`,
-    type: categoryType === 'terminal_coding' ? 'terminal' : categoryType === 'cloud_console' ? 'cloud' : categoryType === 'scenario_design' ? 'scenario' : 'script',
+    type: categoryType === 'terminal_coding'
+      ? files.some((file) => /\.(c|cpp|cc|cxx)$/i.test(file.name)) ? 'c_program' : 'terminal'
+      : categoryType === 'cloud_console' ? 'cloud' : categoryType === 'scenario_design' ? 'scenario' : 'script',
     durationSeconds: Math.max(60, (practical.teachingSteps || []).reduce((sum, step) => sum + (step.durationSeconds || 8), 0)),
     lessonLabel: title,
     objective: learnerText(practical.objectives?.join(' ') || practical.instructions || 'Complete the practical task and submit your work.'),
@@ -470,6 +477,12 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       }
     }
   };
+
+  const handleRunNativeProgram = (
+    files: Record<string, string>,
+    activeFileName: string,
+    language: 'c' | 'cpp',
+  ) => learningBoardsApi.executeNativePractical(files, activeFileName, language);
 
   const handleSimulationCompleted = (passed: boolean) => {
     setSimulationPassed(passed);
@@ -1070,6 +1083,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                           filesContent={filesContent}
                           onUpdateFileContent={handleUpdateFileContent}
                           onCommandRun={handleCommandRun}
+                          onRunNativeProgram={handleRunNativeProgram}
                           onSimulationCompleted={handleSimulationCompleted}
                           onBinaryAnswerGrade={practical?.id ? handleBinaryAnswerGrade : undefined}
                           lastSavedTimestamp={lastSavedTimestamp}
@@ -1097,6 +1111,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                       filesContent={filesContent}
                       onUpdateFileContent={handleUpdateFileContent}
                       onCommandRun={handleCommandRun}
+                      onRunNativeProgram={handleRunNativeProgram}
                       onSimulationCompleted={handleSimulationCompleted}
                       onBinaryAnswerGrade={practical?.id ? handleBinaryAnswerGrade : undefined}
                       lastSavedTimestamp={lastSavedTimestamp}

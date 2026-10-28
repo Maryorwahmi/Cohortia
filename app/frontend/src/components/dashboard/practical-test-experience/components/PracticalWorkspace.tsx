@@ -9,7 +9,6 @@ import {
   Code2,
   Copy,
   Check,
-  Cpu,
   Database,
   Search,
   Table as TableIcon,
@@ -26,6 +25,11 @@ interface PracticalWorkspaceProps {
   filesContent: Record<string, string>;
   onUpdateFileContent: (fileName: string, content: string) => void;
   onCommandRun?: (command: string, output: string) => void;
+  onRunNativeProgram?: (
+    files: Record<string, string>,
+    activeFileName: string,
+    language: 'c' | 'cpp',
+  ) => Promise<{ ok: boolean; stdout?: string; stderr?: string; error?: string; phase?: string }>;
   onSimulationCompleted?: (passed: boolean) => void;
   onBinaryAnswerGrade?: (taskId: string, answer: string) => Promise<boolean | null>;
   lastSavedTimestamp?: string;
@@ -74,6 +78,7 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
   filesContent,
   onUpdateFileContent,
   onCommandRun,
+  onRunNativeProgram,
   onSimulationCompleted,
   onBinaryAnswerGrade,
   lastSavedTimestamp,
@@ -113,14 +118,20 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
   }
 
   const currentContent = filesContent[activeFileName] || '';
+  const isCSource = /\.c$/i.test(activeFileName);
+  const isCppSource = /\.(cpp|cc|cxx)$/i.test(activeFileName);
+  const isNativeSource = isCSource || isCppSource;
+  const nativeLanguage = isCppSource ? 'cpp' : 'c';
+  const isPythonRepl = manifest.type === 'terminal' && !isNativeSource;
   const [terminalInput, setTerminalInput] = useState('');
+  const [isRunningNativeProgram, setIsRunningNativeProgram] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<TerminalEntry[]>([
     {
       type: 'system',
       text:
-        manifest.type === 'c_program' || manifest.type === 'pointers'
-          ? 'Clang 17.0.6 (x86_64-pc-linux-gnu)\nWorking directory: /workspace/practical'
-          : manifest.type === 'terminal'
+        isNativeSource
+          ? `${isCppSource ? 'C++' : 'C'} compiler ready\nActive source: ${activeFileName}`
+          : isPythonRepl
           ? 'Python 3.12.0 (safe interactive REPL)\nType "help", "copyright", "credits" or "license" for more info.'
           : manifest.type === 'binary_search'
           ? 'Algorithms Engine: Binary Search Simulation\nSorted array loaded: [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]'
@@ -157,6 +168,34 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
 
   // Terminal autoscroll
   const terminalEndRef = useRef<HTMLDivElement | null>(null);
+
+  const handleRunNativeProgram = async (command = `run ${activeFileName}`) => {
+    const newHistory: TerminalEntry[] = [...terminalHistory, { type: 'input', text: `$ ${command}` }];
+    if (!onRunNativeProgram) {
+      setTerminalHistory([...newHistory, {
+        type: 'error',
+        text: 'Native code execution is not available in this workspace.',
+      }]);
+      return;
+    }
+
+    setIsRunningNativeProgram(true);
+    setTerminalHistory(newHistory);
+    try {
+      const result = await onRunNativeProgram(filesContent, activeFileName, nativeLanguage);
+      const output = [result.stdout, result.stderr, result.error].filter(Boolean).join('\n').trim();
+      setTerminalHistory((current) => [
+        ...current,
+        { type: result.ok ? 'output' : 'error', text: output || (result.ok ? 'Program finished with no output.' : 'The program could not be executed.') },
+      ]);
+      onCommandRun?.(command, output);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'The program could not be executed.';
+      setTerminalHistory((current) => [...current, { type: 'error', text: message }]);
+    } finally {
+      setIsRunningNativeProgram(false);
+    }
+  };
 
   useEffect(() => {
     terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -262,7 +301,7 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
     setCommandHistory((prev) => [...prev, cmd]);
     setHistoryIndex(-1);
 
-    const isRepl = manifest.type === 'terminal';
+    const isRepl = isPythonRepl;
     const isSql = manifest.type === 'sql';
     const promptPrefix = isRepl ? '>>> ' : isSql ? 'sqlite> ' : '$ ';
 
@@ -273,6 +312,24 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
 
     if (cmd === 'clear') {
       setTerminalHistory([]);
+      setTerminalInput('');
+      return;
+    }
+
+    if (isNativeSource && (
+      /^\.\/\S+/.test(cmd)
+      || /^run(?:\s|$)/i.test(cmd)
+    )) {
+      void handleRunNativeProgram(cmd);
+      setTerminalInput('');
+      return;
+    }
+
+    if (isNativeSource && /^(?:clang|gcc|g\+\+|clang\+\+)\b/.test(cmd)) {
+      setTerminalHistory([...newHistory, {
+        type: 'system',
+        text: 'Use the Run C Program button to compile and execute the active source file.',
+      }]);
       setTerminalInput('');
       return;
     }
@@ -400,8 +457,8 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
             {activeFileName}
           </span>
           <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-700 font-semibold">
-            {manifest.type === 'c_program' || manifest.type === 'pointers'
-              ? 'C (Clang 17)'
+            {isNativeSource
+              ? isCppSource ? 'C++ (server compiler)' : 'C (server compiler)'
               : manifest.type === 'sql'
               ? 'SQLite'
               : manifest.type === 'binary_search' || manifest.type === 'sorting'
@@ -428,44 +485,15 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
             <span className="hidden sm:inline">{copiedNotes ? 'Copied' : 'Export'}</span>
           </button>
 
-          {manifest.type === 'c_program' || manifest.type === 'pointers' ? (
-            <>
-              <button
-                onClick={() =>
-                  handleExecuteCommand(
-                    activeFileName.includes('calculator')
-                      ? 'clang calculator.c -o calculator'
-                      : activeFileName.includes('grades')
-                      ? 'clang grades.c -o grades'
-                      : activeFileName.includes('student_records')
-                      ? 'clang student_records.c -o student_records'
-                      : 'clang hello.c -o hello'
-                  )
-                }
-                className="px-2.5 py-1 rounded-md text-[11px] font-bold font-mono bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <Cpu className="w-3 h-3" />
-                <span>Compile (clang)</span>
-              </button>
-
-              <button
-                onClick={() =>
-                  handleExecuteCommand(
-                    activeFileName.includes('calculator')
-                      ? './calculator'
-                      : activeFileName.includes('grades')
-                      ? './grades'
-                      : activeFileName.includes('student_records')
-                      ? './student_records'
-                      : './hello'
-                  )
-                }
-                className="px-2.5 py-1 rounded-md text-[11px] font-bold font-mono bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <Play className="w-3 h-3 fill-current" />
-                <span>Run</span>
-              </button>
-            </>
+          {isNativeSource ? (
+            <button
+              onClick={() => void handleRunNativeProgram()}
+              disabled={isRunningNativeProgram}
+              className="px-2.5 py-1 rounded-md text-[11px] font-bold font-mono bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white shadow-2xs flex items-center gap-1 transition-colors cursor-pointer disabled:cursor-wait"
+            >
+              <Play className="w-3 h-3 fill-current" />
+              <span>{isRunningNativeProgram ? 'Running…' : `Run ${isCppSource ? 'C++' : 'C'} Program`}</span>
+            </button>
           ) : manifest.type === 'binary_search' ? (
             <>
               <button
@@ -848,44 +876,23 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
                 <div className="flex items-center gap-1.5 text-slate-400">
                   <Terminal className="w-3.5 h-3.5 text-emerald-400" />
                   <span className="font-bold text-slate-200 text-xs">
-                    {manifest.type === 'terminal' ? 'Python 3 REPL' : 'Bash Terminal (Simulation)'}
+                    {isNativeSource ? `${isCppSource ? 'C++' : 'C'} Program Output` : isPythonRepl ? 'Python 3 REPL (Simulation)' : 'Bash Terminal (Simulation)'}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-1">
-                  {manifest.type === 'c_program' && (
+                  {isNativeSource && (
                     <>
                       <button
-                        onClick={() =>
-                          handleExecuteCommand(
-                            activeFileName.includes('calculator')
-                              ? 'clang calculator.c -o calculator'
-                              : activeFileName.includes('grades')
-                              ? 'clang grades.c -o grades'
-                              : 'clang hello.c -o hello'
-                          )
-                        }
+                        onClick={() => void handleRunNativeProgram()}
+                        disabled={isRunningNativeProgram}
                         className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] cursor-pointer"
                       >
-                        clang
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleExecuteCommand(
-                            activeFileName.includes('calculator')
-                              ? './calculator'
-                              : activeFileName.includes('grades')
-                              ? './grades'
-                              : './hello'
-                          )
-                        }
-                        className="px-2 py-0.5 rounded bg-emerald-900/60 hover:bg-emerald-800 text-emerald-300 text-[10px] cursor-pointer"
-                      >
-                        ./exec
+                        {isRunningNativeProgram ? 'Running…' : 'Compile & Run'}
                       </button>
                     </>
                   )}
-                  {manifest.type === 'terminal' && (
+                  {isPythonRepl && (
                     <>
                       <button
                         onClick={() => handleExecuteCommand('10 / 3')}
@@ -943,7 +950,7 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
                 className="mt-1.5 flex items-center gap-1.5 bg-slate-900/90 rounded-md px-2 py-1 border border-slate-800 shrink-0"
               >
                 <span className="text-emerald-400 font-bold select-none text-[11px]">
-                  {manifest.type === 'terminal' ? '>>>' : '$'}
+                  {isPythonRepl ? '>>>' : '$'}
                 </span>
                 <input
                   type="text"
@@ -967,7 +974,9 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
                   }}
                   className="flex-1 bg-transparent text-slate-100 focus:outline-hidden text-xs font-mono"
                   placeholder={
-                    manifest.type === 'terminal'
+                    isNativeSource
+                      ? `Run ${activeFileName} or enter ls/cat commands`
+                      : isPythonRepl
                       ? 'print("..."), 10 / 3, "Python" * 3, import this'
                       : 'clang hello.c -o hello, ./hello, ls'
                   }
