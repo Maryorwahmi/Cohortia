@@ -29,31 +29,36 @@ export const CloudConsoleWorkspace: React.FC<CloudConsoleWorkspaceProps> = ({
   onSimulationCompleted,
   lastSavedTimestamp = 'just now',
 }) => {
-  const isAlibaba = manifest.courseName.toLowerCase().includes('alibaba') || manifest.id.includes('alibaba');
+  const cloudWorkspace = manifest.workspace?.cloud;
+  const provider = cloudWorkspace?.provider || 'Cohortia Cloud Simulator';
+  const region = cloudWorkspace?.region || 'learning-lab-1';
+  const initialResources = cloudWorkspace?.initialResources || [];
+  const resourcesOfType = (type: string) => initialResources.filter((resource) => String(resource.type || resource.service || '').toLowerCase() === type);
+  const isAlibaba = provider.toLowerCase().includes('alibaba');
 
   // Cloud services tabs
   const [activeService, setActiveService] = useState<'vpc' | 'vswitch' | 'eip' | 'disk' | 'monitor'>('vpc');
 
   // Resource states
-  const [vpcs, setVpcs] = useState([
+  const [vpcs, setVpcs] = useState(() => resourcesOfType('vpc').length ? resourcesOfType('vpc') : cloudWorkspace ? [] : [
     { id: 'vpc-2ze8f41', name: 'vpc-production-east', cidr: '192.168.0.0/16', status: 'Available', region: 'cn-hangzhou' }
-  ]);
+  ] as any[]);
 
-  const [vswitches, setVswitches] = useState([
+  const [vswitches, setVswitches] = useState(() => resourcesOfType('vswitch').length ? resourcesOfType('vswitch') : cloudWorkspace ? [] : [
     { id: 'vsw-2zek891', name: 'vsw-zone-i-primary', cidr: '192.168.1.0/24', vpcId: 'vpc-2ze8f41', zone: 'cn-hangzhou-i', status: 'Available' }
-  ]);
+  ] as any[]);
 
-  const [eips, setEips] = useState([
+  const [eips, setEips] = useState(() => resourcesOfType('eip').length ? resourcesOfType('eip') : cloudWorkspace ? [] : [
     { id: 'eip-2ze671a', ip: '47.98.112.4', bandwidth: '10 Mbps', status: 'In Use', instance: 'ecs-web-cluster-01' }
-  ]);
+  ] as any[]);
 
-  const [disks, setDisks] = useState([
+  const [disks, setDisks] = useState(() => resourcesOfType('disk').length ? resourcesOfType('disk') : cloudWorkspace ? [] : [
     { id: 'd-2ze91ab', name: 'disk-data-ssd', size: '100 GiB', type: 'Enhanced SSD (ESSD)', status: 'In Use', instance: 'ecs-web-cluster-01' }
-  ]);
+  ] as any[]);
 
-  const [alarms, setAlarms] = useState([
+  const [alarms, setAlarms] = useState(() => resourcesOfType('alarm').length ? resourcesOfType('alarm') : cloudWorkspace ? [] : [
     { id: 'alm-101', name: 'CPU-Utilization-Critical', metric: 'CPUUtilization > 80%', evaluationPeriod: '3 periods of 1m', state: 'OK', notification: 'admin-alert-group' }
-  ]);
+  ] as any[]);
 
   // Modals for creation
   const [modalOpen, setModalOpen] = useState<'vpc' | 'vswitch' | 'eip' | 'disk' | 'alarm' | null>(null);
@@ -69,10 +74,8 @@ export const CloudConsoleWorkspace: React.FC<CloudConsoleWorkspaceProps> = ({
   // Integrated CLI drawer
   const [cliInput, setCliInput] = useState('');
   const [cliLogs, setCliLogs] = useState<string[]>([
-    isAlibaba
-      ? 'Aliyun CLI v3.0.188 configured for region cn-hangzhou'
-      : 'AWS CLI v2.15.15 configured for us-east-1',
-    'Ready. Run "aliyun vpc DescribeVpcs" or create resources using console.'
+    `${provider} simulator configured for region ${region}`,
+    'Ready. Use the generated command plan or create resources using the simulated console.'
   ]);
 
   const handleCreateVpc = () => {
@@ -80,7 +83,6 @@ export const CloudConsoleWorkspace: React.FC<CloudConsoleWorkspaceProps> = ({
     setVpcs((prev) => [...prev, { id, name: newVpcName, cidr: newVpcCidr, status: 'Available', region: 'cn-hangzhou' }]);
     setCliLogs((prev) => [...prev, `$ aliyun vpc CreateVpc --VpcName ${newVpcName} --CidrBlock ${newVpcCidr}`, `[Success] Created VPC ${id}`]);
     setModalOpen(null);
-    onSimulationCompleted?.(true);
   };
 
   const handleCreateVSwitch = () => {
@@ -88,7 +90,6 @@ export const CloudConsoleWorkspace: React.FC<CloudConsoleWorkspaceProps> = ({
     setVswitches((prev) => [...prev, { id, name: newVswName, cidr: newVswCidr, vpcId: vpcs[0]?.id || 'vpc-default', zone: 'cn-hangzhou-j', status: 'Available' }]);
     setCliLogs((prev) => [...prev, `$ aliyun vpc CreateVSwitch --VSwitchName ${newVswName} --CidrBlock ${newVswCidr}`, `[Success] Created VSwitch ${id}`]);
     setModalOpen(null);
-    onSimulationCompleted?.(true);
   };
 
   const handleCreateDisk = () => {
@@ -96,7 +97,6 @@ export const CloudConsoleWorkspace: React.FC<CloudConsoleWorkspaceProps> = ({
     setDisks((prev) => [...prev, { id, name: `disk-extra-${newDiskSize}gb`, size: `${newDiskSize} GiB`, type: 'Standard SSD', status: 'In Use', instance: 'ecs-web-cluster-01' }]);
     setCliLogs((prev) => [...prev, `$ aliyun ecs CreateDisk --Size ${newDiskSize} --Category cloud_ssd`, `[Success] Attached Disk ${id} to ecs-web-cluster-01`]);
     setModalOpen(null);
-    onSimulationCompleted?.(true);
   };
 
   const handleCreateAlarm = () => {
@@ -104,7 +104,6 @@ export const CloudConsoleWorkspace: React.FC<CloudConsoleWorkspaceProps> = ({
     setAlarms((prev) => [...prev, { id, name: `CPU-Threshold-${newAlarmThreshold}pct`, metric: `CPUUtilization > ${newAlarmThreshold}%`, evaluationPeriod: '2 periods of 1m', state: 'OK', notification: 'ops-team' }]);
     setCliLogs((prev) => [...prev, `$ aliyun cms PutMetricRule --RuleName CPU-Threshold-${newAlarmThreshold}pct`, `[Success] CloudMonitor Alarm ${id} enabled`]);
     setModalOpen(null);
-    onSimulationCompleted?.(true);
   };
 
   const handleRunCli = (e: React.FormEvent) => {
@@ -129,7 +128,7 @@ export const CloudConsoleWorkspace: React.FC<CloudConsoleWorkspaceProps> = ({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 font-bold text-xs tracking-tight">
             <Cloud className="w-4 h-4 text-orange-400" />
-            <span>{isAlibaba ? 'Alibaba Cloud Console' : 'AWS Management Console'}</span>
+            <span>{provider}</span>
           </div>
           <span className="text-slate-600">|</span>
           <span className="text-xs text-slate-300 font-mono">
@@ -140,10 +139,10 @@ export const CloudConsoleWorkspace: React.FC<CloudConsoleWorkspaceProps> = ({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 bg-slate-800 text-xs px-2.5 py-1 rounded text-slate-300 font-mono">
             <Globe className="w-3.5 h-3.5 text-slate-400" />
-            <span>{isAlibaba ? 'cn-hangzhou (Hangzhou)' : 'us-east-1 (N. Virginia)'}</span>
+            <span>{region}</span>
           </div>
           <span className="text-xs text-slate-400 font-mono hidden sm:inline">
-            UID: 519280410
+            Safe simulation
           </span>
         </div>
       </div>

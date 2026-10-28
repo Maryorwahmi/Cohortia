@@ -10,7 +10,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "editor_terminal",
     learnerArtifact: "working code and verified output",
     requiredUi: ["mission", "editor", "terminal", "automated_checks"],
-    prompt: `Build an executable coding lab with two explicit phases: teach mode, then practice mode. Teach mode must contain 4-8 atomic codeWalkthrough steps with a real file, exact codeLine, rich speakerText, duration, explanation, and a learner prediction checkpoint. Practice mode must provide small editable starter files, 3-5 progressive milestones, and checks that diagnose the learner's mistake. Each task must move through predict, change, run, and explain. Never invent unavailable services, credentials, or unsupported runtimes.`,
+    prompt: `Build an executable coding lab with two explicit phases: teach mode, then practice mode. Teach mode must contain 4-8 atomic codeWalkthrough steps with a real file, exact codeLine, rich speakerText, duration, explanation, and a learner prediction checkpoint. Practice mode must provide small editable starter files, 3-5 progressive milestones, and checks that diagnose the learner's mistake. Return workspace.type=terminal and workspace.terminal with the real entry file, editable/read-only files, supported run or compile commands, stdin, and expected artifacts. Never invent unavailable services, credentials, or unsupported runtimes.`,
   },
   research_evidence_lab: {
     category: "Research & Analysis",
@@ -18,7 +18,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "evidence_notebook",
     learnerArtifact: "hypothesis, evidence notes, and reasoned conclusion",
     requiredUi: ["mission", "hypothesis", "evidence_notes", "reflection"],
-    prompt: `Build a guided evidence lab, not a coding exercise. Give each milestone a hypothesis, evidence to look for, a note-taking prompt, and a misconception to challenge. Completion must require a defensible conclusion rather than generic text.`,
+    prompt: `Build a guided evidence lab, not a coding exercise. Return workspace.type=research and a complete workspace.research dossier from the chapter, including the investigation question, sources or datasets, required observations, allowed analysis operations, calculation rules, conclusion prompt, evidence requirements, and rubric. Give each milestone a hypothesis, evidence to look for, a note-taking prompt, and a misconception to challenge. Completion must require a defensible conclusion rather than generic text.`,
   },
   cloud_console_lab: {
     category: "Cloud Console Lab",
@@ -26,7 +26,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "safe_cloud_console",
     learnerArtifact: "safe command plan and verification log",
     requiredUi: ["mission", "resource_map", "command_plan", "verification_log"],
-    prompt: `Build a safe cloud-console mission with two explicit phases: a calm, teacher-led walkthrough, then “Your turn.” Begin with a welcoming course-and-chapter introduction, explain why this cloud skill matters using a concrete real-world example, and invite a prediction before each action. Return 4-8 ordered teachingSteps with progressive displayText, warm 25-50 word speakerText, and useful explanation callouts, then map every teaching step to teachingPlaylist[].codeSteps. Use simulated or read-only resources only, explicitly state expected resource state, and include command-plan and verification-log milestones. Never require real credentials, billing actions, destructive commands, or production access.`,
+    prompt: `Build a safe cloud-console mission with two explicit phases: a calm, teacher-led walkthrough, then “Your turn.” Return workspace.type=cloud and a complete workspace.cloud object with course-specific provider/region, initial resources, allowed simulated actions, forbidden actions, command templates, expected resource state, and verification checks. Begin with a welcoming course-and-chapter introduction, explain why this cloud skill matters using a concrete real-world example, and invite a prediction before each action. Return 4-8 ordered teachingSteps with progressive displayText, warm 25-50 word speakerText, and useful explanation callouts, then map every teaching step to teachingPlaylist[].codeSteps. Use simulated or read-only resources only, explicitly state expected resource state, and include command-plan and verification-log milestones. Never require real credentials, billing actions, destructive commands, or production access.`,
   },
   scenario_simulator: {
     category: "Scenario & Design Exercise",
@@ -34,16 +34,17 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "decision_simulator",
     learnerArtifact: "decision rationale and outcome analysis",
     requiredUi: ["mission", "scenario", "decision", "outcome", "reflection"],
-    prompt: `Build a teacher-led, line-by-line scenario lesson followed by an interactive "Your turn" phase. Start with a warm welcome that names the course, module, chapter, and hands-on mission; establish why it matters through a concrete real-world example, then ask the learner a prediction. Return 4-8 ordered teachingSteps; each step must include concise displayText that can be revealed progressively, warm 25-50 word speakerText, and a useful explanation. Teach one idea at a time, then give the learner a related task to solve in the workspace. For binary_exercise, explain place values and conversions visually without writing source code, and give every conversion task an interactiveExercise with a prompt, exact expectedAnswer, optional acceptedAnswers, and an explanation. For design_decision, present realistic options, trade-offs, outcomes, and ask the learner to justify a choice. Do not disguise a prose worksheet as a simulation.`,
+    prompt: `Build a teacher-led, line-by-line scenario lesson followed by an interactive "Your turn" phase. Return workspace.type=scenario and an explicit workspace.scenario.subtype of planning_poker, roadmap_planning, annotation_design, explainability_decision, or generic_decision. Include the scenario context, items, decision options, constraints, decision fields, outcome rules, rubric, and export artifact needed by the UI. Start with a warm welcome that names the course, module, chapter, and hands-on mission; establish why it matters through a concrete real-world example, then ask the learner a prediction. Return 4-8 ordered teachingSteps; each step must include concise displayText that can be revealed progressively, warm 25-50 word speakerText, and a useful explanation. Teach one idea at a time, then give the learner a related task to solve in the workspace. For binary_exercise, explain place values and conversions visually without writing source code, and give every conversion task an interactiveExercise with a prompt, exact expectedAnswer, optional acceptedAnswers, and an explanation. For design_decision, present realistic options, trade-offs, outcomes, and ask the learner to justify a choice. Do not disguise a prose worksheet as a simulation.`,
   },
 };
 
-export function activityKindFor({ category, title = "", activity = "" }) {
+export function activityKindFor({ category, title = "", activity = "", labType = "" }) {
   const text = `${title}\n${activity}`.toLowerCase();
   if (category === "Terminal Coding Lab") return "terminal_code_along";
   if (category === "Cloud Console Lab") return "cloud_console_walkthrough";
   if (category === "Research & Analysis") return "evidence_inquiry";
   if (category === "Scenario & Design Exercise") {
+    if (["code", "shell", "database"].includes(String(labType).toLowerCase())) return "terminal_code_along";
     // A decimal value or a generic type conversion is not automatically a
     // binary exercise. Require an explicit number-systems signal so ordinary
     // Python data-type labs remain scenario/design activities.
@@ -65,6 +66,7 @@ export function experienceFor({ category, labType }) {
   if (category === "Terminal Coding Lab") return "terminal_coding_lab";
   if (category === "Research & Analysis") return "research_evidence_lab";
   if (category === "Cloud Console Lab" || labType === "cloud") return "cloud_console_lab";
+  if (["code", "shell", "database"].includes(String(labType).toLowerCase())) return "terminal_coding_lab";
   if (category === "Scenario & Design Exercise" || ["simulation", "security", "network"].includes(labType)) return "scenario_simulator";
   return "terminal_coding_lab";
 }
@@ -75,7 +77,7 @@ export function profileFor(input) {
 }
 
 export function profileSchema(baseSchema, profile, activityKind) {
-  const required = [...new Set([...(baseSchema.required || []), "experience"])];
+  const required = [...new Set([...(baseSchema.required || []), "experience", "workspace"])];
   const schema = {
     ...baseSchema,
     properties: {
@@ -89,6 +91,16 @@ export function profileSchema(baseSchema, profile, activityKind) {
           requiredUi: { type: "array", items: { type: "string" } },
         },
         required: ["experienceType", "workspaceFamily", "learnerArtifact", "requiredUi"],
+      },
+      workspace: {
+        ...baseSchema.properties.workspace,
+        properties: {
+          ...baseSchema.properties.workspace.properties,
+          type: {
+            type: "string",
+            enum: [profile.experienceType === "terminal_coding_lab" ? "terminal" : profile.experienceType === "cloud_console_lab" ? "cloud" : profile.experienceType === "research_evidence_lab" ? "research" : "scenario"],
+          },
+        },
       },
     },
     required,

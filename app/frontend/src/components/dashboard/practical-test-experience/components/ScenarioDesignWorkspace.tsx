@@ -28,15 +28,28 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
   onSimulationCompleted,
   lastSavedTimestamp = 'just now',
 }) => {
-  // Determine subtype: 'sprint_agenda' | 'planning_poker' | 'roadmap' | 'annotation_guideline' | 'xai_explanation'
-  const isPlanningPoker = manifest.id.includes('poker') || manifest.id.includes('estimate');
-  const isRoadmap = manifest.id.includes('roadmap') || manifest.id.includes('release');
-  const isAnnotation = manifest.id.includes('annotation') || manifest.id.includes('guideline');
-  const isXAI = manifest.id.includes('xai') || manifest.id.includes('explanation');
+  // The generator now declares the interaction subtype explicitly. Keep the
+  // legacy defaults only for old local fixtures that have no workspace data.
+  const scenarioSubtype = manifest.workspace?.scenario?.subtype || 'generic_decision';
+  const isPlanningPoker = scenarioSubtype === 'planning_poker';
+  const isRoadmap = scenarioSubtype === 'roadmap_planning';
+  const isAnnotation = scenarioSubtype === 'annotation_design';
+  const isXAI = scenarioSubtype === 'explainability_decision';
   const isSprintAgenda = !isPlanningPoker && !isRoadmap && !isAnnotation && !isXAI;
 
   // Initial scenario items from manifest
-  const initialItems: ScenarioItem[] = manifest.scenarioItems || [
+  const generatedItems = (manifest.workspace?.scenario?.items || []).map((item, index) => ({
+    id: String(item.id || `scenario-item-${index + 1}`),
+    title: String(item.title || `Scenario item ${index + 1}`),
+    category: String(item.category || 'Scenario'),
+    description: String(item.description || ''),
+    estimate: typeof item.estimate === 'number' ? item.estimate : undefined,
+    status: ['backlog', 'in_progress', 'consensus', 'completed'].includes(String(item.status)) ? String(item.status) as ScenarioItem['status'] : 'backlog',
+    tags: Array.isArray(item.tags) ? item.tags.map(String) : [],
+    assignedTo: typeof item.assignedTo === 'string' ? item.assignedTo : undefined,
+    timeSlot: typeof item.timeSlot === 'string' ? item.timeSlot : undefined,
+  }));
+  const initialItems: ScenarioItem[] = manifest.scenarioItems || (generatedItems.length ? generatedItems : [
     {
       id: 'sc-1',
       title: 'Sprint Goal & Objective Alignment',
@@ -77,7 +90,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
       tags: ['Entire Scrum Team'],
       estimate: 2,
     },
-  ];
+  ]);
 
   const [items, setItems] = useState<ScenarioItem[]>(initialItems);
   const [selectedItemId, setSelectedItemId] = useState<string>(initialItems[0]?.id || '');
@@ -116,7 +129,6 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
     }));
     if (points === 5) {
       setUserStoryConsensus(true);
-      onSimulationCompleted?.(true);
     } else {
       setUserStoryConsensus(false);
     }
@@ -504,7 +516,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                     Status: <span className="font-semibold text-indigo-600 uppercase font-mono">{selectedItem.status || 'Active'}</span>
                   </span>
                   <button
-                    onClick={() => onSimulationCompleted?.(true)}
+                    onClick={() => setActiveTab('rubric')}
                     className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
                   >
                     Commit Step Design

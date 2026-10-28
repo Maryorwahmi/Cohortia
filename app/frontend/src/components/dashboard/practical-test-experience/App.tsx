@@ -10,6 +10,7 @@ import {
   InstructorPersona,
   DomainEvaluatorResult,
   DiagnosticFinding,
+  PracticalWorkspaceData,
 } from './types/practical';
 import { TopNav } from './components/TopNav';
 import { WorkspaceSidebar } from './components/WorkspaceSidebar';
@@ -43,6 +44,17 @@ function categoryTypeFor(practical: LearningBoardPractical): PracticalManifest['
   return 'terminal_coding';
 }
 
+function learnerText(value: string | null | undefined): string {
+  return String(value || '')
+    .replace(/```[a-z0-9_+-]*\s*/gi, '')
+    .replace(/```/g, '')
+    .replace(/\*{1,2}/g, '')
+    .replace(/`/g, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: string): PracticalManifest {
   const categoryType = categoryTypeFor(practical);
   const files = (practical.files || []).map((file) => ({
@@ -71,35 +83,41 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
   }));
   const tasks = (practical.tasks || []).map((task, index) => ({
     id: task.id,
-    title: task.title || `Task ${index + 1}`,
-    description: task.instruction,
-    criteria: task.requiredConcepts.join(', '),
-    hints: task.hints || [],
+    title: learnerText(task.title || `Task ${index + 1}`),
+    description: learnerText(task.instruction),
+    criteria: task.requiredConcepts.map(learnerText).join(', '),
+    hints: (task.hints || []).map(learnerText),
   }));
-  const title = practical.title || 'Practical test';
+  const title = learnerText(practical.title || 'Practical test');
+  const workspace = practical.workspace
+    ? ({
+        ...practical.workspace,
+        type: practical.workspace.type === 'cloud' ? 'cloud' : practical.workspace.type === 'scenario' ? 'scenario' : practical.workspace.type === 'research' ? 'research' : 'terminal',
+      } as PracticalWorkspaceData)
+    : undefined;
   return {
     id: practical.id || `chapter-${practical.module}-${practical.chapter}`,
     title,
     category: practical.category || categoryType,
     categoryType,
-    courseName: courseTitle || practical.courseId || 'Cohortia course',
+    courseName: learnerText(courseTitle || practical.courseId || 'Cohortia course'),
     moduleName: `Module ${practical.module || ''}`,
     type: categoryType === 'terminal_coding' ? 'terminal' : categoryType === 'cloud_console' ? 'cloud' : categoryType === 'scenario_design' ? 'scenario' : 'script',
     durationSeconds: Math.max(60, (practical.teachingSteps || []).reduce((sum, step) => sum + (step.durationSeconds || 8), 0)),
     lessonLabel: title,
-    objective: practical.objectives?.join(' ') || practical.instructions || 'Complete the practical task and submit your work.',
-    realWorldContext: practical.teacher?.realWorldContext || practical.summary || '',
+    objective: learnerText(practical.objectives?.join(' ') || practical.instructions || 'Complete the practical task and submit your work.'),
+    realWorldContext: learnerText(practical.teacher?.realWorldContext || practical.summary || ''),
     classroom: {
       classroomBadge: '16:9 HD CLASSROOM', moduleBadge: `MODULE ${String(practical.module || '').padStart(2, '0')}`,
       chapterBreadcrumb: `CHAPTER ${practical.module || 1}.${practical.chapter || 1}`, topicBreadcrumb: title.toUpperCase(),
-      mainTitle: title, subtitle: practical.summary || practical.instructions || '', inThisLesson: practical.objectives?.join(', ') || '',
-      whyItMatters: practical.teacher?.realWorldContext || '', quickOrientation: practical.objectives || [],
-      exploreKeyTopics: (practical.tasks || []).slice(0, 3).map((task) => ({ title: task.title || 'Task', description: task.instruction })),
+      mainTitle: title, subtitle: learnerText(practical.summary || practical.instructions || ''), inThisLesson: learnerText(practical.objectives?.join(', ') || ''),
+      whyItMatters: learnerText(practical.teacher?.realWorldContext || ''), quickOrientation: (practical.objectives || []).map(learnerText),
+      exploreKeyTopics: (practical.tasks || []).slice(0, 3).map((task) => ({ title: learnerText(task.title || 'Task'), description: learnerText(task.instruction) })),
       conceptMap: { title: 'Practical mission', subtitle: practical.experience?.learnerArtifact || '', nodes: (practical.objectives || []).slice(0, 4).map((value, index) => ({ label: `Objective ${index + 1}`, value })) },
-      gettingReady: practical.instructions || 'Review the mission, then begin the practical workspace.',
+      gettingReady: learnerText(practical.instructions || 'Review the mission, then begin the practical workspace.'),
     },
-    missionStory: { roleTitle: 'Learner', scenarioOverview: practical.summary || '', deliverables: practical.objectives || [], xpReward: 0 },
-    files, walkthroughSteps: walkthroughSteps.length ? walkthroughSteps : fallbackSteps, tasks,
+    missionStory: { roleTitle: 'Learner', scenarioOverview: learnerText(practical.summary || ''), deliverables: (practical.objectives || []).map(learnerText), xpReward: 0 },
+    files, walkthroughSteps: walkthroughSteps.length ? walkthroughSteps : fallbackSteps, tasks, workspace,
   };
 }
 
@@ -403,6 +421,11 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const handleCommandRun = (command: string, output: string) => {
     setExecutedCommands((prev) => [...prev, command]);
 
+    // Published practicals are graded from their generated checks on the
+    // server. The legacy command-string milestones below are retained only
+    // for the bundled demo manifests and must never affect a real attempt.
+    if (practical?.id) return;
+
     if (command.includes('clang') || command.includes('gcc')) {
       if (!completedTaskIds.includes('task-c-compile')) {
         setCompletedTaskIds((prev) => [...prev, 'task-c-compile']);
@@ -437,6 +460,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
 
   const handleSimulationCompleted = (passed: boolean) => {
     setSimulationPassed(passed);
+    if (practical?.id) return;
     if (passed) {
       if (activeManifest.id === 'algorithm-draft') {
         if (!completedTaskIds.includes('task-test-simulator')) {

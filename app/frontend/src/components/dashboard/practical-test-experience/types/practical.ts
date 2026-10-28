@@ -147,6 +147,44 @@ export interface ResearchSourceDoc {
   dataPoints?: Array<{ label: string; value: string | number; change?: string }>;
 }
 
+export interface PracticalWorkspaceData {
+  type: 'terminal' | 'cloud' | 'scenario' | 'research';
+  terminal?: Record<string, unknown>;
+  cloud?: {
+    provider?: string;
+    region?: string;
+    initialResources?: Record<string, unknown>[];
+    allowedActions?: Record<string, unknown>[];
+    forbiddenActions?: string[];
+    commandTemplates?: Record<string, unknown>[];
+    expectedState?: Record<string, unknown>[];
+    verificationChecks?: Record<string, unknown>[];
+  };
+  scenario?: {
+    subtype?: string;
+    context?: string;
+    items?: Record<string, unknown>[];
+    options?: Record<string, unknown>[];
+    constraints?: string[];
+    decisionFields?: Record<string, unknown>[];
+    outcomeRules?: Record<string, unknown>[];
+    rubric?: Record<string, unknown>[];
+    exportArtifact?: Record<string, unknown>;
+  };
+  research?: {
+    investigationQuestion?: string;
+    hypothesisPrompt?: string;
+    sources?: Record<string, unknown>[];
+    datasets?: Record<string, unknown>[];
+    requiredObservations?: Record<string, unknown>[];
+    analysisOperations?: Record<string, unknown>[];
+    calculationRules?: Record<string, unknown>[];
+    conclusionPrompt?: string;
+    evidenceRequirements?: Record<string, unknown>[];
+    rubric?: Record<string, unknown>[];
+  };
+}
+
 export interface PracticalManifest {
   id: string;
   title: string;
@@ -172,4 +210,5 @@ export interface PracticalManifest {
   initialCloudResources?: CloudResource[];
   scenarioItems?: ScenarioItem[];
   researchSources?: ResearchSourceDoc[];
+  workspace?: PracticalWorkspaceData;
 }

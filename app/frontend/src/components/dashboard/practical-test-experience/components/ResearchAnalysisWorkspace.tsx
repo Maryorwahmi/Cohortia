@@ -27,12 +27,22 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
   onSimulationCompleted,
   lastSavedTimestamp = 'just now',
 }) => {
-  const isStockData = manifest.id.includes('stock') || manifest.id.includes('data');
-  const isArduino = manifest.id.includes('arduino') || manifest.id.includes('sensor');
-  const isRegulation = manifest.id.includes('regulation') || manifest.id.includes('policy');
+  const researchWorkspace = manifest.workspace?.research;
+  const primaryDataset = researchWorkspace?.datasets?.[0];
+  const datasetRows = Array.isArray(primaryDataset?.rows) ? primaryDataset.rows : [];
+  const isStockData = !researchWorkspace && manifest.id.includes('stock');
+  const isArduino = !researchWorkspace && manifest.id.includes('arduino');
 
   // Stock price dataset for Applied Data Science
-  const [stockDataset] = useState([
+  const [stockDataset] = useState(() => datasetRows.length ? datasetRows.map((row, index) => ({
+    date: String(row.date || row.label || `Row ${index + 1}`),
+    open: Number(row.open || row.value || 0),
+    high: Number(row.high || row.value || 0),
+    low: Number(row.low || row.value || 0),
+    close: Number(row.close || row.value || 0),
+    volume: String(row.volume || ''),
+    returnPct: String(row.returnPct || row.change || ''),
+  })) : researchWorkspace ? [] : [
     { date: '2025-01-02', open: 182.4, high: 184.2, low: 181.8, close: 183.9, volume: '48.2M', returnPct: '+0.82%' },
     { date: '2025-01-03', open: 184.0, high: 185.1, low: 183.2, close: 184.5, volume: '42.1M', returnPct: '+0.33%' },
     { date: '2025-01-06', open: 185.2, high: 186.7, low: 184.9, close: 186.3, volume: '51.8M', returnPct: '+0.98%' },
@@ -43,7 +53,15 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
   ]);
 
   // Arduino hardware taxonomy dataset
-  const [hardwareItems] = useState([
+  const [hardwareItems] = useState(() => datasetRows.length ? datasetRows.map((row, index) => ({
+    id: String(row.id || `row-${index + 1}`),
+    component: String(row.component || row.name || row.label || `Dataset row ${index + 1}`),
+    type: String(row.type || row.category || ''),
+    voltage: String(row.voltage || ''),
+    current: String(row.current || row.value || ''),
+    pins: String(row.pins || ''),
+    interface: String(row.interface || row.description || ''),
+  })) : researchWorkspace ? [] : [
     { id: 'h1', component: 'HC-SR04 Ultrasonic Sensor', type: 'Input Sensor', voltage: '5.0V', current: '15mA', pins: 'VCC, Trig, Echo, GND', interface: 'Digital Pulse' },
     { id: 'h2', component: 'DHT22 Temp & Humidity', type: 'Input Sensor', voltage: '3.3V - 5V', current: '2.5mA', pins: 'VCC, Data, NC, GND', interface: '1-Wire Digital' },
     { id: 'h3', component: 'SG90 Micro Servo 9g', type: 'Actuator', voltage: '4.8V - 6V', current: '250mA (stall)', pins: 'PWM, 5V, GND', interface: 'PWM 50Hz' },
@@ -52,19 +70,19 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
 
   // User synthesis findings
   const [analysisNotes, setAnalysisNotes] = useState(
-    isStockData
+    researchWorkspace?.conclusionPrompt || (isStockData
       ? 'Calculated cumulative return across 7 trading sessions is +2.56%. Daily volatility is 0.62%, indicating stable upward momentum with lower downside drawdown compared to broad market index.'
       : isArduino
       ? 'Total current draw under peak load is 287.5mA. Because the Arduino Uno 5V regulator can deliver up to 500mA from USB, direct board powering is viable for sensor reading, but a dedicated external battery rail is recommended for SG90 servo motor stalls.'
       : 'The proposed customer service LLM classifier falls under EU AI Act "Specific Transparency Risk" (Title IV, Art. 50), mandating explicit user notification of AI interaction and watermarking of generated synthetic text.'
-  );
+  ));
 
   const [hypothesis, setHypothesis] = useState(
-    isStockData
+    researchWorkspace?.hypothesisPrompt || (isStockData
       ? 'Tech equity exhibits lower intraday volatility following quarterly earnings consensus beat.'
       : isArduino
       ? 'Single 5V USB bus provides sufficient headroom for low-power sensor bus without brownout.'
-      : 'Customer service AI chatbot requires Article 50 transparency disclosure rather than Annex III high-risk conformity assessment.'
+      : 'Customer service AI chatbot requires Article 50 transparency disclosure rather than Annex III high-risk conformity assessment.')
   );
 
   const [activeDossierTab, setActiveDossierTab] = useState<'source' | 'data' | 'citations'>('source');
@@ -73,7 +91,6 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
 
   const handleVerifyAnalysis = () => {
     setSynthesisVerified(true);
-    onSimulationCompleted?.(true);
   };
 
   return (

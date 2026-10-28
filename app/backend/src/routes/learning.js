@@ -1148,6 +1148,8 @@ publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
       instructions: practicalRecord.instructions || practicalPayload.instructions || null,
       narratorGuide: practicalPayload.narratorGuide || null,
       teacher: practicalPayload.teacher && typeof practicalPayload.teacher === 'object' ? practicalPayload.teacher : null,
+      workspace: practicalPayload.workspace && typeof practicalPayload.workspace === 'object' ? practicalPayload.workspace : null,
+      teaching: practicalPayload.teaching && typeof practicalPayload.teaching === 'object' ? practicalPayload.teaching : null,
       codeWalkthrough: Array.isArray(practicalPayload.codeWalkthrough) ? practicalPayload.codeWalkthrough : [],
       teachingSteps: Array.isArray(practicalPayload.teachingSteps) ? practicalPayload.teachingSteps : [],
       teachingPlaylist: Array.isArray(practicalPayload.teachingPlaylist) ? practicalPayload.teachingPlaylist : [],

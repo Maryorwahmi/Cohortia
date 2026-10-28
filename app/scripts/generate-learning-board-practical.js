@@ -46,6 +46,10 @@ const SOURCE_CATEGORIES = [
 ];
 const LAB_TYPES = ["code", "shell", "database", "cloud", "network", "security", "data", "simulation"];
 const PRACTICAL_MODES = ["code_lab", "terminal_lab", "database_lab", "simulation_lab", "non_code_activity"];
+// These are the only learner-editable runtimes currently supported by the
+// verified practical grader/executor. Add new runtimes only with an executor,
+// limits, and grading tests in place.
+const SUPPORTED_TERMINAL_LANGUAGES = ["c", "cpp", "python"];
 
 function loadRepositoryEnv() {
   const envPath = path.join(REPOSITORY_ROOT, "backend", ".env");
@@ -128,6 +132,86 @@ const PRACTICAL_SCHEMA = {
     widgetType: {
       type: "string",
       description: "Optional specialized visual widget for Scenario & Design labs (e.g., binary_converter, memory_diagram, logic_gate, data_table)"
+    },
+    workspace: {
+      type: "object",
+      description: "Authoritative, category-specific data consumed by the Practical Test workspace.",
+      properties: {
+        type: {
+          type: "string",
+          enum: ["terminal", "cloud", "scenario", "research"],
+        },
+        terminal: {
+          type: "object",
+          properties: {
+            entryFile: { type: "string" },
+            editableFiles: { type: "array", items: { type: "string" } },
+            readOnlyFiles: { type: "array", items: { type: "string" } },
+            runCommands: { type: "array", items: { type: "string" } },
+            compileCommands: { type: "array", items: { type: "string" } },
+            stdin: { type: "string" },
+            expectedArtifacts: { type: "array", items: { type: "string" } },
+          },
+        },
+        cloud: {
+          type: "object",
+          properties: {
+            provider: { type: "string" },
+            region: { type: "string" },
+            initialResources: { type: "array", items: { type: "object" } },
+            allowedActions: { type: "array", items: { type: "object" } },
+            forbiddenActions: { type: "array", items: { type: "string" } },
+            commandTemplates: { type: "array", items: { type: "object" } },
+            expectedState: { type: "array", items: { type: "object" } },
+            verificationChecks: { type: "array", items: { type: "object" } },
+          },
+        },
+        scenario: {
+          type: "object",
+          properties: {
+            subtype: { type: "string", enum: ["planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"] },
+            context: { type: "string" },
+            items: { type: "array", items: { type: "object" } },
+            options: { type: "array", items: { type: "object" } },
+            constraints: { type: "array", items: { type: "string" } },
+            decisionFields: { type: "array", items: { type: "object" } },
+            outcomeRules: { type: "array", items: { type: "object" } },
+            rubric: { type: "array", items: { type: "object" } },
+            exportArtifact: { type: "object" },
+          },
+        },
+        research: {
+          type: "object",
+          properties: {
+            investigationQuestion: { type: "string" },
+            hypothesisPrompt: { type: "string" },
+            sources: { type: "array", items: { type: "object" } },
+            datasets: { type: "array", items: { type: "object" } },
+            requiredObservations: { type: "array", items: { type: "object" } },
+            analysisOperations: { type: "array", items: { type: "object" } },
+            calculationRules: { type: "array", items: { type: "object" } },
+            conclusionPrompt: { type: "string" },
+            evidenceRequirements: { type: "array", items: { type: "object" } },
+            rubric: { type: "array", items: { type: "object" } },
+          },
+        },
+      },
+      required: ["type"],
+    },
+    teaching: {
+      type: "object",
+      description: "Canonical teaching model shared by Teach Mode, task guidance, and Practical Test.",
+      properties: {
+        opening: { type: "string" },
+        steps: { type: "array", items: { type: "object" } },
+        playlist: { type: "array", items: { type: "object" } },
+        taskGuidance: { type: "array", items: { type: "object" } },
+        hints: { type: "array", items: { type: "object" } },
+        checkpoints: { type: "array", items: { type: "object" } },
+        recap: { type: "string" },
+        transferTask: { type: "string" },
+      },
+      required: ["opening", "steps", "playlist", "taskGuidance", "hints", "checkpoints"],
     },
     completionRule: { type: "string", enum: ["all_tests_pass", "any_test_pass", "learner_submission"], description: "How to determine if practical is complete" },
     files: {
@@ -258,7 +342,7 @@ const PRACTICAL_SCHEMA = {
       items: { type: "object" },
     }
   },
-  required: ["mode", "title", "instructions", "narratorGuide", "files", "tasks"]
+  required: ["mode", "title", "instructions", "narratorGuide", "files", "tasks", "workspace", "teaching"]
 };
 
 function isWithinRoot(root, candidate) {
@@ -669,6 +753,10 @@ function buildTeachingFallback(task, sourceContext, index) {
   const instruction = task.instruction || "complete the practical step";
   const existing = task.teaching && typeof task.teaching === "object" ? task.teaching : {};
   const lowerTitle = `${sourceContext.activityTitle || ""} ${sourceContext.activityChapter?.handsOnActivity || ""} ${title}`.toLowerCase();
+  const category = sourceContext.source.category;
+  const isScenario = category === "Scenario & Design Exercise";
+  const isResearch = category === "Research & Analysis";
+  const isCloud = category === "Cloud Console Lab";
   const isGreeting = /greet|hello|personaliz/.test(lowerTitle);
   const isCalculator = /calculator|sum|difference|product|quotient|division/.test(lowerTitle);
   const weakChapterConnection = /this practical applies .* from chapter .* by turning the chapter idea/i.test(existing.chapterConnection);
@@ -684,7 +772,13 @@ function buildTeachingFallback(task, sourceContext, index) {
         ? `A shopping receipt, restaurant bill, or exam-score calculator stores values, applies arithmetic, and prints a result. The variables in this program play the same role as the labelled values in those everyday tools.`
         : `A real application uses ${cleanConcept} when it needs to process information reliably and show a useful result to a person.`
     : existing.realWorldExample;
-  const workedExample = isGreeting
+  const workedExample = isScenario
+    ? `Teacher example: ${instruction} First, describe the situation and the assumptions a literal system would need. Choose one decision or write one precise sequence, predict the outcome, then revise one part and explain what changed.`
+    : isResearch
+      ? `Teacher example: turn the task into a claim, name the evidence that could support or challenge it, and record the source. Separate what the evidence shows from what you infer, then state how confident you are.`
+      : isCloud
+        ? `Teacher example: begin with a read-only inspection, predict the resource state, perform one safe simulated action, and verify the state change using a second observation. Do not use credentials, billing, or destructive commands.`
+        : isGreeting
     ? `Teacher example: start with printf("Hello, World!\\n");. After compiling with clang greeting.c -o greeting, run ./greeting and expect the terminal to print Hello, World! on one line. Change only the words inside the quotation marks to printf("Hello, Ada!\\n");, compile again, and expect Hello, Ada!. The quotation marks contain the string literal; printf sends that string to the console.`
     : isCalculator
       ? `Teacher example: enter 10 and 5. The program stores 10 in num1 and 5 in num2, so the sum is 15, the difference is 5, the product is 50, and the quotient is 2.0. Predict those four results before running the program, then compare each line of output with your prediction. Notice that decimal division requires a floating-point value.`
@@ -703,16 +797,58 @@ function buildTeachingFallback(task, sourceContext, index) {
     `Next, run the practical and compare the exact output with your prediction before changing anything else.`,
     `Finally, make one controlled variation and explain the evidence using ${cleanConcept}.`,
   ];
-  const taskGuidedSteps = /terminal|python|variable|data type|operator|arithmetic|conversion|run|output|script/i.test(lowerTitle)
+  const taskGuidedSteps = isScenario
+    ? [
+        `Describe the scenario, constraints, and the outcome a literal system should produce.`,
+        `Write one decision or sequence of steps, then identify an assumption that is not explicit.`,
+        `Revise one part, compare the result with your prediction, and explain the trade-off or ambiguity you resolved.`,
+      ]
+    : isResearch
+      ? [
+          `Write a focused claim or hypothesis that could be supported or challenged.`,
+          `Record a source and the exact observation that matters; separate evidence from interpretation.`,
+          `State a conclusion, confidence level, and one limitation or counterexample.`,
+        ]
+      : isCloud
+        ? [
+            `Inspect the simulated resource and predict its current state.`,
+            `Write one safe, read-only command or action and record the expected state change.`,
+            `Verify the result with a second observation and explain what evidence supports your conclusion.`,
+          ]
+        : /terminal|python|variable|data type|operator|arithmetic|conversion|run|output|script/i.test(lowerTitle)
     ? codeLabSteps
     : fallbackGuidedSteps;
-  const fallbackQuestions = [`What do you predict will happen before you run this step? Explain which part of ${cleanConcept} supports your prediction.`];
-  const fallbackExpectedObservations = [`The program should produce an observable result that can be explained using ${concept}, and the changed input should affect the output in a predictable way.`];
-  const fallbackCommonMistakes = [`A common beginner mistake is changing several things at once; change one part, run the program, and use the output to locate the cause.`];
+  const fallbackQuestions = [isScenario
+    ? "Which assumption or trade-off is hidden in your first design, and what would a literal system need you to state explicitly?"
+    : isResearch
+      ? "Which observation would support your claim, and what evidence would make you revise it?"
+      : isCloud
+        ? "What resource state do you predict before the safe action, and what evidence will verify it?"
+        : `What do you predict will happen before you run this step? Explain which part of ${cleanConcept} supports your prediction.`];
+  const fallbackExpectedObservations = [isScenario
+    ? "The revised design removes an ambiguity or makes a decision consequence explicit."
+    : isResearch
+      ? "The evidence is traceable to a source and the conclusion distinguishes observation from interpretation."
+      : isCloud
+        ? "The simulated resource reaches the expected state and the verification log names the evidence."
+        : `The program should produce an observable result that can be explained using ${concept}, and the changed input should affect the output in a predictable way.`];
+  const fallbackCommonMistakes = [isScenario
+    ? "A common mistake is assuming that a human intention is obvious to a literal system; state the missing condition, input, or outcome explicitly."
+    : isResearch
+      ? "A common mistake is treating an inference as evidence; record the source observation separately from your interpretation."
+      : isCloud
+        ? "A common mistake is changing a resource without recording its initial state; inspect first and use only the declared safe simulator actions."
+        : `A common beginner mistake is changing several things at once; change one part, run the program, and use the output to locate the cause.`];
   return {
     learningGoal: meaningfulTeachingText(existing.learningGoal) ? existing.learningGoal : `Understand and apply ${concept} in this practical activity.`,
     teacherTalk: meaningfulTeachingText(existing.teacherTalk) ? existing.teacherTalk : fallbackTeacherTalk,
-    chapterConnection: !weakChapterConnection && meaningfulTeachingText(existing.chapterConnection) ? existing.chapterConnection : `In ${chapterTitle}, you learned about ${cleanConcept}. This practical is the next step: you will use that idea in a working program, observe its behavior, and explain the result in your own words.`,
+    chapterConnection: !weakChapterConnection && meaningfulTeachingText(existing.chapterConnection) ? existing.chapterConnection : isScenario
+      ? `In ${chapterTitle}, you learned about ${cleanConcept}. This practical turns that idea into a decision or explicit sequence that another person or system can follow.`
+      : isResearch
+        ? `In ${chapterTitle}, you learned about ${cleanConcept}. This practical asks you to support a conclusion with traceable evidence rather than an unsupported opinion.`
+        : isCloud
+          ? `In ${chapterTitle}, you learned about ${cleanConcept}. This practical applies it to a safe simulated resource and a verification log.`
+          : `In ${chapterTitle}, you learned about ${cleanConcept}. This practical is the next step: you will use that idea in a working program, observe its behavior, and explain the result in your own words.`,
     conceptExplanation: !weakConceptExplanation && meaningfulTeachingText(existing.conceptExplanation) ? existing.conceptExplanation : `${cleanConcept} means the program can represent a clear idea in code. Before changing anything, we will identify where that idea appears, predict the result, and then use the output as evidence.`,
     realWorldExample: meaningfulTeachingText(scenario) ? scenario : fallbackRealWorldExample,
     workedExample: meaningfulTeachingText(workedExample) ? workedExample : `Teacher example: ${instruction} First, use one simple input and predict the exact output. Run the starter command, record the result, and identify the line or design choice that produced it. Then change one value, run it again, and explain why the output changed.`,
@@ -728,7 +864,13 @@ function buildTeachingFallback(task, sourceContext, index) {
       misconception: `Let's compare the output with the rule for ${concept} and identify the exact line that caused the difference.`,
       retry: `Make one small change, run the program again, and describe what changed.`
     },
-    recap: meaningfulTeachingText(existing.recap) ? existing.recap : `You used ${concept} in a working program and explained the result instead of only following a command.`,
+    recap: meaningfulTeachingText(existing.recap) ? existing.recap : isScenario
+      ? `You made a design or sequence explicit, tested its likely outcome, and explained the ambiguity or trade-off you resolved.`
+      : isResearch
+        ? `You connected a claim to evidence, separated observation from interpretation, and stated a defensible limitation.`
+        : isCloud
+          ? `You used a safe simulated action and a verification log to connect a resource change to observable evidence.`
+          : `You used ${concept} in a working program and explained the result instead of only following a command.`,
     transferTask: meaningfulTeachingText(existing.transferTask) ? existing.transferTask : `Apply ${concept} to a new example, such as a receipt, score, message, or measurement, and explain what stays the same and what must change.`,
     waitForLearner: existing.waitForLearner !== false,
   };
@@ -786,6 +928,17 @@ function extractFencedCode(text, language) {
   const source = String(text || "");
   const match = /^[ \t]*```[^\r\n]*\r?\n([\s\S]*?)\r?\n[ \t]*```/m.exec(source);
   return dedentCode(match?.[1] || "");
+}
+
+function normalizeLearnerText(value) {
+  return String(value || "")
+    .replace(/```[a-z0-9_+-]*\s*/gi, "")
+    .replace(/```/g, "")
+    .replace(/\*{1,2}/g, "")
+    .replace(/`/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function dedentCode(value) {
@@ -1001,7 +1154,13 @@ function checkTypeFor(test) {
 }
 
 function checkFromTest(test, id, labType) {
-  const type = checkTypeFor(test);
+  const nonExecutable = !["code", "shell", "database"].includes(labType);
+  // Non-code workspaces submit structured evidence through their renderer. A
+  // generated empty file_contents check is not a real verification rule and
+  // would otherwise be impossible to pass in either evaluator.
+  const type = nonExecutable && test.type === "file_contents" && !String(test.contents || test.expected || "").trim()
+    ? "manual"
+    : checkTypeFor(test);
   const check = {
     id,
     type,
@@ -1016,7 +1175,7 @@ function checkFromTest(test, id, labType) {
   if (typeof test.workingDirectory === "string") check.workingDirectory = "/workspace";
   if (test.type === "file_exists" && typeof test.path === "string") {
     check.passCondition = { path: test.path };
-  } else if (test.type === "file_contents" && typeof test.path === "string") {
+  } else if (test.type === "file_contents" && typeof test.path === "string" && String(test.contents || test.expected || "").trim()) {
     check.passCondition = { path: test.path, contents: test.contents || test.expected || "" };
   } else if (test.type === "compile_probe" && typeof test.probeSource === "string") {
     check.passCondition = {
@@ -1226,6 +1385,92 @@ function binaryWorkedExample(exercise) {
   return [];
 }
 
+function normalizeWorkspace(raw, { experienceType, activityKind, files, language, runtime, title, instructions }) {
+  const sourceWorkspace = raw.workspace && typeof raw.workspace === "object" ? raw.workspace : {};
+  const workspaceType = experienceType === "terminal_coding_lab"
+    ? "terminal"
+    : experienceType === "cloud_console_lab"
+      ? "cloud"
+      : experienceType === "research_evidence_lab"
+        ? "research"
+        : "scenario";
+
+  if (workspaceType === "terminal") {
+    const sourceFiles = files.filter((file) => file.editable !== false).map((file) => file.path);
+    const readOnlyFiles = files.filter((file) => file.editable === false).map((file) => file.path);
+    const terminal = sourceWorkspace.terminal && typeof sourceWorkspace.terminal === "object" ? sourceWorkspace.terminal : {};
+    return {
+      type: "terminal",
+      terminal: {
+        entryFile: terminal.entryFile || sourceFiles[0] || files[0]?.path || "main.txt",
+        editableFiles: asStringArray(terminal.editableFiles).length ? asStringArray(terminal.editableFiles) : sourceFiles,
+        readOnlyFiles: asStringArray(terminal.readOnlyFiles).length ? asStringArray(terminal.readOnlyFiles) : readOnlyFiles,
+        runCommands: asStringArray(terminal.runCommands),
+        compileCommands: asStringArray(terminal.compileCommands),
+        stdin: typeof terminal.stdin === "string" ? terminal.stdin : "",
+        expectedArtifacts: asStringArray(terminal.expectedArtifacts),
+        language: language || undefined,
+        runtime: runtime || undefined,
+      },
+    };
+  }
+
+  if (workspaceType === "cloud") {
+    const cloud = sourceWorkspace.cloud && typeof sourceWorkspace.cloud === "object" ? sourceWorkspace.cloud : {};
+    return {
+      type: "cloud",
+      cloud: {
+        provider: typeof cloud.provider === "string" && cloud.provider.trim() ? cloud.provider : "Cohortia Cloud Simulator",
+        region: typeof cloud.region === "string" && cloud.region.trim() ? cloud.region : "learning-lab-1",
+        initialResources: Array.isArray(cloud.initialResources) ? cloud.initialResources : [],
+        allowedActions: Array.isArray(cloud.allowedActions) ? cloud.allowedActions : [],
+        forbiddenActions: asStringArray(cloud.forbiddenActions),
+        commandTemplates: Array.isArray(cloud.commandTemplates) ? cloud.commandTemplates : [],
+        expectedState: Array.isArray(cloud.expectedState) ? cloud.expectedState : [],
+        verificationChecks: Array.isArray(cloud.verificationChecks) ? cloud.verificationChecks : [],
+      },
+    };
+  }
+
+  if (workspaceType === "scenario") {
+    const scenario = sourceWorkspace.scenario && typeof sourceWorkspace.scenario === "object" ? sourceWorkspace.scenario : {};
+    const subtype = ["planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"].includes(scenario.subtype)
+      ? scenario.subtype
+      : activityKind === "design_decision" ? "generic_decision" : "generic_decision";
+    return {
+      type: "scenario",
+      scenario: {
+        subtype,
+        context: typeof scenario.context === "string" && scenario.context.trim() ? scenario.context : instructions,
+        items: Array.isArray(scenario.items) ? scenario.items : [],
+        options: Array.isArray(scenario.options) ? scenario.options : [],
+        constraints: asStringArray(scenario.constraints),
+        decisionFields: Array.isArray(scenario.decisionFields) ? scenario.decisionFields : [],
+        outcomeRules: Array.isArray(scenario.outcomeRules) ? scenario.outcomeRules : [],
+        rubric: Array.isArray(scenario.rubric) ? scenario.rubric : [],
+        exportArtifact: scenario.exportArtifact && typeof scenario.exportArtifact === "object" ? scenario.exportArtifact : { type: "decision_record" },
+      },
+    };
+  }
+
+  const research = sourceWorkspace.research && typeof sourceWorkspace.research === "object" ? sourceWorkspace.research : {};
+  return {
+    type: "research",
+    research: {
+      investigationQuestion: typeof research.investigationQuestion === "string" && research.investigationQuestion.trim() ? research.investigationQuestion : title,
+      hypothesisPrompt: typeof research.hypothesisPrompt === "string" && research.hypothesisPrompt.trim() ? research.hypothesisPrompt : "State a testable hypothesis before examining the evidence.",
+      sources: Array.isArray(research.sources) ? research.sources : [],
+      datasets: Array.isArray(research.datasets) ? research.datasets : [],
+      requiredObservations: Array.isArray(research.requiredObservations) ? research.requiredObservations : [],
+      analysisOperations: Array.isArray(research.analysisOperations) ? research.analysisOperations : [],
+      calculationRules: Array.isArray(research.calculationRules) ? research.calculationRules : [],
+      conclusionPrompt: typeof research.conclusionPrompt === "string" && research.conclusionPrompt.trim() ? research.conclusionPrompt : "Explain what the evidence supports, what it does not support, and why.",
+      evidenceRequirements: Array.isArray(research.evidenceRequirements) ? research.evidenceRequirements : [],
+      rubric: Array.isArray(research.rubric) ? research.rubric : [],
+    },
+  };
+}
+
 function normalizePractical(raw, sourceContext, metadata) {
   if (!raw || typeof raw !== "object") throw new Error("Generated practical must be an object.");
 
@@ -1235,10 +1480,14 @@ function normalizePractical(raw, sourceContext, metadata) {
     category: sourceContext.source.category,
     title: sourceContext.activityTitle || raw.title,
     activity: sourceContext.activityChapter.handsOnActivity,
+    labType,
   });
   const language = inferLanguage(raw, sourceContext, labType);
+  if (sourceContext.source.category === "Terminal Coding Lab" && !SUPPORTED_TERMINAL_LANGUAGES.includes(String(language || "").toLowerCase())) {
+    throw new Error(`Unsupported terminal runtime "${language || "unknown"}". Supported runtimes are: ${SUPPORTED_TERMINAL_LANGUAGES.join(", ")}.`);
+  }
   const title = raw.title || sourceContext.activityTitle || `Practical ${sourceContext.source.sourceKey}`;
-  const instructions = raw.instructions || sourceContext.activityChapter.handsOnActivity;
+  const instructions = normalizeLearnerText(raw.instructions || sourceContext.activityChapter.handsOnActivity);
   const rawTasks = Array.isArray(raw.tasks) && raw.tasks.length
     ? raw.tasks
     : [{ instruction: instructions, title: title, hints: [], tests: [] }];
@@ -1487,6 +1736,15 @@ function normalizePractical(raw, sourceContext, metadata) {
     }
   }
 
+  const workspace = normalizeWorkspace(raw, {
+    experienceType: experienceProfile.experienceType,
+    activityKind,
+    files,
+    language,
+    runtime: raw.runtime || undefined,
+    title,
+    instructions,
+  });
   const safety = normalizeSafety(raw.safety, labType, sourceContext);
   const evidence = normalizeEvidence(raw.evidence);
   const practicalTitle = title;
@@ -1655,6 +1913,27 @@ function normalizePractical(raw, sourceContext, metadata) {
       codeSteps: teachingSteps.map((step) => step.stepNumber),
     }];
   }
+  const teaching = {
+    opening: narratorGuide,
+    steps: teachingSteps,
+    playlist: teachingPlaylist,
+    taskGuidance: tasks.map((task) => ({
+      taskId: task.id,
+      narratorGuide: task.narratorGuide,
+      teaching: task.teaching,
+      hints: task.hints,
+      structuredHints: task.structuredHints,
+      interactiveExercise: task.interactiveExercise,
+    })),
+    hints: tasks.flatMap((task) => task.hints.map((hint, index) => ({ taskId: task.id, tier: index + 1, text: hint }))),
+    checkpoints: tasks.map((task) => ({
+      taskId: task.id,
+      question: task.teaching?.questions?.[0] || "What do you predict will happen next?",
+      waitForLearner: task.teaching?.waitForLearner !== false,
+    })),
+    recap: tasks.at(-1)?.teaching?.recap || instructions,
+    transferTask: tasks.at(-1)?.teaching?.transferTask || "Explain how you would apply this idea in a new situation.",
+  };
   const sourceActivitySteps = sourceContext.activitySteps || [];
   const lessonScreens = sourceContext.lessonContext?.lessonScreens || [];
   const generatedActivityMapping = sourceActivitySteps.map((step, index) => ({
@@ -1711,6 +1990,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       ? modeForLabType(labType, raw.mode)
       : experienceProfile.defaultMode,
     widgetType: typeof raw.widgetType === "string" ? raw.widgetType : undefined,
+    workspace,
     language,
     runtime: raw.runtime || undefined,
     sourceActivity: raw.sourceActivity || sourceContext.activityTitle || title,
@@ -1751,9 +2031,10 @@ function normalizePractical(raw, sourceContext, metadata) {
     teachingPlaylist,
     codeWalkthrough,
     teachingSteps,
+    teaching,
     completionRule: ["all_tests_pass", "any_test_pass", "learner_submission"].includes(raw.completionRule)
       ? raw.completionRule
-      : "all_tests_pass",
+      : experienceProfile.experienceType === "terminal_coding_lab" ? "all_tests_pass" : "learner_submission",
     environment: normalizeEnvironment(raw.environment, raw, labType),
     files,
     tasks,
@@ -1880,7 +2161,7 @@ function safeRelativePath(filePath) {
 
 function validatePractical(practical) {
   const errors = [];
-  const requiredFields = ["schemaVersion", "practicalId", "source", "category", "title", "labType", "environment", "files", "tasks", "checks", "safety", "cleanup", "completionRules", "generator"];
+  const requiredFields = ["schemaVersion", "practicalId", "source", "category", "title", "labType", "workspace", "environment", "files", "tasks", "checks", "safety", "cleanup", "completionRules", "generator"];
   for (const field of requiredFields) {
     if (practical?.[field] === undefined || practical?.[field] === null) errors.push(`missing ${field}`);
   }
@@ -1891,6 +2172,36 @@ function validatePractical(practical) {
   if (typeof practical?.practicalId !== "string" || !/^practical-[a-z0-9][a-z0-9-]*$/.test(practical.practicalId)) errors.push("invalid practicalId");
   if (!SOURCE_CATEGORIES.includes(practical?.category)) errors.push("invalid category");
   if (!LAB_TYPES.includes(practical?.labType)) errors.push("invalid labType");
+
+  const workspaceTypes = {
+    "Terminal Coding Lab": "terminal",
+    "Cloud Console Lab": "cloud",
+    "Scenario & Design Exercise": "scenario",
+    "Research & Analysis": "research",
+  };
+  if (practical?.workspace?.type !== workspaceTypes[practical?.category]) {
+    errors.push(`workspace.type must be ${workspaceTypes[practical?.category] || "category-specific"}`);
+  }
+  if (practical?.workspace?.type === "terminal") {
+    const terminal = practical.workspace.terminal;
+    if (!terminal || typeof terminal.entryFile !== "string" || !terminal.entryFile) errors.push("terminal workspace needs entryFile");
+    if (!Array.isArray(terminal?.editableFiles)) errors.push("terminal workspace needs editableFiles");
+  }
+  if (practical?.workspace?.type === "cloud") {
+    const cloud = practical.workspace.cloud;
+    for (const field of ["provider", "region"]) if (typeof cloud?.[field] !== "string" || !cloud[field]) errors.push(`cloud workspace needs ${field}`);
+    for (const field of ["initialResources", "allowedActions", "expectedState", "verificationChecks"]) if (!Array.isArray(cloud?.[field])) errors.push(`cloud workspace needs ${field}`);
+  }
+  if (practical?.workspace?.type === "scenario") {
+    const scenario = practical.workspace.scenario;
+    if (!["planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"].includes(scenario?.subtype)) errors.push("scenario workspace needs a valid subtype");
+    for (const field of ["items", "options", "constraints", "decisionFields", "outcomeRules", "rubric"]) if (!Array.isArray(scenario?.[field])) errors.push(`scenario workspace needs ${field}`);
+  }
+  if (practical?.workspace?.type === "research") {
+    const research = practical.workspace.research;
+    for (const field of ["investigationQuestion", "hypothesisPrompt", "conclusionPrompt"]) if (typeof research?.[field] !== "string" || !research[field]) errors.push(`research workspace needs ${field}`);
+    for (const field of ["sources", "datasets", "requiredObservations", "analysisOperations", "calculationRules", "evidenceRequirements", "rubric"]) if (!Array.isArray(research?.[field])) errors.push(`research workspace needs ${field}`);
+  }
 
   const source = practical?.source;
   if (!source || typeof source !== "object") {
@@ -1965,6 +2276,9 @@ function validatePractical(practical) {
   }
 
   if (practical.category === "Terminal Coding Lab") {
+    if (!SUPPORTED_TERMINAL_LANGUAGES.includes(String(practical.language || "").toLowerCase())) {
+      errors.push(`Terminal Coding Lab language must be one of: ${SUPPORTED_TERMINAL_LANGUAGES.join(", ")}`);
+    }
     const walkthrough = Array.isArray(practical.codeWalkthrough) ? practical.codeWalkthrough : [];
     if (walkthrough.length < 6) errors.push("Terminal Coding Lab must include at least 6 codeWalkthrough steps");
     const knownFiles = new Set((practical.files || []).map((file) => file.path));
@@ -2339,6 +2653,7 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
       category: sourceContext.source.category,
       title: sourceContext.activityTitle,
       activity: sourceContext.activityChapter.handsOnActivity,
+      labType: inferredLabType,
     });
     const experienceBrief = `\n\nACTIVITY KIND (AUTHORITATIVE)\n==============================\n${activityKind}\n\nEXPERIENCE PROFILE (AUTHORITATIVE)\n==================================\nExperience: ${experienceProfile.experienceType}\nWorkspace family: ${experienceProfile.workspaceFamily}\nLearner artifact: ${experienceProfile.learnerArtifact}\nRequired learner UI: ${experienceProfile.requiredUi.join(", ")}\n\n${experienceProfile.prompt}\n\nReturn an \"experience\" object that exactly matches this profile. Do not substitute another experience family.`;
     const prompt = `${buildGeminiPrompt(promptTemplate, chapterData, metadata, sourceContext)}${experienceBrief}`;

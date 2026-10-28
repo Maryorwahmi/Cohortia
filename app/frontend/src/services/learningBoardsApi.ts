@@ -281,6 +281,65 @@ export interface PracticalTeaching {
   estimatedMinutes?: number;
 }
 
+export interface LearningBoardPracticalWorkspace {
+  type: 'terminal' | 'cloud' | 'scenario' | 'research' | string;
+  terminal?: {
+    entryFile?: string;
+    editableFiles?: string[];
+    readOnlyFiles?: string[];
+    runCommands?: string[];
+    compileCommands?: string[];
+    stdin?: string;
+    expectedArtifacts?: string[];
+    language?: string;
+    runtime?: string;
+  };
+  cloud?: {
+    provider?: string;
+    region?: string;
+    initialResources?: Record<string, unknown>[];
+    allowedActions?: Record<string, unknown>[];
+    forbiddenActions?: string[];
+    commandTemplates?: Record<string, unknown>[];
+    expectedState?: Record<string, unknown>[];
+    verificationChecks?: Record<string, unknown>[];
+  };
+  scenario?: {
+    subtype?: string;
+    context?: string;
+    items?: Record<string, unknown>[];
+    options?: Record<string, unknown>[];
+    constraints?: string[];
+    decisionFields?: Record<string, unknown>[];
+    outcomeRules?: Record<string, unknown>[];
+    rubric?: Record<string, unknown>[];
+    exportArtifact?: Record<string, unknown>;
+  };
+  research?: {
+    investigationQuestion?: string;
+    hypothesisPrompt?: string;
+    sources?: Record<string, unknown>[];
+    datasets?: Record<string, unknown>[];
+    requiredObservations?: Record<string, unknown>[];
+    analysisOperations?: Record<string, unknown>[];
+    calculationRules?: Record<string, unknown>[];
+    conclusionPrompt?: string;
+    evidenceRequirements?: Record<string, unknown>[];
+    rubric?: Record<string, unknown>[];
+  };
+}
+
+export interface LearningBoardPracticalTeachingModel {
+  opening?: string;
+  steps?: PracticalTeachingStep[];
+  playlist?: PracticalTeachingPlaylistStep[];
+  taskGuidance?: Record<string, unknown>[];
+  hints?: Record<string, unknown>[];
+  checkpoints?: Record<string, unknown>[];
+  recap?: string;
+  transferTask?: string;
+}
+
 export interface PracticalInlineSuggestion {
   id: string;
   label: string;
@@ -338,6 +397,8 @@ export interface LearningBoardPractical {
     learnerArtifact?: string;
     requiredUi?: string[];
   } | null;
+  workspace?: LearningBoardPracticalWorkspace | null;
+  teaching?: LearningBoardPracticalTeachingModel | null;
   labType?: string | null;
   mode: string;
   sourceActivity?: string | null;
@@ -584,7 +645,7 @@ class LearningBoardsApiService {
   async updatePracticalTaskProgress(
     practicalId: string,
     taskId: string,
-    status: "not_started" | "in_progress" = "in_progress"
+    status: "not_started" | "in_progress" | "completed" = "in_progress"
   ): Promise<{ practicalId: string; taskId: string; status: string }> {
     const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-task-progress`, {
       method: "POST",
