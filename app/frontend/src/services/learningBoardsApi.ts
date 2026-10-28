@@ -360,6 +360,9 @@ export interface LearningBoardPracticalTask {
   interactiveExercise?: {
     type: 'binary_conversion';
     prompt: string;
+    expectedAnswer: string;
+    acceptedAnswers?: string[];
+    explanation?: string;
   };
   simulation?: LearningBoardPracticalSimulation;
   tests: LearningBoardPracticalTest[];

@@ -87,6 +87,15 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     description: learnerText(task.instruction),
     criteria: task.requiredConcepts.map(learnerText).join(', '),
     hints: (task.hints || []).map(learnerText),
+    interactiveExercise: task.interactiveExercise
+      ? {
+          type: task.interactiveExercise.type,
+          prompt: learnerText(task.interactiveExercise.prompt),
+          expectedAnswer: learnerText(task.interactiveExercise.expectedAnswer),
+          acceptedAnswers: (task.interactiveExercise.acceptedAnswers || []).map(learnerText),
+          explanation: learnerText(task.interactiveExercise.explanation),
+        }
+      : undefined,
   }));
   const title = learnerText(practical.title || 'Practical test');
   const workspace = practical.workspace
@@ -118,6 +127,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     },
     missionStory: { roleTitle: 'Learner', scenarioOverview: learnerText(practical.summary || ''), deliverables: (practical.objectives || []).map(learnerText), xpReward: 0 },
     files, walkthroughSteps: walkthroughSteps.length ? walkthroughSteps : fallbackSteps, tasks, workspace,
+    activityKind: practical.activityKind,
   };
 }
 

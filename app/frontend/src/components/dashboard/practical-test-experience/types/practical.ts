@@ -46,6 +46,13 @@ export interface PracticalTask {
   description: string;
   criteria: string;
   hints: string[];
+  interactiveExercise?: {
+    type: string;
+    prompt: string;
+    expectedAnswer: string;
+    acceptedAnswers?: string[];
+    explanation?: string;
+  };
 }
 
 export interface DiagnosticFinding {
@@ -207,6 +214,7 @@ export interface PracticalManifest {
   files: PracticalFile[];
   walkthroughSteps: WalkthroughStep[];
   tasks: PracticalTask[];
+  activityKind?: string;
   initialCloudResources?: CloudResource[];
   scenarioItems?: ScenarioItem[];
   researchSources?: ResearchSourceDoc[];

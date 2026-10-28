@@ -31,6 +31,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
   // The generator now declares the interaction subtype explicitly. Keep the
   // legacy defaults only for old local fixtures that have no workspace data.
   const scenarioSubtype = manifest.workspace?.scenario?.subtype || 'generic_decision';
+  const isBinaryExercise = manifest.activityKind === 'binary_exercise' || scenarioSubtype === 'binary_exercise';
   const isPlanningPoker = scenarioSubtype === 'planning_poker';
   const isRoadmap = scenarioSubtype === 'roadmap_planning';
   const isAnnotation = scenarioSubtype === 'annotation_design';
@@ -49,7 +50,15 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
     assignedTo: typeof item.assignedTo === 'string' ? item.assignedTo : undefined,
     timeSlot: typeof item.timeSlot === 'string' ? item.timeSlot : undefined,
   }));
-  const initialItems: ScenarioItem[] = manifest.scenarioItems || (generatedItems.length ? generatedItems : [
+  const generatedTaskItems: ScenarioItem[] = manifest.tasks.map((task, index) => ({
+    id: task.id || `task-${index + 1}`,
+    title: task.title,
+    category: 'Task',
+    description: task.description,
+    status: 'backlog',
+    tags: task.criteria ? [task.criteria] : [],
+  }));
+  const initialItems: ScenarioItem[] = manifest.scenarioItems || (generatedItems.length ? generatedItems : manifest.workspace ? generatedTaskItems : [
     {
       id: 'sc-1',
       title: 'Sprint Goal & Objective Alignment',
@@ -95,6 +104,8 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
   const [items, setItems] = useState<ScenarioItem[]>(initialItems);
   const [selectedItemId, setSelectedItemId] = useState<string>(initialItems[0]?.id || '');
   const [activeTab, setActiveTab] = useState<'canvas' | 'rubric' | 'export'>('canvas');
+  const [binaryAnswers, setBinaryAnswers] = useState<Record<string, string>>({});
+  const [binarySubmitted, setBinarySubmitted] = useState(false);
 
   // Planning poker state
   const [teamVotes, setTeamVotes] = useState<Record<string, number | null>>({
@@ -115,6 +126,24 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
   });
 
   const selectedItem = items.find((i) => i.id === selectedItemId) || items[0];
+
+  const binaryTasks = manifest.tasks.filter((task) => task.interactiveExercise);
+  const selectedBinaryTask = binaryTasks.find((task) => task.id === selectedItem?.id) || binaryTasks[0];
+  const checkBinaryAnswer = (task: typeof binaryTasks[number]) => {
+    const exercise = task.interactiveExercise;
+    if (!exercise) return false;
+    const answer = binaryAnswers[task.id]?.trim().toLowerCase();
+    const accepted = [exercise.expectedAnswer, ...(exercise.acceptedAnswers || [])]
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean);
+    return Boolean(answer && accepted.includes(answer));
+  };
+
+  const handleBinarySubmit = () => {
+    setBinarySubmitted(true);
+    const passed = binaryTasks.length > 0 && binaryTasks.every(checkBinaryAnswer);
+    onSimulationCompleted?.(passed);
+  };
 
   const handleUpdateItem = (field: keyof ScenarioItem, val: any) => {
     setItems((prev) =>
@@ -209,7 +238,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                   ) : (
                     <>
                       <Calendar className="w-3.5 h-3.5 text-indigo-600" />
-                      Sprint Event Schedule & Agenda Timeline
+                      {isRoadmap ? 'Roadmap Planning Workspace' : isAnnotation ? 'Annotation Design Workspace' : 'Scenario Items & Decisions'}
                     </>
                   )}
                 </span>
@@ -219,7 +248,38 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
               </div>
 
               {/* Sub-scenario 1: Planning Poker Simulation */}
-              {isPlanningPoker ? (
+              {isBinaryExercise ? (
+                <div className="p-3.5 flex-1 flex flex-col overflow-y-auto min-h-0">
+                  <div className="p-3 rounded-lg bg-indigo-50/60 border border-indigo-200 mb-3">
+                    <span className="text-[10px] font-mono uppercase text-indigo-700 font-bold tracking-wider">Generated binary conversion workspace</span>
+                    <h3 className="text-sm font-bold text-slate-900 mt-0.5">{manifest.workspace?.scenario?.context || manifest.objective}</h3>
+                    <p className="text-xs text-slate-600 mt-1">Solve each conversion using place values or powers of two, then verify the complete set.</p>
+                  </div>
+                  <div className="space-y-2.5">
+                    {binaryTasks.map((task, index) => {
+                      const exercise = task.interactiveExercise!;
+                      const correct = binarySubmitted && checkBinaryAnswer(task);
+                      return (
+                        <div key={task.id} className={`p-3 rounded-lg border ${binarySubmitted ? (correct ? 'border-emerald-300 bg-emerald-50/50' : 'border-rose-300 bg-rose-50/50') : 'border-slate-200 bg-white'}`}>
+                          <div className="flex items-start gap-2">
+                            <span className="text-[10px] font-mono text-slate-400 pt-0.5">{String(index + 1).padStart(2, '0')}</span>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="text-xs font-bold text-slate-900">{task.title}</h4>
+                              <p className="text-xs text-slate-600 mt-1 leading-relaxed">{exercise.prompt}</p>
+                              <div className="flex items-center gap-2 mt-2">
+                                <input value={binaryAnswers[task.id] || ''} onChange={(event) => setBinaryAnswers((answers) => ({ ...answers, [task.id]: event.target.value }))} placeholder="Your answer" aria-label={`Answer for ${task.title}`} className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                {binarySubmitted && <span className={`text-[10px] font-mono font-bold ${correct ? 'text-emerald-700' : 'text-rose-700'}`}>{correct ? 'CORRECT' : 'RETRY'}</span>}
+                              </div>
+                              {binarySubmitted && correct && exercise.explanation && <p className="text-[11px] text-emerald-800 mt-1.5">{exercise.explanation}</p>}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <button onClick={handleBinarySubmit} disabled={!binaryTasks.length} className="mt-3 self-end px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer disabled:cursor-not-allowed">Verify conversions</button>
+                </div>
+              ) : isPlanningPoker ? (
                 <div className="p-3.5 flex-1 flex flex-col justify-between overflow-y-auto min-h-0">
                   <div className="space-y-3">
                     <div className="p-3 rounded-lg bg-indigo-50/60 border border-indigo-200">
@@ -448,7 +508,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
             <div className="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-2xs flex flex-col min-h-0 overflow-hidden">
               <div className="px-3 py-2 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800">
-                  Step Configuration & Parameters
+                  {isBinaryExercise ? 'Conversion Task & Answer' : 'Step Configuration & Parameters'}
                 </span>
                 <span className="text-[10px] font-mono text-slate-400">
                   ID: {selectedItem.id}
@@ -459,53 +519,60 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                 <div className="space-y-2.5">
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                      Event / Item Title
+                      {isBinaryExercise ? 'Conversion Task' : 'Event / Item Title'}
                     </label>
                     <input
                       type="text"
-                      value={selectedItem.title}
-                      onChange={(e) => handleUpdateItem('title', e.target.value)}
+                      value={isBinaryExercise ? selectedBinaryTask?.title || '' : selectedItem.title}
+                      onChange={(e) => !isBinaryExercise && handleUpdateItem('title', e.target.value)}
+                      readOnly={isBinaryExercise}
                       className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 bg-slate-50/50 font-medium"
                     />
                   </div>
 
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                      Timebox / Duration Allocation
+                      {isBinaryExercise ? 'Expected Answer' : 'Timebox / Duration Allocation'}
                     </label>
                     <input
                       type="text"
-                      value={selectedItem.timeSlot || ''}
-                      onChange={(e) => handleUpdateItem('timeSlot', e.target.value)}
+                      value={isBinaryExercise ? selectedBinaryTask?.interactiveExercise?.expectedAnswer || '' : selectedItem.timeSlot || ''}
+                      onChange={(e) => isBinaryExercise
+                        ? selectedBinaryTask && setBinaryAnswers((answers) => ({ ...answers, [selectedBinaryTask.id]: e.target.value }))
+                        : handleUpdateItem('timeSlot', e.target.value)}
                       className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 bg-slate-50/50 font-mono"
                     />
                   </div>
 
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                      Ceremony Objective & Outcomes
+                      {isBinaryExercise ? 'Task Prompt & Explanation' : 'Ceremony Objective & Outcomes'}
                     </label>
                     <textarea
                       rows={4}
-                      value={selectedItem.description}
-                      onChange={(e) => handleUpdateItem('description', e.target.value)}
+                      value={isBinaryExercise
+                        ? `${selectedBinaryTask?.interactiveExercise?.prompt || ''}${selectedBinaryTask?.interactiveExercise?.explanation ? `\n\n${selectedBinaryTask.interactiveExercise.explanation}` : ''}`
+                        : selectedItem.description}
+                      onChange={(e) => !isBinaryExercise && handleUpdateItem('description', e.target.value)}
+                      readOnly={isBinaryExercise}
                       className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 bg-slate-50/50 font-sans leading-relaxed resize-none"
                     />
                   </div>
 
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                      Required Participants (comma separated)
+                      {isBinaryExercise ? 'Available Hints' : 'Required Participants (comma separated)'}
                     </label>
                     <input
                       type="text"
-                      value={selectedItem.tags?.join(', ') || ''}
-                      onChange={(e) =>
+                      value={isBinaryExercise ? selectedBinaryTask?.hints.join(' • ') || 'Use the teaching hints for this task.' : selectedItem.tags?.join(', ') || ''}
+                      onChange={(e) => !isBinaryExercise &&
                         handleUpdateItem(
                           'tags',
                           e.target.value.split(',').map((s) => s.trim())
                         )
                       }
+                      readOnly={isBinaryExercise}
                       className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 bg-slate-50/50 font-mono text-[11px]"
                     />
                   </div>
@@ -519,7 +586,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                     onClick={() => setActiveTab('rubric')}
                     className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
                   >
-                    Commit Step Design
+                    {isBinaryExercise ? 'Review Conversion Rubric' : 'Commit Step Design'}
                   </button>
                 </div>
               </div>
@@ -530,9 +597,19 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
         {activeTab === 'rubric' && (
           <div className="flex-1 bg-white rounded-xl border border-slate-200 p-4 overflow-y-auto shadow-2xs space-y-3">
             <h3 className="text-sm font-bold text-slate-900">
-              Agile & Design Evaluation Rubric
+              {isBinaryExercise ? 'Generated Conversion Rubric' : 'Agile & Design Evaluation Rubric'}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {isBinaryExercise ? (
+              <div className="space-y-2">
+                {(manifest.workspace?.scenario?.rubric || []).map((criterion, index) => (
+                  <div key={String(criterion.id || index)} className="p-3 rounded-lg border border-slate-200 bg-slate-50">
+                    <span className="text-xs font-bold text-slate-900">{String(criterion.criterion || `Conversion ${index + 1}`)}</span>
+                    <p className="text-xs text-slate-600 mt-1">Expected answer: <span className="font-mono font-semibold">{String(criterion.expectedAnswer || 'See task evidence')}</span></p>
+                    <span className="mt-2 inline-block text-[10px] font-mono font-bold text-indigo-700 bg-white px-1.5 py-0.5 rounded border border-indigo-200">{String(criterion.points || 0)} POINTS</span>
+                  </div>
+                ))}
+              </div>
+            ) : <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="p-3 rounded-lg border border-emerald-200 bg-emerald-50/50">
                 <span className="text-xs font-bold text-emerald-900 block mb-1">
                   1. Timebox Discipline
@@ -568,7 +645,7 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                   PASS (Concrete Artifacts)
                 </span>
               </div>
-            </div>
+            </div>}
           </div>
         )}
 

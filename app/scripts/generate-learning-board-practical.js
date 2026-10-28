@@ -169,7 +169,7 @@ const PRACTICAL_SCHEMA = {
         scenario: {
           type: "object",
           properties: {
-            subtype: { type: "string", enum: ["planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"] },
+            subtype: { type: "string", enum: ["binary_exercise", "planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"] },
             context: { type: "string" },
             items: { type: "array", items: { type: "object" } },
             options: { type: "array", items: { type: "object" } },
@@ -1375,7 +1375,7 @@ function binaryWorkedExample(exercise) {
   return [];
 }
 
-function normalizeWorkspace(raw, { experienceType, activityKind, files, language, runtime, title, instructions }) {
+function normalizeWorkspace(raw, { experienceType, activityKind, files, language, runtime, title, instructions, tasks = [] }) {
   const sourceWorkspace = raw.workspace && typeof raw.workspace === "object" ? raw.workspace : {};
   const workspaceType = experienceType === "terminal_coding_lab"
     ? "terminal"
@@ -1424,21 +1424,46 @@ function normalizeWorkspace(raw, { experienceType, activityKind, files, language
 
   if (workspaceType === "scenario") {
     const scenario = sourceWorkspace.scenario && typeof sourceWorkspace.scenario === "object" ? sourceWorkspace.scenario : {};
-    const subtype = ["planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"].includes(scenario.subtype)
+    const subtype = ["binary_exercise", "planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"].includes(scenario.subtype)
       ? scenario.subtype
-      : activityKind === "design_decision" ? "generic_decision" : "generic_decision";
+      : activityKind === "binary_exercise" ? "binary_exercise" : "generic_decision";
+    const binaryItems = activityKind === "binary_exercise"
+      ? tasks
+          .filter((task) => task?.interactiveExercise)
+          .map((task, index) => ({
+            id: task.id || `binary-item-${index + 1}`,
+            taskId: task.id,
+            title: task.title,
+            category: "Binary conversion",
+            description: task.instruction,
+            prompt: task.interactiveExercise.prompt,
+            expectedAnswer: task.interactiveExercise.expectedAnswer,
+            acceptedAnswers: asStringArray(task.interactiveExercise.acceptedAnswers),
+            explanation: task.interactiveExercise.explanation,
+          }))
+      : [];
     return {
       type: "scenario",
       scenario: {
         subtype,
         context: typeof scenario.context === "string" && scenario.context.trim() ? scenario.context : instructions,
-        items: Array.isArray(scenario.items) ? scenario.items : [],
+        items: Array.isArray(scenario.items) && scenario.items.length ? scenario.items : binaryItems,
         options: Array.isArray(scenario.options) ? scenario.options : [],
         constraints: asStringArray(scenario.constraints),
         decisionFields: Array.isArray(scenario.decisionFields) ? scenario.decisionFields : [],
         outcomeRules: Array.isArray(scenario.outcomeRules) ? scenario.outcomeRules : [],
-        rubric: Array.isArray(scenario.rubric) ? scenario.rubric : [],
-        exportArtifact: scenario.exportArtifact && typeof scenario.exportArtifact === "object" ? scenario.exportArtifact : { type: "decision_record" },
+        rubric: Array.isArray(scenario.rubric) && scenario.rubric.length
+          ? scenario.rubric
+          : binaryItems.map((item) => ({
+              id: `${item.id}-rubric`,
+              taskId: item.taskId,
+              criterion: `Submit the correct answer for: ${item.title}`,
+              expectedAnswer: item.expectedAnswer,
+              points: 25,
+            })),
+        exportArtifact: scenario.exportArtifact && typeof scenario.exportArtifact === "object"
+          ? scenario.exportArtifact
+          : { type: subtype === "binary_exercise" ? "conversion_record" : "decision_record" },
       },
     };
   }
@@ -1583,6 +1608,8 @@ function normalizePractical(raw, sourceContext, metadata) {
             waitForLearner: true,
           },
           required: true,
+          hints: existing?.hints || [],
+          requiredConcepts: existing?.requiredConcepts || [],
           checkIds: existing?.checkIds || [],
           interactiveExercise: exercise,
         };
@@ -1734,6 +1761,7 @@ function normalizePractical(raw, sourceContext, metadata) {
     runtime: raw.runtime || undefined,
     title,
     instructions,
+    tasks,
   });
   const safety = normalizeSafety(raw.safety, labType, sourceContext);
   const evidence = normalizeEvidence(raw.evidence);
@@ -2184,7 +2212,7 @@ function validatePractical(practical) {
   }
   if (practical?.workspace?.type === "scenario") {
     const scenario = practical.workspace.scenario;
-    if (!["planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"].includes(scenario?.subtype)) errors.push("scenario workspace needs a valid subtype");
+    if (!["binary_exercise", "planning_poker", "roadmap_planning", "annotation_design", "explainability_decision", "generic_decision"].includes(scenario?.subtype)) errors.push("scenario workspace needs a valid subtype");
     for (const field of ["items", "options", "constraints", "decisionFields", "outcomeRules", "rubric"]) if (!Array.isArray(scenario?.[field])) errors.push(`scenario workspace needs ${field}`);
   }
   if (practical?.workspace?.type === "research") {
