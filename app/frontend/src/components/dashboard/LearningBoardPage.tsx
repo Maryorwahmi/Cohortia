@@ -894,6 +894,20 @@ export default function LearningBoardPage({
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  if (devPreviewEnabled && isPracticalTestMode) {
+    return (
+      <div className="fixed inset-0 z-[100] h-dvh w-full overflow-hidden bg-slate-100">
+        <PracticalTestExperience
+          practical={activePractical}
+          courseTitle={boardCourseTitle || courseTitle}
+          onComplete={handlePracticalCompleted}
+          onMentorContextReady={registerPracticalMentorContext}
+          onExit={() => setIsPracticalTestMode(false)}
+        />
+      </div>
+    );
+  }
+
   return (
         <div className="pt-20 pb-8 min-h-screen bg-immersive-bg relative text-left">
       {/* Glow backgrounds */}
@@ -1252,9 +1266,7 @@ export default function LearningBoardPage({
               {/* WORKSPACE MEDIA CONTAINER */}
               <div className={!devPreviewEnabled && viewerMode === "practical"
                 ? "relative min-w-0"
-                : devPreviewEnabled && isPracticalTestMode
-                  ? "relative min-w-0 min-h-[560px] h-[70vh] flex flex-col"
-                  : "relative rounded-lg sm:rounded-2xl bg-immersive-bg border border-immersive-border overflow-hidden min-h-[320px] sm:min-h-[420px] md:min-h-[560px] lg:min-h-[720px] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] flex flex-col justify-between group shadow-inner"}>
+                : "relative rounded-lg sm:rounded-2xl bg-immersive-bg border border-immersive-border overflow-hidden min-h-[320px] sm:min-h-[420px] md:min-h-[560px] lg:min-h-[720px] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] flex flex-col justify-between group shadow-inner"}>
                 
                 {/* Read mode / dev preview */}
                 {devPreviewEnabled && !isPracticalTestMode && (

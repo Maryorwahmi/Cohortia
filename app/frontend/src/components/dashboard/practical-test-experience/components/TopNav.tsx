@@ -1,6 +1,6 @@
 import React from 'react';
 import { PracticalManifest } from '../types/practical';
-import { RotateCcw, ChevronDown, Split } from 'lucide-react';
+import { RotateCcw, ChevronDown, Split, ArrowLeft } from 'lucide-react';
 
 interface TopNavProps {
   manifests: PracticalManifest[];
@@ -13,6 +13,7 @@ interface TopNavProps {
   onResetFiles: () => void;
   isSplitView: boolean;
   onToggleSplitView: () => void;
+  onExit?: () => void;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -26,6 +27,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   onResetFiles,
   isSplitView,
   onToggleSplitView,
+  onExit,
 }) => {
   const filteredManifests =
     selectedCategory === 'all'
@@ -162,6 +164,18 @@ export const TopNav: React.FC<TopNavProps> = ({
         >
           {mode === 'teach' ? 'TEACH MODE' : 'PRACTICE MODE'}
         </button>
+        {onExit && (
+          <button
+            type="button"
+            onClick={onExit}
+            title="Return to the course"
+            aria-label="Return to the course"
+            className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="hidden sm:inline">Back to course</span>
+          </button>
+        )}
       </div>
     </div>
   );
