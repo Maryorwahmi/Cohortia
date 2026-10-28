@@ -783,14 +783,14 @@ function buildTeachingFallback(task, sourceContext, index) {
   ];
   const fallbackGuidedSteps = [
     `First, inspect the relevant part of ${title.toLowerCase()} and state what you think it will do.`,
-    `Next, run the practical and compare the exact output with your prediction before changing anything else.`,
+    `Next, run the practical and check the exact output against your prediction before changing anything else.`,
     `Finally, make one controlled variation and explain the evidence using ${cleanConcept}.`,
   ];
   const taskGuidedSteps = isScenario
     ? [
         `Describe the scenario, constraints, and the outcome a literal system should produce.`,
         `Write one decision or sequence of steps, then identify an assumption that is not explicit.`,
-        `Revise one part, compare the result with your prediction, and explain the trade-off or ambiguity you resolved.`,
+        `Revise one part, check the revised outcome against your prediction, and explain the trade-off or ambiguity you resolved.`,
       ]
     : isResearch
       ? [
@@ -842,6 +842,7 @@ function buildTeachingFallback(task, sourceContext, index) {
     realWorldExample: meaningfulTeachingText(scenario) ? scenario : fallbackRealWorldExample,
     workedExample: meaningfulTeachingText(workedExample) ? workedExample : `Teacher example: ${instruction} First, use one simple input and predict the exact output. Run the starter command, record the result, and identify the line or design choice that produced it. Then change one value, run it again, and explain why the output changed.`,
     guidedSteps: Array.isArray(existing.guidedSteps) && existing.guidedSteps.length >= 3 && existing.guidedSteps.every((item) => meaningfulTeachingText(item))
+      && !existing.guidedSteps.some((item) => containsTeachingPlaceholder(item))
       && !existing.guidedSteps.some((item) => /I do: read the starter code|We do: make one small change|You do: try a new input/i.test(item))
       ? existing.guidedSteps
       : taskGuidedSteps,
