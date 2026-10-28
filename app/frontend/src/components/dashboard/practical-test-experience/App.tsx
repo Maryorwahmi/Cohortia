@@ -225,7 +225,10 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
           if (restored && typeof restored === 'object') setFilesContent((current) => ({ ...current, ...restored }));
         } catch { /* keep the starter files */ }
       }
-      setCompletedTaskIds(taskProgress.filter((item: { status?: string }) => item.status === 'completed').map((item: { taskId: string }) => item.taskId));
+      const restoredCompletedTaskIds = taskProgress
+        .filter((item: { status?: string }) => item.status === 'completed')
+        .map((item: { taskId: string }) => item.taskId);
+      setCompletedTaskIds((current) => Array.from(new Set([...current, ...restoredCompletedTaskIds])));
     }).catch(() => { /* the local draft remains usable when offline */ });
     return () => { cancelled = true; };
   }, [practical?.id]);

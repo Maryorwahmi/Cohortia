@@ -1640,8 +1640,8 @@ function languageForPractical(definition, activeFilePath) {
 learning.post('/practical-grade', async (c) => {
   const userId = c.get('userId');
   const rateLimitResponse = await enforceRateLimits(c, [
-    {scope: 'practical-execute-user-5m', actor: userId, limit: 10, windowSeconds: 5 * 60},
-    {scope: 'practical-execute-user-1d', actor: userId, limit: 100, windowSeconds: 24 * 60 * 60},
+    {scope: 'practical-answer-grade-user-5m', actor: userId, limit: 60, windowSeconds: 5 * 60},
+    {scope: 'practical-answer-grade-user-1d', actor: userId, limit: 500, windowSeconds: 24 * 60 * 60},
   ]);
   if (rateLimitResponse) return rateLimitResponse;
 
