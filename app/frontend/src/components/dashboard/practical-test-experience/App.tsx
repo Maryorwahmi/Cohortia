@@ -712,9 +712,8 @@ export default function App() {
   };
 
   return (
-    <div className="practical-test-experience-root h-full min-h-0 w-full overflow-hidden bg-slate-100 text-slate-800 flex flex-col items-center justify-center p-2 sm:p-4">
-      {/* 16:9 Aspect Ratio Container matching screenshot (Guaranteed zero vertical overflow) */}
-      <div className="w-full max-w-7xl h-full max-h-[880px] min-h-0 bg-slate-50 rounded-2xl md:rounded-3xl border border-slate-200/90 shadow-2xl shadow-slate-300/60 flex flex-col overflow-hidden">
+    <div className="practical-test-experience-root h-full min-h-0 w-full min-w-0 overflow-hidden bg-slate-100 text-slate-800 flex flex-col">
+      <div className="w-full h-full min-h-0 min-w-0 bg-slate-50 flex flex-col overflow-hidden">
         {/* Top Window Navigation */}
         <TopNav
           manifests={PRACTICAL_MANIFESTS}
