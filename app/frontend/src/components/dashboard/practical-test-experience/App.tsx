@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PRACTICAL_MANIFESTS } from './data/practicalsData';
+import type { LearningBoardPractical } from '../../../services/learningBoardsApi';
+import { learningBoardsApi } from '../../../services/learningBoardsApi';
+import type { ChatLearningContext } from '../../../services/api';
 import { INSTRUCTOR_PERSONAS } from './data/instructorsData';
 import {
   PracticalManifest,
@@ -26,26 +29,104 @@ const INITIAL_MANIFEST =
   PRACTICAL_MANIFESTS.find((manifest) => manifest.id === 'c-linux-first-program') ||
   PRACTICAL_MANIFESTS[0];
 
-export default function App() {
-  const [activeManifestId, setActiveManifestId] = useState<string>(INITIAL_MANIFEST.id);
-  const activeManifest = PRACTICAL_MANIFESTS.find((m) => m.id === activeManifestId) || PRACTICAL_MANIFESTS[0];
+export interface PracticalTestExperienceProps {
+  practical?: LearningBoardPractical | null;
+  courseTitle?: string;
+  onComplete?: () => void | Promise<void>;
+  onMentorContextReady?: (provider: (() => ChatLearningContext) | null) => void;
+}
+
+function categoryTypeFor(practical: LearningBoardPractical): PracticalManifest['categoryType'] {
+  if (practical.experienceType === 'cloud_console_lab' || practical.category === 'Cloud Console Lab') return 'cloud_console';
+  if (practical.experienceType === 'research_evidence_lab' || practical.category === 'Research & Analysis') return 'research_analysis';
+  if (practical.experienceType === 'scenario_simulator' || practical.category === 'Scenario & Design Exercise') return 'scenario_design';
+  return 'terminal_coding';
+}
+
+function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: string): PracticalManifest {
+  const categoryType = categoryTypeFor(practical);
+  const files = (practical.files || []).map((file) => ({
+    name: file.path,
+    folder: file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '/',
+    initialContent: file.content || '',
+    language: file.path.endsWith('.py') ? 'python' as const : file.path.endsWith('.json') ? 'json' as const : file.path.endsWith('.yaml') || file.path.endsWith('.yml') ? 'yaml' as const : 'text' as const,
+  }));
+  const teachingSteps = practical.teachingSteps || [];
+  const walkthroughSteps = (practical.codeWalkthrough || []).map((step, index) => ({
+    stepNumber: step.stepNumber || index + 1,
+    title: step.file || `Teaching step ${index + 1}`,
+    codeSnippet: step.codeLine,
+    codeOrText: step.codeLine,
+    callout: step.explanation || '',
+    narration: step.speakerText,
+    timestamp: (practical.teachingSteps?.slice(0, index).reduce((sum, item) => sum + (item.durationSeconds || 8), 0) || index * 8),
+  }));
+  const fallbackSteps = teachingSteps.map((step, index) => ({
+    stepNumber: step.stepNumber || index + 1,
+    title: step.title || `Teaching step ${index + 1}`,
+    codeOrText: step.displayText,
+    callout: step.explanation,
+    narration: step.speakerText,
+    timestamp: teachingSteps.slice(0, index).reduce((sum, item) => sum + (item.durationSeconds || 8), 0),
+  }));
+  const tasks = (practical.tasks || []).map((task, index) => ({
+    id: task.id,
+    title: task.title || `Task ${index + 1}`,
+    description: task.instruction,
+    criteria: task.requiredConcepts.join(', '),
+    hints: task.hints || [],
+  }));
+  const title = practical.title || 'Practical test';
+  return {
+    id: practical.id || `chapter-${practical.module}-${practical.chapter}`,
+    title,
+    category: practical.category || categoryType,
+    categoryType,
+    courseName: courseTitle || practical.courseId || 'Cohortia course',
+    moduleName: `Module ${practical.module || ''}`,
+    type: categoryType === 'terminal_coding' ? 'terminal' : categoryType === 'cloud_console' ? 'cloud' : categoryType === 'scenario_design' ? 'scenario' : 'script',
+    durationSeconds: Math.max(60, (practical.teachingSteps || []).reduce((sum, step) => sum + (step.durationSeconds || 8), 0)),
+    lessonLabel: title,
+    objective: practical.objectives?.join(' ') || practical.instructions || 'Complete the practical task and submit your work.',
+    realWorldContext: practical.teacher?.realWorldContext || practical.summary || '',
+    classroom: {
+      classroomBadge: '16:9 HD CLASSROOM', moduleBadge: `MODULE ${String(practical.module || '').padStart(2, '0')}`,
+      chapterBreadcrumb: `CHAPTER ${practical.module || 1}.${practical.chapter || 1}`, topicBreadcrumb: title.toUpperCase(),
+      mainTitle: title, subtitle: practical.summary || practical.instructions || '', inThisLesson: practical.objectives?.join(', ') || '',
+      whyItMatters: practical.teacher?.realWorldContext || '', quickOrientation: practical.objectives || [],
+      exploreKeyTopics: (practical.tasks || []).slice(0, 3).map((task) => ({ title: task.title || 'Task', description: task.instruction })),
+      conceptMap: { title: 'Practical mission', subtitle: practical.experience?.learnerArtifact || '', nodes: (practical.objectives || []).slice(0, 4).map((value, index) => ({ label: `Objective ${index + 1}`, value })) },
+      gettingReady: practical.instructions || 'Review the mission, then begin the practical workspace.',
+    },
+    missionStory: { roleTitle: 'Learner', scenarioOverview: practical.summary || '', deliverables: practical.objectives || [], xpReward: 0 },
+    files, walkthroughSteps: walkthroughSteps.length ? walkthroughSteps : fallbackSteps, tasks,
+  };
+}
+
+export default function App({ practical, courseTitle, onComplete, onMentorContextReady }: PracticalTestExperienceProps) {
+  const generatedManifest = useMemo(() => practical ? manifestFromPractical(practical, courseTitle) : null, [practical, courseTitle]);
+  const manifests = useMemo(() => generatedManifest ? [generatedManifest] : PRACTICAL_MANIFESTS, [generatedManifest]);
+  const [activeManifestId, setActiveManifestId] = useState<string>(generatedManifest?.id || INITIAL_MANIFEST.id);
+  const activeManifest = manifests.find((m) => m.id === activeManifestId) || manifests[0];
 
   const [activeFileName, setActiveFileName] = useState<string>(activeManifest.files[0]?.name || '');
 
   // Persistent file content with localStorage
   const [filesContent, setFilesContent] = useState<Record<string, string>>(() => {
     try {
-      const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}files_${INITIAL_MANIFEST.id}`);
+      const saved = localStorage.getItem(`${STORAGE_KEY_PREFIX}files_${generatedManifest?.id || INITIAL_MANIFEST.id}`);
       if (saved) return JSON.parse(saved);
     } catch {
       // ignore
     }
     const initial: Record<string, string> = {};
-    INITIAL_MANIFEST.files.forEach((f) => {
+    (generatedManifest || INITIAL_MANIFEST).files.forEach((f) => {
       initial[f.name] = f.initialContent;
     });
     return initial;
   });
+
+  const draftSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [lastSavedTimestamp, setLastSavedTimestamp] = useState<string>('just now');
 
@@ -68,15 +149,67 @@ export default function App() {
   const [executedCommands, setExecutedCommands] = useState<string[]>([]);
   const [simulationPassed, setSimulationPassed] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (!onMentorContextReady) return;
+    onMentorContextReady(() => ({
+      assistant: 'hortbot',
+      courseId: practical?.courseId,
+      courseTitle,
+      module: practical?.module,
+      chapter: practical?.chapter,
+      practicalTitle: practical?.title || activeManifest.title,
+      practicalInstructions: practical?.instructions || activeManifest.objective,
+      practicalObjectives: practical?.objectives || [],
+      practicalTeachingContext: practical?.teacher?.opening || practical?.narratorGuide || undefined,
+      practicalTasks: (practical?.tasks || activeManifest.tasks).map((task) => ({
+        title: task.title || 'Practical task',
+        instruction: 'instruction' in task ? task.instruction : task.description,
+        learningGoal: 'teaching' in task ? task.teaching?.learningGoal : undefined,
+        teacherTalk: 'teaching' in task ? task.teaching?.teacherTalk : undefined,
+        realWorldExample: 'teaching' in task ? task.teaching?.realWorldExample : undefined,
+        questions: 'teaching' in task ? task.teaching?.questions : undefined,
+        requiredConcepts: 'requiredConcepts' in task ? task.requiredConcepts : undefined,
+      })),
+      currentFile: activeFileName,
+      currentCode: filesContent[activeFileName] || '',
+      currentTaskIndex: Math.max(0, activeManifest.tasks.findIndex((task) => !completedTaskIds.includes(task.id))),
+      completedTasks: completedTaskIds.length,
+      totalTasks: activeManifest.tasks.length,
+      page: 'practical test workspace',
+    }));
+    return () => onMentorContextReady(null);
+  }, [onMentorContextReady, practical, courseTitle, activeManifest, activeFileName, filesContent, completedTaskIds]);
+
   // Sync active manifest when user filters by category
   useEffect(() => {
+    if (generatedManifest?.id) setActiveManifestId(generatedManifest.id);
+  }, [generatedManifest?.id]);
+
+  useEffect(() => {
+    if (!practical?.id) return;
+    let cancelled = false;
+    learningBoardsApi.getPracticalProgress(practical.id).then(({ attempts, taskProgress }) => {
+      if (cancelled) return;
+      const latest = attempts[0];
+      if (latest?.files) {
+        try {
+          const restored = typeof latest.files === 'string' ? JSON.parse(latest.files) : latest.files;
+          if (restored && typeof restored === 'object') setFilesContent((current) => ({ ...current, ...restored }));
+        } catch { /* keep the starter files */ }
+      }
+      setCompletedTaskIds(taskProgress.filter((item: { status?: string }) => item.status === 'completed').map((item: { taskId: string }) => item.taskId));
+    }).catch(() => { /* the local draft remains usable when offline */ });
+    return () => { cancelled = true; };
+  }, [practical?.id]);
+
+  useEffect(() => {
     if (selectedCategory !== 'all' && activeManifest.categoryType !== selectedCategory) {
-      const match = PRACTICAL_MANIFESTS.find((m) => m.categoryType === selectedCategory);
+      const match = manifests.find((m) => m.categoryType === selectedCategory);
       if (match) {
         setActiveManifestId(match.id);
       }
     }
-  }, [selectedCategory, activeManifest.categoryType]);
+  }, [selectedCategory, activeManifest.categoryType, manifests]);
 
   // When manifest changes, restore from localStorage or initial
   useEffect(() => {
@@ -253,9 +386,19 @@ export default function App() {
       } catch {
         // ignore
       }
+      if (practical?.id) {
+        if (draftSaveTimer.current) clearTimeout(draftSaveTimer.current);
+        draftSaveTimer.current = setTimeout(() => {
+          void learningBoardsApi.recordPracticalAttempt(practical.id!, updated, 'in_progress', 'Draft saved from Practical Test.').catch(() => {});
+        }, 900);
+      }
       return updated;
     });
   };
+
+  useEffect(() => () => {
+    if (draftSaveTimer.current) clearTimeout(draftSaveTimer.current);
+  }, []);
 
   const handleCommandRun = (command: string, output: string) => {
     setExecutedCommands((prev) => [...prev, command]);
@@ -308,7 +451,57 @@ export default function App() {
   };
 
   // Automated Domain-Specific Evaluation for CS50 Syllabus Activities
-  const handleCheckTasks = () => {
+  const handleCheckTasks = async () => {
+    if (practical?.id) {
+      setFeedbackMessage('Submitting this practical for server verification…');
+      try {
+        const isCodePractical = activeManifest.categoryType === 'terminal_coding';
+        if (!isCodePractical) {
+          await learningBoardsApi.recordPracticalAttempt(
+            practical.id,
+            filesContent,
+            'submitted',
+            'Submitted from Practical Test. This category is awaiting evidence-rubric grading.',
+          );
+          setFeedbackMessage('Submitted and saved. Server-side evidence grading is not enabled for this category yet.');
+          setEvaluatorResult({
+            score: 0,
+            status: 'untested',
+            domain: activeManifest.categoryType === 'cloud_console' ? 'cloud' : 'scenario',
+            summary: 'Your work was saved as a submission, but this practical still requires a category-specific evidence grader.',
+            findings: [{ id: 'f-evidence-pending', level: 'warn', category: activeManifest.category, title: 'Evidence review pending', detail: 'The submission is persisted, but it was not marked complete without a server rubric.', suggestedAction: 'Keep the submission and add the category evidence checks before enabling completion.' }],
+            nextActions: ['Implement the category evidence rubric before unlocking completion.'],
+          });
+          return;
+        }
+
+        const result = await learningBoardsApi.gradePractical(
+          practical.id,
+          practical.courseId || '',
+          practical.module || 0,
+          practical.chapter || 0,
+          filesContent,
+          activeFileName,
+          undefined,
+        );
+        const passedTaskIds = result.taskResults.filter((task) => task.passed).map((task) => task.taskId);
+        setCompletedTaskIds(passedTaskIds);
+        setEvaluatorResult({
+          score: result.passed ? 100 : Math.round((result.checks.filter((check) => check.passed).length / Math.max(1, result.checks.length)) * 100),
+          status: result.passed ? 'passed' : 'revision_needed',
+          domain: 'c_program',
+          summary: result.passed ? 'Server-side verification passed.' : 'Server-side verification found work to revise.',
+          findings: result.checks.map((check) => ({ id: check.checkId, level: check.passed ? 'pass' : 'fail', category: check.type, title: check.passed ? 'Check passed' : 'Check needs revision', detail: check.message, suggestedAction: check.passed ? 'Continue to the next task.' : 'Review the task and resubmit.' })),
+          nextActions: result.passed ? [] : ['Review the failed checks and submit again.'],
+        });
+        setFeedbackMessage(result.passed ? 'Verified by the server. Practical completed.' : 'Saved and graded by the server. Revise the failed checks.');
+        if (result.passed) await onComplete?.();
+      } catch (error) {
+        setFeedbackMessage(error instanceof Error ? error.message : 'The server could not grade this practical.');
+      }
+      return;
+    }
+
     const newlyCompleted: string[] = [...completedTaskIds];
     const findings: DiagnosticFinding[] = [];
     const nextActions: string[] = [];
@@ -716,7 +909,7 @@ export default function App() {
       <div className="w-full h-full min-h-0 min-w-0 bg-slate-50 flex flex-col overflow-hidden">
         {/* Top Window Navigation */}
         <TopNav
-          manifests={PRACTICAL_MANIFESTS}
+          manifests={manifests}
           activeManifestId={activeManifestId}
           onSelectManifest={(id) => setActiveManifestId(id)}
           selectedCategory={selectedCategory}

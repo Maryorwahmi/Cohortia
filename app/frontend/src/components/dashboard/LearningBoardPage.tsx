@@ -1371,7 +1371,12 @@ export default function LearningBoardPage({
                 {/* Practical Test uses the separately supplied practical workspace. */}
                 {devPreviewEnabled && isPracticalTestMode && (
                   <div className="h-full w-full min-h-0 overflow-hidden">
-                    <PracticalTestExperience />
+                    <PracticalTestExperience
+                      practical={activePractical}
+                      courseTitle={boardCourseTitle || courseTitle}
+                      onComplete={handlePracticalCompleted}
+                      onMentorContextReady={registerPracticalMentorContext}
+                    />
                   </div>
                 )}
 

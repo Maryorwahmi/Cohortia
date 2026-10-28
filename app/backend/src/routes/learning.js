@@ -1844,7 +1844,33 @@ learning.post('/practical-task-progress', async (c) => {
     return c.json({ success: false, error: 'practicalId and taskId are required' }, 400);
   }
   if (status === 'completed') {
-    return c.json({ success: false, error: 'Task completion can only be recorded by server-side practical grading.' }, 403);
+    // experienceType is part of the versioned practical payload, not a
+    // standalone column. Keep this endpoint aligned with the canonical
+    // manifest contract instead of selecting a column that does not exist.
+    const practical = await db.select({ metadata: learningBoardPracticals.metadata, practicalJson: learningBoardPracticals.practicalJson })
+      .from(learningBoardPracticals)
+      .where(eq(learningBoardPracticals.id, practicalId))
+      .limit(1);
+    const task = await db.select({ id: learningBoardPracticalTasks.id })
+      .from(learningBoardPracticalTasks)
+      .where(and(
+        eq(learningBoardPracticalTasks.practicalId, practicalId),
+        eq(learningBoardPracticalTasks.id, taskId),
+      ))
+      .limit(1);
+    if (!practical[0] || !task[0]) return c.json({ success: false, error: 'Practical task not found.' }, 404);
+    // Executable labs must still be completed by their protected grader. The
+    // non-code renderers submit their evidence separately and may complete a
+    // validated task through this progress endpoint.
+    const practicalPayload = {
+      ...asObject(parseJson(practical[0].practicalJson, {})),
+      ...asObject(parseJson(practical[0].metadata, {})),
+    };
+    if (practicalPayload.experienceType === 'terminal_coding_lab') {
+      return c.json({ success: false, error: 'Code task completion must be recorded by server-side practical grading.' }, 403);
+    }
+    await updatePracticalTaskProgress(userId, practicalId, taskId, 'completed');
+    return c.json({ success: true, data: { practicalId, taskId, status: 'completed' } });
   }
   if (!['not_started', 'in_progress'].includes(status)) return c.json({ success: false, error: 'Invalid task progress status.' }, 400);
   await updatePracticalTaskProgress(userId, practicalId, taskId, status);
