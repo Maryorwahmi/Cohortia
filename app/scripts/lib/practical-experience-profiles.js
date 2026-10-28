@@ -78,6 +78,13 @@ export function profileFor(input) {
 
 export function profileSchema(baseSchema, profile, activityKind) {
   const required = [...new Set([...(baseSchema.required || []), "experience", "workspace"])];
+  const workspaceType = profile.experienceType === "terminal_coding_lab"
+    ? "terminal"
+    : profile.experienceType === "cloud_console_lab"
+      ? "cloud"
+      : profile.experienceType === "research_evidence_lab"
+        ? "research"
+        : "scenario";
   const schema = {
     ...baseSchema,
     properties: {
@@ -93,14 +100,15 @@ export function profileSchema(baseSchema, profile, activityKind) {
         required: ["experienceType", "workspaceFamily", "learnerArtifact", "requiredUi"],
       },
       workspace: {
-        ...baseSchema.properties.workspace,
         properties: {
-          ...baseSchema.properties.workspace.properties,
           type: {
             type: "string",
-            enum: [profile.experienceType === "terminal_coding_lab" ? "terminal" : profile.experienceType === "cloud_console_lab" ? "cloud" : profile.experienceType === "research_evidence_lab" ? "research" : "scenario"],
+            enum: [workspaceType],
           },
+          [workspaceType]: { type: "object" },
         },
+        required: ["type", workspaceType],
+        type: "object",
       },
     },
     required,

@@ -36,7 +36,7 @@ import { activityKindFor, profileFor, profileSchema } from "./lib/practical-expe
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GENERATOR_VERSION = "phase5.1-guided-manifest-verification";
+const GENERATOR_VERSION = "phase5.2-category-workspace-schema";
 const CLASSIFIER_VERSION = "phase3.1";
 const SOURCE_CATEGORIES = [
   "Cloud Console Lab",
@@ -200,18 +200,7 @@ const PRACTICAL_SCHEMA = {
     },
     teaching: {
       type: "object",
-      description: "Canonical teaching model shared by Teach Mode, task guidance, and Practical Test.",
-      properties: {
-        opening: { type: "string" },
-        steps: { type: "array", items: { type: "object" } },
-        playlist: { type: "array", items: { type: "object" } },
-        taskGuidance: { type: "array", items: { type: "object" } },
-        hints: { type: "array", items: { type: "object" } },
-        checkpoints: { type: "array", items: { type: "object" } },
-        recap: { type: "string" },
-        transferTask: { type: "string" },
-      },
-      required: ["opening", "steps", "playlist", "taskGuidance", "hints", "checkpoints"],
+      description: "Canonical teaching model is constructed after generation from narratorGuide, teachingSteps, teachingPlaylist, and task teaching data.",
     },
     completionRule: { type: "string", enum: ["all_tests_pass", "any_test_pass", "learner_submission"], description: "How to determine if practical is complete" },
     files: {
@@ -342,7 +331,7 @@ const PRACTICAL_SCHEMA = {
       items: { type: "object" },
     }
   },
-  required: ["mode", "title", "instructions", "narratorGuide", "files", "tasks", "workspace", "teaching"]
+  required: ["mode", "title", "instructions", "narratorGuide", "files", "tasks", "workspace"]
 };
 
 function isWithinRoot(root, candidate) {
