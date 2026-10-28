@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {getCourseImage} from "../data/courseImages";
 import {careerCategories, getCareerCategoryPath} from "../data/careerDirectory";
 import CareerCategoriesCarousel from "./CareerCategoriesCarousel";
+import FreeCoursesCarousel from "./FreeCoursesCarousel";
 import {
   ArrowRight,
   Award,
@@ -825,6 +826,7 @@ export default function CareersExplorer() {
 
       <div className="relative mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6">
         <CareerCategoriesCarousel />
+        <FreeCoursesCarousel />
 
         <div id="course-catalog" className="scroll-mt-24">
           <div className="mb-6 flex flex-wrap items-center gap-3">
