@@ -163,6 +163,12 @@ These are exploratory learning labs, NOT exams, tests, or quizzes. The learner m
 REQUIREMENTS:
 1. Return exactly one practical candidate for every input chapter. Never merge chapters or omit a chapter.
 2. Preserve each chapter's original activity title, objectives, and ordered steps.
+2A. TEACH VIEW OPENING CONTENT:
+   - The opening Teach View presents a practical mission, not a general chapter introduction. Keep its title, summary, instructions, objectives, teacher context, and learner artifact specific to the supplied chapter and hands-on activity.
+   - Make the practical task the focus: explain what the learner will build, analyze, configure, or verify, what chapter concepts they will apply, and what concrete result they should produce.
+   - Write objectives as observable actions in this practical. Make instructions actionable for the supplied workspace and activity rather than generic study advice.
+   - Connect teacher context and real-world relevance to this exact practical; avoid broad course-level claims or reusable filler.
+   - Keep key concepts grounded in the authoritative lesson context. Select concepts relevant to the practical and explain their application without changing their meaning or inventing concepts.
 3. Category-Specific Design:
    - Terminal Coding Labs:
      * Provide complete, syntactically valid starter code that runs without crashing on day 1.

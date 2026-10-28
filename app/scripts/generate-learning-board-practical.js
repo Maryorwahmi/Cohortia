@@ -2542,6 +2542,9 @@ This is an INTENSIVE EXPLORATORY learning experience, NOT a quick tutorial or ex
 
 CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
 
+0. TEACH VIEW OPENING CONTENT:
+   The opening Teach View introduces a practical mission, not a general chapter lesson. Keep its title, summary, instructions, objectives, teacher context, and learner artifact specific to the supplied chapter and hands-on activity. Make the task the focus: describe what the learner will build, analyze, configure, or verify, which chapter concepts they will apply, and the concrete result they should produce. Objectives must be observable practical actions; instructions must be actionable for the supplied workspace. Connect teacher context and real-world relevance to this exact task, avoiding broad course-level claims or generic filler. Keep key concepts grounded in the authoritative lesson context and explain their application without changing their meaning or inventing concepts.
+
 1. LESSON ARCHITECTURE - 4+ PROGRESSIVE SCENES:
    Each practical must have AT LEAST 4 scenes (5-7 for intermediate/advanced):
    - Scene 1: OBSERVE & UNDERSTAND (2-4 min) - Show baseline code running, explain what it does
