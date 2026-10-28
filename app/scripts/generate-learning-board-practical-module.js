@@ -334,27 +334,53 @@ function resolveInputPath(value, repoRoot) {
   return path.isAbsolute(value) ? value : path.resolve(repoRoot, value);
 }
 
-function importGeneratedPractical(practicalPath) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [PRACTICAL_IMPORTER_PATH, "--practical", practicalPath], {
-      cwd: BACKEND_ROOT,
-      env: process.env,
-      stdio: ["ignore", "pipe", "pipe"],
-      windowsHide: true,
-    });
-    let stdout = "";
-    let stderr = "";
-    child.stdout.on("data", (chunk) => { stdout += chunk; });
-    child.stderr.on("data", (chunk) => { stderr += chunk; });
-    child.once("error", reject);
-    child.once("exit", (code) => {
-      if (code === 0) {
-        resolve({ practicalPath, output: stdout.trim() });
-        return;
+function wait(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+async function importGeneratedPractical(practicalPath) {
+  const maxLaunchAttempts = process.platform === "win32" ? 3 : 1;
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxLaunchAttempts; attempt += 1) {
+    try {
+      return await new Promise((resolve, reject) => {
+        const child = spawn(process.execPath, [PRACTICAL_IMPORTER_PATH, "--practical", practicalPath], {
+          cwd: BACKEND_ROOT,
+          env: process.env,
+          stdio: ["ignore", "pipe", "pipe"],
+          windowsHide: true,
+        });
+        let stdout = "";
+        let stderr = "";
+        child.stdout.on("data", (chunk) => { stdout += chunk; });
+        child.stderr.on("data", (chunk) => { stderr += chunk; });
+        child.once("error", (error) => {
+          error.importerPath = PRACTICAL_IMPORTER_PATH;
+          reject(error);
+        });
+        child.once("exit", (code) => {
+          if (code === 0) {
+            resolve({ practicalPath, output: stdout.trim() });
+            return;
+          }
+          reject(new Error(`Turso import failed for ${practicalPath}: ${(stderr || stdout || `exit code ${code}`).trim()}`));
+        });
+      });
+    } catch (error) {
+      lastError = error;
+      const canRetryLaunch = error?.code === "EPERM" && attempt < maxLaunchAttempts;
+      if (!canRetryLaunch) {
+        if (error?.code === "EPERM") {
+          throw new Error(`Could not launch the Turso importer (${PRACTICAL_IMPORTER_PATH}) for ${practicalPath}: EPERM after ${attempt} attempts. Check Windows security software or process permissions.`);
+        }
+        throw error;
       }
-      reject(new Error(`Turso import failed for ${practicalPath}: ${(stderr || stdout || `exit code ${code}`).trim()}`));
-    });
-  });
+      await wait(500 * attempt);
+    }
+  }
+
+  throw lastError;
 }
 
 async function buildModuleEntries({
