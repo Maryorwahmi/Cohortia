@@ -203,26 +203,30 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
               </div>
 
               {/* Bottom Amber Box: Explore Key Topics */}
-              <div className="p-1.5 rounded-lg bg-amber-50/50 border-l-3 border-l-amber-400 border border-amber-200/80 shadow-2xs shrink-0">
-                <span className="text-[9px] font-mono font-bold text-amber-900 uppercase tracking-wider block mb-0.5">
-                  EXPLORE KEY TOPICS
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
-                  {classroom.exploreKeyTopics.map((topic, tIdx) => (
-                    <div
-                      key={tIdx}
-                      className="p-1 sm:p-1.5 rounded-md bg-white border border-slate-200/80 shadow-2xs"
-                    >
-                      <h4 className="text-[11px] font-bold text-slate-900 truncate">
-                        {topic.title}
-                      </h4>
-                      <p className="text-[10px] text-slate-500 leading-tight line-clamp-1 sm:line-clamp-2">
-                        {topic.description}
-                      </p>
-                    </div>
-                  ))}
+              {classroom.exploreKeyTopics.length > 0 && (
+                <div className="p-1.5 rounded-lg bg-amber-50/50 border-l-3 border-l-amber-400 border border-amber-200/80 shadow-2xs shrink-0">
+                  <span className="text-[9px] font-mono font-bold text-amber-900 uppercase tracking-wider block mb-0.5">
+                    EXPLORE KEY TOPICS
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1">
+                    {classroom.exploreKeyTopics.slice(0, 3).map((topic, tIdx) => (
+                      <div
+                        key={tIdx}
+                        className="p-1 sm:p-1.5 rounded-md bg-white border border-slate-200/80 shadow-2xs"
+                      >
+                        <h4 className="text-[11px] font-bold text-slate-900 truncate">
+                          {topic.title}
+                        </h4>
+                        {topic.description && (
+                          <p className="text-[10px] text-slate-500 leading-tight line-clamp-1 sm:line-clamp-2">
+                            {topic.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Right Column (Cols 8-12): Concept Map & Getting Ready */}

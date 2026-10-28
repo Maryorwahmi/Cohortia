@@ -55,6 +55,22 @@ function learnerText(value: string | null | undefined): string {
     .trim();
 }
 
+function exploreKeyTopicsFrom(practical: LearningBoardPractical): PracticalManifest['classroom']['exploreKeyTopics'] {
+  return (practical.lessonContext?.keyConcepts || [])
+    .map((concept) => {
+      const separatorIndex = concept.indexOf(':');
+      if (separatorIndex < 0) {
+        return { title: learnerText(concept), description: '' };
+      }
+
+      return {
+        title: learnerText(concept.slice(0, separatorIndex)),
+        description: learnerText(concept.slice(separatorIndex + 1)),
+      };
+    })
+    .filter((topic) => topic.title.length > 0);
+}
+
 function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: string): PracticalManifest {
   const categoryType = categoryTypeFor(practical);
   const files = (practical.files || []).map((file) => ({
@@ -128,7 +144,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       chapterBreadcrumb: `CHAPTER ${practical.module || 1}.${practical.chapter || 1}`, topicBreadcrumb: title.toUpperCase(),
       mainTitle: title, subtitle: learnerText(practical.summary || practical.instructions || ''), inThisLesson: learnerText(practical.objectives?.join(', ') || ''),
       whyItMatters: learnerText(practical.teacher?.realWorldContext || ''), quickOrientation: (practical.objectives || []).map(learnerText),
-      exploreKeyTopics: (practical.tasks || []).slice(0, 3).map((task) => ({ title: learnerText(task.title || 'Task'), description: learnerText(task.instruction) })),
+      exploreKeyTopics: exploreKeyTopicsFrom(practical),
       conceptMap: { title: 'Practical mission', subtitle: practical.experience?.learnerArtifact || '', nodes: (practical.objectives || []).slice(0, 4).map((value, index) => ({ label: `Objective ${index + 1}`, value })) },
       gettingReady: learnerText(practical.instructions || 'Review the mission, then begin the practical workspace.'),
     },
