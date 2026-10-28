@@ -34,7 +34,6 @@ export interface PracticalTestExperienceProps {
   courseTitle?: string;
   onComplete?: () => void | Promise<void>;
   onMentorContextReady?: (provider: (() => ChatLearningContext) | null) => void;
-  onExit?: () => void;
 }
 
 function categoryTypeFor(practical: LearningBoardPractical): PracticalManifest['categoryType'] {
@@ -104,7 +103,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
   };
 }
 
-export default function App({ practical, courseTitle, onComplete, onMentorContextReady, onExit }: PracticalTestExperienceProps) {
+export default function App({ practical, courseTitle, onComplete, onMentorContextReady }: PracticalTestExperienceProps) {
   const generatedManifest = useMemo(() => practical ? manifestFromPractical(practical, courseTitle) : null, [practical, courseTitle]);
   const manifests = useMemo(() => generatedManifest ? [generatedManifest] : PRACTICAL_MANIFESTS, [generatedManifest]);
   const [activeManifestId, setActiveManifestId] = useState<string>(generatedManifest?.id || INITIAL_MANIFEST.id);
@@ -923,7 +922,6 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             setIsSplitView(!isSplitView);
             if (!isSplitView) setMode('practical');
           }}
-          onExit={onExit}
         />
 
         {/* View Mode Router */}
