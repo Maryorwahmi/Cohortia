@@ -894,6 +894,20 @@ export default function LearningBoardPage({
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  if (devPreviewEnabled && isPracticalTestMode) {
+    return (
+      <div className="fixed inset-0 z-[100] h-dvh w-full overflow-hidden bg-slate-100">
+        <PracticalTestExperience
+          practical={activePractical}
+          courseTitle={boardCourseTitle || courseTitle}
+          onComplete={handlePracticalCompleted}
+          onMentorContextReady={registerPracticalMentorContext}
+          onExit={() => setIsPracticalTestMode(false)}
+        />
+      </div>
+    );
+  }
+
   return (
         <div className="pt-20 pb-8 min-h-screen bg-immersive-bg relative text-left">
       {/* Glow backgrounds */}
