@@ -164,11 +164,11 @@ REQUIREMENTS:
 1. Return exactly one practical candidate for every input chapter. Never merge chapters or omit a chapter.
 2. Preserve each chapter's original activity title, objectives, and ordered steps.
 2A. TEACH VIEW OPENING CONTENT:
-   - The opening Teach View presents a practical mission, not a general chapter introduction. Keep its title, summary, instructions, objectives, teacher context, and learner artifact specific to the supplied chapter and hands-on activity.
-   - Make the practical task the focus: explain what the learner will build, analyze, configure, or verify, what chapter concepts they will apply, and what concrete result they should produce.
-   - Write objectives as observable actions in this practical. Make instructions actionable for the supplied workspace and activity rather than generic study advice.
-   - Connect teacher context and real-world relevance to this exact practical; avoid broad course-level claims or reusable filler.
-   - Keep key concepts grounded in the authoritative lesson context. Select concepts relevant to the practical and explain their application without changing their meaning or inventing concepts.
+   - Recreate the Learning Board hero screen's visual hierarchy as practical content: chapter breadcrumb/title, a short subtitle distinct from the practical mission, a three-card row for "In this practical", "Coming up", and "Why it matters"; three concise orientation points; three applied chapter-concept cards; a practical-specific concept/workflow map with 3-4 nodes; and a short "Getting ready" instruction.
+   - Return this content in the required teachViewOpening object. Populate every field from this chapter's HANDS-ON ACTIVITY, workspace, learner artifact, and STRUCTURED LESSON CONTEXT. Do not write a generic chapter overview or reusable course-level copy.
+   - Objectives and orientation points must be observable practical actions. Explain what the learner will build, analyze, configure, or verify, which actual chapter concepts they will apply, and what concrete result they should produce.
+   - Each of the three key concepts must be present in the authoritative structured lesson context and explain its role in this practical; never invent or redefine a concept. Build the map from the actual practical workflow or relationships, not generic objective labels.
+   - Do not leave opening fields or cards empty. If a detail is missing from source material, use another verified activity/workspace detail rather than inventing one.
 3. Category-Specific Design:
    - Terminal Coding Labs:
      * Provide complete, syntactically valid starter code that runs without crashing on day 1.
@@ -283,7 +283,11 @@ COURSE AND MODULE METADATA
 ==========================
 ${JSON.stringify(metadata, null, 2)}
 
-${chapterSections}`;
+${chapterSections}
+
+TEACH VIEW OPENING CONTRACT (REQUIRED FOR EVERY CHAPTER)
+=======================================================
+For each practical, generate the required teachViewOpening object for the first Teach View screen only. Use this screen composition: chapter breadcrumb/title; a short, distinct subtitle; a three-card row for inThisPractical, comingUp, and whyItMatters; exactly three practical quickOrientation points; exactly three source-grounded keyConcepts applied to the activity; a conceptMap with three or four nodes showing this practical's real workflow or relationships; and one actionable gettingReady instruction. Ground all text in the matching chapter's hands-on activity, workspace, learner artifact, and structured lesson context. Keep it practical-specific, never generic. Do not invent concepts, leave content blank, repeat the subtitle in a card, or alter later walkthrough screens.`;
 }
 
 function normalizeModuleResponse(raw, entries) {

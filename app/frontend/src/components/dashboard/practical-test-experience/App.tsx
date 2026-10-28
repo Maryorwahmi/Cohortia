@@ -119,6 +119,30 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       : undefined,
   }));
   const title = learnerText(practical.title || 'Practical test');
+  const teachViewOpening = practical.teachViewOpening;
+  const keyConcepts = teachViewOpening?.keyConcepts?.length
+    ? teachViewOpening.keyConcepts
+      .map((concept) => ({
+        title: learnerText(concept.title),
+        description: learnerText(concept.description),
+      }))
+      .filter((concept) => concept.title.length > 0)
+    : exploreKeyTopicsFrom(practical);
+  const practicalObjectives = (teachViewOpening?.quickOrientation?.length
+    ? teachViewOpening.quickOrientation
+    : practical.objectives?.length
+      ? practical.objectives
+      : (practical.tasks || []).map((task) => task.title || task.instruction)
+  ).map(learnerText).filter(Boolean).slice(0, 3);
+  const workflowNodes = teachViewOpening?.conceptMap?.nodes?.length
+    ? teachViewOpening.conceptMap.nodes.map((node) => ({
+        label: learnerText(node.label),
+        value: learnerText(node.value),
+      }))
+    : (practical.teachingSteps || []).slice(0, 4).map((step) => ({
+        label: learnerText(step.title || `Step ${step.stepNumber}`),
+        value: learnerText(step.explanation || step.displayText),
+      }));
   const workspace = practical.workspace
     ? ({
         ...practical.workspace,
@@ -142,11 +166,19 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     classroom: {
       classroomBadge: '16:9 HD CLASSROOM', moduleBadge: `MODULE ${String(practical.module || '').padStart(2, '0')}`,
       chapterBreadcrumb: `CHAPTER ${practical.module || 1}.${practical.chapter || 1}`, topicBreadcrumb: title.toUpperCase(),
-      mainTitle: title, subtitle: learnerText(practical.summary || practical.instructions || ''), inThisLesson: learnerText(practical.objectives?.join(', ') || ''),
-      whyItMatters: learnerText(practical.teacher?.realWorldContext || ''), quickOrientation: (practical.objectives || []).map(learnerText),
-      exploreKeyTopics: exploreKeyTopicsFrom(practical),
-      conceptMap: { title: 'Practical mission', subtitle: practical.experience?.learnerArtifact || '', nodes: (practical.objectives || []).slice(0, 4).map((value, index) => ({ label: `Objective ${index + 1}`, value })) },
-      gettingReady: learnerText(practical.instructions || 'Review the mission, then begin the practical workspace.'),
+      mainTitle: title,
+      subtitle: learnerText(teachViewOpening?.subtitle || practical.summary || practical.instructions || ''),
+      inThisLesson: learnerText(teachViewOpening?.inThisPractical || practical.objectives?.join(' ') || practical.instructions || ''),
+      comingUp: learnerText(teachViewOpening?.comingUp || practical.experience?.learnerArtifact || practical.tasks?.[0]?.title || ''),
+      whyItMatters: learnerText(teachViewOpening?.whyItMatters || practical.teacher?.realWorldContext || practical.lessonContext?.chapterIntroduction || practical.summary || ''),
+      quickOrientation: practicalObjectives,
+      exploreKeyTopics: keyConcepts,
+      conceptMap: {
+        title: learnerText(teachViewOpening?.conceptMap?.title || 'Practical workflow'),
+        subtitle: learnerText(teachViewOpening?.conceptMap?.subtitle || practical.experience?.learnerArtifact || ''),
+        nodes: workflowNodes,
+      },
+      gettingReady: learnerText(teachViewOpening?.gettingReady || practical.instructions || 'Review the practical mission, then begin the workspace.'),
     },
     missionStory: { roleTitle: 'Learner', scenarioOverview: learnerText(practical.summary || ''), deliverables: (practical.objectives || []).map(learnerText), xpReward: 0 },
     files, walkthroughSteps: walkthroughSteps.length ? walkthroughSteps : fallbackSteps, tasks, workspace,

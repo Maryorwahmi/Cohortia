@@ -241,6 +241,27 @@ export interface PracticalLessonContext {
   lessonScreens?: PracticalLessonScreenContext[];
 }
 
+export interface PracticalTeachViewOpening {
+  subtitle: string;
+  inThisPractical: string;
+  comingUp: string;
+  whyItMatters: string;
+  quickOrientation: string[];
+  keyConcepts: Array<{
+    title: string;
+    description: string;
+  }>;
+  conceptMap: {
+    title: string;
+    subtitle: string;
+    nodes: Array<{
+      label: string;
+      value: string;
+    }>;
+  };
+  gettingReady: string;
+}
+
 export interface PracticalActivityMapping {
   activityStepId: string;
   order: number;
@@ -420,6 +441,7 @@ export interface LearningBoardPractical {
   generatorVersion?: string | null;
   classifierVersion?: string | null;
   summary?: string | null;
+  teachViewOpening?: PracticalTeachViewOpening | null;
   level?: string | null;
   language?: string | null;
   runtime?: string | null;

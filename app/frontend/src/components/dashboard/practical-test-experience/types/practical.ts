@@ -113,6 +113,7 @@ export interface ClassroomOrientation {
   mainTitle: string;
   subtitle: string;
   inThisLesson: string;
+  comingUp?: string;
   whyItMatters: string;
   quickOrientation: string[];
   exploreKeyTopics: Array<{

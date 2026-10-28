@@ -8,6 +8,7 @@ import {
   VolumeX,
   ChevronLeft,
   ChevronRight,
+  Plus,
   Terminal,
   Code2,
   CheckCircle2,
@@ -141,113 +142,125 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
       <div className="flex-1 p-2 sm:p-3 overflow-hidden min-h-0 flex flex-col justify-center">
         {/* SLIDE 0: Practical mission opening */}
         {activeSlideIndex === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-4 h-full min-h-0 overflow-hidden">
-            <div className="lg:col-span-7 flex flex-col min-h-0 overflow-hidden">
-              <div className="flex items-center gap-2 text-xs font-mono mb-2">
-                <span className="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100 font-bold">
-                  {classroom.moduleBadge}
-                </span>
-                <span className="text-slate-400">&gt;</span>
-                <span className="text-slate-500 font-semibold">{classroom.chapterBreadcrumb}</span>
-                <span className="ml-auto px-2 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-100 text-[10px] font-bold uppercase tracking-wider">
-                  {manifest.category}
-                </span>
-              </div>
+          <div className="bg-slate-50 border border-slate-200/90 shadow-sm p-3 sm:p-4 h-full min-h-0 overflow-hidden">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
+              <span className="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
+                {classroom.moduleBadge}
+              </span>
+              <span>&gt;</span>
+              <span>{classroom.chapterBreadcrumb}</span>
+              <span>&gt;</span>
+              <span className="text-slate-700">{classroom.topicBreadcrumb}</span>
+            </div>
 
-              <h2 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight leading-tight font-sans">
-                {classroom.mainTitle}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-2 mb-4 leading-relaxed line-clamp-2 sm:line-clamp-3">
-                {classroom.subtitle}
-              </p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 h-[calc(100%-32px)] min-h-0">
+              <div className="lg:col-span-7 flex flex-col gap-3 min-h-0 overflow-hidden">
+                <section className="rounded-2xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm shrink-0">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Practical mission
+                    </span>
+                    <span className="px-2 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-100 text-[9px] font-bold uppercase tracking-wider">
+                      {manifest.category}
+                    </span>
+                  </div>
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight leading-tight font-sans">
+                    {classroom.mainTitle}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed line-clamp-2">
+                    {classroom.subtitle}
+                  </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-0">
-                <section className="rounded-xl p-3 sm:p-4 bg-blue-50/70 border border-blue-100 min-h-0">
-                  <h3 className="text-[10px] font-bold text-blue-700 uppercase tracking-wider mb-2">
-                    Your practical mission
-                  </h3>
-                  <ul className="space-y-2 text-xs sm:text-sm text-slate-700 leading-snug">
-                    {classroom.quickOrientation.slice(0, 3).map((objective, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-blue-600" />
-                        <span className="line-clamp-2">{objective}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4">
+                    <div className="rounded-xl p-3 bg-blue-50/80 border border-blue-100">
+                      <h3 className="text-[10px] font-bold text-blue-700 mb-1">In this practical</h3>
+                      <p className="text-xs text-slate-700 leading-snug line-clamp-3">
+                        {classroom.inThisLesson}
+                      </p>
+                    </div>
+                    <div className="rounded-xl p-3 bg-violet-50/80 border border-violet-100">
+                      <h3 className="text-[10px] font-bold text-violet-700 mb-1">Coming up</h3>
+                      <p className="text-xs text-slate-700 leading-snug line-clamp-3">
+                        {classroom.comingUp || classroom.conceptMap.subtitle}
+                      </p>
+                    </div>
+                    <div className="rounded-xl p-3 bg-amber-50/80 border border-amber-100">
+                      <h3 className="text-[10px] font-bold text-amber-700 mb-1">Why it matters</h3>
+                      <p className="text-xs text-slate-700 leading-snug line-clamp-3">
+                        {classroom.whyItMatters}
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="rounded-2xl bg-white border border-slate-200 p-3 sm:p-4 shadow-sm flex-1 min-h-0 flex flex-col">
+                  {classroom.exploreKeyTopics.length > 0 && (
+                    <>
+                      <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                        Explore chapter concepts in this practical
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 min-h-0">
+                        {classroom.exploreKeyTopics.slice(0, 3).map((topic, index) => (
+                          <div key={index} className="rounded-xl p-3 bg-emerald-50/70 border border-emerald-100 min-h-0">
+                            <h4 className="text-xs font-bold text-emerald-800 line-clamp-1">{topic.title}</h4>
+                            <p className="text-[11px] text-slate-600 leading-snug mt-1 line-clamp-3">
+                              {topic.description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  <ul className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2 shrink-0">
+                    {classroom.quickOrientation.slice(0, 3).map((point, index) => (
+                      <li key={index} className="flex items-start gap-1.5 text-[11px] text-slate-600 leading-snug">
+                        <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-600" />
+                        <span className="line-clamp-2">{point}</span>
                       </li>
                     ))}
                   </ul>
                 </section>
-
-                {classroom.whyItMatters && (
-                  <section className="rounded-xl p-3 sm:p-4 bg-emerald-50/70 border border-emerald-100 min-h-0">
-                    <h3 className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-2">
-                      Why this practical matters
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed line-clamp-5">
-                      {classroom.whyItMatters}
-                    </p>
-                  </section>
-                )}
               </div>
 
-              {classroom.exploreKeyTopics.length > 0 && (
-                <section className="mt-3 p-3 rounded-xl bg-amber-50/60 border border-amber-200/80 shrink-0">
-                  <h3 className="text-[10px] font-bold text-amber-900 uppercase tracking-wider mb-2">
-                    Chapter concepts used in this practical
+              <div className="lg:col-span-5 flex flex-col gap-3 min-h-0 overflow-hidden">
+                <section className="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm flex-1 min-h-0 flex flex-col">
+                  <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                    {classroom.conceptMap.title}
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {classroom.exploreKeyTopics.slice(0, 3).map((topic, tIdx) => (
-                      <div
-                        key={tIdx}
-                        className="p-2 rounded-lg bg-white border border-slate-200/80"
-                      >
-                        <h4 className="text-xs font-bold text-slate-900 line-clamp-1">
-                          {topic.title}
-                        </h4>
-                        {topic.description && (
-                          <p className="text-[10px] text-slate-500 leading-snug line-clamp-2 mt-1">
-                            {topic.description}
-                          </p>
-                        )}
+                  {classroom.conceptMap.subtitle && (
+                    <p className="text-[11px] text-slate-500 mb-3">{classroom.conceptMap.subtitle}</p>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 content-start">
+                    {classroom.conceptMap.nodes.slice(0, 4).map((node, index) => (
+                      <div key={index} className="rounded-xl p-3 bg-blue-50/70 border border-blue-100 min-h-[68px]">
+                        <div className="flex items-start gap-2">
+                          <Plus className="w-4 h-4 mt-0.5 shrink-0 text-blue-600" />
+                          <div className="min-w-0">
+                            <h4 className="text-xs font-semibold text-slate-800 line-clamp-1">{node.label}</h4>
+                            <p className="text-[10px] text-slate-500 leading-snug mt-1 line-clamp-2">{node.value}</p>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </section>
-              )}
-            </div>
 
-            <div className="lg:col-span-5 flex flex-col gap-3 min-h-0 overflow-hidden">
-              {classroom.conceptMap.subtitle && (
-                <section className="rounded-2xl bg-slate-950 text-white p-4 sm:p-5 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-amber-300" />
-                    </div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                      What you will produce
-                    </h3>
-                  </div>
-                  <p className="text-base sm:text-lg font-semibold leading-snug">
-                    {classroom.conceptMap.subtitle}
-                  </p>
-                </section>
-              )}
-
-              <section className="rounded-2xl bg-white border border-slate-200 p-4 sm:p-5 flex-1 min-h-0 flex flex-col justify-between shadow-sm">
-                <div>
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                    Before you begin
+                <section className="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm shrink-0">
+                  <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                    Getting ready
                   </h3>
-                  <p className="text-sm text-slate-700 leading-relaxed">
+                  <p className="text-xs text-slate-700 leading-relaxed line-clamp-2">
                     {classroom.gettingReady}
                   </p>
-                </div>
-                <button
-                  onClick={onNextSlide}
-                  className="mt-4 w-full px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>Start Practical</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </section>
+                  <button
+                    onClick={onNextSlide}
+                    className="mt-3 w-full px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Start Practical</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </section>
+              </div>
             </div>
           </div>
         ) : (
