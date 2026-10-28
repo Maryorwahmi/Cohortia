@@ -2,6 +2,13 @@ import React from 'react';
 import { PracticalManifest } from '../types/practical';
 import { RotateCcw, ChevronDown, Split } from 'lucide-react';
 
+const CATEGORY_LABELS: Record<PracticalManifest['categoryType'], string> = {
+  cloud_console: 'Cloud Console',
+  scenario_design: 'Scenario & Design',
+  terminal_coding: 'Terminal Coding',
+  research_analysis: 'Research & Analysis',
+};
+
 interface TopNavProps {
   manifests: PracticalManifest[];
   activeManifestId: string;
@@ -31,6 +38,8 @@ export const TopNav: React.FC<TopNavProps> = ({
     selectedCategory === 'all'
       ? manifests
       : manifests.filter((m) => m.categoryType === selectedCategory);
+  const activeManifest = manifests.find((manifest) => manifest.id === activeManifestId) || manifests[0];
+  const isChapterPractical = manifests.length === 1;
 
   return (
     <div className="h-12 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 flex items-center justify-between select-none shrink-0">
@@ -54,59 +63,64 @@ export const TopNav: React.FC<TopNavProps> = ({
           </span>
         </div>
 
-        {/* 4 Category Filter Pills/Buttons */}
-        <div className="hidden lg:flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/80">
-          <button
-            onClick={() => onSelectCategory('all')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'all'
-                ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            All Courses
-          </button>
-          <button
-            onClick={() => onSelectCategory('cloud_console')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'cloud_console'
-                ? 'bg-white text-orange-700 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Cloud Console
-          </button>
-          <button
-            onClick={() => onSelectCategory('scenario_design')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'scenario_design'
-                ? 'bg-white text-indigo-700 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Scenario & Design
-          </button>
-          <button
-            onClick={() => onSelectCategory('terminal_coding')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'terminal_coding'
-                ? 'bg-white text-emerald-700 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Terminal Coding
-          </button>
-          <button
-            onClick={() => onSelectCategory('research_analysis')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'research_analysis'
-                ? 'bg-white text-amber-700 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Research & Analysis
-          </button>
-        </div>
+        {isChapterPractical ? (
+          <span className="hidden lg:inline-flex items-center rounded-md border border-slate-200/80 bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+            {CATEGORY_LABELS[activeManifest.categoryType]}
+          </span>
+        ) : (
+          <div className="hidden lg:flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/80">
+            <button
+              onClick={() => onSelectCategory('all')}
+              className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
+                selectedCategory === 'all'
+                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              All Courses
+            </button>
+            <button
+              onClick={() => onSelectCategory('cloud_console')}
+              className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
+                selectedCategory === 'cloud_console'
+                  ? 'bg-white text-orange-700 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Cloud Console
+            </button>
+            <button
+              onClick={() => onSelectCategory('scenario_design')}
+              className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
+                selectedCategory === 'scenario_design'
+                  ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Scenario & Design
+            </button>
+            <button
+              onClick={() => onSelectCategory('terminal_coding')}
+              className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
+                selectedCategory === 'terminal_coding'
+                  ? 'bg-white text-emerald-700 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Terminal Coding
+            </button>
+            <button
+              onClick={() => onSelectCategory('research_analysis')}
+              className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
+                selectedCategory === 'research_analysis'
+                  ? 'bg-white text-amber-700 shadow-2xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Research & Analysis
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Practical Switcher Dropdown, Split View, and Teach Mode Badge */}
