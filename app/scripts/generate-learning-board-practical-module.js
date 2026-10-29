@@ -164,11 +164,9 @@ REQUIREMENTS:
 1. Return exactly one practical candidate for every input chapter. Never merge chapters or omit a chapter.
 2. Preserve each chapter's original activity title, objectives, and ordered steps.
 2A. TEACH VIEW OPENING CONTENT:
-   - Recreate the Learning Board hero screen's visual hierarchy as practical content: chapter breadcrumb/title, a short subtitle distinct from the practical mission, a three-card row for "In this practical", "Coming up", and "Why it matters"; three concise orientation points; three applied chapter-concept cards; a practical-specific concept/workflow map with 3-4 nodes; and a short "Getting ready" instruction.
-   - Return this content in the required teachViewOpening object. Populate every field from this chapter's HANDS-ON ACTIVITY, workspace, learner artifact, and STRUCTURED LESSON CONTEXT. Do not write a generic chapter overview or reusable course-level copy.
-   - Objectives and orientation points must be observable practical actions. Explain what the learner will build, analyze, configure, or verify, which actual chapter concepts they will apply, and what concrete result they should produce.
-   - Each of the three key concepts must be present in the authoritative structured lesson context and explain its role in this practical; never invent or redefine a concept. Build the map from the actual practical workflow or relationships, not generic objective labels.
-   - Do not leave opening fields or cards empty. If a detail is missing from source material, use another verified activity/workspace detail rather than inventing one.
+   - The first Teach View screen follows the Learning Board hero screen's visual hierarchy, but the UI assembles the opening after generation from the practical fields and authoritative lesson context. Do not add a separate opening-screen object to the generated response.
+   - Make each practical's title, summary, objectives, instructions, learner artifact, tasks, and teaching steps specific to its source chapter and hands-on activity. The screen presents a practical mission, what is coming up, why it matters, practical actions, applied chapter concepts, an activity-specific workflow, and getting-ready instructions.
+   - Use observable practical actions, the actual learner artifact, and only concepts grounded in STRUCTURED LESSON CONTEXT. Avoid generic course-level introductions and do not invent or redefine chapter concepts.
 3. Category-Specific Design:
    - Terminal Coding Labs:
      * Provide complete, syntactically valid starter code that runs without crashing on day 1.
@@ -285,9 +283,9 @@ ${JSON.stringify(metadata, null, 2)}
 
 ${chapterSections}
 
-TEACH VIEW OPENING CONTRACT (REQUIRED FOR EVERY CHAPTER)
-=======================================================
-For each practical, generate the required teachViewOpening object for the first Teach View screen only. Use this screen composition: chapter breadcrumb/title; a short, distinct subtitle; a three-card row for inThisPractical, comingUp, and whyItMatters; exactly three practical quickOrientation points; exactly three source-grounded keyConcepts applied to the activity; a conceptMap with three or four nodes showing this practical's real workflow or relationships; and one actionable gettingReady instruction. The schema uses strings only: encode quickOrientation as three newline-separated points, keyConcepts as three newline-separated "Concept | application" entries, and conceptMapNodes as three or four newline-separated "Stage | result" entries. All other opening fields are strings. Ground all text in the matching chapter's hands-on activity, workspace, learner artifact, and structured lesson context. Keep it practical-specific, never generic. Do not invent concepts, leave content blank, repeat the subtitle in a card, or alter later walkthrough screens.`;
+TEACH VIEW OPENING CONTENT
+==========================
+Do not add an extra opening object to the response schema. The first screen is assembled after generation from title, summary, objectives, tasks, workspace, learner artifact, teaching steps, and the chapter's structured lesson concepts. Keep those existing fields concrete and specific to the practical so the opening screen is complete and chapter-grounded.`;
 }
 
 function normalizeModuleResponse(raw, entries) {

@@ -89,23 +89,6 @@ const PRACTICAL_SCHEMA = {
       items: { type: "string" },
       description: "Learning objectives for this practical"
     },
-    teachViewOpening: {
-      type: "object",
-      description: "Required screen-ready content for the first Teach View slide. This is a practical mission opening, not a general lesson summary.",
-      properties: {
-        subtitle: { type: "string", description: "One concise sentence framing this chapter's practical challenge." },
-        inThisPractical: { type: "string", description: "One concise, concrete description of what the learner will do in this chapter's practical." },
-        comingUp: { type: "string", description: "A brief preview of the practical workflow or learner artifact." },
-        whyItMatters: { type: "string", description: "Why applying these chapter concepts in this exact practical matters." },
-        quickOrientation: { type: "string", description: "Exactly three concise, actionable practical points on separate lines." },
-        keyConcepts: { type: "string", description: "Exactly three source-grounded concepts on separate lines, each formatted Concept | application in this practical." },
-        conceptMapTitle: { type: "string", description: "Title for the practical workflow map." },
-        conceptMapSubtitle: { type: "string", description: "Short explanation of the practical workflow or relationship." },
-        conceptMapNodes: { type: "string", description: "Three or four workflow nodes on separate lines, each formatted Label | value." },
-        gettingReady: { type: "string", description: "A concise, practical-specific preparation instruction based on the actual workspace and activity." }
-      },
-      required: ["subtitle", "inThisPractical", "comingUp", "whyItMatters", "quickOrientation", "keyConcepts", "conceptMapTitle", "conceptMapSubtitle", "conceptMapNodes", "gettingReady"]
-    },
     instructions: { 
       type: "string", 
       description: "Overall completion instructions, preserve from HANDS-ON ACTIVITY" 
@@ -348,7 +331,7 @@ const PRACTICAL_SCHEMA = {
       items: { type: "object" },
     }
   },
-  required: ["mode", "title", "summary", "objectives", "instructions", "narratorGuide", "teachViewOpening", "files", "tasks", "workspace"]
+  required: ["mode", "title", "instructions", "narratorGuide", "files", "tasks", "workspace"]
 };
 
 function isWithinRoot(root, candidate) {
@@ -702,7 +685,8 @@ ${JSON.stringify(sourceContext?.lessonContext || {}, null, 2)}
 
 TEACH VIEW OPENING (REQUIRED; FIRST SCREEN ONLY)
 ================================================
-Generate the required teachViewOpening object for the practical's first Teach View screen. Its schema uses strings only. Set subtitle, inThisPractical, comingUp, whyItMatters, conceptMapTitle, conceptMapSubtitle, and gettingReady to concise, complete text. Put exactly three quickOrientation points on separate lines. Put exactly three keyConcepts on separate lines, formatted "Concept | how it is applied in this practical". Put three or four conceptMapNodes on separate lines, formatted "Workflow stage | what happens". Keep every statement grounded in this chapter's source activity, workspace, learner artifact, and structured lesson context. Explain how each chapter concept is used in this exact practical. Do not write a generic chapter overview, invent concepts, leave fields blank, repeat the subtitle in a card, or change any other screen.
+Write this practical's summary, objectives, tasks, and teaching steps specifically for the supplied hands-on activity. The first Teach View opening is assembled after generation from those practical fields and authoritative lesson concepts; do not emit a separate opening-screen object. Avoid a generic chapter overview.
+Write the practical summary, objectives, tasks, and teaching steps for this exact chapter and hands-on activity. The first Teach View opening is assembled from those fields and the source lesson concepts after generation; do not emit a separate opening-screen object. Keep the practical focused on what the learner will do, produce, and verify. Avoid generic chapter overviews.
 
 ACTIVITY STEP MAP
 =================
@@ -752,6 +736,73 @@ function meaningfulTeachingArray(value) {
   return Array.isArray(value)
     && value.length > 0
     && value.every((item) => meaningfulTeachingText(item));
+}
+
+function conceptTitle(concept) {
+  const cleaned = normalizeLearnerText(concept)
+    .replace(/^\s*[-*]\s*/, "")
+    .replace(/\s*\|.*$/, "")
+    .replace(/\s*:\*{0,2}.*$/, "")
+    .replace(/\s*:\s*.*$/, "")
+    .trim();
+  return cleaned || normalizeLearnerText(concept);
+}
+
+function buildTeachViewOpening(raw, sourceContext, title, summary, instructions, tasks, workspace, learnerArtifact) {
+  const objectives = asStringArray(raw.objectives).map(normalizeLearnerText).filter(Boolean);
+  const taskPoints = tasks
+    .map((task) => normalizeLearnerText(task.title || task.instruction))
+    .filter(Boolean);
+  const practicalAction = normalizeLearnerText(
+    taskPoints[0] || instructions || summary || title,
+  );
+  const orientation = [...objectives, ...taskPoints, normalizeLearnerText(instructions)]
+    .filter((point, index, all) => point && all.indexOf(point) === index)
+    .slice(0, 3);
+  while (orientation.length < 3) {
+    orientation.push(orientation.length === 1
+      ? `Apply the chapter concepts while completing ${title}.`
+      : `Check that your work produces ${learnerArtifact}.`);
+  }
+
+  const activityConcepts = tasks.flatMap((task) => asStringArray(task.requiredConcepts));
+  const sourceConcepts = sourceContext.lessonContext?.keyConcepts || [];
+  const concepts = [...activityConcepts, ...sourceConcepts]
+    .map((concept) => normalizeLearnerText(concept))
+    .filter((concept, index, all) => concept && all.indexOf(concept) === index)
+    .slice(0, 3)
+    .map((concept) => ({
+      title: conceptTitle(concept),
+      description: `Apply this chapter concept while you ${practicalAction.charAt(0).toLowerCase()}${practicalAction.slice(1).replace(/[.!?]+$/, "")}.`,
+    }));
+
+  const workspaceType = workspace?.type;
+  const workflow = workspaceType === "terminal"
+    ? [
+        { label: "Source file", value: workspace.terminal?.entryFile || "Open the practical starter file." },
+        { label: "Build", value: (workspace.terminal?.compileCommands || [])[0] || "Compile or prepare your work." },
+        { label: "Run", value: (workspace.terminal?.runCommands || [])[0] || "Run the practical and inspect the result." },
+        { label: "Verify", value: learnerArtifact },
+      ]
+    : tasks.slice(0, 4).map((task, index) => ({
+        label: normalizeLearnerText(task.title || `Practical step ${index + 1}`),
+        value: normalizeLearnerText(task.instruction || task.title || learnerArtifact),
+      }));
+
+  return {
+    subtitle: normalizeLearnerText(summary || instructions || title),
+    inThisPractical: normalizeLearnerText(summary || `Complete the ${title} practical.`),
+    comingUp: normalizeLearnerText(`You will ${practicalAction.charAt(0).toLowerCase()}${practicalAction.slice(1).replace(/[.!?]+$/, "")} and produce ${learnerArtifact}.`),
+    whyItMatters: normalizeLearnerText(summary || instructions || title),
+    quickOrientation: orientation,
+    keyConcepts: concepts,
+    conceptMap: {
+      title: workspaceType === "terminal" ? "Practical workflow" : "Practical plan",
+      subtitle: normalizeLearnerText(`How this ${title} activity leads to ${learnerArtifact}.`),
+      nodes: workflow,
+    },
+    gettingReady: normalizeLearnerText(instructions || `Review the ${title} mission, then begin in the practical workspace.`),
+  };
 }
 
 function buildTeachingFallback(task, sourceContext, index) {
@@ -950,24 +1001,6 @@ function normalizeLearnerText(value) {
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-}
-
-function parseOpeningLines(value) {
-  return String(value || "")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-}
-
-function parseOpeningCards(value) {
-  return parseOpeningLines(value).map((line) => {
-    const separator = line.indexOf(" | ");
-    if (separator < 1) return { title: normalizeLearnerText(line), description: "" };
-    return {
-      title: normalizeLearnerText(line.slice(0, separator)),
-      description: normalizeLearnerText(line.slice(separator + 3)),
-    };
-  });
 }
 
 function dedentCode(value) {
@@ -2041,26 +2074,16 @@ function normalizePractical(raw, sourceContext, metadata) {
     },
     title,
     summary: raw.summary || `In this practical, you will ${instructions.replace(/\s+/g, " ").trim().replace(/[.!?]+$/, "")}. You will connect the task to ${sourceContext.lessonContext?.chapterIntroduction?.split(/[.!?]/)[0] || "the chapter concepts"} and explain what your program does.`,
-    teachViewOpening: {
-      subtitle: normalizeLearnerText(raw.teachViewOpening?.subtitle || raw.summary || instructions),
-      inThisPractical: normalizeLearnerText(raw.teachViewOpening?.inThisPractical || raw.summary || instructions),
-      comingUp: normalizeLearnerText(raw.teachViewOpening?.comingUp || raw.experience?.learnerArtifact || sourceContext.activityTitle || title),
-      whyItMatters: normalizeLearnerText(raw.teachViewOpening?.whyItMatters || raw.teacher?.realWorldContext || raw.summary || ""),
-      quickOrientation: parseOpeningLines(raw.teachViewOpening?.quickOrientation)
-        .map(normalizeLearnerText)
-        .slice(0, 3),
-      keyConcepts: parseOpeningCards(raw.teachViewOpening?.keyConcepts)
-        .slice(0, 3)
-        .map((concept) => ({ title: concept.title, description: concept.description })),
-      conceptMap: {
-        title: normalizeLearnerText(raw.teachViewOpening?.conceptMapTitle || "Practical workflow"),
-        subtitle: normalizeLearnerText(raw.teachViewOpening?.conceptMapSubtitle || ""),
-        nodes: parseOpeningCards(raw.teachViewOpening?.conceptMapNodes)
-          .slice(0, 4)
-          .map((node) => ({ label: node.title, value: node.description })),
-      },
-      gettingReady: normalizeLearnerText(raw.teachViewOpening?.gettingReady || instructions),
-    },
+    teachViewOpening: buildTeachViewOpening(
+      raw,
+      sourceContext,
+      title,
+      normalizeLearnerText(raw.summary || instructions),
+      instructions,
+      tasks,
+      workspace,
+      normalizeLearnerText(raw.experience?.learnerArtifact || experienceProfile.learnerArtifact),
+    ),
     level: raw.level || sourceContext.level || undefined,
     labType,
     mode: experienceProfile.experienceType === "terminal_coding_lab"
@@ -2623,9 +2646,7 @@ This is an INTENSIVE EXPLORATORY learning experience, NOT a quick tutorial or ex
 CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
 
 0. TEACH VIEW OPENING CONTENT:
-   The first Teach View screen must use a complete, chapter-specific practical opening, following the Learning Board hero screen's visual hierarchy: chapter breadcrumb and title, a short practical subtitle distinct from the practical mission, a three-card row ("In this practical", "Coming up", and "Why it matters"), three concise practical orientation points, three applied chapter-concept cards, and a compact workflow/concept map with three or four labeled nodes. Include a short "Getting ready" instruction. In teachViewOpening, encode the three lists as newline-separated strings: quickOrientation as three points, keyConcepts as three "Concept | application" lines, and conceptMapNodes as three or four "Stage | result" lines. Keep all other teachViewOpening fields as strings.
-   Return all of this content in the required teachViewOpening object. Every field must describe the supplied hands-on activity and chapter—not a general course lesson. Use the actual learner task, workspace, artifact, source lesson objectives, and key concepts. Do not leave any field blank. The objective list must contain at least three observable actions for this practical. Each key concept must be present in the authoritative structured lesson context and explain how the learner uses it in this practical. The concept map must show the actual practical workflow or relationships, not generic objective labels. Do not include scene numbers or fabricated concepts.
-   The teachViewOpening object is validated before saving. Supply all required fields with complete, readable content; a missing or generic field will fail generation instead of producing an empty screen.
+   The first Teach View screen follows the Learning Board hero's visual hierarchy, but its content is assembled after generation from the practical fields and authoritative chapter context. Do not return an extra opening object. Make the generated practical title, summary, objectives, tasks, learner artifact, and teaching steps specific to this hands-on activity. The UI uses those fields to show a practical mission, what is coming up, why it matters, three practical actions, three actual chapter concepts applied in the task, a workflow map, and getting-ready instructions. Never substitute a generic chapter overview or invent chapter concepts.
 
 1. LESSON ARCHITECTURE - 4+ PROGRESSIVE SCENES:
    Each practical must have AT LEAST 4 scenes (5-7 for intermediate/advanced):
