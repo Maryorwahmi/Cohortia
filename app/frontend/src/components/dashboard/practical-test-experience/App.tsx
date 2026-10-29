@@ -526,12 +526,6 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     }
   };
 
-  const handleRunNativeProgram = (
-    files: Record<string, string>,
-    activeFileName: string,
-    language: 'c' | 'cpp',
-  ) => learningBoardsApi.executeNativePractical(files, activeFileName, language);
-
   const handleSimulationCompleted = (passed: boolean) => {
     setSimulationPassed(passed);
     if (practical?.id) {
@@ -1131,7 +1125,6 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                           filesContent={filesContent}
                           onUpdateFileContent={handleUpdateFileContent}
                           onCommandRun={handleCommandRun}
-                          onRunNativeProgram={handleRunNativeProgram}
                           onSimulationCompleted={handleSimulationCompleted}
                           onBinaryAnswerGrade={practical?.id ? handleBinaryAnswerGrade : undefined}
                           lastSavedTimestamp={lastSavedTimestamp}
@@ -1159,7 +1152,6 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                       filesContent={filesContent}
                       onUpdateFileContent={handleUpdateFileContent}
                       onCommandRun={handleCommandRun}
-                      onRunNativeProgram={handleRunNativeProgram}
                       onSimulationCompleted={handleSimulationCompleted}
                       onBinaryAnswerGrade={practical?.id ? handleBinaryAnswerGrade : undefined}
                       lastSavedTimestamp={lastSavedTimestamp}

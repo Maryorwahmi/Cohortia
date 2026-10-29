@@ -25,11 +25,6 @@ interface PracticalWorkspaceProps {
   filesContent: Record<string, string>;
   onUpdateFileContent: (fileName: string, content: string) => void;
   onCommandRun?: (command: string, output: string) => void;
-  onRunNativeProgram?: (
-    files: Record<string, string>,
-    activeFileName: string,
-    language: 'c' | 'cpp',
-  ) => Promise<{ ok: boolean; stdout?: string; stderr?: string; error?: string; phase?: string }>;
   onSimulationCompleted?: (passed: boolean) => void;
   onBinaryAnswerGrade?: (taskId: string, answer: string) => Promise<boolean | null>;
   lastSavedTimestamp?: string;
@@ -78,7 +73,6 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
   filesContent,
   onUpdateFileContent,
   onCommandRun,
-  onRunNativeProgram,
   onSimulationCompleted,
   onBinaryAnswerGrade,
   lastSavedTimestamp,
@@ -121,10 +115,8 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
   const isCSource = /\.c$/i.test(activeFileName);
   const isCppSource = /\.(cpp|cc|cxx)$/i.test(activeFileName);
   const isNativeSource = isCSource || isCppSource;
-  const nativeLanguage = isCppSource ? 'cpp' : 'c';
   const isPythonRepl = manifest.type === 'terminal' && !isNativeSource;
   const [terminalInput, setTerminalInput] = useState('');
-  const [isRunningNativeProgram, setIsRunningNativeProgram] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<TerminalEntry[]>([
     {
       type: 'system',
@@ -169,32 +161,34 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
   // Terminal autoscroll
   const terminalEndRef = useRef<HTMLDivElement | null>(null);
 
-  const handleRunNativeProgram = async (command = `run ${activeFileName}`) => {
-    const newHistory: TerminalEntry[] = [...terminalHistory, { type: 'input', text: `$ ${command}` }];
-    if (!onRunNativeProgram) {
-      setTerminalHistory([...newHistory, {
-        type: 'error',
-        text: 'Native code execution is not available in this workspace.',
-      }]);
-      return;
-    }
+  const simulateCProgramOutput = (source: string) => {
+    const printedValues = Array.from(
+      source.matchAll(/printf\s*\(\s*"((?:\\.|[^"\\])*)"/g),
+      (match) => match[1]
+        .replace(/\\n/g, '\n')
+        .replace(/\\t/g, '\t')
+        .replace(/\\r/g, '\r')
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\'),
+    );
+    return printedValues.join('') || '(program completed without printed output)';
+  };
 
-    setIsRunningNativeProgram(true);
-    setTerminalHistory(newHistory);
-    try {
-      const result = await onRunNativeProgram(filesContent, activeFileName, nativeLanguage);
-      const output = [result.stdout, result.stderr, result.error].filter(Boolean).join('\n').trim();
-      setTerminalHistory((current) => [
-        ...current,
-        { type: result.ok ? 'output' : 'error', text: output || (result.ok ? 'Program finished with no output.' : 'The program could not be executed.') },
-      ]);
-      onCommandRun?.(command, output);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'The program could not be executed.';
-      setTerminalHistory((current) => [...current, { type: 'error', text: message }]);
-    } finally {
-      setIsRunningNativeProgram(false);
-    }
+  const handleRunCProgram = () => {
+    const sourceFile = activeFileName.split(/[\\/]/).pop() || activeFileName;
+    const executableName = sourceFile.replace(/\.[^.]+$/, '');
+    const compileCommand = `clang ${sourceFile} -o ${executableName}`;
+    const runCommand = `./${executableName}`;
+    const output = simulateCProgramOutput(currentContent);
+    setTerminalHistory([
+      ...terminalHistory,
+      { type: 'input', text: `$ ${compileCommand}` },
+      { type: 'output', text: `✓ ${compileCommand}: simulated compilation successful.` },
+      { type: 'input', text: `$ ${runCommand}` },
+      { type: 'output', text: output },
+    ]);
+    onCommandRun?.(compileCommand, 'Simulated compilation successful.');
+    onCommandRun?.(runCommand, output);
   };
 
   useEffect(() => {
@@ -316,24 +310,6 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
       return;
     }
 
-    if (isNativeSource && (
-      /^\.\/\S+/.test(cmd)
-      || /^run(?:\s|$)/i.test(cmd)
-    )) {
-      void handleRunNativeProgram(cmd);
-      setTerminalInput('');
-      return;
-    }
-
-    if (isNativeSource && /^(?:clang|gcc|g\+\+|clang\+\+)\b/.test(cmd)) {
-      setTerminalHistory([...newHistory, {
-        type: 'system',
-        text: 'Use the Run C Program button to compile and execute the active source file.',
-      }]);
-      setTerminalInput('');
-      return;
-    }
-
     if (isSql) {
       handleExecuteSql(cmd);
       return;
@@ -387,23 +363,24 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
     } else {
       // C program commands
       if (cmd.startsWith('clang') || cmd.startsWith('gcc')) {
-        if (cmd.includes('calculator.c')) {
+        const sourceFile = cmd.match(/\b[\w./-]+\.(?:c|cpp|cc|cxx)\b/i)?.[0];
+        if (sourceFile?.includes('calculator.c')) {
           outText = '✓ clang calculator.c -o calculator: compiled cleanly (0 errors, 0 warnings).\nBinary generated: calculator (ELF 64-bit)';
-        } else if (cmd.includes('grades.c')) {
+        } else if (sourceFile?.includes('grades.c')) {
           outText = '✓ clang grades.c -o grades: compiled cleanly.\nBinary generated: grades';
-        } else if (cmd.includes('student_records.c')) {
+        } else if (sourceFile?.includes('student_records.c')) {
           outText = '✓ clang student_records.c -o student_records: compiled cleanly.\nBinary generated: student_records';
-        } else if (cmd.includes('sort.c')) {
+        } else if (sourceFile?.includes('sort.c')) {
           outText = '✓ clang sort.c -o sort: compiled cleanly.\nBinary generated: sort';
-        } else if (cmd.includes('binary_search.c')) {
+        } else if (sourceFile?.includes('binary_search.c')) {
           outText = '✓ clang binary_search.c -o binary_search: compiled cleanly.\nBinary generated: binary_search';
         } else {
-          outText = '✓ clang hello.c -o hello: compiled cleanly (0 errors, 0 warnings).\nBinary generated: hello (ELF 64-bit executable)';
+          const executableName = cmd.match(/-o\s+([^\s]+)/)?.[1] || sourceFile?.replace(/\.[^.]+$/, '') || 'program';
+          outText = `✓ ${cmd}: simulated compilation successful.\nBinary generated: ${executableName}`;
         }
-      } else if (cmd === './hello' || cmd === 'hello') {
-        const cCode = filesContent['hello.c'] || '';
-        const match = cCode.match(/printf\s*\(\s*["']([^"']+)["']\s*\)/);
-        outText = match ? match[1].replace('\\n', '') : 'hello, world';
+      } else if (cmd === './hello' || cmd === 'hello' || cmd === `./${activeFileName.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '')}`) {
+        const cCode = filesContent[activeFileName] || '';
+        outText = simulateCProgramOutput(cCode);
       } else if (cmd === './calculator' || cmd === 'calculator') {
         outText = `Enter the first integer: 10\nEnter the second integer: 3\nSum: 13\nDifference: 7\nProduct: 30\nQuotient (float): 3.33`;
       } else if (cmd === './grades' || cmd === 'grades') {
@@ -487,12 +464,11 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
 
           {isNativeSource ? (
             <button
-              onClick={() => void handleRunNativeProgram()}
-              disabled={isRunningNativeProgram}
-              className="px-2.5 py-1 rounded-md text-[11px] font-bold font-mono bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white shadow-2xs flex items-center gap-1 transition-colors cursor-pointer disabled:cursor-wait"
+              onClick={handleRunCProgram}
+              className="px-2.5 py-1 rounded-md text-[11px] font-bold font-mono bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs flex items-center gap-1 transition-colors cursor-pointer"
             >
               <Play className="w-3 h-3 fill-current" />
-              <span>{isRunningNativeProgram ? 'Running…' : `Run ${isCppSource ? 'C++' : 'C'} Program`}</span>
+              <span>Run {isCppSource ? 'C++' : 'C'} Program</span>
             </button>
           ) : manifest.type === 'binary_search' ? (
             <>
@@ -884,11 +860,10 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
                   {isNativeSource && (
                     <>
                       <button
-                        onClick={() => void handleRunNativeProgram()}
-                        disabled={isRunningNativeProgram}
+                        onClick={handleRunCProgram}
                         className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] cursor-pointer"
                       >
-                        {isRunningNativeProgram ? 'Running…' : 'Compile & Run'}
+                        Compile & Run
                       </button>
                     </>
                   )}
