@@ -114,7 +114,7 @@ export const PlaybackControlBar: React.FC<PlaybackControlBarProps> = ({
         </div>
 
         {/* Right: Mode Toggle Button and Teacher Speaking Status */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center justify-end gap-2.5">
           {/* Main coral "Join practical" button matching screenshot */}
           <button
             onClick={onToggleMode}

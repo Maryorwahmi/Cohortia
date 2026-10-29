@@ -42,6 +42,83 @@ type HortBotMessage = {
   text: string;
 };
 
+function renderInlineMarkdown(text: string, keyPrefix: string): React.ReactNode[] {
+  const tokenPattern = /(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g;
+  return text.split(tokenPattern).map((part, index) => {
+    const key = `${keyPrefix}-${index}`;
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={key} className="font-semibold text-slate-950">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return <code key={key} className="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[0.92em] text-indigo-800">{part.slice(1, -1)}</code>;
+    }
+    if (part.startsWith('*') && part.endsWith('*')) {
+      return <em key={key} className="text-slate-700">{part.slice(1, -1)}</em>;
+    }
+    return part;
+  });
+}
+
+function HortBotReply({ text }: { text: string }) {
+  let keyIndex = 0;
+  const nextKey = () => `hortbot-reply-${keyIndex++}`;
+  const segments = text.split(/(```[\s\S]*?```)/g).filter(Boolean);
+
+  return (
+    <div className="space-y-3 text-[13px] leading-6 text-slate-700">
+      {segments.map((segment) => {
+        if (segment.startsWith('```')) {
+          const firstLineEnd = segment.indexOf('\n');
+          const language = firstLineEnd === -1 ? '' : segment.slice(3, firstLineEnd).trim();
+          const code = firstLineEnd === -1 ? segment.slice(3, -3) : segment.slice(firstLineEnd + 1, -3);
+          return (
+            <div key={nextKey()} className="overflow-hidden rounded-lg border border-slate-700 bg-slate-950">
+              {language && <div className="border-b border-slate-700 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-indigo-200">{language}</div>}
+              <pre className="overflow-x-auto p-3 text-xs leading-5 text-emerald-100"><code>{code.trimEnd()}</code></pre>
+            </div>
+          );
+        }
+
+        return segment.trim().split(/\n\s*\n/).filter(Boolean).map((block) => {
+          const blockKey = nextKey();
+          const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
+          const heading = lines[0]?.match(/^#{1,3}\s+(.+)$/);
+          if (heading) {
+            return (
+              <div key={blockKey} className="space-y-1">
+                <h3 className="pt-1 text-sm font-bold leading-5 text-indigo-900">{renderInlineMarkdown(heading[1], blockKey)}</h3>
+                {lines.length > 1 && <p className="break-words">{renderInlineMarkdown(lines.slice(1).join(' '), blockKey)}</p>}
+              </div>
+            );
+          }
+
+          const isList = lines.length > 0 && lines.every((line) => /^\s*(?:[-*]|\d+[.)])\s+/.test(line));
+          if (isList) {
+            const ordered = /^\s*\d+[.)]\s+/.test(lines[0]);
+            const List = ordered ? 'ol' : 'ul';
+            return (
+              <List key={blockKey} className={`${ordered ? 'list-decimal' : 'list-disc'} space-y-1.5 pl-5 marker:text-indigo-500`}>
+                {lines.map((line) => (
+                  <li key={nextKey()} className="pl-0.5">
+                    {renderInlineMarkdown(line.replace(/^\s*(?:[-*]|\d+[.)])\s+/, ''), blockKey)}
+                  </li>
+                ))}
+              </List>
+            );
+          }
+
+          const paragraph = lines.map((line) => line.replace(/^>\s?/, '')).join(' ');
+          return (
+            <p key={blockKey} className="break-words">
+              {renderInlineMarkdown(paragraph, blockKey)}
+            </p>
+          );
+        });
+      })}
+    </div>
+  );
+}
+
 function categoryTypeFor(practical: LearningBoardPractical): PracticalManifest['categoryType'] {
   if (practical.experienceType === 'cloud_console_lab' || practical.category === 'Cloud Console Lab') return 'cloud_console';
   if (practical.experienceType === 'research_evidence_lab' || practical.category === 'Research & Analysis') return 'research_analysis';
@@ -222,7 +299,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [hortBotInput, setHortBotInput] = useState('');
   const [hortBotError, setHortBotError] = useState<string | null>(null);
   const [isHortBotTyping, setIsHortBotTyping] = useState(false);
-  const hortBotEndRef = useRef<HTMLDivElement | null>(null);
+  const hortBotMessagesRef = useRef<HTMLDivElement | null>(null);
   const hortBotInputRef = useRef<HTMLInputElement | null>(null);
   const hortBotPopupRef = useRef<HTMLElement | null>(null);
   const hortBotTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -246,11 +323,19 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [evaluatorResult, setEvaluatorResult] = useState<DomainEvaluatorResult | null>(null);
   const [executedCommands, setExecutedCommands] = useState<string[]>([]);
+  const [lastTerminalOutput, setLastTerminalOutput] = useState('');
   const [simulationPassed, setSimulationPassed] = useState<boolean>(false);
+  const activePracticalTaskIndex = Math.max(
+    0,
+    activeManifest.tasks.findIndex((task) => !completedTaskIds.includes(task.id)),
+  );
+  const activePracticalTask = activeManifest.tasks[activePracticalTaskIndex];
+  const activeLearningBoardTask = practical?.tasks?.find((task) => task.id === activePracticalTask?.id)
+    || practical?.tasks?.[activePracticalTaskIndex];
 
   useEffect(() => {
     if (!isHortBotOpen) return;
-    hortBotInputRef.current?.focus();
+    hortBotInputRef.current?.focus({ preventScroll: true });
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsHortBotOpen(false);
@@ -304,7 +389,8 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   }, []);
 
   useEffect(() => {
-    hortBotEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const messageList = hortBotMessagesRef.current;
+    if (messageList) messageList.scrollTo({ top: messageList.scrollHeight, behavior: 'smooth' });
   }, [hortBotMessages, isHortBotTyping]);
 
   useEffect(() => {
@@ -328,30 +414,40 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       assistant: 'hortbot',
       courseId: practical?.courseId,
       courseTitle,
+      courseCategory: practical?.category || undefined,
       module: practical?.module,
       chapter: practical?.chapter,
       practicalTitle: practical?.title || activeManifest.title,
       practicalInstructions: practical?.instructions || activeManifest.objective,
       practicalObjectives: practical?.objectives || [],
-      practicalTeachingContext: practical?.teacher?.opening || practical?.narratorGuide || undefined,
+      practicalTeachingContext: practical?.teacher?.opening || practical?.teaching?.opening || practical?.narratorGuide || undefined,
       practicalTasks: (practical?.tasks || activeManifest.tasks).map((task) => ({
         title: task.title || 'Practical task',
         instruction: 'instruction' in task ? task.instruction : task.description,
         learningGoal: 'teaching' in task ? task.teaching?.learningGoal : undefined,
-        teacherTalk: 'teaching' in task ? task.teaching?.teacherTalk : undefined,
+        teacherTalk: 'teaching' in task ? task.teaching?.teacherTalk || task.narratorGuide || undefined : undefined,
         realWorldExample: 'teaching' in task ? task.teaching?.realWorldExample : undefined,
         questions: 'teaching' in task ? task.teaching?.questions : undefined,
         requiredConcepts: 'requiredConcepts' in task ? task.requiredConcepts : undefined,
       })),
       currentFile: activeFileName,
       currentCode: filesContent[activeFileName] || '',
-      currentTaskIndex: Math.max(0, activeManifest.tasks.findIndex((task) => !completedTaskIds.includes(task.id))),
+      currentTaskTitle: activePracticalTask?.title,
+      currentTaskInstruction: activeLearningBoardTask?.instruction || activePracticalTask?.description,
+      currentTaskGoal: activeLearningBoardTask?.teaching?.learningGoal,
+      currentTaskQuestions: activeLearningBoardTask?.teaching?.questions,
+      currentTaskConcepts: activeLearningBoardTask?.requiredConcepts || (activePracticalTask?.criteria ? [activePracticalTask.criteria] : []),
+      currentTaskHint: activeLearningBoardTask?.hints?.[0],
+      interactiveExercisePrompt: activeLearningBoardTask?.interactiveExercise?.prompt,
+      currentTaskIndex: activePracticalTaskIndex,
       completedTasks: completedTaskIds.length,
       totalTasks: activeManifest.tasks.length,
+      lastOutput: lastTerminalOutput || undefined,
+      lastCheckResult: feedbackMessage || undefined,
       page: 'practical test workspace',
     }));
     return () => onMentorContextReady(null);
-  }, [onMentorContextReady, practical, courseTitle, activeManifest, activeFileName, filesContent, completedTaskIds]);
+  }, [onMentorContextReady, practical, courseTitle, activeManifest, activeFileName, filesContent, completedTaskIds, lastTerminalOutput, feedbackMessage]);
 
   // Sync active manifest when user filters by category
   useEffect(() => {
@@ -416,6 +512,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setFeedbackMessage(null);
     setEvaluatorResult(null);
     setExecutedCommands([]);
+    setLastTerminalOutput('');
     setSimulationPassed(false);
   }, [activeManifestId]);
 
@@ -578,6 +675,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
 
   const handleCommandRun = (command: string, output: string) => {
     setExecutedCommands((prev) => [...prev, command]);
+    setLastTerminalOutput(output);
 
     // Published practicals are graded from their generated checks on the
     // server. The legacy command-string milestones below are retained only
@@ -628,30 +726,26 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setHortBotError(null);
     setIsHortBotTyping(true);
 
-    const currentTaskIndex = Math.max(
-      0,
-      activeManifest.tasks.findIndex((task) => !completedTaskIds.includes(task.id)),
-    );
-    const currentTask = activeManifest.tasks[currentTaskIndex];
-    const practicalTask = practical?.tasks?.find((task) => task.id === currentTask?.id)
-      || practical?.tasks?.[currentTaskIndex];
+    const currentTask = activePracticalTask;
+    const practicalTask = activeLearningBoardTask;
     const learningContext: ChatLearningContext = {
       assistant: 'hortbot',
       courseId: practical?.courseId,
       courseTitle: courseTitle || practical?.courseId || activeManifest.courseName,
+      courseCategory: practical?.category || undefined,
       module: practical?.module,
       chapter: practical?.chapter,
       practicalTitle: practical?.title || activeManifest.title,
       practicalInstructions: practical?.instructions || activeManifest.objective,
       practicalObjectives: practical?.objectives || activeManifest.classroom.quickOrientation,
-      practicalTeachingContext: practical?.teacher?.opening || practical?.narratorGuide || undefined,
+      practicalTeachingContext: practical?.teacher?.opening || practical?.teaching?.opening || practical?.narratorGuide || undefined,
       practicalTasks: activeManifest.tasks.map((task, index) => {
         const source = practical?.tasks?.find((item) => item.id === task.id) || practical?.tasks?.[index];
         return {
           title: task.title,
           instruction: source?.instruction || task.description,
           learningGoal: source?.teaching?.learningGoal,
-          teacherTalk: source?.teaching?.teacherTalk,
+          teacherTalk: source?.teaching?.teacherTalk || source?.narratorGuide || undefined,
           realWorldExample: source?.teaching?.realWorldExample,
           questions: source?.teaching?.questions,
           requiredConcepts: source?.requiredConcepts || (task.criteria ? [task.criteria] : []),
@@ -664,12 +758,14 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       currentTaskGoal: practicalTask?.teaching?.learningGoal,
       currentTaskQuestions: practicalTask?.teaching?.questions,
       currentTaskConcepts: practicalTask?.requiredConcepts || (currentTask?.criteria ? [currentTask.criteria] : []),
-      currentTaskIndex,
+      currentTaskHint: practicalTask?.hints?.[0],
+      interactiveExercisePrompt: practicalTask?.interactiveExercise?.prompt,
+      currentTaskIndex: activePracticalTaskIndex,
       completedTasks: completedTaskIds.length,
       totalTasks: activeManifest.tasks.length,
-      hasErrors: /error|failed|unavailable/i.test(feedbackMessage || ''),
+      hasErrors: /error|failed|unavailable/i.test(`${feedbackMessage || ''}\n${lastTerminalOutput}`),
       lastCheckResult: feedbackMessage || undefined,
-      lastOutput: feedbackMessage || undefined,
+      lastOutput: lastTerminalOutput || undefined,
       page: 'practical mode',
     };
 
@@ -734,14 +830,15 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       aria-label={isHortBotOpen ? 'Close HortBot practical help' : 'Open HortBot practical help'}
       aria-expanded={isHortBotOpen}
       aria-controls="practical-hortbot-popup"
-      className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-indigo-900 shadow-sm transition hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+      className="group relative inline-flex items-center gap-2 overflow-hidden rounded-lg border border-indigo-500 bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-indigo-300/60 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-300/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500 focus-visible:ring-offset-2"
     >
-      <span className="relative flex h-2.5 w-2.5">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75 motion-reduce:animate-none" />
-        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500" />
+      <span className="relative flex h-2.5 w-2.5 shrink-0">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-50 motion-reduce:animate-none" />
+        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300 ring-2 ring-white/30" />
       </span>
-      <Bot className="h-4 w-4" aria-hidden="true" />
-      <span>HortBot</span>
+      <Bot className="h-4 w-4 shrink-0 transition-transform group-hover:rotate-[-8deg]" aria-hidden="true" />
+      <span>Ask HortBot</span>
+      <Sparkles className="h-3.5 w-3.5 shrink-0 text-amber-200" aria-hidden="true" />
     </button>
   );
 
@@ -1469,13 +1566,13 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                   id="practical-hortbot-popup"
                   role="dialog"
                   aria-labelledby="practical-hortbot-title"
-                  className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-xl border border-slate-300 bg-white shadow-2xl"
+                  className="pointer-events-auto absolute flex min-h-0 flex-col overflow-hidden rounded-xl border border-indigo-200 bg-white shadow-2xl shadow-indigo-950/20"
                   style={{
                     ...(hortBotPosition
                       ? { left: hortBotPosition.left, top: hortBotPosition.top }
                       : { right: 16, bottom: 76 }),
-                    width: 'min(420px, calc(100vw - 24px))',
-                    height: 'min(520px, calc(100vh - 100px))',
+                    width: 'min(440px, calc(100vw - 24px))',
+                    height: 'min(540px, calc(100vh - 100px))',
                     minWidth: 'min(300px, calc(100vw - 24px))',
                     minHeight: 300,
                     maxWidth: 'calc(100% - 16px)',
@@ -1485,15 +1582,17 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                 >
                   <header
                     onPointerDown={handleHortBotDragStart}
-                    className="flex shrink-0 cursor-grab touch-none items-center justify-between border-b border-slate-200 bg-indigo-50/70 px-4 py-3 active:cursor-grabbing"
+                    className="flex shrink-0 cursor-grab touch-none items-center justify-between border-b border-indigo-100 bg-gradient-to-r from-indigo-50 via-white to-fuchsia-50 px-4 py-3 active:cursor-grabbing"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
                         <Bot className="h-5 w-5" aria-hidden="true" />
                       </span>
-                      <div>
+                      <div className="min-w-0">
                         <h2 id="practical-hortbot-title" className="text-sm font-bold text-slate-900">HortBot</h2>
-                        <p className="text-[11px] text-slate-600">Practical learning assistant</p>
+                        <p className="max-w-[300px] truncate text-[11px] text-slate-600" title={activeManifest.tasks.find((task) => !completedTaskIds.includes(task.id))?.title || activeManifest.title}>
+                          Helping with: {activeManifest.tasks.find((task) => !completedTaskIds.includes(task.id))?.title || activeManifest.title}
+                        </p>
                       </div>
                     </div>
                     <button
@@ -1506,32 +1605,50 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                     </button>
                   </header>
 
-                  <div aria-live="polite" className="flex-1 space-y-3 overflow-y-auto p-4">
-                    <p className="max-w-[92%] rounded-xl bg-slate-100 p-3 text-sm leading-relaxed text-slate-700">
-                      Hi, I’m HortBot. I can help with this practical and your current task. Ask me about the instructions, your approach, or a check result.
-                    </p>
+                  <div
+                    ref={hortBotMessagesRef}
+                    aria-live="polite"
+                    className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-4"
+                  >
+                    <div className="max-w-[95%] rounded-xl border border-indigo-100 border-l-4 border-l-indigo-400 bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-3.5 shadow-sm">
+                      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold text-indigo-800">
+                        <Bot className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span>HortBot</span>
+                        <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-emerald-800">Step-by-step guide</span>
+                      </div>
+                      <p className="text-[13px] leading-5 text-slate-700">
+                        I’ll help you work through this practical one step at a time. We’ll start with a small hint, and if you’re stuck, I can walk you through it carefully.
+                      </p>
+                    </div>
                     {hortBotMessages.map((message, index) => (
-                      <p
+                      <div
                         key={`${message.sender}-${index}`}
-                        className={`max-w-[92%] whitespace-pre-wrap rounded-xl p-3 text-sm leading-relaxed ${
+                        className={`max-w-[95%] rounded-xl p-3.5 shadow-sm ${
                           message.sender === 'user'
-                            ? 'ml-auto bg-indigo-600 text-white'
-                            : 'bg-slate-100 text-slate-700'
+                            ? 'ml-auto border border-indigo-700 bg-gradient-to-br from-indigo-600 to-violet-700 text-white'
+                            : 'border border-indigo-100 border-l-4 border-l-indigo-400 bg-gradient-to-br from-indigo-50 via-white to-violet-50'
                         }`}
                       >
-                        {message.text}
-                      </p>
+                        {message.sender === 'assistant' && (
+                          <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-indigo-700">
+                            <Bot className="h-3.5 w-3.5" aria-hidden="true" />
+                            HortBot
+                          </div>
+                        )}
+                        {message.sender === 'assistant'
+                          ? <HortBotReply text={message.text} />
+                          : <p className="whitespace-pre-wrap break-words text-[13px] leading-5">{message.text}</p>}
+                      </div>
                     ))}
                     {isHortBotTyping && (
-                      <p className="text-xs text-slate-500" role="status">HortBot is thinking…</p>
+                      <p className="rounded-lg bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-700" role="status">HortBot is thinking through your practical…</p>
                     )}
                     {hortBotError && (
                       <p className="rounded-lg bg-rose-50 p-3 text-xs text-rose-700" role="alert">{hortBotError}</p>
                     )}
-                    <div ref={hortBotEndRef} />
                   </div>
 
-                  <form onSubmit={(event) => void handleSendHortBotMessage(event)} className="flex gap-2 border-t border-slate-200 p-3">
+                  <form onSubmit={(event) => void handleSendHortBotMessage(event)} className="flex shrink-0 gap-2 border-t border-indigo-100 bg-white p-3">
                     <label className="sr-only" htmlFor="practical-hortbot-input">Ask HortBot about this practical</label>
                     <input
                       ref={hortBotInputRef}
