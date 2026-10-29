@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PRACTICAL_MANIFESTS } from './data/practicalsData';
 import type { LearningBoardPractical } from '../../../services/learningBoardsApi';
 import { learningBoardsApi } from '../../../services/learningBoardsApi';
-import type { ChatLearningContext } from '../../../services/api';
+import { chatApi, type ChatLearningContext } from '../../../services/api';
 import { INSTRUCTOR_PERSONAS } from './data/instructorsData';
 import {
   PracticalManifest,
@@ -22,7 +22,7 @@ import { StructuredFeedbackCard } from './components/StructuredFeedbackCard';
 import { ResizableSplitLayout } from './components/ResizableSplitLayout';
 import { PlaybackControlBar } from './components/PlaybackControlBar';
 import { InstructorPersonaModal } from './components/InstructorPersonaModal';
-import { Sparkles } from 'lucide-react';
+import { Bot, Send, Sparkles, X } from 'lucide-react';
 import './practical-test-experience.css';
 
 const STORAGE_KEY_PREFIX = 'cohortia_practical_v3_';
@@ -36,6 +36,11 @@ export interface PracticalTestExperienceProps {
   onComplete?: () => void | Promise<void>;
   onMentorContextReady?: (provider: (() => ChatLearningContext) | null) => void;
 }
+
+type HortBotMessage = {
+  sender: 'user' | 'assistant';
+  text: string;
+};
 
 function categoryTypeFor(practical: LearningBoardPractical): PracticalManifest['categoryType'] {
   if (practical.experienceType === 'cloud_console_lab' || practical.category === 'Cloud Console Lab') return 'cloud_console';
@@ -212,6 +217,13 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const draftSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [lastSavedTimestamp, setLastSavedTimestamp] = useState<string>('just now');
+  const [isHortBotOpen, setIsHortBotOpen] = useState(false);
+  const [hortBotMessages, setHortBotMessages] = useState<HortBotMessage[]>([]);
+  const [hortBotInput, setHortBotInput] = useState('');
+  const [hortBotError, setHortBotError] = useState<string | null>(null);
+  const [isHortBotTyping, setIsHortBotTyping] = useState(false);
+  const hortBotEndRef = useRef<HTMLDivElement | null>(null);
+  const hortBotInputRef = useRef<HTMLInputElement | null>(null);
 
   // Instructor persona state
   const [selectedInstructor, setSelectedInstructor] = useState<InstructorPersona>(INSTRUCTOR_PERSONAS[0]);
@@ -231,6 +243,27 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [evaluatorResult, setEvaluatorResult] = useState<DomainEvaluatorResult | null>(null);
   const [executedCommands, setExecutedCommands] = useState<string[]>([]);
   const [simulationPassed, setSimulationPassed] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isHortBotOpen) return;
+    hortBotInputRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsHortBotOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isHortBotOpen]);
+
+  useEffect(() => {
+    hortBotEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [hortBotMessages, isHortBotTyping]);
+
+  useEffect(() => {
+    setIsHortBotOpen(false);
+    setHortBotMessages([]);
+    setHortBotInput('');
+    setHortBotError(null);
+  }, [practical?.id, activeManifest.id]);
 
   useEffect(() => {
     if (!onMentorContextReady) return;
@@ -523,6 +556,85 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       if (!completedTaskIds.includes('task-run-python-script')) {
         setCompletedTaskIds((prev) => [...prev, 'task-run-python-script']);
       }
+    }
+  };
+
+  const handleSendHortBotMessage = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const message = hortBotInput.trim();
+    if (!message || isHortBotTyping) return;
+
+    const userMessage: HortBotMessage = { sender: 'user', text: message };
+    const history = [...hortBotMessages, userMessage];
+    setHortBotMessages(history);
+    setHortBotInput('');
+    setHortBotError(null);
+    setIsHortBotTyping(true);
+
+    const currentTaskIndex = Math.max(
+      0,
+      activeManifest.tasks.findIndex((task) => !completedTaskIds.includes(task.id)),
+    );
+    const currentTask = activeManifest.tasks[currentTaskIndex];
+    const practicalTask = practical?.tasks?.find((task) => task.id === currentTask?.id)
+      || practical?.tasks?.[currentTaskIndex];
+    const learningContext: ChatLearningContext = {
+      assistant: 'hortbot',
+      courseId: practical?.courseId,
+      courseTitle: courseTitle || practical?.courseId || activeManifest.courseName,
+      module: practical?.module,
+      chapter: practical?.chapter,
+      practicalTitle: practical?.title || activeManifest.title,
+      practicalInstructions: practical?.instructions || activeManifest.objective,
+      practicalObjectives: practical?.objectives || activeManifest.classroom.quickOrientation,
+      practicalTeachingContext: practical?.teacher?.opening || practical?.narratorGuide || undefined,
+      practicalTasks: activeManifest.tasks.map((task, index) => {
+        const source = practical?.tasks?.find((item) => item.id === task.id) || practical?.tasks?.[index];
+        return {
+          title: task.title,
+          instruction: source?.instruction || task.description,
+          learningGoal: source?.teaching?.learningGoal,
+          teacherTalk: source?.teaching?.teacherTalk,
+          realWorldExample: source?.teaching?.realWorldExample,
+          questions: source?.teaching?.questions,
+          requiredConcepts: source?.requiredConcepts || (task.criteria ? [task.criteria] : []),
+        };
+      }),
+      currentFile: activeFileName,
+      currentCode: filesContent[activeFileName] || '',
+      currentTaskTitle: currentTask?.title,
+      currentTaskInstruction: practicalTask?.instruction || currentTask?.description,
+      currentTaskGoal: practicalTask?.teaching?.learningGoal,
+      currentTaskQuestions: practicalTask?.teaching?.questions,
+      currentTaskConcepts: practicalTask?.requiredConcepts || (currentTask?.criteria ? [currentTask.criteria] : []),
+      currentTaskIndex,
+      completedTasks: completedTaskIds.length,
+      totalTasks: activeManifest.tasks.length,
+      hasErrors: /error|failed|unavailable/i.test(feedbackMessage || ''),
+      lastCheckResult: feedbackMessage || undefined,
+      lastOutput: feedbackMessage || undefined,
+      page: 'practical mode',
+    };
+
+    try {
+      const response = await chatApi.sendMessage(
+        message,
+        history,
+        'tutor',
+        'text',
+        null,
+        learningContext,
+      );
+      const reply = response.data?.reply;
+      if (!response.success || !reply) {
+        throw new Error(response.error || 'HortBot could not respond. Please try again.');
+      }
+      setHortBotMessages((previous) => [...previous, { sender: 'assistant', text: reply }]);
+    } catch (error) {
+      console.error('HortBot practical chat failed:', error);
+      setHortBotError(error instanceof Error ? error.message : 'HortBot could not respond. Please try again.');
+    } finally {
+      setIsHortBotTyping(false);
     }
   };
 
@@ -1024,7 +1136,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   };
 
   return (
-    <div className="practical-test-experience-root h-full min-h-0 w-full min-w-0 overflow-hidden bg-slate-100 text-slate-800 flex flex-col">
+    <div className="practical-test-experience-root relative h-full min-h-0 w-full min-w-0 overflow-hidden bg-slate-100 text-slate-800 flex flex-col">
       <div className="w-full h-full min-h-0 min-w-0 bg-slate-50 flex flex-col overflow-hidden">
         {/* Top Window Navigation */}
         <TopNav
@@ -1240,6 +1352,111 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             playbackSpeed={playbackSpeed}
             onChangeSpeed={(s) => setPlaybackSpeed(s)}
           />
+        )}
+
+        {mode === 'practical' && !isSplitView && (
+          <>
+            {!isHortBotOpen && (
+              <button
+                type="button"
+                onClick={() => setIsHortBotOpen(true)}
+                aria-label="Open HortBot practical help"
+                aria-expanded={false}
+                aria-controls="practical-hortbot-drawer"
+                className="absolute bottom-20 right-5 z-30 inline-flex items-center gap-2 rounded-full border border-indigo-300 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75 motion-reduce:animate-none" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500" />
+                </span>
+                <Bot className="h-4 w-4" aria-hidden="true" />
+                <span>Need help? Ask HortBot</span>
+              </button>
+            )}
+
+            {isHortBotOpen && (
+              <div
+                className="absolute inset-0 z-40 flex justify-end bg-slate-950/25"
+                onMouseDown={(event) => {
+                  if (event.target === event.currentTarget) setIsHortBotOpen(false);
+                }}
+              >
+                <aside
+                  id="practical-hortbot-drawer"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="practical-hortbot-title"
+                  className="flex h-full w-full max-w-[420px] flex-col border-l border-slate-200 bg-white shadow-2xl"
+                >
+                  <header className="flex items-center justify-between border-b border-slate-200 bg-indigo-50/70 px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+                        <Bot className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <div>
+                        <h2 id="practical-hortbot-title" className="text-sm font-bold text-slate-900">HortBot</h2>
+                        <p className="text-[11px] text-slate-600">Practical learning assistant</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsHortBotOpen(false)}
+                      aria-label="Close HortBot"
+                      className="rounded-md p-2 text-slate-500 transition hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </header>
+
+                  <div aria-live="polite" className="flex-1 space-y-3 overflow-y-auto p-4">
+                    <p className="max-w-[92%] rounded-xl bg-slate-100 p-3 text-sm leading-relaxed text-slate-700">
+                      Hi, I’m HortBot. I can help with this practical and your current task. Ask me about the instructions, your approach, or a check result.
+                    </p>
+                    {hortBotMessages.map((message, index) => (
+                      <p
+                        key={`${message.sender}-${index}`}
+                        className={`max-w-[92%] whitespace-pre-wrap rounded-xl p-3 text-sm leading-relaxed ${
+                          message.sender === 'user'
+                            ? 'ml-auto bg-indigo-600 text-white'
+                            : 'bg-slate-100 text-slate-700'
+                        }`}
+                      >
+                        {message.text}
+                      </p>
+                    ))}
+                    {isHortBotTyping && (
+                      <p className="text-xs text-slate-500" role="status">HortBot is thinking…</p>
+                    )}
+                    {hortBotError && (
+                      <p className="rounded-lg bg-rose-50 p-3 text-xs text-rose-700" role="alert">{hortBotError}</p>
+                    )}
+                    <div ref={hortBotEndRef} />
+                  </div>
+
+                  <form onSubmit={(event) => void handleSendHortBotMessage(event)} className="flex gap-2 border-t border-slate-200 p-3">
+                    <label className="sr-only" htmlFor="practical-hortbot-input">Ask HortBot about this practical</label>
+                    <input
+                      ref={hortBotInputRef}
+                      id="practical-hortbot-input"
+                      value={hortBotInput}
+                      onChange={(event) => setHortBotInput(event.target.value)}
+                      placeholder="Ask about your practical…"
+                      disabled={isHortBotTyping}
+                      className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 disabled:bg-slate-50"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isHortBotTyping || !hortBotInput.trim()}
+                      aria-label="Send message to HortBot"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Send className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </form>
+                </aside>
+              </div>
+            )}
+          </>
         )}
       </div>
 
