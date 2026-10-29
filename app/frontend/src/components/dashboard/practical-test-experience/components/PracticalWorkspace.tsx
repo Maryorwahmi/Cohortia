@@ -158,8 +158,7 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
   const [sqlQuery, setSqlQuery] = useState<string>('SELECT * FROM Products WHERE Category = \'Electronics\';');
   const [sqlResults, setSqlResults] = useState<typeof SAMPLE_PRODUCTS>(SAMPLE_PRODUCTS.filter(p => p.category === 'Electronics'));
 
-  // Terminal autoscroll
-  const terminalEndRef = useRef<HTMLDivElement | null>(null);
+  const terminalOutputRef = useRef<HTMLDivElement | null>(null);
 
   const simulateCProgramOutput = (source: string) => {
     const printedValues = Array.from(
@@ -192,7 +191,10 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
   };
 
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const terminalOutput = terminalOutputRef.current;
+    if (terminalOutput) {
+      terminalOutput.scrollTo({ top: terminalOutput.scrollHeight, behavior: 'smooth' });
+    }
   }, [terminalHistory]);
 
   // Handle Binary Search Step Tracer
@@ -899,7 +901,7 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
               </div>
 
               {/* Terminal Output Area */}
-              <div className="flex-1 overflow-y-auto space-y-1 pr-1 bg-slate-950 p-2 rounded border border-slate-900 text-[11px] leading-relaxed min-h-0">
+              <div ref={terminalOutputRef} className="flex-1 overflow-y-auto space-y-1 pr-1 bg-slate-950 p-2 rounded border border-slate-900 text-[11px] leading-relaxed min-h-0">
                 {terminalHistory.map((item, i) => (
                   <div key={i}>
                     {item.type === 'input' ? (
@@ -913,7 +915,6 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
                     )}
                   </div>
                 ))}
-                <div ref={terminalEndRef} />
               </div>
 
               {/* Terminal Input Form */}
