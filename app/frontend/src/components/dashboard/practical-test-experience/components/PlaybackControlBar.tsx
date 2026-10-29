@@ -16,6 +16,7 @@ interface PlaybackControlBarProps {
   activityLabel: string;
   playbackSpeed: number;
   onChangeSpeed: (speed: number) => void;
+  practicalHelpAction?: React.ReactNode;
 }
 
 export const PlaybackControlBar: React.FC<PlaybackControlBarProps> = ({
@@ -33,6 +34,7 @@ export const PlaybackControlBar: React.FC<PlaybackControlBarProps> = ({
   activityLabel,
   playbackSpeed,
   onChangeSpeed,
+  practicalHelpAction,
 }) => {
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -144,6 +146,8 @@ export const PlaybackControlBar: React.FC<PlaybackControlBarProps> = ({
               {isSpeaking ? 'Teacher speaking' : isMuted ? 'Muted' : 'Audio ready'}
             </span>
           </button>
+
+          {practicalHelpAction}
         </div>
       </div>
     </div>

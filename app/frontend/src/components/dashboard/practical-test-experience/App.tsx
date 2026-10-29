@@ -224,6 +224,10 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [isHortBotTyping, setIsHortBotTyping] = useState(false);
   const hortBotEndRef = useRef<HTMLDivElement | null>(null);
   const hortBotInputRef = useRef<HTMLInputElement | null>(null);
+  const hortBotPopupRef = useRef<HTMLElement | null>(null);
+  const hortBotTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const hortBotDragRef = useRef<{ pointerX: number; pointerY: number; left: number; top: number } | null>(null);
+  const [hortBotPosition, setHortBotPosition] = useState<{ left: number; top: number } | null>(null);
 
   // Instructor persona state
   const [selectedInstructor, setSelectedInstructor] = useState<InstructorPersona>(INSTRUCTOR_PERSONAS[0]);
@@ -248,11 +252,56 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     if (!isHortBotOpen) return;
     hortBotInputRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsHortBotOpen(false);
+      if (event.key === 'Escape') {
+        setIsHortBotOpen(false);
+        setHortBotPosition(null);
+      }
+    };
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)
+        || hortBotPopupRef.current?.contains(target)
+        || hortBotTriggerRef.current?.contains(target)) return;
+      setIsHortBotOpen(false);
+      setHortBotPosition(null);
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('pointerdown', handlePointerDown);
+    };
   }, [isHortBotOpen]);
+
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      const drag = hortBotDragRef.current;
+      const popup = hortBotPopupRef.current;
+      const container = popup?.parentElement;
+      if (!drag || !popup || !container) return;
+
+      const bounds = container.getBoundingClientRect();
+      const popupBounds = popup.getBoundingClientRect();
+      const left = Math.max(0, Math.min(
+        bounds.width - popupBounds.width,
+        drag.left + event.clientX - drag.pointerX,
+      ));
+      const top = Math.max(0, Math.min(
+        bounds.height - popupBounds.height,
+        drag.top + event.clientY - drag.pointerY,
+      ));
+      setHortBotPosition({ left, top });
+    };
+    const handlePointerUp = () => {
+      hortBotDragRef.current = null;
+    };
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, []);
 
   useEffect(() => {
     hortBotEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -263,7 +312,15 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setHortBotMessages([]);
     setHortBotInput('');
     setHortBotError(null);
+    setHortBotPosition(null);
   }, [practical?.id, activeManifest.id]);
+
+  useEffect(() => {
+    if (mode !== 'practical' || isSplitView) {
+      setIsHortBotOpen(false);
+      setHortBotPosition(null);
+    }
+  }, [mode, isSplitView]);
 
   useEffect(() => {
     if (!onMentorContextReady) return;
@@ -637,6 +694,56 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       setIsHortBotTyping(false);
     }
   };
+
+  const handleHortBotDragStart = (event: React.PointerEvent<HTMLElement>) => {
+    if ((event.target as HTMLElement).closest('button')) return;
+    const popup = hortBotPopupRef.current;
+    const container = popup?.parentElement;
+    if (!popup || !container) return;
+    event.preventDefault();
+    const popupBounds = popup.getBoundingClientRect();
+    const containerBounds = container.getBoundingClientRect();
+    const left = popupBounds.left - containerBounds.left;
+    const top = popupBounds.top - containerBounds.top;
+    hortBotDragRef.current = {
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      left,
+      top,
+    };
+    setHortBotPosition({ left, top });
+  };
+
+  const handleCloseHortBot = () => {
+    setIsHortBotOpen(false);
+    setHortBotPosition(null);
+  };
+
+  const practicalHelpAction = (
+    <button
+      ref={hortBotTriggerRef}
+      type="button"
+      onClick={() => {
+        if (isHortBotOpen) {
+          setIsHortBotOpen(false);
+          setHortBotPosition(null);
+        } else {
+          setIsHortBotOpen(true);
+        }
+      }}
+      aria-label={isHortBotOpen ? 'Close HortBot practical help' : 'Open HortBot practical help'}
+      aria-expanded={isHortBotOpen}
+      aria-controls="practical-hortbot-popup"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-indigo-900 shadow-sm transition hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+    >
+      <span className="relative flex h-2.5 w-2.5">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75 motion-reduce:animate-none" />
+        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500" />
+      </span>
+      <Bot className="h-4 w-4" aria-hidden="true" />
+      <span>HortBot</span>
+    </button>
+  );
 
   const handleSimulationCompleted = (passed: boolean) => {
     setSimulationPassed(passed);
@@ -1351,44 +1458,35 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             activityLabel={`PRACTICAL WORKSPACE: ${activeManifest.title}`}
             playbackSpeed={playbackSpeed}
             onChangeSpeed={(s) => setPlaybackSpeed(s)}
+            practicalHelpAction={practicalHelpAction}
           />
         )}
 
-        {mode === 'practical' && !isSplitView && (
-          <>
-            {!isHortBotOpen && (
-              <button
-                type="button"
-                onClick={() => setIsHortBotOpen(true)}
-                aria-label="Open HortBot practical help"
-                aria-expanded={false}
-                aria-controls="practical-hortbot-drawer"
-                className="absolute bottom-20 right-5 z-30 inline-flex items-center gap-2 rounded-full border border-indigo-300 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-indigo-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-              >
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75 motion-reduce:animate-none" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500" />
-                </span>
-                <Bot className="h-4 w-4" aria-hidden="true" />
-                <span>Need help? Ask HortBot</span>
-              </button>
-            )}
-
-            {isHortBotOpen && (
-              <div
-                className="absolute inset-0 z-40 flex justify-end bg-slate-950/25"
-                onMouseDown={(event) => {
-                  if (event.target === event.currentTarget) setIsHortBotOpen(false);
-                }}
-              >
+        {mode === 'practical' && !isSplitView && isHortBotOpen && (
+          <div className="pointer-events-none absolute inset-0 z-40">
                 <aside
-                  id="practical-hortbot-drawer"
+                  ref={hortBotPopupRef}
+                  id="practical-hortbot-popup"
                   role="dialog"
-                  aria-modal="true"
                   aria-labelledby="practical-hortbot-title"
-                  className="flex h-full w-full max-w-[420px] flex-col border-l border-slate-200 bg-white shadow-2xl"
+                  className="pointer-events-auto absolute flex flex-col overflow-hidden rounded-xl border border-slate-300 bg-white shadow-2xl"
+                  style={{
+                    ...(hortBotPosition
+                      ? { left: hortBotPosition.left, top: hortBotPosition.top }
+                      : { right: 16, bottom: 76 }),
+                    width: 'min(420px, calc(100vw - 24px))',
+                    height: 'min(520px, calc(100vh - 100px))',
+                    minWidth: 'min(300px, calc(100vw - 24px))',
+                    minHeight: 300,
+                    maxWidth: 'calc(100% - 16px)',
+                    maxHeight: 'calc(100% - 84px)',
+                    resize: 'both',
+                  }}
                 >
-                  <header className="flex items-center justify-between border-b border-slate-200 bg-indigo-50/70 px-4 py-3">
+                  <header
+                    onPointerDown={handleHortBotDragStart}
+                    className="flex shrink-0 cursor-grab touch-none items-center justify-between border-b border-slate-200 bg-indigo-50/70 px-4 py-3 active:cursor-grabbing"
+                  >
                     <div className="flex items-center gap-2.5">
                       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
                         <Bot className="h-5 w-5" aria-hidden="true" />
@@ -1400,7 +1498,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                     </div>
                     <button
                       type="button"
-                      onClick={() => setIsHortBotOpen(false)}
+                      onClick={handleCloseHortBot}
                       aria-label="Close HortBot"
                       className="rounded-md p-2 text-slate-500 transition hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                     >
@@ -1454,9 +1552,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                     </button>
                   </form>
                 </aside>
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
 
