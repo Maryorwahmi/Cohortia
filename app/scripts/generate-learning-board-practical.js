@@ -36,7 +36,7 @@ import { activityKindFor, profileFor, profileSchema } from "./lib/practical-expe
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const GENERATOR_VERSION = "phase5.2-category-workspace-schema";
+const GENERATOR_VERSION = "phase5.3-prediction-checkpoints";
 const CLASSIFIER_VERSION = "phase3.1";
 const SOURCE_CATEGORIES = [
   "Cloud Console Lab",
@@ -46,6 +46,29 @@ const SOURCE_CATEGORIES = [
 ];
 const LAB_TYPES = ["code", "shell", "database", "cloud", "network", "security", "data", "simulation"];
 const PRACTICAL_MODES = ["code_lab", "terminal_lab", "database_lab", "simulation_lab", "non_code_activity"];
+const PREDICTION_QUESTION_SCHEMA = {
+  type: "object",
+  properties: {
+    id: { type: "string" },
+    prompt: { type: "string" },
+    options: {
+      type: "array",
+      minItems: 2,
+      maxItems: 4,
+      items: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          label: { type: "string" },
+          isCorrect: { type: "boolean" },
+          feedback: { type: "string" },
+        },
+        required: ["id", "label", "isCorrect", "feedback"],
+      },
+    },
+  },
+  required: ["id", "prompt", "options"],
+};
 // These are the only learner-editable runtimes currently supported by the
 // verified practical grader/executor. Add new runtimes only with an executor,
 // limits, and grading tests in place.
@@ -107,6 +130,7 @@ const PRACTICAL_SCHEMA = {
           codeLine: { type: "string", description: "The exact line or block of code being added or typed out in this teaching step" },
           file: { type: "string", description: "File path being edited" },
           explanation: { type: "string", description: "Concise on-screen callout / annotation for the code" },
+          predictionQuestion: PREDICTION_QUESTION_SCHEMA,
           durationSeconds: { type: "number", description: "Estimated duration in seconds (e.g. 5-12)" }
         },
         required: ["stepNumber", "speakerText", "codeLine"]
@@ -123,6 +147,7 @@ const PRACTICAL_SCHEMA = {
           displayText: { type: "string", description: "A short equation, diagram label, decision, or other non-code visual revealed as the teacher explains." },
           speakerText: { type: "string", description: "Teacher narration synchronized to this visual step." },
           explanation: { type: "string", description: "Short on-screen explanation of the current idea." },
+          predictionQuestion: PREDICTION_QUESTION_SCHEMA,
           durationSeconds: { type: "number" },
         },
         required: ["stepNumber", "displayText", "speakerText", "explanation"],
@@ -951,6 +976,26 @@ function normalizeId(value, fallback) {
     .replace(/[^a-z0-9_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
   return normalized || fallback;
+}
+
+function normalizePredictionQuestion(question, fallbackId) {
+  if (question === undefined) return undefined;
+  const rawQuestion = question && typeof question === "object" ? question : {};
+  return {
+    id: normalizeId(rawQuestion.id, fallbackId),
+    prompt: asStringText(rawQuestion.prompt),
+    options: Array.isArray(rawQuestion.options)
+      ? rawQuestion.options.map((option, index) => {
+          const rawOption = option && typeof option === "object" ? option : {};
+          return {
+            id: normalizeId(rawOption.id, `${fallbackId}-option-${index + 1}`),
+            label: asStringText(rawOption.label),
+            isCorrect: rawOption.isCorrect,
+            feedback: asStringText(rawOption.feedback),
+          };
+        })
+      : [],
+  };
 }
 
 function inferLabType(raw, sourceContext) {
@@ -1889,6 +1934,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       speakerText: asStringText(step.speakerText),
       explanation: asStringText(step.explanation),
       durationSeconds: clampInteger(step.durationSeconds, 8, 3, 90),
+    predictionQuestion: normalizePredictionQuestion(seg.predictionQuestion, `walkthrough-${idx + 1}`),
     }))
     .filter((step) => step.displayText && step.speakerText && step.explanation)
     .sort((left, right) => left.stepNumber - right.stepNumber);
@@ -1903,6 +1949,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       speakerText: task.narratorGuide || task.instruction,
       explanation: task.teaching?.learningGoal || task.instruction,
       durationSeconds: 8,
+      predictionQuestion: normalizePredictionQuestion(step.predictionQuestion, `teaching-${index + 1}`),
     }));
   }
   if (["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
@@ -2293,6 +2340,45 @@ function validatePractical(practical) {
   if (typeof practical?.practicalId !== "string" || !/^practical-[a-z0-9][a-z0-9-]*$/.test(practical.practicalId)) errors.push("invalid practicalId");
   if (!SOURCE_CATEGORIES.includes(practical?.category)) errors.push("invalid category");
   if (!LAB_TYPES.includes(practical?.labType)) errors.push("invalid labType");
+  const validatePredictionQuestion = (question, location) => {
+    if (question === undefined) return;
+    if (!question || typeof question !== "object" || typeof question.prompt !== "string" || !question.prompt.trim()) {
+      errors.push(`${location} predictionQuestion needs a meaningful prompt`);
+    }
+    const options = Array.isArray(question?.options) ? question.options : [];
+    if (options.length < 2 || options.length > 4) {
+      errors.push(`${location} predictionQuestion needs two to four options`);
+    }
+    const optionIds = new Set();
+    let correctOptionCount = 0;
+    for (const [index, option] of options.entries()) {
+      if (typeof option?.id !== "string" || !option.id.trim() || optionIds.has(option.id)) {
+        errors.push(`${location} predictionQuestion option ${index + 1} needs a unique id`);
+      }
+      optionIds.add(option?.id);
+      if (typeof option?.label !== "string" || !option.label.trim()) {
+        errors.push(`${location} predictionQuestion option ${index + 1} needs a label`);
+      }
+      if (typeof option?.isCorrect !== "boolean") {
+        errors.push(`${location} predictionQuestion option ${index + 1} needs a boolean isCorrect value`);
+      } else if (option.isCorrect) {
+        correctOptionCount += 1;
+      }
+      if (typeof option?.feedback !== "string" || !option.feedback.trim()) {
+        errors.push(`${location} predictionQuestion option ${index + 1} needs feedback`);
+      }
+    }
+    if (correctOptionCount !== 1) {
+      errors.push(`${location} predictionQuestion must have exactly one correct option`);
+    }
+  };
+  for (const step of practical?.codeWalkthrough || []) {
+    validatePredictionQuestion(step.predictionQuestion, `codeWalkthrough step ${step.stepNumber}`);
+  }
+  for (const step of practical?.teachingSteps || []) {
+    validatePredictionQuestion(step.predictionQuestion, `teaching step ${step.stepNumber}`);
+  }
+
 
   const workspaceTypes = {
     "Terminal Coding Lab": "terminal",

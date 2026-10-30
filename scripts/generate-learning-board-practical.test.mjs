@@ -168,6 +168,94 @@ test("short app-generator responses are expanded into five learner scenes with c
   assert.deepEqual(validateAppPractical(practical), []);
 });
 
+test("app generator preserves optional prediction checkpoints on code and non-code teaching steps", () => {
+  const predictionQuestion = {
+    id: "predict-traffic",
+    prompt: "What happens to traffic after the address is rebound?",
+    options: [
+      {
+        id: "rebind",
+        label: "Traffic reaches the replacement instance through the same address.",
+        isCorrect: true,
+        feedback: "Correct. The address remains stable while its association changes.",
+      },
+      {
+        id: "new-address",
+        label: "The public address is deleted and clients must update their settings.",
+        isCorrect: false,
+        feedback: "The address is re-associated; clients can continue using it.",
+      },
+    ],
+  };
+
+  const terminalContext = makeContext("Terminal Coding Lab");
+  const terminalResponse = makeGeneratedResponse();
+  terminalResponse.codeWalkthrough = Array.from({ length: 6 }, (_, index) => ({
+    stepNumber: index + 1,
+    speakerText: `Explain how source line ${index + 1} contributes to the program and what a learner should notice.`,
+    codeLine: `print(${index + 1})`,
+    file: "main.py",
+    durationSeconds: 8,
+    ...(index === 0 ? { predictionQuestion } : {}),
+  }));
+  const terminalPractical = normalizeAppPractical(
+    terminalResponse,
+    terminalContext,
+    { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+  );
+  assert.deepEqual(terminalPractical.codeWalkthrough[0].predictionQuestion, predictionQuestion);
+  assert.ok(!validateAppPractical(terminalPractical).some((error) => error.includes("predictionQuestion")));
+
+  for (const category of ["Cloud Console Lab", "Scenario & Design Exercise", "Research & Analysis"]) {
+    const response = makeGeneratedResponse();
+    response.teachingSteps = Array.from({ length: 4 }, (_, index) => ({
+      stepNumber: index + 1,
+      title: `Teaching step ${index + 1}`,
+      displayText: `Observe concept ${index + 1}.`,
+      speakerText: `Explain concept ${index + 1} with enough context for the learner to reason about it.`,
+      explanation: `This step explains concept ${index + 1}.`,
+      ...(index === 0 ? { predictionQuestion } : {}),
+    }));
+    const practical = normalizeAppPractical(
+      response,
+      makeContext(category),
+      { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+    );
+    const checkpointStep = practical.teachingSteps.find((step) => step.predictionQuestion);
+    assert.deepEqual(checkpointStep?.predictionQuestion, predictionQuestion, category);
+    assert.ok(
+      !validateAppPractical(practical).some((error) => error.includes("predictionQuestion")),
+      category,
+    );
+  }
+});
+
+test("app generator rejects incomplete prediction checkpoint feedback or answer keys", () => {
+  const response = makeGeneratedResponse();
+  response.teachingSteps = [{
+    stepNumber: 1,
+    title: "Evidence check",
+    displayText: "Compare the observations.",
+    speakerText: "Explain how the evidence supports or challenges the initial claim.",
+    explanation: "Use the observation rather than an assumption.",
+    predictionQuestion: {
+      id: "predict-evidence",
+      prompt: "Which conclusion is supported?",
+      options: [
+        { id: "a", label: "A conclusion", isCorrect: false, feedback: "Not supported." },
+        { id: "b", label: "Another conclusion", isCorrect: false, feedback: "Not supported." },
+      ],
+    },
+  }];
+  const practical = normalizeAppPractical(
+    response,
+    makeContext("Research & Analysis"),
+    { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+  );
+
+  assert.ok(validateAppPractical(practical).some((error) => error.includes("must have exactly one correct option")));
+});
+
 test("Scenario & Design binary activities receive their specific activity kind", () => {
   assert.equal(
     activityKindFor({

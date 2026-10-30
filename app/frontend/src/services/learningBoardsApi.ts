@@ -191,6 +191,19 @@ export interface LearningBoardPracticalSimulation {
   }>;
 }
 
+export interface LearningBoardPredictionOption {
+  id: string;
+  label: string;
+  isCorrect: boolean;
+  feedback: string;
+}
+
+export interface LearningBoardPredictionQuestion {
+  id: string;
+  prompt: string;
+  options: LearningBoardPredictionOption[];
+}
+
 export interface CodeWalkthroughSegment {
   taskId?: string;
   stepNumber: number;
@@ -201,6 +214,7 @@ export interface CodeWalkthroughSegment {
   teacherPrompt?: string;
   realWorldExample?: string;
   checkQuestion?: string;
+  predictionQuestion?: LearningBoardPredictionQuestion;
   pauseForLearner?: boolean;
   durationSeconds?: number;
 }
@@ -211,6 +225,7 @@ export interface PracticalTeachingStep {
   displayText: string;
   speakerText: string;
   explanation: string;
+  predictionQuestion?: LearningBoardPredictionQuestion;
   durationSeconds?: number;
 }
 

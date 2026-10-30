@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PracticalManifest, WalkthroughStep, InstructorPersona } from '../types/practical';
+import { PracticalManifest, WalkthroughStep } from '../types/practical';
 import {
   Play,
   Pause,
@@ -9,16 +9,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Terminal,
-  Code2,
   CheckCircle2,
   HelpCircle,
   Lightbulb,
   ArrowRight,
-  Sparkles,
-  Cpu,
-  Database,
-  Search,
 } from 'lucide-react';
 
 interface ClassroomTeachViewProps {
@@ -29,18 +23,13 @@ interface ClassroomTeachViewProps {
   durationSeconds: number;
   isPlaying: boolean;
   isMuted: boolean;
-  playbackSpeed: number;
-  instructor: InstructorPersona;
   onTogglePlay: () => void;
   onReplay: () => void;
   onToggleMute: () => void;
   onSeek: (seconds: number) => void;
-  onSelectStep: (stepIndex: number) => void;
   onPrevSlide: () => void;
   onNextSlide: () => void;
   onOpenWorkspace: () => void;
-  onRunExample?: (step: WalkthroughStep) => void;
-  exampleOutput?: string;
 }
 
 export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
@@ -51,18 +40,13 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
   durationSeconds,
   isPlaying,
   isMuted,
-  playbackSpeed,
-  instructor,
   onTogglePlay,
   onReplay,
   onToggleMute,
   onSeek,
-  onSelectStep,
   onPrevSlide,
   onNextSlide,
   onOpenWorkspace,
-  onRunExample,
-  exampleOutput,
 }) => {
   const totalSlides = 2;
   const activeSlideIndex = currentStepIndex;
@@ -101,15 +85,9 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
   const [predictionSubmitted, setPredictionSubmitted] = useState<boolean>(false);
 
-  // Simulation execution in Teach Mode
-  const [cCompileStatus, setCCompileStatus] = useState<'idle' | 'compiled' | 'error'>('idle');
-  const [cRunOutput, setCRunOutput] = useState<string | null>(null);
-
   React.useEffect(() => {
     setSelectedPrediction(null);
     setPredictionSubmitted(false);
-    setCCompileStatus('idle');
-    setCRunOutput(null);
   }, [activeSlideIndex, activeStep?.stepNumber, manifest.id]);
 
   const classroom = manifest.classroom;
@@ -120,56 +98,13 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
     return `${s}s`;
   };
 
-  const handleSimulateCCompile = () => {
-    setCCompileStatus('compiled');
-  };
-
-  const handleSimulateCRun = () => {
-    const snippet = activeStep?.simulationSnippet;
-    setCRunOutput(snippet?.output || 'The example completed successfully. Open the workspace to run it with your own values.');
-  };
-
   return (
     <div className="flex-1 flex flex-col h-full bg-slate-50 text-slate-800 font-sans select-none overflow-hidden">
-      {/* 1. Top Header Bar matching image_10250715.png */}
-      <div className="px-5 py-2.5 bg-white border-b border-slate-200/90 flex items-center justify-between shadow-2xs shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          {/* Coral Outline Pill Badge: 16:9 HD CLASSROOM */}
-          <span className="px-2 py-0.5 rounded-md border border-rose-300 text-rose-600 bg-rose-50/60 text-[10px] font-mono font-bold tracking-wider shrink-0">
-            {classroom.classroomBadge}
-          </span>
-
-          {/* Lesson Title */}
-          <h1 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-            {manifest.lessonLabel}
-          </h1>
-        </div>
-
-        {/* Slide Progress Dots on the Right */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          {Array.from({ length: totalSlides }).map((_, idx) => {
-            const isActive = idx === activeSlideIndex;
-            return (
-              <button
-                key={idx}
-                onClick={() => onSelectStep(idx)}
-                className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-[#ff4b4b] scale-110 shadow-xs'
-                    : 'bg-[#cbd5e1] hover:bg-[#94a3b8]'
-                }`}
-                title={`Jump to Slide ${idx + 1}`}
-              />
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 2. Main Classroom Canvas Container (Guaranteed 100% Fit, Zero Clipping) */}
+      {/* Main classroom canvas */}
       <div className="flex-1 p-2 sm:p-3 overflow-hidden min-h-0 flex flex-col justify-center">
         {/* SLIDE 0: Practical mission opening */}
         {activeSlideIndex === 0 ? (
-          <div className="bg-slate-50 border border-slate-200/90 shadow-sm p-3 sm:p-4 h-full min-h-0 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3 sm:p-4 h-full min-h-0 overflow-hidden">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
               <span className="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
                 {classroom.moduleBadge}
@@ -198,21 +133,15 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                     {classroom.subtitle}
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
                     <div className="rounded-xl p-3 bg-blue-50/80 border border-blue-100">
-                      <h3 className="text-[10px] font-bold text-blue-700 mb-1">In this practical</h3>
+                      <h3 className="text-[10px] font-bold text-blue-700 mb-1 uppercase tracking-wider">In this lesson</h3>
                       <p className="text-xs text-slate-700 leading-snug line-clamp-3">
                         {classroom.inThisLesson}
                       </p>
                     </div>
-                    <div className="rounded-xl p-3 bg-violet-50/80 border border-violet-100">
-                      <h3 className="text-[10px] font-bold text-violet-700 mb-1">Coming up</h3>
-                      <p className="text-xs text-slate-700 leading-snug line-clamp-3">
-                        {classroom.comingUp || classroom.conceptMap.subtitle}
-                      </p>
-                    </div>
-                    <div className="rounded-xl p-3 bg-amber-50/80 border border-amber-100">
-                      <h3 className="text-[10px] font-bold text-amber-700 mb-1">Why it matters</h3>
+                    <div className="rounded-xl p-3 bg-emerald-50/80 border border-emerald-100">
+                      <h3 className="text-[10px] font-bold text-emerald-700 mb-1 uppercase tracking-wider">Why it matters</h3>
                       <p className="text-xs text-slate-700 leading-snug line-clamp-3">
                         {classroom.whyItMatters}
                       </p>
@@ -270,6 +199,16 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                       </div>
                     ))}
                   </div>
+                  <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                    <span className="text-[11px] text-slate-400 font-mono">Interactive Concept</span>
+                    <button
+                      onClick={onNextSlide}
+                      className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold font-mono transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <span>Start Walkthrough</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </section>
 
                 <section className="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm shrink-0">
@@ -279,13 +218,6 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                   <p className="text-xs text-slate-700 leading-relaxed line-clamp-2">
                     {classroom.gettingReady}
                   </p>
-                  <button
-                    onClick={onNextSlide}
-                    className="mt-3 w-full px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>Start Practical</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
                 </section>
               </div>
             </div>
@@ -293,27 +225,36 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
         ) : (
           /* SINGLE PRACTICAL WALKTHROUGH SLIDE: the code and explanation advance in place */
           activeStep && (
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3 sm:p-3.5 grid grid-cols-1 lg:grid-cols-12 gap-3 h-full min-h-0 overflow-hidden">
-              {/* Left Column (Cols 1-7): Code walkthrough, Active-line/block highlighting, Amber Callout, Teacher Narration */}
-              <div className="lg:col-span-7 flex flex-col gap-2 min-h-0 overflow-hidden">
+            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3 sm:p-3.5 flex flex-col gap-3 h-full min-h-0 overflow-hidden">
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 pb-2">
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <span className="text-[11px] font-mono font-bold text-rose-600 uppercase">
+                    {manifest.category}
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="shrink-0 text-[11px] font-mono text-slate-500">
+                    STEP {activeStep.stepNumber} of {manifest.walkthroughSteps.length}
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="truncate text-sm font-bold text-slate-900">
+                    {activeStep.title}
+                  </span>
+                </div>
+                {!activeStep.predictionQuestion && (
+                  <button
+                    onClick={onOpenWorkspace}
+                    className="shrink-0 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold font-mono transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Open Workspace</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <div className={`grid flex-1 grid-cols-1 gap-3 min-h-0 overflow-hidden ${activeStep.predictionQuestion ? 'lg:grid-cols-12' : ''}`}>
+              {/* Teaching surface: code or category-specific teaching text and callout */}
+              <div className={`flex flex-col gap-2 min-h-0 overflow-hidden ${activeStep.predictionQuestion ? 'lg:col-span-7' : ''}`}>
                 <div className="flex min-h-0 flex-1 flex-col gap-2">
-                  {/* Step Breadcrumb */}
-                  <div className="flex shrink-0 items-center justify-between border-b border-slate-100 pb-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] font-mono font-bold text-rose-600 uppercase">
-                        {manifest.category}
-                      </span>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-[11px] font-mono text-slate-500">
-                        STEP {activeStep.stepNumber} of {manifest.walkthroughSteps.length}
-                      </span>
-                    </div>
-
-                    <span className="text-xs font-bold text-slate-800 truncate max-w-[260px]">
-                      {activeStep.title}
-                    </span>
-                  </div>
-
                   {/* Light Classroom Teaching Board with line-by-line typewriter reveal (Not a dark terminal UI) */}
                   <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xs">
                     <div className="flex items-center justify-between px-2.5 py-1 bg-slate-50 border-b border-slate-200 text-[10px] font-mono shrink-0">
@@ -365,189 +306,87 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                     </div>
                   )}
                 </div>
-
-                {/* Teacher Narration Speech Card (Foundation Lecture) */}
-                <div className="max-h-[34%] min-h-24 shrink-0 overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-slate-50 p-2 sm:p-2.5 text-[11px] leading-relaxed text-slate-700 sm:text-xs">
-                  <div className="flex items-center gap-1.5 mb-0.5 text-slate-900 font-bold text-[10px] font-mono uppercase">
-                    <Sparkles className="w-3 h-3 text-amber-500" />
-                    <span>{instructor.name} explains from foundations:</span>
-                  </div>
-                  <p className="whitespace-pre-wrap">{activeStep.narration}</p>
-                </div>
               </div>
 
-              {/* Right Column (Cols 8-12): Interactive Prediction Checkpoint & Simulator */}
-              <div className="lg:col-span-5 flex flex-col justify-between space-y-1.5 min-h-0 overflow-hidden">
-                {/* 1. If step has a Prediction Checkpoint, display it prominently on the right */}
-                {activeStep.predictionQuestion ? (
-                  <div className="p-2.5 sm:p-3 rounded-xl border border-indigo-200 bg-indigo-50/60 flex-1 flex flex-col justify-between min-h-0">
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-1.5 text-indigo-900 font-bold text-[11px] uppercase font-mono">
-                        <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                        <span>Interactive Prediction Checkpoint</span>
-                      </div>
+              {activeStep.predictionQuestion && (
+                <div className="lg:col-span-5 flex flex-col gap-2 min-h-0 overflow-hidden">
+                  <section className="p-3 sm:p-4 rounded-xl border border-indigo-200 bg-indigo-50/60 flex-1 flex flex-col min-h-0">
+                    <div className="flex items-center gap-1.5 mb-2 text-indigo-900 font-bold text-[11px] uppercase font-mono">
+                      <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>Interactive Prediction Checkpoint</span>
+                    </div>
 
-                      <p className="text-xs font-semibold text-slate-900 mb-2 leading-snug">
-                        {activeStep.predictionQuestion.prompt}
-                      </p>
+                    <p className="text-xs sm:text-sm font-semibold text-slate-900 mb-3 leading-snug">
+                      {activeStep.predictionQuestion.prompt}
+                    </p>
 
-                      <div className="space-y-1.5 mb-2">
-                        {activeStep.predictionQuestion.options.map((opt) => {
-                          const isSelected = selectedPrediction === opt.id;
-                          let optStyle = 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300';
-                          if (predictionSubmitted) {
-                            optStyle = opt.isCorrect
-                              ? 'bg-emerald-50 border-emerald-400 text-emerald-950 font-semibold'
-                              : isSelected
+                    <div className="space-y-2 mb-3">
+                      {activeStep.predictionQuestion.options.map((opt) => {
+                        const isSelected = selectedPrediction === opt.id;
+                        let optionStyle = 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300';
+                        if (predictionSubmitted) {
+                          optionStyle = opt.isCorrect
+                            ? 'bg-emerald-50 border-emerald-400 text-emerald-950 font-semibold'
+                            : isSelected
                               ? 'bg-rose-50 border-rose-300 text-rose-950'
                               : 'bg-white text-slate-500';
-                          } else if (isSelected) {
-                            optStyle = 'bg-indigo-50 border-indigo-500 text-indigo-950 font-semibold ring-1 ring-indigo-500';
-                          }
+                        } else if (isSelected) {
+                          optionStyle = 'bg-indigo-50 border-indigo-500 text-indigo-950 font-semibold ring-1 ring-indigo-500';
+                        }
 
-                          return (
-                            <button
-                              key={opt.id}
-                              disabled={predictionSubmitted}
-                              onClick={() => setSelectedPrediction(opt.id)}
-                              className={`w-full text-left p-1.5 px-2 rounded-lg border text-xs flex items-start gap-1.5 transition-all cursor-pointer ${optStyle}`}
-                            >
-                              <span className="text-[10px] mt-0.5">
-                                {isSelected ? '●' : '○'}
-                              </span>
-                              <span className="flex-1 leading-snug">{opt.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            aria-pressed={isSelected}
+                            disabled={predictionSubmitted}
+                            onClick={() => setSelectedPrediction(opt.id)}
+                            className={`w-full text-left p-2 rounded-lg border text-xs sm:text-sm flex items-start gap-2 transition-all cursor-pointer ${optionStyle}`}
+                          >
+                            <span className="text-[10px] mt-0.5" aria-hidden="true">
+                              {isSelected ? '●' : '○'}
+                            </span>
+                            <span className="flex-1 leading-snug">{opt.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
 
                     {!predictionSubmitted ? (
                       <button
+                        type="button"
                         onClick={() => selectedPrediction && setPredictionSubmitted(true)}
                         disabled={!selectedPrediction}
-                        className="px-3 py-1 rounded-md bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 disabled:opacity-40 transition-colors cursor-pointer self-start"
+                        className="mt-auto px-3 py-1.5 rounded-md bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 disabled:opacity-40 transition-colors cursor-pointer self-start"
                       >
                         Check Prediction
                       </button>
                     ) : (
-                      <div className="text-[11px] text-slate-800 bg-white p-2 rounded-md border border-slate-200 leading-snug">
-                        {activeStep.predictionQuestion.options.find((o) => o.id === selectedPrediction)?.feedback}
+                      <div role="status" className="mt-auto text-[11px] text-slate-800 bg-white p-2 rounded-md border border-slate-200 leading-snug">
+                        {activeStep.predictionQuestion.options.find((option) => option.id === selectedPrediction)?.feedback}
                       </div>
                     )}
-                  </div>
-                ) : manifest.categoryType === 'terminal_coding' || manifest.categoryType === 'cloud_console' ? (
-                  /* 2. If no prediction question, display the full live simulation sandbox */
-                  <div className="p-3.5 rounded-xl bg-slate-950 text-slate-100 border border-slate-800 shadow-2xs flex-1 flex flex-col font-mono text-xs min-h-0 justify-between">
+                  </section>
+
+                  <section className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between gap-3 shrink-0">
                     <div>
-                      <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-800">
-                        <div className="flex items-center gap-1.5">
-                          <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-                          <span className="font-bold text-slate-200 text-xs">
-                            {manifest.categoryType === 'cloud_console' ? 'Live Console Simulator' : 'Live Execution Simulator'}
-                          </span>
-                        </div>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                          Live
-                        </span>
-                      </div>
-
-                      {activeStep.simulationSnippet && (
-                        <div className="p-2 rounded bg-slate-900 border border-slate-800 space-y-1 mb-2">
-                          <span className="text-slate-400 font-bold block text-[9px] uppercase tracking-wider">
-                            Run this command
-                          </span>
-                          <code className="text-emerald-400 font-bold block text-[11px]">
-                            $ {activeStep.simulationSnippet.command}
-                          </code>
-                          <span className="text-slate-400 font-bold block text-[9px] uppercase tracking-wider pt-1">
-                            Expected result
-                          </span>
-                          <pre className="text-slate-300 block text-[10px] whitespace-pre-wrap font-mono">
-                            {activeStep.simulationSnippet.output}
-                          </pre>
-                          {activeStep.simulationSnippet.actionNote && (
-                            <span className="text-slate-400 block text-[10px] leading-relaxed">
-                              {activeStep.simulationSnippet.actionNote}
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="space-y-1.5">
-                        <span className="text-[9px] uppercase font-bold text-slate-400 block">
-                          Try In Simulation:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {manifest.categoryType === 'terminal_coding' && (
-                            <button
-                              onClick={handleSimulateCCompile}
-                              className="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer"
-                            >
-                              <Cpu className="w-3 h-3" />
-                              <span>Compile</span>
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              onRunExample?.(activeStep);
-                              handleSimulateCRun();
-                            }}
-                            className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer"
-                          >
-                            <Play className="w-3 h-3 fill-current" />
-                            <span>Execute</span>
-                          </button>
-                        </div>
-
-                        {cCompileStatus === 'compiled' && (
-                          <div className="text-[10px] text-emerald-400 pt-0.5">
-                            ✓ Compilation succeeded. Output binary generated.
-                          </div>
-                        )}
-                        {cRunOutput && (
-                          <div className="text-[10px] text-emerald-300 bg-slate-900 p-1.5 rounded border border-slate-800">
-                            {exampleOutput || cRunOutput}
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-xs font-bold text-slate-900 block">
+                        Ready for hands-on practice?
+                      </span>
+                      <span className="text-[10px] text-slate-500">
+                        Open the full workspace with its category-specific tools and milestones.
+                      </span>
                     </div>
-
-                    <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
-                      <span>Status: Ready</span>
-                      <span className="text-emerald-400">Exit: 0</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-center min-h-0">
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <CheckCircle2 className="w-4 h-4 text-indigo-600" />
-                      <span className="text-xs font-bold">Guided practice checkpoint</span>
-                    </div>
-                    <p className="text-xs text-slate-600 leading-relaxed mt-2">
-                      This practical uses its generated workspace and evidence checks. There is no executable runtime for this category.
-                    </p>
-                  </div>
-                )}
-
-                {/* Practical Workspace Transition Box */}
-                <div className="p-2 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between shrink-0">
-                  <div>
-                    <span className="text-xs font-bold text-slate-900 block">
-                      Ready for hands-on practice?
-                    </span>
-                    <span className="text-[10px] text-slate-500">
-                      Open full workspace with editor, terminal & milestones.
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={onOpenWorkspace}
-                    className="px-3 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold font-mono transition-colors shadow-xs cursor-pointer"
-                  >
-                    Open Workspace
-                  </button>
+                    <button
+                      onClick={onOpenWorkspace}
+                      className="shrink-0 px-3 py-1.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold font-mono transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <span>Open Workspace</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </section>
                 </div>
+              )}
               </div>
             </div>
           )

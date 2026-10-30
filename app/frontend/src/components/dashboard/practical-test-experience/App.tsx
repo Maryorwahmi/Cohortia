@@ -151,58 +151,10 @@ function narrationDurationSeconds(text: string | undefined, minimumSeconds = 8):
   return Math.max(minimumSeconds, Math.ceil(wordCount / 2) + 3);
 }
 
-function teachingExampleFor(practical: LearningBoardPractical, taskIndex: number, fileName: string) {
-  const task = practical.tasks?.[taskIndex];
-  const title = `${task?.title || ''} ${task?.instruction || ''}`.toLowerCase();
-  const file = fileName.split(/[\\/]/).pop() || fileName;
-  const executable = file.replace(/\.[^.]+$/, '');
-  const compile = practical.workspace?.terminal?.compileCommands?.[0] || `clang ${file} -o ${executable}`;
-  const run = practical.workspace?.terminal?.runCommands?.[0] || `./${executable}`;
-
-  if (/greet|hello|baseline|observe/.test(title)) {
-    return {
-      command: `${compile} && ${run}`,
-      output: 'Hello, World!\n',
-      actionNote: task?.instruction || 'Compile the starter file, run it, and compare the output with your prediction.',
-    };
-  }
-  if (/personaliz|custom message/.test(title)) {
-    return {
-      command: `${compile} && ${run}`,
-      output: 'Hello, Cohortia Learner!\n',
-      actionNote: 'Change only the words inside the quotation marks, then compile and run again.',
-    };
-  }
-  if (/newline|escape/.test(title)) {
-    return {
-      command: `${compile} && ${run}`,
-      output: 'Hello, Cohortia Learner!  (with \\n: the cursor moves to the next line)',
-      actionNote: 'Remove \\n once, run again to compare the formatting, then restore it.',
-    };
-  }
-  if (/compiler error|semicolon|syntax/.test(title)) {
-    return {
-      command: compile,
-      output: 'error: expected \' ; \' after expression',
-      actionNote: 'This is intentional. Read the diagnostic, add the semicolon back, and compile again.',
-    };
-  }
-  if (/reflect|explain|transfer/.test(title)) {
-    return {
-      command: run,
-      output: 'Use your final program output as evidence for your explanation.',
-      actionNote: task?.instruction || 'Explain what changed, what the output proves, and where you could reuse the idea.',
-    };
-  }
-  return {
-    command: practical.workspace?.terminal?.runCommands?.[0] || `./${executable}`,
-    output: task?.teaching?.expectedObservations?.[0] || 'Run the example and compare the observed result with your prediction.',
-    actionNote: task?.instruction || task?.teaching?.guidedSteps?.[0] || 'Change one thing, run the example, and explain the result.',
-  };
-}
-
 function exploreKeyTopicsFrom(practical: LearningBoardPractical): PracticalManifest['classroom']['exploreKeyTopics'] {
-  return (practical.lessonContext?.keyConcepts || [])
+  const lessonConcepts = practical.lessonContext?.keyConcepts || [];
+  const taskConcepts = (practical.tasks || []).flatMap((task) => task.requiredConcepts || []);
+  return (lessonConcepts.length > 0 ? lessonConcepts : taskConcepts)
     .map((concept) => {
       const separatorIndex = concept.indexOf(':');
       if (separatorIndex < 0) {
@@ -240,8 +192,6 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     const taskIndex = Math.min(index, Math.max(0, (practical.tasks?.length || 1) - 1));
     const task = practical.tasks?.[taskIndex];
     const teaching = task?.teaching;
-    const activeFile = files.find((file) => file.name === step.file) || files[0];
-    const example = teachingExampleFor(practical, taskIndex, activeFile?.name || 'program.c');
     return {
       stepNumber: step.stepNumber || index + 1,
       title: task?.title || step.file || `Teaching step ${index + 1}`,
@@ -250,7 +200,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       callout: teaching?.conceptExplanation || step.explanation || '',
       narration: teaching?.teacherTalk || step.speakerText,
       timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
-      simulationSnippet: example,
+      predictionQuestion: step.predictionQuestion,
     };
   });
   const fallbackSteps = teachingSteps.map((step, index) => {
@@ -262,7 +212,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       callout: teaching?.conceptExplanation || step.explanation,
       narration: teaching?.teacherTalk || step.speakerText,
       timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
-      simulationSnippet: teachingExampleFor(practical, index, practical.files?.[0]?.path || 'program.c'),
+      predictionQuestion: step.predictionQuestion,
     };
   });
   const tasks = (practical.tasks || []).map((task, index) => ({
@@ -302,10 +252,15 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
         label: learnerText(node.label),
         value: learnerText(node.value),
       }))
-    : (practical.teachingSteps || []).slice(0, 4).map((step) => ({
-        label: learnerText(step.title || `Step ${step.stepNumber}`),
-        value: learnerText(step.explanation || step.displayText),
-      }));
+    : practical.teachingSteps?.length
+      ? practical.teachingSteps.slice(0, 4).map((step) => ({
+          label: learnerText(step.title || `Step ${step.stepNumber}`),
+          value: learnerText(step.explanation || step.displayText),
+        }))
+      : (practical.tasks || []).slice(0, 4).map((task, index) => ({
+          label: learnerText(task.title || `Practical step ${index + 1}`),
+          value: learnerText(task.requiredConcepts?.slice(0, 2).join(' · ') || task.instruction),
+        }));
   const workspace = practical.workspace
     ? ({
         ...practical.workspace,
@@ -424,7 +379,6 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [isVerifyingPractical, setIsVerifyingPractical] = useState(false);
   const [executedCommands, setExecutedCommands] = useState<string[]>([]);
   const [lastTerminalOutput, setLastTerminalOutput] = useState('');
-  const [teachExampleOutput, setTeachExampleOutput] = useState('');
   const [simulationPassed, setSimulationPassed] = useState<boolean>(false);
   const activePracticalTaskIndex = Math.max(
     0,
@@ -625,7 +579,6 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setEvaluatorResult(null);
     setExecutedCommands([]);
     setLastTerminalOutput('');
-    setTeachExampleOutput('');
     setSimulationPassed(false);
     setHortBotTaskIndex(null);
   }, [activeManifestId]);
@@ -855,38 +808,6 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
         setCompletedTaskIds((prev) => [...prev, 'task-run-python-script']);
       }
     }
-  };
-
-  const handleRunTeachExample = async (step: WalkthroughStep) => {
-    const command = step.simulationSnippet?.command || '';
-    const fallbackOutput = step.simulationSnippet?.output || 'Example completed. Open the workspace to try another value.';
-    setTeachExampleOutput('Running the example…');
-    if (practical?.id && activeManifest.categoryType === 'terminal_coding') {
-      const activeFile = activeManifest.files.find((file) => file.name === activeFileName) || activeManifest.files[0];
-      const language = activeFile?.language === 'python' ? 'python'
-        : activeFile?.language === 'cpp' ? 'cpp'
-        : activeFile?.language === 'javascript' ? 'javascript'
-        : activeFile?.language === 'sql' ? 'sql'
-        : activeFile?.language === 'shell' ? 'shell'
-        : 'c';
-      const stdin = /\b5\s+10\b/.test(command) ? '5\n10\n' : practical.workspace?.terminal?.stdin || '';
-      try {
-        const result = await learningBoardsApi.executeNativePractical(
-          filesContent,
-          activeFileName,
-          language,
-          stdin,
-        );
-        const output = [result.stdout, result.stderr].filter(Boolean).join('\n').trim() || fallbackOutput;
-        setTeachExampleOutput(output);
-        handleCommandRun(command, output);
-        return;
-      } catch {
-        // The local simulator remains usable when the optional executor is offline.
-      }
-    }
-    setTeachExampleOutput(fallbackOutput);
-    handleCommandRun(command, fallbackOutput);
   };
 
   const handleSendHortBotMessage = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -1569,8 +1490,6 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             durationSeconds={totalTeachDurationSeconds}
             isPlaying={isPlaying}
             isMuted={isMuted}
-            playbackSpeed={playbackSpeed}
-            instructor={selectedInstructor}
             onTogglePlay={() => setIsPlaying(!isPlaying)}
             onReplay={() => {
               setCurrentTime(0);
@@ -1579,12 +1498,9 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             }}
             onToggleMute={() => setIsMuted(!isMuted)}
             onSeek={handleSeek}
-            onSelectStep={handleSelectStep}
             onPrevSlide={handlePrevSlide}
             onNextSlide={handleNextSlide}
             onOpenWorkspace={() => setMode('practical')}
-            onRunExample={handleRunTeachExample}
-            exampleOutput={teachExampleOutput}
           />
         ) : (
           /* PRACTICE / SPLIT VIEW: Full Workspace with Editor, Terminal, Milestones */
