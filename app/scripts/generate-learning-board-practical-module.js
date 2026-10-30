@@ -185,13 +185,14 @@ REQUIREMENTS:
      * If the activity covers binary conversions, bits, or number systems, set widgetType to "binary_converter".
      * If algorithmic, break into structured design steps (inputs/outputs, step-by-step logic, edge case analysis).
      * Create 4–8 ordered teachingSteps for the animated teacher walkthrough. This is mandatory and replaces codeWalkthrough for this category.
-     * Each teaching step must represent one real reasoning move, include a concise displayText that can type onto the board progressively, 25–50 words of speakerText, and a concise explanation callout. Do not return generic cards or a prose worksheet.
+     * Each teaching step must represent one real reasoning move, include a concise displayText that can type onto the board progressively, 80–120 words of speakerText, and a concise explanation callout. Explain the specific reasoning with a relevant example or scenario; preserve the source lesson's technical detail, teach the concept rather than repeating the activity wording, and do not drift from the practical topic.
      * Map every teaching step to teachingPlaylist[].codeSteps in order, so the board can finish the walkthrough and automatically open the learner's interactive “Your turn” phase.
    - Research & Analysis / Non-Code:
      * Structure as a guided inquiry notebook with observation prompts, hypothesis formation, and comparative analysis.
+     * Begin teach mode with a brief, warm chapter reintroduction and explain why the investigation matters. Create 4–8 ordered, source-grounded teachingSteps with 80–120 words of detailed speakerText per step, using concrete evidence examples and preserving the chapter's reasoning without drifting from its question.
    - Cloud Console:
      * Provide realistic CLI scenarios with contextual mock command responses.
-     * Use the same teacher-led flow as coding and scenario practicals: a warm welcome, 4–8 progressive teachingSteps, then a safe “Your turn” command-plan and verification phase.
+     * Use the same teacher-led flow as coding and scenario practicals: a brief, warm chapter reintroduction, then explain why the practical matters with a concrete example; provide 4–8 progressive teachingSteps with 80–120 words of detailed, topic-grounded speakerText each, then a safe “Your turn” command-plan and verification phase.
      * Explain each command in plain language, including a familiar real-world consequence, and use simulations or read-only resources only.
 4. Tasks & Milestones:
    - Build 3–5 progressive milestones per practical.
@@ -209,11 +210,11 @@ REQUIREMENTS:
    - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching steps that walk the student line-by-line through the foundational starter code.
    - For EACH step, provide:
      * stepNumber: 1, 2, 3...
-     * speakerText: ~25-50 words of rich, line-by-line teaching spoken as the code line appears. Explain the syntax, purpose, and underlying computer science concept.
+     * speakerText: ~80-120 words of rich, line-by-line teaching spoken as the code line appears. Explain the exact syntax, purpose, underlying computer science concept, and a relevant example. Preserve details from the chapter; do not simply paraphrase the source activity or introduce unrelated topics.
      * codeLine: The exact line or block of code added in this step (e.g., '#include <stdio.h>' or 'int main(void) {').
      * file: Relative file path (e.g., 'greeting.c' or 'main.py').
      * explanation: A concise on-screen annotation / callout.
-     * durationSeconds: Estimated audio speech time (e.g., 6-12s).
+     * durationSeconds: Estimated audio speech time (about 40-65 seconds for 80-120 words).
    - This empowers the frontend to animate the code typing out line-by-line in perfect sync with the narrator's voice before the student attempts the interactive tasks. Do not use codeWalkthrough to fake code for Scenario & Design activities; use the progressive teachingSteps format above.
 7. Scenario & Design Excellence:
    - If the category is 'Scenario & Design Exercise', create a highly descriptive world/context. Use 'widgetType' to select specialized UI tools (binary_converter, memory_diagram, etc.).
@@ -641,7 +642,39 @@ async function generateModule(options, { importPractical = importGeneratedPracti
     error.retryable = result.retryable !== false;
     throw error;
   }
-  const normalized = normalizeModuleResponse(result.data, entries);
+  let normalized;
+  try {
+    normalized = normalizeModuleResponse(result.data, entries);
+  } catch (error) {
+    // Gemini occasionally satisfies the practical schema but omits chapters
+    // from a large module response. Recover by asking for each chapter using
+    // the exact same contract with a one-chapter context. This keeps a single
+    // bad aggregate response from burning the whole module retry budget.
+    if (options["mock-response"] || !/returned \d+ practical\(s\); expected \d+/.test(error.message)) {
+      throw error;
+    }
+    console.warn(`Module response was incomplete; regenerating ${entries.length} chapters individually.`);
+    const repaired = [];
+    for (const entry of entries) {
+      const chapterPrompt = buildModulePrompt(promptTemplate, [entry], {
+        courseId: resolvedCourseId,
+        moduleNumber,
+        chapterNumbers: [entry.metadata.chapterNumber],
+        model,
+      });
+      const chapterResult = await generateCompleteJson({
+        prompt: chapterPrompt,
+        systemPrompt: "",
+        responseSchema: MODULE_RESPONSE_SCHEMA,
+        maxTokens: 65536,
+        temperature: 0.25,
+        model,
+      });
+      if (!chapterResult?.success) throw new Error(chapterResult?.error || "Gemini chapter repair failed");
+      repaired.push(...normalizeModuleResponse(chapterResult.data, [entry]));
+    }
+    normalized = repaired;
+  }
   const targets = [];
   const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
   const completedChapters = { ...(generationRecord.completedChapters || {}) };

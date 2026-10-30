@@ -137,6 +137,19 @@ function learnerText(value: string | null | undefined): string {
     .trim();
 }
 
+function briefChapterIntroduction(text: string): string {
+  const cleaned = learnerText(text);
+  const sentences = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+  const introduction = sentences.slice(0, 2).join(' ').trim();
+  if (introduction.length <= 260) return introduction;
+  return `${introduction.slice(0, 257).replace(/\s+\S*$/, '')}…`;
+}
+
+function narrationDurationSeconds(text: string | undefined, minimumSeconds = 8): number {
+  const wordCount = (text || '').trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(minimumSeconds, Math.ceil(wordCount / 2) + 3);
+}
+
 function exploreKeyTopicsFrom(practical: LearningBoardPractical): PracticalManifest['classroom']['exploreKeyTopics'] {
   return (practical.lessonContext?.keyConcepts || [])
     .map((concept) => {
@@ -167,6 +180,8 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       : 'text' as const,
   }));
   const teachingSteps = practical.teachingSteps || [];
+  const walkthroughSource = practical.codeWalkthrough?.length ? practical.codeWalkthrough : teachingSteps;
+  const stepDurations = walkthroughSource.map((step) => narrationDurationSeconds(step.speakerText, step.durationSeconds || 8));
   const walkthroughSteps = (practical.codeWalkthrough || []).map((step, index) => ({
     stepNumber: step.stepNumber || index + 1,
     title: step.file || `Teaching step ${index + 1}`,
@@ -174,7 +189,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     codeOrText: step.codeLine,
     callout: step.explanation || '',
     narration: step.speakerText,
-    timestamp: (practical.teachingSteps?.slice(0, index).reduce((sum, item) => sum + (item.durationSeconds || 8), 0) || index * 8),
+    timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
   }));
   const fallbackSteps = teachingSteps.map((step, index) => ({
     stepNumber: step.stepNumber || index + 1,
@@ -182,7 +197,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     codeOrText: step.displayText,
     callout: step.explanation,
     narration: step.speakerText,
-    timestamp: teachingSteps.slice(0, index).reduce((sum, item) => sum + (item.durationSeconds || 8), 0),
+    timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
   }));
   const tasks = (practical.tasks || []).map((task, index) => ({
     id: task.id,
@@ -241,7 +256,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     type: categoryType === 'terminal_coding'
       ? files.some((file) => /\.(c|cpp|cc|cxx)$/i.test(file.name)) ? 'c_program' : 'terminal'
       : categoryType === 'cloud_console' ? 'cloud' : categoryType === 'scenario_design' ? 'scenario' : 'script',
-    durationSeconds: Math.max(60, (practical.teachingSteps || []).reduce((sum, step) => sum + (step.durationSeconds || 8), 0)),
+    durationSeconds: Math.max(60, stepDurations.reduce((sum, duration) => sum + duration, 0)),
     lessonLabel: title,
     objective: learnerText(practical.objectives?.join(' ') || practical.instructions || 'Complete the practical task and submit your work.'),
     realWorldContext: learnerText(practical.teacher?.realWorldContext || practical.summary || ''),
@@ -250,6 +265,13 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       chapterBreadcrumb: `CHAPTER ${practical.module || 1}.${practical.chapter || 1}`, topicBreadcrumb: title.toUpperCase(),
       mainTitle: title,
       subtitle: learnerText(teachViewOpening?.subtitle || practical.summary || practical.instructions || ''),
+      openingNarration: [
+        `Hello everyone, and welcome back to ${learnerText(courseTitle || practical.courseId || 'our course')}.`,
+        briefChapterIntroduction(practical.lessonContext?.chapterIntroduction || practical.lessonContext?.courseIntroduction || ''),
+        `Today we’ll put those chapter ideas to work in ${title}.`,
+        `This practical matters because ${learnerText(teachViewOpening?.whyItMatters || practical.teacher?.realWorldContext || practical.summary || practical.instructions || 'it helps you turn what you have learned into a skill you can use')}`,
+        `As we go, think about where you might use this idea in a real situation. We’ll take it one step at a time, and I’d love you to make a prediction before each result. Ready? Let’s begin together.`,
+      ].filter(Boolean).join(' '),
       inThisLesson: learnerText(teachViewOpening?.inThisPractical || practical.objectives?.join(' ') || practical.instructions || ''),
       comingUp: learnerText(teachViewOpening?.comingUp || practical.experience?.learnerArtifact || practical.tasks?.[0]?.title || ''),
       whyItMatters: learnerText(teachViewOpening?.whyItMatters || practical.teacher?.realWorldContext || practical.lessonContext?.chapterIntroduction || practical.summary || ''),
@@ -273,6 +295,15 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const manifests = useMemo(() => generatedManifest ? [generatedManifest] : PRACTICAL_MANIFESTS, [generatedManifest]);
   const [activeManifestId, setActiveManifestId] = useState<string>(generatedManifest?.id || INITIAL_MANIFEST.id);
   const activeManifest = manifests.find((m) => m.id === activeManifestId) || manifests[0];
+  const openingNarration = activeManifest.classroom.openingNarration || [
+    'Hello everyone, and it’s lovely to have you back.',
+    `We’ve been exploring ${activeManifest.classroom.subtitle || activeManifest.classroom.mainTitle}.`,
+    `Today, we’ll put those chapter ideas to work through ${activeManifest.title}.`,
+    `This matters because ${activeManifest.classroom.whyItMatters}.`,
+    `As we go, think about where you might use this in a real situation, and make a prediction before each result. We’ll take it one step at a time. Ready? Let’s begin together.`,
+  ].join(' ');
+  const openingDurationSeconds = narrationDurationSeconds(openingNarration, 12);
+  const totalTeachDurationSeconds = openingDurationSeconds + activeManifest.durationSeconds;
 
   const [activeFileName, setActiveFileName] = useState<string>(activeManifest.files[0]?.name || '');
 
@@ -316,7 +347,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [mode, setMode] = useState<'teach' | 'practical'>('teach');
   const [isSplitView, setIsSplitView] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); // 0 = Orientation, 1..N = Steps
+  const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); // 0 = Orientation, 1 = the complete walkthrough
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
@@ -537,7 +568,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     return index;
   };
 
-  const activeWalkthroughIndex = Math.max(0, currentSlideIndex > 0 ? currentSlideIndex - 1 : getStepIndexForTime(currentTime));
+  const activeWalkthroughIndex = getStepIndexForTime(Math.max(0, currentTime - openingDurationSeconds));
   const currentStep: WalkthroughStep =
     activeManifest.walkthroughSteps[activeWalkthroughIndex] || activeManifest.walkthroughSteps[0];
 
@@ -548,7 +579,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     if (isPlaying && !isMuted) {
       window.speechSynthesis.cancel();
       const textToSpeak = currentSlideIndex === 0
-        ? `${activeManifest.classroom.mainTitle}. ${activeManifest.classroom.subtitle} In this lesson: ${activeManifest.classroom.inThisLesson}`
+        ? openingNarration
         : currentStep?.narration;
 
       if (textToSpeak) {
@@ -582,7 +613,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [isPlaying, isMuted, currentSlideIndex, currentStep?.narration, playbackSpeed, selectedInstructor, activeManifest]);
+  }, [isPlaying, isMuted, currentSlideIndex, currentStep?.narration, playbackSpeed, selectedInstructor, activeManifest, openingNarration]);
 
   // Playback timer ticker
   useEffect(() => {
@@ -590,40 +621,41 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
 
     const interval = setInterval(() => {
       setCurrentTime((prev) => {
-        const next = prev + 0.5 * playbackSpeed;
-        if (next >= activeManifest.durationSeconds) {
+        if (currentSlideIndex === 0) {
+          const nextOpeningTime = prev + 0.5 * playbackSpeed;
+          if (nextOpeningTime >= openingDurationSeconds) {
+            setCurrentSlideIndex(1);
+            return openingDurationSeconds;
+          }
+          return nextOpeningTime;
+        }
+
+        const nextPracticalTime = Math.max(0, prev - openingDurationSeconds) + 0.5 * playbackSpeed;
+        if (nextPracticalTime >= activeManifest.durationSeconds) {
           setIsPlaying(false);
-          return activeManifest.durationSeconds;
+          return totalTeachDurationSeconds;
         }
 
-        // Synchronize slide index with timestamps
-        const stepIdx = getStepIndexForTime(next);
-        if (stepIdx + 1 !== currentSlideIndex && currentSlideIndex > 0) {
-          setCurrentSlideIndex(stepIdx + 1);
-        }
-
-        return next;
+        return openingDurationSeconds + nextPracticalTime;
       });
     }, 500);
 
     return () => clearInterval(interval);
-  }, [isPlaying, playbackSpeed, activeManifest, currentSlideIndex]);
+  }, [isPlaying, playbackSpeed, activeManifest, currentSlideIndex, openingDurationSeconds, totalTeachDurationSeconds]);
 
   const handleSeek = (time: number) => {
-    setCurrentTime(time);
-    const stepIdx = getStepIndexForTime(time);
-    setCurrentSlideIndex(stepIdx + 1);
+    const boundedTime = Math.max(0, Math.min(totalTeachDurationSeconds, time));
+    setCurrentTime(boundedTime);
+    setCurrentSlideIndex(boundedTime < openingDurationSeconds ? 0 : 1);
   };
 
   const handleSelectStep = (slideIdx: number) => {
-    setCurrentSlideIndex(slideIdx);
-    if (slideIdx === 0) {
+    const targetSlide = slideIdx === 0 ? 0 : 1;
+    setCurrentSlideIndex(targetSlide);
+    if (targetSlide === 0) {
       setCurrentTime(0);
     } else {
-      const targetStep = activeManifest.walkthroughSteps[slideIdx - 1];
-      if (targetStep) {
-        setCurrentTime(targetStep.timestamp);
-      }
+      setCurrentTime(openingDurationSeconds);
     }
   };
 
@@ -634,7 +666,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   };
 
   const handleNextSlide = () => {
-    const totalSlides = 1 + activeManifest.walkthroughSteps.length;
+    const totalSlides = 2;
     if (currentSlideIndex < totalSlides - 1) {
       handleSelectStep(currentSlideIndex + 1);
     }
@@ -1392,6 +1424,8 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             manifest={activeManifest}
             currentStepIndex={currentSlideIndex}
             currentTime={currentTime}
+            openingDurationSeconds={openingDurationSeconds}
+            durationSeconds={totalTeachDurationSeconds}
             isPlaying={isPlaying}
             isMuted={isMuted}
             playbackSpeed={playbackSpeed}
@@ -1569,6 +1603,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             isPlaying={isPlaying}
             onTogglePlay={() => setIsPlaying(!isPlaying)}
             onReplay={() => {
+              setCurrentSlideIndex(0);
               setCurrentTime(0);
               setIsPlaying(true);
             }}

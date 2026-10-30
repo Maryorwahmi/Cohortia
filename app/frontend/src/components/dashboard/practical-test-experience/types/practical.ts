@@ -112,6 +112,7 @@ export interface ClassroomOrientation {
   topicBreadcrumb: string; // e.g. "HELLO, WORLD!"
   mainTitle: string;
   subtitle: string;
+  openingNarration?: string;
   inThisLesson: string;
   comingUp?: string;
   whyItMatters: string;
