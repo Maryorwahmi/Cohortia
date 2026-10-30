@@ -3,6 +3,7 @@ import { PRACTICAL_MANIFESTS } from './data/practicalsData';
 import type { LearningBoardPractical } from '../../../services/learningBoardsApi';
 import { learningBoardsApi } from '../../../services/learningBoardsApi';
 import { chatApi, type ChatLearningContext } from '../../../services/api';
+import { resolveCourseNarratorVoice } from '../../../utils/courseVoiceMapping';
 import { INSTRUCTOR_PERSONAS } from './data/instructorsData';
 import {
   PracticalManifest,
@@ -150,6 +151,56 @@ function narrationDurationSeconds(text: string | undefined, minimumSeconds = 8):
   return Math.max(minimumSeconds, Math.ceil(wordCount / 2) + 3);
 }
 
+function teachingExampleFor(practical: LearningBoardPractical, taskIndex: number, fileName: string) {
+  const task = practical.tasks?.[taskIndex];
+  const title = `${task?.title || ''} ${task?.instruction || ''}`.toLowerCase();
+  const file = fileName.split(/[\\/]/).pop() || fileName;
+  const executable = file.replace(/\.[^.]+$/, '');
+  const compile = practical.workspace?.terminal?.compileCommands?.[0] || `clang ${file} -o ${executable}`;
+  const run = practical.workspace?.terminal?.runCommands?.[0] || `./${executable}`;
+
+  if (/greet|hello|baseline|observe/.test(title)) {
+    return {
+      command: `${compile} && ${run}`,
+      output: 'Hello, World!\n',
+      actionNote: task?.instruction || 'Compile the starter file, run it, and compare the output with your prediction.',
+    };
+  }
+  if (/personaliz|custom message/.test(title)) {
+    return {
+      command: `${compile} && ${run}`,
+      output: 'Hello, Cohortia Learner!\n',
+      actionNote: 'Change only the words inside the quotation marks, then compile and run again.',
+    };
+  }
+  if (/newline|escape/.test(title)) {
+    return {
+      command: `${compile} && ${run}`,
+      output: 'Hello, Cohortia Learner!  (with \\n: the cursor moves to the next line)',
+      actionNote: 'Remove \\n once, run again to compare the formatting, then restore it.',
+    };
+  }
+  if (/compiler error|semicolon|syntax/.test(title)) {
+    return {
+      command: compile,
+      output: 'error: expected \' ; \' after expression',
+      actionNote: 'This is intentional. Read the diagnostic, add the semicolon back, and compile again.',
+    };
+  }
+  if (/reflect|explain|transfer/.test(title)) {
+    return {
+      command: run,
+      output: 'Use your final program output as evidence for your explanation.',
+      actionNote: task?.instruction || 'Explain what changed, what the output proves, and where you could reuse the idea.',
+    };
+  }
+  return {
+    command: practical.workspace?.terminal?.runCommands?.[0] || `./${executable}`,
+    output: task?.teaching?.expectedObservations?.[0] || 'Run the example and compare the observed result with your prediction.',
+    actionNote: task?.instruction || task?.teaching?.guidedSteps?.[0] || 'Change one thing, run the example, and explain the result.',
+  };
+}
+
 function exploreKeyTopicsFrom(practical: LearningBoardPractical): PracticalManifest['classroom']['exploreKeyTopics'] {
   return (practical.lessonContext?.keyConcepts || [])
     .map((concept) => {
@@ -186,31 +237,20 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
   const walkthroughSource = practical.codeWalkthrough?.length ? practical.codeWalkthrough : teachingSteps;
   const stepDurations = walkthroughSource.map((step) => narrationDurationSeconds(step.speakerText, step.durationSeconds || 8));
   const walkthroughSteps = (practical.codeWalkthrough || []).map((step, index) => {
-    const teaching = practical.tasks?.[Math.min(index, Math.max(0, practical.tasks.length - 1))]?.teaching;
+    const taskIndex = Math.min(index, Math.max(0, (practical.tasks?.length || 1) - 1));
+    const task = practical.tasks?.[taskIndex];
+    const teaching = task?.teaching;
     const activeFile = files.find((file) => file.name === step.file) || files[0];
-    const executable = activeFile?.name?.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') || 'program';
-    const isPython = /\.py$/i.test(activeFile?.name || '');
-    const isJavaScript = /\.(js|mjs|cjs|ts)$/i.test(activeFile?.name || '');
-    const isShell = /\.(sh|bash|zsh)$/i.test(activeFile?.name || '');
-    const isSql = /\.sql$/i.test(activeFile?.name || '');
-    const command = isPython ? `python ${activeFile?.name || 'main.py'}`
-      : isJavaScript ? `node ${activeFile?.name || 'index.js'}`
-      : isShell ? `sh ${activeFile?.name || 'script.sh'}`
-      : isSql ? `sqlite3 lab.db < ${activeFile?.name || 'query.sql'}`
-      : `./${executable} 5 10`;
+    const example = teachingExampleFor(practical, taskIndex, activeFile?.name || 'program.c');
     return {
       stepNumber: step.stepNumber || index + 1,
-      title: step.file || `Teaching step ${index + 1}`,
+      title: task?.title || step.file || `Teaching step ${index + 1}`,
       codeSnippet: step.codeLine,
       codeOrText: step.codeLine,
       callout: teaching?.conceptExplanation || step.explanation || '',
       narration: teaching?.teacherTalk || step.speakerText,
       timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
-      simulationSnippet: {
-        command,
-        output: teaching?.workedExample || teaching?.expectedObservations?.[0] || 'Run the example, observe the output, then change one input and run it again.',
-        actionNote: teaching?.guidedSteps?.[0] || 'Run this example in the simulator, compare the result with your prediction, and explain what changed.',
-      },
+      simulationSnippet: example,
     };
   });
   const fallbackSteps = teachingSteps.map((step, index) => {
@@ -222,11 +262,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       callout: teaching?.conceptExplanation || step.explanation,
       narration: teaching?.teacherTalk || step.speakerText,
       timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
-      simulationSnippet: {
-        command: practical.workspace?.terminal?.runCommands?.[0] || 'run example',
-        output: teaching?.workedExample || teaching?.expectedObservations?.[0] || 'Run the example and compare the result with your prediction.',
-        actionNote: teaching?.guidedSteps?.[0] || 'Change one input, run it again, and explain the difference.',
-      },
+      simulationSnippet: teachingExampleFor(practical, index, practical.files?.[0]?.path || 'program.c'),
     };
   });
   const tasks = (practical.tasks || []).map((task, index) => ({
@@ -296,11 +332,10 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       mainTitle: title,
       subtitle: learnerText(teachViewOpening?.subtitle || practical.summary || practical.instructions || ''),
       openingNarration: [
-        `Hello everyone, and welcome back to ${learnerText(courseTitle || practical.courseId || 'our course')}.`,
+        learnerText(practical.summary || teachViewOpening?.subtitle || practical.instructions || ''),
         briefChapterIntroduction(practical.lessonContext?.chapterIntroduction || practical.lessonContext?.courseIntroduction || ''),
-        `Today we’ll put those chapter ideas to work in ${title}.`,
-        `This practical matters because ${learnerText(teachViewOpening?.whyItMatters || practical.teacher?.realWorldContext || practical.summary || practical.instructions || 'it helps you turn what you have learned into a skill you can use')}`,
-        `As we go, think about where you might use this idea in a real situation. We’ll take it one step at a time, and I’d love you to make a prediction before each result. Ready? Let’s begin together.`,
+        `Now we will follow the practical from observation to change, test, and verification in ${title}.`,
+        `First, we will run the starter program and record its baseline output. Then we will make one deliberate change at a time, compile and run after each change, and use the terminal result as evidence.`,
       ].filter(Boolean).join(' '),
       inThisLesson: learnerText(teachViewOpening?.inThisPractical || practical.objectives?.join(' ') || practical.instructions || ''),
       comingUp: learnerText(teachViewOpening?.comingUp || practical.experience?.learnerArtifact || practical.tasks?.[0]?.title || ''),
@@ -380,6 +415,8 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); // 0 = Orientation, 1 = the complete walkthrough
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [courseNarratorVoice, setCourseNarratorVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [courseNarratorVoiceReady, setCourseNarratorVoiceReady] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [completedTaskIds, setCompletedTaskIds] = useState<string[]>([]);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
@@ -607,9 +644,43 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const currentStep: WalkthroughStep =
     activeManifest.walkthroughSteps[activeWalkthroughIndex] || activeManifest.walkthroughSteps[0];
 
-  // Web Speech API synthesis with persona voice tuning
+  useEffect(() => {
+    const courseId = practical?.courseId;
+    if (!courseId || typeof window === 'undefined' || !window.speechSynthesis) {
+      setCourseNarratorVoice(null);
+      setCourseNarratorVoiceReady(false);
+      return;
+    }
+
+    let cancelled = false;
+    const loadVoice = async () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return;
+      const voice = await resolveCourseNarratorVoice(courseId, voices);
+      if (!cancelled) {
+        setCourseNarratorVoice(voice);
+        setCourseNarratorVoiceReady(true);
+      }
+    };
+
+    setCourseNarratorVoice(null);
+    setCourseNarratorVoiceReady(false);
+    void loadVoice();
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoice);
+    return () => {
+      cancelled = true;
+      window.speechSynthesis.removeEventListener('voiceschanged', loadVoice);
+    };
+  }, [practical?.courseId]);
+
+  // Use the course assignment in practical teaching; persona voice is a fallback for standalone demos.
   useEffect(() => {
     if (!('speechSynthesis' in window)) return;
+
+    if (practical?.courseId && !courseNarratorVoiceReady) {
+      window.speechSynthesis.cancel();
+      return;
+    }
 
     if (isPlaying && !isMuted) {
       window.speechSynthesis.cancel();
@@ -623,18 +694,12 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
         utterance.pitch = selectedInstructor.speechPitch;
 
         const voices = window.speechSynthesis.getVoices();
-        const voice = voices.find((v) => {
+        const voice = courseNarratorVoice || voices.find((v) => {
           if (!v.lang.startsWith('en')) return false;
           if (selectedInstructor.voiceGender === 'female') {
-            return (
-              v.name.includes('Samantha') ||
-              v.name.includes('Google') ||
-              v.name.includes('Karen') ||
-              v.name.includes('Zira')
-            );
-          } else {
-            return v.name.includes('Daniel') || v.name.includes('David') || v.name.includes('Guy');
+            return v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Karen') || v.name.includes('Zira');
           }
+          return v.name.includes('Daniel') || v.name.includes('David') || v.name.includes('Guy');
         });
         if (voice) {
           utterance.voice = voice;
@@ -648,7 +713,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [isPlaying, isMuted, currentSlideIndex, currentStep?.narration, playbackSpeed, selectedInstructor, activeManifest, openingNarration]);
+  }, [isPlaying, isMuted, currentSlideIndex, currentStep?.narration, playbackSpeed, selectedInstructor, activeManifest, openingNarration, practical?.courseId, courseNarratorVoice, courseNarratorVoiceReady]);
 
   // Playback timer ticker
   useEffect(() => {

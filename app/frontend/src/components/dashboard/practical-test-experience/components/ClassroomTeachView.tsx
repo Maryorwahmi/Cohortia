@@ -454,12 +454,18 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
 
                       {activeStep.simulationSnippet && (
                         <div className="p-2 rounded bg-slate-900 border border-slate-800 space-y-1 mb-2">
-                          <span className="text-emerald-400 font-bold block text-[11px]">
+                          <span className="text-slate-400 font-bold block text-[9px] uppercase tracking-wider">
+                            Run this command
+                          </span>
+                          <code className="text-emerald-400 font-bold block text-[11px]">
                             $ {activeStep.simulationSnippet.command}
+                          </code>
+                          <span className="text-slate-400 font-bold block text-[9px] uppercase tracking-wider pt-1">
+                            Expected result
                           </span>
-                          <span className="text-slate-300 block text-[10px]">
+                          <pre className="text-slate-300 block text-[10px] whitespace-pre-wrap font-mono">
                             {activeStep.simulationSnippet.output}
-                          </span>
+                          </pre>
                           {activeStep.simulationSnippet.actionNote && (
                             <span className="text-slate-400 block text-[10px] leading-relaxed">
                               {activeStep.simulationSnippet.actionNote}
