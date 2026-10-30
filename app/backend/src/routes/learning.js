@@ -367,7 +367,10 @@ async function executeCloudflareNativeSandbox(request, trustedOptions = {}, time
 // production path must always use the network-disabled Cloudflare executor.
 async function executeLocalPractical(request, trustedOptions = {}) {
   const simulationMode = process.env.COHORTIA_PRACTICAL_EXECUTION_MODE === 'simulation';
-  if (!simulationMode && (process.env.NODE_ENV === 'production'
+  const isolatedExecutorConfigured = Boolean(
+    process.env.COHORTIA_SANDBOX_EXECUTOR_URL && process.env.COHORTIA_SANDBOX_EXECUTOR_SECRET,
+  );
+  if (!simulationMode && isolatedExecutorConfigured && (process.env.NODE_ENV === 'production'
     || process.env.COHORTIA_ALLOW_UNSANDBOXED_NATIVE_EXECUTION !== 'true')) return null;
 
   const language = String(request.language || '').toLowerCase();
@@ -1841,6 +1844,8 @@ learning.post('/practical-grade', async (c) => {
       compileProbes,
     };
     const sandboxResult = (process.env.COHORTIA_PRACTICAL_EXECUTION_MODE === 'simulation'
+      || !process.env.COHORTIA_SANDBOX_EXECUTOR_URL
+      || !process.env.COHORTIA_SANDBOX_EXECUTOR_SECRET
       ? null
       : await executeCloudflareNativeSandbox(executionRequest, trustedOptions, 60_000))
       || await executeLocalPractical(executionRequest, trustedOptions);
