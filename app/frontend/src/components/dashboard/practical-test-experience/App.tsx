@@ -3,6 +3,8 @@ import { PRACTICAL_MANIFESTS } from './data/practicalsData';
 import type { LearningBoardPractical } from '../../../services/learningBoardsApi';
 import { learningBoardsApi } from '../../../services/learningBoardsApi';
 import { chatApi, type ChatLearningContext } from '../../../services/api';
+import { evaluatePracticalChecks } from '../../../lib/practicalCheckEvaluator';
+import { runNativePracticalInBrowser } from '../../../lib/nativePracticalRuntime';
 import { INSTRUCTOR_PERSONAS } from './data/instructorsData';
 import {
   PracticalManifest,
@@ -354,6 +356,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [completedTaskIds, setCompletedTaskIds] = useState<string[]>([]);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [evaluatorResult, setEvaluatorResult] = useState<DomainEvaluatorResult | null>(null);
+  const [isVerifyingPractical, setIsVerifyingPractical] = useState(false);
   const [executedCommands, setExecutedCommands] = useState<string[]>([]);
   const [lastTerminalOutput, setLastTerminalOutput] = useState('');
   const [simulationPassed, setSimulationPassed] = useState<boolean>(false);
@@ -946,51 +949,105 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   // Automated Domain-Specific Evaluation for CS50 Syllabus Activities
   const handleCheckTasks = async () => {
     if (practical?.id) {
-      setFeedbackMessage('Submitting this practical for server verification…');
-      try {
-        const isCodePractical = activeManifest.categoryType === 'terminal_coding';
-        if (!isCodePractical) {
-          await learningBoardsApi.recordPracticalAttempt(
-            practical.id,
-            filesContent,
-            'submitted',
-            'Submitted from Practical Test. This category is awaiting evidence-rubric grading.',
-          );
-          setFeedbackMessage('Submitted and saved. Server-side evidence grading is not enabled for this category yet.');
-          setEvaluatorResult({
-            score: 0,
-            status: 'untested',
-            domain: activeManifest.categoryType === 'cloud_console' ? 'cloud' : 'scenario',
-            summary: 'Your work was saved as a submission, but this practical still requires a category-specific evidence grader.',
-            findings: [{ id: 'f-evidence-pending', level: 'warn', category: activeManifest.category, title: 'Evidence review pending', detail: 'The submission is persisted, but it was not marked complete without a server rubric.', suggestedAction: 'Keep the submission and add the category evidence checks before enabling completion.' }],
-            nextActions: ['Implement the category evidence rubric before unlocking completion.'],
-          });
-          return;
-        }
+      if (isVerifyingPractical) return;
+      if (activeManifest.categoryType !== 'terminal_coding') {
+        setFeedbackMessage('Use the scenario workspace verification control to check your answers.');
+        return;
+      }
 
-        const result = await learningBoardsApi.gradePractical(
-          practical.id,
-          practical.courseId || '',
-          practical.module || 0,
-          practical.chapter || 0,
-          filesContent,
-          activeFileName,
-          undefined,
+      const sourceFiles = Object.keys(filesContent).filter((filePath) => /\.(c|cpp|cc|cxx)$/i.test(filePath));
+      if (sourceFiles.length !== 1 || !/\.(c|cpp|cc|cxx)$/i.test(activeFileName)) {
+        setFeedbackMessage('Browser practice verification currently supports one active C/C++ source file. Your work was not marked complete.');
+        return;
+      }
+      const language = /\.c$/i.test(activeFileName) ? 'c' : 'cpp';
+      const source = filesContent[activeFileName] || '';
+      if (!source.trim()) {
+        setFeedbackMessage('Add code to the active source file before verifying this practical.');
+        return;
+      }
+      const hasMissingLocalHeader = [...source.matchAll(/^\s*#\s*include\s*"([^"]+)"/gm)]
+        .some((match) => !Object.keys(filesContent).some((filePath) => filePath.replace(/\\/g, '/').endsWith(match[1])));
+      if (hasMissingLocalHeader) {
+        setFeedbackMessage('This practical includes a local header that is not available in the active source file. Multi-file compilation is not supported yet.');
+        return;
+      }
+
+      const practiceChecks = practical.practiceChecks || [];
+      const taskGroups = (practical.tasks || []).map((task) => {
+        const mappedChecks = practiceChecks.filter((check) => (
+          check.taskId === task.id || task.checkIds?.includes(check.id)
+        ));
+        return {
+          taskId: task.id,
+          checks: mappedChecks.length || practical.tasks?.length === 1
+            ? mappedChecks.length ? mappedChecks : practiceChecks
+            : [],
+        };
+      });
+      if (!taskGroups.length || taskGroups.some((group) => group.checks.length === 0)) {
+        setFeedbackMessage('Visible automatic practice checks are not available for every task in this practical. Your work was not marked complete.');
+        return;
+      }
+
+      setIsVerifyingPractical(true);
+      setFeedbackMessage('Loading the browser compiler and checking your practice work…');
+      try {
+        const execution = await runNativePracticalInBrowser(
+          language,
+          source,
+          activeFileName.split(/[\\/]/).pop() || (language === 'c' ? 'main.c' : 'main.cpp'),
+          typeof practical.workspace?.terminal?.stdin === 'string' ? practical.workspace.terminal.stdin : '',
         );
-        const passedTaskIds = result.taskResults.filter((task) => task.passed).map((task) => task.taskId);
+        const taskResults = taskGroups.map(({ taskId, checks }) => {
+          const results = evaluatePracticalChecks({
+            checks: checks.map(({ taskId: _taskId, variableCheck, ...check }) => ({
+              ...check,
+              ...(variableCheck
+                ? { variableCheck: { name: variableCheck.name, expected: variableCheck.expected } }
+                : {}),
+            })),
+            stdout: execution.stdout,
+            stderr: [execution.stderr, execution.diagnostics].filter(Boolean).join('\n'),
+            executionSuccess: execution.exitCode === 0,
+          });
+          return {
+            taskId,
+            passed: results.length > 0 && results.every((check) => check.passed),
+            results,
+          };
+        });
+        const passedTaskIds = taskResults.filter((task) => task.passed).map((task) => task.taskId);
+        const passed = taskResults.length === practical.tasks?.length
+          && taskResults.every((task) => task.passed);
+        const checkResults = taskResults.flatMap((task) => task.results);
+
         setCompletedTaskIds(passedTaskIds);
         setEvaluatorResult({
-          score: result.passed ? 100 : Math.round((result.checks.filter((check) => check.passed).length / Math.max(1, result.checks.length)) * 100),
-          status: result.passed ? 'passed' : 'revision_needed',
+          score: Math.round((checkResults.filter((check) => check.passed).length / Math.max(1, checkResults.length)) * 100),
+          status: passed ? 'passed' : 'revision_needed',
           domain: 'c_program',
-          summary: result.passed ? 'Server-side verification passed.' : 'Server-side verification found work to revise.',
-          findings: result.checks.map((check) => ({ id: check.checkId, level: check.passed ? 'pass' : 'fail', category: check.type, title: check.passed ? 'Check passed' : 'Check needs revision', detail: check.message, suggestedAction: check.passed ? 'Continue to the next task.' : 'Review the task and resubmit.' })),
-          nextActions: result.passed ? [] : ['Review the failed checks and submit again.'],
+          summary: passed ? 'Browser practice checks passed.' : 'Browser practice checks found work to revise.',
+          findings: checkResults.map((check) => ({
+            id: check.checkId,
+            level: check.passed ? 'pass' : 'fail',
+            category: check.type,
+            title: check.passed ? 'Practice check passed' : 'Practice check needs revision',
+            detail: check.message,
+            suggestedAction: check.passed ? 'Continue to the next task.' : 'Review the feedback and run the practical again.',
+          })),
+          nextActions: passed ? [] : ['Review the failed practice checks and try again.'],
         });
-        setFeedbackMessage(result.passed ? 'Verified by the server. Practical completed.' : 'Saved and graded by the server. Revise the failed checks.');
-        if (result.passed) await onComplete?.();
+        setFeedbackMessage(passed
+          ? 'Practice checks passed. Continue to the assessment when you are ready.'
+          : 'Practice feedback is ready. Revise the failed checks and try again.');
+        if (passed) await onComplete?.();
       } catch (error) {
-        setFeedbackMessage(error instanceof Error ? error.message : 'The server could not grade this practical.');
+        setFeedbackMessage(error instanceof Error
+          ? `Browser practice verification failed: ${error.message}`
+          : 'Browser practice verification failed. Your work was not marked complete.');
+      } finally {
+        setIsVerifyingPractical(false);
       }
       return;
     }
@@ -1582,10 +1639,11 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
 
                       <button
                         onClick={handleCheckTasks}
-                        className="px-3 py-1 rounded-lg text-xs font-bold font-mono bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                        disabled={isVerifyingPractical}
+                        className="px-3 py-1 rounded-lg text-xs font-bold font-mono bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:cursor-wait disabled:opacity-60"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>Verify Tasks</span>
+                        <span>{isVerifyingPractical ? 'Checking…' : 'Verify Tasks'}</span>
                       </button>
                     </div>
                   </div>
