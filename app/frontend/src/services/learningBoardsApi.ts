@@ -174,6 +174,16 @@ export interface LearningBoardPracticalTest {
   type: string;
 }
 
+export interface LearningBoardPracticeCheck {
+  id: string;
+  type: string;
+  taskId?: string;
+  expected?: string;
+  passCondition?: string | Record<string, string | number | boolean>;
+  matchMode?: string;
+  variableCheck?: { name: string; expected?: string | number | boolean };
+}
+
 export interface LearningBoardPracticalSimulation {
   steps: Array<{
     action: string;
@@ -457,6 +467,7 @@ export interface LearningBoardPractical {
   activityMapping?: PracticalActivityMapping[];
   completionRule: string;
   checks?: LearningBoardPracticalTest[];
+  practiceChecks?: LearningBoardPracticeCheck[];
   hints?: Record<string, unknown>[];
   evidence?: Record<string, unknown>[];
   environment?: Record<string, unknown> | null;

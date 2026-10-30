@@ -53,6 +53,9 @@ export default defineConfig(() => {
     ssr: {
       noExternal: ['react-router-dom'],
     },
+    worker: {
+      format: 'es' as const,
+    },
     build: {
       commonjsOptions: {
         include: [/node_modules/],

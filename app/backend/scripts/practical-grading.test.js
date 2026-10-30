@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   gradeBinaryConversionAnswer,
   evaluatePracticalChecks,
+  practiceChecksForLearner,
   sanitizePracticalForLearner,
 } from '../src/lib/practicalGrading.js';
 
@@ -96,6 +97,49 @@ test('learner practical payloads expose safe check metadata only', () => {
   }
   assert.equal('metadata' in practical, false);
   assert.equal('generator' in practical, false);
+});
+
+test('practice-only check payload includes visible feedback criteria but excludes hidden checks', () => {
+  const checks = practiceChecksForLearner({
+    checks: [
+      { id: 'public-output', type: 'output', expected: 'Hello learner', matchMode: 'exact' },
+      { id: 'hidden-output', type: 'output', visibility: 'hidden', expected: 'private' },
+    ],
+    tasks: [{
+      id: 'task-run',
+      tests: [
+        { id: 'task-output', type: 'output', expected: '42', testData: { matchMode: 'exact' } },
+        { id: 'task-hidden', type: 'output', visibility: 'hidden', expected: 'secret' },
+      ],
+    }],
+  });
+
+  assert.deepEqual(checks, [{
+    id: 'task-output',
+    type: 'output',
+    taskId: 'task-run',
+    expected: '42',
+    matchMode: 'exact',
+  }]);
+});
+
+test('practice checks support declared pass conditions and task mappings', () => {
+  const checks = practiceChecksForLearner({
+    checks: [{
+      id: 'output-1',
+      type: 'output',
+      passCondition: { contains: 'completed', matchMode: 'contains', ignored: 'do not expose' },
+    }],
+    tasks: [{ id: 'task-1', checkIds: ['output-1'] }],
+  });
+
+  assert.deepEqual(checks, [{
+    id: 'output-1',
+    type: 'output',
+    taskId: 'task-1',
+    passCondition: { contains: 'completed', matchMode: 'contains' },
+    matchMode: 'contains',
+  }]);
 });
 
 test('server check evaluation returns generic feedback without expected answers', () => {

@@ -2,8 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import { Bot, CheckCircle2, Lightbulb, LoaderCircle, Play, RotateCcw, Send } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { chatApi, type ChatLearningContext } from "../../services/api";
-import { learningBoardsApi, type LearningBoardPractical, type LearningBoardPracticalTask } from "../../services/learningBoardsApi";
+import { learningBoardsApi, type LearningBoardPracticeCheck, type LearningBoardPractical, type LearningBoardPracticalTask } from "../../services/learningBoardsApi";
 import AnimatedCodeAlongPlayer from "./AnimatedCodeAlongPlayer";
+import { renderPracticalWorkspace } from "./PracticalWorkspaceRegistry";
+import { evaluatePracticalChecks } from "../../lib/practicalCheckEvaluator";
+import { runNativePracticalInBrowser } from "../../lib/nativePracticalRuntime";
 
 interface GuidedPracticalManifestBoardProps {
   practical: LearningBoardPractical;
@@ -12,10 +15,7 @@ interface GuidedPracticalManifestBoardProps {
   onMentorContextReady?: (provider: (() => ChatLearningContext) | null) => void;
 }
 
-type CheckDefinition = {
-  id: string;
-  type: string;
-};
+type CheckDefinition = LearningBoardPracticeCheck;
 
 type TeacherGuide = {
   goal: string;
@@ -30,6 +30,11 @@ type PracticalChatMessage = {
 };
 
 function normalizeChecks(practical: LearningBoardPractical): CheckDefinition[] {
+  const practiceChecks = Array.isArray(practical.practiceChecks) ? practical.practiceChecks : [];
+  if (practiceChecks.length) {
+    return practiceChecks.filter((item) => Boolean(item?.id && item?.type));
+  }
+
   const declaredChecks = Array.isArray(practical.checks) ? practical.checks : [];
   const taskChecks = (Array.isArray(practical.tasks) ? practical.tasks : []).flatMap((task) =>
     (Array.isArray(task.tests) ? task.tests : []).map((test, index) => ({
@@ -188,6 +193,13 @@ export default function GuidedPracticalManifestBoard({
     if (completedTasks[task.id]) return;
     const nextCompleted = { ...completedTasks, [task.id]: true };
     setCompletedTasks(nextCompleted);
+    if (practical.id) {
+      try {
+        await learningBoardsApi.updatePracticalTaskProgress(practical.id, task.id, "completed");
+      } catch (error) {
+        console.warn("Could not persist practical task completion:", error);
+      }
+    }
     const nextIncompleteIndex = tasks.findIndex((item) => !nextCompleted[item.id]);
     if (nextIncompleteIndex >= 0) {
       window.setTimeout(() => {
@@ -398,46 +410,98 @@ export default function GuidedPracticalManifestBoard({
       return;
     }
 
-    if (!practical.id || !practical.courseId || practical.module === undefined || practical.chapter === undefined) {
-      setOutput("This practical is missing the identifiers required for verified grading.");
+    const nativeLanguage = language.toLowerCase();
+    if (nativeLanguage !== "c" && nativeLanguage !== "cpp") {
+      setOutput(`The browser practice runtime does not support ${language || "this language"} yet. Your work has not been graded or marked complete.`);
       return;
     }
+
+    const sourceFiles = Object.keys(files).filter((filePath) => /\.(c|cpp|cc|cxx)$/i.test(filePath));
+    if (sourceFiles.length !== 1 || !/\.(c|cpp|cc|cxx)$/i.test(activeFilePath)) {
+      setOutput("The browser C/C++ practice runner currently supports one active source file at a time. Multi-file projects are not marked complete yet.");
+      return;
+    }
+    const includesUnavailableLocalFile = [...currentCode.matchAll(/^\s*#\s*include\s*"([^"]+)"/gm)]
+      .some((match) => !Object.keys(files).some((filePath) => filePath.replace(/\\/g, "/").endsWith(match[1])));
+    if (includesUnavailableLocalFile) {
+      setOutput("This program includes a local header that is not available in the active source file. Multi-file compilation will be added to the browser runtime before this task can be checked.");
+      return;
+    }
+
+    const taskCheckIds = new Set(activeTask.checkIds || []);
+    const mappedTaskChecks = checks.filter((check) => (
+      check.taskId === activeTask.id || taskCheckIds.has(check.id)
+    ));
+    const taskChecks = mappedTaskChecks.length
+      ? mappedTaskChecks
+      : tasks.length === 1
+        ? checks
+        : [];
+
     setIsRunning(true);
-    setOutput(`$ ${language || "python"} ${activeFilePath}\n\nRunning your code and checking the task...`);
+    setOutput(`Browser practice runtime · ${language.toUpperCase()}\n\nLoading the compiler and running your code...`);
     try {
-      const result = await learningBoardsApi.gradePractical(
-        practical.id,
-        practical.courseId,
-        practical.module,
-        practical.chapter,
-        files,
-        activeFilePath,
-        activeTask.id,
+      const execution = await runNativePracticalInBrowser(
+        nativeLanguage,
+        currentCode,
+        activeFilePath.split(/[\\/]/).pop() || "main.c",
         stdin,
+        (progress) => setOutput(`Browser practice runtime · loading compiler ${Math.round(progress * 100)}%…`),
       );
-      const visibleChecks = result.checks.filter((check) => !activeTask.checkIds?.length || activeTask.checkIds.includes(check.checkId));
+
+      const evaluation = evaluatePracticalChecks({
+        checks: taskChecks.map(({ taskId: _taskId, ...check }) => check),
+        stdout: execution.stdout,
+        stderr: [execution.stderr, execution.diagnostics].filter(Boolean).join("\n"),
+        executionSuccess: execution.exitCode === 0,
+      });
+      const passed = evaluation.length > 0 && evaluation.every((check) => check.passed);
       setCheckResults((previous) => ({
         ...previous,
-        ...Object.fromEntries(visibleChecks.map((check) => [check.checkId, check.passed])),
+        ...Object.fromEntries(evaluation.map((check) => [check.checkId, check.passed])),
       }));
       setCheckMessages((previous) => ({
         ...previous,
-        ...Object.fromEntries(visibleChecks.map((check) => [check.checkId, check.message])),
+        ...Object.fromEntries(evaluation.map((check) => [check.checkId, check.message])),
       }));
       const transcript = [
-        `$ ${language || "python"} ${activeFilePath}`,
-        result.stdout?.trim() || "(no output)",
-        result.stderr?.trim() ? `stderr: ${result.stderr.trim()}` : "",
+        `Browser practice runtime · ${language.toUpperCase()} (not an assessment grade)`,
+        `$ ${activeFilePath}`,
+        execution.exitCode === 0 ? "Compile and run completed." : "Compilation or execution needs attention.",
+        execution.stdout.trim() || "(no standard output)",
+        execution.stderr.trim() ? `stderr:\n${execution.stderr.trim()}` : "",
+        execution.diagnostics.trim() ? `Compiler diagnostics:\n${execution.diagnostics.trim()}` : "",
+        execution.outputTruncated ? "[Output was truncated to keep the practice workspace responsive.]" : "",
+        ...(taskChecks.length
+          ? evaluation.map((check) => `${check.passed ? "✓" : "✗"} ${check.message}`)
+          : ["This task has no visible automatic practice checks, so it was not marked complete."]),
         "",
-        result.passed ? "✓ Task checks passed." : "✗ Some checks still need attention. Read the feedback below and try again.",
+        passed ? "✓ Practice checks passed." : "✗ Use the output and check feedback to revise your work.",
       ].filter(Boolean).join("\n");
       setOutput(transcript);
-      if (result.taskResults.find((task) => task.taskId === activeTask.id)?.passed) await markTaskComplete(activeTask);
+      if (passed) await markTaskComplete(activeTask);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      setOutput(`$ ${language || "python"} ${activeFilePath}\n\n[executor error] ${message}\n\nYour code was not marked complete. Check the service connection and try again.`);
+      setOutput(`Browser practice runtime · ${language.toUpperCase()}\n\n[runner error] ${message}\n\nYour code was not marked complete. Try again after checking the compiler runtime.`);
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  const submitNonCodeResponse = async (response: string) => {
+    if (!activeTask || !practical.id) {
+      setOutput("This practical is missing the identifier required to save your response.");
+      return;
+    }
+    setOutput("Saving your evidence and completing this task...");
+    try {
+      const updatedFiles = { ...files, [activeFilePath]: response };
+      setFiles(updatedFiles);
+      await learningBoardsApi.recordPracticalAttempt(practical.id, updatedFiles, "submitted", response);
+      await markTaskComplete(activeTask);
+      setOutput("Evidence saved. Task complete — continue to the next milestone.");
+    } catch (error) {
+      setOutput(`Could not save the response: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -548,7 +612,7 @@ export default function GuidedPracticalManifestBoard({
             </p>
             {codeMode && (
               <p role="note" className={`mt-2 text-xs ${mutedText}`}>
-                Your code runs in an isolated practice runtime. A task is complete only when its checks pass.
+              Code runs in an isolated browser practice runtime. These checks guide practice; they do not award assessment marks.
               </p>
             )}
             {activeTask.teaching?.questions?.[0] && (
@@ -568,7 +632,27 @@ export default function GuidedPracticalManifestBoard({
           </div>
         </section>
 
-      <section className={`grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]`}>
+      {!codeMode && !isBinaryExercise && renderPracticalWorkspace({
+        practical,
+        task: activeTask,
+        taskIndex: activeTaskIndex,
+        files,
+        activeFilePath,
+        onFileChange: updateCurrentFile,
+        prediction,
+        onPredictionChange: (value) => { setPrediction(value); setOutput(""); },
+        stdin,
+        onStdinChange: setStdin,
+        output,
+        isRunning,
+        isDark,
+        codeMode,
+        onRun: () => void runPractical(),
+        onReset: () => { setFiles(Object.fromEntries(practicalFiles.map((file) => [file.path, file.content]))); setOutput(""); },
+        onSubmitResponse: (response) => void submitNonCodeResponse(response),
+      })}
+
+      {(codeMode || isBinaryExercise) && <section className={`grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]`}>
         <div className={`flex min-h-[520px] min-w-0 flex-col rounded-xl border p-3 ${surface}`}>
           {!activeTask.interactiveExercise && <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-1 overflow-x-auto">
@@ -682,7 +766,7 @@ export default function GuidedPracticalManifestBoard({
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <p className={`text-[10px] ${mutedText}`}>
               {codeMode
-                ? "Interactive terminal · code runs in an isolated practice runtime and is checked against this task."
+                ? "Browser practice terminal · run your code and get task feedback. Assessment marks are handled separately."
                 : `${language ? `${language} practical` : "Guided response activity"} · Suggestions are included in this lesson.`}
             </p>
             <button
@@ -806,7 +890,11 @@ export default function GuidedPracticalManifestBoard({
               isDark ? "border-white/10 bg-[#05070d] text-slate-200" : "border-slate-200 bg-slate-100 text-slate-800"
             }`}>{output || "Your compiler or runtime output will appear here. A successful compile alone does not pass a practical check."}</pre>
             <div className="mt-2 space-y-1">
-              {checks.filter((check) => !activeTask.checkIds?.length || activeTask.checkIds.includes(check.id)).map((check) => (
+              {checks.filter((check) => (
+                check.taskId === activeTask.id
+                || activeTask.checkIds?.includes(check.id)
+                || (!check.taskId && !activeTask.checkIds?.length && tasks.length === 1)
+              )).map((check) => (
                 <p key={check.id} className={`flex items-center gap-1.5 text-[10px] ${checkResults[check.id] ? "text-emerald-700" : mutedText}`}>
                   <CheckCircle2 className="h-3 w-3" /> {checkResults[check.id] ? "Passed" : "Not yet"} · {checkMessages[check.id] || check.id}
                 </p>
@@ -814,7 +902,7 @@ export default function GuidedPracticalManifestBoard({
             </div>
           </div>
         </aside>
-      </section>
+      </section>}
 
       <footer className={`flex items-center justify-between rounded-xl border px-4 py-3 text-xs ${surface} ${mutedText}`}>
         <span>Make a change, predict the result, and run the practical checks.</span>

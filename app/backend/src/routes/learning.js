@@ -9,7 +9,7 @@ import { enforceRateLimits } from '../lib/rateLimit.js';
 import { logActivity } from '../lib/activity.js';
 import { createNotification } from '../lib/notifications.js';
 import { evaluateAssessmentAnswer } from '../lib/deterministicAssessment.js';
-import { evaluatePracticalChecks, gradeBinaryConversionAnswer, sanitizePracticalForLearner } from '../lib/practicalGrading.js';
+import { evaluatePracticalChecks, gradeBinaryConversionAnswer, practiceChecksForLearner, sanitizePracticalForLearner } from '../lib/practicalGrading.js';
 import { mkdir, mkdtemp, readdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -1314,7 +1314,12 @@ publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
       learningObjectives,
       keyConcepts,
       handsOn,
-      practical: sanitizePracticalForLearner(practical),
+      practical: practical
+        ? {
+            ...sanitizePracticalForLearner(practical),
+            practiceChecks: practiceChecksForLearner(practical),
+          }
+        : null,
       assessment,
       screens: responseScreens,
     },

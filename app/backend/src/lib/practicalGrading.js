@@ -85,6 +85,86 @@ export function sanitizePracticalForLearner(practical) {
   return sanitizeValue(practical);
 }
 
+function practiceCheckForLearner(check, index, taskId) {
+  const record = asRecord(check);
+  if (String(record.visibility || '').toLowerCase() === 'hidden') return null;
+
+  const testData = asRecord(record.testData);
+  const condition = asRecord(record.passCondition);
+  const nestedCondition = asRecord(testData.passCondition);
+  const passCondition = typeof record.passCondition === 'string'
+    ? record.passCondition
+    : Object.fromEntries([
+        'expected',
+        'contains',
+        'path',
+        'filePath',
+        'contents',
+        'content',
+        'matchMode',
+      ].flatMap((key) => {
+        const value = condition[key] ?? nestedCondition[key];
+        if (typeof value === 'string') return [[key, value.slice(0, 4000)]];
+        return ['number', 'boolean'].includes(typeof value) ? [[key, value]] : [];
+      }));
+  const variableCheck = asRecord(record.variableCheck || testData.variableCheck);
+  const expected = record.expected ?? testData.expected;
+  const matchMode = record.matchMode ?? testData.matchMode ?? condition.matchMode ?? nestedCondition.matchMode;
+
+  return {
+    id: typeof record.id === 'string' && record.id ? record.id.slice(0, 128) : `check-${index + 1}`,
+    type: typeof record.type === 'string' && record.type ? record.type.slice(0, 64) : 'manual',
+    ...(taskId ? { taskId } : {}),
+    ...(typeof expected === 'string' || typeof expected === 'number' ? { expected: String(expected).slice(0, 4000) } : {}),
+    ...(typeof passCondition === 'string'
+      ? { passCondition: passCondition.slice(0, 4000) }
+      : Object.keys(passCondition).length ? { passCondition } : {}),
+    ...(typeof matchMode === 'string' ? { matchMode } : {}),
+    ...(typeof variableCheck.name === 'string' && variableCheck.name
+      ? {
+          variableCheck: {
+            name: variableCheck.name.slice(0, 128),
+            ...(typeof variableCheck.expected === 'string' || typeof variableCheck.expected === 'number' || typeof variableCheck.expected === 'boolean'
+              ? { expected: variableCheck.expected }
+              : {}),
+          },
+        }
+      : {}),
+  };
+}
+
+export function practiceChecksForLearner(practical) {
+  if (!practical || typeof practical !== 'object' || Array.isArray(practical)) return [];
+
+  const tasks = Array.isArray(practical.tasks) ? practical.tasks : [];
+  const taskChecks = tasks.flatMap((task) => (
+    Array.isArray(task?.tests)
+      ? task.tests.map((check, index) => practiceCheckForLearner(check, index, task.id))
+      : []
+  )).filter(Boolean);
+
+  if (taskChecks.length) return taskChecks.slice(0, 200);
+
+  const checkTaskIds = new Map();
+  for (const task of tasks) {
+    for (const checkId of Array.isArray(task?.checkIds) ? task.checkIds : []) {
+      const current = checkTaskIds.get(checkId) || [];
+      current.push(task.id);
+      checkTaskIds.set(checkId, current);
+    }
+  }
+
+  return (Array.isArray(practical.checks) ? practical.checks : [])
+    .flatMap((check, index) => {
+      const taskIds = checkTaskIds.get(check?.id) || [];
+      return taskIds.length
+        ? taskIds.map((taskId) => practiceCheckForLearner(check, index, taskId))
+        : [practiceCheckForLearner(check, index, undefined)];
+    })
+    .filter(Boolean)
+    .slice(0, 200);
+}
+
 function checkExpected(check) {
   const condition = asRecord(check.passCondition);
   const testData = asRecord(check.testData);
