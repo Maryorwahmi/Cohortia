@@ -520,17 +520,19 @@ chat.post('/message', async (c) => {
         if (task.learningGoal) learningContextText += `   Learning goal: ${String(task.learningGoal).slice(0, 500)}\n`;
         if (task.teacherTalk) learningContextText += `   Teaching explanation: ${String(task.teacherTalk).slice(0, 1000)}\n`;
         if (task.realWorldExample) learningContextText += `   Real-world example: ${String(task.realWorldExample).slice(0, 500)}\n`;
-        if (Array.isArray(task.questions)) learningContextText += `   Reflection questions: ${task.questions.slice(0, 5).join('; ')}\n`;
+        if (Array.isArray(task.hints) && task.hints.length) learningContextText += `   Task hints: ${task.hints.slice(0, 5).join('; ')}\n`;
+        if (Array.isArray(task.questions)) learningContextText += `   Optional reflection prompts (not the numbered practical tasks): ${task.questions.slice(0, 5).join('; ')}\n`;
         if (Array.isArray(task.requiredConcepts)) learningContextText += `   Concepts: ${task.requiredConcepts.slice(0, 12).join('; ')}\n`;
       });
     }
     if (learningContext.page) learningContextText += `Current page: ${learningContext.page}\n`;
     if (learningContext.currentFile) learningContextText += `Current file: ${learningContext.currentFile}\n`;
     if (learningContext.currentTaskTitle) learningContextText += `Current task: ${learningContext.currentTaskTitle}\n`;
+    if (learningContext.currentTaskReference) learningContextText += `Resolved learner reference: ${learningContext.currentTaskReference}\n`;
     if (learningContext.currentTaskInstruction) learningContextText += `Current task instruction: ${String(learningContext.currentTaskInstruction).slice(0, 5000)}\n`;
     if (learningContext.currentTaskGoal) learningContextText += `Current task learning goal: ${String(learningContext.currentTaskGoal).slice(0, 2000)}\n`;
     if (Array.isArray(learningContext.currentTaskQuestions) && learningContext.currentTaskQuestions.length) {
-      learningContextText += `Current task reflection questions: ${learningContext.currentTaskQuestions.slice(0, 8).join('; ')}\n`;
+      learningContextText += `Optional reflection prompts for the current task (only discuss if explicitly requested): ${learningContext.currentTaskQuestions.slice(0, 8).join('; ')}\n`;
     }
     if (Array.isArray(learningContext.currentTaskConcepts) && learningContext.currentTaskConcepts.length) {
       learningContextText += `Current task concepts: ${learningContext.currentTaskConcepts.slice(0, 20).join('; ')}\n`;
@@ -553,6 +555,7 @@ chat.post('/message', async (c) => {
   }
   const hortBotInstruction = learningContext?.assistant === 'hortbot'
     ? 'For this practical conversation, you are HortBot, Cohortia’s calm, encouraging practical-learning guide. Ground every response in the supplied practical, its category, the active task, and the learner’s actual code, terminal output, and check feedback. Use the lesson and task guidance as the source of truth; never invent instructions, results, or unseen files. Do not ask what the learner is working on when the context already tells you.\n\n'
+      + 'Resolve references carefully: when the learner says “question N”, “task N”, “step N”, or “problem N”, interpret N as the Nth numbered item in the practical task sequence and use that item’s instruction and hints. Do not reinterpret it as an optional reflection question. Only use optional reflection prompts when the learner explicitly asks for a reflection/discussion prompt. Never invent or quote a question that is not present in the supplied task context; if the numbered item is missing or the reference remains genuinely ambiguous, ask one short clarifying question instead of guessing.\n\n'
       + 'Teach by scaffolding, not answer-dumping. Unless the learner is clearly stuck, begin with a brief acknowledgement, one small hint or reasoning prompt, and one concrete next action. Explain the why in plain language. Ask at most one focused question, only when it helps the learner think; do not quiz, repeat questions, or add unnecessary steps. When the learner says they are confused or remains stuck after a hint, switch to a patient numbered walkthrough: explain each step, show only the relevant example or code, and say how to check the result. A request for the final answer by itself is not proof that the learner is confused; start with a useful hint and offer the guided walkthrough if they still need it. Do not withhold help or make the learner struggle indefinitely, but reserve a complete solution for clear confusion, and explain it step by step. Keep routine replies short and reassuring; expand only when the learner needs the extra detail. End with one clear next step rather than multiple demands.\n\n'
     : '';
   if (courseSyllabus) {

@@ -767,11 +767,13 @@ export interface ChatLearningContext {
     teacherTalk?: string;
     realWorldExample?: string;
     questions?: string[];
+    hints?: string[];
     requiredConcepts?: string[];
   }>;
   currentFile?: string;
   currentCode?: string;
   currentTaskTitle?: string;
+  currentTaskReference?: string;
   currentTaskInstruction?: string;
   currentTaskGoal?: string;
   currentTaskQuestions?: string[];

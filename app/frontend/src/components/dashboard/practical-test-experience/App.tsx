@@ -299,6 +299,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [hortBotInput, setHortBotInput] = useState('');
   const [hortBotError, setHortBotError] = useState<string | null>(null);
   const [isHortBotTyping, setIsHortBotTyping] = useState(false);
+  const [hortBotTaskIndex, setHortBotTaskIndex] = useState<number | null>(null);
   const hortBotMessagesRef = useRef<HTMLDivElement | null>(null);
   const hortBotInputRef = useRef<HTMLInputElement | null>(null);
   const hortBotPopupRef = useRef<HTMLElement | null>(null);
@@ -332,6 +333,12 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const activePracticalTask = activeManifest.tasks[activePracticalTaskIndex];
   const activeLearningBoardTask = practical?.tasks?.find((task) => task.id === activePracticalTask?.id)
     || practical?.tasks?.[activePracticalTaskIndex];
+  const focusedTaskIndex = hortBotTaskIndex !== null && hortBotTaskIndex < activeManifest.tasks.length
+    ? hortBotTaskIndex
+    : activePracticalTaskIndex;
+  const focusedPracticalTask = activeManifest.tasks[focusedTaskIndex];
+  const focusedLearningBoardTask = practical?.tasks?.find((task) => task.id === focusedPracticalTask?.id)
+    || practical?.tasks?.[focusedTaskIndex];
 
   useEffect(() => {
     if (!isHortBotOpen) return;
@@ -399,6 +406,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setHortBotInput('');
     setHortBotError(null);
     setHortBotPosition(null);
+    setHortBotTaskIndex(null);
   }, [practical?.id, activeManifest.id]);
 
   useEffect(() => {
@@ -428,18 +436,19 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
         teacherTalk: 'teaching' in task ? task.teaching?.teacherTalk || task.narratorGuide || undefined : undefined,
         realWorldExample: 'teaching' in task ? task.teaching?.realWorldExample : undefined,
         questions: 'teaching' in task ? task.teaching?.questions : undefined,
+        hints: 'hints' in task ? task.hints : undefined,
         requiredConcepts: 'requiredConcepts' in task ? task.requiredConcepts : undefined,
       })),
       currentFile: activeFileName,
       currentCode: filesContent[activeFileName] || '',
-      currentTaskTitle: activePracticalTask?.title,
-      currentTaskInstruction: activeLearningBoardTask?.instruction || activePracticalTask?.description,
-      currentTaskGoal: activeLearningBoardTask?.teaching?.learningGoal,
-      currentTaskQuestions: activeLearningBoardTask?.teaching?.questions,
-      currentTaskConcepts: activeLearningBoardTask?.requiredConcepts || (activePracticalTask?.criteria ? [activePracticalTask.criteria] : []),
-      currentTaskHint: activeLearningBoardTask?.hints?.[0],
-      interactiveExercisePrompt: activeLearningBoardTask?.interactiveExercise?.prompt,
-      currentTaskIndex: activePracticalTaskIndex,
+      currentTaskTitle: focusedPracticalTask?.title,
+      currentTaskInstruction: focusedLearningBoardTask?.instruction || focusedPracticalTask?.description,
+      currentTaskGoal: focusedLearningBoardTask?.teaching?.learningGoal,
+      currentTaskQuestions: focusedLearningBoardTask?.teaching?.questions,
+      currentTaskConcepts: focusedLearningBoardTask?.requiredConcepts || (focusedPracticalTask?.criteria ? [focusedPracticalTask.criteria] : []),
+      currentTaskHint: focusedLearningBoardTask?.hints?.[0],
+      interactiveExercisePrompt: focusedLearningBoardTask?.interactiveExercise?.prompt,
+      currentTaskIndex: focusedTaskIndex,
       completedTasks: completedTaskIds.length,
       totalTasks: activeManifest.tasks.length,
       lastOutput: lastTerminalOutput || undefined,
@@ -447,7 +456,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       page: 'practical test workspace',
     }));
     return () => onMentorContextReady(null);
-  }, [onMentorContextReady, practical, courseTitle, activeManifest, activeFileName, filesContent, completedTaskIds, lastTerminalOutput, feedbackMessage]);
+  }, [onMentorContextReady, practical, courseTitle, activeManifest, activeFileName, filesContent, completedTaskIds, lastTerminalOutput, feedbackMessage, focusedPracticalTask, focusedLearningBoardTask, focusedTaskIndex]);
 
   // Sync active manifest when user filters by category
   useEffect(() => {
@@ -514,6 +523,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setExecutedCommands([]);
     setLastTerminalOutput('');
     setSimulationPassed(false);
+    setHortBotTaskIndex(null);
   }, [activeManifestId]);
 
   // Determine current walkthrough step based on timestamp or slide index
@@ -726,8 +736,20 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setHortBotError(null);
     setIsHortBotTyping(true);
 
-    const currentTask = activePracticalTask;
-    const practicalTask = activeLearningBoardTask;
+    const taskReferenceMatch = message.match(/\b(?:question|task|step|problem)\s*(?:number\s*)?#?\s*(\d+)\b/i);
+    const explicitlyRequestsReflection = /\b(?:reflection|reflective|discussion)\s+(?:question|prompt)\b/i.test(message);
+    const referencedTaskIndex = taskReferenceMatch && !explicitlyRequestsReflection
+      ? Number(taskReferenceMatch[1]) - 1
+      : -1;
+    const hasValidTaskReference = referencedTaskIndex >= 0 && referencedTaskIndex < activeManifest.tasks.length;
+    const contextTaskIndex = hasValidTaskReference
+      ? referencedTaskIndex
+      : focusedTaskIndex;
+    if (hasValidTaskReference) setHortBotTaskIndex(contextTaskIndex);
+    const currentTask = activeManifest.tasks[contextTaskIndex];
+    const practicalTask = practical?.tasks?.find((task) => task.id === currentTask?.id)
+      || practical?.tasks?.[contextTaskIndex]
+      || activeLearningBoardTask;
     const learningContext: ChatLearningContext = {
       assistant: 'hortbot',
       courseId: practical?.courseId,
@@ -748,19 +770,23 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
           teacherTalk: source?.teaching?.teacherTalk || source?.narratorGuide || undefined,
           realWorldExample: source?.teaching?.realWorldExample,
           questions: source?.teaching?.questions,
+          hints: source?.hints,
           requiredConcepts: source?.requiredConcepts || (task.criteria ? [task.criteria] : []),
         };
       }),
       currentFile: activeFileName,
       currentCode: filesContent[activeFileName] || '',
       currentTaskTitle: currentTask?.title,
+      currentTaskReference: referencedTaskIndex >= 0 && referencedTaskIndex < activeManifest.tasks.length
+        ? `The learner referred to question/task ${contextTaskIndex + 1}; treat this as practical task ${contextTaskIndex + 1}, not one of its optional reflection prompts.`
+        : undefined,
       currentTaskInstruction: practicalTask?.instruction || currentTask?.description,
       currentTaskGoal: practicalTask?.teaching?.learningGoal,
       currentTaskQuestions: practicalTask?.teaching?.questions,
       currentTaskConcepts: practicalTask?.requiredConcepts || (currentTask?.criteria ? [currentTask.criteria] : []),
       currentTaskHint: practicalTask?.hints?.[0],
       interactiveExercisePrompt: practicalTask?.interactiveExercise?.prompt,
-      currentTaskIndex: activePracticalTaskIndex,
+      currentTaskIndex: contextTaskIndex,
       completedTasks: completedTaskIds.length,
       totalTasks: activeManifest.tasks.length,
       hasErrors: /error|failed|unavailable/i.test(`${feedbackMessage || ''}\n${lastTerminalOutput}`),
@@ -1590,8 +1616,8 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
                       </span>
                       <div className="min-w-0">
                         <h2 id="practical-hortbot-title" className="text-sm font-bold text-slate-900">HortBot</h2>
-                        <p className="max-w-[300px] truncate text-[11px] text-slate-600" title={activeManifest.tasks.find((task) => !completedTaskIds.includes(task.id))?.title || activeManifest.title}>
-                          Helping with: {activeManifest.tasks.find((task) => !completedTaskIds.includes(task.id))?.title || activeManifest.title}
+                        <p className="max-w-[300px] truncate text-[11px] text-slate-600" title={activeManifest.tasks[focusedTaskIndex]?.title || activeManifest.title}>
+                          Helping with: {activeManifest.tasks[focusedTaskIndex]?.title || activeManifest.title}
                         </p>
                       </div>
                     </div>
