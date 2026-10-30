@@ -625,6 +625,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setEvaluatorResult(null);
     setExecutedCommands([]);
     setLastTerminalOutput('');
+    setTeachExampleOutput('');
     setSimulationPassed(false);
     setHortBotTaskIndex(null);
   }, [activeManifestId]);
@@ -691,7 +692,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       if (textToSpeak) {
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
         utterance.rate = selectedInstructor.speechRate * playbackSpeed * 0.95;
-        utterance.pitch = selectedInstructor.speechPitch;
+        utterance.pitch = courseNarratorVoice ? 1 : selectedInstructor.speechPitch;
 
         const voices = window.speechSynthesis.getVoices();
         const voice = courseNarratorVoice || voices.find((v) => {
