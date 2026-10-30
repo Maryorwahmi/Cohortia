@@ -39,6 +39,8 @@ interface ClassroomTeachViewProps {
   onPrevSlide: () => void;
   onNextSlide: () => void;
   onOpenWorkspace: () => void;
+  onRunExample?: (step: WalkthroughStep) => void;
+  exampleOutput?: string;
 }
 
 export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
@@ -59,6 +61,8 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
   onPrevSlide,
   onNextSlide,
   onOpenWorkspace,
+  onRunExample,
+  exampleOutput,
 }) => {
   const totalSlides = 2;
   const activeSlideIndex = currentStepIndex;
@@ -121,17 +125,8 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
   };
 
   const handleSimulateCRun = () => {
-    if (manifest.id.includes('calculator')) {
-      setCRunOutput('Inputs: 10, 3 → Sum: 13, Quotient: 3.33');
-    } else if (manifest.id.includes('binary')) {
-      setCRunOutput('Target 23 found at index 5 (3 comparisons)');
-    } else if (manifest.id.includes('sort')) {
-      setCRunOutput('Sorted: 1 2 3 5 8 9 (O(n log n))');
-    } else if (manifest.id.includes('pointers')) {
-      setCRunOutput('Grades allocated on heap. Average: 92.00. Memory freed.');
-    } else {
-      setCRunOutput('hello, world');
-    }
+    const snippet = activeStep?.simulationSnippet;
+    setCRunOutput(snippet?.output || 'The example completed successfully. Open the workspace to run it with your own values.');
   };
 
   return (
@@ -441,7 +436,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                       </div>
                     )}
                   </div>
-                ) : manifest.categoryType === 'terminal_coding' ? (
+                ) : manifest.categoryType === 'terminal_coding' || manifest.categoryType === 'cloud_console' ? (
                   /* 2. If no prediction question, display the full live simulation sandbox */
                   <div className="p-3.5 rounded-xl bg-slate-950 text-slate-100 border border-slate-800 shadow-2xs flex-1 flex flex-col font-mono text-xs min-h-0 justify-between">
                     <div>
@@ -449,7 +444,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                         <div className="flex items-center gap-1.5">
                           <Terminal className="w-3.5 h-3.5 text-emerald-400" />
                           <span className="font-bold text-slate-200 text-xs">
-                            Live Execution Simulator
+                            {manifest.categoryType === 'cloud_console' ? 'Live Console Simulator' : 'Live Execution Simulator'}
                           </span>
                         </div>
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
@@ -465,6 +460,11 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                           <span className="text-slate-300 block text-[10px]">
                             {activeStep.simulationSnippet.output}
                           </span>
+                          {activeStep.simulationSnippet.actionNote && (
+                            <span className="text-slate-400 block text-[10px] leading-relaxed">
+                              {activeStep.simulationSnippet.actionNote}
+                            </span>
+                          )}
                         </div>
                       )}
 
@@ -473,15 +473,20 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                           Try In Simulation:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
+                          {manifest.categoryType === 'terminal_coding' && (
+                            <button
+                              onClick={handleSimulateCCompile}
+                              className="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                            >
+                              <Cpu className="w-3 h-3" />
+                              <span>Compile</span>
+                            </button>
+                          )}
                           <button
-                            onClick={handleSimulateCCompile}
-                            className="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer"
-                          >
-                            <Cpu className="w-3 h-3" />
-                            <span>Compile</span>
-                          </button>
-                          <button
-                            onClick={handleSimulateCRun}
+                            onClick={() => {
+                              onRunExample?.(activeStep);
+                              handleSimulateCRun();
+                            }}
                             className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer"
                           >
                             <Play className="w-3 h-3 fill-current" />
@@ -496,7 +501,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                         )}
                         {cRunOutput && (
                           <div className="text-[10px] text-emerald-300 bg-slate-900 p-1.5 rounded border border-slate-800">
-                            {cRunOutput}
+                            {exampleOutput || cRunOutput}
                           </div>
                         )}
                       </div>

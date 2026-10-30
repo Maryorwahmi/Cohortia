@@ -766,6 +766,9 @@ export interface ChatLearningContext {
     learningGoal?: string;
     teacherTalk?: string;
     realWorldExample?: string;
+    workedExample?: string;
+    guidedSteps?: string[];
+    commonMistakes?: string[];
     questions?: string[];
     hints?: string[];
     requiredConcepts?: string[];

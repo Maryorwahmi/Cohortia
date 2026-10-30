@@ -160,17 +160,53 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
 
   const terminalOutputRef = useRef<HTMLDivElement | null>(null);
 
-  const simulateCProgramOutput = (source: string) => {
-    const printedValues = Array.from(
-      source.matchAll(/printf\s*\(\s*"((?:\\.|[^"\\])*)"/g),
-      (match) => match[1]
+  const simulateCProgramOutput = (source: string, suppliedInputs: string[] = []) => {
+    const variables: Record<string, number> = {};
+    const inputNames = Array.from(source.matchAll(/scanf\s*\(\s*"%[^\"]+"\s*,\s*&([A-Za-z_]\w*)/g), (match) => match[1]);
+    inputNames.forEach((name, index) => {
+      const value = Number(suppliedInputs[index] ?? (index === 0 ? 10 : 3));
+      variables[name] = Number.isFinite(value) ? value : 0;
+    });
+
+    const evaluateExpression = (expression: string): number | null => {
+      const normalized = expression
+        .replace(/\(\s*(?:float|double|int)\s*\)/g, '')
+        .replace(/\b[A-Za-z_]\w*\b/g, (name) => String(variables[name] ?? 0))
+        .replace(/[^0-9+\-*/().%\s]/g, '');
+      if (!normalized.trim()) return null;
+      try {
+        // The expression has been reduced to numeric arithmetic above.
+        // eslint-disable-next-line no-new-func
+        const result = Function(`"use strict"; return (${normalized});`)();
+        return typeof result === 'number' && Number.isFinite(result) ? result : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const output: string[] = [];
+    const printfPattern = /printf\s*\(\s*"((?:\\.|[^"\\])*)"\s*(?:,\s*([^\)]*))?\)/g;
+    for (const match of source.matchAll(printfPattern)) {
+      let format = match[1]
         .replace(/\\n/g, '\n')
         .replace(/\\t/g, '\t')
         .replace(/\\r/g, '\r')
         .replace(/\\"/g, '"')
-        .replace(/\\\\/g, '\\'),
-    );
-    return printedValues.join('') || '(program completed without printed output)';
+        .replace(/\\\\/g, '\\');
+      const args = (match[2] || '').split(',').map((value) => value.trim()).filter(Boolean);
+      let argIndex = 0;
+      format = format.replace(/%([0-9.]*)([diuf])/g, (_token, precision: string, kind: string) => {
+        const value = evaluateExpression(args[argIndex++] || '0') ?? 0;
+        if (kind === 'f') return value.toFixed(Number(precision.replace('.', '') || 2));
+        return String(Math.trunc(value));
+      });
+      output.push(format);
+    }
+
+    if (inputNames.length > 0 && output.length > 0) {
+      return `Input: ${inputNames.map((name) => `${name}=${variables[name]}`).join(', ')}\n${output.join('')}`;
+    }
+    return output.join('') || '(program completed without printed output)';
   };
 
   const handleRunCProgram = () => {
@@ -178,7 +214,7 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
     const executableName = sourceFile.replace(/\.[^.]+$/, '');
     const compileCommand = `clang ${sourceFile} -o ${executableName}`;
     const runCommand = `./${executableName}`;
-    const output = simulateCProgramOutput(currentContent);
+    const output = simulateCProgramOutput(currentContent, ['10', '3']);
     setTerminalHistory([
       ...terminalHistory,
       { type: 'input', text: `$ ${compileCommand}` },
@@ -383,8 +419,9 @@ export const PracticalWorkspace: React.FC<PracticalWorkspaceProps> = ({
       } else if (cmd === './hello' || cmd === 'hello' || cmd === `./${activeFileName.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '')}`) {
         const cCode = filesContent[activeFileName] || '';
         outText = simulateCProgramOutput(cCode);
-      } else if (cmd === './calculator' || cmd === 'calculator') {
-        outText = `Enter the first integer: 10\nEnter the second integer: 3\nSum: 13\nDifference: 7\nProduct: 30\nQuotient (float): 3.33`;
+      } else if (/^(?:\.\/)?calculator(?:\s+.*)?$/.test(cmd)) {
+        const inputs = cmd.split(/\s+/).slice(1).filter((value) => /^-?\d+(?:\.\d+)?$/.test(value));
+        outText = `${simulateCProgramOutput(filesContent[activeFileName] || '', inputs)}\n\nTip: try ./calculator 5 10 to test your own values.`;
       } else if (cmd === './grades' || cmd === 'grades') {
         outText = `How many grades do you want to enter? 3\nEnter grade 1: 95.5\nEnter grade 2: 88.0\nEnter grade 3: 92.5\nAverage grade: 92.00\n[malloc: 12 bytes allocated -> free: 12 bytes returned to OS]`;
         setHeapAllocated(true);

@@ -182,23 +182,43 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
   const teachingSteps = practical.teachingSteps || [];
   const walkthroughSource = practical.codeWalkthrough?.length ? practical.codeWalkthrough : teachingSteps;
   const stepDurations = walkthroughSource.map((step) => narrationDurationSeconds(step.speakerText, step.durationSeconds || 8));
-  const walkthroughSteps = (practical.codeWalkthrough || []).map((step, index) => ({
-    stepNumber: step.stepNumber || index + 1,
-    title: step.file || `Teaching step ${index + 1}`,
-    codeSnippet: step.codeLine,
-    codeOrText: step.codeLine,
-    callout: step.explanation || '',
-    narration: step.speakerText,
-    timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
-  }));
-  const fallbackSteps = teachingSteps.map((step, index) => ({
-    stepNumber: step.stepNumber || index + 1,
-    title: step.title || `Teaching step ${index + 1}`,
-    codeOrText: step.displayText,
-    callout: step.explanation,
-    narration: step.speakerText,
-    timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
-  }));
+  const walkthroughSteps = (practical.codeWalkthrough || []).map((step, index) => {
+    const teaching = practical.tasks?.[Math.min(index, Math.max(0, practical.tasks.length - 1))]?.teaching;
+    const activeFile = files.find((file) => file.name === step.file) || files[0];
+    const executable = activeFile?.name?.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') || 'program';
+    const isPython = /\.py$/i.test(activeFile?.name || '');
+    const command = isPython ? `python ${activeFile?.name || 'main.py'}` : `./${executable} 5 10`;
+    return {
+      stepNumber: step.stepNumber || index + 1,
+      title: step.file || `Teaching step ${index + 1}`,
+      codeSnippet: step.codeLine,
+      codeOrText: step.codeLine,
+      callout: teaching?.conceptExplanation || step.explanation || '',
+      narration: teaching?.teacherTalk || step.speakerText,
+      timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
+      simulationSnippet: {
+        command,
+        output: teaching?.workedExample || teaching?.expectedObservations?.[0] || 'Run the example, observe the output, then change one input and run it again.',
+        actionNote: teaching?.guidedSteps?.[0] || 'Run this example in the simulator, compare the result with your prediction, and explain what changed.',
+      },
+    };
+  });
+  const fallbackSteps = teachingSteps.map((step, index) => {
+    const teaching = practical.tasks?.[Math.min(index, Math.max(0, practical.tasks.length - 1))]?.teaching;
+    return {
+      stepNumber: step.stepNumber || index + 1,
+      title: step.title || `Teaching step ${index + 1}`,
+      codeOrText: step.displayText,
+      callout: teaching?.conceptExplanation || step.explanation,
+      narration: teaching?.teacherTalk || step.speakerText,
+      timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
+      simulationSnippet: {
+        command: practical.workspace?.terminal?.runCommands?.[0] || 'run example',
+        output: teaching?.workedExample || teaching?.expectedObservations?.[0] || 'Run the example and compare the result with your prediction.',
+        actionNote: teaching?.guidedSteps?.[0] || 'Change one input, run it again, and explain the difference.',
+      },
+    };
+  });
   const tasks = (practical.tasks || []).map((task, index) => ({
     id: task.id,
     title: learnerText(task.title || `Task ${index + 1}`),
@@ -357,6 +377,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const [isVerifyingPractical, setIsVerifyingPractical] = useState(false);
   const [executedCommands, setExecutedCommands] = useState<string[]>([]);
   const [lastTerminalOutput, setLastTerminalOutput] = useState('');
+  const [teachExampleOutput, setTeachExampleOutput] = useState('');
   const [simulationPassed, setSimulationPassed] = useState<boolean>(false);
   const activePracticalTaskIndex = Math.max(
     0,
@@ -467,6 +488,9 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
         learningGoal: 'teaching' in task ? task.teaching?.learningGoal : undefined,
         teacherTalk: 'teaching' in task ? task.teaching?.teacherTalk || task.narratorGuide || undefined : undefined,
         realWorldExample: 'teaching' in task ? task.teaching?.realWorldExample : undefined,
+        workedExample: 'teaching' in task ? task.teaching?.workedExample : undefined,
+        guidedSteps: 'teaching' in task ? task.teaching?.guidedSteps : undefined,
+        commonMistakes: 'teaching' in task ? task.teaching?.commonMistakes : undefined,
         questions: 'teaching' in task ? task.teaching?.questions : undefined,
         hints: 'hints' in task ? task.hints : undefined,
         requiredConcepts: 'requiredConcepts' in task ? task.requiredConcepts : undefined,
@@ -755,6 +779,33 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
         setCompletedTaskIds((prev) => [...prev, 'task-run-python-script']);
       }
     }
+  };
+
+  const handleRunTeachExample = async (step: WalkthroughStep) => {
+    const command = step.simulationSnippet?.command || '';
+    const fallbackOutput = step.simulationSnippet?.output || 'Example completed. Open the workspace to try another value.';
+    setTeachExampleOutput('Running the example…');
+    if (practical?.id && activeManifest.categoryType === 'terminal_coding') {
+      const activeFile = activeManifest.files.find((file) => file.name === activeFileName) || activeManifest.files[0];
+      const language = activeFile?.language === 'python' ? 'python' : activeFile?.language === 'cpp' ? 'cpp' : 'c';
+      const stdin = /\b5\s+10\b/.test(command) ? '5\n10\n' : practical.workspace?.terminal?.stdin || '';
+      try {
+        const result = await learningBoardsApi.executeNativePractical(
+          filesContent,
+          activeFileName,
+          language,
+          stdin,
+        );
+        const output = [result.stdout, result.stderr].filter(Boolean).join('\n').trim() || fallbackOutput;
+        setTeachExampleOutput(output);
+        handleCommandRun(command, output);
+        return;
+      } catch {
+        // The local simulator remains usable when the optional executor is offline.
+      }
+    }
+    setTeachExampleOutput(fallbackOutput);
+    handleCommandRun(command, fallbackOutput);
   };
 
   const handleSendHortBotMessage = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -1451,6 +1502,8 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             onPrevSlide={handlePrevSlide}
             onNextSlide={handleNextSlide}
             onOpenWorkspace={() => setMode('practical')}
+            onRunExample={handleRunTeachExample}
+            exampleOutput={teachExampleOutput}
           />
         ) : (
           /* PRACTICE / SPLIT VIEW: Full Workspace with Editor, Terminal, Milestones */
