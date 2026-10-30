@@ -808,7 +808,7 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
 function buildTeachingFallback(task, sourceContext, index) {
   const concepts = asStringArray(task.requiredConcepts);
   const concept = concepts[0] || sourceContext.lessonContext?.keyConcepts?.[index] || "the main idea in this chapter";
-  const cleanConcept = concept.replace(/[`*_]/g, "").replace(/:.*/, "").replace(/\s+/g, " ").trim();
+  const cleanConcept = conceptTitle(concept);
   const chapterTitle = sourceContext.lessonChapter?.title || `chapter ${sourceContext.source.sourceKey.split("/").pop()}`;
   const title = task.title || `task ${index + 1}`;
   const instruction = task.instruction || "complete the practical step";
