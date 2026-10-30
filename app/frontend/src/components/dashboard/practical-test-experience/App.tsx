@@ -3,8 +3,6 @@ import { PRACTICAL_MANIFESTS } from './data/practicalsData';
 import type { LearningBoardPractical } from '../../../services/learningBoardsApi';
 import { learningBoardsApi } from '../../../services/learningBoardsApi';
 import { chatApi, type ChatLearningContext } from '../../../services/api';
-import { evaluatePracticalChecks } from '../../../lib/practicalCheckEvaluator';
-import { runNativePracticalInBrowser } from '../../../lib/nativePracticalRuntime';
 import { INSTRUCTOR_PERSONAS } from './data/instructorsData';
 import {
   PracticalManifest,
@@ -955,79 +953,33 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
         return;
       }
 
-      const sourceFiles = Object.keys(filesContent).filter((filePath) => /\.(c|cpp|cc|cxx)$/i.test(filePath));
-      if (sourceFiles.length !== 1 || !/\.(c|cpp|cc|cxx)$/i.test(activeFileName)) {
-        setFeedbackMessage('Browser practice verification currently supports one active C/C++ source file. Your work was not marked complete.');
-        return;
-      }
-      const language = /\.c$/i.test(activeFileName) ? 'c' : 'cpp';
-      const source = filesContent[activeFileName] || '';
-      if (!source.trim()) {
+      if (!activeFileName || !filesContent[activeFileName]?.trim()) {
         setFeedbackMessage('Add code to the active source file before verifying this practical.');
-        return;
-      }
-      const hasMissingLocalHeader = [...source.matchAll(/^\s*#\s*include\s*"([^"]+)"/gm)]
-        .some((match) => !Object.keys(filesContent).some((filePath) => filePath.replace(/\\/g, '/').endsWith(match[1])));
-      if (hasMissingLocalHeader) {
-        setFeedbackMessage('This practical includes a local header that is not available in the active source file. Multi-file compilation is not supported yet.');
-        return;
-      }
-
-      const practiceChecks = practical.practiceChecks || [];
-      const taskGroups = (practical.tasks || []).map((task) => {
-        const mappedChecks = practiceChecks.filter((check) => (
-          check.taskId === task.id || task.checkIds?.includes(check.id)
-        ));
-        return {
-          taskId: task.id,
-          checks: mappedChecks.length || practical.tasks?.length === 1
-            ? mappedChecks.length ? mappedChecks : practiceChecks
-            : [],
-        };
-      });
-      if (!taskGroups.length || taskGroups.some((group) => group.checks.length === 0)) {
-        setFeedbackMessage('Visible automatic practice checks are not available for every task in this practical. Your work was not marked complete.');
         return;
       }
 
       setIsVerifyingPractical(true);
-      setFeedbackMessage('Loading the browser compiler and checking your practice work…');
+      setFeedbackMessage('Running the practical simulation and checking your work…');
       try {
-        const execution = await runNativePracticalInBrowser(
-          language,
-          source,
-          activeFileName.split(/[\\/]/).pop() || (language === 'c' ? 'main.c' : 'main.cpp'),
+        const result = await learningBoardsApi.gradePractical(
+          practical.id,
+          practical.courseId || '',
+          practical.module || 0,
+          practical.chapter || 0,
+          filesContent,
+          activeFileName,
+          undefined,
           typeof practical.workspace?.terminal?.stdin === 'string' ? practical.workspace.terminal.stdin : '',
         );
-        const taskResults = taskGroups.map(({ taskId, checks }) => {
-          const results = evaluatePracticalChecks({
-            checks: checks.map(({ taskId: _taskId, variableCheck, ...check }) => ({
-              ...check,
-              ...(variableCheck
-                ? { variableCheck: { name: variableCheck.name, expected: variableCheck.expected } }
-                : {}),
-            })),
-            stdout: execution.stdout,
-            stderr: [execution.stderr, execution.diagnostics].filter(Boolean).join('\n'),
-            executionSuccess: execution.exitCode === 0,
-          });
-          return {
-            taskId,
-            passed: results.length > 0 && results.every((check) => check.passed),
-            results,
-          };
-        });
-        const passedTaskIds = taskResults.filter((task) => task.passed).map((task) => task.taskId);
-        const passed = taskResults.length === practical.tasks?.length
-          && taskResults.every((task) => task.passed);
-        const checkResults = taskResults.flatMap((task) => task.results);
+        const passedTaskIds = result.taskResults.filter((task) => task.passed).map((task) => task.taskId);
+        const checkResults = result.checks;
 
         setCompletedTaskIds(passedTaskIds);
         setEvaluatorResult({
           score: Math.round((checkResults.filter((check) => check.passed).length / Math.max(1, checkResults.length)) * 100),
-          status: passed ? 'passed' : 'revision_needed',
+          status: result.passed ? 'passed' : 'revision_needed',
           domain: 'c_program',
-          summary: passed ? 'Browser practice checks passed.' : 'Browser practice checks found work to revise.',
+          summary: result.passed ? 'Practical simulation checks passed.' : 'Practical simulation checks found work to revise.',
           findings: checkResults.map((check) => ({
             id: check.checkId,
             level: check.passed ? 'pass' : 'fail',
@@ -1036,12 +988,12 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
             detail: check.message,
             suggestedAction: check.passed ? 'Continue to the next task.' : 'Review the feedback and run the practical again.',
           })),
-          nextActions: passed ? [] : ['Review the failed practice checks and try again.'],
+          nextActions: result.passed ? [] : ['Review the failed practice checks and try again.'],
         });
-        setFeedbackMessage(passed
+        setFeedbackMessage(result.passed
           ? 'Practice checks passed. Continue to the assessment when you are ready.'
           : 'Practice feedback is ready. Revise the failed checks and try again.');
-        if (passed) await onComplete?.();
+        if (result.passed) await onComplete?.();
       } catch (error) {
         setFeedbackMessage(error instanceof Error
           ? `Browser practice verification failed: ${error.message}`
