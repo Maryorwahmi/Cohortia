@@ -362,6 +362,97 @@ async function executeCloudflareNativeSandbox(request, trustedOptions = {}, time
   }
 }
 
+// Keep local development usable when the isolated executor has not been
+// provisioned yet. This path is intentionally unavailable in production; the
+// production path must always use the network-disabled Cloudflare executor.
+async function executeLocalPractical(request, trustedOptions = {}) {
+  const simulationMode = process.env.COHORTIA_PRACTICAL_EXECUTION_MODE === 'simulation';
+  if (!simulationMode && (process.env.NODE_ENV === 'production'
+    || process.env.COHORTIA_ALLOW_UNSANDBOXED_NATIVE_EXECUTION !== 'true')) return null;
+
+  const language = String(request.language || '').toLowerCase();
+  if (['c', 'cpp', 'c++'].includes(language)) {
+    return executeNativeC({
+      ...request,
+      enableSanitizers: trustedOptions.enableSanitizers === true,
+      compileProbes: Array.isArray(trustedOptions.compileProbes) ? trustedOptions.compileProbes : [],
+    });
+  }
+
+  if (!['python', 'javascript', 'shell', 'sql'].includes(language)) return null;
+  const entries = Object.entries(request.files || {});
+  const activeFilePath = String(request.activeFilePath || '').replaceAll('\\', '/');
+  const activeEntry = entries.find(([filePath]) => filePath.replaceAll('\\', '/') === activeFilePath);
+  if (!activeEntry) return { ok: false, error: 'The active source file is missing.' };
+
+  const workspace = await mkdtemp(path.join(tmpdir(), 'cohortia-practical-'));
+  try {
+    for (const [relativePath, content] of entries) {
+      const target = safeWorkspacePath(workspace, relativePath);
+      if (!target) return { ok: false, error: 'Invalid workspace file path.' };
+      await mkdir(path.dirname(target), { recursive: true });
+      await writeFile(target, content, 'utf8');
+    }
+
+    const activePath = safeWorkspacePath(workspace, activeFilePath);
+    if (!activePath) return { ok: false, error: 'The active source file is invalid.' };
+    const originalFiles = Object.fromEntries(entries.map(([filePath, content]) => [filePath.replaceAll('\\', '/'), content]));
+    let command;
+    let args;
+    if (language === 'python') {
+      command = process.platform === 'win32' ? 'python' : 'python3';
+      args = [activePath];
+    } else if (language === 'javascript') {
+      command = process.execPath;
+      args = [activePath];
+    } else if (language === 'shell') {
+      command = process.platform === 'win32' ? 'bash' : 'bash';
+      args = [activePath];
+    } else {
+      const sqlRunner = path.join(workspace, '__cohortia_sql_runner.py');
+      await writeFile(sqlRunner, [
+        'import sqlite3, sys',
+        'connection = sqlite3.connect("practical.sqlite")',
+        'cursor = connection.cursor()',
+        'script = open(sys.argv[1], encoding="utf-8").read()',
+        'try:',
+        '    for statement in script.split(";"):',
+        '        statement = statement.strip()',
+        '        if not statement: continue',
+        '        cursor.execute(statement)',
+        '        if cursor.description: print("\\t".join(str(value) for value in cursor.fetchall()))',
+        '    connection.commit()',
+        'except Exception as error:',
+        '    print(str(error), file=sys.stderr); raise',
+      ].join('\n'), 'utf8');
+      command = process.platform === 'win32' ? 'python' : 'python3';
+      args = [sqlRunner, activePath];
+    }
+
+    let result = await runProcess(command, args, {
+      cwd: workspace,
+      input: String(request.stdin || '').slice(0, 4096),
+      timeoutMs: 5000,
+    });
+    if (language === 'shell' && result.unavailable && process.platform === 'win32') {
+      result = await runProcess('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', activePath], {
+        cwd: workspace,
+        input: String(request.stdin || '').slice(0, 4096),
+        timeoutMs: 5000,
+      });
+    }
+    return {
+      ...result,
+      phase: 'run',
+      artifacts: await collectExecutionArtifacts(workspace, path.join(workspace, '__program__'), originalFiles),
+      sanitizers: [],
+      compileProbes: [],
+    };
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+}
+
 function parseJson(value, fallback) {
   if (!value) return fallback;
   try {
@@ -1635,10 +1726,16 @@ function languageForPractical(definition, activeFilePath) {
   if (extension === '.py') return 'python';
   if (extension === '.c') return 'c';
   if (['.cpp', '.cc', '.cxx'].includes(extension)) return 'cpp';
+  if (['.js', '.mjs', '.cjs'].includes(extension)) return 'javascript';
+  if (['.sh', '.bash', '.zsh'].includes(extension)) return 'shell';
+  if (['.sql', '.sqlite', '.db'].includes(extension)) return 'sql';
   const declared = String(definition.language || '').toLowerCase();
-  if (declared === 'python') return 'python';
+  if (['python', 'py'].includes(declared)) return 'python';
   if (declared === 'c') return 'c';
   if (['cpp', 'c++'].includes(declared)) return 'cpp';
+  if (['javascript', 'js', 'node', 'nodejs'].includes(declared)) return 'javascript';
+  if (['shell', 'bash', 'sh', 'zsh'].includes(declared)) return 'shell';
+  if (['sql', 'sqlite', 'postgresql', 'mysql'].includes(declared)) return 'sql';
   return null;
 }
 
@@ -1732,18 +1829,26 @@ learning.post('/practical-grade', async (c) => {
       return c.json({ success: false, error: 'No automatic checks are available for this task.' }, 409);
     }
     const compileProbes = compileProbesForChecks(executableChecks, language);
-    const sandboxResult = await executeCloudflareNativeSandbox({
+    const executionRequest = {
       files: Object.fromEntries(entries.map(([filePath, content]) => [filePath.replaceAll('\\', '/'), content])),
       activeFilePath,
       language,
       stdin: typeof request.stdin === 'string' ? request.stdin.slice(0, 4096) : '',
-    }, {
+    };
+    const trustedOptions = {
       enableSanitizers: executableChecks.some((check) => String(check.type).toLowerCase() === 'sanitizer'),
       artifactPaths: artifactPathsForChecks(executableChecks),
       compileProbes,
-    }, 60_000);
+    };
+    const sandboxResult = (process.env.COHORTIA_PRACTICAL_EXECUTION_MODE === 'simulation'
+      ? null
+      : await executeCloudflareNativeSandbox(executionRequest, trustedOptions, 60_000))
+      || await executeLocalPractical(executionRequest, trustedOptions);
     if (!sandboxResult) {
-      return c.json({ success: false, error: 'Verified grading is unavailable because the isolated executor is not configured.' }, 503);
+      return c.json({
+        success: false,
+        error: 'Verified grading is unavailable because the isolated executor is not configured. Configure COHORTIA_SANDBOX_EXECUTOR_URL and COHORTIA_SANDBOX_EXECUTOR_SECRET, then redeploy the executor.',
+      }, 503);
     }
 
     const probeResults = (sandboxResult.compileProbes || []).map((probe) => ({
