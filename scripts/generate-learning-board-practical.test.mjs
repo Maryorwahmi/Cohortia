@@ -134,13 +134,35 @@ test("short model responses are expanded into five learner scenes with checks li
 
 test("short app-generator responses are expanded into five learner scenes with checks linked", () => {
   const context = makeContext("Terminal Coding Lab");
+  context.lessonContext = {
+    keyConcepts: [
+      "Program output",
+      "File operations",
+      "Error handling",
+    ],
+  };
   const response = makeGeneratedResponse();
+  response.language = "c";
+  response.files = [{
+    path: "main.c",
+    content: [
+      "#include <stdio.h>",
+      "int main(void) {",
+      '  FILE *result = fopen("result.txt", "w");',
+      "  if (!result) return 1;",
+      '  fputs("ready", result);',
+      "  fclose(result);",
+      '  puts("ready");',
+      "  return 0;",
+      "}",
+    ].join("\n"),
+  }];
   response.tasks = response.tasks.slice(0, 1);
   response.codeWalkthrough = Array.from({ length: 4 }, (_, index) => ({
     stepNumber: index + 1,
     speakerText: `Explain how this line supports the program and why this specific code step matters to the learner.`,
-    codeLine: `print(${index + 1})`,
-    file: "main.py",
+    codeLine: `puts("${index + 1}");`,
+    file: "main.c",
     explanation: `Program line ${index + 1}.`,
     durationSeconds: 8,
   }));
@@ -256,6 +278,48 @@ test("app generator rejects incomplete prediction checkpoint feedback or answer 
   assert.ok(validateAppPractical(practical).some((error) => error.includes("must have exactly one correct option")));
 });
 
+test("app generator normalizes terminal aliases to runtimes supported by the executor", () => {
+  for (const [input, expected] of [["c++", "cpp"], ["bash", "shell"], ["sqlite", "sql"]]) {
+    const response = makeGeneratedResponse();
+    response.language = input;
+    const practical = normalizeAppPractical(
+      response,
+      makeContext("Terminal Coding Lab"),
+      { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+    );
+    assert.equal(practical.language, expected, input);
+  }
+
+  const unsupportedResponse = makeGeneratedResponse();
+  unsupportedResponse.language = "powershell";
+  assert.throws(
+    () => normalizeAppPractical(
+      unsupportedResponse,
+      makeContext("Terminal Coding Lab"),
+      { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+    ),
+    /Unsupported terminal runtime "powershell"/,
+  );
+});
+
+test("app generator supplies category-specific objective fallbacks", () => {
+  const expectedObjectivePatterns = new Map([
+    ["Terminal Coding Lab", /starter workspace/i],
+    ["Cloud Console Lab", /resource state/i],
+    ["Scenario & Design Exercise", /constraints/i],
+    ["Research & Analysis", /observations/i],
+  ]);
+  for (const [category, pattern] of expectedObjectivePatterns) {
+    const practical = normalizeAppPractical(
+      makeGeneratedResponse(),
+      makeContext(category),
+      { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+    );
+    assert.ok(practical.objectives.length >= 3, category);
+    assert.match(practical.objectives[0], pattern, category);
+  }
+});
+
 test("Scenario & Design binary activities receive their specific activity kind", () => {
   assert.equal(
     activityKindFor({
@@ -305,6 +369,14 @@ test("binary response schema requires each task interaction without mutating sha
 
 test("binary scenario normalization preserves narrated teaching steps and validates task interactions", () => {
   const context = makeContext("Scenario & Design Exercise");
+  context.courseTitle = "Foundations of Computing";
+  context.lessonContext = {
+    keyConcepts: [
+      "Binary place values",
+      "Base-ten conversion",
+      "Bit representation",
+    ],
+  };
   context.activityTitle = "Binary Conversion Challenge";
   context.activityChapter.handsOnActivity = [
     "**Binary Conversion Challenge:**",
@@ -342,16 +414,17 @@ test("binary scenario normalization preserves narrated teaching steps and valida
 
   assert.equal(practical.activityKind, "binary_exercise");
   assert.equal(practical.tasks.length, 4);
-  assert.equal(practical.teachingSteps.length, 5);
+  assert.equal(practical.teachingSteps.length, 6);
   assert.deepEqual(practical.tasks.map((task) => task.interactiveExercise?.expectedAnswer), ["26", "11011", "64", "255"]);
   assert.deepEqual(
     practical.teachingPlaylist.flatMap((step) => step.codeSteps),
-    [1, 2, 3, 4, 5],
+    [1, 2, 3, 4, 5, 6],
   );
   assert.equal(practical.teachingPlaylist.length, 1);
   assert.deepEqual(
     practical.teachingSteps.map((step) => step.displayText),
     [
+      "Mission: understand how 11010 stores a number using only zero and one.",
       "Bits (left to right): 1  1  0  1  0",
       "Place values: 16  8  4  2  1",
       "(1 × 16) + (1 × 8) + (0 × 4) + (1 × 2) + (0 × 1)",

@@ -69,10 +69,8 @@ const PREDICTION_QUESTION_SCHEMA = {
   },
   required: ["id", "prompt", "options"],
 };
-// These are the only learner-editable runtimes currently supported by the
-// verified practical grader/executor. Add new runtimes only with an executor,
-// limits, and grading tests in place.
-const SUPPORTED_TERMINAL_LANGUAGES = ["c", "cpp", "python"];
+// Keep this list aligned with the isolated practical executor.
+const SUPPORTED_TERMINAL_LANGUAGES = ["c", "cpp", "python", "javascript", "shell", "sql"];
 
 function loadRepositoryEnv() {
   const envPath = path.join(REPOSITORY_ROOT, "backend", ".env");
@@ -1023,9 +1021,14 @@ function inferLanguage(raw, sourceContext, labType) {
   const text = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
   if (/\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program|hello,\s*world)\b/.test(text)) return "c";
   const requested = String(raw.language || "").trim().toLowerCase();
-  if (requested) return requested === "c++" ? "cpp" : requested;
-  if (labType === "database") return "sqlite";
-  if (labType === "shell") return "bash";
+  if (requested) {
+    if (requested === "c++") return "cpp";
+    if (["bash", "sh"].includes(requested)) return "shell";
+    if (requested === "sqlite") return "sql";
+    return requested;
+  }
+  if (labType === "database") return "sql";
+  if (labType === "shell") return "shell";
   if (/\b(python|\.py\b|def\s+\w+\s*\()\b/.test(text)) return "python";
   if (/\b(javascript|node\.js|\.js\b)\b/.test(text)) return "javascript";
   return labType === "code" ? "text" : undefined;
@@ -1110,7 +1113,7 @@ function buildSourceWalkthrough(file) {
   const chunkSize = Math.max(1, Math.ceil(lines.length / targetCount));
   const chunks = [];
   for (let start = 0; start < lines.length; start += chunkSize) chunks.push(lines.slice(start, start + chunkSize));
-  return chunks.map((chunk, index) => ({
+  const walkthrough = chunks.map((chunk, index) => ({
     stepNumber: index + 1,
     file: file.path,
     codeLine: chunk.join("\n"),
@@ -1118,6 +1121,21 @@ function buildSourceWalkthrough(file) {
     explanation: "Connect this code to the value or behavior it produces, then make a prediction before running the program.",
     durationSeconds: 8,
   }));
+  // Very small starter files can contain fewer than six non-empty lines. The
+  // contract still needs six teachable beats, so add explicit observe/verify
+  // beats without modifying the learner's source file.
+  while (walkthrough.length < 6) {
+    const stepNumber = walkthrough.length + 1;
+    walkthrough.push({
+      stepNumber,
+      file: file.path,
+      codeLine: lines.at(-1),
+      speakerText: `Revisit the final line and predict its observable result. This checkpoint connects the starter code to the terminal evidence, so you can explain what the program does before making your own change.`,
+      explanation: "Confirm the baseline behavior before editing the program.",
+      durationSeconds: 8,
+    });
+  }
+  return walkthrough;
 }
 
 function fallbackStarterFile(instructions, labType, language) {
@@ -1919,6 +1937,7 @@ function normalizePractical(raw, sourceContext, metadata) {
     codeLine: typeof seg.codeLine === "string" ? seg.codeLine : (typeof seg.code === "string" ? seg.code : ""),
     file: resolveWalkthroughFile(seg.file),
     explanation: asStringText(seg.explanation || seg.annotation),
+    predictionQuestion: normalizePredictionQuestion(seg.predictionQuestion, `walkthrough-${idx + 1}`),
     durationSeconds: clampInteger(seg.durationSeconds, 8, 3, 90),
   })).filter((seg) => seg.speakerText || seg.codeLine).sort((left, right) => left.stepNumber - right.stepNumber);
   if (sourceContext.source.category === "Terminal Coding Lab" && codeWalkthrough.length < 6) {
@@ -1933,8 +1952,8 @@ function normalizePractical(raw, sourceContext, metadata) {
       displayText: asStringText(step.displayText),
       speakerText: asStringText(step.speakerText),
       explanation: asStringText(step.explanation),
+      predictionQuestion: normalizePredictionQuestion(step.predictionQuestion, `teaching-${index + 1}`),
       durationSeconds: clampInteger(step.durationSeconds, 8, 3, 90),
-    predictionQuestion: normalizePredictionQuestion(seg.predictionQuestion, `walkthrough-${idx + 1}`),
     }))
     .filter((step) => step.displayText && step.speakerText && step.explanation)
     .sort((left, right) => left.stepNumber - right.stepNumber);
@@ -1949,7 +1968,6 @@ function normalizePractical(raw, sourceContext, metadata) {
       speakerText: task.narratorGuide || task.instruction,
       explanation: task.teaching?.learningGoal || task.instruction,
       durationSeconds: 8,
-      predictionQuestion: normalizePredictionQuestion(step.predictionQuestion, `teaching-${index + 1}`),
     }));
   }
   if (["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
@@ -1959,16 +1977,22 @@ function normalizePractical(raw, sourceContext, metadata) {
     teachingSteps.unshift({
       stepNumber: 0,
       title: "Welcome to the practical",
-      displayText: `Welcome to ${sourceContext.courseTitle}, Module ${metadata.moduleNumber}, Chapter ${metadata.chapterNumber}: ${title}.`,
-      speakerText: `Welcome. In this practical for ${sourceContext.courseTitle}, Module ${metadata.moduleNumber}, Chapter ${metadata.chapterNumber}, we will explore ${title}. First, I will show you the central idea with a realistic example. Then you will test your own reasoning step by step. Take your time: careful predictions and observations are how practical learning becomes understanding.`,
+      displayText: `Welcome to ${sourceContext.courseTitle || "your course"}, Module ${metadata.moduleNumber}, Chapter ${metadata.chapterNumber}: ${title}.`,
+      speakerText: `Welcome. In this practical for ${sourceContext.courseTitle || "your course"}, Module ${metadata.moduleNumber}, Chapter ${metadata.chapterNumber}, we will explore ${title}. First, I will show you the central idea with a realistic example. Then you will test your own reasoning step by step. Take your time: careful predictions and observations are how practical learning becomes understanding.`,
       explanation: "Start with the mission, then connect each step to evidence.",
       durationSeconds: 18,
     });
     teachingSteps = teachingSteps.map((step, index) => ({ ...step, stepNumber: index + 1 }));
   }
-  const walkthroughStepNumbers = teachingSteps.length
-    ? teachingSteps.map((step) => step.stepNumber)
-    : codeWalkthrough.map((step) => step.stepNumber);
+  // Terminal labs have two different teaching sequences: the narrated
+  // codeWalkthrough and the higher-level teachingSteps. Playlist `codeSteps`
+  // points at the walkthrough, so using teachingSteps here can leave valid
+  // walkthrough steps (usually the last one) unassigned and fail validation.
+  const walkthroughStepNumbers = sourceContext.source.category === "Terminal Coding Lab"
+    ? codeWalkthrough.map((step) => step.stepNumber)
+    : teachingSteps.length
+      ? teachingSteps.map((step) => step.stepNumber)
+      : codeWalkthrough.map((step) => step.stepNumber);
   const stepsForTask = (taskIndex) => {
     if (!walkthroughStepNumbers.length) return [];
     const taskCount = Math.max(tasks.length, 1);
@@ -2099,6 +2123,37 @@ function normalizePractical(raw, sourceContext, metadata) {
     manualReview: Boolean(raw.completionRules?.manualReview) || safety.requiresManualReview,
   };
 
+  const objectives = asStringArray(raw.objectives)
+    .map(normalizeLearnerText)
+    .filter((objective) => objective.length >= 10);
+  const fallbackObjectives = sourceContext.source.category === "Research & Analysis"
+    ? [
+        `Record relevant observations from the sources used in ${title}.`,
+        `Compare the evidence with the initial hypothesis for ${title}.`,
+        `Write a conclusion for ${title} that is supported by specific evidence.`,
+      ]
+    : sourceContext.source.category === "Cloud Console Lab"
+      ? [
+          `Inspect and record the starting resource state for ${title}.`,
+          `Apply an allowed configuration change in ${title} and predict its effect.`,
+          `Verify the resulting resource state and explain the evidence.`,
+        ]
+      : sourceContext.source.category === "Scenario & Design Exercise"
+        ? [
+            `Identify the constraints that shape the decision in ${title}.`,
+            `Compare the available options in ${title} against those constraints.`,
+            `Choose an option and justify its expected consequences.`,
+          ]
+        : [
+            `Run the ${title} starter workspace and record its baseline output.`,
+            `Modify one part of ${title} and explain the observable change in the result.`,
+            `Test an edge case in ${title} and justify your explanation using the evidence produced.`,
+          ];
+  for (const objective of fallbackObjectives) {
+    if (objectives.length >= 3) break;
+    if (!objectives.includes(objective)) objectives.push(objective);
+  }
+
   return {
     schemaVersion: 1,
     practicalId: `practical-${metadata.courseId}-m${metadata.moduleNumber}-c${metadata.chapterNumber}`,
@@ -2122,7 +2177,7 @@ function normalizePractical(raw, sourceContext, metadata) {
     title,
     summary: raw.summary || `In this practical, you will ${instructions.replace(/\s+/g, " ").trim().replace(/[.!?]+$/, "")}. You will connect the task to ${sourceContext.lessonContext?.chapterIntroduction?.split(/[.!?]/)[0] || "the chapter concepts"} and explain what your program does.`,
     teachViewOpening: buildTeachViewOpening(
-      raw,
+      { ...raw, objectives },
       sourceContext,
       title,
       normalizeLearnerText(raw.summary || instructions),
@@ -2159,10 +2214,8 @@ function normalizePractical(raw, sourceContext, metadata) {
           : fallback.teachingStepNumbers,
       };
     }),
-    objectives: asStringArray(raw.objectives),
-    learningObjectives: asStringArray(raw.learningObjectives).length
-      ? asStringArray(raw.learningObjectives)
-      : asStringArray(raw.objectives),
+    objectives,
+    learningObjectives: objectives,
     prerequisites: asStringArray(raw.prerequisites),
     instructions,
     narratorGuide,
@@ -2308,38 +2361,6 @@ function safeRelativePath(filePath) {
 
 function validatePractical(practical) {
   const errors = [];
-  const requiredFields = ["schemaVersion", "practicalId", "source", "category", "title", "labType", "workspace", "environment", "files", "tasks", "checks", "safety", "cleanup", "completionRules", "generator"];
-  for (const field of requiredFields) {
-    if (practical?.[field] === undefined || practical?.[field] === null) errors.push(`missing ${field}`);
-  }
-  if (!Array.isArray(practical?.objectives) || practical.objectives.length < 3 || practical.objectives.some((item) => typeof item !== "string" || item.trim().length < 10)) {
-    errors.push("practical needs at least three specific, observable objectives");
-  }
-  const opening = practical?.teachViewOpening;
-  for (const field of ["subtitle", "inThisPractical", "comingUp", "whyItMatters", "gettingReady"]) {
-    if (typeof opening?.[field] !== "string" || opening[field].trim().length < 20) {
-      errors.push(`teachViewOpening needs meaningful ${field}`);
-    }
-  }
-  if (!Array.isArray(opening?.quickOrientation) || opening.quickOrientation.length !== 3 || opening.quickOrientation.some((item) => typeof item !== "string" || item.trim().length < 10)) {
-    errors.push("teachViewOpening needs exactly three specific quickOrientation points");
-  }
-  if (!Array.isArray(opening?.keyConcepts) || opening.keyConcepts.length !== 3 || opening.keyConcepts.some((concept) => typeof concept?.title !== "string" || !concept.title.trim() || typeof concept?.description !== "string" || concept.description.trim().length < 15)) {
-    errors.push("teachViewOpening needs three applied, source-grounded keyConcepts");
-  }
-  if (typeof opening?.conceptMap?.title !== "string" || !opening.conceptMap.title.trim() || typeof opening?.conceptMap?.subtitle !== "string" || opening.conceptMap.subtitle.trim().length < 10) {
-    errors.push("teachViewOpening conceptMap needs a practical-specific title and subtitle");
-  }
-  if (!Array.isArray(opening?.conceptMap?.nodes) || opening.conceptMap.nodes.length < 3 || opening.conceptMap.nodes.length > 4 || opening.conceptMap.nodes.some((node) => typeof node?.label !== "string" || !node.label.trim() || typeof node?.value !== "string" || !node.value.trim())) {
-    errors.push("teachViewOpening conceptMap needs three or four complete practical workflow nodes");
-  }
-  if (practical?.schemaVersion !== 1) errors.push("schemaVersion must be 1");
-  if (typeof practical?.narratorGuide !== "string" || practical.narratorGuide.trim().length < 80) {
-    errors.push("narratorGuide must contain a meaningful teacher guide");
-  }
-  if (typeof practical?.practicalId !== "string" || !/^practical-[a-z0-9][a-z0-9-]*$/.test(practical.practicalId)) errors.push("invalid practicalId");
-  if (!SOURCE_CATEGORIES.includes(practical?.category)) errors.push("invalid category");
-  if (!LAB_TYPES.includes(practical?.labType)) errors.push("invalid labType");
   const validatePredictionQuestion = (question, location) => {
     if (question === undefined) return;
     if (!question || typeof question !== "object" || typeof question.prompt !== "string" || !question.prompt.trim()) {
@@ -2379,6 +2400,38 @@ function validatePractical(practical) {
     validatePredictionQuestion(step.predictionQuestion, `teaching step ${step.stepNumber}`);
   }
 
+  const requiredFields = ["schemaVersion", "practicalId", "source", "category", "title", "labType", "workspace", "environment", "files", "tasks", "checks", "safety", "cleanup", "completionRules", "generator"];
+  for (const field of requiredFields) {
+    if (practical?.[field] === undefined || practical?.[field] === null) errors.push(`missing ${field}`);
+  }
+  if (!Array.isArray(practical?.objectives) || practical.objectives.length < 3 || practical.objectives.some((item) => typeof item !== "string" || item.trim().length < 10)) {
+    errors.push("practical needs at least three specific, observable objectives");
+  }
+  const opening = practical?.teachViewOpening;
+  for (const field of ["subtitle", "inThisPractical", "comingUp", "whyItMatters", "gettingReady"]) {
+    if (typeof opening?.[field] !== "string" || opening[field].trim().length < 20) {
+      errors.push(`teachViewOpening needs meaningful ${field}`);
+    }
+  }
+  if (!Array.isArray(opening?.quickOrientation) || opening.quickOrientation.length !== 3 || opening.quickOrientation.some((item) => typeof item !== "string" || item.trim().length < 10)) {
+    errors.push("teachViewOpening needs exactly three specific quickOrientation points");
+  }
+  if (!Array.isArray(opening?.keyConcepts) || opening.keyConcepts.length !== 3 || opening.keyConcepts.some((concept) => typeof concept?.title !== "string" || !concept.title.trim() || typeof concept?.description !== "string" || concept.description.trim().length < 15)) {
+    errors.push("teachViewOpening needs three applied, source-grounded keyConcepts");
+  }
+  if (typeof opening?.conceptMap?.title !== "string" || !opening.conceptMap.title.trim() || typeof opening?.conceptMap?.subtitle !== "string" || opening.conceptMap.subtitle.trim().length < 10) {
+    errors.push("teachViewOpening conceptMap needs a practical-specific title and subtitle");
+  }
+  if (!Array.isArray(opening?.conceptMap?.nodes) || opening.conceptMap.nodes.length < 3 || opening.conceptMap.nodes.length > 4 || opening.conceptMap.nodes.some((node) => typeof node?.label !== "string" || !node.label.trim() || typeof node?.value !== "string" || !node.value.trim())) {
+    errors.push("teachViewOpening conceptMap needs three or four complete practical workflow nodes");
+  }
+  if (practical?.schemaVersion !== 1) errors.push("schemaVersion must be 1");
+  if (typeof practical?.narratorGuide !== "string" || practical.narratorGuide.trim().length < 80) {
+    errors.push("narratorGuide must contain a meaningful teacher guide");
+  }
+  if (typeof practical?.practicalId !== "string" || !/^practical-[a-z0-9][a-z0-9-]*$/.test(practical.practicalId)) errors.push("invalid practicalId");
+  if (!SOURCE_CATEGORIES.includes(practical?.category)) errors.push("invalid category");
+  if (!LAB_TYPES.includes(practical?.labType)) errors.push("invalid labType");
 
   const workspaceTypes = {
     "Terminal Coding Lab": "terminal",
