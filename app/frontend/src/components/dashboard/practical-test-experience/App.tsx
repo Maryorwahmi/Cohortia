@@ -173,8 +173,11 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     folder: file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '/',
     initialContent: file.content || '',
     language: /\.py$/i.test(file.path) ? 'python' as const
+      : /\.(js|mjs|cjs|ts)$/i.test(file.path) ? 'javascript' as const
       : /\.c$/i.test(file.path) ? 'c' as const
       : /\.(cpp|cc|cxx)$/i.test(file.path) ? 'cpp' as const
+      : /\.(sql)$/i.test(file.path) ? 'sql' as const
+      : /\.(sh|bash|zsh)$/i.test(file.path) ? 'shell' as const
       : /\.json$/i.test(file.path) ? 'json' as const
       : /\.(yaml|yml)$/i.test(file.path) ? 'yaml' as const
       : 'text' as const,
@@ -187,7 +190,14 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     const activeFile = files.find((file) => file.name === step.file) || files[0];
     const executable = activeFile?.name?.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, '') || 'program';
     const isPython = /\.py$/i.test(activeFile?.name || '');
-    const command = isPython ? `python ${activeFile?.name || 'main.py'}` : `./${executable} 5 10`;
+    const isJavaScript = /\.(js|mjs|cjs|ts)$/i.test(activeFile?.name || '');
+    const isShell = /\.(sh|bash|zsh)$/i.test(activeFile?.name || '');
+    const isSql = /\.sql$/i.test(activeFile?.name || '');
+    const command = isPython ? `python ${activeFile?.name || 'main.py'}`
+      : isJavaScript ? `node ${activeFile?.name || 'index.js'}`
+      : isShell ? `sh ${activeFile?.name || 'script.sh'}`
+      : isSql ? `sqlite3 lab.db < ${activeFile?.name || 'query.sql'}`
+      : `./${executable} 5 10`;
     return {
       stepNumber: step.stepNumber || index + 1,
       title: step.file || `Teaching step ${index + 1}`,
@@ -787,7 +797,12 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     setTeachExampleOutput('Running the example…');
     if (practical?.id && activeManifest.categoryType === 'terminal_coding') {
       const activeFile = activeManifest.files.find((file) => file.name === activeFileName) || activeManifest.files[0];
-      const language = activeFile?.language === 'python' ? 'python' : activeFile?.language === 'cpp' ? 'cpp' : 'c';
+      const language = activeFile?.language === 'python' ? 'python'
+        : activeFile?.language === 'cpp' ? 'cpp'
+        : activeFile?.language === 'javascript' ? 'javascript'
+        : activeFile?.language === 'sql' ? 'sql'
+        : activeFile?.language === 'shell' ? 'shell'
+        : 'c';
       const stdin = /\b5\s+10\b/.test(command) ? '5\n10\n' : practical.workspace?.terminal?.stdin || '';
       try {
         const result = await learningBoardsApi.executeNativePractical(

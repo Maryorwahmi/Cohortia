@@ -36,7 +36,7 @@ export interface PracticalFile {
   name: string;
   folder: string;
   initialContent: string;
-  language: 'text' | 'python' | 'c' | 'cpp' | 'json' | 'yaml';
+  language: 'text' | 'python' | 'javascript' | 'c' | 'cpp' | 'sql' | 'shell' | 'json' | 'yaml';
   readOnly?: boolean;
 }
 
