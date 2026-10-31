@@ -100,125 +100,157 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
 
   return (
     <div className="flex-1 flex flex-col h-full bg-slate-50 text-slate-800 font-sans select-none overflow-hidden">
+      {activeSlideIndex === 0 && (
+        <div className="px-5 py-2.5 bg-white border-b border-slate-200/90 flex items-center justify-between shadow-2xs shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="px-2 py-0.5 rounded-md border border-rose-300 text-rose-600 bg-rose-50/60 text-[10px] font-mono font-bold tracking-wider shrink-0">
+              {classroom.classroomBadge}
+            </span>
+            <h1 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+              {manifest.lessonLabel}
+            </h1>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0" role="img" aria-label="Orientation screen, first of two">
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff4b4b] scale-110 shadow-xs" />
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#cbd5e1]" />
+          </div>
+        </div>
+      )}
       {/* Main classroom canvas */}
-      <div className="flex-1 p-2 sm:p-3 overflow-hidden min-h-0 flex flex-col justify-center">
+      <div className={`flex-1 p-2 sm:p-3 min-h-0 flex flex-col justify-center ${activeSlideIndex === 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}>
         {/* SLIDE 0: Practical mission opening */}
         {activeSlideIndex === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3 sm:p-4 h-full min-h-0 overflow-hidden">
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
-              <span className="px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
-                {classroom.moduleBadge}
-              </span>
-              <span>&gt;</span>
-              <span>{classroom.chapterBreadcrumb}</span>
-              <span>&gt;</span>
-              <span className="text-slate-700">{classroom.topicBreadcrumb}</span>
-            </div>
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-full lg:h-full overflow-hidden">
+            <div className="lg:col-span-7 flex flex-col justify-between min-h-0 overflow-hidden gap-2">
+              <div className="min-h-0">
+                <div className="flex items-center gap-1.5 text-xs font-mono mb-0.5">
+                  <span className="px-1.5 py-0.5 rounded border border-blue-400 text-blue-600 font-bold text-[10px] bg-blue-50/50">
+                    {classroom.moduleBadge}
+                  </span>
+                  <span className="text-slate-400 font-semibold text-[10px]">&gt;</span>
+                  <span className="text-slate-500 font-semibold text-[10px]">{classroom.chapterBreadcrumb}</span>
+                  <span className="text-slate-400 font-semibold text-[10px]">&gt;</span>
+                  <span className="text-slate-700 font-bold tracking-wider text-[10px]">{classroom.topicBreadcrumb}</span>
+                </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 h-[calc(100%-32px)] min-h-0">
-              <div className="lg:col-span-7 flex flex-col gap-3 min-h-0 overflow-hidden">
-                <section className="rounded-2xl bg-white border border-slate-200 p-4 sm:p-5 shadow-sm shrink-0">
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      Practical mission
+                <h2 className="text-base sm:text-xl font-black text-slate-950 tracking-tight leading-snug mb-0.5 font-sans">
+                  {classroom.mainTitle}
+                </h2>
+                <p className="text-[11px] text-slate-600 mb-1.5 leading-snug line-clamp-1 sm:line-clamp-2">
+                  {classroom.subtitle}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-1.5">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-blue-50/70 border border-blue-200/60 shadow-2xs">
+                    <span className="text-[9px] font-mono font-bold text-blue-600 uppercase tracking-wider block mb-0.5">
+                      In this lesson
                     </span>
-                    <span className="px-2 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-100 text-[9px] font-bold uppercase tracking-wider">
-                      {manifest.category}
+                    <p className="text-[11px] text-slate-800 leading-tight font-medium line-clamp-2">
+                      {classroom.inThisLesson}
+                    </p>
+                  </div>
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-emerald-50/70 border border-emerald-200/60 shadow-2xs">
+                    <span className="text-[9px] font-mono font-bold text-emerald-700 uppercase tracking-wider block mb-0.5">
+                      Why it matters
                     </span>
+                    <p className="text-[11px] text-slate-800 leading-tight font-medium line-clamp-2">
+                      {classroom.whyItMatters}
+                    </p>
                   </div>
-                  <h2 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight leading-tight font-sans">
-                    {classroom.mainTitle}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed line-clamp-2">
-                    {classroom.subtitle}
-                  </p>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
-                    <div className="rounded-xl p-3 bg-blue-50/80 border border-blue-100">
-                      <h3 className="text-[10px] font-bold text-blue-700 mb-1 uppercase tracking-wider">In this lesson</h3>
-                      <p className="text-xs text-slate-700 leading-snug line-clamp-3">
-                        {classroom.inThisLesson}
-                      </p>
-                    </div>
-                    <div className="rounded-xl p-3 bg-emerald-50/80 border border-emerald-100">
-                      <h3 className="text-[10px] font-bold text-emerald-700 mb-1 uppercase tracking-wider">Why it matters</h3>
-                      <p className="text-xs text-slate-700 leading-snug line-clamp-3">
-                        {classroom.whyItMatters}
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="rounded-2xl bg-white border border-slate-200 p-3 sm:p-4 shadow-sm flex-1 min-h-0 flex flex-col">
-                  {classroom.exploreKeyTopics.length > 0 && (
-                    <>
-                      <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                        Explore chapter concepts in this practical
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 min-h-0">
-                        {classroom.exploreKeyTopics.slice(0, 3).map((topic, index) => (
-                          <div key={index} className="rounded-xl p-3 bg-emerald-50/70 border border-emerald-100 min-h-0">
-                            <h4 className="text-xs font-bold text-emerald-800 line-clamp-1">{topic.title}</h4>
-                            <p className="text-[11px] text-slate-600 leading-snug mt-1 line-clamp-3">
-                              {topic.description}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  <ul className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2 shrink-0">
+                <div className="mb-1">
+                  <h3 className="text-[11px] font-bold text-slate-900 mb-0.5">
+                    Quick orientation
+                  </h3>
+                  <ul className="space-y-0.5 text-[11px] text-slate-600 leading-tight">
                     {classroom.quickOrientation.slice(0, 3).map((point, index) => (
-                      <li key={index} className="flex items-start gap-1.5 text-[11px] text-slate-600 leading-snug">
-                        <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-600" />
-                        <span className="line-clamp-2">{point}</span>
+                      <li key={index} className="flex items-start gap-1.5 min-w-0">
+                        <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0 text-emerald-600" />
+                        <span className="text-[11px] text-slate-600 leading-tight truncate min-w-0 flex-1">
+                          {point}
+                        </span>
                       </li>
                     ))}
                   </ul>
-                </section>
+                </div>
               </div>
 
-              <div className="lg:col-span-5 flex flex-col gap-3 min-h-0 overflow-hidden">
-                <section className="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm flex-1 min-h-0 flex flex-col">
-                  <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                    {classroom.conceptMap.title}
-                  </h3>
-                  {classroom.conceptMap.subtitle && (
-                    <p className="text-[11px] text-slate-500 mb-3">{classroom.conceptMap.subtitle}</p>
-                  )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 content-start">
-                    {classroom.conceptMap.nodes.slice(0, 4).map((node, index) => (
-                      <div key={index} className="rounded-xl p-3 bg-blue-50/70 border border-blue-100 min-h-[68px]">
-                        <div className="flex items-start gap-2">
-                          <Plus className="w-4 h-4 mt-0.5 shrink-0 text-blue-600" />
-                          <div className="min-w-0">
-                            <h4 className="text-xs font-semibold text-slate-800 line-clamp-1">{node.label}</h4>
-                            <p className="text-[10px] text-slate-500 leading-snug mt-1 line-clamp-2">{node.value}</p>
-                          </div>
-                        </div>
+              {classroom.exploreKeyTopics.length > 0 && (
+                <div className="p-2 rounded-xl bg-amber-50/40 border-l-4 border-l-amber-400 border border-amber-200/80 shadow-2xs shrink-0">
+                  <span className="text-[9px] font-mono font-bold text-amber-900 uppercase tracking-wider block mb-1">
+                    Explore key topics
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {classroom.exploreKeyTopics.slice(0, 3).map((topic, index) => (
+                      <div key={index} className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
+                        <h4 className="text-[11px] font-bold text-slate-900 truncate">
+                          {topic.title}
+                        </h4>
+                        <p className="text-[10px] text-slate-500 leading-tight line-clamp-2 mt-0.5">
+                          {topic.description}
+                        </p>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                    <span className="text-[11px] text-slate-400 font-mono">Interactive Concept</span>
-                    <button
-                      onClick={onNextSlide}
-                      className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold font-mono transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>Start Walkthrough</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </section>
+                </div>
+              )}
+            </div>
 
-                <section className="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm shrink-0">
-                  <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                    Getting ready
-                  </h3>
-                  <p className="text-xs text-slate-700 leading-relaxed line-clamp-2">
-                    {classroom.gettingReady}
-                  </p>
-                </section>
+            <div className="lg:col-span-5 flex flex-col justify-between space-y-2 min-h-0 overflow-hidden">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-slate-200 shadow-2xs flex-1 flex flex-col justify-between min-h-0">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-4 h-4 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                      <Plus className="w-3 h-3" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
+                        {classroom.conceptMap.title}
+                      </h3>
+                      {classroom.conceptMap.subtitle && (
+                        <p className="text-[10px] text-slate-400">
+                          {classroom.conceptMap.subtitle}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {classroom.conceptMap.nodes.slice(0, 4).map((node, index) => (
+                      <div key={index} className="p-1.5 rounded-lg border border-slate-200/80 bg-slate-50/60 flex flex-col justify-center min-h-[42px]">
+                        <span className="text-[11px] font-bold text-slate-800 mb-0.5 truncate">
+                          {node.label}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500 truncate">
+                          {node.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between gap-2 mt-1">
+                  <span className="text-[10px] font-mono text-slate-400">
+                    Interactive Concept
+                  </span>
+                  <button
+                    onClick={onNextSlide}
+                    className="px-3 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold font-mono shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Start Walkthrough</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs shrink-0">
+                <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-0.5">
+                  Getting ready
+                </span>
+                <p className="text-[11px] text-slate-700 leading-snug line-clamp-2">
+                  {classroom.gettingReady}
+                </p>
               </div>
             </div>
           </div>
