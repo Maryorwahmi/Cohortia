@@ -581,7 +581,11 @@ export default function LearningBoardPage({
 
   // Notes are persisted as one editable record per database chapter.
   const [notes, setNotes] = useState<string>("");
+  const notesRef = useRef("");
   const [notesStatus, setNotesStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [isGeneratingQuickNote, setIsGeneratingQuickNote] = useState(false);
+  const [quickNoteError, setQuickNoteError] = useState<string | null>(null);
+  const quickNoteRequestRef = useRef(0);
   const notesSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studySaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -607,8 +611,15 @@ export default function LearningBoardPage({
     setCurrentTime(0);
     setActiveSlide(0);
     setNotes("");
+    notesRef.current = "";
     setNotesStatus("idle");
   }, [selectedLesson.id]);
+
+  useEffect(() => {
+    quickNoteRequestRef.current += 1;
+    setIsGeneratingQuickNote(false);
+    setQuickNoteError(null);
+  }, [activeCourseId, generatedPreview?.module, generatedPreview?.chapter]);
 
   useEffect(() => {
     if (!generatedPreview || !activeCourseId) return;
@@ -618,7 +629,9 @@ export default function LearningBoardPage({
       .then((stored) => {
         if (cancelled) return;
         setChapterProgress(stored);
-        setNotes(stored?.notes || "");
+        const chapterNotes = stored?.notes || "";
+        notesRef.current = chapterNotes;
+        setNotes(chapterNotes);
       })
       .catch(() => {
         if (!cancelled) setNotesStatus("error");
@@ -789,6 +802,7 @@ export default function LearningBoardPage({
   };
 
   const handleNotesChange = (value: string) => {
+    notesRef.current = value;
     setNotes(value);
     if (!activeCourseId || !generatedPreview) return;
     if (notesSaveTimer.current) clearTimeout(notesSaveTimer.current);
@@ -798,6 +812,78 @@ export default function LearningBoardPage({
         .then(() => setNotesStatus("saved"))
         .catch(() => setNotesStatus("error"));
     }, 500);
+  };
+
+  const handleGenerateQuickNote = async () => {
+    if (!activeCourseId || !generatedPreview || isGeneratingQuickNote) return;
+
+    const requestId = ++quickNoteRequestRef.current;
+    const courseId = activeCourseId;
+    const { module, chapter } = generatedPreview;
+    const chapterContent = [
+      generatedPreview.learningObjectives?.length
+        ? `Learning objectives:\n${generatedPreview.learningObjectives.join("\n")}`
+        : "",
+      generatedPreview.keyConcepts?.length
+        ? `Key concepts:\n${generatedPreview.keyConcepts.join("\n")}`
+        : "",
+      generatedPreview.handsOn?.instructions
+        ? `Hands-on activity:\n${generatedPreview.handsOn.instructions}`
+        : "",
+      courseLessons?.[selectedLesson.id]
+        ? `Lesson content:\n${courseLessons[selectedLesson.id]}`
+        : "",
+      generatedPreview.fullNarratorScript
+        ? `Chapter teaching content:\n${generatedPreview.fullNarratorScript}`
+        : "",
+    ].filter(Boolean).join("\n\n").slice(0, 11000);
+
+    setIsGeneratingQuickNote(true);
+    setQuickNoteError(null);
+
+    try {
+      const response = await chatApi.sendMessage(
+        [
+          "Create a concise, useful Quick Study Note for the learner's current chapter.",
+          "Use only the supplied chapter content and course context; do not invent facts or add unrelated topics.",
+          "Make it genuinely faster to review: explain the central idea in one sentence, list the most important concepts and terms, include one short example only if supported by the content, and end with up to three quick-recall questions.",
+          "Keep it under 220 words, skimmable, and return only the note in clean Markdown.",
+        ].join(" "),
+        [],
+        "tutor",
+        "text",
+        activeTrackId,
+        {
+          courseId,
+          courseTitle: generatedPreview.course || courseCatalog?.course || selectedLesson.courseTitle || courseTitle,
+          module,
+          chapter,
+          moduleTitle: curriculum[activeMilestoneIndex]?.title,
+          chapterTitle: generatedPreview.unitTitle,
+          lessonTitle: selectedLesson.title,
+          lessonContent: chapterContent,
+          page: "Learning Board chapter notes",
+        }
+      );
+
+      if (requestId !== quickNoteRequestRef.current) return;
+      const quickNote = response.data?.reply?.trim();
+      if (!response.success || !quickNote) {
+        throw new Error(response.error || "The AI did not return a study note. Please try again.");
+      }
+
+      const existingNotes = notesRef.current.trimEnd();
+      handleNotesChange(
+        existingNotes
+          ? `${existingNotes}\n\n---\n\n${quickNote}`
+          : quickNote
+      );
+    } catch (error) {
+      if (requestId !== quickNoteRequestRef.current) return;
+      setQuickNoteError(error instanceof Error ? error.message : "Could not generate a study note. Please try again.");
+    } finally {
+      if (requestId === quickNoteRequestRef.current) setIsGeneratingQuickNote(false);
+    }
   };
 
   // Send course- and practical-aware guidance to the AI mentor.
@@ -1647,14 +1733,32 @@ export default function LearningBoardPage({
                 {/* STUDY NOTES TAB */}
                 {activeTab === "notes" && (
                   <div className="space-y-4 text-left">
-                    <div className="flex items-center justify-between pb-2 border-b border-immersive-border/40">
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-immersive-border/40">
                       <span className="text-[10px] font-mono font-bold text-immersive-secondary uppercase tracking-widest block">
                         Lab Scratchpad Notebook
                       </span>
-                      <span className="text-[10px] text-immersive-text-secondary font-semibold">
-                        {notesStatus === "saving" ? "Saving..." : notesStatus === "saved" ? "Saved to database" : notesStatus === "error" ? "Save failed" : "One note per chapter"}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="text-[10px] text-immersive-text-secondary font-semibold" aria-live="polite">
+                          {notesStatus === "saving" ? "Saving..." : notesStatus === "saved" ? "Saved to database" : notesStatus === "error" ? "Save failed" : "One note per chapter"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleGenerateQuickNote}
+                          disabled={!generatedPreview || !activeCourseId || isGeneratingQuickNote}
+                          title={!generatedPreview ? "Open a chapter before generating a study note" : undefined}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#FF4B3E]/40 bg-[#FF4B3E]/10 px-3 py-2 text-[10px] font-semibold text-immersive-text-primary transition-colors hover:bg-[#FF4B3E]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Sparkles size={13} aria-hidden="true" />
+                          {isGeneratingQuickNote ? "Generating..." : "Generate Quick Note for Study"}
+                        </button>
+                      </div>
                     </div>
+
+                    {quickNoteError && (
+                      <p role="alert" className="text-xs text-red-500">
+                        {quickNoteError}
+                      </p>
+                    )}
 
                     {/* Editor Form */}
                     <div className="bg-immersive-card border border-immersive-border rounded-xl p-3 space-y-3">
