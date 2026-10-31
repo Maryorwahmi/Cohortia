@@ -15,7 +15,7 @@ import {
 } from './types/practical';
 import { TopNav } from './components/TopNav';
 import { WorkspaceSidebar } from './components/WorkspaceSidebar';
-import { ClassroomTeachView } from './components/ClassroomTeachView';
+import { PrototypeTeachMode } from './components/PrototypeTeachMode';
 import { WalkthroughPanel } from './components/WalkthroughPanel';
 import { PracticalWorkspace } from './components/PracticalWorkspace';
 import { MissionAndMilestonePanel } from './components/MissionAndMilestonePanel';
@@ -1462,46 +1462,28 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   return (
     <div className="practical-test-experience-root relative h-full min-h-0 w-full min-w-0 overflow-hidden bg-slate-100 text-slate-800 flex flex-col">
       <div className="w-full h-full min-h-0 min-w-0 bg-slate-50 flex flex-col overflow-hidden">
-        {/* Top Window Navigation */}
-        <TopNav
-          manifests={manifests}
-          activeManifestId={activeManifestId}
-          onSelectManifest={(id) => setActiveManifestId(id)}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          mode={mode}
-          onToggleMode={() => setMode(mode === 'teach' ? 'practical' : 'teach')}
-          onResetFiles={handleResetFiles}
-          isSplitView={isSplitView}
-          onToggleSplitView={() => {
-            setIsSplitView(!isSplitView);
-            if (!isSplitView) setMode('practical');
-          }}
-        />
+        {/* The prototype owns Teach Mode navigation; practical mode keeps the app navigation. */}
+        {!(mode === 'teach' && !isSplitView) && (
+          <TopNav
+            manifests={manifests}
+            activeManifestId={activeManifestId}
+            onSelectManifest={(id) => setActiveManifestId(id)}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            mode={mode}
+            onToggleMode={() => setMode(mode === 'teach' ? 'practical' : 'teach')}
+            onResetFiles={handleResetFiles}
+            isSplitView={isSplitView}
+            onToggleSplitView={() => {
+              setIsSplitView(!isSplitView);
+              if (!isSplitView) setMode('practical');
+            }}
+          />
+        )}
 
         {/* View Mode Router */}
         {mode === 'teach' && !isSplitView ? (
-          /* TEACH MODE SCREEN: Exact 16:9 HD Classroom View from image_10250715.png */
-          <ClassroomTeachView
-            manifest={activeManifest}
-            currentStepIndex={currentSlideIndex}
-            currentTime={currentTime}
-            openingDurationSeconds={openingDurationSeconds}
-            durationSeconds={totalTeachDurationSeconds}
-            isPlaying={isPlaying}
-            isMuted={isMuted}
-            onTogglePlay={() => setIsPlaying(!isPlaying)}
-            onReplay={() => {
-              setCurrentTime(0);
-              setCurrentSlideIndex(0);
-              setIsPlaying(true);
-            }}
-            onToggleMute={() => setIsMuted(!isMuted)}
-            onSeek={handleSeek}
-            onPrevSlide={handlePrevSlide}
-            onNextSlide={handleNextSlide}
-            onOpenWorkspace={() => setMode('practical')}
-          />
+          <PrototypeTeachMode />
         ) : (
           /* PRACTICE / SPLIT VIEW: Full Workspace with Editor, Terminal, Milestones */
           <div className="flex-1 flex gap-3 p-3 overflow-hidden min-h-0">

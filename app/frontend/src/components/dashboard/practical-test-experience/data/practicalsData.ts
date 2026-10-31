@@ -2,6 +2,191 @@ import { PracticalManifest } from '../types/practical';
 
 export const PRACTICAL_MANIFESTS: PracticalManifest[] = [
   // =========================================================================
+  // CATEGORY 0: C++ CERTIFIED ASSOCIATE PROGRAMMER (CPA) - CHAPTER 1 OF 24
+  // =========================================================================
+  {
+    id: 'cpa-cpp-chapter-01',
+    title: 'Introduction to C++ and Your First Program',
+    category: 'TERMINAL CODING LAB',
+    categoryType: 'terminal_coding',
+    courseName: 'C++ Certified Associate Programmer (CPA)',
+    moduleName: 'Module 01: Introduction to C++ and Core Programming',
+    type: 'c_program',
+    durationSeconds: 110,
+    lessonLabel: 'CHAPTER 1 OF 24 • MODULE 01 — Introduction to C++ and Your First Program',
+    objective: 'Master foundational concepts and practical skills to confidently begin your C++ programming journey.',
+    realWorldContext: 'C++ powers high-performance real-time applications, game engines (Unreal Engine), financial algorithmic trading infrastructure, and operating system kernels.',
+    classroom: {
+      classroomBadge: '16:9 HD CLASSROOM',
+      moduleBadge: 'MODULE 01',
+      chapterBreadcrumb: 'Chapter 1 of 24',
+      topicBreadcrumb: 'FIRST C++ PROGRAM',
+      mainTitle: 'Introduction to C++ and Your First Program',
+      subtitle: 'Master foundational concepts and practical skills to confidently begin your C++ programming journey.',
+      inThisLesson: 'Review the core definitions of C++, compilers, and the main() function to solidify your understanding, then compile and run your first program.',
+      whyItMatters: 'Unlike interpreted languages, C++ compiles down directly to optimized machine code executed natively by the CPU.',
+      quickOrientation: [
+        'Review the core definitions of C++, compilers, and the main() function.',
+        'The #include <iostream> directive includes the standard input/output stream declarations.',
+        'Compiling with clang++ translates human-readable source code into native machine code.'
+      ],
+      exploreKeyTopics: [
+        {
+          title: 'Source & Headers',
+          description: '#include <iostream> provides stream declarations for console operations.'
+        },
+        {
+          title: 'Compiler Pipeline',
+          description: 'clang++ processes directives, validates types, and generates ELF executable binary.'
+        },
+        {
+          title: 'Standard Output',
+          description: 'std::cout stream insertion operator << prints directly to the terminal.'
+        }
+      ],
+      conceptMap: {
+        title: 'C++ Compilation Architecture',
+        subtitle: 'Source Code > Preprocessor > Compiler > Binary Executable',
+        nodes: [
+          { label: 'Source File', value: 'main.cpp' },
+          { label: 'Compiler', value: 'clang++ -std=c++17 main.cpp -o main' },
+          { label: 'Executable', value: 'main (machine code)' },
+          { label: 'Run', value: './main → "Programming is fun!"' }
+        ]
+      },
+      gettingReady: 'Open main.cpp in the editor, inspect the main function and std::cout stream, compile with clang++ main.cpp -o main, and execute ./main.'
+    },
+    missionStory: {
+      roleTitle: 'C++ Systems Software Engineer Apprentice',
+      scenarioOverview: 'You are writing and compiling your very first high-performance C++ program. You will edit main.cpp, compile with clang++, and run the executable binary in the terminal.',
+      deliverables: [
+        'Verify main.cpp includes <iostream> and outputs "Programming is fun!"',
+        'Compile with clang++ main.cpp -o main in the terminal',
+        'Run ./main and inspect the terminal output stream'
+      ],
+      xpReward: 200
+    },
+    files: [
+      {
+        name: 'main.cpp',
+        folder: 'practical',
+        language: 'text',
+        initialContent: `#include <iostream>
+
+int main() {
+    std::cout << "Programming is fun!" << std::endl;
+    return 0;
+}
+`
+      }
+    ],
+    walkthroughSteps: [
+      {
+        stepNumber: 1,
+        title: 'Classroom Orientation & C++ Foundation',
+        codeSnippet: `// Chapter 1 of 24 • Module 01
+#include <iostream>
+
+int main() {
+    std::cout << "Programming is fun!" << std::endl;
+    return 0;
+}`,
+        codeOrText: `// Chapter 1 of 24 • Module 01
+#include <iostream>
+
+int main() {
+    std::cout << "Programming is fun!" << std::endl;
+    return 0;
+}`,
+        activeLineIndex: 1,
+        activeBlockRange: [0, 6],
+        callout: 'The #include <iostream> directive informs the preprocessor to load standard stream input/output definitions.',
+        calloutType: 'info',
+        narration: 'Welcome to C++ Certified Associate Programmer! In this foundational lesson, we build, compile, and run our very first C++ program. C++ is a statically-typed, compiled language engineered for maximum speed and memory control. Let us inspect the code: line 2 includes iostream for standard stream input/output, and line 4 declares main(), the entry point of every C++ executable.',
+        timestamp: 0,
+        predictionQuestion: {
+          id: 'pred-cpp-1',
+          prompt: 'What is the role of the #include <iostream> header directive in C++?',
+          options: [
+            {
+              id: 'c1',
+              label: 'It imports the declarations for standard console input/output streams like std::cout.',
+              isCorrect: true,
+              feedback: 'Correct! Without <iostream>, std::cout and std::endl are undeclared identifiers.'
+            },
+            {
+              id: 'c2',
+              label: 'It executes the main function automatically on startup.',
+              isCorrect: false,
+              feedback: 'Incorrect. #include is a preprocessor directive that incorporates header declarations.'
+            }
+          ]
+        }
+      },
+      {
+        stepNumber: 2,
+        title: 'Compilation with clang++ or g++',
+        codeSnippet: `$ clang++ -std=c++17 main.cpp -o main
+$ ls -l
+-rw-r--r-- 1 student student 105 Oct 28 main.cpp
+-rwxr-xr-x 1 student student 18450 Oct 28 main`,
+        codeOrText: `$ clang++ -std=c++17 main.cpp -o main
+$ ls -l
+-rw-r--r-- 1 student student 105 Oct 28 main.cpp
+-rwxr-xr-x 1 student student 18450 Oct 28 main`,
+        activeLineIndex: 0,
+        activeBlockRange: [0, 3],
+        callout: 'The -o main argument names the resulting executable binary. Without it, the default binary name is a.out.',
+        calloutType: 'tip',
+        narration: 'Now we compile using clang++: clang++ -std=c++17 main.cpp -o main. The compiler performs syntactic validation, type checking, code generation, and links the standard C++ library. The resulting binary file named "main" has the executable bit set.',
+        timestamp: 40
+      },
+      {
+        stepNumber: 3,
+        title: 'Running the Binary in the Shell',
+        codeSnippet: `$ ./main
+Programming is fun!
+$ echo $?
+0`,
+        codeOrText: `$ ./main
+Programming is fun!
+$ echo $?
+0`,
+        activeLineIndex: 1,
+        activeBlockRange: [0, 3],
+        callout: 'The ./ prefix specifies the current directory, instructing bash to execute the local binary.',
+        calloutType: 'info',
+        narration: 'Finally, we execute ./main. The operating system kernel loads the binary into memory and transfers control to the entry point. std::cout sends "Programming is fun!" to the standard output stream, and the program exits with code 0. You are now ready to jump into the practical workspace!',
+        timestamp: 80
+      }
+    ],
+    tasks: [
+      {
+        id: 'task-cpp-1',
+        title: '1. Inspect main.cpp',
+        description: 'Review the source code in the editor. Ensure #include <iostream> is present and main() returns 0.',
+        criteria: 'main.cpp has valid C++ syntax with <iostream>.',
+        hints: ['Check main.cpp in the editor window.']
+      },
+      {
+        id: 'task-cpp-2',
+        title: '2. Compile with clang++',
+        description: 'Type clang++ main.cpp -o main or g++ main.cpp -o main in the terminal to compile.',
+        criteria: 'Executable binary main is compiled without errors.',
+        hints: ['Type: clang++ main.cpp -o main into the terminal and hit Enter.']
+      },
+      {
+        id: 'task-cpp-3',
+        title: '3. Execute the Program',
+        description: 'Run ./main in the terminal to execute the binary and print "Programming is fun!".',
+        criteria: 'Terminal output displays "Programming is fun!".',
+        hints: ['Type: ./main into the terminal and hit Enter.']
+      }
+    ]
+  },
+  // =========================================================================
+
+  // =========================================================================
   // CATEGORY 1: CLOUD CONSOLE LAB (Interactive Cloud Console & Topology)
   // =========================================================================
 
