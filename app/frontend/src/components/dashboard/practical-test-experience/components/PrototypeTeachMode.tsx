@@ -115,7 +115,7 @@ export const PrototypeTeachMode: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex min-h-0 flex-col overflow-hidden">
+    <div className="prototype-teach-mode flex-1 flex min-h-0 flex-col overflow-hidden">
       <PrototypeTeachTopNav
         manifests={PRACTICAL_MANIFESTS}
         activeManifestId={activeManifest.id}
