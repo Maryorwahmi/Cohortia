@@ -116,7 +116,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
         </div>
       )}
       {/* Main classroom canvas */}
-      <div className={`flex-1 p-2 sm:p-3 min-h-0 flex flex-col justify-center ${activeSlideIndex === 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}>
+      <div className="flex-1 p-2 sm:p-3 overflow-hidden min-h-0 flex flex-col justify-center">
         {/* SLIDE 0: Practical mission opening */}
         {activeSlideIndex === 0 ? (
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3 h-full min-h-0 overflow-hidden">
@@ -142,7 +142,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-1.5">
                   <div className="p-1.5 sm:p-2 rounded-lg bg-blue-50/70 border border-blue-200/60 shadow-2xs">
                     <span className="text-[9px] font-mono font-bold text-blue-600 uppercase tracking-wider block mb-0.5">
-                      In this lesson
+                      IN THIS LESSON
                     </span>
                     <p className="text-[11px] text-slate-800 leading-tight font-medium line-clamp-2">
                       {classroom.inThisLesson}
@@ -150,7 +150,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                   </div>
                   <div className="p-1.5 sm:p-2 rounded-lg bg-emerald-50/70 border border-emerald-200/60 shadow-2xs">
                     <span className="text-[9px] font-mono font-bold text-emerald-700 uppercase tracking-wider block mb-0.5">
-                      Why it matters
+                      WHY IT MATTERS
                     </span>
                     <p className="text-[11px] text-slate-800 leading-tight font-medium line-clamp-2">
                       {classroom.whyItMatters}
@@ -175,10 +175,9 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                 </div>
               </div>
 
-              {classroom.exploreKeyTopics.length > 0 && (
-                <div className="p-2 rounded-xl bg-amber-50/40 border-l-4 border-l-amber-400 border border-amber-200/80 shadow-2xs shrink-0">
+              <div className="p-2 rounded-xl bg-amber-50/40 border-l-4 border-l-amber-400 border border-amber-200/80 shadow-2xs shrink-0">
                   <span className="text-[9px] font-mono font-bold text-amber-900 uppercase tracking-wider block mb-1">
-                    Explore key topics
+                    EXPLORE KEY TOPICS
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {classroom.exploreKeyTopics.map((topic, index) => (
@@ -193,8 +192,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                     ))}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
 
             <div className="lg:col-span-5 flex flex-col justify-between space-y-2 min-h-0 overflow-hidden">
               <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-slate-200 shadow-2xs flex-1 flex flex-col justify-between min-h-0">
@@ -203,7 +201,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                     <div className="w-4 h-4 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
                       <Plus className="w-3 h-3" />
                     </div>
-                    <div className="min-w-0">
+                    <div>
                       <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
                         {classroom.conceptMap.title}
                       </h3>
@@ -227,7 +225,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between gap-2 mt-1">
+                <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between mt-1">
                   <span className="text-[10px] font-mono text-slate-400">
                     Interactive Concept
                   </span>
