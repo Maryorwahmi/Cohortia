@@ -9,7 +9,6 @@ import {
 import { UserPreferences, CohortTrackId } from "../../types";
 import { TRACK_CURRICULA, DashboardMilestone, DashboardLesson } from "../../data/dashboardData";
 import { CPP_LESSONS_DETAILS } from "../../data/cppLessonsData";
-import PracticalLearningBoardSimulation from "../../pages/dashboard/PracticalLearningBoardSimulation";
 import AssessmentEngine from "./AssessmentEngine";
 import { chatApi } from "../../services/api";
 import type { ChatLearningContext } from "../../services/api";
@@ -379,17 +378,13 @@ export default function LearningBoardPage({
     return states;
   });
 
-  // Active visual layout mode: "video" | "practical" | "assessment" | "complete"
-  const [viewerMode, setViewerMode] = useState<"video" | "practical" | "assessment" | "complete">(
-    adminAccess?.mode === 'practicals' ? 'practical' : 'video'
-  );
-  const [isPracticalTestMode, setIsPracticalTestMode] = useState(false);
+  // Practical-only admin access opens the active practical experience directly.
+  const [viewerMode, setViewerMode] = useState<"video" | "assessment">("video");
+  const [isPracticalMode, setIsPracticalMode] = useState(adminAccess?.mode === "practicals");
   const [practicalCompleted, setPracticalCompleted] = useState(false);
-  // Practical mode is always the manifest-driven guided learning board.
   
-  // Fetch the imported chapter whenever either viewer needs it. Practical mode
-  // must not depend on read-mode having been opened first.
-  const [devPreviewEnabled, setDevPreviewEnabled] = useState(adminAccess?.mode !== 'practicals');
+  // Fetch the imported chapter for both Read Mode and the practical workspace.
+  const [devPreviewEnabled, setDevPreviewEnabled] = useState(true);
   const [devPreviewLoading, setDevPreviewLoading] = useState(false);
   const [devPreviewError, setDevPreviewError] = useState<string | null>(null);
   const [generatedPreview, setGeneratedPreview] = useState<ImmersiveChapterManifest | null>(null);
@@ -482,7 +477,7 @@ export default function LearningBoardPage({
     : null;
 
   useEffect(() => {
-    if (!previewCourseId || (!devPreviewEnabled && viewerMode !== "practical")) return;
+    if (!previewCourseId || !devPreviewEnabled) return;
 
     let cancelled = false;
 
@@ -558,7 +553,7 @@ export default function LearningBoardPage({
     return () => {
       cancelled = true;
     };
-  }, [devPreviewEnabled, viewerMode, previewCourseId, previewModule, previewChapter]);
+  }, [devPreviewEnabled, previewCourseId, previewModule, previewChapter]);
 
   // Keep the exact course/chapter available to the standalone mentor page.
   useEffect(() => {
@@ -693,8 +688,10 @@ export default function LearningBoardPage({
   const handleChapterWatched = async () => {
     try {
       await persistChapterProgress({ watched: true });
-      // Auto-advance to practical mode after chapter is watched
-      if (!adminAccess || adminAccess.practicals) setViewerMode("practical");
+      if (!adminAccess || adminAccess.practicals) {
+        setIsPracticalMode(true);
+        setDevPreviewEnabled(true);
+      }
     } catch {
       setNotesStatus("error");
     }
@@ -713,7 +710,7 @@ export default function LearningBoardPage({
   const handleContinueToAssessment = () => {
     setShowPracticalAssessmentPrompt(false);
     setDevPreviewEnabled(false);
-    setIsPracticalTestMode(false);
+    setIsPracticalMode(false);
     setViewerMode("assessment");
   };
 
@@ -749,8 +746,8 @@ export default function LearningBoardPage({
     if (practicalCompleted) {
       setViewerMode("assessment");
     } else {
-      // Practical must be completed first
-      setViewerMode("practical");
+      setIsPracticalMode(true);
+      setDevPreviewEnabled(true);
     }
   };
 
@@ -1263,22 +1260,17 @@ export default function LearningBoardPage({
                   <h2 className="text-lg sm:text-xl font-sans font-extrabold text-immersive-text-primary tracking-tight leading-snug">
                     {boardDisplayTitle}
                   </h2>
-                  {!devPreviewEnabled && viewerMode === "practical" && (
-                    <p className="mt-1 text-xs text-immersive-text-secondary">
-                      Hands-On Practice — Complete the practical exercises to reinforce your learning before taking the assessment.
-                    </p>
-                  )}
                 </div>
 
                 {/* View selectors */}
                 <div className="flex items-center bg-immersive-bg border border-immersive-border rounded-xl p-1 shrink-0 self-start sm:self-center">
                   {(!adminAccess || adminAccess.screens) && <button
                     onClick={() => {
-                      setIsPracticalTestMode(false);
+                      setIsPracticalMode(false);
                       setDevPreviewEnabled(true);
                     }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider cursor-pointer ${
-                      devPreviewEnabled && !isPracticalTestMode
+                      devPreviewEnabled && !isPracticalMode
                         ? "bg-[#FF4B3E] text-immersive-text-primary shadow-md shadow-immersive-shadow shadow-[#FF4B3E]/10"
                         : "text-immersive-text-secondary hover:text-immersive-text-primary"
                     }`}
@@ -1288,30 +1280,16 @@ export default function LearningBoardPage({
                   </button>}
                   {(!adminAccess || adminAccess.practicals) && <button
                     onClick={() => {
-                      setIsPracticalTestMode(false);
-                      setDevPreviewEnabled(false);
-                      setViewerMode("practical");
+                      setIsPracticalMode(true);
+                      setDevPreviewEnabled(true);
                     }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider cursor-pointer ${
-                      !devPreviewEnabled && viewerMode === "practical"
+                      isPracticalMode && devPreviewEnabled
                         ? "bg-[#FF4B3E] text-immersive-text-primary shadow-md shadow-immersive-shadow shadow-[#FF4B3E]/10"
                         : "text-immersive-text-secondary hover:text-immersive-text-primary"
                     }`}
                   >
                     PRACTICAL
-                  </button>}
-                  {(!adminAccess || adminAccess.practicals) && <button
-                    onClick={() => {
-                      setIsPracticalTestMode(true);
-                      setDevPreviewEnabled(true);
-                    }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider cursor-pointer ${
-                      isPracticalTestMode
-                        ? "bg-[#FF4B3E] text-immersive-text-primary shadow-md shadow-immersive-shadow shadow-[#FF4B3E]/10"
-                        : "text-immersive-text-secondary hover:text-immersive-text-primary"
-                    }`}
-                  >
-                    PRACTICAL TEST
                   </button>}
                 </div>
               </div>
@@ -1343,12 +1321,10 @@ export default function LearningBoardPage({
               )}
 
               {/* WORKSPACE MEDIA CONTAINER */}
-              <div className={!devPreviewEnabled && viewerMode === "practical"
-                ? "relative min-w-0"
-                : "relative rounded-lg sm:rounded-2xl bg-immersive-bg border border-immersive-border overflow-hidden min-h-[320px] sm:min-h-[420px] md:min-h-[560px] lg:min-h-[720px] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] flex flex-col justify-between group shadow-inner"}>
+              <div className="relative rounded-lg sm:rounded-2xl bg-immersive-bg border border-immersive-border overflow-hidden min-h-[320px] sm:min-h-[420px] md:min-h-[560px] lg:min-h-[720px] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] flex flex-col justify-between group shadow-inner">
                 
                 {/* Read mode / dev preview */}
-                {devPreviewEnabled && !isPracticalTestMode && (
+                {devPreviewEnabled && !isPracticalMode && (
                   <div className="h-full w-full flex overflow-hidden">
                     <div className="flex-1 min-w-0 bg-slate-100 relative">
                       {devPreviewLoading ? (
@@ -1382,8 +1358,8 @@ export default function LearningBoardPage({
                             await handleChapterWatched();
                             setShowChapterAssessment(false);
                             if (!adminAccess || adminAccess.practicals) {
-                              setDevPreviewEnabled(false);
-                              setViewerMode("practical");
+                              setIsPracticalMode(true);
+                              setDevPreviewEnabled(true);
                             }
                           }}
                           onRequestPrevChapter={() => {
@@ -1461,8 +1437,8 @@ export default function LearningBoardPage({
                   </div>
                 )}
 
-                {/* Practical Test uses the separately supplied practical workspace. */}
-                {devPreviewEnabled && isPracticalTestMode && (
+                {/* PRACTICAL opens the active practical workspace. */}
+                {devPreviewEnabled && isPracticalMode && (
                   <div className="h-full w-full min-h-0 overflow-hidden">
                     <PracticalTestExperience
                       practical={activePractical}
@@ -1493,34 +1469,6 @@ export default function LearningBoardPage({
                       onComplete={handleChapterWatched}
                     />
                   )
-                )}
-
-                {/* 3. GUIDED PRACTICAL LEARNING BOARD */}
-                {!devPreviewEnabled && viewerMode === "practical" && (
-                  <div className="flex min-w-0 flex-col">
-                    <div className="min-w-0">
-                      <div className="relative min-w-0">
-                        {activePractical ? (
-                          <PracticalLearningBoardSimulation
-                            aspectRatio="16:9"
-                            onComplete={handlePracticalCompleted}
-                            isCompleted={practicalCompleted}
-                            showHeaderPills={false}
-                            practical={activePractical}
-                            onMentorContextReady={registerPracticalMentorContext}
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center rounded-2xl border border-immersive-border bg-immersive-card p-6 text-center text-sm text-immersive-text-secondary">
-                            This chapter does not have a published practical yet.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-4 px-6 py-3 text-center text-xs font-bold text-immersive-secondary border-t border-immersive-border/50">
-                      Complete all hands-on checks to unlock the assessment.
-                    </div>
-                  </div>
                 )}
 
                 {/* 4. INTERACTIVE ASSESSMENT */}
@@ -1581,7 +1529,10 @@ export default function LearningBoardPage({
 
                   {/* Try It */}
                   {(!adminAccess || adminAccess.practicals) && <button
-                    onClick={() => setViewerMode("practical")}
+                    onClick={() => {
+                      setIsPracticalMode(true);
+                      setDevPreviewEnabled(true);
+                    }}
                     className="text-left bg-immersive-card/30 border border-white/5 rounded-2xl p-4 hover:bg-immersive-card/50 transition-all group cursor-pointer min-h-[120px] flex flex-col"
                   >
                     <div className="flex items-center gap-2 mb-2">
