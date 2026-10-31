@@ -49,25 +49,15 @@ const PRACTICAL_MODES = ["code_lab", "terminal_lab", "database_lab", "simulation
 const PREDICTION_QUESTION_SCHEMA = {
   type: "object",
   properties: {
-    id: { type: "string" },
     prompt: { type: "string" },
     options: {
       type: "array",
-      minItems: 2,
-      maxItems: 4,
-      items: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          label: { type: "string" },
-          isCorrect: { type: "boolean" },
-          feedback: { type: "string" },
-        },
-        required: ["id", "label", "isCorrect", "feedback"],
-      },
+      items: { type: "string" },
     },
+    correctOption: { type: "integer", description: "Zero-based index into options." },
+    feedback: { type: "array", items: { type: "string" } },
   },
-  required: ["id", "prompt", "options"],
+  required: ["prompt", "options", "correctOption", "feedback"],
 };
 // Keep this list aligned with the isolated practical executor.
 const SUPPORTED_TERMINAL_LANGUAGES = ["c", "cpp", "python", "javascript", "shell", "sql"];
@@ -979,20 +969,27 @@ function normalizeId(value, fallback) {
 function normalizePredictionQuestion(question, fallbackId) {
   if (question === undefined) return undefined;
   const rawQuestion = question && typeof question === "object" ? question : {};
+  const rawOptions = Array.isArray(rawQuestion.options) ? rawQuestion.options : [];
+  const usesCompactOptions = rawOptions.every((option) => typeof option === "string");
+  const correctOptionIndex = Number(rawQuestion.correctOption);
   return {
     id: normalizeId(rawQuestion.id, fallbackId),
     prompt: asStringText(rawQuestion.prompt),
-    options: Array.isArray(rawQuestion.options)
-      ? rawQuestion.options.map((option, index) => {
-          const rawOption = option && typeof option === "object" ? option : {};
-          return {
-            id: normalizeId(rawOption.id, `${fallbackId}-option-${index + 1}`),
-            label: asStringText(rawOption.label),
-            isCorrect: rawOption.isCorrect,
-            feedback: asStringText(rawOption.feedback),
-          };
-        })
-      : [],
+    options: rawOptions.map((option, index) => {
+      const rawOption = option && typeof option === "object" ? option : {};
+      return {
+        id: normalizeId(rawOption.id, `${fallbackId}-option-${index + 1}`),
+        label: asStringText(typeof option === "string" ? option : rawOption.label),
+        isCorrect: usesCompactOptions
+          ? index === correctOptionIndex
+          : rawOption.isCorrect,
+        feedback: asStringText(
+          usesCompactOptions && Array.isArray(rawQuestion.feedback)
+            ? rawQuestion.feedback[index]
+            : rawOption.feedback,
+        ),
+      };
+    }),
   };
 }
 

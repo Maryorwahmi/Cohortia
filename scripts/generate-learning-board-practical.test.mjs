@@ -7,6 +7,7 @@ import {
   validatePractical,
 } from "./generate-learning-board-practical.js";
 import {
+  PRACTICAL_SCHEMA,
   normalizePractical as normalizeAppPractical,
   validatePractical as validateAppPractical,
 } from "../app/scripts/generate-learning-board-practical.js";
@@ -250,6 +251,49 @@ test("app generator preserves optional prediction checkpoints on code and non-co
       category,
     );
   }
+});
+
+test("prediction question schema uses compact primitive arrays for Gemini", () => {
+  const questionSchema = PRACTICAL_SCHEMA.properties.teachingSteps.items.properties.predictionQuestion;
+  assert.deepEqual(questionSchema.properties.options.items, { type: "string" });
+  assert.deepEqual(questionSchema.properties.feedback.items, { type: "string" });
+  assert.equal(questionSchema.properties.correctOption.type, "integer");
+  assert.ok(!questionSchema.properties.options.items.properties);
+});
+
+test("app generator normalizes compact prediction questions into learner answer options", () => {
+  const response = makeGeneratedResponse();
+  response.teachingSteps = [{
+    stepNumber: 1,
+    title: "Predict the result",
+    displayText: "A request moves to the new endpoint.",
+    speakerText: "Consider which endpoint will receive the request after the update.",
+    explanation: "The active endpoint determines where a new request is routed.",
+    predictionQuestion: {
+      prompt: "Where will the next request be sent?",
+      options: ["To the new endpoint", "To the previous endpoint"],
+      correctOption: 0,
+      feedback: [
+        "Correct: the updated route points to the new endpoint.",
+        "The route has changed, so new requests use the new endpoint.",
+      ],
+    },
+  }];
+  const practical = normalizeAppPractical(
+    response,
+    makeContext("Cloud Console Lab"),
+    { courseId: "sample-course", moduleNumber: 1, chapterNumber: 1, generated: "2026-01-01T00:00:00.000Z" },
+  );
+  const question = practical.teachingSteps.find((step) => step.predictionQuestion)?.predictionQuestion;
+
+  assert.equal(question?.prompt, "Where will the next request be sent?");
+  assert.deepEqual(question?.options.map((option) => option.label), [
+    "To the new endpoint",
+    "To the previous endpoint",
+  ]);
+  assert.deepEqual(question?.options.map((option) => option.isCorrect), [true, false]);
+  assert.ok(question?.options.every((option) => option.id && option.feedback));
+  assert.ok(!validateAppPractical(practical).some((error) => error.includes("predictionQuestion")));
 });
 
 test("app generator rejects incomplete prediction checkpoint feedback or answer keys", () => {
