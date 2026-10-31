@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  CheckCircle2,
   HelpCircle,
   Lightbulb,
   ArrowRight,
@@ -120,7 +119,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
       <div className={`flex-1 p-2 sm:p-3 min-h-0 flex flex-col justify-center ${activeSlideIndex === 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}>
         {/* SLIDE 0: Practical mission opening */}
         {activeSlideIndex === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-full lg:h-full overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3 h-full min-h-0 overflow-hidden">
             <div className="lg:col-span-7 flex flex-col justify-between min-h-0 overflow-hidden gap-2">
               <div className="min-h-0">
                 <div className="flex items-center gap-1.5 text-xs font-mono mb-0.5">
@@ -166,7 +165,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                   <ul className="space-y-0.5 text-[11px] text-slate-600 leading-tight">
                     {classroom.quickOrientation.slice(0, 3).map((point, index) => (
                       <li key={index} className="flex items-start gap-1.5 min-w-0">
-                        <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0 text-emerald-600" />
+                        <span className="text-slate-400 font-bold leading-4 shrink-0">•</span>
                         <span className="text-[11px] text-slate-600 leading-tight truncate min-w-0 flex-1">
                           {point}
                         </span>
@@ -182,7 +181,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                     Explore key topics
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {classroom.exploreKeyTopics.slice(0, 3).map((topic, index) => (
+                    {classroom.exploreKeyTopics.map((topic, index) => (
                       <div key={index} className="p-1.5 rounded-lg bg-white border border-slate-200/80 shadow-2xs">
                         <h4 className="text-[11px] font-bold text-slate-900 truncate">
                           {topic.title}
@@ -208,16 +207,14 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                       <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
                         {classroom.conceptMap.title}
                       </h3>
-                      {classroom.conceptMap.subtitle && (
-                        <p className="text-[10px] text-slate-400">
-                          {classroom.conceptMap.subtitle}
-                        </p>
-                      )}
+                      <p className="text-[10px] text-slate-400">
+                        {classroom.conceptMap.subtitle}
+                      </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-1.5">
-                    {classroom.conceptMap.nodes.slice(0, 4).map((node, index) => (
+                    {classroom.conceptMap.nodes.map((node, index) => (
                       <div key={index} className="p-1.5 rounded-lg border border-slate-200/80 bg-slate-50/60 flex flex-col justify-center min-h-[42px]">
                         <span className="text-[11px] font-bold text-slate-800 mb-0.5 truncate">
                           {node.label}
@@ -246,7 +243,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
 
               <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-2xs shrink-0">
                 <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-0.5">
-                  Getting ready
+                  GETTING READY
                 </span>
                 <p className="text-[11px] text-slate-700 leading-snug line-clamp-2">
                   {classroom.gettingReady}
