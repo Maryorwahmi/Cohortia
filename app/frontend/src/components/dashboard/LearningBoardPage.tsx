@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { 
   Play, Pause, RotateCw, Volume2, VolumeX, Maximize2, 
   ChevronRight, ChevronDown, CheckCircle, Lock, BookOpen, 
@@ -66,6 +66,109 @@ function formatHandsOnActivity(value: string | null | undefined): string {
     .replace(/^\s*(?:#{1,6}|[-*]|\d+[.)])\s*/gm, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function renderStudyNoteInline(text: string): ReactNode[] {
+  const tokens = text.split(/(\*\*[^*]+\*\*|__[^_]+__|\*[^*\n]+\*|_[^_\n]+_|`[^`]+`)/g);
+
+  return tokens.map((token, index) => {
+    if (!token) return null;
+    if (token.startsWith("**") && token.endsWith("**")) {
+      return <strong key={index}>{token.slice(2, -2)}</strong>;
+    }
+    if (token.startsWith("__") && token.endsWith("__")) {
+      return <strong key={index}>{token.slice(2, -2)}</strong>;
+    }
+    if (token.startsWith("`") && token.endsWith("`")) {
+      return <code key={index} className="rounded bg-immersive-bg px-1.5 py-0.5 font-mono text-[0.9em] text-immersive-text-primary">{token.slice(1, -1)}</code>;
+    }
+    if ((token.startsWith("*") && token.endsWith("*")) || (token.startsWith("_") && token.endsWith("_"))) {
+      return <em key={index}>{token.slice(1, -1)}</em>;
+    }
+    return token;
+  });
+}
+
+function renderStudyNote(note: string): ReactNode[] {
+  const lines = note.split(/\r?\n/);
+  const blocks: ReactNode[] = [];
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index].trim();
+    if (!line) {
+      index += 1;
+      continue;
+    }
+
+    if (line.startsWith("```")) {
+      const codeLines: string[] = [];
+      index += 1;
+      while (index < lines.length && !lines[index].trim().startsWith("```")) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length) index += 1;
+      blocks.push(
+        <pre key={`code-${index}`} className="overflow-x-auto rounded-xl bg-immersive-bg p-4 text-sm leading-6 text-immersive-text-primary">
+          <code>{codeLines.join("\n")}</code>
+        </pre>
+      );
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,6})\s+(.+)$/);
+    if (heading) {
+      const level = Math.min(heading[1].length, 4);
+      const HeadingTag = `h${level}` as "h1" | "h2" | "h3" | "h4";
+      blocks.push(
+        <HeadingTag key={`heading-${index}`} className="font-bold leading-snug text-immersive-text-primary">
+          {renderStudyNoteInline(heading[2])}
+        </HeadingTag>
+      );
+      index += 1;
+      continue;
+    }
+
+    if (/^(---+|\*\*\*+|___+)$/.test(line)) {
+      blocks.push(<hr key={`rule-${index}`} className="border-immersive-border" />);
+      index += 1;
+      continue;
+    }
+
+    const listMatch = line.match(/^([-*+]|\d+[.)])\s+(.+)$/);
+    if (listMatch) {
+      const ordered = /^\d/.test(listMatch[1]);
+      const items: ReactNode[] = [];
+      while (index < lines.length) {
+        const item = lines[index].trim().match(/^([-*+]|\d+[.)])\s+(.+)$/);
+        if (!item || /^\d/.test(item[1]) !== ordered) break;
+        items.push(<li key={index}>{renderStudyNoteInline(item[2])}</li>);
+        index += 1;
+      }
+      const ListTag = ordered ? "ol" : "ul";
+      blocks.push(
+        <ListTag key={`list-${index}`} className={`space-y-1.5 pl-6 ${ordered ? "list-decimal" : "list-disc"} marker:text-[#FF4B3E]`}>
+          {items}
+        </ListTag>
+      );
+      continue;
+    }
+
+    const paragraph: string[] = [line];
+    index += 1;
+    while (index < lines.length && lines[index].trim() && !/^(#{1,6}\s|```|[-*+]\s|\d+[.)]\s|---+$|\*\*\*+$|___+$)/.test(lines[index].trim())) {
+      paragraph.push(lines[index].trim());
+      index += 1;
+    }
+    blocks.push(
+      <p key={`paragraph-${index}`} className="leading-7 text-immersive-text-secondary">
+        {renderStudyNoteInline(paragraph.join(" "))}
+      </p>
+    );
+  }
+
+  return blocks;
 }
 
 function normalizeAssessmentSource(assessment: unknown): ImmersiveAssessment | null {
@@ -577,6 +680,7 @@ export default function LearningBoardPage({
   // Notes are persisted as one editable record per database chapter.
   const [notes, setNotes] = useState<string>("");
   const notesRef = useRef("");
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [notesStatus, setNotesStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [isGeneratingQuickNote, setIsGeneratingQuickNote] = useState(false);
   const [quickNoteError, setQuickNoteError] = useState<string | null>(null);
@@ -607,6 +711,7 @@ export default function LearningBoardPage({
     setActiveSlide(0);
     setNotes("");
     notesRef.current = "";
+    setIsEditingNotes(false);
     setNotesStatus("idle");
   }, [selectedLesson.id]);
 
@@ -875,6 +980,7 @@ export default function LearningBoardPage({
           ? `${existingNotes}\n\n---\n\n${quickNote}`
           : quickNote
       );
+      setIsEditingNotes(false);
     } catch (error) {
       if (requestId !== quickNoteRequestRef.current) return;
       setQuickNoteError(error instanceof Error ? error.message : "Could not generate a study note. Please try again.");
@@ -1629,7 +1735,10 @@ export default function LearningBoardPage({
               </div>
 
               {/* TAB CONTENT VIEWER */}
-              <div className="min-h-[180px] sm:min-h-[220px] bg-immersive-bg/35 border border-immersive-border/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 overflow-y-auto max-h-[280px] sm:max-h-[350px] scrollbar-thin">
+              <div className={`${activeTab === "notes"
+                ? "min-h-[360px] sm:min-h-[420px] max-h-[65vh]"
+                : "min-h-[180px] sm:min-h-[220px] max-h-[280px] sm:max-h-[350px]"
+              } bg-immersive-bg/35 border border-immersive-border/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 overflow-y-auto scrollbar-thin`}>
                 
                  {/* 1. SUMMARY TAB */}
                 {activeTab === "summary" && (
@@ -1694,6 +1803,13 @@ export default function LearningBoardPage({
                         </span>
                         <button
                           type="button"
+                          onClick={() => setIsEditingNotes((editing) => !editing)}
+                          className="rounded-lg border border-immersive-border px-3 py-2 text-[10px] font-semibold text-immersive-text-primary transition-colors hover:bg-immersive-card"
+                        >
+                          {isEditingNotes ? "Done" : notes ? "Edit note" : "Write note"}
+                        </button>
+                        <button
+                          type="button"
                           onClick={handleGenerateQuickNote}
                           disabled={!generatedPreview || !activeCourseId || isGeneratingQuickNote}
                           title={!generatedPreview ? "Open a chapter before generating a study note" : undefined}
@@ -1711,14 +1827,24 @@ export default function LearningBoardPage({
                       </p>
                     )}
 
-                    {/* Editor Form */}
-                    <div className="bg-immersive-card border border-immersive-border rounded-xl p-3 space-y-3">
-                      <textarea
-                        value={notes}
-                        onChange={(e) => handleNotesChange(e.target.value)}
-                        placeholder="Write a note for this chapter..."
-                        className="w-full bg-immersive-bg/50 border border-immersive-border rounded-lg p-2.5 text-xs sm:text-sm text-immersive-text-primary placeholder:text-immersive-text-secondary/50 focus:outline-none focus:border-[#FF4B3E] text-left resize-none h-20"
-                      />
+                    <div className="rounded-xl border border-immersive-border bg-immersive-card p-4 sm:p-6">
+                      {isEditingNotes ? (
+                        <textarea
+                          value={notes}
+                          onChange={(e) => handleNotesChange(e.target.value)}
+                          placeholder="Write a note for this chapter..."
+                          aria-label="Chapter study notes"
+                          className="min-h-[320px] w-full resize-y rounded-lg border border-immersive-border bg-immersive-bg/50 p-4 text-sm leading-7 text-immersive-text-primary placeholder:text-immersive-text-secondary/50 focus:border-[#FF4B3E] focus:outline-none sm:min-h-[380px]"
+                        />
+                      ) : notes.trim() ? (
+                        <article className="min-h-[280px] space-y-4 text-sm sm:min-h-[340px] sm:text-base">
+                          {renderStudyNote(notes)}
+                        </article>
+                      ) : (
+                        <p className="flex min-h-[280px] items-center justify-center text-center text-sm text-immersive-text-secondary sm:min-h-[340px]">
+                          Your chapter notes will appear here. Generate a quick study note or write your own.
+                        </p>
+                      )}
                     </div>
 
                   </div>
