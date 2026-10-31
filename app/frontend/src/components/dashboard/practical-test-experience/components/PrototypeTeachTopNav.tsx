@@ -1,36 +1,26 @@
 import React from 'react';
 import { PracticalManifest } from '../types/practical';
-import { RotateCcw, ChevronDown, Split, Sparkles } from 'lucide-react';
+import { RotateCcw, ChevronDown } from 'lucide-react';
 
 interface TopNavProps {
-  manifests: PracticalManifest[];
-  activeManifestId: string;
-  onSelectManifest: (manifestId: string) => void;
-  selectedCategory: string;
-  onSelectCategory: (cat: string) => void;
+  manifest: PracticalManifest;
   mode: 'teach' | 'practical';
   onToggleMode: () => void;
   onResetFiles: () => void;
-  isSplitView: boolean;
-  onToggleSplitView: () => void;
 }
 
 export const PrototypeTeachTopNav: React.FC<TopNavProps> = ({
-  manifests,
-  activeManifestId,
-  onSelectManifest,
-  selectedCategory,
-  onSelectCategory,
+  manifest,
   mode,
   onToggleMode,
   onResetFiles,
-  isSplitView,
-  onToggleSplitView,
 }) => {
-  const filteredManifests =
-    selectedCategory === 'all'
-      ? manifests
-      : manifests.filter((m) => m.categoryType === selectedCategory);
+  const categoryLabels: Record<PracticalManifest['categoryType'], string> = {
+    cloud_console: 'Cloud Console',
+    scenario_design: 'Scenario & Design',
+    terminal_coding: 'Terminal Coding',
+    research_analysis: 'Research & Analysis',
+  };
 
   return (
     <div className="h-12 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 flex items-center justify-between select-none shrink-0">
@@ -54,92 +44,28 @@ export const PrototypeTeachTopNav: React.FC<TopNavProps> = ({
           </span>
         </div>
 
-        {/* 4 Category Filter Pills/Buttons */}
-        <div className="hidden lg:flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/80">
-          <button
-            onClick={() => onSelectCategory('all')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'all'
-                ? 'bg-white text-slate-900 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            All Courses
-          </button>
-          <button
-            onClick={() => onSelectCategory('cloud_console')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'cloud_console'
-                ? 'bg-white text-orange-700 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Cloud Console
-          </button>
-          <button
-            onClick={() => onSelectCategory('scenario_design')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'scenario_design'
-                ? 'bg-white text-indigo-700 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Scenario & Design
-          </button>
-          <button
-            onClick={() => onSelectCategory('terminal_coding')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'terminal_coding'
-                ? 'bg-white text-emerald-700 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Terminal Coding
-          </button>
-          <button
-            onClick={() => onSelectCategory('research_analysis')}
-            className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
-              selectedCategory === 'research_analysis'
-                ? 'bg-white text-amber-700 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Research & Analysis
-          </button>
+        {/* The current generated practical is the only active category. */}
+        <div className="hidden lg:flex items-center rounded-lg border border-slate-200/80 bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700">
+          {categoryLabels[manifest.categoryType]}
         </div>
       </div>
 
-      {/* Practical Switcher Dropdown, Split View, and Teach Mode Badge */}
+      {/* Current chapter selector, reset, and Teach Mode badge */}
       <div className="flex items-center gap-2">
         <div className="relative group">
           <select
-            value={activeManifestId}
-            onChange={(e) => onSelectManifest(e.target.value)}
+            value={manifest.id}
+            onChange={() => undefined}
             className="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-mono font-semibold py-1.5 pl-3 pr-8 rounded-lg cursor-pointer text-slate-800 focus:outline-hidden shadow-2xs max-w-[280px] sm:max-w-[380px] truncate"
           >
-            {filteredManifests.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.classroom.chapterBreadcrumb}: {m.title}
-              </option>
-            ))}
+            <option value={manifest.id}>
+              {manifest.classroom.chapterBreadcrumb}: {manifest.title}
+            </option>
           </select>
           <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
             <ChevronDown className="w-3.5 h-3.5" />
           </div>
         </div>
-
-        <button
-          onClick={onToggleSplitView}
-          title={isSplitView ? 'Switch to single view' : 'Switch to side-by-side split view'}
-          className={`px-2.5 py-1.5 rounded-lg text-xs font-mono flex items-center gap-1.5 transition-colors border cursor-pointer ${
-            isSplitView
-              ? 'bg-rose-50 border-rose-300 text-rose-700 font-semibold'
-              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600'
-          }`}
-        >
-          <Split className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">{isSplitView ? 'Single View' : 'Split View'}</span>
-        </button>
 
         <button
           onClick={onResetFiles}
@@ -166,5 +92,3 @@ export const PrototypeTeachTopNav: React.FC<TopNavProps> = ({
     </div>
   );
 };
-
-

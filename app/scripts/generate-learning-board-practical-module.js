@@ -14,7 +14,6 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
 import {
-  PRACTICAL_SCHEMA,
   assertValidPractical,
   normalizePractical,
   resolveSourceContext,
@@ -30,6 +29,13 @@ const BACKEND_ROOT = path.join(REPOSITORY_ROOT, "backend");
 const PRACTICAL_IMPORTER_PATH = path.join(BACKEND_ROOT, "scripts", "import-practicals.js");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
+// Keep the Gemini transport schema intentionally shallow. Embedding
+// PRACTICAL_SCHEMA here makes Gemini compile a very large state machine for
+// every practical in the module (nested task/check/workspace arrays, enums,
+// and optional objects), which can be rejected with "constraint has too many
+// states" before the request is even generated. The practical payload is
+// still normalized and checked by normalizeModuleResponse/writePractical;
+// this schema only constrains the stable module envelope.
 const MODULE_RESPONSE_SCHEMA = {
   type: "object",
   properties: {
@@ -40,7 +46,7 @@ const MODULE_RESPONSE_SCHEMA = {
         properties: {
           moduleNumber: { type: "integer" },
           chapterNumber: { type: "integer" },
-          practical: PRACTICAL_SCHEMA,
+          practical: { type: "object" },
         },
         required: ["moduleNumber", "chapterNumber", "practical"],
       },
@@ -163,9 +169,9 @@ These are exploratory learning labs, NOT exams, tests, or quizzes. The learner m
 REQUIREMENTS:
 1. Return exactly one practical candidate for every input chapter. Never merge chapters or omit a chapter.
 2. Preserve each chapter's original activity title, objectives, and ordered steps.
-2A. TEACH VIEW OPENING CONTENT:
-   - The first Teach View screen follows the Learning Board hero screen's visual hierarchy, but the UI assembles the opening after generation from the practical fields and authoritative lesson context. Do not add a separate opening-screen object to the generated response.
-   - Make each practical's title, summary, objectives, instructions, learner artifact, tasks, and teaching steps specific to its source chapter and hands-on activity. The screen presents a practical mission, what is coming up, why it matters, practical actions, applied chapter concepts, an activity-specific workflow, and getting-ready instructions.
+  2A. TEACH VIEW OPENING CONTENT:
+   - Every practical must provide a complete teachViewOpening for the first Teach Mode orientation screen. This is not the walkthrough screen and it must be present for Terminal Coding, Cloud Console, Scenario & Design, and Research & Analysis practicals.
+   - Make each practical's title, summary, objectives, instructions, learner artifact, tasks, and teaching steps specific to its source chapter and hands-on activity. The opening must present a practical mission, what is coming up, why it matters, practical actions, applied chapter concepts, an activity-specific workflow, and getting-ready instructions.
    - Use observable practical actions, the actual learner artifact, and only concepts grounded in STRUCTURED LESSON CONTEXT. Avoid generic course-level introductions and do not invent or redefine chapter concepts.
 3. Category-Specific Design:
    - Terminal Coding Labs:
@@ -337,6 +343,21 @@ function normalizeModuleResponse(raw, entries) {
   return normalized.sort((left, right) => (
     left.metadata.chapterNumber - right.metadata.chapterNumber
   ));
+}
+
+function normalizeSingleChapterResponse(raw, entry) {
+  const items = Array.isArray(raw)
+    ? raw
+    : raw?.practicals || raw?.data?.practicals || raw?.result?.practicals;
+  const expectedKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
+  const matchingItem = Array.isArray(items)
+    ? items.find((item) => `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === expectedKey)
+    : null;
+  // A repair request is scoped to one chapter. If Gemini adds an extra item,
+  // keep the matching chapter and let the normalizer validate its contents.
+  return matchingItem
+    ? normalizeModuleResponse({ practicals: [matchingItem] }, [entry])
+    : normalizeModuleResponse(raw, [entry]);
 }
 
 function resolveInputPath(value, repoRoot) {
@@ -653,9 +674,38 @@ async function generateModule(options, { importPractical = importGeneratedPracti
     if (options["mock-response"] || !/returned \d+ practical\(s\); expected \d+/.test(error.message)) {
       throw error;
     }
-    console.warn(`Module response was incomplete; regenerating ${entries.length} chapters individually.`);
+    const responseItems = Array.isArray(result.data)
+      ? result.data
+      : result.data?.practicals || result.data?.data?.practicals || result.data?.result?.practicals;
+    const entriesByKey = new Map(entries.map((entry) => [
+      `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
+      entry,
+    ]));
+    const validItems = [];
+    const seenKeys = new Set();
+    for (const item of Array.isArray(responseItems) ? responseItems : []) {
+      const key = `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}`;
+      if (entriesByKey.has(key) && !seenKeys.has(key) && item?.practical && typeof item.practical === "object") {
+        validItems.push(item);
+        seenKeys.add(key);
+      }
+    }
+    if (!Array.isArray(responseItems) || responseItems.length > entries.length) throw error;
+
     const repaired = [];
-    for (const entry of entries) {
+    for (const item of validItems) {
+      const key = `${Number(item.moduleNumber)}.${Number(item.chapterNumber)}`;
+      try {
+        repaired.push(...normalizeModuleResponse({ practicals: [item] }, [entriesByKey.get(key)]));
+      } catch {
+        seenKeys.delete(key);
+      }
+    }
+    const entriesToRepair = entries.filter((entry) => !seenKeys.has(
+      `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
+    ));
+    console.warn(`Module response was incomplete or invalid; regenerating ${entriesToRepair.length} missing chapters individually.`);
+    for (const entry of entriesToRepair) {
       const chapterPrompt = buildModulePrompt(promptTemplate, [entry], {
         courseId: resolvedCourseId,
         moduleNumber,
@@ -671,7 +721,7 @@ async function generateModule(options, { importPractical = importGeneratedPracti
         model,
       });
       if (!chapterResult?.success) throw new Error(chapterResult?.error || "Gemini chapter repair failed");
-      repaired.push(...normalizeModuleResponse(chapterResult.data, [entry]));
+      repaired.push(...normalizeSingleChapterResponse(chapterResult.data, entry));
     }
     normalized = repaired;
   }

@@ -1,17 +1,19 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { PRACTICAL_MANIFESTS } from '../data/practicalsData';
+import React, { useEffect, useState } from 'react';
 import { INSTRUCTOR_PERSONAS } from '../data/instructorsData';
-import type { InstructorPersona } from '../types/practical';
+import type { InstructorPersona, PracticalManifest } from '../types/practical';
 import { ClassroomTeachView } from './ClassroomTeachView';
 import { PrototypeTeachTopNav } from './PrototypeTeachTopNav';
 
+interface PrototypeTeachModeProps {
+  manifest: PracticalManifest;
+  onOpenWorkspace: () => void;
+}
+
 /**
- * The prototype classroom is intentionally isolated from generated practicals.
- * It owns its manifest, playback, category, and walkthrough state.
+ * Teach Mode owns the prototype presentation and playback controls, while the
+ * selected practical manifest comes from the real generated practical.
  */
-export const PrototypeTeachMode: React.FC = () => {
-  const [activeManifestId, setActiveManifestId] = useState(PRACTICAL_MANIFESTS[0].id);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+export const PrototypeTeachMode: React.FC<PrototypeTeachModeProps> = ({ manifest, onOpenWorkspace }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,27 +21,16 @@ export const PrototypeTeachMode: React.FC = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [instructor] = useState<InstructorPersona>(INSTRUCTOR_PERSONAS[0]);
 
-  const activeManifest = useMemo(
-    () => PRACTICAL_MANIFESTS.find((manifest) => manifest.id === activeManifestId) || PRACTICAL_MANIFESTS[0],
-    [activeManifestId],
-  );
-
-  useEffect(() => {
-    if (selectedCategory === 'all' || activeManifest.categoryType === selectedCategory) return;
-    const categoryManifest = PRACTICAL_MANIFESTS.find((manifest) => manifest.categoryType === selectedCategory);
-    if (categoryManifest) setActiveManifestId(categoryManifest.id);
-  }, [activeManifest.categoryType, selectedCategory]);
-
   useEffect(() => {
     setCurrentTime(0);
     setCurrentSlideIndex(0);
     setIsPlaying(false);
-  }, [activeManifest.id]);
+  }, [manifest.id]);
 
   const getStepIndexForTime = (time: number) => {
     let index = 0;
-    for (let stepIndex = 0; stepIndex < activeManifest.walkthroughSteps.length; stepIndex += 1) {
-      if (time >= activeManifest.walkthroughSteps[stepIndex].timestamp) index = stepIndex;
+    for (let stepIndex = 0; stepIndex < manifest.walkthroughSteps.length; stepIndex += 1) {
+      if (time >= manifest.walkthroughSteps[stepIndex].timestamp) index = stepIndex;
     }
     return index;
   };
@@ -48,16 +39,16 @@ export const PrototypeTeachMode: React.FC = () => {
     0,
     currentSlideIndex > 0 ? currentSlideIndex - 1 : getStepIndexForTime(currentTime),
   );
-  const activeStep = activeManifest.walkthroughSteps[activeStepIndex];
+  const activeStep = manifest.walkthroughSteps[activeStepIndex];
 
   useEffect(() => {
     if (!isPlaying) return undefined;
     const interval = window.setInterval(() => {
       setCurrentTime((previousTime) => {
         const nextTime = previousTime + 0.5 * playbackSpeed;
-        if (nextTime >= activeManifest.durationSeconds) {
+        if (nextTime >= manifest.durationSeconds) {
           setIsPlaying(false);
-          return activeManifest.durationSeconds;
+          return manifest.durationSeconds;
         }
 
         const nextStepIndex = getStepIndexForTime(nextTime);
@@ -69,7 +60,7 @@ export const PrototypeTeachMode: React.FC = () => {
     }, 500);
 
     return () => window.clearInterval(interval);
-  }, [activeManifest, currentSlideIndex, isPlaying, playbackSpeed]);
+  }, [manifest, currentSlideIndex, isPlaying, playbackSpeed]);
 
   useEffect(() => {
     if (!('speechSynthesis' in window) || !isPlaying || isMuted) {
@@ -78,7 +69,7 @@ export const PrototypeTeachMode: React.FC = () => {
     }
 
     const textToSpeak = currentSlideIndex === 0
-      ? `${activeManifest.classroom.mainTitle}. ${activeManifest.classroom.subtitle} ${activeManifest.classroom.inThisLesson}`
+      ? `${manifest.classroom.mainTitle}. ${manifest.classroom.subtitle} ${manifest.classroom.inThisLesson}`
       : activeStep?.narration;
     if (!textToSpeak) return undefined;
 
@@ -88,10 +79,10 @@ export const PrototypeTeachMode: React.FC = () => {
     window.speechSynthesis.speak(utterance);
 
     return () => window.speechSynthesis.cancel();
-  }, [activeManifest, activeStep?.narration, currentSlideIndex, instructor, isMuted, isPlaying, playbackSpeed]);
+  }, [manifest, activeStep?.narration, currentSlideIndex, instructor, isMuted, isPlaying, playbackSpeed]);
 
   const handleSeek = (time: number) => {
-    const boundedTime = Math.max(0, Math.min(activeManifest.durationSeconds, time));
+    const boundedTime = Math.max(0, Math.min(manifest.durationSeconds, time));
     setCurrentTime(boundedTime);
     setCurrentSlideIndex(getStepIndexForTime(boundedTime) + 1);
   };
@@ -102,7 +93,7 @@ export const PrototypeTeachMode: React.FC = () => {
       setCurrentTime(0);
       return;
     }
-    const step = activeManifest.walkthroughSteps[slideIndex - 1];
+    const step = manifest.walkthroughSteps[slideIndex - 1];
     if (step) setCurrentTime(step.timestamp);
   };
 
@@ -111,29 +102,19 @@ export const PrototypeTeachMode: React.FC = () => {
   };
 
   const handleNextSlide = () => {
-    handleSelectStep(Math.min(activeManifest.walkthroughSteps.length, currentSlideIndex + 1));
+    handleSelectStep(Math.min(manifest.walkthroughSteps.length, currentSlideIndex + 1));
   };
 
   return (
     <div className="prototype-teach-mode flex-1 flex min-h-0 flex-col overflow-hidden">
       <PrototypeTeachTopNav
-        manifests={PRACTICAL_MANIFESTS}
-        activeManifestId={activeManifest.id}
-        onSelectManifest={(manifestId) => {
-          setActiveManifestId(manifestId);
-          setCurrentTime(0);
-          setCurrentSlideIndex(0);
-        }}
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        manifest={manifest}
         mode="teach"
         onToggleMode={() => undefined}
         onResetFiles={() => undefined}
-        isSplitView={false}
-        onToggleSplitView={() => undefined}
       />
       <ClassroomTeachView
-        manifest={activeManifest}
+        manifest={manifest}
         currentStepIndex={currentSlideIndex}
         currentTime={currentTime}
         isPlaying={isPlaying}
@@ -151,7 +132,7 @@ export const PrototypeTeachMode: React.FC = () => {
         onSelectStep={handleSelectStep}
         onPrevSlide={handlePrevSlide}
         onNextSlide={handleNextSlide}
-        onOpenWorkspace={() => undefined}
+        onOpenWorkspace={onOpenWorkspace}
       />
       <span className="sr-only">Instructor: {instructor.name}</span>
     </div>

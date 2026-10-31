@@ -315,6 +315,9 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
   const manifests = useMemo(() => generatedManifest ? [generatedManifest] : PRACTICAL_MANIFESTS, [generatedManifest]);
   const [activeManifestId, setActiveManifestId] = useState<string>(generatedManifest?.id || INITIAL_MANIFEST.id);
   const activeManifest = manifests.find((m) => m.id === activeManifestId) || manifests[0];
+  useEffect(() => {
+    if (generatedManifest) setActiveManifestId(generatedManifest.id);
+  }, [generatedManifest]);
   const openingNarration = activeManifest.classroom.openingNarration || [
     'Hello everyone, and it’s lovely to have you back.',
     `We’ve been exploring ${activeManifest.classroom.subtitle || activeManifest.classroom.mainTitle}.`,
@@ -1483,7 +1486,13 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
 
         {/* View Mode Router */}
         {mode === 'teach' && !isSplitView ? (
-          <PrototypeTeachMode />
+          <PrototypeTeachMode
+            manifest={activeManifest}
+            onOpenWorkspace={() => {
+              setIsSplitView(false);
+              setMode('practical');
+            }}
+          />
         ) : (
           /* PRACTICE / SPLIT VIEW: Full Workspace with Editor, Terminal, Milestones */
           <div className="flex-1 flex gap-3 p-3 overflow-hidden min-h-0">
