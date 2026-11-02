@@ -393,9 +393,22 @@ function normalizeCourseId(value) {
 }
 
 function extractActivityTitle(activity) {
-  return activity.match(/^\s*\*{2}Activity:\s*(.+?)\*{2}\s*$/im)?.[1]?.trim()
-    || activity.match(/^\s*\*{2}Objective:\s*(.+?)\*{2}\s*$/im)?.[1]?.trim()
-    || null;
+  const source = String(activity || "");
+  const explicit = source.match(/^\s*(?:#{1,6}\s*)?\*{0,2}(?:Activity|Exercise|Lab)\s*:\s*\*{0,2}(.+?)\*{0,2}\s*$/im);
+  if (explicit?.[1]) return summarizeText(explicit[1], 140);
+
+  // Many course activities use a bold title without an `Activity:` prefix.
+  // Keep the first meaningful line as the practical title instead of falling
+  // back to `Practical <course>/<module>/<chapter>`.
+  const firstTitle = source
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^\s*(?:[-*]|\d+[.)])\s+/, "").replace(/^\s*\*{1,2}|\*{1,2}\s*$/g, "").trim())
+    .find((line) => line
+      && !/^instructions?:|^(?:scenario|objective|reflection|starter code):?$/i.test(line)
+      && !/^```/.test(line)
+      && line.length >= 8
+      && line.length <= 180);
+  return firstTitle ? summarizeText(firstTitle.replace(/[:.]$/, ""), 140) : null;
 }
 
 async function readExistingFile(filePath, label) {
@@ -760,14 +773,37 @@ function conceptTitle(concept) {
   return cleaned || normalizeLearnerText(concept);
 }
 
+function openingText(value, maxLength = 260) {
+  const text = normalizeLearnerText(value)
+    .replace(/\b(?:Instructions|Starter Code|Steps?):[\s\S]*$/i, "")
+    .replace(/\s+\d+[.)]\s+[\s\S]*$/, "")
+    .replace(/\s+(?:#include|import\s+\w+|function\s+\w+\s*\()[\s\S]*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return summarizeText(text, maxLength);
+}
+
+function conceptDescription(concept, title, category) {
+  const normalized = normalizeLearnerText(concept);
+  const detail = normalized.match(/^[^:]{2,80}:\s*(.+)$/)?.[1];
+  if (detail) return openingText(detail, 150);
+  const label = conceptTitle(normalized);
+  const verbs = {
+    "Cloud Console Lab": "Inspect and configure",
+    "Scenario & Design Exercise": "Use",
+    "Research & Analysis": "Evaluate",
+    "Terminal Coding Lab": "Apply",
+  };
+  return `${verbs[category] || "Use"} ${label} in ${title}.`;
+}
+
 function buildTeachViewOpening(raw, sourceContext, title, summary, instructions, tasks, workspace, learnerArtifact) {
+  const category = sourceContext.source.category;
   const objectives = asStringArray(raw.objectives).map(normalizeLearnerText).filter(Boolean);
   const taskPoints = tasks
     .map((task) => normalizeLearnerText(task.title || task.instruction))
     .filter(Boolean);
-  const practicalAction = normalizeLearnerText(
-    taskPoints[0] || instructions || summary || title,
-  );
+  const practicalAction = openingText(taskPoints[0] || summary || instructions || title, 180);
   const orientationSource = category === "Scenario & Design Exercise"
     ? [...taskPoints, ...objectives, normalizeLearnerText(instructions)]
     : [...objectives, ...taskPoints, normalizeLearnerText(instructions)];
@@ -781,7 +817,23 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
   }
 
   const workspaceType = workspace?.type;
-  const category = sourceContext.source.category;
+  const terminalFile = workspace?.terminal?.entryFile || "starter file";
+  const terminalStem = terminalFile.replace(/\.[^.]+$/, "");
+  const terminalLanguage = String(workspace?.terminal?.language || "").toLowerCase();
+  const inferredBuild = terminalLanguage === "python"
+    ? `python -m py_compile ${terminalFile}`
+    : terminalLanguage === "javascript"
+      ? `node --check ${terminalFile}`
+      : /\.(c|cc|cpp|cxx)$/i.test(terminalFile)
+        ? `clang ${terminalFile} -o ${terminalStem}`
+        : "Prepare the starter file for verification.";
+  const inferredRun = terminalLanguage === "python"
+    ? `python ${terminalFile}`
+    : terminalLanguage === "javascript"
+      ? `node ${terminalFile}`
+      : /\.(c|cc|cpp|cxx)$/i.test(terminalFile)
+        ? `./${terminalStem}`
+        : `Run ${terminalFile} and inspect the result.`;
   const activityConcepts = tasks.flatMap((task) => asStringArray(task.requiredConcepts));
   const sourceConcepts = sourceContext.lessonContext?.keyConcepts || [];
   const conceptCandidates = [...activityConcepts, ...sourceConcepts]
@@ -823,8 +875,8 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
           ]
         : [
             { label: "Source file", value: workspace.terminal?.entryFile || "Open the practical starter file." },
-            { label: "Build", value: (workspace.terminal?.compileCommands || [])[0] || "Compile or prepare your work." },
-            { label: "Run", value: (workspace.terminal?.runCommands || [])[0] || "Run the practical and inspect the result." },
+            { label: "Build", value: (workspace.terminal?.compileCommands || [])[0] || inferredBuild },
+            { label: "Run", value: (workspace.terminal?.runCommands || [])[0] || inferredRun },
             { label: "Verify", value: learnerArtifact },
           ];
 
@@ -840,7 +892,7 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
     .slice(0, 3)
     .map((concept) => ({
       title: conceptTitle(concept),
-      description: `Apply ${conceptTitle(concept)} while you ${practicalAction.charAt(0).toLowerCase()}${practicalAction.slice(1).replace(/[.!?]+$/, "")}.`,
+      description: conceptDescription(concept, title, category),
     }));
 
   const mapTitles = {
@@ -855,24 +907,25 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
     "Research & Analysis": "Sources > Evidence > Analysis > Conclusion",
     "Terminal Coding Lab": "Source Code > Compiler > Executable > Output",
   };
-  const whyItMatters = normalizeLearnerText(
+  const whyItMatters = openingText(
     raw.teacher?.realWorldContext
       || sourceContext.lessonContext?.chapterIntroduction
       || summary
       || instructions
       || title,
+    240,
   );
   const gettingReadyByCategory = {
     "Cloud Console Lab": `Open the ${workspace.cloud?.provider || "cloud"} management console, inspect the starting resources, and verify each change against the expected state.`,
     "Scenario & Design Exercise": `Open the scenario workspace, review the constraints and available options, then prepare to justify one decision with its expected consequences.`,
     "Research & Analysis": `Open the research dossier, review the supplied sources or datasets, and prepare to record observations before writing your conclusion.`,
-    "Terminal Coding Lab": instructions || `Open the ${title} starter workspace, inspect the source, and prepare to run the first verification step.`,
+    "Terminal Coding Lab": `Open ${workspace?.terminal?.entryFile || "the starter file"}, inspect the program, run the baseline, then make the requested change and verify the output.`,
   };
 
   return {
-    subtitle: normalizeLearnerText(summary || instructions || title),
-    inThisPractical: normalizeLearnerText(summary || `Complete the ${title} practical.`),
-    comingUp: normalizeLearnerText(`You will ${practicalAction.charAt(0).toLowerCase()}${practicalAction.slice(1).replace(/[.!?]+$/, "")} and produce ${learnerArtifact}.`),
+    subtitle: openingText(summary || instructions || title, 220),
+    inThisPractical: openingText(summary || `Complete the ${title} practical.`, 260),
+    comingUp: openingText(`You will ${practicalAction.charAt(0).toLowerCase()}${practicalAction.slice(1).replace(/[.!?]+$/, "")} and produce ${learnerArtifact}.`, 220),
     whyItMatters,
     quickOrientation: orientation,
     keyConcepts: concepts,
@@ -881,7 +934,7 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
       subtitle: normalizeLearnerText(mapSubtitles[category] || `How this ${title} activity leads to ${learnerArtifact}.`),
       nodes: workflow,
     },
-    gettingReady: normalizeLearnerText(gettingReadyByCategory[category] || instructions || `Review the ${title} mission, then begin in the practical workspace.`),
+    gettingReady: openingText(gettingReadyByCategory[category] || `Review the ${title} mission, then begin in the practical workspace.`, 260),
   };
 }
 
@@ -1717,8 +1770,16 @@ function normalizePractical(raw, sourceContext, metadata) {
   if (sourceContext.source.category === "Terminal Coding Lab" && !SUPPORTED_TERMINAL_LANGUAGES.includes(String(language || "").toLowerCase())) {
     throw new Error(`Unsupported terminal runtime "${language || "unknown"}". Supported runtimes are: ${SUPPORTED_TERMINAL_LANGUAGES.join(", ")}.`);
   }
-  const title = raw.title || sourceContext.activityTitle || `Practical ${sourceContext.source.sourceKey}`;
+  const generatedTitle = normalizeLearnerText(raw.title);
+  const fallbackTitle = /^practical\s+[a-z0-9_-]+\/\d+\/\d+$/i.test(generatedTitle);
+  const title = (!generatedTitle || fallbackTitle)
+    ? sourceContext.activityTitle || `Practical ${sourceContext.source.sourceKey}`
+    : generatedTitle;
   const instructions = normalizeLearnerText(raw.instructions || sourceContext.activityChapter.handsOnActivity);
+  const generatedSummary = openingText(raw.summary, 320);
+  const summary = generatedSummary && !/^in this practical, you will\s+personalized greeting program:/i.test(generatedSummary)
+    ? generatedSummary
+    : openingText(instructions, 320) || `Complete ${title} and verify the result.`;
   const rawTasks = Array.isArray(raw.tasks) && raw.tasks.length
     ? raw.tasks
     : [{ instruction: instructions, title: title, hints: [], tests: [] }];
@@ -2256,12 +2317,12 @@ function normalizePractical(raw, sourceContext, metadata) {
       requiredUi: experienceProfile.requiredUi,
     },
     title,
-    summary: raw.summary || `In this practical, you will ${instructions.replace(/\s+/g, " ").trim().replace(/[.!?]+$/, "")}. You will connect the task to ${sourceContext.lessonContext?.chapterIntroduction?.split(/[.!?]/)[0] || "the chapter concepts"} and explain what your program does.`,
+    summary,
     teachViewOpening: buildTeachViewOpening(
       { ...raw, objectives },
       sourceContext,
       title,
-      normalizeLearnerText(raw.summary || instructions),
+      summary,
       instructions,
       tasks,
       workspace,

@@ -287,10 +287,9 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       mainTitle: title,
       subtitle: learnerText(teachViewOpening?.subtitle || practical.summary || practical.instructions || ''),
       openingNarration: [
-        learnerText(practical.summary || teachViewOpening?.subtitle || practical.instructions || ''),
-        briefChapterIntroduction(practical.lessonContext?.chapterIntroduction || practical.lessonContext?.courseIntroduction || ''),
-        `Now we will follow the practical from observation to change, test, and verification in ${title}.`,
-        `First, we will run the starter program and record its baseline output. Then we will make one deliberate change at a time, compile and run after each change, and use the terminal result as evidence.`,
+        learnerText(teachViewOpening?.subtitle || practical.summary || practical.instructions || ''),
+        learnerText(teachViewOpening?.whyItMatters || practical.teacher?.realWorldContext || briefChapterIntroduction(practical.lessonContext?.chapterIntroduction || practical.lessonContext?.courseIntroduction || '')),
+        learnerText(teachViewOpening?.gettingReady || practical.experience?.learnerArtifact || ''),
       ].filter(Boolean).join(' '),
       inThisLesson: learnerText(teachViewOpening?.inThisPractical || practical.objectives?.join(' ') || practical.instructions || ''),
       comingUp: learnerText(teachViewOpening?.comingUp || practical.experience?.learnerArtifact || practical.tasks?.[0]?.title || ''),
