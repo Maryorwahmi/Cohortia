@@ -152,12 +152,12 @@ function narrationDurationSeconds(text: string | undefined, minimumSeconds = 8):
 }
 
 function groupCodeWalkthroughSegments(segments: CodeWalkthroughSegment[], stageCount: number): CodeWalkthroughSegment[] {
-  if (segments.length <= 1 || stageCount <= 1) return segments;
-  const count = Math.min(stageCount, segments.length);
-  return Array.from({ length: count }, (_, index) => {
-    const start = Math.floor(index * segments.length / count);
-    const end = Math.floor((index + 1) * segments.length / count);
-    const group = segments.slice(start, Math.max(start + 1, end));
+  if (segments.length <= 1) return segments;
+  const explicitStages = [...new Set(segments.map((segment) => segment.taskId).filter(Boolean))];
+  const groups = explicitStages.length > 1
+    ? explicitStages.map((taskId) => segments.filter((segment) => segment.taskId === taskId))
+    : [segments];
+  return groups.slice(0, Math.max(1, stageCount)).map((group, index) => {
     return {
       ...group[0],
       stepNumber: index + 1,

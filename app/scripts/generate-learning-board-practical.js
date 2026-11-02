@@ -123,7 +123,7 @@ const PRACTICAL_SCHEMA = {
         },
         required: ["stepNumber", "speakerText", "codeLine"]
       },
-      description: "Line-by-line animated code-along teaching segments synchronized with narrator voice"
+      description: "Stage-based animated code-along segments; each segment contains the complete code block for one teaching phase and the UI reveals its lines inside the same slide"
     },
     teachingSteps: {
       type: "array",
@@ -1254,12 +1254,12 @@ function buildSourceWalkthrough(file) {
 }
 
 function groupWalkthroughSegments(segments, stageCount) {
-  if (segments.length <= 1 || stageCount <= 1) return segments;
-  const count = Math.min(stageCount, segments.length);
-  return Array.from({ length: count }, (_, index) => {
-    const start = Math.floor(index * segments.length / count);
-    const end = Math.floor((index + 1) * segments.length / count);
-    const group = segments.slice(start, Math.max(start + 1, end));
+  if (segments.length <= 1) return segments;
+  const explicitStages = [...new Set(segments.map((segment) => segment.taskId).filter(Boolean))];
+  const groups = explicitStages.length > 1
+    ? explicitStages.map((taskId) => segments.filter((segment) => segment.taskId === taskId))
+    : [segments];
+  return groups.slice(0, Math.max(1, stageCount)).map((group, index) => {
     return {
       ...group[0],
       stepNumber: index + 1,
@@ -2074,6 +2074,7 @@ function normalizePractical(raw, sourceContext, metadata) {
     return compatibleSource.length === 1 ? compatibleSource[0].path : fallbackFile?.path;
   };
   let codeWalkthrough = (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
+    taskId: typeof seg.taskId === "string" ? seg.taskId : undefined,
     stepNumber: Number.isInteger(Number(seg.stepNumber)) ? Number(seg.stepNumber) : idx + 1,
     speakerText: asStringText(seg.speakerText || seg.text || seg.narration || seg.explanation),
     codeLine: typeof seg.codeLine === "string" ? seg.codeLine : (typeof seg.code === "string" ? seg.code : ""),
@@ -2687,7 +2688,7 @@ function validatePractical(practical) {
       errors.push(`Terminal Coding Lab language must be one of: ${SUPPORTED_TERMINAL_LANGUAGES.join(", ")}`);
     }
     const walkthrough = Array.isArray(practical.codeWalkthrough) ? practical.codeWalkthrough : [];
-    if (walkthrough.length < 6) errors.push("Terminal Coding Lab must include at least 6 codeWalkthrough steps");
+    if (walkthrough.length < 1 || walkthrough.length > 4) errors.push("Terminal Coding Lab must include 1-4 stage-based codeWalkthrough steps");
     const knownFiles = new Set((practical.files || []).map((file) => file.path));
     const seenSteps = new Set();
     for (const step of walkthrough) {
