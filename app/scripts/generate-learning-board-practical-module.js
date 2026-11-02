@@ -296,7 +296,7 @@ Provide concrete, chapter-grounded title, summary, objectives, tasks, workspace 
 }
 
 function normalizeModuleResponse(raw, entries) {
-  const items = Array.isArray(raw)
+  let items = Array.isArray(raw)
     ? raw
     : raw?.practicals
       || raw?.data?.practicals
@@ -305,8 +305,18 @@ function normalizeModuleResponse(raw, entries) {
     const keys = raw && typeof raw === "object" ? Object.keys(raw).join(", ") : typeof raw;
     throw new Error(`Module response must contain a practicals array (received keys: ${keys || "none"}).`);
   }
+  // Gemini can return the full module even when a resumed run requests only
+  // the remaining chapter(s). Keep only requested chapter keys when every
+  // requested key is present; reject missing or duplicate requested chapters.
   if (items.length !== entries.length) {
+    const expectedKeys = new Set(entries.map((entry) => `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`));
+    const matchingItems = items.filter((item) => expectedKeys.has(`${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}`));
+    const matchingKeys = matchingItems.map((item) => `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}`);
+    if (matchingItems.length === entries.length && new Set(matchingKeys).size === entries.length) {
+      items = matchingItems;
+    } else {
     throw new Error(`Module response returned ${items.length} practical(s); expected ${entries.length}.`);
+    }
   }
 
   const entriesByKey = new Map(entries.map((entry) => [

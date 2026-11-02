@@ -492,15 +492,21 @@ function buildLessonContext(lessonChapter, courseTitle) {
 }
 
 function extractActivitySteps(activity) {
+    const seenStepIds = new Map();
     const numberedSteps = String(activity || "")
       .split(/\r?\n/)
-    .map((line) => line.match(/^\s*(\d+)[.)]\s+(?:\*\*)?(.+?)(?:\*\*)?\s*$/))
-    .filter(Boolean)
-    .map((match) => ({
-      activityStepId: `activity-step-${match[1]}`,
+      .map((line) => line.match(/^\s*(\d+)[.)]\s+(?:\*\*)?(.+?)(?:\*\*)?\s*$/))
+      .filter(Boolean)
+      .map((match) => {
+      const baseId = `activity-step-${match[1]}`;
+      const occurrence = (seenStepIds.get(baseId) || 0) + 1;
+      seenStepIds.set(baseId, occurrence);
+      return {
+      activityStepId: occurrence === 1 ? baseId : `${baseId}-${occurrence}`,
       order: Number(match[1]),
       title: summarizeText(match[2], 180),
-      }));
+      };
+      });
     if (numberedSteps.length) return numberedSteps;
     const summary = summarizeText(activity, 240);
     return summary
