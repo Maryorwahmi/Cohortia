@@ -292,7 +292,7 @@ ${chapterSections}
 
 TEACH VIEW OPENING CONTENT
 ==========================
-Do not add an extra opening object to the response schema. The first screen is assembled after generation from title, summary, objectives, tasks, workspace, learner artifact, teaching steps, and the chapter's structured lesson concepts. Keep those existing fields concrete and specific to the practical so the opening screen is complete and chapter-grounded.`;
+Provide concrete, chapter-grounded title, summary, objectives, tasks, workspace data, and teaching steps for each practical. The normalizer publishes the required teachViewOpening from those fields and the structured lesson concepts. Keep each opening specific to its category and hands-on activity.`;
 }
 
 function normalizeModuleResponse(raw, entries) {

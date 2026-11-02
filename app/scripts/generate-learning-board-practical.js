@@ -698,8 +698,7 @@ ${JSON.stringify(sourceContext?.lessonContext || {}, null, 2)}
 
 TEACH VIEW OPENING (REQUIRED; FIRST SCREEN ONLY)
 ================================================
-Write this practical's summary, objectives, tasks, and teaching steps specifically for the supplied hands-on activity. The first Teach View opening is assembled after generation from those practical fields and authoritative lesson concepts; do not emit a separate opening-screen object. Avoid a generic chapter overview.
-Write the practical summary, objectives, tasks, and teaching steps for this exact chapter and hands-on activity. The first Teach View opening is assembled from those fields and the source lesson concepts after generation; do not emit a separate opening-screen object. Keep the practical focused on what the learner will do, produce, and verify. Avoid generic chapter overviews.
+Provide concrete, chapter-grounded summary, objectives, tasks, workspace data, and teaching steps for this exact hands-on activity. The normalizer will publish the required teachViewOpening from those fields and the authoritative lesson concepts. Keep the practical focused on what the learner will do, produce, and verify. Avoid generic chapter overviews.
 
 ACTIVITY STEP MAP
 =================
@@ -778,43 +777,108 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
       : `Check that your work produces ${learnerArtifact}.`);
   }
 
+  const workspaceType = workspace?.type;
+  const category = sourceContext.source.category;
   const activityConcepts = tasks.flatMap((task) => asStringArray(task.requiredConcepts));
   const sourceConcepts = sourceContext.lessonContext?.keyConcepts || [];
-  const concepts = [...activityConcepts, ...sourceConcepts]
+  const conceptCandidates = [...activityConcepts, ...sourceConcepts]
     .map((concept) => normalizeLearnerText(concept))
+    .filter((concept, index, all) => concept && all.indexOf(concept) === index)
+    .slice(0, 3)
+  const workflowFallback = tasks.slice(0, 4).map((task, index) => ({
+    label: normalizeLearnerText(task.title || `Practical step ${index + 1}`),
+    value: normalizeLearnerText(task.instruction || task.title || learnerArtifact),
+  }));
+
+  const workspaceItem = (item, index, fallbackLabel) => {
+    if (typeof item === "string") return { label: `${fallbackLabel} ${index + 1}`, value: normalizeLearnerText(item) };
+    const value = item && typeof item === "object" ? item : {};
+    const label = normalizeLearnerText(value.name || value.title || value.label || value.resourceType || value.type || value.id || `${fallbackLabel} ${index + 1}`);
+    const detail = normalizeLearnerText(value.description || value.identifier || value.value || value.state || value.status || value.resourceId || value.id || JSON.stringify(value));
+    return { label, value: detail || learnerArtifact };
+  };
+
+  const categoryWorkflow = workspaceType === "cloud"
+    ? [
+        ...(Array.isArray(workspace.cloud?.initialResources) ? workspace.cloud.initialResources : []).map((item, index) => workspaceItem(item, index, "Resource")),
+        ...(Array.isArray(workspace.cloud?.expectedState) ? workspace.cloud.expectedState : []).map((item, index) => workspaceItem(item, index, "Expected state")),
+        ...(Array.isArray(workspace.cloud?.verificationChecks) ? workspace.cloud.verificationChecks : []).map((item, index) => workspaceItem(item, index, "Verification")),
+      ]
+    : workspaceType === "scenario"
+      ? [
+          ...(Array.isArray(workspace.scenario?.decisionFields) ? workspace.scenario.decisionFields : []).map((item, index) => workspaceItem(item, index, "Decision field")),
+          ...(Array.isArray(workspace.scenario?.options) ? workspace.scenario.options : []).map((item, index) => workspaceItem(item, index, "Option")),
+          ...(Array.isArray(workspace.scenario?.constraints) ? workspace.scenario.constraints : []).map((item, index) => workspaceItem(item, index, "Constraint")),
+          ...(Array.isArray(workspace.scenario?.outcomeRules) ? workspace.scenario.outcomeRules : []).map((item, index) => workspaceItem(item, index, "Outcome")),
+        ]
+      : workspaceType === "research"
+        ? [
+            ...(Array.isArray(workspace.research?.sources) ? workspace.research.sources : []).map((item, index) => workspaceItem(item, index, "Source")),
+            ...(Array.isArray(workspace.research?.datasets) ? workspace.research.datasets : []).map((item, index) => workspaceItem(item, index, "Dataset")),
+            ...(Array.isArray(workspace.research?.analysisOperations) ? workspace.research.analysisOperations : []).map((item, index) => workspaceItem(item, index, "Analysis")),
+            ...(Array.isArray(workspace.research?.evidenceRequirements) ? workspace.research.evidenceRequirements : []).map((item, index) => workspaceItem(item, index, "Evidence")),
+          ]
+        : [
+            { label: "Source file", value: workspace.terminal?.entryFile || "Open the practical starter file." },
+            { label: "Build", value: (workspace.terminal?.compileCommands || [])[0] || "Compile or prepare your work." },
+            { label: "Run", value: (workspace.terminal?.runCommands || [])[0] || "Run the practical and inspect the result." },
+            { label: "Verify", value: learnerArtifact },
+          ];
+
+  const workflow = [...categoryWorkflow, ...workflowFallback]
+    .filter((node, index, all) => node.label && all.findIndex((candidate) => candidate.label === node.label) === index)
+    .slice(0, 4);
+  while (workflow.length < 3) {
+    workflow.push({ label: `Practical step ${workflow.length + 1}`, value: learnerArtifact });
+  }
+
+  const concepts = [...conceptCandidates, ...workflow.map((node) => node.label)]
     .filter((concept, index, all) => concept && all.indexOf(concept) === index)
     .slice(0, 3)
     .map((concept) => ({
       title: conceptTitle(concept),
-      description: `Apply this chapter concept while you ${practicalAction.charAt(0).toLowerCase()}${practicalAction.slice(1).replace(/[.!?]+$/, "")}.`,
+      description: `Apply ${conceptTitle(concept)} while you ${practicalAction.charAt(0).toLowerCase()}${practicalAction.slice(1).replace(/[.!?]+$/, "")}.`,
     }));
 
-  const workspaceType = workspace?.type;
-  const workflow = workspaceType === "terminal"
-    ? [
-        { label: "Source file", value: workspace.terminal?.entryFile || "Open the practical starter file." },
-        { label: "Build", value: (workspace.terminal?.compileCommands || [])[0] || "Compile or prepare your work." },
-        { label: "Run", value: (workspace.terminal?.runCommands || [])[0] || "Run the practical and inspect the result." },
-        { label: "Verify", value: learnerArtifact },
-      ]
-    : tasks.slice(0, 4).map((task, index) => ({
-        label: normalizeLearnerText(task.title || `Practical step ${index + 1}`),
-        value: normalizeLearnerText(task.instruction || task.title || learnerArtifact),
-      }));
+  const mapTitles = {
+    "Cloud Console Lab": "Cloud Infrastructure Map",
+    "Scenario & Design Exercise": "Decision Framework",
+    "Research & Analysis": "Evidence Analysis Framework",
+    "Terminal Coding Lab": "Compilation & Execution Workflow",
+  };
+  const mapSubtitles = {
+    "Cloud Console Lab": `${workspace.cloud?.provider || "Cloud console"} > resources > configuration > verification`,
+    "Scenario & Design Exercise": "Constraints > Options > Decision > Consequences",
+    "Research & Analysis": "Sources > Evidence > Analysis > Conclusion",
+    "Terminal Coding Lab": "Source Code > Compiler > Executable > Output",
+  };
+  const whyItMatters = normalizeLearnerText(
+    raw.teacher?.realWorldContext
+      || sourceContext.lessonContext?.chapterIntroduction
+      || summary
+      || instructions
+      || title,
+  );
+  const gettingReadyByCategory = {
+    "Cloud Console Lab": `Open the ${workspace.cloud?.provider || "cloud"} management console, inspect the starting resources, and verify each change against the expected state.`,
+    "Scenario & Design Exercise": `Open the scenario workspace, review the constraints and available options, then prepare to justify one decision with its expected consequences.`,
+    "Research & Analysis": `Open the research dossier, review the supplied sources or datasets, and prepare to record observations before writing your conclusion.`,
+    "Terminal Coding Lab": instructions || `Open the ${title} starter workspace, inspect the source, and prepare to run the first verification step.`,
+  };
 
   return {
     subtitle: normalizeLearnerText(summary || instructions || title),
     inThisPractical: normalizeLearnerText(summary || `Complete the ${title} practical.`),
     comingUp: normalizeLearnerText(`You will ${practicalAction.charAt(0).toLowerCase()}${practicalAction.slice(1).replace(/[.!?]+$/, "")} and produce ${learnerArtifact}.`),
-    whyItMatters: normalizeLearnerText(summary || instructions || title),
+    whyItMatters,
     quickOrientation: orientation,
     keyConcepts: concepts,
     conceptMap: {
-      title: workspaceType === "terminal" ? "Practical workflow" : "Practical plan",
-      subtitle: normalizeLearnerText(`How this ${title} activity leads to ${learnerArtifact}.`),
+      title: mapTitles[category] || "Practical Workflow",
+      subtitle: normalizeLearnerText(mapSubtitles[category] || `How this ${title} activity leads to ${learnerArtifact}.`),
       nodes: workflow,
     },
-    gettingReady: normalizeLearnerText(instructions || `Review the ${title} mission, then begin in the practical workspace.`),
+    gettingReady: normalizeLearnerText(gettingReadyByCategory[category] || instructions || `Review the ${title} mission, then begin in the practical workspace.`),
   };
 }
 
@@ -1018,12 +1082,29 @@ function inferLanguage(raw, sourceContext, labType) {
   const text = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
   if (/\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program|hello,\s*world)\b/.test(text)) return "c";
   const requested = String(raw.language || "").trim().toLowerCase();
+  const fileNames = (Array.isArray(raw.files) ? raw.files : [])
+    .map((file) => String(file?.path || "").toLowerCase());
+  const entryFile = String(raw.workspace?.terminal?.entryFile || "").toLowerCase();
+  const fileLanguage = [...fileNames, entryFile].find((file) => file)
+    ? (fileNames.concat(entryFile).some((file) => /\.c$/.test(file)) ? "c"
+      : fileNames.concat(entryFile).some((file) => /\.(cc|cpp|cxx)$/.test(file)) ? "cpp"
+        : fileNames.concat(entryFile).some((file) => /\.py$/.test(file)) ? "python"
+          : fileNames.concat(entryFile).some((file) => /\.(js|mjs|cjs)$/.test(file)) ? "javascript"
+            : fileNames.concat(entryFile).some((file) => /\.(sh|bash)$/.test(file)) ? "shell"
+              : fileNames.concat(entryFile).some((file) => /\.(sql)$/.test(file)) ? "sql" : undefined)
+    : undefined;
   if (requested) {
     if (requested === "c++") return "cpp";
     if (["bash", "sh"].includes(requested)) return "shell";
     if (requested === "sqlite") return "sql";
+    // Gemini sometimes uses presentation labels such as "text" or
+    // "plaintext" for an executable starter. Prefer the file extension when
+    // it gives us an authoritative runtime instead of rejecting the whole
+    // module during import.
+    if (["text", "plaintext", "plain text", "file"].includes(requested) && fileLanguage) return fileLanguage;
     return requested;
   }
+  if (fileLanguage) return fileLanguage;
   if (labType === "database") return "sql";
   if (labType === "shell") return "shell";
   if (/\b(python|\.py\b|def\s+\w+\s*\()\b/.test(text)) return "python";
@@ -2631,9 +2712,6 @@ async function writePractical(practical, outputRoot, courseId, moduleNum, chapte
 
   const manifest = { courseId, moduleNumber: moduleNum, chapterNumber: chapterNum, practical };
   const manifestPath = path.join(practicalDir, "practical.json");
-  const pendingManifestPath = `${manifestPath}.${process.pid}.pending`;
-  await fs.writeFile(pendingManifestPath, JSON.stringify(manifest, null, 2), "utf8");
-  await fs.rename(pendingManifestPath, manifestPath);
 
   const filesDir = path.join(practicalDir, "files");
   await fs.mkdir(filesDir, { recursive: true });
@@ -2677,6 +2755,13 @@ async function writePractical(practical, outputRoot, courseId, moduleNum, chapte
       lessonHash: sourceContext.lessonHash,
     }, null, 2), "utf8");
   }
+
+  // Publish the manifest only after every generated file and source artifact
+  // has been written. A failed write must not leave a seemingly complete
+  // practical that a retry could incorrectly reuse.
+  const pendingManifestPath = `${manifestPath}.${process.pid}.pending`;
+  await fs.writeFile(pendingManifestPath, JSON.stringify(manifest, null, 2), "utf8");
+  await fs.rename(pendingManifestPath, manifestPath);
 
   console.log(`✓ Practical written to: ${practicalDir}`);
   return practicalDir;
