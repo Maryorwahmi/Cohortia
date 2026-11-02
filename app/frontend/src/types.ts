@@ -29,8 +29,15 @@ export interface RoadmapSelection {
 export function hasRoadmapSelection(value?: string | null): boolean {
   if (!value) return false;
   try {
-    const selection = JSON.parse(value) as { roadmapOrder?: unknown };
-    return Array.isArray(selection.roadmapOrder) && selection.roadmapOrder.length > 0;
+    const selection = JSON.parse(value) as {
+      mode?: unknown;
+      selectedCourseId?: unknown;
+      roadmapOrder?: unknown;
+    };
+    return (Array.isArray(selection.roadmapOrder) && selection.roadmapOrder.length > 0)
+      || (selection.mode === "single_course"
+        && typeof selection.selectedCourseId === "string"
+        && selection.selectedCourseId.trim().length > 0);
   } catch {
     return false;
   }

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db } from '../db/index.js';
-import { users, userRoadmaps, projectTemplates, aiLessons, userLessonProgress, catalogCourses, lessons } from '../db/schema.js';
+import { users, userRoadmaps, projectTemplates, aiLessons, userLessonProgress, catalogCourses, lessons, learningBoardChapters } from '../db/schema.js';
 import { eq, desc, and, inArray } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { generateCompleteJson } from '../lib/gemini.js';
@@ -12,18 +12,30 @@ const roadmaps = new Hono();
 function parseRoadmapSelection(value) {
   try {
     const parsed = typeof value === 'string' ? JSON.parse(value) : value;
-    if (!parsed?.roadmapOrder || !parsed?.selectedCourses) return null;
+    if (!parsed || typeof parsed !== 'object') return null;
     const toId = (course) => typeof course === 'string' ? course : course?.id;
     const levels = ['beginner', 'intermediate', 'advanced'];
+    const singleCourseId = parsed.mode === 'single_course'
+      && typeof parsed.selectedCourseId === 'string'
+      ? parsed.selectedCourseId
+      : null;
     const selectedCourses = Object.fromEntries(levels.map((level) => [
       level,
-      Array.isArray(parsed.selectedCourses[level]) ? parsed.selectedCourses[level].map(toId).filter(Boolean) : [],
+      Array.isArray(parsed.selectedCourses?.[level])
+        ? parsed.selectedCourses[level].map(toId).filter(Boolean)
+        : singleCourseId && parsed.learningStage === level
+          ? [singleCourseId]
+          : [],
     ]));
+    const roadmapOrder = Array.isArray(parsed.roadmapOrder)
+      ? parsed.roadmapOrder.map(toId).filter(Boolean)
+      : singleCourseId ? [singleCourseId] : null;
+    if (!roadmapOrder || !parsed.selectedCourses && !singleCourseId) return null;
     return {
       ...parsed,
       selectedCareerId: parsed.selectedCareerId || String(parsed.selectedCareer || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
       selectedCourses,
-      roadmapOrder: parsed.roadmapOrder.map(toId).filter(Boolean),
+      roadmapOrder,
     };
   } catch {
     return null;
@@ -438,6 +450,9 @@ roadmaps.get('/active', async (c) => {
   const lessonRows = await db.select()
     .from(lessons)
     .where(inArray(lessons.trackId, selection.roadmapOrder));
+  const learningBoardChapterRows = await db.select()
+    .from(learningBoardChapters)
+    .where(inArray(learningBoardChapters.courseId, selection.roadmapOrder));
   const levelById = new Map([
     ...selection.selectedCourses.beginner.map((id) => [id, 'beginner']),
     ...selection.selectedCourses.intermediate.map((id) => [id, 'intermediate']),
@@ -449,12 +464,33 @@ roadmaps.get('/active', async (c) => {
     if (!lessonsByCourse.has(lesson.trackId)) lessonsByCourse.set(lesson.trackId, []);
     lessonsByCourse.get(lesson.trackId).push(lesson);
   }
+  const boardChaptersByCourse = new Map();
+  for (const chapter of learningBoardChapterRows) {
+    if (!boardChaptersByCourse.has(chapter.courseId)) boardChaptersByCourse.set(chapter.courseId, []);
+    boardChaptersByCourse.get(chapter.courseId).push({
+      id: `${chapter.courseId}-m${chapter.module}-c${chapter.chapter}-lesson`,
+      trackId: chapter.courseId,
+      moduleIndex: chapter.module,
+      moduleTitle: chapter.moduleTitle || `Module ${chapter.module}`,
+      title: chapter.chapterTitle,
+      description: null,
+      content: null,
+      type: 'lesson',
+      duration: null,
+      order: chapter.chapter,
+      createdAt: chapter.createdAt,
+      updatedAt: chapter.updatedAt,
+    });
+  }
 
   const courses = selection.roadmapOrder.map((courseId, index) => ({
     ...(catalogById.get(courseId) || { id: courseId, title: courseId }),
     level: levelById.get(courseId) || String(catalogById.get(courseId)?.level || '').toLowerCase(),
     order: index + 1,
-    lessons: (lessonsByCourse.get(courseId) || []).sort((left, right) =>
+    lessons: (lessonsByCourse.get(courseId)?.length
+      ? lessonsByCourse.get(courseId)
+      : boardChaptersByCourse.get(courseId) || []
+    ).sort((left, right) =>
       (left.moduleIndex - right.moduleIndex) || (left.order - right.order)
     ),
   }));
