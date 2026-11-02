@@ -213,8 +213,8 @@ REQUIREMENTS:
    - Explain why each action matters, pause for predictions, use encouraging questions, preview milestones, and make clear that errors are useful evidence in discovery.
    - Write narration for speech synthesis: spell out symbols in prose rather than relying on punctuation. For example say “plus”, “slash”, “dot”, “opening curly brace”, and “closing curly brace”; never make the voice read raw code punctuation as a robot.
 6. Synchronized Animated CodeWalkthrough (TERMINAL CODING LABS ONLY):
-   - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching steps that walk the student line-by-line through the foundational starter code.
-   - For EACH step, provide:
+   - Provide a 'codeWalkthrough' array containing 1–4 ordered teaching stages. Each stage should contain the complete relevant code block for that phase; the classroom UI reveals the block line-by-line inside one slide. Create a new stage only for a genuine phase change such as observe, modify, run, verify, or transfer.
+   - For EACH stage, provide:
      * stepNumber: 1, 2, 3...
      * speakerText: ~80-120 words of rich, line-by-line teaching spoken as the code line appears. Explain the exact syntax, purpose, underlying computer science concept, and a relevant example. Preserve details from the chapter; do not simply paraphrase the source activity or introduce unrelated topics.
      * codeLine: The exact line or block of code added in this step (e.g., '#include <stdio.h>' or 'int main(void) {').
@@ -677,6 +677,28 @@ async function generateModule(options, { importPractical = importGeneratedPracti
     const responseItems = Array.isArray(result.data)
       ? result.data
       : result.data?.practicals || result.data?.data?.practicals || result.data?.result?.practicals;
+    // In per-chapter mode, Gemini may occasionally append a neighboring
+    // chapter despite receiving a one-chapter prompt. Keep the one exact
+    // match and ignore unrelated extras; never accept duplicate matches.
+    if (entries.length === 1 && Array.isArray(responseItems)) {
+      const expectedKey = `${entries[0].metadata.moduleNumber}.${entries[0].metadata.chapterNumber}`;
+      const matchingItems = responseItems.filter((item) => (
+        `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === expectedKey
+        && item?.practical
+        && typeof item.practical === "object"
+      ));
+      if (matchingItems.length === 1) {
+        normalized = normalizeSingleChapterResponse(matchingItems[0], entries[0]);
+      }
+    }
+    if (normalized) {
+      // The exact one-chapter match has already been normalized safely.
+    } else if (!Array.isArray(responseItems) || responseItems.length > entries.length) {
+      throw error;
+    }
+    if (normalized) {
+      // Skip the aggregate-repair path below.
+    } else {
     const entriesByKey = new Map(entries.map((entry) => [
       `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
       entry,
@@ -690,8 +712,6 @@ async function generateModule(options, { importPractical = importGeneratedPracti
         seenKeys.add(key);
       }
     }
-    if (!Array.isArray(responseItems) || responseItems.length > entries.length) throw error;
-
     const repaired = [];
     for (const item of validItems) {
       const key = `${Number(item.moduleNumber)}.${Number(item.chapterNumber)}`;
@@ -724,6 +744,7 @@ async function generateModule(options, { importPractical = importGeneratedPracti
       repaired.push(...normalizeSingleChapterResponse(chapterResult.data, entry));
     }
     normalized = repaired;
+    }
   }
   const targets = [];
   const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
