@@ -56,10 +56,42 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
   onNextSlide,
   onOpenWorkspace,
 }) => {
-  const totalSlides = 1 + manifest.walkthroughSteps.length; // Slide 0 = Orientation, Slide 1..N = Steps
-  const activeSlideIndex = currentStepIndex; // 0 is Orientation, 1..N are steps
+  const totalSlides = 2; // Orientation and one continuous walkthrough
+  const activeSlideIndex = currentStepIndex > 0 ? 1 : 0;
+  const activeStageIndex = currentStepIndex - 1;
   const activeStep: WalkthroughStep | undefined =
-    activeSlideIndex > 0 ? manifest.walkthroughSteps[activeSlideIndex - 1] : undefined;
+    activeStageIndex >= 0 ? manifest.walkthroughSteps[activeStageIndex] : undefined;
+  const activeCodeLines = activeStep
+    ? (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n')
+    : [];
+  const previousCodeLines = manifest.categoryType === 'terminal_coding' && activeStageIndex > 0
+    ? manifest.walkthroughSteps
+      .slice(0, activeStageIndex)
+      .flatMap((step) => (step.codeSnippet ?? step.codeOrText ?? '').split('\n'))
+    : [];
+  const codeLines = [...previousCodeLines, ...activeCodeLines];
+  const nextStep = activeStageIndex >= 0
+    ? manifest.walkthroughSteps[activeStageIndex + 1]
+    : undefined;
+  const stepEndTime = nextStep?.timestamp ?? manifest.durationSeconds;
+  const stepDuration = Math.max(1, stepEndTime - (activeStep?.timestamp ?? 0));
+  const timeInStep = Math.max(0, Math.min(stepDuration, currentTime - (activeStep?.timestamp ?? 0)));
+  const visibleActiveLineCount = activeCodeLines.length
+    ? Math.min(
+        activeCodeLines.length,
+        Math.max(1, Math.floor((timeInStep / stepDuration) * activeCodeLines.length) + 1),
+      )
+    : 0;
+  const visibleLineCount = previousCodeLines.length + visibleActiveLineCount;
+  const activeLineIndex = activeStep?.activeLineIndex === undefined
+    ? undefined
+    : previousCodeLines.length + activeStep.activeLineIndex;
+  const activeBlockRange = activeStep?.activeBlockRange
+    ? [
+        previousCodeLines.length + activeStep.activeBlockRange[0],
+        previousCodeLines.length + activeStep.activeBlockRange[1],
+      ] as const
+    : undefined;
 
   // Prediction state for walkthrough steps
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
@@ -68,7 +100,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
   React.useEffect(() => {
     setSelectedPrediction(null);
     setPredictionSubmitted(false);
-  }, [activeSlideIndex, manifest.id]);
+  }, [activeSlideIndex, activeStep?.stepNumber, manifest.id]);
 
   const classroom = manifest.classroom;
   const progressPercent = Math.min(100, Math.max(0, (currentTime / manifest.durationSeconds) * 100));
@@ -495,74 +527,57 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                   <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50 border-b border-slate-200 text-[10px] font-mono shrink-0">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-slate-700 uppercase tracking-wider">
-                        TEACHING STEP {activeStep.stepNumber} • {manifest.files[0]?.name || 'source'}
+                        WALKTHROUGH • {manifest.files[0]?.name || 'source'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-indigo-600 font-semibold text-[10px]">
-                        Line {Math.min(
-                          isPlaying
-                            ? Math.min(
-                                (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length,
-                                Math.max(1, Math.floor((Math.max(0, currentTime - activeStep.timestamp) / Math.max(6, manifest.durationSeconds / manifest.walkthroughSteps.length)) * (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length) + 1)
-                              )
-                            : (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length,
-                          (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length
-                        )} of {(activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length}
+                        Line {visibleLineCount} of {codeLines.length}
                       </span>
                     </div>
                   </div>
 
                   <div className="p-3 sm:p-4 overflow-y-auto space-y-0.5 flex-1 min-h-0 bg-white">
-                    {(() => {
-                      const codeLines = (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n');
-                      const stepDuration = Math.max(6, manifest.durationSeconds / manifest.walkthroughSteps.length);
-                      const timeInStep = Math.max(0, currentTime - activeStep.timestamp);
-                      const visibleCount = isPlaying
-                        ? Math.min(codeLines.length, Math.max(1, Math.floor((timeInStep / stepDuration) * codeLines.length) + 1))
-                        : codeLines.length;
+                    {codeLines.map((line, idx) => {
+                      const isVisible = idx < visibleLineCount;
+                      const isCurrentSpeakingLine = idx === visibleLineCount - 1;
+                      const isExactLine = activeLineIndex === idx;
+                      const inBlock =
+                        activeBlockRange &&
+                        idx >= activeBlockRange[0] &&
+                        idx <= activeBlockRange[1];
+                      const isHighlighted = isExactLine || inBlock || isCurrentSpeakingLine;
 
-                      return codeLines.map((line, idx) => {
-                        const isVisible = idx < visibleCount;
-                        const isCurrentSpeakingLine = idx === visibleCount - 1;
-                        const isExactLine = activeStep.activeLineIndex === idx;
-                        const inBlock =
-                          activeStep.activeBlockRange &&
-                          idx >= activeStep.activeBlockRange[0] &&
-                          idx <= activeStep.activeBlockRange[1];
-                        const isHighlighted = isExactLine || inBlock || isCurrentSpeakingLine;
-
-                        if (!isVisible) {
-                          return (
-                            <div key={idx} className="flex items-center gap-2 py-0.5 px-2 opacity-20 select-none">
-                              <span className="text-slate-300 text-[11px] w-5 text-right">{idx + 1}</span>
-                              <span className="text-slate-300 font-mono text-xs italic">...</span>
-                            </div>
-                          );
-                        }
-
+                      if (!isVisible) {
                         return (
-                          <div
-                            key={idx}
-                            className={`flex items-start gap-2 py-0.5 px-2 rounded transition-all duration-150 ${
-                              isHighlighted
-                                ? 'bg-blue-50 text-slate-900 border-l-2 border-indigo-600 font-medium'
-                                : 'text-slate-700'
-                            }`}
-                          >
-                            <span className="select-none text-slate-400 text-[11px] w-5 text-right pt-0.5">
-                              {idx + 1}
-                            </span>
-                            <span className="flex-1 whitespace-pre-wrap font-mono text-xs leading-relaxed">
-                              {line}
-                              {isCurrentSpeakingLine && (
-                                <span className="inline-block w-1.5 h-3 ml-1 bg-indigo-600 animate-pulse align-middle" />
-                              )}
-                            </span>
+                          <div key={idx} className="flex items-center gap-2 py-0.5 px-2 opacity-20 select-none">
+                            <span className="text-slate-300 text-[11px] w-5 text-right">{idx + 1}</span>
+                            <span className="text-slate-300 font-mono text-xs italic">...</span>
                           </div>
                         );
-                      });
-                    })()}
+                      }
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-start gap-2 py-0.5 px-2 rounded transition-all duration-150 ${
+                            isHighlighted
+                              ? 'bg-blue-50 text-slate-900 border-l-2 border-indigo-600 font-medium'
+                              : 'text-slate-700'
+                          }`}
+                        >
+                          <span className="select-none text-slate-400 text-[11px] w-5 text-right pt-0.5">
+                            {idx + 1}
+                          </span>
+                          <span className="flex-1 whitespace-pre-wrap font-mono text-xs leading-relaxed">
+                            {line}
+                            {isCurrentSpeakingLine && (
+                              <span className="inline-block w-1.5 h-3 ml-1 bg-indigo-600 animate-pulse align-middle" />
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -643,7 +658,9 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
         {/* Right Controls: Slide X/Y and Navigation Circles */}
         <div className="flex items-center gap-2.5 shrink-0">
           <span className="text-xs font-mono text-slate-400">
-            Slide {activeSlideIndex + 1}/{totalSlides}
+            {activeSlideIndex === 0
+              ? `Slide ${activeSlideIndex + 1}/${totalSlides}`
+              : `Step ${activeStep?.stepNumber || 1}/${manifest.walkthroughSteps.length}`}
           </span>
 
           {/* Previous Arrow Circle */}
@@ -651,7 +668,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
             onClick={onPrevSlide}
             disabled={activeSlideIndex === 0}
             className="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-xs transition-colors cursor-pointer"
-            title="Previous slide"
+            title={activeSlideIndex === 0 ? 'Previous slide' : 'Previous teaching step'}
           >
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
@@ -659,9 +676,12 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
           {/* Next Arrow Circle */}
           <button
             onClick={onNextSlide}
-            disabled={activeSlideIndex === totalSlides - 1}
+            disabled={
+              activeSlideIndex === totalSlides - 1 &&
+              activeStageIndex === manifest.walkthroughSteps.length - 1
+            }
             className="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-xs transition-colors cursor-pointer"
-            title="Next slide"
+            title={activeSlideIndex === 0 ? 'Start walkthrough' : 'Next teaching step'}
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
