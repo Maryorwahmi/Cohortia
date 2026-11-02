@@ -33,6 +33,7 @@ const INITIAL_MANIFEST =
 
 export interface PracticalTestExperienceProps {
   practical?: LearningBoardPractical | null;
+  courseId?: string;
   courseTitle?: string;
   onComplete?: () => void | Promise<void>;
   onMentorContextReady?: (provider: (() => ChatLearningContext) | null) => void;
@@ -472,7 +473,8 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
   };
 }
 
-export default function App({ practical, courseTitle, onComplete, onMentorContextReady }: PracticalTestExperienceProps) {
+export default function App({ practical, courseId, courseTitle, onComplete, onMentorContextReady }: PracticalTestExperienceProps) {
+  const narratorCourseId = courseId || practical?.courseId;
   const generatedManifest = useMemo(() => practical ? manifestFromPractical(practical, courseTitle) : null, [practical, courseTitle]);
   const manifests = useMemo(() => generatedManifest ? [generatedManifest] : PRACTICAL_MANIFESTS, [generatedManifest]);
   const [activeManifestId, setActiveManifestId] = useState<string>(generatedManifest?.id || INITIAL_MANIFEST.id);
@@ -764,8 +766,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     activeManifest.walkthroughSteps[activeWalkthroughIndex] || activeManifest.walkthroughSteps[0];
 
   useEffect(() => {
-    const courseId = practical?.courseId;
-    if (!courseId || typeof window === 'undefined' || !window.speechSynthesis) {
+    if (!narratorCourseId || typeof window === 'undefined' || !window.speechSynthesis) {
       setCourseNarratorVoice(null);
       setCourseNarratorVoiceReady(false);
       return;
@@ -775,7 +776,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     const loadVoice = async () => {
       const voices = window.speechSynthesis.getVoices();
       if (!voices.length) return;
-      const voice = await resolveCourseNarratorVoice(courseId, voices);
+      const voice = await resolveCourseNarratorVoice(narratorCourseId, voices);
       if (!cancelled) {
         setCourseNarratorVoice(voice);
         setCourseNarratorVoiceReady(true);
@@ -790,13 +791,13 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
       cancelled = true;
       window.speechSynthesis.removeEventListener('voiceschanged', loadVoice);
     };
-  }, [practical?.courseId]);
+  }, [narratorCourseId]);
 
   // Use the course assignment in practical teaching; persona voice is a fallback for standalone demos.
   useEffect(() => {
     if (!('speechSynthesis' in window)) return;
 
-    if (practical?.courseId && !courseNarratorVoiceReady) {
+    if (narratorCourseId && !courseNarratorVoiceReady) {
       window.speechSynthesis.cancel();
       return;
     }
@@ -832,7 +833,7 @@ export default function App({ practical, courseTitle, onComplete, onMentorContex
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [isPlaying, isMuted, currentSlideIndex, currentStep?.narration, playbackSpeed, selectedInstructor, activeManifest, openingNarration, practical?.courseId, courseNarratorVoice, courseNarratorVoiceReady]);
+  }, [isPlaying, isMuted, currentSlideIndex, currentStep?.narration, playbackSpeed, selectedInstructor, activeManifest, openingNarration, narratorCourseId, courseNarratorVoice, courseNarratorVoiceReady]);
 
   // Playback timer ticker
   useEffect(() => {

@@ -1548,6 +1548,7 @@ export default function LearningBoardPage({
                   <div className="h-full w-full min-h-0 overflow-hidden">
                     <PracticalTestExperience
                       practical={activePractical}
+                      courseId={manifest?.courseId || activeCourseId || undefined}
                       courseTitle={boardCourseTitle || courseTitle}
                       onComplete={handlePracticalCompleted}
                       onMentorContextReady={registerPracticalMentorContext}
