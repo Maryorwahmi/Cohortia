@@ -1243,33 +1243,33 @@ function walkthroughNarration(codeLine, index, total) {
 function buildSourceWalkthrough(file) {
   const lines = String(file?.content || "").split(/\r?\n/).map((line) => line.trimEnd()).filter((line) => line.trim());
   if (!file || !lines.length) return [];
-  const targetCount = Math.min(8, Math.max(6, Math.ceil(lines.length / 4)));
-  const chunkSize = Math.max(1, Math.ceil(lines.length / targetCount));
-  const chunks = [];
-  for (let start = 0; start < lines.length; start += chunkSize) chunks.push(lines.slice(start, start + chunkSize));
-  const walkthrough = chunks.map((chunk, index) => ({
-    stepNumber: index + 1,
+  return [{
+    stepNumber: 1,
     file: file.path,
-    codeLine: chunk.join("\n"),
-    speakerText: walkthroughNarration(chunk.join("\n"), index, chunks.length),
-    explanation: "Connect this code to the value or behavior it produces, then make a prediction before running the program.",
-    durationSeconds: 8,
-  }));
-  // Very small starter files can contain fewer than six non-empty lines. The
-  // contract still needs six teachable beats, so add explicit observe/verify
-  // beats without modifying the learner's source file.
-  while (walkthrough.length < 6) {
-    const stepNumber = walkthrough.length + 1;
-    walkthrough.push({
-      stepNumber,
-      file: file.path,
-      codeLine: lines.at(-1),
-      speakerText: `Revisit the final line and predict its observable result. This checkpoint connects the starter code to the terminal evidence, so you can explain what the program does before making your own change.`,
-      explanation: "Confirm the baseline behavior before editing the program.",
-      durationSeconds: 8,
-    });
-  }
-  return walkthrough;
+    codeLine: lines.join("\n"),
+    speakerText: walkthroughNarration(lines.join("\n"), 0, 1),
+    explanation: "Read the complete starter program as one connected flow, then predict the behavior before making a change.",
+    durationSeconds: 12,
+  }];
+}
+
+function groupWalkthroughSegments(segments, stageCount) {
+  if (segments.length <= 1 || stageCount <= 1) return segments;
+  const count = Math.min(stageCount, segments.length);
+  return Array.from({ length: count }, (_, index) => {
+    const start = Math.floor(index * segments.length / count);
+    const end = Math.floor((index + 1) * segments.length / count);
+    const group = segments.slice(start, Math.max(start + 1, end));
+    return {
+      ...group[0],
+      stepNumber: index + 1,
+      codeLine: group.map((segment) => segment.codeLine).filter(Boolean).join("\n"),
+      speakerText: group.map((segment) => segment.speakerText).filter(Boolean).join(" "),
+      explanation: group.map((segment) => segment.explanation).filter(Boolean).at(-1) || group[0].explanation,
+      predictionQuestion: group.find((segment) => segment.predictionQuestion)?.predictionQuestion,
+      durationSeconds: group.reduce((total, segment) => total + (segment.durationSeconds || 8), 0),
+    };
+  });
 }
 
 function fallbackStarterFile(instructions, labType, language) {
@@ -2082,9 +2082,14 @@ function normalizePractical(raw, sourceContext, metadata) {
     predictionQuestion: normalizePredictionQuestion(seg.predictionQuestion, `walkthrough-${idx + 1}`),
     durationSeconds: clampInteger(seg.durationSeconds, 8, 3, 90),
   })).filter((seg) => seg.speakerText || seg.codeLine).sort((left, right) => left.stepNumber - right.stepNumber);
-  if (sourceContext.source.category === "Terminal Coding Lab" && codeWalkthrough.length < 6) {
+  if (sourceContext.source.category === "Terminal Coding Lab" && codeWalkthrough.length === 0) {
     const fallbackFile = primarySourceFiles[0] || files[0];
     codeWalkthrough = buildSourceWalkthrough(fallbackFile);
+  }
+  if (sourceContext.source.category === "Terminal Coding Lab") {
+    // A code walkthrough is a stage, not a slideshow of individual lines.
+    // Keep all lines in the same slide and reveal them inside that slide.
+    codeWalkthrough = groupWalkthroughSegments(codeWalkthrough, Math.max(1, Math.min(tasks.length, 4)));
   }
   let teachingSteps = (Array.isArray(raw.teachingSteps) ? raw.teachingSteps : [])
     .filter((step) => step && typeof step === "object")
@@ -2943,6 +2948,7 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
    EACH SCENE = ONE TASK with its own narrative guide, code snippets, and terminal verification.
 
 2. ANIMATION & NARRATOR SYNCHRONIZATION:
+   A walkthrough slide represents one teaching stage, not one source-code line. Put the complete relevant code block for that stage in one codeWalkthrough item; the classroom UI reveals its lines inside the same slide. Use a new walkthrough item only when the teaching genuinely moves to a new phase such as observe, modify, run, verify, or transfer. Keep line-level timing in codeAnimationSegments, not as separate slides.
    For each task, provide:
    - "codeAnimationSegments": Array of {
        "lineNumber": 1,

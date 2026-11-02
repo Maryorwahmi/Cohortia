@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PRACTICAL_MANIFESTS } from './data/practicalsData';
-import type { LearningBoardPractical } from '../../../services/learningBoardsApi';
+import type { CodeWalkthroughSegment, LearningBoardPractical } from '../../../services/learningBoardsApi';
 import { learningBoardsApi } from '../../../services/learningBoardsApi';
 import { chatApi, type ChatLearningContext } from '../../../services/api';
 import { resolveCourseNarratorVoice } from '../../../utils/courseVoiceMapping';
@@ -151,6 +151,25 @@ function narrationDurationSeconds(text: string | undefined, minimumSeconds = 8):
   return Math.max(minimumSeconds, Math.ceil(wordCount / 2) + 3);
 }
 
+function groupCodeWalkthroughSegments(segments: CodeWalkthroughSegment[], stageCount: number): CodeWalkthroughSegment[] {
+  if (segments.length <= 1 || stageCount <= 1) return segments;
+  const count = Math.min(stageCount, segments.length);
+  return Array.from({ length: count }, (_, index) => {
+    const start = Math.floor(index * segments.length / count);
+    const end = Math.floor((index + 1) * segments.length / count);
+    const group = segments.slice(start, Math.max(start + 1, end));
+    return {
+      ...group[0],
+      stepNumber: index + 1,
+      codeLine: group.map((segment) => segment.codeLine).filter(Boolean).join('\n'),
+      speakerText: group.map((segment) => segment.speakerText).filter(Boolean).join(' '),
+      explanation: group.map((segment) => segment.explanation).filter(Boolean).at(-1) || group[0].explanation,
+      predictionQuestion: group.find((segment) => segment.predictionQuestion)?.predictionQuestion,
+      durationSeconds: group.reduce((total, segment) => total + (segment.durationSeconds || 8), 0),
+    };
+  });
+}
+
 function exploreKeyTopicsFrom(practical: LearningBoardPractical): PracticalManifest['classroom']['exploreKeyTopics'] {
   const lessonConcepts = practical.lessonContext?.keyConcepts || [];
   const taskConcepts = (practical.tasks || []).flatMap((task) => task.requiredConcepts || []);
@@ -186,9 +205,13 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       : 'text' as const,
   }));
   const teachingSteps = practical.teachingSteps || [];
-  const walkthroughSource = practical.codeWalkthrough?.length ? practical.codeWalkthrough : teachingSteps;
+  const rawWalkthrough = practical.codeWalkthrough || [];
+  const walkthroughSegments = categoryType === 'terminal_coding'
+    ? groupCodeWalkthroughSegments(rawWalkthrough, Math.max(1, Math.min(practical.tasks?.length || 1, 4)))
+    : rawWalkthrough;
+  const walkthroughSource = walkthroughSegments.length ? walkthroughSegments : teachingSteps;
   const stepDurations = walkthroughSource.map((step) => narrationDurationSeconds(step.speakerText, step.durationSeconds || 8));
-  const walkthroughSteps = (practical.codeWalkthrough || []).map((step, index) => {
+  const walkthroughSteps = walkthroughSegments.map((step, index) => {
     const taskIndex = Math.min(index, Math.max(0, (practical.tasks?.length || 1) - 1));
     const task = practical.tasks?.[taskIndex];
     const teaching = task?.teaching;
