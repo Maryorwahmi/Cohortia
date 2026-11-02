@@ -398,6 +398,8 @@ export interface LearningBoardPracticalTask {
   databaseId?: string;
   title?: string | null;
   instruction: string;
+  details?: string;
+  criteria?: string;
   narratorGuide?: string | null;
   teaching?: PracticalTeaching | null;
   requiredConcepts: string[];

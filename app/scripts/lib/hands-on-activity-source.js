@@ -111,8 +111,10 @@ export function classifyActivity(activityText, chapterRaw) {
   const activity = activityText.toLowerCase();
   const text = `${activityText}\n${chapterRaw}`.toLowerCase();
   const signals = [];
+  const mentionsCloudProvider = /\b(aws|azure|gcp|alibaba cloud)\b/.test(activity);
+  const cloudOperation = /\b(cloud console|console|bucket|iam|terraform|kubectl|provision|deploy|launch|configure|attach|mount|modify|scale|delete|verify|inspect)\b/.test(activity);
 
-  if (/\b(aws|azure|gcp|cloud console|bucket|iam|terraform|kubectl)\b/.test(activity)) {
+  if (cloudOperation && (mentionsCloudProvider || /\b(cloud console|bucket|iam|terraform|kubectl)\b/.test(activity))) {
     signals.push("cloud");
     return { category: "Cloud Console Lab", confidence: 0.9, signals };
   }
@@ -120,10 +122,15 @@ export function classifyActivity(activityText, chapterRaw) {
     signals.push("algorithm-design");
     return { category: "Scenario & Design Exercise", confidence: 0.86, signals };
   }
-  if (/```(?:python|javascript|bash|shell|sql)?|\b(python|python3|interpreter|repl|print\s*\(|\.py\b|program|function|compile|sql|query|html|css|starter code|implement|write code|build)\b/.test(activity)
+  if (/```(?:python|javascript|bash|shell|sql)\b|\b(python|python3|interpreter|repl|print\s*\(|\.py\b|program|function|compile|sql|query|html|css|starter code|implement|write code|build)\b/.test(activity)
     || /\b(?:write|implement|compile|run|edit|debug|modify)\s+(?:a\s+)?(?:c(?:\+\+)?|python|javascript|typescript|java)\s+(?:program|code|file)\b/i.test(activity)) {
     signals.push("code");
     return { category: "Terminal Coding Lab", confidence: 0.88, signals };
+  }
+  if (/\b(research|investigate|compare|analy[sz]e|collect data|estimate)\b/.test(activity)
+    || /\b(research|investigate|compare|analy[sz]e|collect data|estimate)\b/.test(text)) {
+    signals.push("analysis");
+    return { category: "Research & Analysis", confidence: 0.84, signals };
   }
   if (/\b(discuss|ethical|ethics|privacy|bias|scenario|trade-?off|propose)\b/.test(activity)) {
     signals.push("scenario");
@@ -132,10 +139,6 @@ export function classifyActivity(activityText, chapterRaw) {
   if (/\b(challenge|convert|conversion|calculate)\b/.test(activity)) {
     signals.push("challenge");
     return { category: "Scenario & Design Exercise", confidence: 0.72, signals };
-  }
-  if (/\b(research|investigate|compare|analy[sz]e|collect data)\b/.test(activity) || /\b(research|investigate|compare|analy[sz]e|collect data)\b/.test(text)) {
-    signals.push("analysis");
-    return { category: "Research & Analysis", confidence: 0.78, signals };
   }
   signals.push("defaulted-to-analysis");
   return { category: "Research & Analysis", confidence: 0.45, signals };

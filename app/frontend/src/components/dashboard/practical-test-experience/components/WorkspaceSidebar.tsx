@@ -154,13 +154,25 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                       <p className="text-slate-700 leading-snug font-sans">
                         {task.description}
                       </p>
+                      {task.details && task.details !== task.description && (
+                        <details className="rounded border border-slate-200 bg-white px-2 py-1.5">
+                          <summary className="cursor-pointer text-[10px] font-semibold text-indigo-700">
+                            Full instructions
+                          </summary>
+                          <p className="mt-1 whitespace-pre-wrap text-[10px] leading-snug text-slate-600">
+                            {task.details}
+                          </p>
+                        </details>
+                      )}
 
-                      <div className="p-1.5 rounded bg-slate-100/90 border border-slate-200 text-[10px] font-mono text-slate-800">
-                        <span className="text-slate-500 font-bold block mb-0.5 uppercase">
-                          Verification Check:
-                        </span>
-                        <span>{task.criteria}</span>
-                      </div>
+                      {task.criteria && (
+                        <div className="p-1.5 rounded bg-slate-100/90 border border-slate-200 text-[10px] font-mono text-slate-800">
+                          <span className="text-slate-500 font-bold block mb-0.5 uppercase">
+                            Verification Check:
+                          </span>
+                          <span>{task.criteria}</span>
+                        </div>
+                      )}
 
                       {/* Progressive Hints */}
                       {task.hints && task.hints.length > 0 && (
