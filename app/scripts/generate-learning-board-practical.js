@@ -768,7 +768,10 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
   const practicalAction = normalizeLearnerText(
     taskPoints[0] || instructions || summary || title,
   );
-  const orientation = [...objectives, ...taskPoints, normalizeLearnerText(instructions)]
+  const orientationSource = category === "Scenario & Design Exercise"
+    ? [...taskPoints, ...objectives, normalizeLearnerText(instructions)]
+    : [...objectives, ...taskPoints, normalizeLearnerText(instructions)];
+  const orientation = orientationSource
     .filter((point, index, all) => point && all.indexOf(point) === index)
     .slice(0, 3);
   while (orientation.length < 3) {
