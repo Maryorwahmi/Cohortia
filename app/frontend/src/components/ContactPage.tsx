@@ -266,7 +266,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="text-immersive-text-secondary/60 text-[10px] font-mono uppercase font-bold">Email Admissions</div>
-                  <a href="mailto:admissions@cohortia.com" className="text-immersive-text-primary hover:text-immersive-secondary font-bold text-[11px]">admissions@cohortia.com</a>
+                  <a href="mailto:hello@cohortia.study" className="text-immersive-text-primary hover:text-immersive-secondary font-bold text-[11px]">hello@cohortia.study</a>
                 </div>
               </div>
               <div className="flex items-center space-x-2.5 text-xs">
@@ -275,7 +275,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="text-immersive-text-secondary/60 text-[10px] font-mono uppercase font-bold">Phone Support</div>
-                  <a href="tel:+14155552391" className="text-immersive-text-primary hover:text-immersive-secondary font-bold text-[11px]">+1 (415) 555-2391</a>
+                  <a href="tel:+2348160229134" className="text-immersive-text-primary hover:text-immersive-secondary font-bold text-[11px]">+2348160229134</a>
                 </div>
               </div>
             </div>
