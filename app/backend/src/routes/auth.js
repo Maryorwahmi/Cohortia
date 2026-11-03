@@ -43,6 +43,40 @@ function createToken(user, sessionId) {
 const issueSession = (c, user) => createSession(c, user, createToken);
 const emailVerificationLifetimeMs = 10 * 60 * 1000;
 const emailVerificationResendCooldownMs = 60 * 1000;
+const roadmapLevels = ['beginner', 'intermediate', 'advanced'];
+
+async function getWelcomeCourseTitles(user) {
+  const courseIds = new Set();
+  if (user.desiredField) courseIds.add(user.desiredField);
+  if (user.roadmapSelection) {
+    try {
+      const selection = JSON.parse(user.roadmapSelection);
+      const selectedIds = Array.isArray(selection?.roadmapOrder)
+        ? selection.roadmapOrder
+        : roadmapLevels.flatMap((level) => Array.isArray(selection?.selectedCourses?.[level])
+          ? selection.selectedCourses[level]
+          : []);
+      selectedIds.filter((id) => typeof id === 'string' && id.trim()).slice(0, 8)
+        .forEach((id) => courseIds.add(id));
+    } catch (error) {
+      console.warn('[auth] Could not read selected courses for welcome email:', error.message);
+    }
+  }
+  if (!courseIds.size) return [];
+
+  const ids = [...courseIds];
+  const [catalogRows, trackRows] = await Promise.all([
+    db.select({id: catalogCourses.id, title: catalogCourses.title})
+      .from(catalogCourses).where(inArray(catalogCourses.id, ids)),
+    db.select({id: tracks.id, title: tracks.title})
+      .from(tracks).where(inArray(tracks.id, ids)),
+  ]);
+  const titlesById = new Map([
+    ...trackRows.map((course) => [course.id, course.title]),
+    ...catalogRows.map((course) => [course.id, course.title]),
+  ]);
+  return ids.map((id) => titlesById.get(id)).filter(Boolean);
+}
 
 function hashEmailVerificationCode(code) {
   return createHmac('sha256', getJwtSecret()).update(code).digest('hex');
@@ -60,16 +94,26 @@ async function sendEmailVerificationCode(user, code) {
     heading: 'Verify your email',
     greeting: `Hi ${user.name},`,
     verificationCode: code,
-    paragraphs: ['Enter this code in Cohortia to verify your email address. It expires in 10 minutes. If you did not try to create an account, you can ignore this message.'],
+    paragraphs: [
+      `Enter this one-time code in Cohortia to verify ${user.email}. It expires in 10 minutes.`,
+      'If you did not try to create a Cohortia account, you can ignore this message. Never share this code with anyone.',
+    ],
     footerNote: 'Your learning journey starts here.',
   });
 }
 
 async function sendWelcomeEmail(user) {
-  const paragraphs = ['Your email is verified and your Cohortia account is ready. Explore your learning path, build practical skills, and celebrate each milestone along the way.'];
-  if (user.roadmapSelection || user.desiredField) {
-    paragraphs.push('The learning direction and course choices you made during signup are saved and ready in your dashboard.');
+  const paragraphs = ['Your email is verified and your Cohortia account is ready. Your dashboard is the home for your courses, chapter lessons, practical activities, and progress.'];
+  let courseTitles = [];
+  try {
+    courseTitles = await getWelcomeCourseTitles(user);
+  } catch (error) {
+    console.error('[auth] Could not load selected courses for welcome email:', error.message);
   }
+  if (courseTitles.length) {
+    paragraphs.push(`Your selected ${courseTitles.length === 1 ? 'course is' : 'courses are'}: ${courseTitles.join('; ')}.`);
+  }
+  paragraphs.push('Open your dashboard to start with a chapter, try its practical activities, and track your progress as you learn.');
   await sendBrandedEmail(user.email, {
     subject: 'Welcome to Cohortia',
     preheader: 'Your account is ready. Let’s build your next chapter.',

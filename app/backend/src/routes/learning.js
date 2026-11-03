@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db } from '../db/index.js';
-import { lessons, progress, learningBoardCourses, learningBoardChapters, learningBoardScreens, learningBoardProgress, learningBoardPracticals, learningBoardPracticalFiles, learningBoardPracticalTasks, learningBoardPracticalTests, csAssessments, csAssessmentQuestions, studentPracticalAttempts, studentPracticalProgress, userActivityLog } from '../db/schema.js';
+import { lessons, progress, catalogCourses, learningBoardCourses, learningBoardChapters, learningBoardScreens, learningBoardProgress, learningBoardPracticals, learningBoardPracticalFiles, learningBoardPracticalTasks, learningBoardPracticalTests, csAssessments, csAssessmentQuestions, studentPracticalAttempts, studentPracticalProgress, userActivityLog } from '../db/schema.js';
 import { eq, and, inArray, desc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { sql } from 'drizzle-orm';
@@ -1628,11 +1628,42 @@ async function updatePracticalTaskProgress(userId, practicalId, taskId, status) 
         entityId: practicalId,
         metadata: { taskCount: Number(taskCount.count) },
       });
+      let completionMessage = 'You completed all tasks in your chapter practical. Your hands-on skills are growing!';
+      try {
+        const [practical] = await db.select({
+          courseId: learningBoardPracticals.courseId,
+          module: learningBoardPracticals.module,
+          chapter: learningBoardPracticals.chapter,
+          title: learningBoardPracticals.title,
+        }).from(learningBoardPracticals)
+          .where(eq(learningBoardPracticals.id, practicalId))
+          .limit(1);
+        if (practical) {
+          const [[boardCourse], [catalogCourse]] = await Promise.all([
+            db.select({title: learningBoardCourses.course})
+              .from(learningBoardCourses)
+              .where(eq(learningBoardCourses.courseId, practical.courseId))
+              .limit(1),
+            db.select({title: catalogCourses.title})
+              .from(catalogCourses)
+              .where(eq(catalogCourses.id, practical.courseId))
+              .limit(1),
+          ]);
+          const courseTitle = boardCourse?.title || catalogCourse?.title;
+          if (courseTitle) {
+            completionMessage = `You completed “${practical.title}” in “${courseTitle}” (Module ${practical.module}, Chapter ${practical.chapter}), finishing all ${Number(taskCount.count)} practical tasks. Your hands-on skills are growing!`;
+          } else {
+            completionMessage = `You completed “${practical.title}” (Module ${practical.module}, Chapter ${practical.chapter}), finishing all ${Number(taskCount.count)} practical tasks. Your hands-on skills are growing!`;
+          }
+        }
+      } catch (error) {
+        console.error('[learning] Could not load course details for practical completion notification:', error);
+      }
       await createNotification({
         userId,
         type: 'achievement',
         title: 'Practical completed',
-        message: `You completed the ${practicalId} practical. Your hands-on skills are growing!`,
+        message: completionMessage,
         link: '/dashboard/profile',
       });
     }
