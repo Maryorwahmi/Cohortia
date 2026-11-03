@@ -106,18 +106,24 @@ const PRACTICAL_SCHEMA = {
     },
     narratorGuide: {
       type: "string",
-      description: "Educator/narrator voice greeting and guidance for learner. Spoken warmly at ~100 wpm. Introduces the activity, sets context, explains the learning goal, and provides step-by-step encouragement."
+      description: "Optional compatibility field. The generator derives the published opening from the first canonical teaching phase."
     },
     codeWalkthrough: {
       type: "array",
+      description: "The sole canonical spoken script for terminal coding practicals.",
       items: {
         type: "object",
         properties: {
           stepNumber: { type: "integer" },
-          speakerText: { type: "string", description: "In-depth narrator explanation spoken line-by-line (~25-50 words per code block)" },
+          phase: { type: "string", enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"] },
+          displayText: { type: "string", description: "Concise visual label synchronized with this teaching phase." },
+          speakerText: { type: "string", description: "Complete, source-grounded teacher narration for this phase (~80-120 words)." },
           codeLine: { type: "string", description: "The exact line or block of code being added or typed out in this teaching step" },
           file: { type: "string", description: "File path being edited" },
           explanation: { type: "string", description: "Concise on-screen callout / annotation for the code" },
+          learnerPrompt: { type: "string", description: "The prediction, question, or action handed to the learner in this phase." },
+          commonMistake: { type: "string", description: "A relevant misconception or likely error to watch for." },
+          recap: { type: "string", description: "The key idea reinforced at the end of this phase." },
           predictionQuestion: PREDICTION_QUESTION_SCHEMA,
           durationSeconds: { type: "number", description: "Estimated duration in seconds (e.g. 5-12)" }
         },
@@ -131,10 +137,14 @@ const PRACTICAL_SCHEMA = {
         type: "object",
         properties: {
           stepNumber: { type: "integer" },
+          phase: { type: "string", enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"] },
           title: { type: "string" },
           displayText: { type: "string", description: "A short equation, diagram label, decision, or other non-code visual revealed as the teacher explains." },
           speakerText: { type: "string", description: "Teacher narration synchronized to this visual step." },
           explanation: { type: "string", description: "Short on-screen explanation of the current idea." },
+          learnerPrompt: { type: "string", description: "The prediction, question, or action handed to the learner in this phase." },
+          commonMistake: { type: "string", description: "A relevant misconception or likely error to watch for." },
+          recap: { type: "string", description: "The key idea reinforced at the end of this phase." },
           predictionQuestion: PREDICTION_QUESTION_SCHEMA,
           durationSeconds: { type: "number" },
         },
@@ -213,7 +223,7 @@ const PRACTICAL_SCHEMA = {
     },
     teaching: {
       type: "object",
-      description: "Canonical teaching model is constructed after generation from narratorGuide, teachingSteps, teachingPlaylist, and task teaching data.",
+      description: "Published teaching model is derived from the canonical codeWalkthrough or teachingSteps sequence.",
     },
     completionRule: { type: "string", enum: ["all_tests_pass", "any_test_pass", "learner_submission"], description: "How to determine if practical is complete" },
     files: {
@@ -238,10 +248,10 @@ const PRACTICAL_SCHEMA = {
           id: { type: "string" },
           title: { type: "string" },
           instruction: { type: "string", description: "Step instruction from HANDS-ON ACTIVITY" },
-          narratorGuide: { type: "string", description: "Intensive, task-specific narrator guidance (~100-150 words). Explains the conceptual 'why' behind this specific step, uses analogies, and anticipates common novice pitfalls." },
+          narratorGuide: { type: "string", description: "Optional compatibility field; published task narration is derived from the canonical teaching phases." },
           teaching: {
             type: "object",
-            description: "Teacher-led content for this task. Every field must be specific to the chapter and activity.",
+            description: "Optional learner support data. Spoken task narration is derived from the canonical teaching phases.",
             properties: {
               learningGoal: { type: "string" },
               teacherTalk: { type: "string" },
@@ -258,7 +268,6 @@ const PRACTICAL_SCHEMA = {
               transferTask: { type: "string" },
               waitForLearner: { type: "boolean" }
             },
-            required: ["learningGoal", "teacherTalk", "chapterConnection", "conceptExplanation", "realWorldExample", "workedExample", "guidedSteps", "questions", "expectedObservations", "commonMistakes", "recap", "transferTask"]
           },
           stepType: { type: "string", enum: ["observe", "modify", "experiment", "verify"], description: "Pedagogical phase of this milestone" },
           requiredConcepts: { type: "array", items: { type: "string" } },
@@ -344,7 +353,7 @@ const PRACTICAL_SCHEMA = {
       items: { type: "object" },
     }
   },
-  required: ["mode", "title", "instructions", "narratorGuide", "files", "tasks", "workspace"]
+  required: ["mode", "title", "instructions", "files", "tasks", "workspace"]
 };
 
 function isWithinRoot(root, candidate) {
@@ -1119,6 +1128,92 @@ function normalizePredictionQuestion(question, fallbackId) {
   };
 }
 
+function speechWordCount(text) {
+  return String(text || "").trim().split(/\s+/).filter(Boolean).length;
+}
+
+function narrationDurationSeconds(text) {
+  const estimatedAtPlaybackRate = (speechWordCount(text) / (145 * 0.82)) * 60 + 0.8;
+  return Math.max(3, Math.ceil(estimatedAtPlaybackRate));
+}
+
+function validateNarrationSegment(text, { label, sourceActivity, activityAnchors = [] }) {
+  const rawNarration = String(text || "");
+  const narration = normalizeLearnerText(rawNarration).replace(/\s+/g, " ").trim();
+  const wordCount = speechWordCount(narration);
+  if (wordCount < 40 || wordCount > 180) {
+    throw new Error(`${label} narration must be 40-180 words; received ${wordCount}.`);
+  }
+  if (!/[.!?]["'”’)]*$/.test(narration)) {
+    throw new Error(`${label} narration must end with a complete sentence.`);
+  }
+  if (/```|(?:^|\n)\s*(?:\d+[.)]|[-*])\s/m.test(rawNarration)) {
+    throw new Error(`${label} narration must be spoken prose, not a code block or list.`);
+  }
+  const normalizedActivity = normalizeLearnerText(sourceActivity).replace(/\s+/g, " ").trim().toLowerCase();
+  if (speechWordCount(normalizedActivity) >= 12 && narration.toLowerCase().includes(normalizedActivity)) {
+    throw new Error(`${label} narration repeats the hands-on activity instead of teaching it.`);
+  }
+  const genericTerms = new Set([
+    "about", "after", "before", "chapter", "course", "first", "guide", "hands", "into",
+    "learner", "lesson", "practice", "practical", "step", "student", "their", "there",
+    "these", "this", "those", "through", "together", "where", "which", "while", "with",
+  ]);
+  const topicTerms = activityAnchors
+    .flatMap((anchor) => String(anchor || "").toLowerCase().match(/[a-z0-9][a-z0-9_-]*/g) || [])
+    .filter((term) => term.length >= 4 && !genericTerms.has(term));
+  if (topicTerms.length && !topicTerms.some((term) => narration.toLowerCase().includes(term))) {
+    throw new Error(`${label} narration must mention a topic-specific term from the activity or chapter.`);
+  }
+  return narration;
+}
+
+const TEACHING_PHASES = ["orientation", "worked_example", "guided_practice", "verification", "transfer"];
+
+function phaseForStep(phase, index, stepCount) {
+  if (index === 0) return "orientation";
+  if (index === stepCount - 1) return "transfer";
+  if (TEACHING_PHASES.includes(phase)) return phase;
+  if (index === 1) return "worked_example";
+  if (index === stepCount - 2) return "verification";
+  return "guided_practice";
+}
+
+function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, activityAnchors }) {
+  const label = `${kind} phase ${index + 1}`;
+  const speakerText = validateNarrationSegment(step.speakerText, { label, sourceActivity, activityAnchors });
+  const requiredText = (value, field) => {
+    const text = asStringText(value);
+    if (!text) throw new Error(`${label} is missing ${field}.`);
+    return text;
+  };
+  const normalized = {
+    stepNumber: index + 1,
+    phase: phaseForStep(step.phase, index, stepCount),
+    title: asStringText(step.title) || `Teaching phase ${index + 1}`,
+    speakerText,
+    explanation: requiredText(step.explanation, "an explanation"),
+    learnerPrompt: requiredText(step.learnerPrompt, "a learner prompt"),
+    commonMistake: requiredText(step.commonMistake, "a likely common mistake"),
+    recap: requiredText(step.recap, "a recap"),
+    durationSeconds: narrationDurationSeconds(speakerText),
+    predictionQuestion: normalizePredictionQuestion(step.predictionQuestion, `${kind}-${index + 1}`),
+  };
+  if (kind === "code walkthrough") {
+    const codeLine = typeof step.codeLine === "string" ? step.codeLine : step.code;
+    if (typeof codeLine !== "string" || !codeLine.trim()) {
+      throw new Error(`${label} is missing a code block.`);
+    }
+    normalized.codeLine = codeLine;
+    normalized.displayText = asStringText(step.displayText) || normalized.explanation;
+    normalized.file = step.file;
+    normalized.taskId = typeof step.taskId === "string" ? step.taskId : undefined;
+  } else {
+    normalized.displayText = requiredText(step.displayText, "displayText");
+  }
+  return normalized;
+}
+
 function inferLabType(raw, sourceContext) {
   const sourceText = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
   const sourceIsC = /\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program|hello,\s*world)\b/.test(sourceText);
@@ -1235,47 +1330,6 @@ function reconcileSourceFiles(files, sourceContext, language, labType) {
   return files.map((file, index) => index === sourceIndex
     ? { ...file, content: authoritativeCode, language: file.language || language }
     : file);
-}
-
-function walkthroughNarration(codeLine, index, total) {
-  const line = codeLine.trim();
-  if (/\b(float|int|str|bool|type)\b/.test(line)) return `This line makes the value's data type visible. Read the value and the type together so you can connect the stored data to the label printed in the output.`;
-  if (/\b(print|f["']|format)\b/.test(line)) return `This line turns the stored value into evidence for the learner. Predict the exact text first, then notice how the print call combines labels, values, and type information.`;
-  if (/[+\-*/%]|\/\//.test(line) && /=/.test(line)) return `This line performs one operation and saves its result. Identify the operands, predict the value, and then use the terminal output to check your reasoning.`;
-  if (/^[a-z_]\w*\s*=/.test(line)) return `This line creates or updates a named value. Say what the name represents, what type of value it stores, and how a later line can use it.`;
-  return `Read this part of the program as one step in the data flow. Explain what it contributes before moving to the next line; step ${index + 1} of ${total} should make the final behavior easier to predict.`;
-}
-
-function buildSourceWalkthrough(file) {
-  const lines = String(file?.content || "").split(/\r?\n/).map((line) => line.trimEnd()).filter((line) => line.trim());
-  if (!file || !lines.length) return [];
-  return [{
-    stepNumber: 1,
-    file: file.path,
-    codeLine: lines.join("\n"),
-    speakerText: walkthroughNarration(lines.join("\n"), 0, 1),
-    explanation: "Read the complete starter program as one connected flow, then predict the behavior before making a change.",
-    durationSeconds: 12,
-  }];
-}
-
-function groupWalkthroughSegments(segments, stageCount) {
-  if (segments.length <= 1) return segments;
-  const explicitStages = [...new Set(segments.map((segment) => segment.taskId).filter(Boolean))];
-  const groups = explicitStages.length > 1
-    ? explicitStages.map((taskId) => segments.filter((segment) => segment.taskId === taskId))
-    : [segments];
-  return groups.slice(0, Math.max(1, stageCount)).map((group, index) => {
-    return {
-      ...group[0],
-      stepNumber: index + 1,
-      codeLine: group.map((segment) => segment.codeLine).filter(Boolean).join("\n"),
-      speakerText: group.map((segment) => segment.speakerText).filter(Boolean).join(" "),
-      explanation: group.map((segment) => segment.explanation).filter(Boolean).at(-1) || group[0].explanation,
-      predictionQuestion: group.find((segment) => segment.predictionQuestion)?.predictionQuestion,
-      durationSeconds: group.reduce((total, segment) => total + (segment.durationSeconds || 8), 0),
-    };
-  });
 }
 
 function fallbackStarterFile(instructions, labType, language) {
@@ -1535,16 +1589,6 @@ function normalizeEvidence(rawEvidence) {
   }];
 }
 
-function fallbackNarratorGuide(title, instructions, sourceContext) {
-  const activity = sourceContext.activityTitle || title;
-  return `Welcome to ${title}. I am your teacher for this practical, and we will work through ${activity} together. First, read the task and predict what you expect to happen before changing anything. Then make one small change at a time and observe the result. If the result surprises you, that is useful evidence: pause, explain what changed, and try again rather than guessing. Keep the key idea in mind as you work: ${instructions}. At each checkpoint, tell yourself what the evidence proves and what it does not prove. I will guide you from observation to modification, experimentation, and verification. Take your time, use the hints only when you are stuck, and finish by explaining the solution in your own words.`;
-}
-
-function fallbackTaskNarrator(task, index, practicalTitle) {
-  const phase = ["observe", "modify", "experiment", "verify"][index] || "practice";
-  return `In this ${phase} step, focus on ${task.title || `task ${index + 1}`} in ${practicalTitle}. Read the instruction aloud, make a prediction, and then work carefully through one change at a time. Notice the evidence produced by your program or design. Ask yourself why the result makes sense, what assumption you tested, and what you would change next. If you get stuck, compare the result with the core concept rather than copying a solution. When the check passes, explain the reason in your own words before continuing.`;
-}
-
 function binaryExercisesFromActivity(activity) {
   const questions = String(activity || "")
     .split(/\r?\n/)
@@ -1597,57 +1641,6 @@ function binaryExercisesFromActivity(activity) {
       explanation,
     }];
   });
-}
-
-function binaryWorkedExample(exercise) {
-  const binaryToDecimal = /binary number\s+([01]+)\s+to its decimal/i.exec(exercise.prompt);
-  if (binaryToDecimal) {
-    const bits = binaryToDecimal[1];
-    const placeValues = [...bits].map((_, index) => 2 ** (bits.length - index - 1));
-    const products = [...bits].map((bit, index) => Number(bit) * placeValues[index]);
-    const activeProducts = products.filter((product) => product > 0);
-    const answer = exercise.expectedAnswer;
-    return [
-      {
-        title: "Welcome to the practical",
-        displayText: `Mission: understand how ${bits} stores a number using only zero and one.`,
-        speakerText: `Welcome to this practical. Before we calculate anything, notice that this is the same binary idea used inside a phone, a game console, and every digital image. We will move slowly, test each step, and turn a pattern of zeroes and ones into a number you can explain with confidence.`,
-        explanation: "Binary is the language digital systems use to represent information.",
-      },
-      {
-        title: "Read the binary digits",
-        displayText: `Bits (left to right): ${[...bits].join("  ")}`,
-        speakerText: `We will convert ${bits} from binary to decimal by matching each digit with its place value. Keep the digits in their original order. A bit of one includes its place value in the total, while a bit of zero contributes nothing.`,
-        explanation: "Each binary digit is either zero or one.",
-      },
-      {
-        title: "Assign powers of two",
-        displayText: `Place values: ${placeValues.join("  ")}`,
-        speakerText: `Starting at the right, binary place values are powers of two beginning with one. Moving left, they double each time. For ${bits}, write those values directly under the digits so every bit is paired with the correct power of two.`,
-        explanation: "From right to left, the place values are 2⁰, 2¹, 2², and so on.",
-      },
-      {
-        title: "Multiply each bit by its place value",
-        displayText: [...bits].map((bit, index) => `(${bit} × ${placeValues[index]})`).join(" + "),
-        speakerText: `Now multiply each digit by the value beneath it. The one digits keep their place values; each zero makes a zero product. This step makes clear exactly which powers of two are included in the binary number.`,
-        explanation: "Multiply each bit by its matching power-of-two place value.",
-      },
-      {
-        title: "Add the included values",
-        displayText: `${activeProducts.join(" + ")} = ${answer}`,
-        speakerText: `Add only the non-zero products. For ${bits}, the included place values total ${answer}. You can check the addition separately before writing the final result, which helps catch mistakes in either the place values or the sum.`,
-        explanation: "Add the place values whose corresponding bit is one.",
-      },
-      {
-        title: "State the equivalent decimal value",
-        displayText: `${bits}₂ = ${answer}₁₀`,
-        speakerText: `So ${bits} in base two is ${answer} in base ten. The small base labels tell us how to interpret the digits. We have converted the same quantity into a different number system, not changed the value itself.`,
-        explanation: "The base-two and base-ten expressions represent the same value.",
-      },
-    ].map((step, index) => ({ stepNumber: index + 1, ...step, durationSeconds: 8 }));
-  }
-
-  return [];
 }
 
 function normalizeWorkspace(raw, { experienceType, activityKind, files, language, runtime, title, instructions, tasks = [] }) {
@@ -2049,14 +2042,6 @@ function normalizePractical(raw, sourceContext, metadata) {
   const safety = normalizeSafety(raw.safety, labType, sourceContext);
   const evidence = normalizeEvidence(raw.evidence);
   const practicalTitle = title;
-  const narratorGuide = asStringText(raw.narratorGuide) || fallbackNarratorGuide(practicalTitle, instructions, sourceContext);
-  tasks = tasks.map((task, index) => ({
-    ...task,
-    narratorGuide: task.narratorGuide || fallbackTaskNarrator(task, index, practicalTitle),
-    // Progressive scenes created below the model response also receive the
-    // same teaching-quality normalization as Gemini-generated tasks.
-    teaching: buildTeachingFallback(task, sourceContext, index),
-  }));
   const filePathByLowerCase = new Map(files.map((file) => [file.path.toLowerCase(), file.path]));
   const primarySourceFiles = files.filter((file) => /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql)$/i.test(file.path));
   const resolveWalkthroughFile = (candidate) => {
@@ -2079,155 +2064,94 @@ function normalizePractical(raw, sourceContext, metadata) {
     ));
     return compatibleSource.length === 1 ? compatibleSource[0].path : fallbackFile?.path;
   };
-  let codeWalkthrough = (Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []).map((seg, idx) => ({
-    taskId: typeof seg.taskId === "string" ? seg.taskId : undefined,
-    stepNumber: Number.isInteger(Number(seg.stepNumber)) ? Number(seg.stepNumber) : idx + 1,
-    speakerText: asStringText(seg.speakerText || seg.text || seg.narration || seg.explanation),
-    codeLine: typeof seg.codeLine === "string" ? seg.codeLine : (typeof seg.code === "string" ? seg.code : ""),
-    file: resolveWalkthroughFile(seg.file),
-    explanation: asStringText(seg.explanation || seg.annotation),
-    predictionQuestion: normalizePredictionQuestion(seg.predictionQuestion, `walkthrough-${idx + 1}`),
-    durationSeconds: clampInteger(seg.durationSeconds, 8, 3, 90),
-  })).filter((seg) => seg.speakerText || seg.codeLine).sort((left, right) => left.stepNumber - right.stepNumber);
-  if (sourceContext.source.category === "Terminal Coding Lab" && codeWalkthrough.length === 0) {
-    const fallbackFile = primarySourceFiles[0] || files[0];
-    codeWalkthrough = buildSourceWalkthrough(fallbackFile);
+  const isCodeExperience = experienceProfile.experienceType === "terminal_coding_lab";
+  const canonicalScript = isCodeExperience ? raw.codeWalkthrough : raw.teachingSteps;
+  const canonicalKind = isCodeExperience ? "code walkthrough" : "teaching";
+  if (!Array.isArray(canonicalScript) || canonicalScript.length < 4 || canonicalScript.length > 8) {
+    throw new Error(`${canonicalKind} must contain 4-8 complete teaching phases.`);
   }
-  if (sourceContext.source.category === "Terminal Coding Lab") {
-    // A code walkthrough is a stage, not a slideshow of individual lines.
-    // Keep all lines in the same slide and reveal them inside that slide.
-    codeWalkthrough = groupWalkthroughSegments(codeWalkthrough, Math.max(1, Math.min(tasks.length, 4)));
-  }
-  let teachingSteps = (Array.isArray(raw.teachingSteps) ? raw.teachingSteps : [])
-    .filter((step) => step && typeof step === "object")
-    .map((step, index) => ({
-      stepNumber: Number.isInteger(Number(step.stepNumber)) ? Number(step.stepNumber) : index + 1,
-      title: asStringText(step.title) || `Teaching step ${index + 1}`,
-      displayText: asStringText(step.displayText),
-      speakerText: asStringText(step.speakerText),
-      explanation: asStringText(step.explanation),
-      predictionQuestion: normalizePredictionQuestion(step.predictionQuestion, `teaching-${index + 1}`),
-      durationSeconds: clampInteger(step.durationSeconds, 8, 3, 90),
-    }))
-    .filter((step) => step.displayText && step.speakerText && step.explanation)
-    .sort((left, right) => left.stepNumber - right.stepNumber);
-  if (activityKind === "binary_exercise" && tasks[0]?.interactiveExercise) {
-    teachingSteps = binaryWorkedExample(tasks[0].interactiveExercise);
-  }
-  if (["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType) && teachingSteps.length === 0) {
-    teachingSteps = tasks.slice(0, 8).map((task, index) => ({
-      stepNumber: index + 1,
-      title: task.title || `Teaching step ${index + 1}`,
-      displayText: task.teaching?.guidedSteps?.[0] || task.title || `Explore the idea in step ${index + 1}`,
-      speakerText: task.narratorGuide || task.instruction,
-      explanation: task.teaching?.learningGoal || task.instruction,
-      durationSeconds: 8,
-    }));
-  }
-  if (["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
-    && teachingSteps.length > 0
-    && teachingSteps.length < 8
-    && !/\bwelcome\b/i.test(teachingSteps[0]?.speakerText || "")) {
-    teachingSteps.unshift({
-      stepNumber: 0,
-      title: "Welcome to the practical",
-      displayText: `Welcome to ${sourceContext.courseTitle || "your course"}, Module ${metadata.moduleNumber}, Chapter ${metadata.chapterNumber}: ${title}.`,
-      speakerText: `Welcome. In this practical for ${sourceContext.courseTitle || "your course"}, Module ${metadata.moduleNumber}, Chapter ${metadata.chapterNumber}, we will explore ${title}. First, I will show you the central idea with a realistic example. Then you will test your own reasoning step by step. Take your time: careful predictions and observations are how practical learning becomes understanding.`,
-      explanation: "Start with the mission, then connect each step to evidence.",
-      durationSeconds: 18,
+  const canonicalSteps = canonicalScript.map((step, index) => {
+    if (!step || typeof step !== "object") {
+      throw new Error(`${canonicalKind} phase ${index + 1} must be an object.`);
+    }
+    return normalizeCanonicalStep(step, index, canonicalScript.length, {
+      kind: canonicalKind,
+      sourceActivity: sourceContext.activityChapter.handsOnActivity,
+      activityAnchors: [
+        sourceContext.activityTitle,
+        ...(sourceContext.lessonContext?.keyConcepts || []),
+      ],
     });
-    teachingSteps = teachingSteps.map((step, index) => ({ ...step, stepNumber: index + 1 }));
-  }
-  // Terminal labs have two different teaching sequences: the narrated
-  // codeWalkthrough and the higher-level teachingSteps. Playlist `codeSteps`
-  // points at the walkthrough, so using teachingSteps here can leave valid
-  // walkthrough steps (usually the last one) unassigned and fail validation.
+  });
+  let codeWalkthrough = isCodeExperience
+    ? canonicalSteps.map((step) => ({
+        ...step,
+        file: resolveWalkthroughFile(step.file),
+      }))
+    : [];
+  let teachingSteps = isCodeExperience ? [] : canonicalSteps;
+  // `codeWalkthrough` is the canonical script for terminal labs; all other
+  // experiences use `teachingSteps`.
   const walkthroughStepNumbers = sourceContext.source.category === "Terminal Coding Lab"
     ? codeWalkthrough.map((step) => step.stepNumber)
     : teachingSteps.length
       ? teachingSteps.map((step) => step.stepNumber)
       : codeWalkthrough.map((step) => step.stepNumber);
-  const stepsForTask = (taskIndex) => {
-    if (!walkthroughStepNumbers.length) return [];
-    const taskCount = Math.max(tasks.length, 1);
-    // Keep the teaching order stable while ensuring generated verify/transfer
-    // scenes never become empty when the model returns fewer teaching steps
-    // than learner tasks.
-    if (taskCount > walkthroughStepNumbers.length) {
-      return [walkthroughStepNumbers[Math.min(taskIndex, walkthroughStepNumbers.length - 1)]];
+  const taskStepAssignments = Array.from({ length: tasks.length }, () => []);
+  walkthroughStepNumbers.forEach((stepNumber, index) => {
+    const taskIndex = Math.min(tasks.length - 1, Math.floor(index * tasks.length / walkthroughStepNumbers.length));
+    taskStepAssignments[taskIndex].push(stepNumber);
+  });
+  taskStepAssignments.forEach((assignedSteps, taskIndex) => {
+    if (!assignedSteps.length && walkthroughStepNumbers.length) {
+      const stepIndex = Math.round(taskIndex * (walkthroughStepNumbers.length - 1) / Math.max(1, tasks.length - 1));
+      assignedSteps.push(walkthroughStepNumbers[stepIndex]);
     }
-    const start = Math.floor(taskIndex * walkthroughStepNumbers.length / taskCount);
-    const end = Math.floor((taskIndex + 1) * walkthroughStepNumbers.length / taskCount);
-    return walkthroughStepNumbers.slice(start, Math.max(start + 1, end));
+  });
+  const stepsForTask = (taskIndex) => {
+    return taskStepAssignments[taskIndex] || [];
   };
 
-  const rawTeachingPlaylist = (Array.isArray(raw.teachingPlaylist) && raw.teachingPlaylist.length
-    ? raw.teachingPlaylist
-    : tasks.map((task, index) => ({
-        id: `path-${task.id}`,
-        title: task.title || `Learning path ${index + 1}`,
-        category: sourceContext.source.category,
-        description: task.instruction,
-        durationSeconds: Math.max(60, Math.min(180, Math.ceil((task.narratorGuide || instructions).length / 10))),
-        learningGoal: task.teaching?.learningGoal || `Understand ${task.title || "this step"}.`,
-        narratorScript: task.narratorGuide,
-        workedExample: task.teaching?.guidedSteps?.[0] || task.instruction,
-        scenario: task.teaching?.realWorldExample || `Apply ${task.title || "the idea"} in a real project.`,
-        learnerPrompt: task.teaching?.questions?.[0] || "What do you predict will happen next?",
-        commonMistake: task.teaching?.feedback?.misconception || "Do not skip checking the result.",
-        recap: task.teaching?.recap || task.instruction,
-        codeSteps: stepsForTask(index),
-      })));
-  let teachingPlaylist = tasks.map((task, index) => {
-    const step = rawTeachingPlaylist[index] || {
-      id: `path-${task.id}`,
-      title: task.title || `Learning path ${index + 1}`,
-      category: sourceContext.source.category,
-      description: task.instruction,
-      durationSeconds: 120,
-      learningGoal: task.teaching?.learningGoal || `Understand ${task.title || "this step"}.`,
-      narratorScript: task.narratorGuide,
-      workedExample: task.teaching?.guidedSteps?.[0] || task.instruction,
-      scenario: task.teaching?.realWorldExample || `Apply ${task.title || "the idea"} in a real project.`,
-      learnerPrompt: task.teaching?.questions?.[0] || "What do you predict will happen next?",
-      commonMistake: task.teaching?.feedback?.misconception || "Do not skip checking the result.",
-      recap: task.teaching?.recap || task.instruction,
-      codeSteps: stepsForTask(index),
-    };
+  const narratorGuide = canonicalSteps[0].speakerText;
+  tasks = tasks.map((task, index) => {
+    const assignedSteps = canonicalSteps.filter((step) => stepsForTask(index).includes(step.stepNumber));
+    const taskNarration = assignedSteps.map((step) => step.speakerText).join(" ");
+    const finalStep = assignedSteps.at(-1) || canonicalSteps.at(-1);
     return {
-        ...step,
-        id: normalizeId(step.id, `path-${index + 1}`),
-        phase: index === 0 ? "orientation" : index === tasks.length - 1 ? "transfer" : (typeof step.phase === "string" ? step.phase : "walkthrough"),
-        activityStepIds: asStringArray(step.activityStepIds),
-        lessonScreenIds: asStringArray(step.lessonScreenIds),
-        teachingStepNumbers: Array.isArray(step.teachingStepNumbers)
-          ? step.teachingStepNumbers.map(Number).filter(Number.isInteger)
-          : [],
-        interactionGate: typeof step.interactionGate === "string" ? step.interactionGate : "listen_and_predict",
-        completionAction: typeof step.completionAction === "string" ? step.completionAction : undefined,
-        durationSeconds: clampInteger(step.durationSeconds, 90, 45, 240),
-        codeSteps: sourceContext.source.category === "Terminal Coding Lab"
-          ? stepsForTask(index)
-          : ["scenario_simulator", "cloud_console_lab"].includes(experienceProfile.experienceType)
-          ? stepsForTask(index)
-          : Array.isArray(step.codeSteps) && step.codeSteps.length ? step.codeSteps : stepsForTask(index),
-      };
+      ...task,
+      narratorGuide: taskNarration || narratorGuide,
+      teaching: {
+        ...task.teaching,
+        learningGoal: assignedSteps.map((step) => step.explanation).join(" ") || finalStep.explanation,
+        teacherTalk: taskNarration || narratorGuide,
+        questions: assignedSteps.map((step) => step.learnerPrompt),
+        recap: finalStep.recap,
+      },
+    };
   });
-  if (activityKind === "binary_exercise" && teachingPlaylist.length && teachingSteps.length) {
-    const teacherNarration = teachingSteps.map((step) => step.speakerText).join(" ");
-    teachingPlaylist = [{
-      ...teachingPlaylist[0],
-      id: "binary-worked-example",
-      title: "Worked example: binary to decimal",
-      description: "Follow the teacher's place-value conversion, then try the challenges yourself.",
-      durationSeconds: clampInteger(Math.ceil(teacherNarration.length / 10), 90, 60, 240),
-      learningGoal: "Convert a binary number to decimal by applying powers of two.",
-      narratorScript: teacherNarration,
-      workedExample: teachingSteps.map((step) => step.displayText).join("\n"),
-      learnerPrompt: "After the worked example, choose a challenge and solve it yourself.",
-      codeSteps: teachingSteps.map((step) => step.stepNumber),
-    }];
-  }
+  const teachingPlaylist = canonicalSteps.map((step) => {
+    const displayText = step.displayText || step.codeLine;
+    return {
+      id: `teaching-phase-${step.stepNumber}`,
+      title: step.title,
+      category: sourceContext.source.category,
+      description: step.explanation,
+      durationSeconds: step.durationSeconds,
+      learningGoal: step.explanation,
+      narratorScript: step.speakerText,
+      workedExample: displayText,
+      scenario: step.explanation,
+      learnerPrompt: step.learnerPrompt,
+      commonMistake: step.commonMistake,
+      recap: step.recap,
+      phase: step.phase,
+      activityStepIds: [],
+      lessonScreenIds: [],
+      teachingStepNumbers: [step.stepNumber],
+      interactionGate: "listen_and_predict",
+      codeSteps: [step.stepNumber],
+    };
+  });
   const teaching = {
     opening: narratorGuide,
     steps: teachingSteps,
@@ -2243,10 +2167,10 @@ function normalizePractical(raw, sourceContext, metadata) {
     hints: tasks.flatMap((task) => task.hints.map((hint, index) => ({ taskId: task.id, tier: index + 1, text: hint }))),
     checkpoints: tasks.map((task) => ({
       taskId: task.id,
-      question: task.teaching?.questions?.[0] || "What do you predict will happen next?",
+      question: task.teaching?.questions?.[0] || canonicalSteps.at(-1).learnerPrompt,
       waitForLearner: task.teaching?.waitForLearner !== false,
     })),
-    recap: tasks.at(-1)?.teaching?.recap || instructions,
+    recap: canonicalSteps.at(-1).recap,
     transferTask: tasks.at(-1)?.teaching?.transferTask || "Explain how you would apply this idea in a new situation.",
   };
   const sourceActivitySteps = sourceContext.activitySteps || [];
@@ -2694,7 +2618,7 @@ function validatePractical(practical) {
       errors.push(`Terminal Coding Lab language must be one of: ${SUPPORTED_TERMINAL_LANGUAGES.join(", ")}`);
     }
     const walkthrough = Array.isArray(practical.codeWalkthrough) ? practical.codeWalkthrough : [];
-    if (walkthrough.length < 1 || walkthrough.length > 4) errors.push("Terminal Coding Lab must include 1-4 stage-based codeWalkthrough steps");
+    if (walkthrough.length < 4 || walkthrough.length > 8) errors.push("Terminal Coding Lab must include 4-8 canonical codeWalkthrough phases");
     const knownFiles = new Set((practical.files || []).map((file) => file.path));
     const seenSteps = new Set();
     for (const step of walkthrough) {
@@ -2702,18 +2626,19 @@ function validatePractical(practical) {
         errors.push("codeWalkthrough stepNumber values must be unique positive integers");
       }
       seenSteps.add(step.stepNumber);
-      if (typeof step.speakerText !== "string" || step.speakerText.trim().length < 40) errors.push(`codeWalkthrough step ${step.stepNumber} needs meaningful teacher narration`);
+      if (typeof step.speakerText !== "string" || speechWordCount(step.speakerText) < 40 || speechWordCount(step.speakerText) > 180) errors.push(`codeWalkthrough step ${step.stepNumber} needs 40-180 words of complete teacher narration`);
       if (typeof step.codeLine !== "string" || !step.codeLine.trim()) errors.push(`codeWalkthrough step ${step.stepNumber} needs codeLine`);
       if (typeof step.file !== "string" || !knownFiles.has(step.file)) errors.push(`codeWalkthrough step ${step.stepNumber} must reference a practical file`);
-      if (!Number.isFinite(step.durationSeconds) || step.durationSeconds < 3 || step.durationSeconds > 90) errors.push(`codeWalkthrough step ${step.stepNumber} has invalid durationSeconds`);
+      if (!step.learnerPrompt?.trim() || !step.commonMistake?.trim() || !step.recap?.trim()) errors.push(`codeWalkthrough step ${step.stepNumber} needs a learner prompt, common mistake, and recap`);
+      if (!Number.isFinite(step.durationSeconds) || step.durationSeconds < 3 || step.durationSeconds > 120) errors.push(`codeWalkthrough step ${step.stepNumber} has invalid durationSeconds`);
     }
     const playlistSteps = new Set((practical.teachingPlaylist || []).flatMap((item) => Array.isArray(item.codeSteps) ? item.codeSteps : []));
     for (const step of walkthrough) if (!playlistSteps.has(step.stepNumber)) errors.push(`codeWalkthrough step ${step.stepNumber} is not assigned to a teaching playlist item`);
   }
 
-  if (practical.activityKind === "binary_exercise" || practical.category === "Scenario & Design Exercise") {
+  if (practical.experienceType !== "terminal_coding_lab") {
     const steps = Array.isArray(practical.teachingSteps) ? practical.teachingSteps : [];
-    if (steps.length < 4 || steps.length > 8) errors.push("Scenario & Design Exercise must include 4-8 teachingSteps");
+    if (steps.length < 4 || steps.length > 8) errors.push(`${practical.category} must include 4-8 canonical teachingSteps`);
     const stepNumbers = new Set();
     for (const step of steps) {
       if (!Number.isInteger(step.stepNumber) || step.stepNumber < 1 || stepNumbers.has(step.stepNumber)) {
@@ -2721,8 +2646,10 @@ function validatePractical(practical) {
       }
       stepNumbers.add(step.stepNumber);
       if (!step.displayText?.trim()) errors.push(`teaching step ${step.stepNumber} needs displayText`);
-      if (!step.speakerText?.trim() || step.speakerText.trim().length < 40) errors.push(`teaching step ${step.stepNumber} needs meaningful teacher narration`);
+      if (!step.speakerText?.trim() || speechWordCount(step.speakerText) < 40 || speechWordCount(step.speakerText) > 180) errors.push(`teaching step ${step.stepNumber} needs 40-180 words of complete teacher narration`);
       if (!step.explanation?.trim()) errors.push(`teaching step ${step.stepNumber} needs an explanation`);
+      if (!step.learnerPrompt?.trim() || !step.commonMistake?.trim() || !step.recap?.trim()) errors.push(`teaching step ${step.stepNumber} needs a learner prompt, common mistake, and recap`);
+      if (!Number.isFinite(step.durationSeconds) || step.durationSeconds < 3 || step.durationSeconds > 120) errors.push(`teaching step ${step.stepNumber} has implausible durationSeconds`);
     }
     const playlistSteps = new Set((practical.teachingPlaylist || []).flatMap((item) => Array.isArray(item.codeSteps) ? item.codeSteps : []));
     for (const step of steps) if (!playlistSteps.has(step.stepNumber)) errors.push(`teaching step ${step.stepNumber} is not assigned to a teaching playlist item`);
@@ -2945,26 +2872,20 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
 0. TEACH VIEW OPENING CONTENT:
    The first Teach View screen follows the Learning Board hero's visual hierarchy, but its content is assembled after generation from the practical fields and authoritative chapter context. Do not return an extra opening object. Make the generated practical title, summary, objectives, tasks, learner artifact, and teaching steps specific to this hands-on activity. The UI uses those fields to show a practical mission, what is coming up, why it matters, three practical actions, three actual chapter concepts applied in the task, a workflow map, and getting-ready instructions. Never substitute a generic chapter overview or invent chapter concepts.
 
-1. LESSON ARCHITECTURE - 4+ PROGRESSIVE SCENES:
-   Each practical must have AT LEAST 4 scenes (5-7 for intermediate/advanced):
-   - Scene 1: OBSERVE & UNDERSTAND (2-4 min) - Show baseline code running, explain what it does
-   - Scene 2: MODIFY & EXPERIMENT (4-6 min) - Learner makes targeted changes, sees cause-and-effect
-   - Scene 3: BUILD & INTEGRATE (4-8 min) - Add new functionality or solve a related problem
-   - Scene 4: VERIFY & EXTEND (3-5 min) - Test edge cases, explore advanced variations
-   
-   EACH SCENE = ONE TASK with its own narrative guide, code snippets, and terminal verification.
+1. LESSON ARCHITECTURE - PROGRESSIVE PRACTICE:
+   Provide 3-5 progressively harder learner tasks with observable outcomes.
+   The teacher's spoken lesson is a separate 4-8 phase canonical sequence
+   specified below; do not generate a second narration for each task.
 
 2. ANIMATION & NARRATOR SYNCHRONIZATION:
    A walkthrough slide represents one teaching stage, not one source-code line. Put the complete relevant code block for that stage in one codeWalkthrough item; the classroom UI reveals its lines inside the same slide. Use a new walkthrough item only when the teaching genuinely moves to a new phase such as observe, modify, run, verify, or transfer. Keep line-level timing in codeAnimationSegments, not as separate slides.
-   For each task, provide:
+   When useful, provide task-specific visual or execution support:
    - "codeAnimationSegments": Array of {
        "lineNumber": 1,
        "content": "import requests",
-       "narratorText": "We start by importing the requests library...",
        "durationMs": 4500,  // Time learner reads + narrator speaks
        "highlightType": "import"  // syntax, emphasis, warning, success
      }
-   - "narratorGuide": ~100-150 words for THIS TASK specifically
    - "terminalCommands": [{
        "command": "python main.py",
        "expectedOutput": "Connection established",
@@ -2979,16 +2900,11 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
    Never replace teaching with phrases such as "follow the instructions" or
    "observe the result" without explaining what to look for and why.
    Break it into CONNECT, OBSERVE, CHANGE, TEST, EXPLAIN, and EXTEND paths.
-   Each task must include all of the following as concrete, task-specific content:
-   - chapterConnection: explicitly explain which chapter idea this uses and why this activity comes next
-   - conceptExplanation: define every new term before using it
-   - workedExample: show exact input, output, code/result, and a line-by-line explanation
-   - realWorldExample: name a real system or human situation and explain the exact connection
-   - guidedSteps: at least three steps following I DO, WE DO, YOU DO
-   - one prediction question and one check-for-understanding question
-   - expectedObservations: describe the actual output or behavior the learner should see
-   - commonMistakes: name the mistake, why a beginner makes it, and how to fix it
-   - recap and transferTask: connect the idea back to the chapter and apply it in a new situation
+   Provide task-specific non-spoken learner support where useful: chapterConnection,
+   conceptExplanation, workedExample, realWorldExample, guidedSteps, questions,
+   expectedObservations, commonMistakes, recap, and transferTask. The canonical
+   phases below are the only source of teacher speech and are projected into task
+   narration and playlist fields by the generator.
    Use the exact starter file and commands. Never write phrases like "connect this to a small real-world program", "compare the result with your prediction", or "follow the instructions" as a substitute for teaching.
 
 3. SCAFFOLDED COMPLEXITY:
@@ -3052,9 +2968,7 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
 9. ACCURATE JSON:
    - Return valid JSON matching the schema.
    -    Include all standard fields PLUS animation/timing extensions.
-   Also return teachingPlaylist with one entry per task containing:
-   title, description, learningGoal, narratorScript, workedExample,
-   scenario, learnerPrompt, commonMistake, recap, durationSeconds, and codeSteps.`;
+   - Do not return teachingPlaylist, narratorGuide, task narratorGuide, or teacherTalk as separate generated scripts.`;
     }
 
     const metadata = {

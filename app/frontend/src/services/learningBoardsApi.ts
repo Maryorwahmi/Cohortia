@@ -207,10 +207,16 @@ export interface LearningBoardPredictionQuestion {
 export interface CodeWalkthroughSegment {
   taskId?: string;
   stepNumber: number;
+  phase?: 'orientation' | 'worked_example' | 'guided_practice' | 'verification' | 'transfer' | string;
+  title?: string;
+  displayText?: string;
   speakerText: string;
   codeLine: string;
   file?: string;
   explanation?: string;
+  learnerPrompt?: string;
+  commonMistake?: string;
+  recap?: string;
   teacherPrompt?: string;
   realWorldExample?: string;
   checkQuestion?: string;
@@ -221,10 +227,14 @@ export interface CodeWalkthroughSegment {
 
 export interface PracticalTeachingStep {
   stepNumber: number;
+  phase?: 'orientation' | 'worked_example' | 'guided_practice' | 'verification' | 'transfer' | string;
   title?: string;
   displayText: string;
   speakerText: string;
   explanation: string;
+  learnerPrompt?: string;
+  commonMistake?: string;
+  recap?: string;
   predictionQuestion?: LearningBoardPredictionQuestion;
   durationSeconds?: number;
 }

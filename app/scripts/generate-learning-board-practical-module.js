@@ -190,37 +190,34 @@ REQUIREMENTS:
    - Scenario & Design:
      * If the activity covers binary conversions, bits, or number systems, set widgetType to "binary_converter".
      * If algorithmic, break into structured design steps (inputs/outputs, step-by-step logic, edge case analysis).
-     * Create 4–8 ordered teachingSteps for the animated teacher walkthrough. This is mandatory and replaces codeWalkthrough for this category.
-     * Each teaching step must represent one real reasoning move, include a concise displayText that can type onto the board progressively, 80–120 words of speakerText, and a concise explanation callout. Explain the specific reasoning with a relevant example or scenario; preserve the source lesson's technical detail, teach the concept rather than repeating the activity wording, and do not drift from the practical topic.
-     * Map every teaching step to teachingPlaylist[].codeSteps in order, so the board can finish the walkthrough and automatically open the learner's interactive “Your turn” phase.
+     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step represents one real phase (orientation, worked example, guided practice, or transfer), with concise progressive displayText, 80–120 words of speakerText, a concise explanation, a learnerPrompt, a likely commonMistake, a recap, and a duration matching the spoken text. Begin warmly with a chapter connection and practical mission, teach from a concrete source-grounded example, ask the learner to predict or try a related step, address a likely misconception, and finish by handing control to independent practice. Do not write alternate narration in narratorGuide, task narratorGuide, teacherTalk, or teachingPlaylist; the generator derives those display fields from this canonical sequence.
    - Research & Analysis / Non-Code:
      * Structure as a guided inquiry notebook with observation prompts, hypothesis formation, and comparative analysis.
-     * Begin teach mode with a brief, warm chapter reintroduction and explain why the investigation matters. Create 4–8 ordered, source-grounded teachingSteps with 80–120 words of detailed speakerText per step, using concrete evidence examples and preserving the chapter's reasoning without drifting from its question.
+     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step must have phase, concise progressive displayText, 80–120 words of source-grounded speakerText, concise explanation, learnerPrompt, commonMistake, recap, and duration matching the spoken text. Start with a warm chapter connection and investigation question; model examining evidence, separating observation from inference, testing a hypothesis, and finish with an independent inquiry. Do not author competing narration fields; the generator derives them from these steps.
    - Cloud Console:
      * Provide realistic CLI scenarios with contextual mock command responses.
-     * Use the same teacher-led flow as coding and scenario practicals: a brief, warm chapter reintroduction, then explain why the practical matters with a concrete example; provide 4–8 progressive teachingSteps with 80–120 words of detailed, topic-grounded speakerText each, then a safe “Your turn” command-plan and verification phase.
+     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step must have phase, concise progressive displayText, 80–120 words of topic-grounded speakerText, concise explanation, learnerPrompt, commonMistake, recap, and duration matching the spoken text. Start with the operational goal and starting resource state, teach each safe simulated/read-only action and its consequence, invite a prediction, explain verification, and end with a safe “Your turn” command-plan. Do not author competing narration fields; the generator derives them from these steps.
      * Explain each command in plain language, including a familiar real-world consequence, and use simulations or read-only resources only.
 4. Tasks & Milestones:
    - Build 3–5 progressive milestones per practical.
-   - For EACH task, provide a dedicated 'narratorGuide' (~100–150 words) that provides intensive, step-by-step conceptual coaching.
-   - The task narrator guide should explain the 'why' behind the code, use analogies to make it real, and offer encouraging hints about what to observe in the output.
+   - Keep task instructions and teaching support specific to their assigned milestones. Do not write a separate task narratorGuide or duplicate teacherTalk narration; the generator derives task guidance from the canonical teaching phases.
    - Assign stepType ("observe", "modify", "experiment", "verify") to each task.
    - Provide 3-tier progressive hints (nudge, concept, walkthrough) in structuredHints and as hints array.
    - Provide 1–3 task-specific inlineSuggestions with concise coaching and optional small insertionText fragments. These are static manifest content, never runtime AI responses, and must not reveal a complete solution.
-5. Overall Narrator Guide (~300–500 words):
-   - Begin with “Welcome” and use a calm, warm, conversational teacher voice (~100 wpm), never a robotic or command-only voice.
-   - Name the course, module, chapter, and practical mission. Briefly connect the chapter idea to a familiar real-world use case before the first instruction.
-   - Explain why each action matters, pause for predictions, use encouraging questions, preview milestones, and make clear that errors are useful evidence in discovery.
-   - Write narration for speech synthesis: spell out symbols in prose rather than relying on punctuation. For example say “plus”, “slash”, “dot”, “opening curly brace”, and “closing curly brace”; never make the voice read raw code punctuation as a robot.
+5. Canonical Narration:
+   - Use teachingSteps as the sole canonical spoken script for scenario, research, and cloud activities; use codeWalkthrough as the sole canonical spoken script for terminal coding.
+   - The first phase must introduce the course/chapter idea, practical mission, and why it matters. Later phases should model the work, invite learner reasoning, explain a likely mistake, and close with a recap and transfer handoff.
+   - Do not repeat the hands-on activity verbatim or create parallel narratorGuide, playlist narratorScript, task narratorGuide, or teacherTalk narration. The generator derives those fields from the canonical phases.
+   - Write speech synthesis-friendly prose: explain symbols by meaning when needed, avoid reading raw punctuation or code as a robot, and end complete spoken sentences.
 6. Synchronized Animated CodeWalkthrough (TERMINAL CODING LABS ONLY):
-   - Provide a 'codeWalkthrough' array containing 1–4 ordered teaching stages. Each stage should contain the complete relevant code block for that phase; the classroom UI reveals the block line-by-line inside one slide. Create a new stage only for a genuine phase change such as observe, modify, run, verify, or transfer.
+   - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching phases. Each stage should contain the complete relevant code block for that phase; the classroom UI reveals the block line-by-line inside one slide. Create a new stage only for a genuine phase change such as orientation, observe, modify, verify, or transfer.
    - For EACH stage, provide:
      * stepNumber: 1, 2, 3...
-     * speakerText: ~80-120 words of rich, line-by-line teaching spoken as the code line appears. Explain the exact syntax, purpose, underlying computer science concept, and a relevant example. Preserve details from the chapter; do not simply paraphrase the source activity or introduce unrelated topics.
+     * phase, speakerText (~80–120 words), displayText, explanation, learnerPrompt, commonMistake, recap, and durationSeconds matching the narration. Explain the code’s purpose, underlying concept, and a relevant example. Preserve chapter details; do not paraphrase the activity or introduce unrelated topics.
      * codeLine: The exact line or block of code added in this step (e.g., '#include <stdio.h>' or 'int main(void) {').
      * file: Relative file path (e.g., 'greeting.c' or 'main.py').
      * explanation: A concise on-screen annotation / callout.
-     * durationSeconds: Estimated audio speech time (about 40-65 seconds for 80-120 words).
+     * durationSeconds: Estimated audio speech time from the actual speakerText.
    - This empowers the frontend to animate the code typing out line-by-line in perfect sync with the narrator's voice before the student attempts the interactive tasks. Do not use codeWalkthrough to fake code for Scenario & Design activities; use the progressive teachingSteps format above.
 7. Scenario & Design Excellence:
    - If the category is 'Scenario & Design Exercise', create a highly descriptive world/context. Use 'widgetType' to select specialized UI tools (binary_converter, memory_diagram, etc.).
@@ -231,10 +228,11 @@ REQUIREMENTS:
    - For 'Research & Analysis' practicals, focus on guided inquiry. The narrator should act as a lead researcher, asking the student to form hypotheses and document observations in the provided task areas.
 10. Do NOT invent a different exercise or use source material from another chapter.
 11. Use the STRUCTURED LESSON CONTEXT as the teaching spine. Return an activityMapping array for every numbered source activity step. Each entry must include activityStepId, taskId, lessonScreenIds, teachingStepNumbers, and relevant concepts. Preserve source activity order; never let playlist order differ from teaching order.
-12. Begin the playlist with a brief course/chapter connection and activity orientation before implementation. End with a learner-transfer scene that explicitly hands control to the Your turn phase.
+12. Begin the canonical sequence with a brief course/chapter connection and activity orientation before implementation. End with a learner-transfer phase that explicitly hands control to the Your turn activity.
 7. Infer labType from each activity, but prefer simulation/manual review when execution would need host, production, credential, or unrestricted network access.
 8. Keep all generated file paths relative to the practical workspace and never use absolute paths or parent-directory segments.
-9. Return only valid JSON matching the requested module response schema.`;
+9. Do not return teachingPlaylist; the generator derives it from the canonical teaching sequence.
+10. Return only valid JSON matching the requested module response schema.`;
 }
 
 function buildModulePrompt(promptTemplate, entries, metadata) {

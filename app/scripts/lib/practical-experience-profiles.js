@@ -10,7 +10,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "editor_terminal",
     learnerArtifact: "working code and verified output",
     requiredUi: ["mission", "editor", "terminal", "automated_checks"],
-    prompt: `Build an executable coding lab with two explicit phases: teach mode, then practice mode. Begin teach mode with a brief, warm chapter reintroduction and explain why the practical matters. Teach mode must contain 4-8 atomic codeWalkthrough steps with a real file, exact codeLine, substantial 80-120 word speakerText, duration, and explanation. Add a structured predictionQuestion to a step only where the learner can meaningfully predict an outcome before it is revealed; do not force a question on every step or invent one unrelated to the code. Keep each predictionQuestion compact: provide a clear prompt, 2-4 plausible string options, the zero-based correctOption index, and a feedback string for each option in a parallel feedback array. Explain the exact line, its purpose, how it connects to the chapter, and a concrete example; preserve technical detail, stay on the practical topic, and do not merely paraphrase the source activity. Practice mode must provide small editable starter files, 3-5 progressive milestones, and checks that diagnose the learner's mistake. Return workspace.type=terminal and workspace.terminal with the real entry file, editable/read-only files, supported run or compile commands, stdin, and expected artifacts. Never invent unavailable services, credentials, or unsupported runtimes.`,
+    prompt: `Build an executable coding lab with a teacher-led walkthrough followed by independent practice. The ordered codeWalkthrough is the sole canonical spoken teaching script; do not write competing narration in narratorGuide, task narratorGuide, or teachingPlaylist. Create 4-8 genuine teaching phases, each with a real file, exact codeLine, phase, 80-120 word speakerText, concise explanation, learnerPrompt, commonMistake, recap, and a duration matching the spoken text. Begin with a warm chapter connection and practical mission, then teach the smallest useful example, explain the code and its effect, invite a prediction or learner action, address a likely misconception, and end with a transfer prompt. Keep all narration grounded in this activity and chapter. Add a structured predictionQuestion only where the learner can meaningfully predict an outcome; do not invent unrelated questions. Practice mode must provide small editable starter files, 3-5 progressive milestones, and checks that diagnose the learner's mistake. Return workspace.type=terminal and workspace.terminal with the real entry file, editable/read-only files, supported run or compile commands, stdin, and expected artifacts. Never invent unavailable services, credentials, or unsupported runtimes.`,
   },
   research_evidence_lab: {
     category: "Research & Analysis",
@@ -18,7 +18,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "evidence_notebook",
     learnerArtifact: "hypothesis, evidence notes, and reasoned conclusion",
     requiredUi: ["mission", "hypothesis", "evidence_notes", "reflection"],
-    prompt: `Build a guided evidence lab, not a coding exercise. Begin teach mode with a brief, warm chapter reintroduction and explain why the investigation matters. Return workspace.type=research and a complete workspace.research dossier from the chapter, including the investigation question, sources or datasets, required observations, allowed analysis operations, calculation rules, conclusion prompt, evidence requirements, and rubric. Give each milestone a hypothesis, evidence to look for, a note-taking prompt, and a misconception to challenge. Explain the investigation in a detailed, source-grounded teacher walkthrough with concrete evidence examples; preserve the full reasoning and do not drift from the chapter question. Where a learner can make a meaningful evidence-based prediction, add a structured predictionQuestion to that teaching step; do not force questions on every step or invent claims unsupported by the sources. Keep each question compact: provide a clear prompt, 2-4 plausible string options, the zero-based correctOption index, and a feedback string for each option in a parallel feedback array. Completion must require a defensible conclusion rather than generic text.`,
+    prompt: `Build a guided evidence lab, not a coding exercise. The ordered teachingSteps are the sole canonical spoken teaching script; do not write competing narration in narratorGuide, task narratorGuide, or teachingPlaylist. Begin with a warm chapter connection and a focused investigation question, then model how to examine a source, distinguish observation from inference, test a hypothesis, consider a limitation, and hand off a related inquiry to the learner. Return 4-8 ordered teachingSteps, each with a phase, progressive displayText, 80-120 word source-grounded speakerText, concise explanation, learnerPrompt, commonMistake, recap, and duration matching the spoken text. Return workspace.type=research and a complete workspace.research dossier from the chapter, including the investigation question, sources or datasets, required observations, allowed analysis operations, calculation rules, conclusion prompt, evidence requirements, and rubric. Give each milestone a hypothesis, evidence to look for, a note-taking prompt, and a misconception to challenge. Where a learner can make a meaningful evidence-based prediction, add a structured predictionQuestion to that teaching step; do not invent claims unsupported by the sources. Completion must require a defensible conclusion rather than generic text.`,
   },
   cloud_console_lab: {
     category: "Cloud Console Lab",
@@ -26,7 +26,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "safe_cloud_console",
     learnerArtifact: "safe command plan and verification log",
     requiredUi: ["mission", "resource_map", "command_plan", "verification_log"],
-    prompt: `Build a safe cloud-console mission with two explicit phases: a calm, teacher-led walkthrough, then “Your turn.” Return workspace.type=cloud and a complete workspace.cloud object with course-specific provider/region, initial resources, allowed simulated actions, forbidden actions, command templates, expected resource state, and verification checks. Begin with a brief, warm chapter reintroduction, explain why the practical matters with a concrete real-world example, and invite a prediction before each action. Return 4-8 ordered teachingSteps with progressive displayText, substantial 80-120 word speakerText, and useful explanation callouts; explain each exact action, its consequence, and how to verify it without leaving the chapter topic. Add a structured predictionQuestion only to steps where the learner can meaningfully predict a resource or traffic outcome; do not force a question on every step. Keep each question compact: provide a clear prompt, 2-4 plausible string options, the zero-based correctOption index, and a feedback string for each option in a parallel feedback array. Do not copy the hands-on activity text as a substitute for teaching. Map every teaching step to teachingPlaylist[].codeSteps. Use simulated or read-only resources only, explicitly state expected resource state, and include command-plan and verification-log milestones. Never require real credentials, billing actions, destructive commands, or production access.`,
+    prompt: `Build a safe cloud-console mission. The ordered teachingSteps are the sole canonical spoken teaching script; do not write competing narration in narratorGuide, task narratorGuide, or teachingPlaylist. Return workspace.type=cloud and a complete workspace.cloud object with course-specific provider/region, initial resources, allowed simulated actions, forbidden actions, command templates, expected resource state, and verification checks. Create 4-8 ordered teachingSteps with phase, progressive displayText, 80-120 word speakerText, a useful explanation, learnerPrompt, commonMistake, recap, and duration matching the spoken text. Start with a warm chapter connection and operational goal, state the starting resource state, model safe actions and their consequences, invite a prediction, show how to verify the result, and end with a related “Your turn” command-plan and verification phase. Keep every explanation tied to this chapter and activity; do not copy the hands-on activity as a substitute for teaching. Add a structured predictionQuestion only where the learner can meaningfully predict a resource or traffic outcome. Use simulated or read-only resources only. Never require real credentials, billing actions, destructive commands, or production access.`,
   },
   scenario_simulator: {
     category: "Scenario & Design Exercise",
@@ -34,7 +34,7 @@ export const EXPERIENCE_PROFILES = {
     workspaceFamily: "decision_simulator",
     learnerArtifact: "decision rationale and outcome analysis",
     requiredUi: ["mission", "scenario", "decision", "outcome", "reflection"],
-    prompt: `Build a teacher-led, line-by-line scenario lesson followed by an interactive "Your turn" phase. Return workspace.type=scenario and an explicit workspace.scenario.subtype of binary_exercise, planning_poker, roadmap_planning, annotation_design, explainability_decision, or generic_decision. Include the scenario context, items, decision options, constraints, decision fields, outcome rules, rubric, and export artifact needed by the UI. Never leave the active scenario branch empty. Start with a brief, warm chapter reintroduction and explain why the practical matters through a concrete real-world example. Return 4-8 ordered teachingSteps; each step must include concise displayText that can be revealed progressively, substantial 80-120 word speakerText, and a useful explanation. Explain the reasoning, use a relevant example or scenario, preserve the chapter's technical details, and never drift into unrelated material or merely restate the activity document. Teach one idea at a time, invite the learner to predict outcomes, then give a related task to solve in the workspace. Add a structured predictionQuestion only to steps where the learner can meaningfully predict a decision or scenario outcome; do not force a question on every step. Keep each question compact: provide a clear prompt, 2-4 plausible string options, the zero-based correctOption index, and a feedback string for each option in a parallel feedback array. For binary_exercise, explain place values and conversions visually without writing source code, and give every conversion task an interactiveExercise with a prompt, exact expectedAnswer, optional acceptedAnswers, and an explanation. For design_decision, present realistic options, trade-offs, outcomes, and ask the learner to justify a choice. Do not disguise a prose worksheet as a simulation.`,
+    prompt: `Build a teacher-led scenario lesson followed by an interactive "Your turn" phase. The ordered teachingSteps are the sole canonical spoken teaching script; do not write competing narration in narratorGuide, task narratorGuide, or teachingPlaylist. Return workspace.type=scenario and an explicit workspace.scenario.subtype of binary_exercise, planning_poker, roadmap_planning, annotation_design, explainability_decision, or generic_decision. Include the scenario context, items, decision options, constraints, decision fields, outcome rules, rubric, and export artifact needed by the UI. Never leave the active scenario branch empty. Create 4-8 ordered teachingSteps, each with phase, concise progressive displayText, 80-120 word speakerText, a useful explanation, learnerPrompt, commonMistake, recap, and duration matching the spoken text. Start with a warm chapter connection and mission, teach one idea at a time with a worked example grounded in this activity, invite a prediction or decision, address a likely misconception, and finish by handing a related problem to the learner. Preserve technical detail and never drift from the chapter or merely repeat the activity. Add a structured predictionQuestion only where a learner can make a meaningful prediction. For binary_exercise, explain place values and conversions visually without source code, and give every conversion task an interactiveExercise with an exact expectedAnswer and explanation. For design decisions, present realistic options, trade-offs, outcomes, and ask the learner to justify a choice. Do not disguise a prose worksheet as a simulation.`,
   },
 };
 
@@ -114,14 +114,34 @@ export function profileSchema(baseSchema, profile, activityKind) {
     required,
   };
 
-  if (["scenario_simulator", "cloud_console_lab"].includes(profile.experienceType)) {
-    schema.required = [...new Set([...schema.required, "activityKind", "teachingSteps"])];
-    schema.properties.teachingSteps = {
-      ...schema.properties.teachingSteps,
-      minItems: 4,
-      maxItems: 8,
-    };
-  }
+  const canonicalScriptKey = profile.experienceType === "terminal_coding_lab"
+    ? "codeWalkthrough"
+    : "teachingSteps";
+  schema.required = [...new Set([
+    ...schema.required,
+    "activityKind",
+    canonicalScriptKey,
+  ])];
+  const canonicalScriptSchema = schema.properties[canonicalScriptKey];
+  schema.properties[canonicalScriptKey] = {
+    ...canonicalScriptSchema,
+    minItems: 4,
+    maxItems: 8,
+    items: {
+      ...canonicalScriptSchema.items,
+      required: [...new Set([
+        ...(canonicalScriptSchema.items.required || []),
+        "stepNumber",
+        "phase",
+        "speakerText",
+        "explanation",
+        "learnerPrompt",
+        "commonMistake",
+        "recap",
+        ...(canonicalScriptKey === "teachingSteps" ? ["displayText"] : ["codeLine"]),
+      ])],
+    },
+  };
 
   if (activityKind === "binary_exercise") {
     const taskSchema = schema.properties.tasks;

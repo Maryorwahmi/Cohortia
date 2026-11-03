@@ -174,9 +174,11 @@ export default function AnimatedCodeAlongPlayer({
   const teachingPlaylist = playlist.length
     ? playlist.map((step, index) => ({
         ...step,
-        narratorScript: hasReadableNarration(step.narratorScript, tasks[index]?.instruction)
-          ? step.narratorScript
-          : taskNarration(tasks[index], narratorGuide),
+        narratorScript: teachingSteps.length || walkthrough.length
+          ? step.narratorScript || ""
+          : hasReadableNarration(step.narratorScript, tasks[index]?.instruction)
+            ? step.narratorScript
+            : taskNarration(tasks[index], narratorGuide),
       }))
     : fallbackPlaylist;
   // Older imported records may predate teachingSteps. Scenario and cloud labs must still
@@ -207,9 +209,10 @@ export default function AnimatedCodeAlongPlayer({
     : activeWalkthrough.length
       ? activeWalkthrough.map((step) => step.speakerText).filter(Boolean).join(" ")
       : activePlaylist.narratorScript;
+  const hasCanonicalNarration = activeTeachingSteps.length > 0 || activeWalkthrough.length > 0;
   const activeNarrationScript = activityKind === "binary_exercise"
     ? sceneNarration
-    : activePlaylistIndex === 0 && narratorGuide
+    : activePlaylistIndex === 0 && narratorGuide && !hasCanonicalNarration
       ? `${narratorGuide.trim()} ${sceneNarration}`.trim()
       : sceneNarration;
   const calculatedDurationSeconds = activeTeachingSteps.length
