@@ -35,15 +35,17 @@ async function brevoRequest(path, options = {}) {
   }
 }
 
-export async function sendTransactionalEmail({email, subject, html, text, tags = ['cohortia-transactional']}) {
-  const senderEmail = process.env.BREVO_SENDER_EMAIL?.trim() || 'hello@cohortia.study';
-  const senderName = process.env.BREVO_SENDER_NAME?.trim() || 'Cohortia';
+export async function sendTransactionalEmail({email, subject, html, text, sender, replyTo, tags = ['cohortia-transactional']}) {
+  const defaultSender = {
+    name: process.env.BREVO_SENDER_NAME?.trim() || 'Cohortia',
+    email: process.env.BREVO_SENDER_EMAIL?.trim() || 'hello@cohortia.study',
+  };
   await brevoRequest('/smtp/email', {
     method: 'POST',
     body: JSON.stringify({
-      sender: {name: senderName, email: senderEmail},
+      sender: sender || defaultSender,
       to: [{email}],
-      replyTo: {name: senderName, email: senderEmail},
+      replyTo: replyTo || defaultSender,
       subject,
       htmlContent: html,
       textContent: text,

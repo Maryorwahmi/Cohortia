@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Mail, Phone, MapPin, Send, HelpCircle, Calendar, Clock, ChevronDown, CheckCircle, Sparkles, MessageSquare } from "lucide-react";
+import { contactApi } from "../services/api";
 
 interface FAQItem {
   q: string;
@@ -75,6 +76,7 @@ export default function ContactPage() {
   const [ticketMsg, setTicketMsg] = useState("");
   const [isSendingTicket, setIsSendingTicket] = useState(false);
   const [ticketSuccess, setTicketSuccess] = useState(false);
+  const [ticketError, setTicketError] = useState("");
 
   // Booking scheduler state
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
@@ -100,19 +102,28 @@ export default function ContactPage() {
     }));
   };
 
-  const handleSendTicket = (e: React.FormEvent) => {
+  const handleSendTicket = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ticketName || !ticketEmail || !ticketMsg) return;
+    if (!ticketName.trim() || !ticketEmail.trim() || !ticketMsg.trim()) return;
 
     setIsSendingTicket(true);
-    setTimeout(() => {
-      setIsSendingTicket(false);
+    setTicketError("");
+    try {
+      await contactApi.submit({
+        name: ticketName.trim(),
+        email: ticketEmail.trim(),
+        subject: `Contact request — ${ticketTrack}`,
+        message: ticketMsg.trim(),
+      });
       setTicketSuccess(true);
       setTicketName("");
       setTicketEmail("");
       setTicketMsg("");
-      setTimeout(() => setTicketSuccess(false), 5000);
-    }, 1500);
+    } catch (error) {
+      setTicketError(error instanceof Error ? error.message : "Your message could not be sent. Please try again.");
+    } finally {
+      setIsSendingTicket(false);
+    }
   };
 
   const handleConfirmBooking = () => {
@@ -168,12 +179,13 @@ export default function ContactPage() {
                   <div className="space-y-1">
                     <h4 className="text-base font-bold text-immersive-text-primary">Ticket Submitted Successfully!</h4>
                     <p className="text-xs text-immersive-text-secondary leading-relaxed font-medium max-w-md mx-auto">
-                      Your query has been logged under ID <span className="font-mono text-immersive-secondary font-bold">#CHT-9218</span>. An admissions mentor will email or call you shortly.
+                      Your message was sent to our team. An advisor will reply to the email address you provided.
                     </p>
                   </div>
                 </div>
               ) : (
                 <form onSubmit={handleSendTicket} className="space-y-4">
+                  {ticketError && <p role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs font-medium text-rose-300">{ticketError}</p>}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-mono text-immersive-secondary font-bold uppercase block">
