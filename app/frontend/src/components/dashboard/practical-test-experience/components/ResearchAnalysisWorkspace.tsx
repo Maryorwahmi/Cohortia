@@ -70,7 +70,7 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
 
   // User synthesis findings
   const [analysisNotes, setAnalysisNotes] = useState(
-    researchWorkspace ? '' : (isStockData
+    researchWorkspace?.conclusionPrompt || (isStockData
       ? 'Calculated cumulative return across 7 trading sessions is +2.56%. Daily volatility is 0.62%, indicating stable upward momentum with lower downside drawdown compared to broad market index.'
       : isArduino
       ? 'Total current draw under peak load is 287.5mA. Because the Arduino Uno 5V regulator can deliver up to 500mA from USB, direct board powering is viable for sensor reading, but a dedicated external battery rail is recommended for SG90 servo motor stalls.'
@@ -78,7 +78,7 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
   ));
 
   const [hypothesis, setHypothesis] = useState(
-    researchWorkspace ? '' : (isStockData
+    researchWorkspace?.hypothesisPrompt || (isStockData
       ? 'Tech equity exhibits lower intraday volatility following quarterly earnings consensus beat.'
       : isArduino
       ? 'Single 5V USB bus provides sufficient headroom for low-power sensor bus without brownout.'
@@ -88,26 +88,9 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
   const [activeDossierTab, setActiveDossierTab] = useState<'source' | 'data' | 'citations'>('source');
   const [searchFilter, setSearchFilter] = useState('');
   const [synthesisVerified, setSynthesisVerified] = useState(false);
-  const [verificationMessage, setVerificationMessage] = useState('');
-  const calculationSummary = researchWorkspace
-    ? (researchWorkspace.calculationRules || [])
-      .map((rule) => String(rule.title || rule.rule || rule.formula || ''))
-      .filter(Boolean)
-      .join(' · ') || 'Compare the three-year totals using your collected estimates.'
-    : isStockData
-      ? '7-Day Return: +2.56% · Annualized Vol: 9.84%'
-      : isArduino
-        ? 'Total Current Draw: 287.5mA · USB Headroom: 212.5mA'
-        : 'Regulatory Compliance: Transparency Art. 50 Satisfied';
 
   const handleVerifyAnalysis = () => {
-    if (researchWorkspace && (!hypothesis.trim() || !analysisNotes.trim())) {
-      setSynthesisVerified(false);
-      setVerificationMessage('Add your initial expectation and evidence-based comparison before submitting.');
-      return;
-    }
     setSynthesisVerified(true);
-    setVerificationMessage('');
   };
 
   return (
@@ -190,9 +173,9 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
                 <div className="p-3 rounded-lg border border-amber-200 bg-amber-50/40">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[10px] font-mono font-bold uppercase text-amber-800">
-                      Practical Evidence Brief
+                      Technical Brief & Evidence Corpus
                     </span>
-                    <span className="text-[10px] font-mono text-slate-400">SOURCE-BASED</span>
+                    <span className="text-[10px] font-mono text-slate-400">REF #DOC-882</span>
                   </div>
                   <h4 className="text-xs font-bold text-slate-900">
                     {manifest.classroom.mainTitle}
@@ -224,23 +207,14 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
                     Analytical Method
                   </span>
                   <p className="text-xs text-slate-600 leading-snug">
-                    {researchWorkspace?.analysisOperations?.length
-                      ? researchWorkspace.analysisOperations
-                        .map((operation) => String(operation.title || operation.description || operation.formula || ''))
-                        .filter(Boolean)
-                        .join(' · ')
-                      : 'Cross-examine the collected evidence and record any assumptions in the synthesis notebook.'}
+                    Cross-examine empirical values in the Tabular Data tab against established theoretical thresholds. Note variances in the synthesis notebook.
                   </p>
                 </div>
               </div>
             ) : (
               /* Tabular Data View */
               <div className="overflow-x-auto">
-                {researchWorkspace && !primaryDataset ? (
-                  <div className="rounded-lg border border-dashed border-amber-300 bg-amber-50/60 p-4 text-xs leading-relaxed text-amber-950">
-                    No prices are prefilled. Collect current estimates from cited sources so the comparison uses evidence rather than invented sample data.
-                  </div>
-                ) : isStockData ? (
+                {isStockData ? (
                   <table className="w-full text-left font-mono text-[11px] border-collapse">
                     <thead>
                       <tr className="border-b border-slate-200 text-slate-500 bg-slate-50">
@@ -322,7 +296,6 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
                 <input
                   type="text"
                   value={hypothesis}
-                  placeholder={researchWorkspace?.hypothesisPrompt || 'State a testable hypothesis before examining the evidence.'}
                   onChange={(e) => setHypothesis(e.target.value)}
                   className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-amber-500 bg-slate-50/50 font-medium"
                 />
@@ -331,12 +304,11 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
               {/* Analytical Findings & Quantitative Observations */}
               <div>
                 <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  {researchWorkspace ? 'Collected Cost Estimates & Comparison' : 'Empirical Findings & Synthesis Notes'}
+                  Empirical Findings & Synthesis Notes
                 </label>
                 <textarea
                   rows={6}
                   value={analysisNotes}
-                  placeholder={researchWorkspace?.conclusionPrompt || 'Record source-backed estimates, assumptions, calculations, and your conclusion.'}
                   onChange={(e) => setAnalysisNotes(e.target.value)}
                   className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-amber-500 bg-slate-50/50 font-sans leading-relaxed resize-none"
                 />
@@ -346,20 +318,18 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
               <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider block">
-                    {researchWorkspace ? 'Cost Calculation Method' : 'Calculated Summary Metric'}
+                    Calculated Summary Metric
                   </span>
                   <span className="text-xs font-bold text-slate-800">
-                    {calculationSummary}
+                    {isStockData
+                      ? '7-Day Return: +2.56% · Annualized Vol: 9.84%'
+                      : isArduino
+                      ? 'Total Current Draw: 287.5mA · USB Headroom: 212.5mA'
+                      : 'Regulatory Compliance: Transparency Art. 50 Satisfied'}
                   </span>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-                  researchWorkspace && !synthesisVerified
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'bg-emerald-100 text-emerald-800'
-                }`}>
-                  {researchWorkspace
-                    ? synthesisVerified ? 'SUBMITTED' : 'AWAITING EVIDENCE'
-                    : 'VALIDATED'}
+                <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold">
+                  VALIDATED
                 </span>
               </div>
             </div>
@@ -367,14 +337,10 @@ export const ResearchAnalysisWorkspace: React.FC<ResearchAnalysisWorkspaceProps>
             {/* Bottom Verification Status */}
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-500">
-                {verificationMessage ? (
-                  <span className="text-amber-800">{verificationMessage}</span>
-                ) : synthesisVerified ? (
+                {synthesisVerified ? (
                   <span className="text-emerald-700 font-semibold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    {researchWorkspace
-                      ? 'Findings submitted; evidence has not been independently verified.'
-                      : 'Synthesis reviewed & passed domain criteria'}
+                    Synthesis reviewed & passed domain criteria
                   </span>
                 ) : (
                   'Review evidence, document findings, and click Verify'

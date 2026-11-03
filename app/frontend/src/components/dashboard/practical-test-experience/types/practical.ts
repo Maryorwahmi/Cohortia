@@ -44,7 +44,6 @@ export interface PracticalTask {
   id: string;
   title: string;
   description: string;
-  details?: string;
   criteria: string;
   hints: string[];
   interactiveExercise?: {

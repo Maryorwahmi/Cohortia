@@ -121,119 +121,11 @@ function HortBotReply({ text }: { text: string }) {
   );
 }
 
-function isCloudCostComparisonResearch(practical: LearningBoardPractical): boolean {
-  const activityTexts = [
-    practical.instructions,
-    practical.sourceActivity,
-    practical.sourceContent,
-  ].filter(Boolean).join('\n');
-  return /\b(research|estimate|compare|comparison)\b/i.test(activityTexts)
-    && /\b(costs?|pricing|capex|opex|expenditure)\b/i.test(activityTexts)
-    && /\b(cloud|on[\s-]?prem(?:ises?)?)\b/i.test(activityTexts)
-    && !/\b(write|implement|compile|debug)\s+(?:a\s+)?(?:program|script|query|code)\b/i.test(activityTexts);
-}
-
 function categoryTypeFor(practical: LearningBoardPractical): PracticalManifest['categoryType'] {
-  if (isCloudCostComparisonResearch(practical)) return 'research_analysis';
-  const categorySignals = [
-    practical.categoryDecision?.finalCategory,
-    practical.experienceType,
-    practical.experience?.experienceType,
-    practical.categoryProfile?.experience,
-    practical.activityKind,
-    practical.workspace?.type,
-    practical.category,
-    practical.sourceCategory,
-  ].map((value) => String(value || '').toLowerCase());
-  if (categorySignals.some((value) => ['cloud_console', 'cloud_console_lab', 'cloud_console_walkthrough', 'cloud console lab', 'cloud'].includes(value))) return 'cloud_console';
-  if (categorySignals.some((value) => ['research_analysis', 'research_evidence_lab', 'evidence_inquiry', 'research & analysis', 'research'].includes(value))) return 'research_analysis';
-  if (categorySignals.some((value) => ['scenario_design', 'scenario_simulator', 'scenario_analysis', 'design_decision', 'algorithm_design', 'binary_exercise', 'scenario & design exercise', 'scenario'].includes(value))) return 'scenario_design';
-  if (categorySignals.some((value) => ['terminal_coding', 'terminal_coding_lab', 'terminal_code_along', 'terminal coding lab', 'terminal'].includes(value))) return 'terminal_coding';
+  if (practical.experienceType === 'cloud_console_lab' || practical.category === 'Cloud Console Lab') return 'cloud_console';
+  if (practical.experienceType === 'research_evidence_lab' || practical.category === 'Research & Analysis') return 'research_analysis';
+  if (practical.experienceType === 'scenario_simulator' || practical.category === 'Scenario & Design Exercise') return 'scenario_design';
   return 'terminal_coding';
-}
-
-function researchTasksFromSource(practical: LearningBoardPractical) {
-  const sourceTexts = [practical.instructions, practical.sourceContent, practical.sourceActivity].filter(Boolean) as string[];
-  for (const sourceText of sourceTexts) {
-    const taskSection = sourceText.match(
-      /(?:^|\n)\s*\*{0,2}Task:?\*{0,2}\s*:?\s*\n([\s\S]*?)(?=\n\s*\*{0,2}Starter Template|\n\s*```|$)/i,
-    )?.[1] || sourceText;
-    const numberedTasks: string[] = [];
-    for (const line of taskSection.split(/\r?\n/)) {
-      const taskStart = line.match(/^[ \t]*\d+[.)][ \t]+(.*)$/);
-      if (taskStart) {
-        numberedTasks.push(taskStart[1]);
-      } else if (numberedTasks.length) {
-        numberedTasks[numberedTasks.length - 1] += `\n${line}`;
-      }
-    }
-    if (numberedTasks.length < 2) continue;
-
-    return numberedTasks.map((taskText, index) => {
-      const details = learnerText(taskText);
-      const firstLine = details.split(/\r?\n/)[0] || details;
-      const title = learnerText(firstLine.split(/:\s*/, 1)[0]) || `Research step ${index + 1}`;
-      const instruction = learnerText(firstLine.includes(':')
-        ? firstLine.slice(firstLine.indexOf(':') + 1)
-        : firstLine);
-      const costComparisonDescription = /on[\s-]?prem/i.test(title)
-        ? 'Estimate equipment and database-license CapEx, plus three years of electricity, cooling, maintenance, and staff costs.'
-        : /alibaba cloud/i.test(title)
-          ? "Use Alibaba Cloud's pricing calculator to estimate monthly ECS, storage, MySQL RDS, and 1 TB data-transfer costs."
-          : /compare|reflect/i.test(title)
-            ? 'Compare on-premises costs with 36 months of cloud costs, then explain your assumptions and conclusion.'
-            : '';
-      const conciseDescription = costComparisonDescription || (instruction.length > 180
-        ? `${instruction.slice(0, 177).replace(/\s+\S*$/, '')}…`
-        : instruction);
-      const criteria = /on[\s-]?prem/i.test(title)
-        ? 'Upfront capital and three-year operating estimates with cited sources'
-        : /alibaba cloud/i.test(title)
-          ? 'Monthly service estimate and calculator assumptions with a cited source'
-          : /compare|reflect/i.test(title)
-            ? 'Comparable three-year totals and an evidence-based conclusion'
-            : '';
-      return { title, instruction: conciseDescription, details, criteria };
-    });
-  }
-  return null;
-}
-
-function researchWorkspaceFor(practical: LearningBoardPractical): NonNullable<PracticalManifest['workspace']> {
-  const existing = practical.workspace?.research;
-  const title = learnerText(practical.title || 'Cloud cost comparison');
-  return {
-    type: 'research',
-    research: {
-      investigationQuestion: existing?.investigationQuestion
-        || `Which hosting option has the lower three-year total cost for ${title}?`,
-      hypothesisPrompt: existing?.hypothesisPrompt
-        || 'Before comparing prices, which hosting option do you expect to cost less over three years, and why?',
-      sources: existing?.sources || [],
-      datasets: existing?.datasets || [],
-      requiredObservations: existing?.requiredObservations?.length ? existing.requiredObservations : [
-        { title: 'On-premises estimate', prompt: 'Record server, storage, database, electricity, cooling, maintenance, and staffing costs with their assumptions.' },
-        { title: 'Alibaba Cloud estimate', prompt: 'Record monthly ECS, storage, managed database, and data-transfer prices from the pricing calculator.' },
-        { title: 'Evidence details', prompt: 'Record each source, access date, region, and pricing assumptions.' },
-      ],
-      analysisOperations: existing?.analysisOperations?.length ? existing.analysisOperations : [
-        { title: 'Three-year on-premises total', formula: 'CapEx + three years of OpEx' },
-        { title: 'Three-year cloud total', formula: 'Monthly cloud estimate × 36' },
-        { title: 'Compare totals', formula: 'Cloud total − on-premises total' },
-      ],
-      calculationRules: existing?.calculationRules?.length ? existing.calculationRules : [
-        { title: 'On-premises total', rule: 'Add upfront capital costs to operating costs over three years.' },
-        { title: 'Cloud total', rule: 'Multiply the monthly service estimate by 36 months.' },
-      ],
-      conclusionPrompt: existing?.conclusionPrompt
-        || 'Compare the two three-year totals, cite the estimates and assumptions behind each, and explain which option is more cost-effective initially.',
-      evidenceRequirements: existing?.evidenceRequirements?.length ? existing.evidenceRequirements : [
-        { title: 'Traceable estimates', requirement: 'Cite a source and date for every cost estimate.' },
-        { title: 'Comparable scope', requirement: 'Use the same compute, storage, database, and network requirements for both options.' },
-      ],
-      rubric: existing?.rubric || [],
-    },
-  };
 }
 
 function learnerText(value: string | null | undefined): string {
@@ -299,9 +191,7 @@ function exploreKeyTopicsFrom(practical: LearningBoardPractical): PracticalManif
 
 function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: string): PracticalManifest {
   const categoryType = categoryTypeFor(practical);
-  const files = (practical.files || [])
-    .filter((file) => categoryType !== 'research_analysis' || !/\.(c|cpp|cc|cxx|py|js|mjs|cjs|ts|sql|sh|bash)$/i.test(file.path))
-    .map((file) => ({
+  const files = (practical.files || []).map((file) => ({
     name: file.path,
     folder: file.path.includes('/') ? file.path.slice(0, file.path.lastIndexOf('/')) : '/',
     initialContent: file.content || '',
@@ -314,7 +204,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       : /\.json$/i.test(file.path) ? 'json' as const
       : /\.(yaml|yml)$/i.test(file.path) ? 'yaml' as const
       : 'text' as const,
-    }));
+  }));
   const teachingSteps = practical.teachingSteps || [];
   const rawWalkthrough = practical.codeWalkthrough || [];
   const walkthroughSegments = categoryType === 'terminal_coding'
@@ -349,33 +239,11 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       predictionQuestion: step.predictionQuestion,
     };
   });
-  const parsedResearchTasks = categoryType === 'research_analysis' ? researchTasksFromSource(practical) : null;
-  const sourceTasks = parsedResearchTasks?.map((sourceTask, index) => {
-    const hasMatchingTasks = practical.tasks?.length === parsedResearchTasks.length;
-    const originalTask = hasMatchingTasks
-      ? practical.tasks?.[index]
-      : practical.tasks?.[0];
-    return {
-      ...originalTask,
-      id: hasMatchingTasks && originalTask?.id
-        ? originalTask.id
-        : index === 0 && originalTask?.id
-          ? originalTask.id
-          : `${originalTask?.id || 'research-task'}-source-${index + 1}`,
-      title: sourceTask.title,
-      instruction: sourceTask.instruction,
-      details: sourceTask.details,
-      criteria: sourceTask.criteria || '',
-      requiredConcepts: hasMatchingTasks ? originalTask?.requiredConcepts || [] : [],
-      hints: hasMatchingTasks || index === 0 ? originalTask?.hints || [] : [],
-    };
-  });
-  const tasks = (sourceTasks || practical.tasks || []).map((task, index) => ({
+  const tasks = (practical.tasks || []).map((task, index) => ({
     id: task.id,
     title: learnerText(task.title || `Task ${index + 1}`),
     description: learnerText(task.instruction),
-    details: task.details ? learnerText(task.details) : undefined,
-    criteria: task.criteria ? learnerText(task.criteria) : task.requiredConcepts.map(learnerText).join(', '),
+    criteria: task.requiredConcepts.map(learnerText).join(', '),
     hints: (task.hints || []).map(learnerText),
     interactiveExercise: task.interactiveExercise
       ? {
@@ -417,9 +285,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
           label: learnerText(task.title || `Practical step ${index + 1}`),
           value: learnerText(task.requiredConcepts?.slice(0, 2).join(' · ') || task.instruction),
         }));
-  const workspace = isCloudCostComparisonResearch(practical)
-    ? researchWorkspaceFor(practical)
-    : practical.workspace
+  const workspace = practical.workspace
     ? ({
         ...practical.workspace,
         type: practical.workspace.type === 'cloud' ? 'cloud' : practical.workspace.type === 'scenario' ? 'scenario' : practical.workspace.type === 'research' ? 'research' : 'terminal',
@@ -428,7 +294,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
   return {
     id: practical.id || `chapter-${practical.module}-${practical.chapter}`,
     title,
-    category: categoryType === 'research_analysis' ? 'Research & Analysis' : practical.category || categoryType,
+    category: practical.category || categoryType,
     categoryType,
     courseName: learnerText(courseTitle || practical.courseId || 'Cohortia course'),
     moduleName: `Module ${practical.module || ''}`,
@@ -437,14 +303,8 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       : categoryType === 'cloud_console' ? 'cloud' : categoryType === 'scenario_design' ? 'scenario' : 'script',
     durationSeconds: Math.max(60, stepDurations.reduce((sum, duration) => sum + duration, 0)),
     lessonLabel: title,
-    objective: categoryType === 'research_analysis'
-      ? isCloudCostComparisonResearch(practical)
-        ? 'Compare researched three-year on-premises and Alibaba Cloud costs, then explain your assumptions.'
-        : learnerText(practical.summary || 'Review the evidence, record your analysis, and support your conclusion.')
-      : learnerText(practical.objectives?.join(' ') || practical.instructions || 'Complete the practical task and submit your work.'),
-    realWorldContext: isCloudCostComparisonResearch(practical)
-      ? 'Compare the same hosting requirements across both options: upfront on-premises capital and operating costs, and Alibaba Cloud monthly service estimates over three years.'
-      : learnerText(practical.teacher?.realWorldContext || practical.summary || ''),
+    objective: learnerText(practical.objectives?.join(' ') || practical.instructions || 'Complete the practical task and submit your work.'),
+    realWorldContext: learnerText(practical.teacher?.realWorldContext || practical.summary || ''),
     classroom: {
       classroomBadge: '16:9 HD CLASSROOM', moduleBadge: `MODULE ${String(practical.module || '').padStart(2, '0')}`,
       chapterBreadcrumb: `CHAPTER ${practical.module || 1}.${practical.chapter || 1}`, topicBreadcrumb: title.toUpperCase(),
