@@ -23,6 +23,9 @@ test('branded email includes the static app logo and escapes dynamic content', (
   assert.match(email.html, /https:\/\/cohortia\.study\/cohortia-og\.png/);
   assert.match(email.html, /Verify &lt;email&gt;/);
   assert.match(email.html, /Hi A&amp;B,/);
+  assert.match(email.html, /max-width:820px/);
+  assert.match(email.html, /cohortia-email-content/);
+  assert.match(email.html, /max-width: 600px/);
   assert.match(email.html, /012345/);
   assert.doesNotMatch(email.html, /<script>/);
   assert.match(email.text, /Verification code: 012345/);
