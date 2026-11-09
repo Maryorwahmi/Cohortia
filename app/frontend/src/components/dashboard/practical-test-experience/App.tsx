@@ -237,10 +237,19 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
   });
   const fallbackSteps = teachingSteps.map((step, index) => {
     const teaching = practical.tasks?.[Math.min(index, Math.max(0, practical.tasks.length - 1))]?.teaching;
+    // Non-terminal experiences do not have source code, but their teaching
+    // phases still need a real line-by-line visual. `displayText` is only a
+    // label, so include the phase explanation and learner prompt as the
+    // lines revealed by the classroom walkthrough.
+    const visualLines = [
+      step.displayText,
+      step.explanation,
+      step.learnerPrompt ? `Prompt: ${step.learnerPrompt}` : '',
+    ].filter((line): line is string => Boolean(line?.trim()));
     return {
       stepNumber: step.stepNumber || index + 1,
       title: step.title || `Teaching step ${index + 1}`,
-      codeOrText: step.displayText,
+      codeOrText: visualLines.join('\n'),
       callout: teaching?.conceptExplanation || step.explanation,
       // Keep the phase narration aligned with the visual phase. The task
       // narration is only a compatibility fallback for older payloads.
