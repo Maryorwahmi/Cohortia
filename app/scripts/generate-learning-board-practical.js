@@ -139,7 +139,7 @@ const PRACTICAL_SCHEMA = {
           stepNumber: { type: "integer" },
           phase: { type: "string", enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"] },
           title: { type: "string" },
-          displayText: { type: "string", description: "A short equation, diagram label, decision, or other non-code visual revealed as the teacher explains." },
+          displayText: { type: "string", description: "A concrete 2-6 line non-code visual revealed as the teacher explains: show the actual equation/calculation, evidence observation, data row, decision trace, or other activity-specific artifact. Do not return only a title or generic label." },
           speakerText: { type: "string", description: "Teacher narration synchronized to this visual step." },
           explanation: { type: "string", description: "Short on-screen explanation of the current idea." },
           learnerPrompt: { type: "string", description: "The prediction, question, or action handed to the learner in this phase." },
@@ -1251,6 +1251,10 @@ function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, 
     normalized.taskId = typeof step.taskId === "string" ? step.taskId : undefined;
   } else {
     normalized.displayText = requiredText(step.displayText, "displayText");
+    const visualLineCount = normalized.displayText.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).length;
+    if (visualLineCount < 2 || visualLineCount > 6) {
+      throw new Error(`${label} displayText must contain 2-6 concrete visual lines; received ${visualLineCount}.`);
+    }
   }
   return normalized;
 }
@@ -3016,6 +3020,16 @@ CRITICAL REQUIREMENTS FOR INTENSIVE LEARNING:
    phases below are the only source of teacher speech and are projected into task
    narration and playlist fields by the generator.
    Use the exact starter file and commands. Never write phrases like "connect this to a small real-world program", "compare the result with your prediction", or "follow the instructions" as a substitute for teaching.
+
+   2B. NON-CODE WALKTHROUGH VISUALS:
+   For Scenario & Design Exercise and Research & Analysis practicals, each
+   teachingSteps.displayText is the visual board content, not the phase title.
+   It must contain 2-6 newline-separated lines of concrete activity evidence.
+   Show the actual calculation or equation (for example, 11010₂ = 26₁₀ or
+   5 ÷ 2 = 2 remainder 1), the observed data/evidence and its interpretation,
+   or the decision/options/constraints being compared. Include the worked
+   result when the phase teaches a worked example. A heading such as
+   "Understanding Binary" or "Research Findings" by itself is invalid.
 
 3. SCAFFOLDED COMPLEXITY:
    - Task 1: Pre-written code, learner OBSERVES output
