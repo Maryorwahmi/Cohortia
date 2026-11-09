@@ -415,6 +415,20 @@ export interface AdminManagedUser {
 }
 
 export const adminApi = {
+  sendMailingBroadcast: (data: {recipients: string[]; subject: string; message: string; consentConfirmed: true}) =>
+    fetchApi<{
+      success: boolean;
+      data?: {
+        acceptedByBrevo: number;
+        failed: Array<{email: string; reason: string}>;
+        skipped: Array<{email: string; reason: string}>;
+      };
+      error?: string;
+      details?: Record<string, string[]>;
+    }>('/admin/mailing/send', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
   getCourses: () => fetchApi<{success: boolean; data?: {courses: AdminCourse[]; isAlphaAdmin: boolean}; error?: string}>('/admin/courses'),
   getUsers: () => fetchApi<{success: boolean; data?: {users: AdminManagedUser[]}; error?: string}>('/admin/users'),
   saveUserAccess: async (userId: string, coursePermissions: AdminCoursePermission[]) => {

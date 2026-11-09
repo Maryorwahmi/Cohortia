@@ -660,6 +660,15 @@ export const newsletterSubscriptions = sqliteTable('newsletter_subscriptions', {
   updatedAt: text('updated_at').notNull(),
 });
 
+export const mailingUnsubscribeTokens = sqliteTable('mailing_unsubscribe_tokens', {
+  id: text('id').primaryKey(),
+  email: text('email').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  createdAt: text('created_at').notNull(),
+}, (table) => ({
+  emailIdx: index('mailing_unsubscribe_tokens_email_idx').on(table.email),
+}));
+
 // Notifications
 export const notifications = sqliteTable('notifications', {
   id: text('id').primaryKey(),

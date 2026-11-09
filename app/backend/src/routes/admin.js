@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
+import { createHash, randomBytes } from 'node:crypto';
+import { z } from 'zod';
 import { db } from '../db/index.js';
 import {
   adminCoursePermissions,
@@ -25,7 +27,9 @@ import {
   learningBoardPracticals,
   learningBoardProgress,
   learningBoardScreens,
+  mailingUnsubscribeTokens,
   mentorContext,
+  newsletterSubscriptions,
   notifications,
   progress,
   projectTemplates,
@@ -46,9 +50,17 @@ import { authMiddleware } from '../middleware/auth.js';
 import { desc, sql } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { deleteR2Object, isR2Configured } from '../lib/r2Storage.js';
+import { enforceRateLimits } from '../lib/rateLimit.js';
+import { sendTransactionalEmail } from '../lib/brevo.js';
 
 const admin = new Hono();
 const ANONYMIZED_USER_ID = 'deleted-account';
+const mailingBroadcastSchema = z.object({
+  recipients: z.array(z.string().trim().email().max(255)).min(1).max(100),
+  subject: z.string().trim().min(1).max(160).regex(/^[^\r\n]+$/, 'Subject must be a single line'),
+  message: z.string().trim().min(1).max(10000),
+  consentConfirmed: z.literal(true),
+});
 
 admin.use('*', authMiddleware);
 admin.use('*', async (c, next) => {
@@ -62,6 +74,135 @@ admin.use('*', async (c, next) => {
 function isAlphaAdmin(c) {
   return c.get('user')?.adminRole === 'alpha';
 }
+
+function escapeEmailHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[character]);
+}
+
+function hashMailingToken(token) {
+  return createHash('sha256').update(token).digest('hex');
+}
+
+admin.post('/mailing/send', async (c) => {
+  const user = c.get('user');
+  const rateLimitResponse = await enforceRateLimits(c, [{
+    scope: 'admin-mailing-user',
+    actor: user.id,
+    limit: 3,
+    windowSeconds: 60 * 60,
+  }]);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const body = await c.req.json().catch(() => null);
+  const result = mailingBroadcastSchema.safeParse(body);
+  if (!result.success) {
+    return c.json({
+      success: false,
+      error: 'Validation failed',
+      details: result.error.flatten().fieldErrors,
+    }, 400);
+  }
+
+  const {subject, message} = result.data;
+  const recipients = [...new Set(result.data.recipients.map((email) => email.toLowerCase()))];
+  if (recipients.length > 100) {
+    return c.json({success: false, error: 'A mailing can contain at most 100 unique addresses.'}, 400);
+  }
+
+  const now = new Date().toISOString();
+  const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
+  const deliverable = [];
+  const skipped = [];
+
+  for (const email of recipients) {
+    const [existing] = await db.select().from(newsletterSubscriptions)
+      .where(eq(newsletterSubscriptions.email, email))
+      .limit(1);
+    if (existing?.status === 'unsubscribed') {
+      skipped.push({email, reason: 'This address has unsubscribed.'});
+      continue;
+    }
+    if (existing?.status === 'confirming') {
+      skipped.push({email, reason: 'Subscription confirmation is in progress.'});
+      continue;
+    }
+
+    const token = randomBytes(32).toString('hex');
+    const tokenHash = hashMailingToken(token);
+    if (existing) {
+      await db.update(newsletterSubscriptions).set({
+        status: existing.status === 'confirmed' ? 'confirmed' : 'manual',
+        confirmationTokenHash: null,
+        confirmationExpiresAt: null,
+        unsubscribeTokenHash: tokenHash,
+        previousUnsubscribeTokenHash: existing.unsubscribeTokenHash,
+        updatedAt: now,
+      }).where(eq(newsletterSubscriptions.id, existing.id));
+    } else {
+      await db.insert(newsletterSubscriptions).values({
+        id: uuidv4(),
+        email,
+        name: null,
+        status: 'manual',
+        confirmationTokenHash: null,
+        confirmationExpiresAt: null,
+        unsubscribeTokenHash: tokenHash,
+        previousUnsubscribeTokenHash: null,
+        unsubscribedAt: null,
+        subscribedAt: now,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+    await db.insert(mailingUnsubscribeTokens).values({
+      id: uuidv4(),
+      email,
+      tokenHash,
+      createdAt: now,
+    });
+    deliverable.push({
+      email,
+      unsubscribeUrl: `${frontendUrl}/newsletter/unsubscribe?token=${token}`,
+    });
+  }
+
+  const failed = [];
+  const safeMessage = escapeEmailHtml(message).replace(/\r?\n/g, '<br>');
+  for (let offset = 0; offset < deliverable.length; offset += 5) {
+    await Promise.all(deliverable.slice(offset, offset + 5).map(async ({email, unsubscribeUrl}) => {
+      try {
+        await sendTransactionalEmail({
+          email,
+          subject,
+          html: `<div>${safeMessage}</div><hr><p>You are receiving this message because you agreed to receive Cohortia updates. <a href="${escapeEmailHtml(unsubscribeUrl)}">Unsubscribe</a></p>`,
+          text: `${message}\n\n---\nYou are receiving this message because you agreed to receive Cohortia updates.\nUnsubscribe: ${unsubscribeUrl}`,
+          tags: ['admin-broadcast'],
+        });
+      } catch (error) {
+        console.error('[admin-mailing] Delivery failed:', error instanceof Error ? error.message : 'Unknown error');
+        failed.push({
+          email,
+          reason: error instanceof Error ? error.message : 'Delivery failed.',
+        });
+      }
+    }));
+  }
+
+  return c.json({
+    success: true,
+    data: {
+      acceptedByBrevo: deliverable.length - failed.length,
+      failed,
+      skipped,
+    },
+  });
+});
 
 admin.get('/courses', async (c) => {
   const user = c.get('user');

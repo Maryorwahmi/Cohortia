@@ -32,6 +32,8 @@ Set `TOTP_ENCRYPTION_KEY` in the backend environment to a private random value o
 
 The public newsletter form uses Brevo for confirmation emails and for syncing confirmed subscribers to a Brevo contact list. Configure `BREVO_API_KEY` and `BREVO_NEWSLETTER_LIST_ID` as backend environment variables, and verify `hello@cohortia.study` as a sender in Brevo. Set `FRONTEND_URL` to the public site so confirmation and unsubscribe links return to the correct pages. Keep the API key private on the backend. Subscription records are pending until the visitor confirms; confirmation links expire after 24 hours, and unsubscribing removes the address from the configured list and blocks Brevo email delivery for that contact.
 
+Administrators can use the dashboard mailing screen to send plain-text broadcasts to manually entered addresses through the same Brevo transactional sender. Each send is limited to 100 unique recipients and three sends per administrator per hour. The sender requires an explicit confirmation that recipients consented, adds an individual unsubscribe link, and skips addresses already unsubscribed. Apply the schema with `npm run db:migrate-schema` (or `npm run db:push`) before deploying this feature.
+
 Profile images and syllabus exports use the authenticated users API. Profile image uploads require the same Cloudflare R2 bucket configuration and browser CORS policy used by course project evidence uploads.
 
 The alpha administrator can grant existing registered users admin access and independently select course permissions for learning screens, assessments, practicals, and course overviews for courses without those content types. Bulk selectors can grant all available access or target one content type. Only the alpha administrator can manage other admins; the alpha account retains access to every catalog course.
@@ -58,6 +60,7 @@ The alpha administrator can grant existing registered users admin access and ind
 | PUT | `/api/v1/users/profile` | Update user profile |
 | GET | `/api/v1/users/progress` | Get user progress |
 | GET | `/api/v1/users/enrollments` | Get user enrollments |
+| POST | `/api/v1/admin/mailing/send` | Send a consent-confirmed admin mailing |
 | GET | `/api/v1/tracks` | List all tracks |
 | GET | `/api/v1/tracks/:id` | Get track details |
 | POST | `/api/v1/tracks/:id/enroll` | Enroll in a track |

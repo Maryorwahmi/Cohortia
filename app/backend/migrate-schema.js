@@ -82,6 +82,14 @@ async function migrate() {
       updated_at TEXT NOT NULL,
       PRIMARY KEY (admin_user_id, course_id)
     )`);
+    await client.execute(`CREATE TABLE IF NOT EXISTS mailing_unsubscribe_tokens (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      created_at TEXT NOT NULL
+    )`);
+    await client.execute(`CREATE INDEX IF NOT EXISTS mailing_unsubscribe_tokens_email_idx
+      ON mailing_unsubscribe_tokens (email)`);
     console.log('✓ Admin access tables are ready');
   } catch (error) {
     console.error('✗ Error creating admin access tables:', error.message);

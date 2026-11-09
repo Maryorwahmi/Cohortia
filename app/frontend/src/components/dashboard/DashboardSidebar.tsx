@@ -9,6 +9,7 @@ import {
   User,
   ShieldCheck,
   Users,
+  Mail,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -99,7 +100,10 @@ export default function DashboardSidebar({ isCollapsed = false, onToggleCollapse
     {path: '/dashboard/projects', label: 'Projects', icon: Code},
     {path: '/dashboard/progress', label: 'Progress', icon: TrendingUp},
     {path: '/dashboard/profile', label: 'Profile', icon: User},
-    ...(user?.adminRole ? [{path: '/admin', label: 'Admin courses', icon: ShieldCheck}] : []),
+    ...(user?.adminRole ? [
+      {path: '/admin', label: 'Admin courses', icon: ShieldCheck},
+      {path: '/admin/mailing', label: 'Mailing', icon: Mail},
+    ] : []),
   ];
 
   return (

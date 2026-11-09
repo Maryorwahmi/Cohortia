@@ -26,6 +26,7 @@ const Projects = lazy(() => import('./pages/dashboard/Projects'));
 const Progress = lazy(() => import('./pages/dashboard/Progress'));
 const Profile = lazy(() => import('./pages/dashboard/Profile'));
 const AdminDashboard = lazy(() => import('./pages/dashboard/AdminDashboard'));
+const AdminMailing = lazy(() => import('./pages/dashboard/AdminMailing'));
 
 export default function App() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
         <Route path="/dashboard/progress" element={<Progress />} />
         <Route path="/dashboard/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/mailing" element={<AdminMailing />} />
       </Route>
 
       {/* Temporary public test route for generated HTML learning boards */}

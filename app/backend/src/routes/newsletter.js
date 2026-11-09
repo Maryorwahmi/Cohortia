@@ -8,6 +8,7 @@ import { enforceRateLimits, getRateLimitClientIp } from '../lib/rateLimit.js';
 import { createHash, randomBytes } from 'node:crypto';
 import { addNewsletterContact, assertBrevoConfigured, getNewsletterListId, removeNewsletterContact, sendNewsletterEmail } from '../lib/brevo.js';
 import { renderBrandedEmail, sendBrandedEmail } from '../lib/emailTemplates.js';
+import { mailingUnsubscribeTokens } from '../db/schema.js';
 
 const newsletter = new Hono();
 
@@ -234,6 +235,44 @@ newsletter.post('/unsubscribe', async (c) => {
   }
 
   const tokenHash = hashToken(result.data.token);
+  const [mailingToken] = await db.select().from(mailingUnsubscribeTokens)
+    .where(eq(mailingUnsubscribeTokens.tokenHash, tokenHash))
+    .limit(1);
+  if (mailingToken) {
+    const [subscription] = await db.select().from(newsletterSubscriptions)
+      .where(eq(newsletterSubscriptions.email, mailingToken.email))
+      .limit(1);
+    if (!subscription) {
+      return c.json({success: false, error: 'This unsubscribe link is invalid.'}, 400);
+    }
+    if (subscription.status === 'unsubscribed') {
+      return c.json({success: true, message: 'This address is already unsubscribed.'});
+    }
+    if (subscription.status === 'confirming') {
+      return c.json({success: false, error: 'Subscription confirmation is in progress. Please try again shortly.'}, 409);
+    }
+    if (subscription.status === 'confirmed') {
+      try {
+        await removeNewsletterContact(subscription.email);
+      } catch (error) {
+        console.error('[newsletter] Contact could not be removed from Brevo:', error.message);
+        return c.json({success: false, error: 'We could not complete your unsubscribe right now. Please try again.'}, 502);
+      }
+    }
+    const now = new Date().toISOString();
+    await db.update(newsletterSubscriptions).set({
+      status: 'unsubscribed',
+      confirmationTokenHash: null,
+      confirmationExpiresAt: null,
+      unsubscribedAt: now,
+      updatedAt: now,
+    }).where(and(
+      eq(newsletterSubscriptions.id, subscription.id),
+      eq(newsletterSubscriptions.status, subscription.status),
+    ));
+    return c.json({success: true, message: 'You have been unsubscribed from Cohortia updates.'});
+  }
+
   const [subscription] = await db.select().from(newsletterSubscriptions)
     .where(or(
       eq(newsletterSubscriptions.unsubscribeTokenHash, tokenHash),
