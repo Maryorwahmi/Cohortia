@@ -409,14 +409,22 @@ function extractActivityTitle(activity) {
   // Many course activities use a bold title without an `Activity:` prefix.
   // Keep the first meaningful line as the practical title instead of falling
   // back to `Practical <course>/<module>/<chapter>`.
-  const firstTitle = source
-    .split(/\r?\n/)
-    .map((line) => line.replace(/^\s*(?:[-*]|\d+[.)])\s+/, "").replace(/^\s*\*{1,2}|\*{1,2}\s*$/g, "").trim())
-    .find((line) => line
-      && !/^instructions?:|^(?:scenario|objective|reflection|starter code):?$/i.test(line)
-      && !/^```/.test(line)
-      && line.length >= 8
-      && line.length <= 180);
+  let inCodeBlock = false;
+  const firstTitle = source.split(/\r?\n/).find((rawLine) => {
+    const line = rawLine.trim();
+    if (/^```/.test(line)) {
+      inCodeBlock = !inCodeBlock;
+      return false;
+    }
+    if (inCodeBlock) return false;
+    const candidate = line
+      .replace(/^\s*(?:[-*]|\d+[.)])\s+/, "")
+      .replace(/^\s*\*{1,2}|\*{1,2}\s*$/g, "")
+      .trim();
+    return candidate
+      && !/^(?:category|instructions?|scenario|objective|reflection|starter code):?/i.test(candidate)
+      && candidate.length >= 8;
+  });
   return firstTitle ? summarizeText(firstTitle.replace(/[:.]$/, ""), 140) : null;
 }
 
@@ -801,7 +809,7 @@ function openingText(value, maxLength = 260) {
 function conceptDescription(concept, title, category) {
   const normalized = normalizeLearnerText(concept);
   const detail = normalized.match(/^[^:]{2,80}:\s*(.+)$/)?.[1];
-  if (detail) return openingText(detail, 150);
+  if (detail && openingText(detail, 150).length >= 15) return openingText(detail, 150);
   const label = conceptTitle(normalized);
   const verbs = {
     "Cloud Console Lab": "Inspect and configure",
@@ -814,6 +822,14 @@ function conceptDescription(concept, title, category) {
 
 function buildTeachViewOpening(raw, sourceContext, title, summary, instructions, tasks, workspace, learnerArtifact) {
   const category = sourceContext.source.category;
+  const activityKind = activityKindFor({
+    category,
+    title: sourceContext.activityTitle || title,
+    activity: sourceContext.activityChapter?.handsOnActivity || instructions,
+    labType: raw.labType,
+  });
+  const activityTitle = sourceContext.activityTitle || title;
+  const chapterTitle = sourceContext.lessonChapter?.title || activityTitle;
   const objectives = asStringArray(raw.objectives).map(normalizeLearnerText).filter(Boolean);
   const taskPoints = tasks
     .map((task) => normalizeLearnerText(task.title || task.instruction))
@@ -849,10 +865,19 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
       : /\.(c|cc|cpp|cxx)$/i.test(terminalFile)
         ? `./${terminalStem}`
         : `Run ${terminalFile} and inspect the result.`;
-  const activityConcepts = tasks.flatMap((task) => asStringArray(task.requiredConcepts));
   const sourceConcepts = sourceContext.lessonContext?.keyConcepts || [];
-  const conceptCandidates = [...activityConcepts, ...sourceConcepts]
+  const activityConcepts = tasks.flatMap((task) => asStringArray(task.requiredConcepts));
+  const canonicalConcepts = [
+    ...(Array.isArray(raw.teachingSteps) ? raw.teachingSteps : []),
+    ...(Array.isArray(raw.codeWalkthrough) ? raw.codeWalkthrough : []),
+  ].flatMap((step) => [step?.title, step?.displayText, step?.explanation]);
+  const genericConcepts = new Set([
+    "computer science", "algorithm", "programming", "technology", "software",
+    "problem solving", "data", "information", "computers",
+  ]);
+  const conceptCandidates = [...activityConcepts, ...sourceConcepts, ...canonicalConcepts]
     .map((concept) => normalizeLearnerText(concept))
+    .filter((concept) => !genericConcepts.has(concept.toLowerCase()))
     .filter((concept, index, all) => concept && all.indexOf(concept) === index)
     .slice(0, 3)
   const workflowFallback = tasks.slice(0, 4).map((task, index) => ({
@@ -902,7 +927,17 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
     workflow.push({ label: `Practical step ${workflow.length + 1}`, value: learnerArtifact });
   }
 
-  const concepts = [...conceptCandidates, ...workflow.map((node) => node.label)]
+  const categoryConceptFallbacks = {
+    binary_exercise: ["Binary representation", "Place value", "Base conversion"],
+    terminal_code_along: ["Source code", "Compilation", "Program output"],
+    cloud_console_walkthrough: ["Resource state", "Safe configuration", "Verification"],
+    evidence_inquiry: ["Evidence", "Hypothesis", "Reasoned conclusion"],
+    algorithm_design: ["Inputs and outputs", "Algorithm steps", "Edge cases"],
+    design_decision: ["Constraints", "Trade-offs", "Decision rationale"],
+    scenario_analysis: ["Assumptions", "Decision rules", "Observable outcome"],
+    guided_exercise: ["Practical action", "Observation", "Verification"],
+  };
+  const concepts = [...conceptCandidates, ...(categoryConceptFallbacks[activityKind] || []), ...workflow.map((node) => node.label)]
     .filter((concept, index, all) => concept && all.indexOf(concept) === index)
     .slice(0, 3)
     .map((concept) => ({
@@ -922,12 +957,18 @@ function buildTeachViewOpening(raw, sourceContext, title, summary, instructions,
     "Research & Analysis": "Sources > Evidence > Analysis > Conclusion",
     "Terminal Coding Lab": "Source Code > Compiler > Executable > Output",
   };
+  const whyByActivityKind = {
+    binary_exercise: "Digital systems represent information with bits. Converting between binary and decimal helps you reason about the values a computer stores, processes, and displays instead of treating those values as mysterious symbols.",
+    terminal_code_along: `A program becomes useful when its source code produces a result a person can inspect and verify. This practical connects ${activityTitle} to the compile, run, and observe cycle used in real software work.`,
+    cloud_console_walkthrough: `Reliable cloud work depends on understanding the starting resource state, making one safe change, and verifying the resulting state. This practical turns ${activityTitle} into that repeatable operational habit.`,
+    evidence_inquiry: `A strong technical conclusion must be traceable to observations rather than confident guesses. This practical uses ${activityTitle} to practice forming a claim, checking evidence, and stating a defensible limitation.`,
+    algorithm_design: `Clear algorithms make a problem solvable, testable, and explainable. This practical uses ${activityTitle} to connect each decision step with the input, output, and edge case it must handle.`,
+    design_decision: `Good technical decisions make constraints and trade-offs visible before implementation begins. This practical uses ${activityTitle} to practice choosing an option and defending its likely consequences.`,
+    scenario_analysis: `A useful model makes its assumptions and consequences explicit. This practical uses ${activityTitle} to help you predict an outcome, test the reasoning, and explain what would change in a new situation.`,
+    guided_exercise: `Practice becomes transferable when you can explain what changed and verify the result. This practical uses ${activityTitle} to connect the chapter idea to an observable outcome.`,
+  };
   const whyItMatters = openingText(
-    raw.teacher?.realWorldContext
-      || sourceContext.lessonContext?.chapterIntroduction
-      || summary
-      || instructions
-      || title,
+    whyByActivityKind[activityKind] || `${chapterTitle} becomes more useful when you can apply its ideas to a concrete task and verify the result.`,
     240,
   );
   const gettingReadyByCategory = {
@@ -1237,7 +1278,26 @@ function inferLabType(raw, sourceContext) {
 
 function inferLanguage(raw, sourceContext, labType) {
   const text = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
-  if (/\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program|hello,\s*world)\b/.test(text)) return "c";
+  const fencedLanguages = [...text.matchAll(/```([a-z0-9+#.-]*)\s*\n/g)]
+    .map((match) => match[1]);
+  if (sourceContext.source.category === "Terminal Coding Lab") {
+    if (fencedLanguages.some((label) => ["cpp", "c++", "cxx"].includes(label))) return "cpp";
+    if (fencedLanguages.includes("c")) return "c";
+  }
+  const cSourceSignals = [
+    /#include\s*</,
+    /\b(?:clang|gcc)\b/,
+    /\.c\b/,
+    /\bc\s+program\b/,
+    /\b(?:printf|scanf|malloc|calloc|realloc|free|fopen|strcmp)\s*\(/,
+    /\b(?:argc|argv)\b/,
+  ];
+  // C lessons do not always repeat the phrase "C program" in the activity
+  // section. Structs, typedefs, standard-library calls, and argc/argv are
+  // authoritative C syntax, so use them before trusting a model label such
+  // as "text" or "plaintext".
+  if (sourceContext.source.category === "Terminal Coding Lab"
+    && cSourceSignals.some((signal) => signal.test(text))) return "c";
   const requested = String(raw.language || "").trim().toLowerCase();
   const fileNames = (Array.isArray(raw.files) ? raw.files : [])
     .map((file) => String(file?.path || "").toLowerCase());
@@ -1326,9 +1386,35 @@ function reconcileSourceFiles(files, sourceContext, language, labType) {
   const sourceIndex = files.findIndex((file) => /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql|sh)$/i.test(file.path));
   if (sourceIndex < 0) return files;
   const current = files[sourceIndex];
-  if (!isPlaceholderStarter(current.content) && current.content.trim().length >= authoritativeCode.length * 0.8) return files;
+  const extensionByLanguage = {
+    c: ".c",
+    cpp: ".cpp",
+    python: ".py",
+    javascript: ".js",
+    typescript: ".ts",
+    sql: ".sql",
+    shell: ".sh",
+  };
+  const expectedExtension = extensionByLanguage[String(language || "").toLowerCase()];
+  const currentExtension = path.extname(current.path).toLowerCase();
+  const needsLanguageCorrection = Boolean(expectedExtension && currentExtension !== expectedExtension);
+  const needsContentCorrection = isPlaceholderStarter(current.content)
+    || current.content.trim().length < authoritativeCode.length * 0.8;
+  if (!needsLanguageCorrection && !needsContentCorrection) {
+    return files.map((file, index) => index === sourceIndex
+      ? { ...file, language: language || file.language }
+      : file);
+  }
+  const correctedPath = needsLanguageCorrection
+    ? `${current.path.slice(0, -currentExtension.length)}${expectedExtension}`
+    : current.path;
   return files.map((file, index) => index === sourceIndex
-    ? { ...file, content: authoritativeCode, language: file.language || language }
+    ? {
+        ...file,
+        path: correctedPath,
+        content: needsContentCorrection ? authoritativeCode : file.content,
+        language: language || file.language,
+      }
     : file);
 }
 
@@ -1657,14 +1743,30 @@ function normalizeWorkspace(raw, { experienceType, activityKind, files, language
     const sourceFiles = files.filter((file) => file.editable !== false).map((file) => file.path);
     const readOnlyFiles = files.filter((file) => file.editable === false).map((file) => file.path);
     const terminal = sourceWorkspace.terminal && typeof sourceWorkspace.terminal === "object" ? sourceWorkspace.terminal : {};
+    const requestedEntryFile = terminal.entryFile;
+    const entryFile = sourceFiles.includes(requestedEntryFile)
+      ? requestedEntryFile
+      : sourceFiles[0] || files[0]?.path || "main.txt";
+    const sourceFileChanged = Boolean(requestedEntryFile && requestedEntryFile !== entryFile);
+    const entryStem = entryFile.replace(/\.[^.]+$/, "");
+    const compileCommands = sourceFileChanged && language === "c"
+      ? [`clang ${entryFile} -o ${entryStem}`]
+      : asStringArray(terminal.compileCommands);
+    const runCommands = sourceFileChanged && language === "c"
+      ? [`./${entryStem}`]
+      : asStringArray(terminal.runCommands);
+    const requestedEditableFiles = asStringArray(terminal.editableFiles)
+      .filter((file) => sourceFiles.includes(file));
     return {
       type: "terminal",
       terminal: {
-        entryFile: terminal.entryFile || sourceFiles[0] || files[0]?.path || "main.txt",
-        editableFiles: asStringArray(terminal.editableFiles).length ? asStringArray(terminal.editableFiles) : sourceFiles,
-        readOnlyFiles: asStringArray(terminal.readOnlyFiles).length ? asStringArray(terminal.readOnlyFiles) : readOnlyFiles,
-        runCommands: asStringArray(terminal.runCommands),
-        compileCommands: asStringArray(terminal.compileCommands),
+        entryFile,
+        editableFiles: requestedEditableFiles.length ? requestedEditableFiles : sourceFiles,
+        readOnlyFiles: asStringArray(terminal.readOnlyFiles).filter((file) => readOnlyFiles.includes(file)).length
+          ? asStringArray(terminal.readOnlyFiles).filter((file) => readOnlyFiles.includes(file))
+          : readOnlyFiles,
+        runCommands,
+        compileCommands,
         stdin: typeof terminal.stdin === "string" ? terminal.stdin : "",
         expectedArtifacts: asStringArray(terminal.expectedArtifacts),
         language: language || undefined,
@@ -1867,22 +1969,24 @@ function normalizePractical(raw, sourceContext, metadata) {
         const existing = tasks[index];
         const narratorGuide = existing?.narratorGuide
           || `Let's solve this binary challenge carefully. ${exercise.prompt} Explain how the place values or repeated division support your answer.`;
+        // The model often returns one generic binary task while the source
+        // activity contains several conversion questions. Do not use a
+        // reduced object literal for the additional questions: every task
+        // must receive the same complete teaching support as a model task.
+        const teaching = buildTeachingFallback({
+          ...(existing || {}),
+          title: exercise.title,
+          instruction: exercise.prompt,
+          narratorGuide,
+          teaching: existing?.teaching,
+        }, sourceContext, index);
         return {
           ...existing,
           id: existing?.id || `binary-question-${index + 1}`,
           title: exercise.title,
           instruction: exercise.prompt,
           narratorGuide,
-          teaching: existing?.teaching || {
-            learningGoal: "Apply binary place values and explain the conversion.",
-            teacherTalk: narratorGuide,
-            realWorldExample: "Binary values represent numbers stored and processed by digital systems.",
-            guidedSteps: [exercise.prompt, "Show the place values or division steps.", "Check that the result represents the same quantity."],
-            questions: ["How can you verify your answer using powers of two?"],
-            expectedObservations: ["The answer agrees with the binary place-value or base-conversion rule."],
-            recap: exercise.explanation,
-            waitForLearner: true,
-          },
+          teaching,
           required: true,
           hints: existing?.hints || [],
           requiredConcepts: existing?.requiredConcepts || [],
@@ -1974,7 +2078,7 @@ function normalizePractical(raw, sourceContext, metadata) {
         return existing;
       }
       const narratorGuide = `Let’s ${stage.id} ${title}. ${stage.instruction} Take this one step at a time, compare what you observe with your prediction, and explain the evidence before moving on.`;
-      return {
+      const generatedTask = {
         id: normalizeId(`scene-${index + 1}-${stage.id}`, `scene-${index + 1}`),
         title: `Scene ${index + 1} — ${stage.title}`,
         instruction: stage.instruction,
@@ -1996,6 +2100,7 @@ function normalizePractical(raw, sourceContext, metadata) {
             retry: "Change one thing at a time, then run the check again.",
           },
           recap: stage.learningGoal,
+          transferTask: `Apply the ${stage.id} idea from ${title} to a new input or scenario and explain what should remain the same.`,
           waitForLearner: true,
           estimatedMinutes: 3,
         },
@@ -2006,6 +2111,11 @@ function normalizePractical(raw, sourceContext, metadata) {
         structuredHints: undefined,
         checkIds: [],
       };
+      // Synthesized scenes must receive the same complete task teaching
+      // contract as model-provided tasks; otherwise validation fails on the
+      // later scenes even though the practical's canonical narration is valid.
+      generatedTask.teaching = buildTeachingFallback(generatedTask, sourceContext, index);
+      return generatedTask;
     });
   }
 
@@ -3066,11 +3176,16 @@ export {
   assertValidPractical,
   buildGeminiPrompt,
   extractChapter,
+  extractActivityTitle,
   normalizePractical,
   enhanceWithAnimationTiming,
   resolveSourceContext,
   safeRelativePath,
   validatePractical,
+  buildTeachViewOpening,
+  inferLanguage,
+  normalizeWorkspace,
+  reconcileSourceFiles,
   writePractical,
 };
 

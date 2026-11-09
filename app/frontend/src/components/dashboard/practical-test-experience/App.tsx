@@ -155,6 +155,11 @@ function narrationDurationSeconds(text: string | undefined, minimumSeconds = 8):
 function groupCodeWalkthroughSegments(segments: CodeWalkthroughSegment[], stageCount: number): CodeWalkthroughSegment[] {
   if (segments.length <= 1) return segments;
   const explicitStages = [...new Set(segments.map((segment) => segment.taskId).filter(Boolean))];
+  // Canonical codeWalkthrough entries are already teaching phases. When the
+  // generator has not assigned task ids, preserve those phases as separate
+  // slides; grouping them turns several complete code blocks into one long,
+  // duplicated walkthrough.
+  if (explicitStages.length === 0) return segments;
   const groups = explicitStages.length > 1
     ? explicitStages.map((taskId) => segments.filter((segment) => segment.taskId === taskId))
     : [segments];
@@ -291,6 +296,20 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
         type: practical.workspace.type === 'cloud' ? 'cloud' : practical.workspace.type === 'scenario' ? 'scenario' : practical.workspace.type === 'research' ? 'research' : 'terminal',
       } as PracticalWorkspaceData)
     : undefined;
+  const chapterIntroduction = briefChapterIntroduction(
+    practical.lessonContext?.chapterIntroduction
+      || practical.lessonContext?.courseIntroduction
+      || '',
+  );
+  const openingNarration = [
+    `Welcome to this practical in ${courseTitle || practical.courseId || 'Cohortia'}.`,
+    chapterIntroduction
+      ? `In this chapter, we have been exploring ${chapterIntroduction}`
+      : 'In this chapter, we have been building a foundation for the ideas we will use today.',
+    `Now we will put that learning to work through ${title}.`,
+    teachViewOpening?.whyItMatters || '',
+    teachViewOpening?.gettingReady || '',
+  ].filter(Boolean).join(' ');
   return {
     id: practical.id || `chapter-${practical.module}-${practical.chapter}`,
     title,
@@ -310,11 +329,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       chapterBreadcrumb: `CHAPTER ${practical.module || 1}.${practical.chapter || 1}`, topicBreadcrumb: title.toUpperCase(),
       mainTitle: title,
       subtitle: learnerText(teachViewOpening?.subtitle || practical.summary || practical.instructions || ''),
-      openingNarration: [
-        learnerText(teachViewOpening?.subtitle || practical.summary || practical.instructions || ''),
-        learnerText(teachViewOpening?.whyItMatters || practical.teacher?.realWorldContext || briefChapterIntroduction(practical.lessonContext?.chapterIntroduction || practical.lessonContext?.courseIntroduction || '')),
-        learnerText(teachViewOpening?.gettingReady || practical.experience?.learnerArtifact || ''),
-      ].filter(Boolean).join(' '),
+      openingNarration: learnerText(openingNarration),
       inThisLesson: learnerText(teachViewOpening?.inThisPractical || practical.objectives?.join(' ') || practical.instructions || ''),
       comingUp: learnerText(teachViewOpening?.comingUp || practical.experience?.learnerArtifact || practical.tasks?.[0]?.title || ''),
       whyItMatters: learnerText(teachViewOpening?.whyItMatters || practical.teacher?.realWorldContext || practical.lessonContext?.chapterIntroduction || practical.summary || ''),

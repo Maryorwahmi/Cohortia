@@ -65,22 +65,19 @@ function revealWalkthroughCode(steps: CodeWalkthroughSegment[], elapsedSeconds: 
   progress: number;
 } {
   let elapsed = 0;
-  const chunks: string[] = [];
+  let lastStep: CodeWalkthroughSegment | undefined;
   for (const step of steps) {
     const duration = generatedDuration(step.durationSeconds, step.speakerText || step.explanation || step.codeLine);
-    if (elapsedSeconds >= elapsed + duration) {
-      chunks.push(step.codeLine);
-      elapsed += duration;
-      continue;
-    }
     if (elapsedSeconds >= elapsed) {
-      // Reveal one complete source line at the start of its teaching interval.
-      // The teacher's speech, not a character animation, is the pacing cue.
-      return { code: [...chunks, step.codeLine].filter(Boolean).join("\n"), activeStep: step, progress: (elapsedSeconds - elapsed) / duration };
+      // A walkthrough entry is a complete block for one teaching phase, not
+      // an incremental line to append to every previous phase. Show only the
+      // active block so repeated model snapshots do not duplicate the file.
+      return { code: step.codeLine || "", activeStep: step, progress: Math.min(1, (elapsedSeconds - elapsed) / duration) };
     }
-    return { code: chunks.filter(Boolean).join("\n"), activeStep: step, progress: 0 };
+    lastStep = step;
+    elapsed += duration;
   }
-  return { code: chunks.filter(Boolean).join("\n"), progress: 1 };
+  return { code: lastStep?.codeLine || "", progress: 1 };
 }
 
 function revealTeachingText(steps: PracticalTeachingStep[], elapsedSeconds: number): {
@@ -236,13 +233,10 @@ export default function AnimatedCodeAlongPlayer({
     : activeTeachingSteps;
   const activeFile = activeWalkthrough.find((step) => step.file)?.file || files[0]?.path || "workspace";
   const activeFileContent = files.find((file) => file.path === activeFile)?.content || files[0]?.content || "";
-  const priorWalkthrough = walkthrough
-    .filter((step) => step.file === activeFile && step.stepNumber < (activeWalkthrough[0]?.stepNumber || 0))
-    .sort((left, right) => left.stepNumber - right.stepNumber);
   const codeReveal = revealWalkthroughCode(activeWalkthrough, currentTime);
   const teachingReveal = revealTeachingText(synchronizedTeachingSteps, currentTime);
   const displayedCode = activeWalkthrough.length
-    ? [...priorWalkthrough.map((step) => step.codeLine), codeReveal.code].filter(Boolean).join("\n")
+    ? codeReveal.code
     : activeFileContent || "// No starter code was provided for this practical.";
   const activeTask = tasks.length ? tasks[Math.min(activePlaylistIndex, tasks.length - 1)] : undefined;
   const isCodeLab = category === "Terminal Coding Lab";

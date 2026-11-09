@@ -64,12 +64,10 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
   const activeCodeLines = activeStep
     ? (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n')
     : [];
-  const previousCodeLines = manifest.categoryType === 'terminal_coding' && activeStageIndex > 0
-    ? manifest.walkthroughSteps
-      .slice(0, activeStageIndex)
-      .flatMap((step) => (step.codeSnippet ?? step.codeOrText ?? '').split('\n'))
-    : [];
-  const codeLines = [...previousCodeLines, ...activeCodeLines];
+  // Each canonical codeWalkthrough step is a complete teaching-stage block.
+  // Rendering prior blocks again makes the same source repeat on every slide.
+  const previousCodeLines: string[] = [];
+  const codeLines = activeCodeLines;
   const nextStep = activeStageIndex >= 0
     ? manifest.walkthroughSteps[activeStageIndex + 1]
     : undefined;
