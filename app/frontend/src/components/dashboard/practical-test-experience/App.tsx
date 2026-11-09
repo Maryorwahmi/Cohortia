@@ -227,7 +227,10 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       codeSnippet: step.codeLine,
       codeOrText: step.codeLine,
       callout: teaching?.conceptExplanation || step.explanation || '',
-      narration: teaching?.teacherTalk || step.speakerText,
+      // Canonical walkthrough phases are the source of truth for spoken
+      // narration. Task-level teacherTalk may contain a merged or fallback
+      // script and can replay the opening instead of teaching this phase.
+      narration: step.speakerText || teaching?.teacherTalk || '',
       timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
       predictionQuestion: step.predictionQuestion,
     };
@@ -239,7 +242,9 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       title: step.title || `Teaching step ${index + 1}`,
       codeOrText: step.displayText,
       callout: teaching?.conceptExplanation || step.explanation,
-      narration: teaching?.teacherTalk || step.speakerText,
+      // Keep the phase narration aligned with the visual phase. The task
+      // narration is only a compatibility fallback for older payloads.
+      narration: step.speakerText || teaching?.teacherTalk || '',
       timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
       predictionQuestion: step.predictionQuestion,
     };

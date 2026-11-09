@@ -69,7 +69,7 @@ export const PrototypeTeachMode: React.FC<PrototypeTeachModeProps> = ({ manifest
     }
 
     const textToSpeak = currentSlideIndex === 0
-      ? `${manifest.classroom.mainTitle}. ${manifest.classroom.subtitle} ${manifest.classroom.inThisLesson}`
+      ? manifest.classroom.openingNarration
       : activeStep?.narration;
     if (!textToSpeak) return undefined;
 
