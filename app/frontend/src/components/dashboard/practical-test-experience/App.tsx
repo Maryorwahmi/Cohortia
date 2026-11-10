@@ -4,6 +4,7 @@ import type { CodeWalkthroughSegment, LearningBoardPractical } from '../../../se
 import { learningBoardsApi } from '../../../services/learningBoardsApi';
 import { chatApi, type ChatLearningContext } from '../../../services/api';
 import { resolveCourseNarratorVoice } from '../../../utils/courseVoiceMapping';
+import { SpeechNarrationQueue } from '../../../lib/speechNarration';
 import { INSTRUCTOR_PERSONAS } from './data/instructorsData';
 import {
   PracticalManifest,
@@ -230,7 +231,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       // Canonical walkthrough phases are the source of truth for spoken
       // narration. Task-level teacherTalk may contain a merged or fallback
       // script and can replay the opening instead of teaching this phase.
-      narration: step.speakerText || teaching?.teacherTalk || '',
+      narration: step.speakerText || '',
       timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
       predictionQuestion: step.predictionQuestion,
     };
@@ -253,7 +254,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
       callout: teaching?.conceptExplanation || step.explanation,
       // Keep the phase narration aligned with the visual phase. The task
       // narration is only a compatibility fallback for older payloads.
-      narration: step.speakerText || teaching?.teacherTalk || '',
+      narration: step.speakerText || '',
       timestamp: stepDurations.slice(0, index).reduce((sum, duration) => sum + duration, 0),
       predictionQuestion: step.predictionQuestion,
     };
@@ -364,6 +365,7 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
 
 export default function App({ practical, courseId, courseTitle, onComplete, onMentorContextReady }: PracticalTestExperienceProps) {
   const narratorCourseId = courseId || practical?.courseId;
+  const narrationQueueRef = useRef(new SpeechNarrationQueue());
   const generatedManifest = useMemo(() => practical ? manifestFromPractical(practical, courseTitle) : null, [practical, courseTitle]);
   const manifests = useMemo(() => generatedManifest ? [generatedManifest] : PRACTICAL_MANIFESTS, [generatedManifest]);
   const [activeManifestId, setActiveManifestId] = useState<string>(generatedManifest?.id || INITIAL_MANIFEST.id);
@@ -653,6 +655,13 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
   const activeWalkthroughIndex = getStepIndexForTime(Math.max(0, currentTime - openingDurationSeconds));
   const currentStep: WalkthroughStep =
     activeManifest.walkthroughSteps[activeWalkthroughIndex] || activeManifest.walkthroughSteps[0];
+  const textToSpeak = currentSlideIndex === 0 ? openingNarration : currentStep?.narration;
+  const narrationOwnsAdvance = typeof window !== 'undefined'
+    && 'speechSynthesis' in window
+    && isPlaying
+    && !isMuted
+    && Boolean(courseNarratorVoice)
+    && Boolean(textToSpeak?.trim());
 
   useEffect(() => {
     if (!narratorCourseId || typeof window === 'undefined' || !window.speechSynthesis) {
@@ -691,34 +700,41 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
   }, [narratorCourseId]);
 
   useEffect(() => {
-    if (!('speechSynthesis' in window)) return;
+    if (!narrationOwnsAdvance || !courseNarratorVoice || !textToSpeak) return undefined;
 
-    if (narratorCourseId && !courseNarratorVoiceReady) {
-      window.speechSynthesis.cancel();
-      return;
-    }
+    let cancelled = false;
+    narrationQueueRef.current.play(textToSpeak, {
+      voice: courseNarratorVoice,
+      rate: selectedInstructor.speechRate * playbackSpeed * 0.95,
+      pitch: 1,
+      onComplete: () => {
+        if (cancelled) return;
+        if (currentSlideIndex === 0) {
+          setCurrentSlideIndex(1);
+          setCurrentTime(openingDurationSeconds);
+          return;
+        }
 
-    if (isPlaying && !isMuted && courseNarratorVoice) {
-      window.speechSynthesis.cancel();
-      const textToSpeak = currentSlideIndex === 0
-        ? openingNarration
-        : currentStep?.narration;
-
-      if (textToSpeak) {
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.rate = selectedInstructor.speechRate * playbackSpeed * 0.95;
-        utterance.pitch = 1;
-        utterance.voice = courseNarratorVoice;
-        window.speechSynthesis.speak(utterance);
-      }
-    } else {
-      window.speechSynthesis.cancel();
-    }
+        const nextStep = activeManifest.walkthroughSteps[activeWalkthroughIndex + 1];
+        if (nextStep) {
+          setCurrentTime(openingDurationSeconds + nextStep.timestamp);
+        } else {
+          setCurrentTime(totalTeachDurationSeconds);
+          setIsPlaying(false);
+        }
+      },
+      onError: (error) => {
+        if (cancelled) return;
+        console.error('Practical teacher narration failed:', error);
+        setIsPlaying(false);
+      },
+    });
 
     return () => {
-      window.speechSynthesis.cancel();
+      cancelled = true;
+      narrationQueueRef.current.cancel();
     };
-  }, [isPlaying, isMuted, currentSlideIndex, currentStep?.narration, playbackSpeed, selectedInstructor, activeManifest, openingNarration, narratorCourseId, courseNarratorVoice, courseNarratorVoiceReady]);
+  }, [activeManifest, activeWalkthroughIndex, courseNarratorVoice, currentSlideIndex, isPlaying, isMuted, narrationOwnsAdvance, openingDurationSeconds, playbackSpeed, selectedInstructor.speechRate, textToSpeak, totalTeachDurationSeconds]);
 
   // Playback timer ticker
   useEffect(() => {
@@ -728,6 +744,9 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
       setCurrentTime((prev) => {
         if (currentSlideIndex === 0) {
           const nextOpeningTime = prev + 0.5 * playbackSpeed;
+          if (narrationOwnsAdvance) {
+            return Math.min(nextOpeningTime, Math.max(0, openingDurationSeconds - 0.1));
+          }
           if (nextOpeningTime >= openingDurationSeconds) {
             setCurrentSlideIndex(1);
             return openingDurationSeconds;
@@ -735,18 +754,24 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
           return nextOpeningTime;
         }
 
-        const nextPracticalTime = Math.max(0, prev - openingDurationSeconds) + 0.5 * playbackSpeed;
-        if (nextPracticalTime >= activeManifest.durationSeconds) {
+        const nextStep = activeManifest.walkthroughSteps[activeWalkthroughIndex + 1];
+        const nextStepStart = openingDurationSeconds + (nextStep?.timestamp ?? activeManifest.durationSeconds);
+        const nextTime = prev + 0.5 * playbackSpeed;
+        if (narrationOwnsAdvance) {
+          return Math.min(nextTime, Math.max(openingDurationSeconds + currentStep.timestamp, nextStepStart - 0.1));
+        }
+        if (nextTime >= nextStepStart) {
+          if (nextStep) return nextStepStart;
           setIsPlaying(false);
           return totalTeachDurationSeconds;
         }
 
-        return openingDurationSeconds + nextPracticalTime;
+        return nextTime;
       });
     }, 500);
 
     return () => clearInterval(interval);
-  }, [isPlaying, playbackSpeed, activeManifest, currentSlideIndex, openingDurationSeconds, totalTeachDurationSeconds]);
+  }, [activeManifest, activeWalkthroughIndex, currentSlideIndex, currentStep.timestamp, isPlaying, narrationOwnsAdvance, openingDurationSeconds, playbackSpeed, totalTeachDurationSeconds]);
 
   const handleSeek = (time: number) => {
     const boundedTime = Math.max(0, Math.min(totalTeachDurationSeconds, time));

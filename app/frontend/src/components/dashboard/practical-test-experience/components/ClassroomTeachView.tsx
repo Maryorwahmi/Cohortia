@@ -335,7 +335,7 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                               isPlaying
                                 ? Math.min(
                                     (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length,
-                                    Math.max(1, Math.floor((Math.max(0, currentTime - activeStep.timestamp) / Math.max(6, manifest.durationSeconds / manifest.walkthroughSteps.length)) * (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length) + 1)
+                                    Math.max(1, Math.floor((timeInStep / stepDuration) * (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length) + 1)
                                   )
                                 : (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length,
                               (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n').length
@@ -347,8 +347,6 @@ export const ClassroomTeachView: React.FC<ClassroomTeachViewProps> = ({
                       <div className="p-2 sm:p-2.5 overflow-y-auto space-y-0.5 flex-1 min-h-0 bg-white">
                         {(() => {
                           const codeLines = (activeStep.codeSnippet ?? activeStep.codeOrText ?? '').split('\n');
-                          const stepDuration = Math.max(6, manifest.durationSeconds / manifest.walkthroughSteps.length);
-                          const timeInStep = Math.max(0, currentTime - activeStep.timestamp);
                           const visibleCount = isPlaying
                             ? Math.min(codeLines.length, Math.max(1, Math.floor((timeInStep / stepDuration) * codeLines.length) + 1))
                             : codeLines.length;

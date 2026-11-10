@@ -6,6 +6,7 @@ export interface SpeechNarrationOptions {
   onSpeakingChange?: (isSpeaking: boolean) => void;
   onProgress?: (progress: number) => void;
   onComplete?: () => void;
+  onError?: (error: SpeechSynthesisErrorEvent["error"]) => void;
 }
 
 const SYMBOL_WORDS: Array<[RegExp, string]> = [
@@ -62,18 +63,31 @@ export function splitSpeechText(value: string, maxCharacters = 220): string[] {
   const text = prepareSpeechText(value);
   if (!text) return [];
 
-  return text
-    .split(/(?<=[.!?])\s+/)
-    .reduce<string[]>((chunks, sentence) => {
-      if (!sentence) return chunks;
-      const previous = chunks[chunks.length - 1];
-      if (previous && `${previous} ${sentence}`.length <= maxCharacters) {
-        chunks[chunks.length - 1] = `${previous} ${sentence}`;
+  const chunks: string[] = [];
+  for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+    if (!sentence) continue;
+    const previous = chunks[chunks.length - 1];
+    if (previous && `${previous} ${sentence}`.length <= maxCharacters) {
+      chunks[chunks.length - 1] = `${previous} ${sentence}`;
+      continue;
+    }
+    if (sentence.length <= maxCharacters) {
+      chunks.push(sentence);
+      continue;
+    }
+
+    let chunk = "";
+    for (const word of sentence.split(/\s+/)) {
+      if (chunk && `${chunk} ${word}`.length > maxCharacters) {
+        chunks.push(chunk);
+        chunk = word;
       } else {
-        chunks.push(sentence);
+        chunk = chunk ? `${chunk} ${word}` : word;
       }
-      return chunks;
-    }, []);
+    }
+    if (chunk) chunks.push(chunk);
+  }
+  return chunks;
 }
 
 export function estimateSpeechDurationSeconds(value: string, rate = 0.9): number {
@@ -92,7 +106,11 @@ export class SpeechNarrationQueue {
     this.cancel();
     if (!options.voice) return;
     this.chunks = splitSpeechText(value);
-    if (this.chunks.length === 0) return;
+    if (this.chunks.length === 0) {
+      options.onSpeakingChange?.(false);
+      options.onComplete?.();
+      return;
+    }
 
     const generation = ++this.generation;
     const totalCharacters = this.chunks.reduce((total, chunk) => total + chunk.length, 0);
@@ -146,16 +164,15 @@ export class SpeechNarrationQueue {
         options.onProgress?.(Math.min(0.999, (completedCharacters + event.charIndex) / totalCharacters));
       };
       utterance.onend = () => {
+        if (generation !== this.generation) return;
         completedCharacters += this.chunks[index].length;
         options.onProgress?.(Math.min(1, completedCharacters / totalCharacters));
-        window.setTimeout(() => speakNext(index + 1), 120);
+        window.setTimeout(() => speakNext(index + 1), 0);
       };
       utterance.onerror = (event) => {
-        if (event.error !== "canceled" && event.error !== "interrupted") {
-          window.setTimeout(() => speakNext(index + 1), 120);
-        } else if (generation === this.generation) {
-          options.onSpeakingChange?.(false);
-        }
+        if (generation !== this.generation) return;
+        options.onSpeakingChange?.(false);
+        options.onError?.(event.error);
       };
       window.speechSynthesis.speak(utterance);
     };

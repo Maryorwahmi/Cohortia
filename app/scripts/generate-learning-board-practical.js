@@ -1259,7 +1259,64 @@ function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, 
   return normalized;
 }
 
+function validateCanonicalTeachingQuality(steps, activityKind) {
+  const firstNarration = steps[0]?.speakerText?.trim() || "";
+  if (/^(?:welcome|hello|hi)\b/i.test(firstNarration)) {
+    throw new Error("The first teaching phase must teach the activity, not repeat the opening-screen welcome.");
+  }
+
+  if (activityKind === "binary_exercise") {
+    const workedExamples = steps.filter((step) => step.phase === "worked_example");
+    if (!workedExamples.length) {
+      throw new Error("A binary exercise needs a worked_example teaching phase.");
+    }
+
+    for (const step of steps) {
+      const displayText = step.displayText || "";
+      const displayedNumbers = new Set(displayText.match(/\d+/g) || []);
+      const speaksCalculation = /\b(?:calculate|sum(?:ming)?|subtract(?:ing)?|multiply(?:ing)?|divid(?:e|ing)|equals?|maximum|largest power|remaining|remainder)\b/i.test(step.speakerText)
+        || /[=+×*÷]/u.test(step.speakerText);
+      if ((step.phase === "worked_example" || speaksCalculation)
+        && (displayedNumbers.size < 2 || !/(?:=|->|→|[+×*÷/])/u.test(displayText))) {
+        throw new Error(`Binary teaching phase ${step.stepNumber} must show its calculation, not only a heading or answer.`);
+      }
+
+      const spokenNumbers = new Set(step.speakerText.match(/\d+/g) || []);
+      const missingNumbers = [...spokenNumbers].filter((number) => (
+        number.length > 1 && !displayedNumbers.has(number)
+      ));
+      if (missingNumbers.length) {
+        throw new Error(
+          `Binary teaching phase ${step.stepNumber} speaks numeric values absent from displayText: ${missingNumbers.join(", ")}.`,
+        );
+      }
+    }
+  }
+
+  if (activityKind === "design_decision") {
+    const showsTradeoff = steps.some((step) => (
+      step.phase === "worked_example"
+      && /\boption\b/i.test(step.displayText)
+      && /\b(?:trade-?off|constraint|versus|vs\.?)\b/i.test(step.displayText)
+    ));
+    if (!showsTradeoff) {
+      throw new Error("A design decision needs a worked visual comparing options against a constraint or trade-off.");
+    }
+  }
+}
+
 function inferLabType(raw, sourceContext) {
+  const category = sourceContext.source.category;
+  const sourceActivityKind = activityKindFor({
+    category,
+    title: sourceContext.activityTitle || raw.title,
+    activity: sourceContext.activityChapter.handsOnActivity,
+    labType: raw.labType,
+  });
+  if (category === "Scenario & Design Exercise" && sourceActivityKind === "binary_exercise") {
+    return "simulation";
+  }
+
   const sourceText = `${sourceContext.activityChapter.raw}\n${sourceContext.lessonChapter.raw}`.toLowerCase();
   const sourceIsC = /\b(#include\s*<stdio\.h>|clang|gcc|\.c\b|c program|hello,\s*world)\b/.test(sourceText);
   if (sourceIsC) return "code";
@@ -1864,12 +1921,16 @@ function normalizePractical(raw, sourceContext, metadata) {
   if (!raw || typeof raw !== "object") throw new Error("Generated practical must be an object.");
 
   const labType = inferLabType(raw, sourceContext);
-  const experienceProfile = profileFor({ category: sourceContext.source.category, labType });
   const activityKind = activityKindFor({
     category: sourceContext.source.category,
     title: sourceContext.activityTitle || raw.title,
     activity: sourceContext.activityChapter.handsOnActivity,
     labType,
+  });
+  const experienceProfile = profileFor({
+    category: sourceContext.source.category,
+    labType,
+    activityKind,
   });
   const language = inferLanguage(raw, sourceContext, labType);
   if (sourceContext.source.category === "Terminal Coding Lab" && !SUPPORTED_TERMINAL_LANGUAGES.includes(String(language || "").toLowerCase())) {
@@ -2197,6 +2258,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       ],
     });
   });
+  validateCanonicalTeachingQuality(canonicalSteps, activityKind);
   let codeWalkthrough = isCodeExperience
     ? canonicalSteps.map((step) => ({
         ...step,
@@ -3108,12 +3170,16 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
     };
 
     const inferredLabType = inferLabType({}, sourceContext);
-    const experienceProfile = profileFor({ category: sourceContext.source.category, labType: inferredLabType });
     const activityKind = activityKindFor({
       category: sourceContext.source.category,
       title: sourceContext.activityTitle,
       activity: sourceContext.activityChapter.handsOnActivity,
       labType: inferredLabType,
+    });
+    const experienceProfile = profileFor({
+      category: sourceContext.source.category,
+      labType: inferredLabType,
+      activityKind,
     });
     const experienceBrief = `\n\nACTIVITY KIND (AUTHORITATIVE)\n==============================\n${activityKind}\n\nEXPERIENCE PROFILE (AUTHORITATIVE)\n==================================\nExperience: ${experienceProfile.experienceType}\nWorkspace family: ${experienceProfile.workspaceFamily}\nLearner artifact: ${experienceProfile.learnerArtifact}\nRequired learner UI: ${experienceProfile.requiredUi.join(", ")}\n\n${experienceProfile.prompt}\n\nReturn an \"experience\" object that exactly matches this profile. Do not substitute another experience family.`;
     const prompt = `${buildGeminiPrompt(promptTemplate, chapterData, metadata, sourceContext)}${experienceBrief}`;
@@ -3196,6 +3262,7 @@ export {
   resolveSourceContext,
   safeRelativePath,
   validatePractical,
+  validateCanonicalTeachingQuality,
   buildTeachViewOpening,
   inferLanguage,
   normalizeWorkspace,

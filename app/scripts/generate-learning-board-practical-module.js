@@ -55,6 +55,85 @@ const MODULE_RESPONSE_SCHEMA = {
   required: ["practicals"],
 };
 
+function canonicalScriptKeyForEntry(entry) {
+  return entry.sourceContext.source.category === "Terminal Coding Lab"
+    ? "codeWalkthrough"
+    : "teachingSteps";
+}
+
+// The aggregate module schema intentionally stays shallow because a full
+// practical schema is too large for Gemini's response-schema compiler. A
+// chapter repair is only one practical, though, so we can enforce the one
+// constraint that caused the recurring failure without expanding the whole
+// practical state machine.
+function chapterRepairResponseSchema(entry) {
+  const canonicalKey = canonicalScriptKeyForEntry(entry);
+  const phaseProperties = {
+    stepNumber: { type: "integer" },
+    phase: {
+      type: "string",
+      enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"],
+    },
+    displayText: { type: "string", description: "A concise non-empty visual label." },
+    speakerText: { type: "string", description: "Complete spoken teacher narration of 40-180 words." },
+    explanation: { type: "string", description: "A concise non-empty explanation." },
+    learnerPrompt: { type: "string", description: "A concrete learner question or action." },
+    commonMistake: { type: "string", description: "A likely misconception or mistake." },
+    recap: { type: "string", description: "A concise recap of the phase." },
+    durationSeconds: { type: "number" },
+  };
+  const phaseRequired = [
+    "stepNumber",
+    "phase",
+    "displayText",
+    "speakerText",
+    "explanation",
+    "learnerPrompt",
+    "commonMistake",
+    "recap",
+  ];
+  if (canonicalKey === "codeWalkthrough") {
+    phaseProperties.codeLine = { type: "string", description: "A non-empty code block for this phase." };
+    phaseProperties.file = { type: "string", description: "The practical file edited in this phase." };
+    phaseRequired.push("codeLine", "file");
+  }
+  return {
+    type: "object",
+    properties: {
+      practicals: {
+        type: "array",
+        minItems: 1,
+        maxItems: 1,
+        items: {
+          type: "object",
+          properties: {
+            moduleNumber: { type: "integer" },
+            chapterNumber: { type: "integer" },
+            practical: {
+              type: "object",
+              properties: {
+                [canonicalKey]: {
+                  type: "array",
+                  minItems: 4,
+                  maxItems: 8,
+                  items: {
+                    type: "object",
+                    properties: phaseProperties,
+                    required: phaseRequired,
+                  },
+                },
+              },
+              required: [canonicalKey],
+            },
+          },
+          required: ["moduleNumber", "chapterNumber", "practical"],
+        },
+      },
+    },
+    required: ["practicals"],
+  };
+}
+
 function loadRepositoryEnv() {
   const envPath = path.join(REPOSITORY_ROOT, "backend", ".env");
   if (!fsSync.existsSync(envPath)) return;
@@ -190,7 +269,8 @@ REQUIREMENTS:
    - Scenario & Design:
      * If the activity covers binary conversions, bits, or number systems, set widgetType to "binary_converter".
      * If algorithmic, break into structured design steps (inputs/outputs, step-by-step logic, edge case analysis).
-     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step represents one real phase (orientation, worked example, guided practice, or transfer), with concise progressive displayText, 80–120 words of speakerText, a concise explanation, a learnerPrompt, a likely commonMistake, a recap, and a duration matching the spoken text. Begin warmly with a chapter connection and practical mission, teach from a concrete source-grounded example, ask the learner to predict or try a related step, address a likely misconception, and finish by handing control to independent practice. Do not write alternate narration in narratorGuide, task narratorGuide, teacherTalk, or teachingPlaylist; the generator derives those display fields from this canonical sequence.
+     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step represents one real phase (orientation, worked example, guided practice, or transfer), with concise progressive displayText, 80–120 words of speakerText, a concise explanation, a learnerPrompt, a likely commonMistake, a recap, and a duration matching the spoken text. The separate opening screen already welcomes the learner and introduces the chapter and mission: do not repeat that welcome, recap, or mission in phase 1. Begin phase 1 with the first concrete activity concept, teach from a source-grounded worked example, ask the learner to predict or try a related step, address a likely misconception, and finish by handing control to independent practice. Do not write alternate narration in narratorGuide, task narratorGuide, teacherTalk, or teachingPlaylist; the generator derives those display fields from this canonical sequence.
+     * Every number, calculation, evidence claim, option comparison, constraint, and worked result spoken in a phase must also appear as visible line-by-line content in that same phase's displayText. For binary conversions, show place values and the full arithmetic, not just the input and answer. For design decisions, compare at least two named options against explicit constraints, state their trade-off, and show the selected choice and expected outcome.
    - Research & Analysis / Non-Code:
      * Structure as a guided inquiry notebook with observation prompts, hypothesis formation, and comparative analysis.
      * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step must have phase, concise progressive displayText, 80–120 words of source-grounded speakerText, concise explanation, learnerPrompt, commonMistake, recap, and duration matching the spoken text. Start with a warm chapter connection and investigation question; model examining evidence, separating observation from inference, testing a hypothesis, and finish with an independent inquiry. Do not author competing narration fields; the generator derives them from these steps.
@@ -206,7 +286,7 @@ REQUIREMENTS:
    - Provide 1–3 task-specific inlineSuggestions with concise coaching and optional small insertionText fragments. These are static manifest content, never runtime AI responses, and must not reveal a complete solution.
 5. Canonical Narration:
    - Use teachingSteps as the sole canonical spoken script for scenario, research, and cloud activities; use codeWalkthrough as the sole canonical spoken script for terminal coding.
-   - The first phase must introduce the course/chapter idea, practical mission, and why it matters. Later phases should model the work, invite learner reasoning, explain a likely mistake, and close with a recap and transfer handoff.
+   - The separate opening screen introduces the course/chapter and practical mission. The first canonical phase must start teaching the first activity-specific concept, without a repeated greeting, chapter recap, or mission. Later phases should model the work, invite learner reasoning, explain a likely mistake, and close with a recap and transfer handoff.
    - Do not repeat the hands-on activity verbatim or create parallel narratorGuide, playlist narratorScript, task narratorGuide, or teacherTalk narration. The generator derives those fields from the canonical phases.
    - Write speech synthesis-friendly prose: explain symbols by meaning when needed, avoid reading raw punctuation or code as a robot, and end complete spoken sentences.
 6. Synchronized Animated CodeWalkthrough (TERMINAL CODING LABS ONLY):
@@ -338,8 +418,19 @@ function normalizeModuleResponse(raw, entries) {
     }
 
     const entry = entriesByKey.get(key);
-    const practical = normalizePractical(item.practical, entry.sourceContext, entry.metadata);
-    assertValidPractical(practical);
+    const canonicalKey = canonicalScriptKeyForEntry(entry);
+    let practical;
+    try {
+      practical = normalizePractical(item.practical, entry.sourceContext, entry.metadata);
+      assertValidPractical(practical);
+    } catch (error) {
+      const canonicalValue = practical?.[canonicalKey] || item.practical?.[canonicalKey];
+      const canonicalCount = Array.isArray(canonicalValue) ? canonicalValue.length : "missing";
+      throw new Error(
+        `Chapter ${key} failed practical validation (${canonicalKey}=${canonicalCount}): ${error.message}`,
+        { cause: error },
+      );
+    }
     seenKeys.add(key);
     normalized.push({ ...entry, practical });
   }
@@ -621,6 +712,56 @@ async function generateModule(options, { importPractical = importGeneratedPracti
     };
   }
 
+  const targets = [];
+  const persistedChapterKeys = new Set();
+  const persistPractical = async (entry) => {
+    const chapterKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
+    if (persistedChapterKeys.has(chapterKey)) return;
+
+    const target = await writePractical(
+      entry.practical,
+      outputRoot,
+      resolvedCourseId,
+      entry.metadata.moduleNumber,
+      entry.metadata.chapterNumber,
+      entry.sourceContext,
+    );
+    targets.push(target);
+
+    const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
+    const completedChapters = { ...(generationRecord.completedChapters || {}) };
+    completedChapters[chapterKey] = {
+      status: "generated",
+      kind: "practical",
+      module: entry.metadata.moduleNumber,
+      chapter: entry.metadata.chapterNumber,
+      sourceHash: entry.metadata.sourceHash,
+      artifactPath: path.relative(outputRoot, path.join(target, "practical.json")).replaceAll("\\", "/"),
+      generatedAt: new Date().toISOString(),
+    };
+    await writeCourseGenerationRecord(outputRoot, {
+      id: resolvedCourseId,
+      title: entry.sourceContext.courseTitle || resolvedCourseId,
+    }, syllabusPath, { completedChapters });
+
+    if (options["skip-import"] !== true) {
+      const imported = await importPractical(path.join(target, "practical.json"));
+      imports.push(imported.practicalPath);
+      completedChapters[chapterKey] = {
+        ...completedChapters[chapterKey],
+        status: "completed",
+        importedAt: new Date().toISOString(),
+      };
+      await writeCourseGenerationRecord(outputRoot, {
+        id: resolvedCourseId,
+        title: entry.sourceContext.courseTitle || resolvedCourseId,
+      }, syllabusPath, { completedChapters });
+      console.log(`✓ Imported practical into Turso: ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`);
+    }
+
+    persistedChapterKeys.add(chapterKey);
+  };
+
   const promptTemplate = options["prompt-template"]
     ? await fs.readFile(resolveInputPath(options["prompt-template"], repoRoot), "utf8")
     : buildDefaultPrompt();
@@ -679,7 +820,14 @@ async function generateModule(options, { importPractical = importGeneratedPracti
     // from a large module response. Recover by asking for each chapter using
     // the exact same contract with a one-chapter context. This keeps a single
     // bad aggregate response from burning the whole module retry budget.
-    if (options["mock-response"] || !/returned \d+ practical\(s\); expected \d+/.test(error.message)) {
+    // The module envelope schema cannot express the profile-specific
+    // canonical script (teachingSteps vs codeWalkthrough), so a response can
+    // have the right number of items and still fail practical validation.
+    // Repair every chapter that failed normalization instead of treating
+    // those failures as fatal module errors. This is especially important for
+    // Gemini responses that collapse a three-step activity into three
+    // teaching phases despite the 4-8 phase contract.
+    if (options["mock-response"]) {
       throw error;
     }
     const responseItems = Array.isArray(result.data)
@@ -696,109 +844,111 @@ async function generateModule(options, { importPractical = importGeneratedPracti
         && typeof item.practical === "object"
       ));
       if (matchingItems.length === 1) {
-        normalized = normalizeSingleChapterResponse(matchingItems[0], entries[0]);
+        try {
+          normalized = normalizeSingleChapterResponse(matchingItems[0], entries[0]);
+        } catch {
+          normalized = undefined;
+        }
       }
     }
-    if (normalized) {
-      // The exact one-chapter match has already been normalized safely.
-    } else if (!Array.isArray(responseItems) || responseItems.length > entries.length) {
+    if (!normalized && (!Array.isArray(responseItems) || responseItems.length > entries.length)) {
       throw error;
     }
-    if (normalized) {
-      // Skip the aggregate-repair path below.
-    } else {
-    const entriesByKey = new Map(entries.map((entry) => [
-      `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
-      entry,
-    ]));
-    const validItems = [];
-    const seenKeys = new Set();
-    for (const item of Array.isArray(responseItems) ? responseItems : []) {
-      const key = `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}`;
-      if (entriesByKey.has(key) && !seenKeys.has(key) && item?.practical && typeof item.practical === "object") {
-        validItems.push(item);
-        seenKeys.add(key);
+    if (!normalized) {
+      const entriesByKey = new Map(entries.map((entry) => [
+        `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
+        entry,
+      ]));
+      const validItems = [];
+      const seenKeys = new Set();
+      for (const item of responseItems) {
+        const key = `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}`;
+        if (entriesByKey.has(key) && !seenKeys.has(key) && item?.practical && typeof item.practical === "object") {
+          validItems.push(item);
+          seenKeys.add(key);
+        }
       }
-    }
-    const repaired = [];
-    for (const item of validItems) {
-      const key = `${Number(item.moduleNumber)}.${Number(item.chapterNumber)}`;
-      try {
-        repaired.push(...normalizeModuleResponse({ practicals: [item] }, [entriesByKey.get(key)]));
-      } catch {
-        seenKeys.delete(key);
+      const repaired = [];
+      for (const item of validItems) {
+        const key = `${Number(item.moduleNumber)}.${Number(item.chapterNumber)}`;
+        try {
+          repaired.push(...normalizeModuleResponse({ practicals: [item] }, [entriesByKey.get(key)]));
+        } catch {
+          seenKeys.delete(key);
+        }
       }
-    }
-    const entriesToRepair = entries.filter((entry) => !seenKeys.has(
-      `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
-    ));
-    console.warn(`Module response was incomplete or invalid; regenerating ${entriesToRepair.length} missing chapters individually.`);
-    for (const entry of entriesToRepair) {
-      const chapterPrompt = buildModulePrompt(promptTemplate, [entry], {
-        courseId: resolvedCourseId,
-        moduleNumber,
-        chapterNumbers: [entry.metadata.chapterNumber],
-        model,
-      });
-      const chapterResult = await generateCompleteJson({
-        prompt: chapterPrompt,
-        systemPrompt: "",
-        responseSchema: MODULE_RESPONSE_SCHEMA,
-        maxTokens: 65536,
-        temperature: 0.25,
-        model,
-      });
-      if (!chapterResult?.success) throw new Error(chapterResult?.error || "Gemini chapter repair failed");
-      repaired.push(...normalizeSingleChapterResponse(chapterResult.data, entry));
-    }
-    normalized = repaired;
+      for (const entry of repaired) {
+        await persistPractical(entry);
+      }
+      const entriesToRepair = entries.filter((entry) => !seenKeys.has(
+        `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
+      ));
+      console.warn(`Module response was incomplete or invalid; regenerating ${entriesToRepair.length} missing chapters individually.`);
+      for (const entry of entriesToRepair) {
+        const canonicalKey = canonicalScriptKeyForEntry(entry);
+        const baseChapterPrompt = `${buildModulePrompt(promptTemplate, [entry], {
+          courseId: resolvedCourseId,
+          moduleNumber,
+          chapterNumbers: [entry.metadata.chapterNumber],
+          model,
+        })}
+
+CHAPTER REPAIR CONTRACT (MANDATORY)
+===================================
+This is a repair for chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}.
+Return exactly one practical for that chapter. Its canonical spoken script is
+the practical.${canonicalKey} array. It MUST contain 4, 5, 6, 7, or 8 complete
+ordered phases; three phases is invalid. Preserve the chapter's activity and
+category. Do not replace the canonical script with narratorGuide, teacherTalk,
+teachingPlaylist, or a generic summary.`;
+        let repairedEntry;
+        let lastValidationError;
+        for (let repairAttempt = 1; repairAttempt <= 3; repairAttempt += 1) {
+          const chapterPrompt = lastValidationError
+            ? `${baseChapterPrompt}
+
+PREVIOUS RESPONSE VALIDATION FEEDBACK
+=====================================
+The previous response was rejected:
+${lastValidationError.message}
+Correct every listed problem in this response.`
+            : baseChapterPrompt;
+          const chapterResult = await generateCompleteJson({
+            prompt: chapterPrompt,
+            systemPrompt: "",
+            responseSchema: chapterRepairResponseSchema(entry),
+            maxTokens: 65536,
+            temperature: 0.25,
+            model,
+          });
+          if (!chapterResult?.success) {
+            throw new Error(chapterResult?.error || "Gemini chapter repair failed");
+          }
+          try {
+            [repairedEntry] = normalizeSingleChapterResponse(chapterResult.data, entry);
+            break;
+          } catch (validationError) {
+            lastValidationError = validationError;
+            if (repairAttempt < 3) {
+              console.warn(
+                `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair attempt ${repairAttempt}/3 failed validation: ${validationError.message}`,
+              );
+            }
+          }
+        }
+        if (!repairedEntry) {
+          throw new Error(
+            `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair failed after 3 attempts: ${lastValidationError?.message || "unknown validation error"}`,
+          );
+        }
+        repaired.push(repairedEntry);
+        await persistPractical(repairedEntry);
+      }
+      normalized = repaired;
     }
   }
-  const targets = [];
-  const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
-  const completedChapters = { ...(generationRecord.completedChapters || {}) };
   for (const entry of normalized) {
-    const chapterKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
-    const target = await writePractical(
-      entry.practical,
-      outputRoot,
-      resolvedCourseId,
-      entry.metadata.moduleNumber,
-      entry.metadata.chapterNumber,
-      entry.sourceContext
-    );
-    targets.push(target);
-
-    // Record each artifact immediately so an interrupted module can resume
-    // without asking the model to regenerate chapters already written.
-    completedChapters[chapterKey] = {
-      status: "generated",
-      kind: "practical",
-      module: entry.metadata.moduleNumber,
-      chapter: entry.metadata.chapterNumber,
-      sourceHash: entry.metadata.sourceHash,
-      artifactPath: path.relative(outputRoot, path.join(target, "practical.json")).replaceAll("\\", "/"),
-      generatedAt: new Date().toISOString(),
-    };
-    await writeCourseGenerationRecord(outputRoot, {
-      id: resolvedCourseId,
-      title: entry.sourceContext.courseTitle || resolvedCourseId,
-    }, syllabusPath, { completedChapters });
-
-    if (options["skip-import"] !== true) {
-      const imported = await importPractical(path.join(target, "practical.json"));
-      imports.push(imported.practicalPath);
-      completedChapters[chapterKey] = {
-        ...completedChapters[chapterKey],
-        status: "completed",
-        importedAt: new Date().toISOString(),
-      };
-      await writeCourseGenerationRecord(outputRoot, {
-        id: resolvedCourseId,
-        title: entry.sourceContext.courseTitle || resolvedCourseId,
-      }, syllabusPath, { completedChapters });
-      console.log(`✓ Imported practical into Turso: ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`);
-    }
+    await persistPractical(entry);
   }
 
   return {
