@@ -1,5 +1,5 @@
 export interface SpeechNarrationOptions {
-  voice?: SpeechSynthesisVoice | null;
+  voice: SpeechSynthesisVoice;
   rate?: number;
   pitch?: number;
   startProgress?: number;
@@ -86,10 +86,11 @@ export class SpeechNarrationQueue {
   private chunks: string[] = [];
   private generation = 0;
 
-  play(value: string, options: SpeechNarrationOptions = {}) {
+  play(value: string, options: SpeechNarrationOptions) {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
 
     this.cancel();
+    if (!options.voice) return;
     this.chunks = splitSpeechText(value);
     if (this.chunks.length === 0) return;
 
@@ -137,7 +138,7 @@ export class SpeechNarrationQueue {
       }
 
       const utterance = new SpeechSynthesisUtterance(this.chunks[index]);
-      if (options.voice) utterance.voice = options.voice;
+      utterance.voice = options.voice;
       utterance.rate = options.rate ?? 0.9;
       utterance.pitch = options.pitch ?? 1;
       utterance.onboundary = (event) => {

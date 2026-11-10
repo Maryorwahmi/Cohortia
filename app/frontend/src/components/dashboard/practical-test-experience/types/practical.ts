@@ -98,8 +98,6 @@ export interface InstructorPersona {
   role: string;
   teachingStyle: string;
   bio: string;
-  voiceGender: 'female' | 'male';
-  speechPitch: number;
   speechRate: number;
   tagline: string;
   badgeColor: string;

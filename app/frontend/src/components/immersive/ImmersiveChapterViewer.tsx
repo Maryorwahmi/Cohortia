@@ -188,22 +188,16 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
   useEffect(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     const load = async () => {
-      const next = window.speechSynthesis.getVoices().filter((voice) => voice.lang.toLowerCase().startsWith("en"));
+      const next = window.speechSynthesis.getVoices();
       setVoices(next);
-      
-      // Use the shared resolver so Read Mode and Practical Mode cannot choose
-      // different fallbacks when a configured voice is unavailable locally.
+
       try {
         const browserVoice = await resolveCourseNarratorVoice(manifest.courseId, next);
-        if (browserVoice) {
-          setVoiceName(browserVoice.name);
-          return;
-        }
+        setVoiceName(browserVoice?.name || "");
       } catch (error) {
-        // Silently ignore if mapping not available
+        console.error("Could not resolve the assigned course narrator voice:", error);
+        setVoiceName("");
       }
-      
-      setVoiceName((current) => current || next[0]?.name || "");
     };
     setVoiceName("");
     load();
@@ -211,7 +205,7 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     return () => window.speechSynthesis.removeEventListener("voiceschanged", load);
   }, [manifest.courseId]);
   useEffect(() => {
-    if (!audioChecked || audioUrl || (hasHtmlScreen && !screenReady) || !playing || muted || !narration || typeof window === "undefined" || !window.speechSynthesis) {
+    if (!audioChecked || audioUrl || (hasHtmlScreen && !screenReady) || !playing || muted || !narration || !voiceName || typeof window === "undefined" || !window.speechSynthesis) {
       setSpeechDone(true);
       if (typeof window !== "undefined" && window.speechSynthesis && audioUrl) window.speechSynthesis.cancel();
       return;
@@ -223,7 +217,11 @@ export default function ImmersiveChapterViewer({ manifest: inputManifest, onRequ
     const voice = voices.find((candidate) => candidate.name === voiceName);
     const utterance = new SpeechSynthesisUtterance(narration);
     utterance.lang = "en-US";
-    if (voice) utterance.voice = voice;
+    if (!voice) {
+      setSpeechDone(true);
+      return;
+    }
+    utterance.voice = voice;
     utterance.rate = .92;
     setSpeechDone(false);
     utterance.onend = () => {

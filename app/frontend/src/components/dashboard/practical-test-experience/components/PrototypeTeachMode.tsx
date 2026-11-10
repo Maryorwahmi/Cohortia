@@ -6,6 +6,7 @@ import { PrototypeTeachTopNav } from './PrototypeTeachTopNav';
 
 interface PrototypeTeachModeProps {
   manifest: PracticalManifest;
+  voice: SpeechSynthesisVoice | null;
   onOpenWorkspace: () => void;
 }
 
@@ -13,7 +14,7 @@ interface PrototypeTeachModeProps {
  * Teach Mode owns the prototype presentation and playback controls, while the
  * selected practical manifest comes from the real generated practical.
  */
-export const PrototypeTeachMode: React.FC<PrototypeTeachModeProps> = ({ manifest, onOpenWorkspace }) => {
+export const PrototypeTeachMode: React.FC<PrototypeTeachModeProps> = ({ manifest, voice, onOpenWorkspace }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -63,7 +64,7 @@ export const PrototypeTeachMode: React.FC<PrototypeTeachModeProps> = ({ manifest
   }, [manifest, currentSlideIndex, isPlaying, playbackSpeed]);
 
   useEffect(() => {
-    if (!('speechSynthesis' in window) || !isPlaying || isMuted) {
+    if (!('speechSynthesis' in window) || !isPlaying || isMuted || !voice) {
       window.speechSynthesis?.cancel();
       return undefined;
     }
@@ -74,12 +75,13 @@ export const PrototypeTeachMode: React.FC<PrototypeTeachModeProps> = ({ manifest
     if (!textToSpeak) return undefined;
 
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.voice = voice;
     utterance.rate = instructor.speechRate * playbackSpeed * 0.95;
-    utterance.pitch = instructor.speechPitch;
+    utterance.pitch = 1;
     window.speechSynthesis.speak(utterance);
 
     return () => window.speechSynthesis.cancel();
-  }, [manifest, activeStep?.narration, currentSlideIndex, instructor, isMuted, isPlaying, playbackSpeed]);
+  }, [manifest, activeStep?.narration, currentSlideIndex, instructor, isMuted, isPlaying, playbackSpeed, voice]);
 
   const handleSeek = (time: number) => {
     const boundedTime = Math.max(0, Math.min(manifest.durationSeconds, time));

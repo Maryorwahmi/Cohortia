@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useScenePlayer } from "../../hooks/useScenePlayer";
 import { generateCppScenes, LessonScene } from "../../lib/cppSceneGenerator";
-import { findBestBrowserVoice, resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
+import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 
 interface LessonScenePlayerProps {
   lessonId?: string;
@@ -38,12 +38,20 @@ export default function LessonScenePlayer({ lessonId, courseId, scenes: propScen
     const loadVoice = async () => {
       const voices = window.speechSynthesis.getVoices();
       if (!voices.length) return;
-      const voice = courseId
-        ? await resolveCourseNarratorVoice(courseId, voices)
-        : findBestBrowserVoice(voices);
-      if (!cancelled) {
-        setNarratorVoice(voice);
-        setVoiceReady(true);
+      try {
+        const voice = courseId
+          ? await resolveCourseNarratorVoice(courseId, voices)
+          : null;
+        if (!cancelled) {
+          setNarratorVoice(voice);
+          setVoiceReady(true);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Could not resolve the assigned course narrator voice:", error);
+          setNarratorVoice(null);
+          setVoiceReady(true);
+        }
       }
     };
     setVoiceReady(false);
@@ -103,7 +111,7 @@ export default function LessonScenePlayer({ lessonId, courseId, scenes: propScen
   // Speech synthesis
   const lastSpokenSubRef = useRef<string>("");
   useEffect(() => {
-    if (!isPlaying || isMuted || !subtitle || !voiceReady || typeof window === "undefined" || !window.speechSynthesis) {
+    if (!isPlaying || isMuted || !subtitle || !voiceReady || !narratorVoice || typeof window === "undefined" || !window.speechSynthesis) {
       if (typeof window !== "undefined" && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
@@ -115,7 +123,7 @@ export default function LessonScenePlayer({ lessonId, courseId, scenes: propScen
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.rate = 1.05;
       utterance.pitch = 1.1;
-      if (narratorVoice) utterance.voice = narratorVoice;
+      utterance.voice = narratorVoice;
       lastSpokenSubRef.current = cleanText;
       window.speechSynthesis.speak(utterance);
     }

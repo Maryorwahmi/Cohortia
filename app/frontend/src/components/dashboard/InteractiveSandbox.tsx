@@ -144,8 +144,12 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
     const applyVoice = async () => {
       const browserVoices = window.speechSynthesis.getVoices();
       if (!browserVoices.length) return;
-      const voice = await resolveCourseNarratorVoice(courseId, browserVoices);
-      if (!cancelled) narratorVoiceRef.current = voice;
+      try {
+        const voice = await resolveCourseNarratorVoice(courseId, browserVoices);
+        if (!cancelled) narratorVoiceRef.current = voice;
+      } catch (error) {
+        if (!cancelled) console.error("Could not resolve the assigned course narrator voice:", error);
+      }
     };
     void applyVoice();
     window.speechSynthesis.addEventListener("voiceschanged", applyVoice);
@@ -179,10 +183,17 @@ export default function InteractiveSandbox({ userProfile, selectedLesson, handsO
     if (!narrationText || !narrationText.trim()) return;
 
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-    const voice = narratorVoiceRef.current || (courseId
-      ? await resolveCourseNarratorVoice(courseId, window.speechSynthesis.getVoices())
-      : null);
-    if (voice) narratorVoiceRef.current = voice;
+    let voice = narratorVoiceRef.current;
+    if (!voice && courseId) {
+      try {
+        voice = await resolveCourseNarratorVoice(courseId, window.speechSynthesis.getVoices());
+      } catch (error) {
+        console.error("Could not resolve the assigned course narrator voice:", error);
+        return;
+      }
+    }
+    if (!voice) return;
+    narratorVoiceRef.current = voice;
     narrationQueueRef.current.play(narrationText, {
       voice,
       rate: 0.88,

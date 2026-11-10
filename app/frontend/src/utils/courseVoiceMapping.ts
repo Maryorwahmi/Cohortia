@@ -7,7 +7,11 @@
  * Created by CaptainCode
  */
 
-let cachedVoiceMapping: Record<string, any> | null = null;
+interface CourseVoiceAssignment {
+  label: string;
+}
+
+let cachedVoiceMapping: Record<string, CourseVoiceAssignment> | null = null;
 
 export function isMicrosoftEdge(): boolean {
   return typeof navigator !== "undefined" && /\bEdg(?:A|iOS)?\//i.test(navigator.userAgent);
@@ -16,24 +20,36 @@ export function isMicrosoftEdge(): boolean {
 /**
  * Load course voice assignments from generated JSON
  */
-export async function loadCourseVoiceMapping(): Promise<Record<string, any>> {
+export async function loadCourseVoiceMapping(): Promise<Record<string, CourseVoiceAssignment>> {
   if (cachedVoiceMapping) {
     return cachedVoiceMapping;
   }
 
-  try {
-    const response = await fetch('/course-voices.json');
-    if (!response.ok) {
-      console.warn('Could not load course-voices.json, will use browser voice selection');
-      return {};
-    }
-    const data = await response.json();
-    cachedVoiceMapping = data.courseVoices || {};
-    return cachedVoiceMapping;
-  } catch (error) {
-    console.warn('Error loading course voice mapping:', error);
-    return {};
+  const response = await fetch('/course-voices.json');
+  if (!response.ok) {
+    throw new Error(`Could not load course-voices.json: ${response.status} ${response.statusText}`);
   }
+
+  const data: unknown = await response.json();
+  if (!data || typeof data !== 'object' || !('courseVoices' in data)) {
+    throw new Error('course-voices.json does not contain course voice assignments');
+  }
+
+  const courseVoices = data.courseVoices;
+  if (!courseVoices || typeof courseVoices !== 'object' || Array.isArray(courseVoices)) {
+    throw new Error('course-voices.json contains invalid course voice assignments');
+  }
+
+  const assignments: Record<string, CourseVoiceAssignment> = {};
+  for (const [courseId, assignment] of Object.entries(courseVoices)) {
+    if (!assignment || typeof assignment !== 'object' || !('label' in assignment) || typeof assignment.label !== 'string') {
+      throw new Error(`course-voices.json contains an invalid assignment for ${courseId}`);
+    }
+    assignments[courseId] = { label: assignment.label };
+  }
+
+  cachedVoiceMapping = assignments;
+  return cachedVoiceMapping;
 }
 
 /**
@@ -45,40 +61,23 @@ export async function getAssignedVoiceForCourse(courseId: string): Promise<any |
 }
 
 /**
- * Resolve one deterministic browser voice for every course surface.
- * Read Mode, Practical Mode, and sandbox narration must all call this so a
- * missing installed voice falls back in the same way everywhere.
+ * Resolve only the voice assigned to this course. If it is not installed,
+ * narration stays silent rather than substituting a different voice.
  */
 export async function resolveCourseNarratorVoice(
   courseId: string,
   allVoices: SpeechSynthesisVoice[],
-): Promise<SpeechSynthesisVoice | null> {
+): Promise<SpeechSynthesisVoice> {
   const assigned = await getAssignedVoiceForCourse(courseId);
-  const assignedMatch = assigned ? findBrowserVoiceByName(assigned.label, allVoices) : null;
-  return assignedMatch || findBestBrowserVoice(allVoices);
-}
+  if (!assigned) {
+    throw new Error(`No assigned narrator voice is configured for course ${courseId}`);
+  }
 
-/**
- * Pick a stable, high-quality English narrator when the course's Microsoft
- * voice is not installed. This deliberately avoids the browser's arbitrary
- * default selection.
- */
-export function findBestBrowserVoice(allVoices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
-  if (!allVoices.length) return null;
-
-  const score = (voice: SpeechSynthesisVoice) => {
-    const name = `${voice.name} ${voice.voiceURI}`.toLowerCase();
-    let value = voice.lang.toLowerCase().startsWith("en") ? 100 : 0;
-    if (/microsoft/.test(name) && /(natural|online|neural|multilingual)/.test(name)) value += 80;
-    else if (/google/.test(name)) value += 55;
-    else if (/(enhanced|premium|samantha)/.test(name)) value += 45;
-    if (voice.default) value += 15;
-    if (voice.lang.toLowerCase() === "en-us") value += 10;
-    return value;
-  };
-
-  return [...allVoices]
-    .sort((left, right) => score(right) - score(left) || left.name.localeCompare(right.name))[0] || null;
+  const assignedMatch = findBrowserVoiceByName(assigned.label, allVoices);
+  if (!assignedMatch) {
+    throw new Error(`Assigned narrator voice "${assigned.label}" is not available in this browser`);
+  }
+  return assignedMatch;
 }
 
 /**

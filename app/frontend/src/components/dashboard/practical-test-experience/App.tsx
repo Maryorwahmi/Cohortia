@@ -657,7 +657,7 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
   useEffect(() => {
     if (!narratorCourseId || typeof window === 'undefined' || !window.speechSynthesis) {
       setCourseNarratorVoice(null);
-      setCourseNarratorVoiceReady(false);
+      setCourseNarratorVoiceReady(Boolean(narratorCourseId));
       return;
     }
 
@@ -665,10 +665,18 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
     const loadVoice = async () => {
       const voices = window.speechSynthesis.getVoices();
       if (!voices.length) return;
-      const voice = await resolveCourseNarratorVoice(narratorCourseId, voices);
-      if (!cancelled) {
-        setCourseNarratorVoice(voice);
-        setCourseNarratorVoiceReady(true);
+      try {
+        const voice = await resolveCourseNarratorVoice(narratorCourseId, voices);
+        if (!cancelled) {
+          setCourseNarratorVoice(voice);
+          setCourseNarratorVoiceReady(true);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Could not resolve the assigned course narrator voice:', error);
+          setCourseNarratorVoice(null);
+          setCourseNarratorVoiceReady(true);
+        }
       }
     };
 
@@ -682,7 +690,6 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
     };
   }, [narratorCourseId]);
 
-  // Use the course assignment in practical teaching; persona voice is a fallback for standalone demos.
   useEffect(() => {
     if (!('speechSynthesis' in window)) return;
 
@@ -691,7 +698,7 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
       return;
     }
 
-    if (isPlaying && !isMuted) {
+    if (isPlaying && !isMuted && courseNarratorVoice) {
       window.speechSynthesis.cancel();
       const textToSpeak = currentSlideIndex === 0
         ? openingNarration
@@ -700,19 +707,8 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
       if (textToSpeak) {
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
         utterance.rate = selectedInstructor.speechRate * playbackSpeed * 0.95;
-        utterance.pitch = courseNarratorVoice ? 1 : selectedInstructor.speechPitch;
-
-        const voices = window.speechSynthesis.getVoices();
-        const voice = courseNarratorVoice || voices.find((v) => {
-          if (!v.lang.startsWith('en')) return false;
-          if (selectedInstructor.voiceGender === 'female') {
-            return v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Karen') || v.name.includes('Zira');
-          }
-          return v.name.includes('Daniel') || v.name.includes('David') || v.name.includes('Guy');
-        });
-        if (voice) {
-          utterance.voice = voice;
-        }
+        utterance.pitch = 1;
+        utterance.voice = courseNarratorVoice;
         window.speechSynthesis.speak(utterance);
       }
     } else {
@@ -1517,6 +1513,11 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
   return (
     <div className="practical-test-experience-root relative h-full min-h-0 w-full min-w-0 overflow-hidden bg-slate-100 text-slate-800 flex flex-col">
       <div className="w-full h-full min-h-0 min-w-0 bg-slate-50 flex flex-col overflow-hidden">
+        {(!narratorCourseId || (courseNarratorVoiceReady && !courseNarratorVoice)) && (
+          <p role="status" className="shrink-0 border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900">
+            The assigned course voice is unavailable. Practical narration is disabled rather than using a different voice.
+          </p>
+        )}
         {/* The prototype owns Teach Mode navigation; practical mode keeps the app navigation. */}
         {!(mode === 'teach' && !isSplitView) && (
           <TopNav
@@ -1540,6 +1541,7 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
         {mode === 'teach' && !isSplitView ? (
           <PrototypeTeachMode
             manifest={activeManifest}
+            voice={courseNarratorVoice}
             onOpenWorkspace={() => {
               setIsSplitView(false);
               setMode('practical');
@@ -1841,6 +1843,7 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
       {isInstructorModalOpen && (
         <InstructorPersonaModal
           selectedPersonaId={selectedInstructor.id}
+          voice={courseNarratorVoice}
           onSelectPersona={(persona) => {
             setSelectedInstructor(persona);
             setIsInstructorModalOpen(false);

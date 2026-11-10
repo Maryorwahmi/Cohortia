@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import type { CodeWalkthroughSegment, LearningBoardPracticalFile, LearningBoardPracticalTask, PracticalTeachingPlaylistStep, PracticalTeachingStep } from "../../services/learningBoardsApi";
-import { isMicrosoftEdge, resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
+import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 import { estimateSpeechDurationSeconds, prepareSpeechText, SpeechNarrationQueue } from "../../lib/speechNarration";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -244,7 +244,7 @@ export default function AnimatedCodeAlongPlayer({
   const walkthroughComplete = !isPlaying
     && activePlaylistIndex === teachingPlaylist.length - 1
     && currentTime >= activeDurationSeconds;
-  const assignedVoiceUnavailable = voiceReady && isMicrosoftEdge() && Boolean(courseId) && !narratorVoice;
+  const assignedVoiceUnavailable = voiceReady && Boolean(courseId) && !narratorVoice;
 
   useEffect(() => {
     onGuideChange?.({
@@ -264,7 +264,7 @@ export default function AnimatedCodeAlongPlayer({
       onWalkthroughComplete?.();
       return;
     }
-    if (!assignedVoiceUnavailable) {
+    if (!assignedVoiceUnavailable && narratorVoice) {
       narrationQueueRef.current.play(transitionScript, {
         voice: narratorVoice,
         rate: TEACHER_SPEECH_RATE,
@@ -281,10 +281,18 @@ export default function AnimatedCodeAlongPlayer({
     const applyVoice = async () => {
       const browserVoices = window.speechSynthesis.getVoices();
       if (!browserVoices.length) return;
-      const voice = await resolveCourseNarratorVoice(courseId, browserVoices);
-      if (!cancelled) {
-        setNarratorVoice(voice);
-        setVoiceReady(true);
+      try {
+        const voice = await resolveCourseNarratorVoice(courseId, browserVoices);
+        if (!cancelled) {
+          setNarratorVoice(voice);
+          setVoiceReady(true);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Could not resolve the assigned course narrator voice:", error);
+          setNarratorVoice(null);
+          setVoiceReady(true);
+        }
       }
     };
     setVoiceReady(false);
@@ -340,7 +348,7 @@ export default function AnimatedCodeAlongPlayer({
 
   const speakActiveLesson = (startProgress = 0) => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-    if (assignedVoiceUnavailable) return;
+    if (assignedVoiceUnavailable || !narratorVoice) return;
     spokenLessonRef.current = null;
     narrationQueueRef.current.play(activeNarrationScript, {
       voice: narratorVoice,
@@ -385,7 +393,7 @@ export default function AnimatedCodeAlongPlayer({
                 </div>
                 <span className={`rounded-full px-2 py-0.5 font-mono text-[9px] font-bold ${isDark ? "bg-emerald-400/10 text-emerald-300" : "bg-emerald-500/10 text-emerald-700"}`}>TEACH MODE</span>
               </div>
-              {assignedVoiceUnavailable && <p role="status" className="mb-2 rounded-md border border-amber-400/40 bg-amber-100/80 px-3 py-2 text-xs text-amber-900">The assigned course voice is unavailable in Microsoft Edge, so this walkthrough is playing without narration.</p>}
+              {assignedVoiceUnavailable && <p role="status" className="mb-2 rounded-md border border-amber-400/40 bg-amber-100/80 px-3 py-2 text-xs text-amber-900">The assigned course voice is unavailable in this browser, so narration is disabled.</p>}
               <div className="grid min-h-0 flex-1 grid-cols-12 gap-3">
                 <div className={`col-span-2 flex flex-col space-y-1.5 rounded-xl border p-2 font-mono text-xs ${isDark ? "border-slate-700 bg-[#121827] text-slate-300" : "border-slate-200 bg-white text-slate-600"}`}>
                   <span className={`mb-1 text-[10px] font-black uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>WORKSPACE</span>

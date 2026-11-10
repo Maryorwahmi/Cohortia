@@ -14,10 +14,11 @@ import { Loader, AlertCircle } from "lucide-react";
 interface PracticalModeProps {
   activityId?: string;
   activity?: HandsOnActivity;
+  courseId?: string;
   onComplete?: () => void;
 }
 
-export default function PracticalMode({ activity, onComplete }: PracticalModeProps) {
+export default function PracticalMode({ activity, courseId, onComplete }: PracticalModeProps) {
   const [lesson, setLesson] = useState<AnimatedLesson | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +105,7 @@ export default function PracticalMode({ activity, onComplete }: PracticalModePro
   return (
     <TerminalLab
       lesson={lesson}
+      courseId={courseId}
       activeSceneIndex={activeSceneIndex}
       onSceneChange={setActiveSceneIndex}
       onComplete={onComplete}

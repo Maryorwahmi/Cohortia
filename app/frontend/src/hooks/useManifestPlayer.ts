@@ -63,7 +63,7 @@ export function useManifestPlayer({ scenes, autoPlay = true, courseId }: UseMani
     const text = (typeof rawNarration === 'string'
       ? rawNarration
       : (rawNarration.text || '')).trim() || String(fallbackNarration || "").trim();
-    if (!text || isMuted) {
+    if (!text || isMuted || !narratorVoice) {
       setSpeechCompleted(true);
       return;
     }
@@ -77,10 +77,7 @@ export function useManifestPlayer({ scenes, autoPlay = true, courseId }: UseMani
     const pace = typeof rawNarration === 'object' ? rawNarration.pace : undefined;
     utterance.rate = pace === 'slow' ? 0.9 : pace === 'fast' ? 1.15 : 1.0;
     utterance.pitch = 1.0;
-    const voices = window.speechSynthesis.getVoices();
-    if (narratorVoice) {
-      utterance.voice = narratorVoice;
-    }
+    utterance.voice = narratorVoice;
 
     utterance.onend = () => {
       if (runId !== playbackRunRef.current) return;
@@ -190,12 +187,19 @@ export function useManifestPlayer({ scenes, autoPlay = true, courseId }: UseMani
     const loadVoice = async () => {
       const voices = window.speechSynthesis.getVoices();
       if (!voices.length) return;
-      const resolvedVoice = courseId
-        ? await resolveCourseNarratorVoice(courseId, voices)
-        : voices.find((voice) => voice.lang.toLowerCase().startsWith("en")) || voices[0];
-      if (cancelled) return;
-      setNarratorVoice(resolvedVoice);
-      setSpeechReady(true);
+      try {
+        const resolvedVoice = courseId
+          ? await resolveCourseNarratorVoice(courseId, voices)
+          : null;
+        if (cancelled) return;
+        setNarratorVoice(resolvedVoice);
+        setSpeechReady(true);
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Could not resolve the assigned course narrator voice:", error);
+        setNarratorVoice(null);
+        setSpeechReady(true);
+      }
     };
     void loadVoice();
     window.speechSynthesis.addEventListener("voiceschanged", loadVoice);

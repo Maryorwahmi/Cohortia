@@ -6,6 +6,7 @@ interface TeacherAvatarProps {
   isMuted: boolean;
   onToggleMute: () => void;
   narrationText: string;
+  voice: SpeechSynthesisVoice | null;
   playbackSpeed: number;
   className?: string;
 }
@@ -15,6 +16,7 @@ export const TeacherAvatar: React.FC<TeacherAvatarProps> = ({
   isMuted,
   onToggleMute,
   narrationText,
+  voice,
   playbackSpeed,
   className = '',
 }) => {
@@ -24,20 +26,12 @@ export const TeacherAvatar: React.FC<TeacherAvatarProps> = ({
   useEffect(() => {
     if (!('speechSynthesis' in window)) return;
 
-    if (isSpeaking && !isMuted && narrationText) {
+    if (isSpeaking && !isMuted && narrationText && voice) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(narrationText);
+      utterance.voice = voice;
       utterance.rate = playbackSpeed * 0.95;
-      utterance.pitch = 1.05; // warm, friendly tone
-      
-      // Attempt to pick a pleasant English voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const naturalVoice = voices.find(
-        (v) => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Karen'))
-      );
-      if (naturalVoice) {
-        utterance.voice = naturalVoice;
-      }
+      utterance.pitch = 1;
 
       speechRef.current = utterance;
       window.speechSynthesis.speak(utterance);
@@ -48,7 +42,7 @@ export const TeacherAvatar: React.FC<TeacherAvatarProps> = ({
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [isSpeaking, isMuted, narrationText, playbackSpeed]);
+  }, [isSpeaking, isMuted, narrationText, playbackSpeed, voice]);
 
   return (
     <div className={`flex items-start gap-4 p-4 bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-xs ${className}`}>

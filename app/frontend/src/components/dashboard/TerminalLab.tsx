@@ -6,9 +6,11 @@ import {
 } from "lucide-react";
 import type { AnimatedLesson, LessonScene, CodeLineAnimation } from "../../lib/animationSchema";
 import { SpeechNarrationQueue } from "../../lib/speechNarration";
+import { resolveCourseNarratorVoice } from "../../utils/courseVoiceMapping";
 
 interface TerminalLabProps {
   lesson: AnimatedLesson;
+  courseId?: string;
   onComplete?: () => void;
   activeSceneIndex?: number;
   onSceneChange?: (index: number) => void;
@@ -23,6 +25,7 @@ interface FileItem {
 
 export default function TerminalLab({
   lesson,
+  courseId,
   onComplete,
   activeSceneIndex = 0,
   onSceneChange,
@@ -35,6 +38,7 @@ export default function TerminalLab({
   const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
   const [revealedLines, setRevealedLines] = useState<Set<number>>(new Set());
   const [activeNarration, setActiveNarration] = useState<string | null>(null);
+  const [narratorVoice, setNarratorVoice] = useState<SpeechSynthesisVoice | null>(null);
   const narrationQueueRef = useRef(new SpeechNarrationQueue());
   
   const animationRef = useRef<number>();
@@ -47,14 +51,43 @@ export default function TerminalLab({
   }, [activeSceneIndex, lesson.scenes]);
 
   useEffect(() => {
-    if (!isPlaying || isMuted || !activeNarration) {
+    if (!courseId || typeof window === "undefined" || !window.speechSynthesis) {
+      setNarratorVoice(null);
+      return;
+    }
+
+    let cancelled = false;
+    const loadVoice = async () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return;
+      try {
+        const voice = await resolveCourseNarratorVoice(courseId, voices);
+        if (!cancelled) setNarratorVoice(voice);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Could not resolve the assigned course narrator voice:", error);
+          setNarratorVoice(null);
+        }
+      }
+    };
+
+    void loadVoice();
+    window.speechSynthesis.addEventListener("voiceschanged", loadVoice);
+    return () => {
+      cancelled = true;
+      window.speechSynthesis.removeEventListener("voiceschanged", loadVoice);
+    };
+  }, [courseId]);
+
+  useEffect(() => {
+    if (!isPlaying || isMuted || !activeNarration || !narratorVoice) {
       narrationQueueRef.current.cancel();
       return;
     }
 
-    narrationQueueRef.current.play(activeNarration, {rate: 0.88, pitch: 1});
+    narrationQueueRef.current.play(activeNarration, {voice: narratorVoice, rate: 0.88, pitch: 1});
     return () => narrationQueueRef.current.cancel();
-  }, [activeNarration, isMuted, isPlaying]);
+  }, [activeNarration, isMuted, isPlaying, narratorVoice]);
 
   useEffect(() => {
     return () => narrationQueueRef.current.cancel();

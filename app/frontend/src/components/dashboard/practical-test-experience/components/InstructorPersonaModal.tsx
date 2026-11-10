@@ -5,34 +5,26 @@ import { Check, Sparkles, Volume2, UserCheck, X } from 'lucide-react';
 
 interface InstructorPersonaModalProps {
   selectedPersonaId: string;
+  voice: SpeechSynthesisVoice | null;
   onSelectPersona: (persona: InstructorPersona) => void;
   onClose: () => void;
 }
 
 export const InstructorPersonaModal: React.FC<InstructorPersonaModalProps> = ({
   selectedPersonaId,
+  voice,
   onSelectPersona,
   onClose,
 }) => {
   const handlePreviewVoice = (persona: InstructorPersona) => {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
+    if (!voice) return;
 
     const utterance = new SpeechSynthesisUtterance(
       `Hello! I'm ${persona.name}. ${persona.tagline}`
     );
-    utterance.pitch = persona.speechPitch;
-    utterance.rate = persona.speechRate;
-
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find(
-      (v) =>
-        v.lang.startsWith('en') &&
-        (persona.voiceGender === 'female'
-          ? v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Zira')
-          : v.name.includes('Daniel') || v.name.includes('David') || v.name.includes('Guy'))
-    );
-    if (voice) utterance.voice = voice;
+    utterance.voice = voice;
 
     window.speechSynthesis.speak(utterance);
   };
@@ -51,7 +43,7 @@ export const InstructorPersonaModal: React.FC<InstructorPersonaModalProps> = ({
                 Choose Your Course Instructor & Mentor Voice
               </h2>
               <p className="text-xs text-slate-500">
-                Each mentor brings distinct domain expertise, pedagogical pacing, and voice dynamics.
+                Instructor previews and practical narration use the assigned voice for this course.
               </p>
             </div>
           </div>
@@ -103,11 +95,12 @@ export const InstructorPersonaModal: React.FC<InstructorPersonaModalProps> = ({
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
+                      disabled={!voice}
                       onClick={(e) => {
                         e.stopPropagation();
                         handlePreviewVoice(persona);
                       }}
-                      className="px-2.5 py-1 rounded-lg text-xs font-mono font-medium border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1 transition-colors"
+                      className="px-2.5 py-1 rounded-lg text-xs font-mono font-medium border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Volume2 className="w-3.5 h-3.5 text-indigo-600" />
                       <span>Preview</span>
