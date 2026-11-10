@@ -74,7 +74,12 @@ function chapterRepairResponseSchema(entry) {
       type: "string",
       enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"],
     },
-    displayText: { type: "string", description: "A concise non-empty visual label." },
+    displayText: {
+      type: "string",
+      description: canonicalKey === "teachingSteps"
+        ? "Required visible board copy, not a phase title: provide 2-6 non-empty newline-separated concrete lines for this exact phase. Show all spoken calculations and their working, evidence and interpretation, or named options, constraints, trade-offs, and outcomes."
+        : "A concise visible label for this code phase.",
+    },
     speakerText: { type: "string", description: "Complete spoken teacher narration of 40-180 words." },
     explanation: { type: "string", description: "A concise non-empty explanation." },
     learnerPrompt: { type: "string", description: "A concrete learner question or action." },
@@ -901,18 +906,35 @@ the practical.${canonicalKey} array. It MUST contain 4, 5, 6, 7, or 8 complete
 ordered phases; three phases is invalid. Preserve the chapter's activity and
 category. Do not replace the canonical script with narratorGuide, teacherTalk,
 teachingPlaylist, or a generic summary.`;
+        const repairVisualContract = canonicalKey === "teachingSteps"
+          ? `
+
+DISPLAY TEXT REPAIR RULE (MANDATORY)
+===================================
+For EVERY teachingSteps item, displayText is the actual content rendered on the
+teaching board during that phase, not its title or a one-line summary. It MUST
+contain 2-6 non-empty lines separated by literal newline characters. One line
+is invalid. Include the concrete information the teacher says in that phase:
+show each calculation with its intermediate working and result, or show the
+evidence and interpretation, or show named options, constraints, trade-offs,
+and the decision outcome. Keep this content specific to the source activity.
+Do not omit lines to make the answer shorter.`
+          : "";
+        const completeChapterPrompt = `${baseChapterPrompt}${repairVisualContract}`;
         let repairedEntry;
         let lastValidationError;
         for (let repairAttempt = 1; repairAttempt <= 3; repairAttempt += 1) {
           const chapterPrompt = lastValidationError
-            ? `${baseChapterPrompt}
+            ? `${completeChapterPrompt}
 
 PREVIOUS RESPONSE VALIDATION FEEDBACK
 =====================================
 The previous response was rejected:
 ${lastValidationError.message}
-Correct every listed problem in this response.`
-            : baseChapterPrompt;
+Correct every listed problem in this response. In particular, obey the
+DISPLAY TEXT REPAIR RULE above and count the non-empty displayText lines before
+returning the response.`
+            : completeChapterPrompt;
           const chapterResult = await generateCompleteJson({
             prompt: chapterPrompt,
             systemPrompt: "",
@@ -994,6 +1016,7 @@ export {
   MODULE_RESPONSE_SCHEMA,
   buildModuleEntries,
   buildModulePrompt,
+  chapterRepairResponseSchema,
   extractCourseChapters,
   extractModuleChapters,
   generateModule,
