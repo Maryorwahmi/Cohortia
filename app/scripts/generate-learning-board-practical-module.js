@@ -77,10 +77,13 @@ function chapterRepairResponseSchema(entry) {
     displayText: {
       type: "string",
       description: canonicalKey === "teachingSteps"
-        ? "Required visible board copy, not a phase title: provide 2-6 non-empty newline-separated concrete lines for this exact phase. Show all spoken calculations and their working, evidence and interpretation, or named options, constraints, trade-offs, and outcomes."
+        ? "Required visible board copy, not a phase title: exactly 2-6 non-empty lines separated by newline characters for this exact phase. Count the lines. Show the spoken calculation and its working, evidence and interpretation, or named options, constraints, trade-offs, and outcomes."
         : "A concise visible label for this code phase.",
     },
-    speakerText: { type: "string", description: "Complete spoken teacher narration of 40-180 words." },
+    speakerText: {
+      type: "string",
+      description: "Complete spoken teacher narration. Target 90-110 words; never exceed 120 words. The validator accepts 40-180 words.",
+    },
     explanation: { type: "string", description: "A concise non-empty explanation." },
     learnerPrompt: { type: "string", description: "A concrete learner question or action." },
     commonMistake: { type: "string", description: "A likely misconception or mistake." },
@@ -137,6 +140,53 @@ function chapterRepairResponseSchema(entry) {
     },
     required: ["practicals"],
   };
+}
+
+function validateChapterRepairScript(raw, entry) {
+  const canonicalKey = canonicalScriptKeyForEntry(entry);
+  if (canonicalKey !== "teachingSteps") return;
+  const items = Array.isArray(raw)
+    ? raw
+    : raw?.practicals || raw?.data?.practicals || raw?.result?.practicals;
+  const chapterKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
+  const chapter = Array.isArray(items)
+    ? items.find((item) => `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === chapterKey)
+    : undefined;
+  const steps = chapter?.practical?.[canonicalKey];
+  if (!Array.isArray(steps)) return;
+
+  const issues = [];
+  steps.forEach((step, index) => {
+    const phase = index + 1;
+    const lineCount = String(step?.displayText || "")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .length;
+    if (lineCount < 2 || lineCount > 6) {
+      issues.push(
+        `teachingSteps[${index}].displayText (phase ${phase}) has ${lineCount} non-empty lines; provide 2-6.`,
+      );
+    }
+
+    const wordCount = String(step?.speakerText || "").trim().split(/\s+/).filter(Boolean).length;
+    if (wordCount < 40 || wordCount > 180) {
+      issues.push(
+        `teachingSteps[${index}].speakerText (phase ${phase}) has ${wordCount} words; provide 40-180 (target 90-110, maximum 120).`,
+      );
+    }
+  });
+
+  const firstNarration = String(steps[0]?.speakerText || "").trim();
+  if (/^(?:welcome|hello|hi)\b/i.test(firstNarration)) {
+    issues.push(
+      "teachingSteps[0].speakerText repeats the opening-screen welcome; remove the greeting and chapter/mission introduction, then begin with the first concrete activity concept.",
+    );
+  }
+
+  if (issues.length) {
+    throw new Error(`Chapter ${chapterKey} repair script violations:\n- ${issues.join("\n- ")}`);
+  }
 }
 
 function loadRepositoryEnv() {
@@ -918,12 +968,27 @@ is invalid. Include the concrete information the teacher says in that phase:
 show each calculation with its intermediate working and result, or show the
 evidence and interpretation, or show named options, constraints, trade-offs,
 and the decision outcome. Keep this content specific to the source activity.
-Do not omit lines to make the answer shorter.`
+Do not omit lines to make the answer shorter. Do not provide more than six
+non-empty lines. Count them before returning the response.
+
+FIRST PHASE SPEECH RULE (MANDATORY)
+===================================
+The opening screen already welcomes the learner and introduces the chapter and
+mission. Phase 1 must not start with "Welcome", "Hello", or another greeting,
+and must not repeat the chapter introduction or mission. Start directly with
+the first concrete activity concept.
+
+SPEAKER LENGTH RULE (MANDATORY)
+===============================
+Write 90-110 words of spoken prose per phase. Do not exceed 120 words.
+The validator hard limit is 40-180 words, but do not use that full allowance.
+Count whitespace-separated words before returning each speakerText.`
           : "";
         const completeChapterPrompt = `${baseChapterPrompt}${repairVisualContract}`;
         let repairedEntry;
         let lastValidationError;
-        for (let repairAttempt = 1; repairAttempt <= 3; repairAttempt += 1) {
+        const maxChapterRepairAttempts = 5;
+        for (let repairAttempt = 1; repairAttempt <= maxChapterRepairAttempts; repairAttempt += 1) {
           const chapterPrompt = lastValidationError
             ? `${completeChapterPrompt}
 
@@ -931,9 +996,10 @@ PREVIOUS RESPONSE VALIDATION FEEDBACK
 =====================================
 The previous response was rejected:
 ${lastValidationError.message}
-Correct every listed problem in this response. In particular, obey the
-DISPLAY TEXT REPAIR RULE above and count the non-empty displayText lines before
-returning the response.`
+Correct every listed field in this response. Do not only address the first
+problem: fix all reported phase line counts, narration lengths, and the opening
+greeting together. Follow the DISPLAY TEXT, FIRST PHASE SPEECH, and SPEAKER
+LENGTH rules above and count each field before returning the response.`
             : completeChapterPrompt;
           const chapterResult = await generateCompleteJson({
             prompt: chapterPrompt,
@@ -947,20 +1013,21 @@ returning the response.`
             throw new Error(chapterResult?.error || "Gemini chapter repair failed");
           }
           try {
+            validateChapterRepairScript(chapterResult.data, entry);
             [repairedEntry] = normalizeSingleChapterResponse(chapterResult.data, entry);
             break;
           } catch (validationError) {
             lastValidationError = validationError;
-            if (repairAttempt < 3) {
+            if (repairAttempt < maxChapterRepairAttempts) {
               console.warn(
-                `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair attempt ${repairAttempt}/3 failed validation: ${validationError.message}`,
+                `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair attempt ${repairAttempt}/${maxChapterRepairAttempts} failed validation: ${validationError.message}`,
               );
             }
           }
         }
         if (!repairedEntry) {
           throw new Error(
-            `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair failed after 3 attempts: ${lastValidationError?.message || "unknown validation error"}`,
+            `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair failed after ${maxChapterRepairAttempts} attempts: ${lastValidationError?.message || "unknown validation error"}`,
           );
         }
         repaired.push(repairedEntry);
@@ -1017,6 +1084,7 @@ export {
   buildModuleEntries,
   buildModulePrompt,
   chapterRepairResponseSchema,
+  validateChapterRepairScript,
   extractCourseChapters,
   extractModuleChapters,
   generateModule,
