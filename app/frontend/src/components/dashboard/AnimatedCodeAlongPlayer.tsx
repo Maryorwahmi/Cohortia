@@ -409,6 +409,13 @@ export default function AnimatedCodeAlongPlayer({
                       <>
                         <p className={isDark ? "mb-2 text-xs font-bold text-cyan-300" : "mb-2 text-xs font-bold text-immersive-primary"}>{activeFile}</p>
                         <pre className={`min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded-lg border p-4 font-mono text-xs leading-6 shadow-inner ${isDark ? "border-slate-700 bg-gradient-to-br from-[#222b40] via-[#151b2a] to-[#292f40]" : "border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100"}`}><CodePreview code={displayedCode} dark={isDark} />{activeWalkthrough.length > 0 && codeReveal.progress < 1 ? <span className="animate-pulse text-amber-300">▌</span> : null}</pre>
+                        {(codeReveal.activeStep?.terminalCommands?.length || codeReveal.activeStep?.terminalOutput) ? (
+                          <div className={`rounded-lg border p-3 font-mono text-[10px] leading-relaxed ${isDark ? "border-emerald-400/30 bg-slate-950 text-emerald-300" : "border-emerald-200 bg-emerald-50 text-emerald-900"}`}>
+                            <p className="mb-1 font-bold uppercase tracking-wider opacity-70">Teacher demonstration</p>
+                            {codeReveal.activeStep.terminalCommands?.map((command) => <p key={command}><span className="opacity-60">$ </span>{command}</p>)}
+                            {codeReveal.activeStep.terminalOutput ? <pre className="mt-1 whitespace-pre-wrap opacity-90">{codeReveal.activeStep.terminalOutput}</pre> : null}
+                          </div>
+                        ) : null}
                         {codeReveal.activeStep && <p className={`rounded-md border px-2 py-1 text-[10px] leading-relaxed ${isDark ? "border-amber-400/30 bg-amber-300/10 text-amber-100" : "border-amber-200 bg-amber-50 text-amber-900"}`}>Line {codeReveal.activeStep.stepNumber}: {codeReveal.activeStep.explanation || codeReveal.activeStep.speakerText}</p>}
                         {activeTask?.teaching?.guidedSteps?.length ? (
                           <div className={`rounded-lg border p-3 ${isDark ? "border-cyan-300/20 bg-cyan-300/5" : "border-cyan-200 bg-cyan-50/60"}`}>

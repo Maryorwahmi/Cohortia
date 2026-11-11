@@ -213,6 +213,8 @@ export interface CodeWalkthroughSegment {
   speakerText: string;
   codeLine: string;
   file?: string;
+  terminalCommands?: string[];
+  terminalOutput?: string;
   explanation?: string;
   learnerPrompt?: string;
   commonMistake?: string;

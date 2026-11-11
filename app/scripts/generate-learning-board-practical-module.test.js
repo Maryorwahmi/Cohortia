@@ -4,6 +4,7 @@ import {
   chapterRepairResponseSchema,
   validateChapterRepairScript,
 } from "./generate-learning-board-practical-module.js";
+import { terminalWalkthroughErrors } from "./generate-learning-board-practical.js";
 
 function entry(category) {
   return {
@@ -29,6 +30,19 @@ test("terminal chapter repairs retain code walkthrough display labels", () => {
 
   assert.match(displayText.description, /visible label for this code phase/);
   assert.doesNotMatch(displayText.description, /2-6 non-empty lines/);
+});
+
+test("terminal walkthrough validation rejects repeated snapshots and learner editing during watch mode", () => {
+  const errors = terminalWalkthroughErrors([
+    { stepNumber: 1, codeLine: "#include <stdio.h>\nint main(void)\n{\n printf(\"Hi\");\n return 0;\n}" },
+    { stepNumber: 2, codeLine: "#include <stdio.h>\nint main(void)\n{\n printf(\"Hi\");\n return 0;\n}", learnerPrompt: "Change the printf statement." },
+    { stepNumber: 3, codeLine: "printf(\"Bye\");", learnerPrompt: "What output do you predict?", speakerText: "The compiler will run this program and show the output." },
+    { stepNumber: 4, codeLine: "#include <stdio.h>\nint main(void)\n{\n printf(\"Bye\");\n return 0;\n}" },
+  ]);
+
+  assert.match(errors.join("\n"), /repeats the previous phase/);
+  assert.match(errors.join("\n"), /asks the learner to edit/);
+  assert.match(errors.join("\n"), /without visible terminalCommands/);
 });
 
 test("chapter repair feedback reports all phase format problems in one pass", () => {

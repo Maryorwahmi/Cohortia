@@ -101,8 +101,10 @@ function chapterRepairResponseSchema(entry) {
     "recap",
   ];
   if (canonicalKey === "codeWalkthrough") {
-    phaseProperties.codeLine = { type: "string", description: "A non-empty code block for this phase." };
+    phaseProperties.codeLine = { type: "string", description: "The code shown in this phase. The first and final phases may show the complete file; middle phases must show a focused 1-5 line block, not a repeated full-file snapshot." };
     phaseProperties.file = { type: "string", description: "The practical file edited in this phase." };
+    phaseProperties.terminalCommands = { type: "array", items: { type: "string" }, description: "Visible teacher commands when this phase discusses compilation or execution." };
+    phaseProperties.terminalOutput = { type: "string", description: "Visible expected output when this phase discusses a run result." };
     phaseRequired.push("codeLine", "file");
   }
   return {
@@ -345,15 +347,16 @@ REQUIREMENTS:
    - Do not repeat the hands-on activity verbatim or create parallel narratorGuide, playlist narratorScript, task narratorGuide, or teacherTalk narration. The generator derives those fields from the canonical phases.
    - Write speech synthesis-friendly prose: explain symbols by meaning when needed, avoid reading raw punctuation or code as a robot, and end complete spoken sentences.
 6. Synchronized Animated CodeWalkthrough (TERMINAL CODING LABS ONLY):
-   - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching phases. Each stage should contain the complete relevant code block for that phase; the classroom UI reveals the block line-by-line inside one slide. Create a new stage only for a genuine phase change such as orientation, observe, modify, verify, or transfer.
+   - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching phases. The learner is watching a teacher demonstration and cannot edit or run the workspace in these slides. The first phase may show the complete baseline file; middle phases must show only the focused 1–5 line block for the new concept or change; the final transfer phase may show the complete final file. Never repeat an identical code block in adjacent phases. The classroom UI reveals each phase line-by-line inside one slide. Create a new stage only for a genuine phase change such as orientation, observe, modify, verify, or transfer.
    - For EACH stage, provide:
      * stepNumber: 1, 2, 3...
      * phase, speakerText (~80–120 words), displayText, explanation, learnerPrompt, commonMistake, recap, and durationSeconds matching the narration. Explain the code’s purpose, underlying concept, and a relevant example. Preserve chapter details; do not paraphrase the activity or introduce unrelated topics.
-     * codeLine: The exact line or block of code added in this step (e.g., '#include <stdio.h>' or 'int main(void) {').
+     * codeLine: The exact code shown in this phase. Use a complete baseline/final file only for the opening/transfer phases; use a focused code block for middle phases.
      * file: Relative file path (e.g., 'greeting.c' or 'main.py').
+     * terminalCommands / terminalOutput: Include visible teacher commands or expected output whenever the narration mentions compiling, running, executing, or observing program output.
      * explanation: A concise on-screen annotation / callout.
      * durationSeconds: Estimated audio speech time from the actual speakerText.
-   - This empowers the frontend to animate the code typing out line-by-line in perfect sync with the narrator's voice before the student attempts the interactive tasks. Do not use codeWalkthrough to fake code for Scenario & Design activities; use the progressive teachingSteps format above.
+   - This empowers the frontend to animate the code and teacher evidence line-by-line in sync with narration before the student attempts the interactive tasks. Do not ask the learner to edit, compile, or run during the walkthrough. Do not use codeWalkthrough to fake code for Scenario & Design activities; use the progressive teachingSteps format above.
 7. Scenario & Design Excellence:
    - If the category is 'Scenario & Design Exercise', create a highly descriptive world/context. Use 'widgetType' to select specialized UI tools (binary_converter, memory_diagram, etc.).
    - Break the problem into 'Think First' steps before any implementation. The first scene should set up the problem, middle scenes should reveal the working method one line at a time, and the final scene should prepare the learner to solve a related problem independently.

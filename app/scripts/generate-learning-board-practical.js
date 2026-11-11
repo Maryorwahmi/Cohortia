@@ -118,8 +118,10 @@ const PRACTICAL_SCHEMA = {
           phase: { type: "string", enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"] },
           displayText: { type: "string", description: "Concise visual label synchronized with this teaching phase." },
           speakerText: { type: "string", description: "Complete, source-grounded teacher narration for this phase (~80-120 words)." },
-          codeLine: { type: "string", description: "The exact line or block of code being added or typed out in this teaching step" },
+          codeLine: { type: "string", description: "The exact code shown for this teaching phase. The first and final phases may show the complete file; middle phases show only the focused code block for the idea being taught." },
           file: { type: "string", description: "File path being edited" },
+          terminalCommands: { type: "array", items: { type: "string" }, description: "Teacher-demonstration commands visibly shown when this phase claims compilation or execution." },
+          terminalOutput: { type: "string", description: "Expected teacher-demonstration output visibly shown when this phase discusses a run result." },
           explanation: { type: "string", description: "Concise on-screen callout / annotation for the code" },
           learnerPrompt: { type: "string", description: "The prediction, question, or action handed to the learner in this phase." },
           commonMistake: { type: "string", description: "A relevant misconception or likely error to watch for." },
@@ -129,7 +131,7 @@ const PRACTICAL_SCHEMA = {
         },
         required: ["stepNumber", "speakerText", "codeLine"]
       },
-      description: "Stage-based animated code-along segments; each segment contains the complete code block for one teaching phase and the UI reveals its lines inside the same slide"
+      description: "Stage-based animated code-along segments. The opening and final phases may show the complete file; focused middle phases show the relevant code block and any teacher command/output used to explain it. The learner watches this sequence and edits only after the walkthrough."
     },
     teachingSteps: {
       type: "array",
@@ -1220,6 +1222,56 @@ function phaseForStep(phase, index, stepCount) {
   return "guided_practice";
 }
 
+function countMeaningfulCodeLines(codeLine) {
+  return String(codeLine || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .length;
+}
+
+function looksLikeCompleteSourceSnapshot(codeLine) {
+  const meaningfulLines = countMeaningfulCodeLines(codeLine);
+  if (meaningfulLines >= 7) return true;
+  if (meaningfulLines < 5) return false;
+  const text = String(codeLine || "");
+  const hasModuleOrEntryMarker = /(?:^|\n)\s*(?:#!|#include\b|import\b|from\b.+\bimport\b|package\b|using\b|class\b|def\b|function\b|fn\b|func\b|public\s+(?:static\s+)?class\b|if\s+__name__\s*==|SELECT\b|CREATE\s+(?:TABLE|DATABASE|VIEW)\b)/im.test(text);
+  const hasBalancedBlock = (text.match(/[{}]/g) || []).length >= 2;
+  return hasModuleOrEntryMarker && hasBalancedBlock;
+}
+
+function terminalWalkthroughErrors(walkthrough) {
+  const errors = [];
+  if (!Array.isArray(walkthrough)) return errors;
+  for (let index = 0; index < walkthrough.length; index += 1) {
+    const step = walkthrough[index];
+    const label = `codeWalkthrough step ${step?.stepNumber ?? index + 1}`;
+    const code = typeof step?.codeLine === "string" ? step.codeLine.trim() : "";
+    const meaningfulLines = countMeaningfulCodeLines(code);
+    const isOpeningOrTransfer = index === 0 || index === walkthrough.length - 1;
+    const isWholeFileBlock = looksLikeCompleteSourceSnapshot(code);
+    if (isWholeFileBlock && !isOpeningOrTransfer) {
+      errors.push(`${label} must use a focused code block in the middle of the walkthrough, not a full-file snapshot`);
+    }
+    if (meaningfulLines > 6 && !isOpeningOrTransfer) {
+      errors.push(`${label} middle-phase code block is too broad`);
+    }
+    if (index > 0 && code && code === String(walkthrough[index - 1]?.codeLine || "").trim()) {
+      errors.push(`${label} repeats the previous phase's code block without a visible teaching change`);
+    }
+    const prompt = String(step?.learnerPrompt || "");
+    if (index < walkthrough.length - 1 && /\b(?:add|change|modify|edit|type|write|remove|delete|compile|run|execute)\b/i.test(prompt)) {
+      errors.push(`${label} asks the learner to edit or execute during the watch-only walkthrough`);
+    }
+    const speaksExecution = /\b(?:compile|compiled|compiler|run|running|execute|execution|terminal output)\b/i.test(`${step?.speakerText || ""} ${prompt}`);
+    const commands = Array.isArray(step?.terminalCommands) ? step.terminalCommands.filter((item) => String(item || "").trim()) : [];
+    if (speaksExecution && !commands.length && !String(step?.terminalOutput || "").trim()) {
+      errors.push(`${label} discusses compilation or execution without visible terminalCommands or terminalOutput`);
+    }
+  }
+  return errors;
+}
+
 function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, activityAnchors }) {
   const label = `${kind} phase ${index + 1}`;
   const speakerText = validateNarrationSegment(step.speakerText, { label, sourceActivity, activityAnchors });
@@ -1245,9 +1297,31 @@ function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, 
     if (typeof codeLine !== "string" || !codeLine.trim()) {
       throw new Error(`${label} is missing a code block.`);
     }
+    const meaningfulLines = countMeaningfulCodeLines(codeLine);
+    const isWholeFileBlock = looksLikeCompleteSourceSnapshot(codeLine);
+    const isOpeningOrTransfer = index === 0 || index === stepCount - 1;
+    if (isWholeFileBlock && !isOpeningOrTransfer) {
+      throw new Error(`${label} must show the focused code for this teaching stage, not a repeated full-file snapshot. Use a focused 1-5 line block for the active concept.`);
+    }
+    if (meaningfulLines > 6 && !isOpeningOrTransfer) {
+      throw new Error(`${label} code block is too broad. Keep each walkthrough stage to a focused 1-5 line edit or observation block.`);
+    }
+    const terminalCommands = Array.isArray(step.terminalCommands)
+      ? step.terminalCommands.filter((command) => typeof command === "string" && command.trim()).map((command) => command.trim())
+      : [];
+    const terminalOutput = asStringText(step.terminalOutput);
+    const mentionsExecution = /\b(?:compile|compiled|compiler|run|running|execute|execution|terminal output)\b/i.test(`${speakerText} ${normalized.learnerPrompt}`);
+    if (mentionsExecution && !terminalCommands.length && !terminalOutput) {
+      throw new Error(`${label} discusses compilation or execution without a visible terminal command or output.`);
+    }
+    if (index < stepCount - 1 && /\b(?:add|change|modify|edit|type|write|remove|delete|compile|run|execute)\b/i.test(normalized.learnerPrompt)) {
+      throw new Error(`${label} hands an editing or execution action to the learner during the watch-only walkthrough. Ask for a prediction or observation; defer hands-on work to the final transfer.`);
+    }
     normalized.codeLine = codeLine;
     normalized.displayText = asStringText(step.displayText) || normalized.explanation;
     normalized.file = step.file;
+    normalized.terminalCommands = terminalCommands;
+    normalized.terminalOutput = terminalOutput || undefined;
     normalized.taskId = typeof step.taskId === "string" ? step.taskId : undefined;
   } else {
     normalized.displayText = requiredText(step.displayText, "displayText");
@@ -2795,6 +2869,7 @@ function validatePractical(practical) {
     }
     const walkthrough = Array.isArray(practical.codeWalkthrough) ? practical.codeWalkthrough : [];
     if (walkthrough.length < 4 || walkthrough.length > 8) errors.push("Terminal Coding Lab must include 4-8 canonical codeWalkthrough phases");
+    errors.push(...terminalWalkthroughErrors(walkthrough));
     const knownFiles = new Set((practical.files || []).map((file) => file.path));
     const seenSteps = new Set();
     for (const step of walkthrough) {
@@ -3268,6 +3343,7 @@ export {
   normalizeWorkspace,
   reconcileSourceFiles,
   writePractical,
+  terminalWalkthroughErrors,
 };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
