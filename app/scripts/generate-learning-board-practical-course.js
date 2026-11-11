@@ -115,8 +115,16 @@ async function generateModuleWithRetries(options, moduleNumber, chapterEntries, 
   let lastError;
   for (let attempt = 1; attempt <= retryLimit; attempt += 1) {
     try {
+      // --force applies to the first generation attempt. If that attempt
+      // already wrote chapters and then failed while importing to Turso (or
+      // while writing a later chapter), preserve those artifacts and resume
+      // from record.json on the next attempt. Otherwise a transient network
+      // failure would ask Gemini to regenerate the whole module.
+      const retryOptions = attempt === 1
+        ? options
+        : { ...options, force: false };
       return await generateModule({
-        ...options,
+        ...retryOptions,
         course: undefined,
         "course-id": resolvedCourseId,
         "repo-root": repoRoot,
@@ -128,6 +136,10 @@ async function generateModuleWithRetries(options, moduleNumber, chapterEntries, 
       });
     } catch (error) {
       lastError = error;
+      if (error?.retryable === false) {
+        console.warn(`Module ${moduleNumber} stopped without retry: ${error.message}`);
+        break;
+      }
       if (attempt >= retryLimit) break;
       const delaySeconds = Math.min(60, 5 * (2 ** (attempt - 1)));
       console.warn(`Module ${moduleNumber} attempt ${attempt}/${retryLimit} failed: ${error.message}`);

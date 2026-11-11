@@ -529,10 +529,11 @@ async function callGeminiDirect({ prompt, systemPrompt, responseSchema, maxToken
     }
   }
 
+  const quotaExhausted = failures.length > 0 && failures.every((failure) => /\b429\b/.test(failure));
   return {
     success: false,
     error: `All ${keys.length} keys failed for model ${model}. Last failures: ${failures.slice(-8).join('; ')}`,
-    retryable: true,
+    retryable: !quotaExhausted,
   };
 }
 

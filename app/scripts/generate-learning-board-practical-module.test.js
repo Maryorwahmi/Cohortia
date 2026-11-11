@@ -67,11 +67,11 @@ test("chapter repair feedback reports all phase format problems in one pass", ()
   };
 
   assert.throws(() => validateChapterRepairScript(response, scenarioEntry), (error) => {
-    assert.match(error.message, /phase 1\) has 7 non-empty lines; provide 2-6/);
     assert.match(error.message, /phase 1\) has 189 words; provide 40-180 \(target 90-110, maximum 120\)/);
     assert.match(error.message, /phase 2\) has 1 non-empty lines; provide 2-6/);
     assert.match(error.message, /phase 2\) has 2 words; provide 40-180/);
     assert.match(error.message, /repeats the opening-screen welcome/);
     return true;
   });
+  assert.equal(response.practicals[0].practical.teachingSteps[0].displayText.split("\n").length, 6);
 });

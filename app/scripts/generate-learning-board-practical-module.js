@@ -160,6 +160,15 @@ function validateChapterRepairScript(raw, entry) {
   const issues = [];
   steps.forEach((step, index) => {
     const phase = index + 1;
+    const visualLines = String(step?.displayText || "")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+    // Compact presentation-only overflow locally instead of spending another
+    // model call on a mechanical line-count correction.
+    if (visualLines.length > 6) {
+      step.displayText = [...visualLines.slice(0, 5), visualLines.slice(5).join(" · ")].join("\n");
+    }
     const lineCount = String(step?.displayText || "")
       .split(/\r?\n/)
       .map((line) => line.trim())
@@ -990,7 +999,7 @@ Count whitespace-separated words before returning each speakerText.`
         const completeChapterPrompt = `${baseChapterPrompt}${repairVisualContract}`;
         let repairedEntry;
         let lastValidationError;
-        const maxChapterRepairAttempts = 5;
+        const maxChapterRepairAttempts = 2;
         for (let repairAttempt = 1; repairAttempt <= maxChapterRepairAttempts; repairAttempt += 1) {
           const chapterPrompt = lastValidationError
             ? `${completeChapterPrompt}
@@ -1029,9 +1038,11 @@ LENGTH rules above and count each field before returning the response.`
           }
         }
         if (!repairedEntry) {
-          throw new Error(
+          const repairError = new Error(
             `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair failed after ${maxChapterRepairAttempts} attempts: ${lastValidationError?.message || "unknown validation error"}`,
           );
+          repairError.retryable = false;
+          throw repairError;
         }
         repaired.push(repairedEntry);
         await persistPractical(repairedEntry);
