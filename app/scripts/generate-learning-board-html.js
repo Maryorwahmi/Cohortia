@@ -95,7 +95,16 @@ const SPLIT_LARGE_CHAPTERS = process.env.SPLIT_LARGE_CHAPTERS !== "false";
 
 function shouldSplitChapter(chapterData) {
   if (!SPLIT_LARGE_CHAPTERS) return false;
-  return String(chapterData.raw || "").length > CHAPTER_SPLIT_CHAR_THRESHOLD;
+  return normalizeChapterSource(chapterData.raw).length > CHAPTER_SPLIT_CHAR_THRESHOLD;
+}
+
+export function normalizeChapterSource(source) {
+  return String(source || "")
+    .split(/\r?\n/)
+    .map((line) => /^\s*\|/.test(line)
+      ? line.replace(/[ \t]{2,}/g, " ").trim()
+      : line)
+    .join("\n");
 }
 
 function normalizeCourseLevel(value) {
@@ -609,6 +618,7 @@ function buildGeminiInput(promptTemplate, chapterData, metadata, screenPolicy) {
   const lessonTarget = Math.floor((screenPolicy.minTotal + screenPolicy.maxTotal) / 2) - 5;
   const provider = (process.env.AI_PROVIDER || "gemini").toLowerCase();
   const isAzure = provider === "azure" || /(^gpt-|^azure)/i.test(String(process.env.AZURE_OPENAI_DEPLOYMENT || ""));
+  const chapterSource = normalizeChapterSource(chapterData.raw);
 
   return `${promptTemplate}
 
@@ -659,7 +669,7 @@ ${JSON.stringify(metadata.chapter, null, 2)}
 
 CHAPTER SOURCE
 ==============
-${chapterData.raw}
+${chapterSource}
 
 AI GENERATION NOTE
 ==================
@@ -971,7 +981,8 @@ async function generateBoardInParts({ model, promptTemplate, chapterData, metada
   const lessonsPart2 = Math.max(2, lessonTarget - lessonsPart1);
   const basePrompt = buildGeminiInput(promptTemplate, chapterData, metadata, screenPolicy);
 
-  console.log(`  📦 Chapter source is large (${chapterData.raw.length} chars) — splitting generation into 2 parts...`);
+  const normalizedSourceLength = normalizeChapterSource(chapterData.raw).length;
+  console.log(`  📦 Chapter source is large (${normalizedSourceLength} normalized chars; ${chapterData.raw.length} raw) — splitting generation into 2 parts...`);
 
   const part1Prompt = `${basePrompt}
 

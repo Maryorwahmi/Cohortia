@@ -160,9 +160,9 @@ function isKeyAvailable(keyIdx) {
   return true;
 }
 
-async function waitForKeyAvailability(keyIdx, estimatedTotalTokens) {
+async function waitForKeyAvailability(keyIdx, estimatedInputTokens) {
   const tokens = getKeyTokenUsageMinute(keyIdx);
-  if (tokens + estimatedTotalTokens > keyState.tpmLimit) {
+  if (tokens + estimatedInputTokens > keyState.tpmLimit) {
     const waitMs = 60000 - (getNow() - getMinuteStart());
     console.warn(`  Key ${keyIdx + 1} near TPM limit. Waiting ${Math.ceil(waitMs / 1000)}s...`);
     await new Promise((r) => setTimeout(r, Math.max(1000, waitMs)));
@@ -352,10 +352,13 @@ async function callGeminiDirect({ prompt, systemPrompt, responseSchema, maxToken
   }
 
   const estimatedInputTokens = estimateTokens((systemPrompt || '') + '\n\n' + prompt);
-  const estimatedTotalTokens = estimatedInputTokens + maxTokens;
-
   if (estimatedInputTokens > keyState.tpmLimit) {
-    console.warn(`  ⚠️  Estimated input tokens (${estimatedInputTokens}) exceed TPM limit (${keyState.tpmLimit}). Prompt may be rejected.`);
+    return {
+      success: false,
+      error: `Estimated input tokens (${estimatedInputTokens}) exceed the configured Gemini TPM limit (${keyState.tpmLimit}); reduce the prompt or split the request before retrying.`,
+      fatal: true,
+      retryable: false,
+    };
   }
 
   const failures = [];
@@ -386,7 +389,7 @@ async function callGeminiDirect({ prompt, systemPrompt, responseSchema, maxToken
     for (let keyIdx = 0; keyIdx < keys.length; keyIdx++) {
       if (!isKeyAvailable(keyIdx)) continue;
 
-      await waitForKeyAvailability(keyIdx, estimatedTotalTokens);
+      await waitForKeyAvailability(keyIdx, estimatedInputTokens);
 
       const endpointResults = [];
       for (let endpointIdx = 0; endpointIdx < endpoints.length; endpointIdx++) {
@@ -445,9 +448,10 @@ async function callGeminiDirect({ prompt, systemPrompt, responseSchema, maxToken
             }
 
             if (response.status === 429) {
+              const detail = summarizeHttpError(errorText);
               keyState.exhaustedKeys.add(keyIdx);
-              console.warn(`  Key ${keyIdx + 1} ${model} rate-limited on ${endpointName} (HTTP 429). Quarantining key for the rest of this run.`);
-              failures.push(`Key ${keyIdx + 1} ${model}: 429`);
+              console.warn(`  Gemini returned HTTP 429 for key ${keyIdx + 1}, ${model} on ${endpointName}: ${detail}. Skipping this key for the rest of the run.`);
+              failures.push(`Key ${keyIdx + 1} ${model}: 429 (${detail})`);
               break;
             }
 
