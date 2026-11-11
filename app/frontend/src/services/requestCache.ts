@@ -59,7 +59,8 @@ const MAX_CACHED_RESPONSES = 300;
 function getCacheTtl(pathname: string): number {
   if (pathMatches(pathname, ['/tracks/user/enrolled'])) return 0;
   if (/\/learning-boards\/boards(?:\/|$)/.test(pathname)) return 5 * 60_000;
-  if (/\/(?:catalog-courses|careers|tracks|assessments)(?:\/|$)/.test(pathname)) return 2 * 60_000;
+  if (/\/(?:catalog-courses|careers)(?:\/|$)/.test(pathname)) return 0;
+  if (/\/(?:tracks|assessments)(?:\/|$)/.test(pathname)) return 2 * 60_000;
   return 0;
 }
 

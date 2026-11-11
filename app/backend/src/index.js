@@ -47,7 +47,7 @@ const app = new Hono();
 const publicCatalogCache = async (c, next) => {
   await next();
   if (c.req.method === 'GET' && c.res.status >= 200 && c.res.status < 400) {
-    c.header('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
+    c.header('Cache-Control', 'no-store');
   }
 };
 

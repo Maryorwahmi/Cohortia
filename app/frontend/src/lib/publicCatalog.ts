@@ -6,7 +6,7 @@ export function loadStaticCatalog(): Promise<CatalogCoursesResponse | null> {
   if (!catalogPromise) {
     catalogPromise = fetch("/content/catalog-courses.json", {
       headers: {Accept: "application/json"},
-      cache: "force-cache",
+      cache: "no-store",
     }).then(async (response) => {
       if (!response.ok) return null;
       return await response.json() as CatalogCoursesResponse;
