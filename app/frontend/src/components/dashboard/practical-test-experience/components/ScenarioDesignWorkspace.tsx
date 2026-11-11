@@ -2,19 +2,10 @@ import React, { useState } from 'react';
 import { PracticalManifest, ScenarioItem } from '../types/practical';
 import {
   Calendar,
-  Layers,
-  Sparkles,
   CheckCircle2,
-  Clock,
-  Plus,
-  Trash2,
-  Download,
-  Share2,
   Vote,
-  Target,
   Sliders,
   AlertCircle,
-  FileText
 } from 'lucide-react';
 
 interface ScenarioDesignWorkspaceProps {
@@ -105,7 +96,6 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
 
   const [items, setItems] = useState<ScenarioItem[]>(initialItems);
   const [selectedItemId, setSelectedItemId] = useState<string>(initialItems[0]?.id || '');
-  const [activeTab, setActiveTab] = useState<'canvas' | 'rubric' | 'export'>('canvas');
   const [binaryAnswers, setBinaryAnswers] = useState<Record<string, string>>({});
   const [binarySubmitted, setBinarySubmitted] = useState(false);
   const [binaryResults, setBinaryResults] = useState<Record<string, boolean | null>>({});
@@ -203,41 +193,16 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
         {/* View Tabs */}
         <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/80">
           <button
-            onClick={() => setActiveTab('canvas')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
-              activeTab === 'canvas'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            aria-current="page"
+            className="px-2.5 py-1 text-xs font-semibold rounded-md bg-white text-slate-900 shadow-2xs"
           >
             Design Canvas
-          </button>
-          <button
-            onClick={() => setActiveTab('rubric')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
-              activeTab === 'rubric'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Evaluation Rubric
-          </button>
-          <button
-            onClick={() => setActiveTab('export')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
-              activeTab === 'export'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Specification Export
           </button>
         </div>
       </div>
 
       {/* Main Studio Area */}
       <div className="flex-1 p-3 min-h-0 overflow-hidden flex flex-col">
-        {activeTab === 'canvas' && (
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0 overflow-hidden">
             {/* Left 7 Cols: Interactive Artifact / Flow / Poker Table */}
             <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-2xs flex flex-col min-h-0 overflow-hidden">
@@ -269,9 +234,9 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
               {isBinaryExercise ? (
                 <div className="p-3.5 flex-1 flex flex-col overflow-y-auto min-h-0">
                   <div className="p-3 rounded-lg bg-indigo-50/60 border border-indigo-200 mb-3">
-                    <span className="text-[10px] font-mono uppercase text-indigo-700 font-bold tracking-wider">Generated binary conversion workspace</span>
-                    <h3 className="text-sm font-bold text-slate-900 mt-0.5">{manifest.workspace?.scenario?.context || manifest.objective}</h3>
-                    <p className="text-xs text-slate-600 mt-1">Solve each conversion using place values or powers of two, then verify the complete set.</p>
+                    <span className="text-[10px] font-mono uppercase text-indigo-700 font-bold tracking-wider">Binary conversion challenge</span>
+                    <h3 className="text-sm font-bold text-slate-900 mt-0.5">Answer the following conversions</h3>
+                    <p className="text-xs text-slate-600 mt-1">Enter an answer for each question below, then check your work.</p>
                   </div>
                   <div className="space-y-2.5">
                     {binaryTasks.map((task, index) => {
@@ -601,101 +566,10 @@ export const ScenarioDesignWorkspace: React.FC<ScenarioDesignWorkspaceProps> = (
                   <span className="text-[11px] text-slate-500">
                     Status: <span className="font-semibold text-indigo-600 uppercase font-mono">{selectedItem.status || 'Active'}</span>
                   </span>
-                  <button
-                    onClick={() => setActiveTab('rubric')}
-                    className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
-                  >
-                    {isBinaryExercise ? 'Review Conversion Rubric' : 'Commit Step Design'}
-                  </button>
                 </div>
               </div>
             </div>
           </div>
-        )}
-
-        {activeTab === 'rubric' && (
-          <div className="flex-1 bg-white rounded-xl border border-slate-200 p-4 overflow-y-auto shadow-2xs space-y-3">
-            <h3 className="text-sm font-bold text-slate-900">
-              {isBinaryExercise ? 'Generated Conversion Rubric' : 'Agile & Design Evaluation Rubric'}
-            </h3>
-            {isBinaryExercise ? (
-              <div className="space-y-2">
-                {(manifest.workspace?.scenario?.rubric || []).map((criterion, index) => (
-                  <div key={String(criterion.id || index)} className="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                    <span className="text-xs font-bold text-slate-900">{String(criterion.criterion || `Conversion ${index + 1}`)}</span>
-                    <p className="text-xs text-slate-600 mt-1">Expected answer: <span className="font-mono font-semibold">{String(criterion.expectedAnswer || 'See task evidence')}</span></p>
-                    <span className="mt-2 inline-block text-[10px] font-mono font-bold text-indigo-700 bg-white px-1.5 py-0.5 rounded border border-indigo-200">{String(criterion.points || 0)} POINTS</span>
-                  </div>
-                ))}
-              </div>
-            ) : <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="p-3 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                <span className="text-xs font-bold text-emerald-900 block mb-1">
-                  1. Timebox Discipline
-                </span>
-                <p className="text-xs text-emerald-700 leading-snug">
-                  Total sprint planning duration must not exceed 2 hours for a 2-week sprint. Allocated slots sum to 165 minutes.
-                </p>
-                <span className="mt-2 inline-block text-[10px] font-mono font-bold text-emerald-800 bg-white px-1.5 py-0.5 rounded border border-emerald-200">
-                  PASS (Within Range)
-                </span>
-              </div>
-
-              <div className="p-3 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                <span className="text-xs font-bold text-emerald-900 block mb-1">
-                  2. Role Inclusivity
-                </span>
-                <p className="text-xs text-emerald-700 leading-snug">
-                  Every agenda phase specifies required attendees (Product Owner, Scrum Master, QA, Engineering).
-                </p>
-                <span className="mt-2 inline-block text-[10px] font-mono font-bold text-emerald-800 bg-white px-1.5 py-0.5 rounded border border-emerald-200">
-                  PASS (All Roles Present)
-                </span>
-              </div>
-
-              <div className="p-3 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                <span className="text-xs font-bold text-emerald-900 block mb-1">
-                  3. Measurable Outcome
-                </span>
-                <p className="text-xs text-emerald-700 leading-snug">
-                  Clear deliverables defined: locked sprint backlog, velocity commitment, and definition of done check.
-                </p>
-                <span className="mt-2 inline-block text-[10px] font-mono font-bold text-emerald-800 bg-white px-1.5 py-0.5 rounded border border-emerald-200">
-                  PASS (Concrete Artifacts)
-                </span>
-              </div>
-            </div>}
-          </div>
-        )}
-
-        {activeTab === 'export' && (
-          <div className="flex-1 bg-white rounded-xl border border-slate-200 p-4 overflow-y-auto shadow-2xs font-mono text-xs">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-              <span className="font-bold text-slate-800">
-                Markdown Specification Document
-              </span>
-              <button
-                onClick={() => {
-                  navigator.clipboard?.writeText(JSON.stringify(items, null, 2));
-                }}
-                className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono cursor-pointer"
-              >
-                Copy Markdown
-              </button>
-            </div>
-            <pre className="p-3 rounded bg-slate-50 border border-slate-200 text-slate-800 leading-relaxed overflow-x-auto">
-{`# ${manifest.title}
-Course: ${manifest.courseName}
-Generated on: ${new Date().toISOString().split('T')[0]}
-
-## Agenda / Specification Overview
-${items.map((it, idx) => `### ${idx + 1}. ${it.title} (${it.timeSlot || 'Allocated'})
-- Phase: ${it.category}
-- Scope: ${it.description}
-- Attendees: ${it.tags?.join(', ') || 'Team'}`).join('\n\n')}`}
-            </pre>
-          </div>
-        )}
       </div>
     </div>
   );
