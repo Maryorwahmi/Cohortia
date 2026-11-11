@@ -363,9 +363,13 @@ export interface CatalogCoursesResponse {
 
 export const catalogCourseApi = {
   getAll: async () => {
-    const staticCatalog = await loadStaticCatalog();
-    if (staticCatalog?.success && staticCatalog.data?.courses) return staticCatalog;
-    return fetchApi<CatalogCoursesResponse>('/catalog-courses');
+    try {
+      const liveCatalog = await fetchApi<CatalogCoursesResponse>('/catalog-courses');
+      if (liveCatalog?.success && liveCatalog.data?.courses) return liveCatalog;
+    } catch {
+      // Fall back to the bundled catalog when the API is temporarily unavailable.
+    }
+    return loadStaticCatalog();
   },
   recommend: (data: { careerGoal: string; selectedCareerId: string; learnerStage: string; careerFocusId?: string; courseCategory?: string }) =>
     fetchApi<{
