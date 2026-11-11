@@ -297,9 +297,12 @@ async function generateCourse(options) {
       }
     }
     if (options["dry-run"] === true || validEntries.length > 0) {
-      const batches = options["per-chapter"] === true
-        ? validEntries.map((entry) => [entry])
-        : [validEntries];
+      // Large aggregate responses are the main source of truncated JSON and
+      // omitted chapters. A chapter practical is already a large nested
+      // document, so default to one chapter per request unless the caller
+      // explicitly adds a future batching strategy. This costs predictable
+      // calls instead of burning retries on incomplete module envelopes.
+      const batches = validEntries.map((entry) => [entry]);
 
       for (const batch of batches) {
         const result = await generateModuleWithRetries(

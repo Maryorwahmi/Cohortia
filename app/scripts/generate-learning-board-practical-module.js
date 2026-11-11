@@ -994,7 +994,18 @@ SPEAKER LENGTH RULE (MANDATORY)
 ===============================
 Write 90-110 words of spoken prose per phase. Do not exceed 120 words.
 The validator hard limit is 40-180 words, but do not use that full allowance.
-Count whitespace-separated words before returning each speakerText.`
+Count whitespace-separated words before returning each speakerText.
+
+SEMANTIC DISPLAY RULES (MANDATORY)
+===================================
+These are checked after the repair script is normalized. Every multi-digit
+number, binary value, decimal value, or exact result spoken in a phase must
+also appear visibly in that same phase's displayText. For binary or numeric
+activities, show the input, the working or place values, the operator, and the
+result in displayText; never leave a spoken value only in speakerText. A
+displayText such as a title or answer alone is invalid. If the previous
+validation feedback names a semantic error, correct the actual content in the
+affected phase rather than only changing line counts.`
           : "";
         const completeChapterPrompt = `${baseChapterPrompt}${repairVisualContract}`;
         let repairedEntry;
