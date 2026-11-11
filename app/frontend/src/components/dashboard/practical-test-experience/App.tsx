@@ -1663,49 +1663,12 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
                     />
                   </div>
 
-                  {/* High-Readability Docked Milestones Bar (Zero scrolling) */}
-                  <div className="px-3 py-1.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs flex items-center justify-between gap-3 shrink-0 select-none">
+                  {/* Keep verification feedback beside the task verification action. */}
+                  <div className="px-3 py-1.5 bg-white rounded-xl border border-slate-200/90 shadow-2xs flex items-center justify-end gap-3 shrink-0 select-none">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-[10px] uppercase font-mono font-bold text-slate-400 shrink-0">
-                        Milestones:
-                      </span>
-                      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                        {activeManifest.tasks.map((task, idx) => {
-                          const isDone = completedTaskIds.includes(task.id);
-                          return (
-                            <span
-                              key={task.id}
-                              className={`text-[11px] font-mono px-2 py-0.5 rounded-md flex items-center gap-1.5 shrink-0 transition-colors ${
-                                isDone
-                                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold'
-                                  : 'bg-slate-100 text-slate-700 border border-slate-200 font-medium'
-                              }`}
-                              title={task.description}
-                            >
-                              <span className="font-bold">{isDone ? '✓' : `Step ${idx + 1}`}</span>
-                              <span className="truncate max-w-[160px]">{task.title}</span>
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
                       {feedbackMessage && (
-                        <span className="hidden md:inline text-[11px] font-mono text-emerald-700 bg-emerald-50/80 px-2 py-0.5 rounded border border-emerald-200 truncate max-w-[280px]">
+                        <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50/80 px-2 py-0.5 rounded border border-emerald-200 truncate max-w-[280px]">
                           {feedbackMessage}
-                        </span>
-                      )}
-
-                      {evaluatorResult && (
-                        <span
-                          className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md border ${
-                            evaluatorResult.score >= 75
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                              : 'bg-amber-50 text-amber-800 border-amber-300'
-                          }`}
-                        >
-                          Score: {evaluatorResult.score}/100
                         </span>
                       )}
 
