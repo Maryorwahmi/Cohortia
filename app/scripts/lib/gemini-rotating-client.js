@@ -341,7 +341,7 @@ function summarizeHttpError(errorText) {
   return errorText.replace(/\s+/g, " ").trim().slice(0, 300) || "unknown error";
 }
 
-async function callGeminiDirect({ prompt, systemPrompt, responseSchema, maxTokens = 95536, temperature = 0.35, model = GEMINI_MODEL, allowModelFallback = true }) {
+async function callGeminiDirect({ prompt, systemPrompt, responseSchema, maxTokens = 95536, temperature = 0.35, model = GEMINI_MODEL }) {
   const keys = getGeminiKeys();
   if (keys.length === 0) {
     return {
@@ -465,15 +465,6 @@ async function callGeminiDirect({ prompt, systemPrompt, responseSchema, maxToken
 
             if (response.status === 503) {
               console.warn(`  Model ${model} unavailable on ${endpointName} (HTTP 503).`);
-              const fallbackModel = (process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash-lite').trim();
-              if (allowModelFallback && fallbackModel && fallbackModel !== model) {
-                return {
-                  success: false,
-                  error: `Model ${model} unavailable on ${endpointName} (HTTP 503).`,
-                  retryable: true,
-                  fallbackModel,
-                };
-              }
               endpointResults.push({ status: 503, endpoint: endpointName });
               if (endpointIdx < endpoints.length - 1) continue;
               failures.push(`Key ${keyIdx + 1} ${model}: 503 (${summarizeHttpError(errorText)})`);
@@ -559,19 +550,7 @@ export async function generateCompleteJson({ prompt, systemPrompt, responseSchem
   let lastWasTruncated = false;
   let responseWasTruncated = false;
 
-  let initial = await callGeminiDirect({ prompt, systemPrompt, responseSchema, maxTokens, temperature, model });
-  if (!initial.success && initial.fallbackModel) {
-    console.warn(`  Retrying with fallback Gemini model ${initial.fallbackModel}.`);
-    initial = await callGeminiDirect({
-      prompt,
-      systemPrompt,
-      responseSchema,
-      maxTokens,
-      temperature,
-      model: initial.fallbackModel,
-      allowModelFallback: false,
-    });
-  }
+  const initial = await callGeminiDirect({ prompt, systemPrompt, responseSchema, maxTokens, temperature, model });
   if (!initial.success) return initial;
   fullText += initial.text;
   lastWasTruncated = initial.truncated;
