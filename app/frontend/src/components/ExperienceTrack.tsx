@@ -15,42 +15,30 @@ interface ExperienceTrackProps {
 const goals: Array<{ 
   id: RoadmapGoal; 
   title: string; 
-  price: string;
-  totalCourses: string;
   description: string; 
   bestFor: string; 
   outcome: string;
-  badge: string;
 }> = [
   { 
     id: "Pivot into a new career", 
-    title: "Pivot into a new career", 
-    price: "$23",
-    totalCourses: "5 courses (2 Beg + 2 Int + 1 Adv)",
-    badge: "CAREER TRANSITION",
+    title: "Change careers",
     description: "Build the foundations, proof, and confidence for a new role. Structured pathway from Beginner → Intermediate → Advanced.", 
     bestFor: "Moving into a completely new tech field or starting from the beginning.", 
-    outcome: "5 courses total, 500 AI credits, practical assistant, transition roadmap, and portfolio proof." 
+    outcome: "A staged learning path from foundations through advanced skills for a new role."
   },
   { 
     id: "Up-skill in my current role", 
-    title: "Up-skill in my current role", 
-    price: "$30",
-    totalCourses: "4 courses (2 Beg + 1 Int + 1 Adv)",
-    badge: "ROLE ACCELERATION",
+    title: "Grow in my current role",
     description: "Sharpen skills that make your current work more valuable. Focuses on deepening existing skills rather than starting from zero.", 
     bestFor: "Already working in this area and wanting to deepen practical skills for promotion.", 
-    outcome: "4 courses total, 500 AI credits, practical assistant, workplace simulations, and skills-gap analysis." 
+    outcome: "A focused course path for strengthening role-related and advanced skills."
   },
   { 
     id: "Lead & Specialize", 
-    title: "Lead & Specialize", 
-    price: "$45",
-    totalCourses: "2 deep courses (1 Int + 1 Adv)",
-    badge: "SENIOR & SPECIALIST",
+    title: "Develop expertise and leadership",
     description: "Move into advanced expertise, technical leadership, and domain specialization. Cohortia's deepest career track.", 
     bestFor: "Experienced engineers aiming for Tech Lead, Staff, or Specialized Domain Expert.", 
-    outcome: "2 deep courses, 500 AI credits, advanced assistant, leadership simulations, and capstone project." 
+    outcome: "An intermediate-to-advanced path focused on specialization and leadership growth."
   },
 ];
 
