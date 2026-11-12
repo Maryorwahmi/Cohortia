@@ -9,7 +9,6 @@ import {
   LoaderCircle,
   Search,
   X,
-  Minus,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ExperienceTrackSim from "./ExperienceTrack";
@@ -86,25 +85,6 @@ const subscriptionPlans: SubscriptionPlan[] = [
       "Job-readiness progress path",
     ],
   },
-];
-
-const planFeatures = [
-  { feature: "Courses", free: "Limited course selection", premium: "Full course access", career: "Full course access" },
-  { feature: "Cohortia Mentor", free: "Limited access", premium: "Full access", career: "Full access" },
-  { feature: "Community", free: "Limited access", premium: "Full access", career: "Full access" },
-  { feature: "Hands-on practical activities", free: "Limited access", premium: "Full access", career: "Full access" },
-  { feature: "Mentor voice chats", free: "Limited access", premium: "Full access", career: "Full access" },
-  { feature: "Capstone project", free: "Included", premium: "Included", career: "Included with guided reviews" },
-  { feature: "Experience Track", free: "Included", premium: "Included", career: "Included" },
-  { feature: "Practical Assistant", free: "—", premium: "Included", career: "Included" },
-  { feature: "Portfolio development", free: "—", premium: "Included", career: "Included" },
-  { feature: "Specialization roadmap and career goal", free: "—", premium: "Included", career: "Included" },
-  { feature: "Advanced course options", free: "—", premium: "Included", career: "Included" },
-  { feature: "Interview preparation", free: "—", premium: "Included", career: "Included" },
-  { feature: "Real-world projects", free: "—", premium: "Included", career: "Included" },
-  { feature: "Course-final reviews", free: "—", premium: "—", career: "Guided feedback" },
-  { feature: "Project-submission feedback", free: "—", premium: "—", career: "Included" },
-  { feature: "Job-readiness progress path", free: "—", premium: "—", career: "Included" },
 ];
 
 export default function ExperienceTrackPage({ userProfile, onOpenWizard }: ExperienceTrackPageProps) {
@@ -350,62 +330,6 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
               </ul>
             </article>
           ))}
-        </div>
-      </section>
-
-      {/* 3. Plan comparison */}
-      <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 mb-16">
-        <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-10 shadow-xl shadow-immersive-shadow">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <span className="text-xs font-mono font-bold tracking-widest text-[#FF4B3E] uppercase block mb-2">
-              | PLAN COMPARISON
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-immersive-text-primary">
-              Choose the support that fits your goals
-            </h2>
-            <p className="mt-2 text-xs sm:text-sm text-immersive-text-secondary">
-              Start free, upgrade for full access, or choose Career Builder for additional project and career-readiness feedback.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm border-collapse">
-              <thead>
-                <tr className="border-b border-immersive-border/60">
-                  <th className="py-4 px-4 font-mono font-bold text-immersive-text-secondary uppercase text-[11px]">
-                    Feature
-                  </th>
-                  <th className="py-4 px-4 font-extrabold text-[#FF4B3E] bg-[#FF4B3E]/5 rounded-t-xl text-center">
-                    Free — $0
-                  </th>
-                  <th className="py-4 px-4 font-extrabold text-[#FF4B3E] bg-[#FF4B3E]/5 text-center">
-                    Premium Access — $19/month
-                  </th>
-                  <th className="py-4 px-4 font-extrabold text-purple-400 bg-purple-500/5 rounded-t-xl text-center">
-                    Career Builder — $40/month
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-immersive-border/30">
-                {planFeatures.map((row) => (
-                  <tr key={row.feature} className="hover:bg-immersive-bg/40 transition-colors">
-                    <td className="py-3 px-4 font-bold text-immersive-text-primary">
-                      {row.feature}
-                    </td>
-                    <td className="py-3 px-4 text-center bg-[#FF4B3E]/5 font-medium text-immersive-text-primary">
-                      {row.free === "—" ? <Minus className="mx-auto h-4 w-4 text-immersive-text-secondary/40" /> : row.free}
-                    </td>
-                    <td className="py-3 px-4 text-center bg-[#FF4B3E]/5 font-medium text-immersive-text-primary">
-                      {row.premium === "—" ? <Minus className="mx-auto h-4 w-4 text-immersive-text-secondary/40" /> : row.premium}
-                    </td>
-                    <td className="py-3 px-4 text-center bg-purple-500/5 font-medium text-immersive-text-primary">
-                      {row.career === "—" ? <Minus className="mx-auto h-4 w-4 text-immersive-text-secondary/40" /> : row.career}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </div>
       </section>
 
