@@ -14,17 +14,12 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
 import {
-  PRACTICAL_SCHEMA,
   assertValidPractical,
   normalizePractical,
   resolveSourceContext,
   writePractical,
 } from "./generate-learning-board-practical.js";
-import {
-  activityKindFor,
-  profileFor,
-  profileSchema,
-} from "./lib/practical-experience-profiles.js";
+import { activityKindFor } from "./lib/practical-experience-profiles.js";
 import {
   readCourseGenerationRecord,
   writeCourseGenerationRecord,
@@ -45,61 +40,93 @@ function chapterResponseSchema(entry) {
   const { sourceContext } = entry;
   const category = sourceContext.source.category;
   const canonicalKey = canonicalScriptKeyForEntry(entry);
-  const inferredLabType = category === "Terminal Coding Lab" ? "code" : "simulation";
   const activityKind = activityKindFor({
     category,
     title: sourceContext.activityTitle,
     activity: sourceContext.activityChapter.handsOnActivity,
-    labType: inferredLabType,
+    labType: category === "Terminal Coding Lab" ? "code" : "simulation",
   });
-  const experienceProfile = profileFor({
-    category,
-    labType: inferredLabType,
-    activityKind,
-  });
-  const practicalSchema = structuredClone(profileSchema(
-    structuredClone(PRACTICAL_SCHEMA),
-    experienceProfile,
-    activityKind,
-  ));
-  const properties = practicalSchema.properties;
-  const unrelatedScriptKey = canonicalKey === "codeWalkthrough" ? "teachingSteps" : "codeWalkthrough";
-  delete properties[unrelatedScriptKey];
-  for (const derivedField of ["teaching", "activityMapping", "lessonContext"]) {
-    delete properties[derivedField];
+  const stringArray = { type: "array", items: { type: "string" } };
+  const optionalString = { type: "string" };
+  const taskProperties = {
+    id: optionalString,
+    title: optionalString,
+    instruction: optionalString,
+    stepType: optionalString,
+    hints: stringArray,
+    structuredHints: {
+      type: "object",
+      properties: {
+        nudge: optionalString,
+        concept: optionalString,
+        walkthrough: optionalString,
+      },
+      required: ["nudge", "concept", "walkthrough"],
+    },
+    inlineSuggestions: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { id: optionalString, label: optionalString, text: optionalString },
+        required: ["id", "label", "text"],
+      },
+    },
+    tests: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          type: optionalString,
+          expected: optionalString,
+          path: optionalString,
+          contents: optionalString,
+          probeSource: optionalString,
+          expectedDiagnostic: optionalString,
+          matchMode: optionalString,
+          data: optionalString,
+          explanation: optionalString,
+          expectCompileSuccess: { type: "boolean" },
+        },
+        required: ["type"],
+      },
+    },
+  };
+  if (activityKind === "binary_exercise") {
+    taskProperties.interactiveExercise = {
+      type: "object",
+      properties: {
+        type: optionalString,
+        prompt: optionalString,
+        expectedAnswer: optionalString,
+        explanation: optionalString,
+      },
+      required: ["type", "prompt", "expectedAnswer", "explanation"],
+    };
   }
-
-  practicalSchema.required = [...new Set([
-    ...practicalSchema.required,
-    "summary",
-    "objectives",
-    canonicalKey,
-  ])];
-  properties.objectives.minItems = 3;
-
-  const tasksSchema = properties.tasks;
-  tasksSchema.minItems = 3;
-  tasksSchema.maxItems = 5;
-  tasksSchema.items.required = [...new Set([
-    ...tasksSchema.items.required,
+  const taskRequired = [
+    "id",
     "title",
+    "instruction",
     "stepType",
+    "hints",
     "structuredHints",
     "inlineSuggestions",
-  ])];
-  tasksSchema.items.properties.hints.minItems = 3;
-  tasksSchema.items.properties.hints.maxItems = 3;
-  tasksSchema.items.properties.structuredHints.required = ["nudge", "concept", "walkthrough"];
-  tasksSchema.items.properties.inlineSuggestions.minItems = 1;
-  tasksSchema.items.properties.inlineSuggestions.maxItems = 3;
-  if (category !== "Terminal Coding Lab") {
-    delete properties.files.minItems;
-  }
-
-  const canonicalScriptSchema = properties[canonicalKey];
-  canonicalScriptSchema.minItems = 4;
-  canonicalScriptSchema.maxItems = 8;
-  const phaseProperties = canonicalScriptSchema.items.properties;
+    "tests",
+    ...(activityKind === "binary_exercise" ? ["interactiveExercise"] : []),
+  ];
+  const phaseProperties = {
+    phase: optionalString,
+    speakerText: optionalString,
+    explanation: optionalString,
+    learnerPrompt: optionalString,
+    commonMistake: optionalString,
+    recap: optionalString,
+    displayText: optionalString,
+  };
+  phaseProperties.speakerText.description = "Complete source-grounded spoken teacher narration of 40-180 words.";
+  phaseProperties.displayText.description = canonicalKey === "codeWalkthrough"
+    ? "Concise visible label for this code phase."
+    : "Visible board copy of 2-6 lines, including the calculations, evidence, comparisons, or results discussed in this phase.";
   const phaseRequired = [
     "phase",
     "speakerText",
@@ -107,30 +134,142 @@ function chapterResponseSchema(entry) {
     "learnerPrompt",
     "commonMistake",
     "recap",
-    canonicalKey === "codeWalkthrough" ? "codeLine" : "displayText",
+    "displayText",
   ];
   if (canonicalKey === "codeWalkthrough") {
-    phaseRequired.push("file", "displayText");
-    phaseProperties.displayText = {
-      type: "string",
-      description: "A concise visible label for this code phase.",
-    };
-    phaseProperties.learnerPrompt.description = "For non-final phases, ask only for a prediction or observation. The final transfer phase may hand control to independent practice.";
-  } else {
-    phaseProperties.displayText.description = "Required visible board copy, not a phase title: exactly 2-6 non-empty lines for this phase, showing spoken calculations and working, evidence and interpretation, or named options, constraints, trade-offs, and outcomes.";
+    phaseProperties.codeLine = optionalString;
+    phaseProperties.file = optionalString;
+    phaseProperties.terminalCommands = stringArray;
+    phaseProperties.terminalOutput = optionalString;
+    phaseRequired.push("codeLine", "file");
   }
-  phaseProperties.speakerText.description = "Complete, source-grounded spoken teacher narration of 40-180 words.";
-  canonicalScriptSchema.items.required = [...new Set([
-    ...canonicalScriptSchema.items.required.filter((field) => field !== "stepNumber"),
-    ...phaseRequired,
-  ])];
+  const workspaceBranch = {
+    "Terminal Coding Lab": "terminal",
+    "Cloud Console Lab": "cloud",
+    "Scenario & Design Exercise": "scenario",
+    "Research & Analysis": "research",
+  }[category];
+  const workspaceProperties = { type: optionalString };
+  const workspaceBranchProperties = {
+    terminal: {
+      entryFile: optionalString,
+      editableFiles: stringArray,
+      readOnlyFiles: stringArray,
+      runCommands: stringArray,
+      compileCommands: stringArray,
+      stdin: optionalString,
+      expectedArtifacts: stringArray,
+    },
+    cloud: {
+      provider: optionalString,
+      region: optionalString,
+      initialResources: { type: "array", items: { type: "object" } },
+      allowedActions: { type: "array", items: { type: "object" } },
+      forbiddenActions: stringArray,
+      commandTemplates: { type: "array", items: { type: "object" } },
+      expectedState: { type: "array", items: { type: "object" } },
+      verificationChecks: { type: "array", items: { type: "object" } },
+    },
+    scenario: {
+      subtype: optionalString,
+      context: optionalString,
+      items: { type: "array", items: { type: "object" } },
+      options: { type: "array", items: { type: "object" } },
+      constraints: stringArray,
+      decisionFields: { type: "array", items: { type: "object" } },
+      outcomeRules: { type: "array", items: { type: "object" } },
+      rubric: { type: "array", items: { type: "object" } },
+      exportArtifact: { type: "object" },
+    },
+    research: {
+      investigationQuestion: optionalString,
+      hypothesisPrompt: optionalString,
+      sources: { type: "array", items: { type: "object" } },
+      datasets: { type: "array", items: { type: "object" } },
+      requiredObservations: { type: "array", items: { type: "object" } },
+      analysisOperations: { type: "array", items: { type: "object" } },
+      calculationRules: { type: "array", items: { type: "object" } },
+      conclusionPrompt: optionalString,
+      evidenceRequirements: { type: "array", items: { type: "object" } },
+      rubric: { type: "array", items: { type: "object" } },
+    },
+  };
+  const workspaceBranchRequired = {
+    terminal: ["entryFile", "editableFiles", "readOnlyFiles", "runCommands", "compileCommands", "expectedArtifacts"],
+    cloud: ["provider", "region", "initialResources", "allowedActions", "forbiddenActions", "commandTemplates", "expectedState", "verificationChecks"],
+    scenario: ["subtype", "context", "items", "options", "constraints", "decisionFields", "outcomeRules", "rubric", "exportArtifact"],
+    research: [
+      "investigationQuestion",
+      "hypothesisPrompt",
+      "sources",
+      "datasets",
+      "requiredObservations",
+      "analysisOperations",
+      "calculationRules",
+      "conclusionPrompt",
+      "evidenceRequirements",
+      "rubric",
+    ],
+  };
+  if (workspaceBranch) {
+    workspaceProperties[workspaceBranch] = {
+      type: "object",
+      properties: workspaceBranchProperties[workspaceBranch],
+      required: workspaceBranchRequired[workspaceBranch],
+    };
+  }
+  const practicalProperties = {
+    title: optionalString,
+    summary: optionalString,
+    instructions: optionalString,
+    activityKind: optionalString,
+    labType: optionalString,
+    objectives: stringArray,
+    tasks: {
+      type: "array",
+      items: { type: "object", properties: taskProperties, required: taskRequired },
+    },
+    workspace: {
+      type: "object",
+      properties: workspaceProperties,
+      required: workspaceBranch ? ["type", workspaceBranch] : ["type"],
+    },
+    [canonicalKey]: {
+      type: "array",
+      items: { type: "object", properties: phaseProperties, required: phaseRequired },
+    },
+  };
+  const practicalRequired = [
+    "title",
+    "summary",
+    "instructions",
+    "objectives",
+    "tasks",
+    "workspace",
+    canonicalKey,
+  ];
+  if (category === "Terminal Coding Lab") {
+    practicalProperties.files = {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { path: optionalString, content: optionalString },
+        required: ["path", "content"],
+      },
+    };
+    practicalRequired.push("files");
+  }
 
   return {
     type: "object",
     properties: {
       moduleNumber: { type: "integer" },
       chapterNumber: { type: "integer" },
-      practical: practicalSchema,
+      practical: {
+        type: "object",
+        properties: practicalProperties,
+        required: practicalRequired,
+      },
     },
     required: ["moduleNumber", "chapterNumber", "practical"],
   };

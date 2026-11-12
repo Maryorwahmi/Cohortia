@@ -225,9 +225,8 @@ test("chapter repair schema makes the non-code board-copy contract explicit", ()
   const displayText = schema.properties.practical.properties
     .teachingSteps.items.properties.displayText;
 
-  assert.match(displayText.description, /exactly 2-6 non-empty lines/);
-  assert.match(displayText.description, /calculations and working/);
-  assert.match(displayText.description, /options, constraints, trade-offs, and outcomes/);
+  assert.match(displayText.description, /2-6 lines/);
+  assert.match(displayText.description, /calculations, evidence, comparisons, or results/);
 });
 
 test("terminal chapter repairs retain code walkthrough display labels", () => {
@@ -254,16 +253,39 @@ test("initial response schema requires complete practical content, not only an e
 
   assert.ok(practical.required.includes("teachingSteps"));
   assert.ok(practical.required.includes("objectives"));
+  assert.ok(taskSchema.items.required.includes("instruction"));
+  assert.ok(taskSchema.items.required.includes("hints"));
+  assert.ok(taskSchema.items.required.includes("structuredHints"));
+  assert.ok(taskSchema.items.required.includes("inlineSuggestions"));
+  assert.ok(taskSchema.items.required.includes("tests"));
   assert.equal(practical.properties.teachingSteps.items.required.includes("stepNumber"), false);
   assert.equal(practical.properties.teachingSteps.items.properties.durationSeconds, undefined);
-  assert.equal(taskSchema.minItems, 3);
-  assert.equal(taskSchema.maxItems, 5);
+  assert.deepEqual(
+    practical.properties.workspace.properties.research.required,
+    [
+      "investigationQuestion",
+      "hypothesisPrompt",
+      "sources",
+      "datasets",
+      "requiredObservations",
+      "analysisOperations",
+      "calculationRules",
+      "conclusionPrompt",
+      "evidenceRequirements",
+      "rubric",
+    ],
+  );
+  assert.equal(taskSchema.minItems, undefined);
+  assert.equal(taskSchema.maxItems, undefined);
   assert.ok(taskSchema.items.required.includes("structuredHints"));
   assert.deepEqual(taskSchema.items.properties.structuredHints.required, ["nudge", "concept", "walkthrough"]);
-  assert.equal(taskSchema.items.properties.inlineSuggestions.minItems, 1);
-  assert.equal(taskSchema.items.properties.inlineSuggestions.maxItems, 3);
-  assert.equal(taskSchema.items.properties.hints.minItems, 3);
-  assert.equal(taskSchema.items.properties.hints.maxItems, 3);
+  assert.equal(taskSchema.items.properties.inlineSuggestions.minItems, undefined);
+  assert.equal(taskSchema.items.properties.inlineSuggestions.maxItems, undefined);
+  assert.equal(taskSchema.items.properties.hints.minItems, undefined);
+  assert.equal(taskSchema.items.properties.hints.maxItems, undefined);
+  assert.doesNotMatch(JSON.stringify(schema), /"minItems"|"maxItems"|"enum"/);
+  assert.ok(practical.properties.teachingSteps.items.required.includes("speakerText"));
+  assert.ok(practical.properties.teachingSteps.items.required.includes("displayText"));
 });
 
 test("detects Gemini response-schema state-limit errors for JSON-mode fallback", () => {
