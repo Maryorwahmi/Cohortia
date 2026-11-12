@@ -5,7 +5,9 @@ import {
   buildChapterContinuationPrompt,
   buildChapterRepairFeedback,
   chapterRepairResponseSchema,
+  generateChapterJson,
   normalizeChapterResponse,
+  isGeminiSchemaComplexityError,
   validateGeneratedPracticalCompleteness,
   validateChapterRepairScript,
 } from "./generate-learning-board-practical-chapter.js";
@@ -262,6 +264,56 @@ test("initial response schema requires complete practical content, not only an e
   assert.equal(taskSchema.items.properties.inlineSuggestions.maxItems, 3);
   assert.equal(taskSchema.items.properties.hints.minItems, 3);
   assert.equal(taskSchema.items.properties.hints.maxItems, 3);
+});
+
+test("detects Gemini response-schema state-limit errors for JSON-mode fallback", () => {
+  assert.equal(isGeminiSchemaComplexityError({
+    error: "Gemini rejected the request (HTTP 400): The specified schema produces a constraint that has too many states for serving.",
+  }), true);
+  assert.equal(isGeminiSchemaComplexityError({
+    error: "Gemini rejected the request (HTTP 400): Invalid API key.",
+  }), false);
+});
+
+test("retries schema complexity errors in JSON mode and leaves validation to the chapter pipeline", async () => {
+  const requests = [];
+  const result = await generateChapterJson({
+    prompt: "Generate one practical.",
+    entry: entry("Research & Analysis"),
+    maxTokens: 1024,
+    temperature: 0.3,
+    model: "gemini-test",
+  }, async (request) => {
+    requests.push(request);
+    return requests.length === 1
+      ? { success: false, error: "Gemini rejected the request: schema produces a constraint that has too many states for serving." }
+      : { success: true, data: { practical: { title: "Generated in JSON mode" } } };
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(requests.length, 2);
+  assert.ok(requests[0].responseSchema);
+  assert.equal(requests[1].responseSchema, undefined);
+  assert.equal(requests[1].prompt, requests[0].prompt);
+  assert.equal(requests[1].maxTokens, 1024);
+});
+
+test("does not retry unrelated Gemini request errors without a schema", async () => {
+  const requests = [];
+  const result = await generateChapterJson({
+    prompt: "Generate one practical.",
+    entry: entry("Research & Analysis"),
+    maxTokens: 1024,
+    temperature: 0.3,
+    model: "gemini-test",
+  }, async (request) => {
+    requests.push(request);
+    return { success: false, error: "Gemini rejected the request (HTTP 400): Invalid API key." };
+  });
+
+  assert.equal(result.success, false);
+  assert.equal(requests.length, 1);
+  assert.ok(requests[0].responseSchema);
 });
 
 test("terminal walkthrough validation rejects repeated snapshots and learner editing during watch mode", () => {

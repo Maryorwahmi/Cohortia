@@ -140,6 +140,32 @@ function chapterRepairResponseSchema(entry) {
   return chapterResponseSchema(entry);
 }
 
+function isGeminiSchemaComplexityError(result) {
+  return /schema produces a constraint that has too many states|too many states for serving/i.test(
+    result?.error || "",
+  );
+}
+
+async function generateChapterJson({ prompt, entry, maxTokens, temperature, model }, requestJson = generateCompleteJson) {
+  const request = {
+    prompt,
+    systemPrompt: "",
+    responseSchema: chapterResponseSchema(entry),
+    maxTokens,
+    temperature,
+    model,
+  };
+  const result = await requestJson(request);
+  if (result?.success || !isGeminiSchemaComplexityError(result)) return result;
+
+  console.warn(
+    "Gemini rejected the chapter response schema as too complex; retrying in JSON mode with local validation.",
+  );
+  const jsonModeRequest = { ...request };
+  delete jsonModeRequest.responseSchema;
+  return requestJson(jsonModeRequest);
+}
+
 function validateChapterRepairScript(raw, entry) {
   const canonicalKey = canonicalScriptKeyForEntry(entry);
   if (canonicalKey !== "teachingSteps") return;
@@ -978,10 +1004,9 @@ async function generateChapter(options, { importPractical = importGeneratedPract
       data: mockDocument.data && mockDocument.success !== undefined ? mockDocument.data : mockDocument,
     };
   } else {
-    result = await generateCompleteJson({
+    result = await generateChapterJson({
       prompt,
-      systemPrompt: "",
-      responseSchema: chapterResponseSchema(entry),
+      entry,
       maxTokens: 65536,
       temperature: 0.35,
       model,
@@ -1070,10 +1095,9 @@ phase's narration against its displayText before returning the response.`
               lastRejectedPractical,
             )
             : completeChapterPrompt;
-          const chapterResult = await generateCompleteJson({
+          const chapterResult = await generateChapterJson({
             prompt: chapterPrompt,
-            systemPrompt: "",
-            responseSchema: chapterRepairResponseSchema(entry),
+            entry,
             maxTokens: 65536,
             temperature: 0.25,
             model,
@@ -1171,6 +1195,8 @@ export {
   buildChapterRepairFeedback,
   buildChapterContinuationPrompt,
   chapterRepairResponseSchema,
+  generateChapterJson,
+  isGeminiSchemaComplexityError,
   validateChapterRepairScript,
   extractCourseChapters,
   findCourseChapter,
