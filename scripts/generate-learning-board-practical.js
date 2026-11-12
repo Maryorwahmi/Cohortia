@@ -13,8 +13,7 @@
  * Usage:
  *   node scripts/generate-learning-board-practical.js \
  *     --course-id cs50s-introduction-to-computer-science \
- *     --module 1 \
- *     --chapter 2 \
+ *     --chapter 1.2 \
  *     --output generated/learning-board-practicals
  *
  * Optional:
@@ -1306,8 +1305,7 @@ async function main() {
   const {
     syllabus,
     course: courseArgument,
-    module: moduleStr,
-    chapter: chapterStr,
+    chapter: chapterKey,
     "course-id": explicitCourseId,
     output: outputRoot = "generated/learning-board-practicals",
     model = DEFAULT_MODEL,
@@ -1327,14 +1325,13 @@ async function main() {
   const courseId = explicitCourseId || (!courseArgumentIsPath ? courseArgument : undefined);
   const syllabusPath = syllabus || coursePath;
 
-  if ((!syllabusPath && !activitySourcePath && !courseId) || !moduleStr || !chapterStr) {
+  if ((!syllabusPath && !activitySourcePath && !courseId) || !chapterKey) {
     console.error("Usage: node scripts/generate-learning-board-practical.js \\");
     console.error("  --course-id <id> \\");
     console.error("  or --course <id or syllabus path> \\");
     console.error("  [--syllabus <path>] \\");
     console.error("  [--activity-source <path relative to hand's-on activity>] \\");
-    console.error("  --module <num> \\");
-    console.error("  --chapter <num> \\");
+    console.error("  --chapter <module.chapter> \\");
     console.error("  [--output <dir>] \\");
     console.error("  [--lesson-source <path relative to docs/computer-science>] \\");
     console.error("  [--mock-response <json path>] [--dry-run] \\");
@@ -1343,10 +1340,12 @@ async function main() {
   }
 
   try {
-    const moduleNumber = Number(moduleStr);
-    const chapterNumber = Number(chapterStr);
+    const chapterMatch = /^(\d+)\.(\d+)$/.exec(String(chapterKey));
+    if (!chapterMatch) throw new Error("--chapter must use the module.chapter format, such as 1.2.");
+    const moduleNumber = Number(chapterMatch[1]);
+    const chapterNumber = Number(chapterMatch[2]);
     if (!Number.isInteger(moduleNumber) || !Number.isInteger(chapterNumber) || moduleNumber < 1 || chapterNumber < 1) {
-      throw new Error("Module and chapter must be positive integers.");
+      throw new Error("--chapter must contain positive module and chapter numbers.");
     }
 
     const sourceContext = await resolveSourceContext({
@@ -1362,7 +1361,7 @@ async function main() {
     const chapterData = sourceContext.activityChapter;
 
     if (!chapterData.handsOnActivity) {
-      console.warn(`⚠ Chapter ${moduleStr}.${chapterStr} has no hands-on activity. Skipping practical generation.`);
+      console.warn(`⚠ Chapter ${chapterKey} has no hands-on activity. Skipping practical generation.`);
       return;
     }
 
@@ -1479,7 +1478,7 @@ REMEMBER: A "Hello World" practical should NOT be 1 minute. It should be 5-7 min
       return;
     }
 
-    console.log(`Generating practical for Chapter ${moduleStr}.${chapterStr}...`);
+    console.log(`Generating practical for Chapter ${chapterKey}...`);
     let result;
     if (mockResponsePath) {
       const mockDocument = JSON.parse(await fs.readFile(mockResponsePath, "utf8"));

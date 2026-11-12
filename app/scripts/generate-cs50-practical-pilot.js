@@ -77,8 +77,7 @@ async function main() {
   for (const record of selected) {
     const generatorArgs = [
       "--course-id", pilot.courseId,
-      "--module", String(record.module),
-      "--chapter", String(record.chapter),
+      "--chapter", `${record.module}.${record.chapter}`,
       "--syllabus", path.join(REPOSITORY_ROOT, "docs", "computer-science", record.source.path),
       "--output", outputRoot,
     ];

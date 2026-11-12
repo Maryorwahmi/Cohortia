@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generate all practical candidates in one module with one Gemini request.
+ * Generate and publish one chapter practical per Gemini request.
  *
  * The response is still written as one chapter-level practical manifest per
  * chapter so source identity, category, import, and learner progress remain
@@ -29,30 +29,15 @@ const BACKEND_ROOT = path.join(REPOSITORY_ROOT, "backend");
 const PRACTICAL_IMPORTER_PATH = path.join(BACKEND_ROOT, "scripts", "import-practicals.js");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
-// Keep the Gemini transport schema intentionally shallow. Embedding
-// PRACTICAL_SCHEMA here makes Gemini compile a very large state machine for
-// every practical in the module (nested task/check/workspace arrays, enums,
-// and optional objects), which can be rejected with "constraint has too many
-// states" before the request is even generated. The practical payload is
-// still normalized and checked by normalizeModuleResponse/writePractical;
-// this schema only constrains the stable module envelope.
-const MODULE_RESPONSE_SCHEMA = {
+// Keep the transport schema shallow; the generated practical is validated locally.
+const CHAPTER_RESPONSE_SCHEMA = {
   type: "object",
   properties: {
-    practicals: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          moduleNumber: { type: "integer" },
-          chapterNumber: { type: "integer" },
-          practical: { type: "object" },
-        },
-        required: ["moduleNumber", "chapterNumber", "practical"],
-      },
-    },
+    moduleNumber: { type: "integer" },
+    chapterNumber: { type: "integer" },
+    practical: { type: "object" },
   },
-  required: ["practicals"],
+  required: ["moduleNumber", "chapterNumber", "practical"],
 };
 
 function canonicalScriptKeyForEntry(entry) {
@@ -61,11 +46,7 @@ function canonicalScriptKeyForEntry(entry) {
     : "teachingSteps";
 }
 
-// The aggregate module schema intentionally stays shallow because a full
-// practical schema is too large for Gemini's response-schema compiler. A
-// chapter repair is only one practical, though, so we can enforce the one
-// constraint that caused the recurring failure without expanding the whole
-// practical state machine.
+// Enforce the canonical teaching sequence without expanding the transport schema.
 function chapterRepairResponseSchema(entry) {
   const canonicalKey = canonicalScriptKeyForEntry(entry);
   const phaseProperties = {
@@ -110,51 +91,35 @@ function chapterRepairResponseSchema(entry) {
   return {
     type: "object",
     properties: {
-      practicals: {
-        type: "array",
-        minItems: 1,
-        maxItems: 1,
-        items: {
-          type: "object",
-          properties: {
-            moduleNumber: { type: "integer" },
-            chapterNumber: { type: "integer" },
-            practical: {
+      moduleNumber: { type: "integer" },
+      chapterNumber: { type: "integer" },
+      practical: {
+        type: "object",
+        properties: {
+          [canonicalKey]: {
+            type: "array",
+            minItems: 4,
+            maxItems: 8,
+            items: {
               type: "object",
-              properties: {
-                [canonicalKey]: {
-                  type: "array",
-                  minItems: 4,
-                  maxItems: 8,
-                  items: {
-                    type: "object",
-                    properties: phaseProperties,
-                    required: phaseRequired,
-                  },
-                },
-              },
-              required: [canonicalKey],
+              properties: phaseProperties,
+              required: phaseRequired,
             },
           },
-          required: ["moduleNumber", "chapterNumber", "practical"],
         },
+        required: [canonicalKey],
       },
     },
-    required: ["practicals"],
+    required: ["moduleNumber", "chapterNumber", "practical"],
   };
 }
 
 function validateChapterRepairScript(raw, entry) {
   const canonicalKey = canonicalScriptKeyForEntry(entry);
   if (canonicalKey !== "teachingSteps") return;
-  const items = Array.isArray(raw)
-    ? raw
-    : raw?.practicals || raw?.data?.practicals || raw?.result?.practicals;
   const chapterKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
-  const chapter = Array.isArray(items)
-    ? items.find((item) => `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === chapterKey)
-    : undefined;
-  const steps = chapter?.practical?.[canonicalKey];
+  const chapter = findChapterResponseItem(raw, entry);
+  const steps = chapter?.practical?.[canonicalKey] || raw?.practical?.[canonicalKey];
   if (!Array.isArray(steps)) return;
 
   const issues = [];
@@ -200,6 +165,107 @@ function validateChapterRepairScript(raw, entry) {
   }
 }
 
+function buildChapterRepairFeedback(error, canonicalKey) {
+  const message = error?.message || String(error);
+  const guidance = [
+    "Correct every validation issue listed below in this response, including semantic content errors; do not only change line counts.",
+    `Return the complete practical object with its canonical ${canonicalKey} array containing 4-8 complete ordered phases.`,
+  ];
+
+  if (canonicalKey === "teachingSteps" && /Binary teaching phase/i.test(message)) {
+    guidance.push(
+      "For binary-conversion phases, fix the actual mathematics, not just its formatting. In a worked example, show the input expanded into its place-value terms and the verified decimal total (for example, 11010₂ = 1×16 + 1×8 + 0×4 + 1×2 + 0×1 = 26₁₀; use the activity's actual input and calculate its correct result).",
+      "Every multi-digit number spoken in a phase must also appear in that phase's displayText. For each phase named in the error, either add the relevant value to its visible working or rewrite the narration to remove an unnecessary value; never leave spoken numbers invisible or preserve an incorrect answer.",
+    );
+    const missingValues = [...message.matchAll(/Binary teaching phase (\d+) speaks numeric values absent from displayText: ([\d,\s]+)\./gi)];
+    for (const [, phase, values] of missingValues) {
+      guidance.push(`Phase ${phase} currently speaks ${values.trim()}, which is missing from its displayText; show each value there as part of the correct explanation or revise the narration.`);
+    }
+    const calculationPhases = [...message.matchAll(/Binary teaching phase (\d+) must show its calculation/gi)];
+    for (const [, phase] of calculationPhases) {
+      guidance.push(`Phase ${phase} must display a real binary place-value calculation with multiple terms, an operator, and the correct result; a heading or answer alone is invalid.`);
+    }
+  }
+
+  if (canonicalKey === "teachingSteps" && /teachingSteps=missing|teaching must contain 4-8 complete teaching phases/i.test(message)) {
+    guidance.push(
+      "The practical must include practical.teachingSteps as an array of 4-8 complete phases. Keep this field in the exact object returned; do not omit it, rename it to codeWalkthrough, or put the script only in narratorGuide, teacherTalk, or teachingPlaylist.",
+      "Each phase needs its stepNumber, phase, displayText, speakerText, explanation, learnerPrompt, commonMistake, and recap. Return the entire practical, including its tasks, files, and workspace.",
+    );
+  }
+
+  if (canonicalKey === "codeWalkthrough" && /hands an editing or execution action|asks the learner to edit or execute during the watch-only walkthrough/i.test(message)) {
+    guidance.push(
+      "The codeWalkthrough is teacher-led and watch-only until its final transfer phase. In every non-final phase, learnerPrompt must ask for a prediction or observation only; do not ask the learner to add, change, modify, edit, type, write, remove, delete, compile, run, or execute anything.",
+      "Keep all narrated code edits, compilation, and execution as teacher demonstrations with visible code, terminalCommands, or terminalOutput. Move learner editing or running instructions to the final transfer phase or the practical tasks.",
+    );
+    const phases = [...message.matchAll(/code walkthrough phase (\d+) hands an editing or execution action/gi)];
+    for (const [, phase] of phases) {
+      guidance.push(`Rewrite codeWalkthrough phase ${phase}'s learnerPrompt as a concrete prediction or observation question. Do not instruct the learner to perform an action in that phase.`);
+    }
+    const validatorPhases = [...message.matchAll(/code walkthrough phase (\d+) asks the learner to edit or execute/gi)];
+    for (const [, phase] of validatorPhases) {
+      guidance.push(`Rewrite codeWalkthrough phase ${phase}'s learnerPrompt as a concrete prediction or observation question. Do not instruct the learner to perform an action in that phase.`);
+    }
+  }
+
+  if (canonicalKey === "codeWalkthrough" && /discusses compilation or execution without a visible terminal command or output/i.test(message)) {
+    guidance.push(
+      "For every codeWalkthrough phase whose speakerText or learnerPrompt mentions compiling, running, executing, or terminal output, include a real visible terminalCommands array and/or terminalOutput in that same phase. Otherwise rewrite the narration and prompt so they do not claim or discuss execution.",
+    );
+    const phases = [...message.matchAll(/code walkthrough phase (\d+) discusses compilation or execution without a visible terminal command or output/gi)];
+    for (const [, phase] of phases) {
+      guidance.push(`Fix codeWalkthrough phase ${phase}: add the actual relevant command or expected output to that phase, or remove the execution claim from its narration and learnerPrompt.`);
+    }
+  }
+
+  return `PREVIOUS RESPONSE VALIDATION FEEDBACK
+=====================================
+The previous response was rejected:
+${message}
+
+${guidance.map((item) => `- ${item}`).join("\n")}`;
+}
+
+function findChapterResponseItem(raw, entry) {
+  const data = raw?.data?.practicals || raw?.data || raw?.result?.practicals || raw?.result || raw;
+  const items = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.practicals)
+      ? data.practicals
+      : [data];
+  const expectedKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
+  return Array.isArray(items)
+    ? items.find((item) => `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === expectedKey)
+    : undefined;
+}
+
+function buildChapterContinuationPrompt(prompt, error, canonicalKey, previousPractical) {
+  const feedback = buildChapterRepairFeedback(error, canonicalKey);
+  if (!previousPractical || typeof previousPractical !== "object") {
+    return `${prompt}\n\n${feedback}`;
+  }
+
+  return `${prompt}
+
+CONTINUATION OF THE REJECTED PRACTICAL (MANDATORY)
+==================================================
+Continue from the practical below; do not generate a different practical from
+scratch. Preserve its valid title, activity, tasks, workspace, and phase
+content. Make the smallest edits needed to fix every reported validation
+failure. Keep the complete practical object and its canonical ${canonicalKey}
+array in the returned response. Do not copy an incorrect calculation or value:
+correct it in both narration and display wherever needed.
+
+REJECTED PRACTICAL TO CONTINUE
+==============================
+${JSON.stringify(previousPractical, null, 2)}
+
+${feedback}
+
+Return the full corrected practical, not a patch or a description of changes.`;
+}
+
 function loadRepositoryEnv() {
   const envPath = path.join(REPOSITORY_ROOT, "backend", ".env");
   if (!fsSync.existsSync(envPath)) return;
@@ -228,18 +294,15 @@ function parseOptions(argv) {
   return options;
 }
 
-function parseChapterNumbers(value, moduleNumber) {
-  if (value === undefined || value === true || value === null || value === "") return null;
-  const chapters = [...new Set(String(value)
-    .split(/[\s,]+/)
-    .filter(Boolean)
-    .map((item) => Number.parseInt(item, 10)))];
-  if (chapters.some((chapter) => !Number.isInteger(chapter) || chapter < 1)) {
-    throw new Error("Chapter numbers must be positive integers.");
+function parseChapterKey(value) {
+  const match = /^(\d+)\.(\d+)$/.exec(String(value || ""));
+  if (!match) throw new Error("--chapter must use the module.chapter format, such as 1.2.");
+  const moduleNumber = Number(match[1]);
+  const chapterNumber = Number(match[2]);
+  if (!Number.isInteger(moduleNumber) || moduleNumber < 1 || !Number.isInteger(chapterNumber) || chapterNumber < 1) {
+    throw new Error("--chapter must contain positive module and chapter numbers.");
   }
-  return chapters
-    .sort((left, right) => left - right)
-    .map((chapter) => ({ module: moduleNumber, chapter }));
+  return { moduleNumber, chapterNumber };
 }
 
 function extractCourseChapters(markdown) {
@@ -264,8 +327,10 @@ function extractCourseChapters(markdown) {
   ));
 }
 
-function extractModuleChapters(markdown, moduleNumber) {
-  return extractCourseChapters(markdown).filter((chapter) => chapter.module === moduleNumber);
+function findCourseChapter(markdown, moduleNumber, chapterNumber) {
+  return extractCourseChapters(markdown).find((chapter) => (
+    chapter.module === moduleNumber && chapter.chapter === chapterNumber
+  ));
 }
 
 function isPathLike(value) {
@@ -312,7 +377,7 @@ EDUCATIONAL PHILOSOPHY:
 These are exploratory learning labs, NOT exams, tests, or quizzes. The learner must feel empowered to experiment, observe cause-and-effect, and learn through discovery. Avoid rigid, brittle string matching or punitive checks.
 
 REQUIREMENTS:
-1. Return exactly one practical candidate for every input chapter. Never merge chapters or omit a chapter.
+1. Return exactly one practical for the single requested chapter. Do not include another chapter.
 2. Preserve each chapter's original activity title, objectives, and ordered steps.
   2A. TEACH VIEW OPENING CONTENT:
    - Every practical must provide a complete teachViewOpening for the first Teach Mode orientation screen. This is not the walkthrough screen and it must be present for Terminal Coding, Cloud Console, Scenario & Design, and Research & Analysis practicals.
@@ -379,13 +444,12 @@ REQUIREMENTS:
 7. Infer labType from each activity, but prefer simulation/manual review when execution would need host, production, credential, or unrestricted network access.
 8. Keep all generated file paths relative to the practical workspace and never use absolute paths or parent-directory segments.
 9. Do not return teachingPlaylist; the generator derives it from the canonical teaching sequence.
-10. Return only valid JSON matching the requested module response schema.`;
+10. Return only valid JSON matching the requested chapter response schema.`;
 }
 
-function buildModulePrompt(promptTemplate, entries, metadata) {
-  const chapterSections = entries.map((entry) => {
-    const { sourceContext, metadata: chapterMetadata } = entry;
-    return `CHAPTER ${chapterMetadata.moduleNumber}.${chapterMetadata.chapterNumber}
+function buildChapterPrompt(promptTemplate, entry, metadata) {
+  const { sourceContext, metadata: chapterMetadata } = entry;
+  const chapterSection = `CHAPTER ${chapterMetadata.moduleNumber}.${chapterMetadata.chapterNumber}
 =========================================
 Chapter title: ${sourceContext.activityChapter.chapterTitle}
 Source category: ${sourceContext.source.category}
@@ -411,119 +475,62 @@ ${JSON.stringify(sourceContext.lessonContext || {}, null, 2)}
 ACTIVITY STEP MAP
 -----------------
 ${JSON.stringify(sourceContext.activitySteps || [], null, 2)}`;
-  }).join("\n\n");
-
-  const expectedChapters = entries
-    .map(({ metadata: chapterMetadata }) => `${chapterMetadata.moduleNumber}.${chapterMetadata.chapterNumber}`)
-    .join(", ");
 
   return `${promptTemplate}
 
-MODULE RESPONSE CONTRACT
+CHAPTER RESPONSE CONTRACT
 ========================
-Return one JSON object with a "practicals" array. Each array item must contain:
-- moduleNumber: the numeric module from the matching input chapter
-- chapterNumber: the numeric chapter from the matching input chapter
-- practical: the complete practical object for that chapter
+Return one JSON object containing:
+- moduleNumber: ${chapterMetadata.moduleNumber}
+- chapterNumber: ${chapterMetadata.chapterNumber}
+- practical: the complete practical object for this chapter
 
-Return exactly one item for each of these chapter keys, in this order: ${expectedChapters}
-Never combine two chapters into one practical. Never return a practical for a chapter that is not listed.
-
-COURSE AND MODULE METADATA
+COURSE AND CHAPTER METADATA
 ==========================
 ${JSON.stringify(metadata, null, 2)}
 
-${chapterSections}
+${chapterSection}
 
 TEACH VIEW OPENING CONTENT
 ==========================
-Provide concrete, chapter-grounded title, summary, objectives, tasks, workspace data, and teaching steps for each practical. The normalizer publishes the required teachViewOpening from those fields and the structured lesson concepts. Keep each opening specific to its category and hands-on activity.`;
+Provide concrete, chapter-grounded title, summary, objectives, tasks, workspace data, and teaching steps for this practical. The normalizer publishes the required teachViewOpening from those fields and the structured lesson concepts. Keep the opening specific to its category and hands-on activity.`;
 }
 
-function normalizeModuleResponse(raw, entries) {
-  let items = Array.isArray(raw)
-    ? raw
-    : raw?.practicals
-      || raw?.data?.practicals
-      || raw?.result?.practicals;
-  if (!Array.isArray(items)) {
-    const keys = raw && typeof raw === "object" ? Object.keys(raw).join(", ") : typeof raw;
-    throw new Error(`Module response must contain a practicals array (received keys: ${keys || "none"}).`);
-  }
-  // Gemini can return the full module even when a resumed run requests only
-  // the remaining chapter(s). Keep only requested chapter keys when every
-  // requested key is present; reject missing or duplicate requested chapters.
-  if (items.length !== entries.length) {
-    const expectedKeys = new Set(entries.map((entry) => `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`));
-    const matchingItems = items.filter((item) => expectedKeys.has(`${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}`));
-    const matchingKeys = matchingItems.map((item) => `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}`);
-    if (matchingItems.length === entries.length && new Set(matchingKeys).size === entries.length) {
-      items = matchingItems;
-    } else {
-    throw new Error(`Module response returned ${items.length} practical(s); expected ${entries.length}.`);
-    }
+function normalizeChapterResponse(raw, entry) {
+  const expectedKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
+  const data = raw?.data?.practicals || raw?.data || raw?.result?.practicals || raw?.result || raw;
+  const candidates = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.practicals)
+      ? data.practicals
+      : [data];
+  const matchingCandidates = candidates.filter((item) => (
+    `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === expectedKey
+    && item?.practical
+    && typeof item.practical === "object"
+  ));
+  if (!matchingCandidates.length) {
+    throw new Error(`Chapter response omitted practical ${expectedKey}.`);
   }
 
-  const entriesByKey = new Map(entries.map((entry) => [
-    `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
-    entry,
-  ]));
-  const seenKeys = new Set();
-  const normalized = [];
-
-  for (const item of items) {
-    const moduleNumber = Number(item?.moduleNumber);
-    const chapterNumber = Number(item?.chapterNumber);
-    const key = `${moduleNumber}.${chapterNumber}`;
-    if (!Number.isInteger(moduleNumber) || !Number.isInteger(chapterNumber)) {
-      throw new Error("Each module practical must declare integer moduleNumber and chapterNumber.");
-    }
-    if (!entriesByKey.has(key)) throw new Error(`Module response included unexpected chapter ${key}.`);
-    if (seenKeys.has(key)) throw new Error(`Module response included duplicate chapter ${key}.`);
-    if (!item.practical || typeof item.practical !== "object") {
-      throw new Error(`Module response is missing the practical object for chapter ${key}.`);
-    }
-
-    const entry = entriesByKey.get(key);
+  let lastError;
+  for (const candidate of matchingCandidates) {
     const canonicalKey = canonicalScriptKeyForEntry(entry);
     let practical;
     try {
-      practical = normalizePractical(item.practical, entry.sourceContext, entry.metadata);
+      practical = normalizePractical(candidate.practical, entry.sourceContext, entry.metadata);
       assertValidPractical(practical);
+      return [{ ...entry, practical }];
     } catch (error) {
-      const canonicalValue = practical?.[canonicalKey] || item.practical?.[canonicalKey];
+      const canonicalValue = practical?.[canonicalKey] || candidate.practical?.[canonicalKey];
       const canonicalCount = Array.isArray(canonicalValue) ? canonicalValue.length : "missing";
-      throw new Error(
-        `Chapter ${key} failed practical validation (${canonicalKey}=${canonicalCount}): ${error.message}`,
+      lastError = new Error(
+        `Chapter ${expectedKey} failed practical validation (${canonicalKey}=${canonicalCount}): ${error.message}`,
         { cause: error },
       );
     }
-    seenKeys.add(key);
-    normalized.push({ ...entry, practical });
   }
-
-  for (const key of entriesByKey.keys()) {
-    if (!seenKeys.has(key)) throw new Error(`Module response omitted chapter ${key}.`);
-  }
-
-  return normalized.sort((left, right) => (
-    left.metadata.chapterNumber - right.metadata.chapterNumber
-  ));
-}
-
-function normalizeSingleChapterResponse(raw, entry) {
-  const items = Array.isArray(raw)
-    ? raw
-    : raw?.practicals || raw?.data?.practicals || raw?.result?.practicals;
-  const expectedKey = `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`;
-  const matchingItem = Array.isArray(items)
-    ? items.find((item) => `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === expectedKey)
-    : null;
-  // A repair request is scoped to one chapter. If Gemini adds an extra item,
-  // keep the matching chapter and let the normalizer validate its contents.
-  return matchingItem
-    ? normalizeModuleResponse({ practicals: [matchingItem] }, [entry])
-    : normalizeModuleResponse(raw, [entry]);
+  throw lastError;
 }
 
 function resolveInputPath(value, repoRoot) {
@@ -579,12 +586,12 @@ async function importGeneratedPractical(practicalPath) {
   throw lastError;
 }
 
-async function buildModuleEntries({
+async function buildChapterEntry({
   repoRoot,
   syllabusPath,
   courseId,
   moduleNumber,
-  chapterNumbers,
+  chapterNumber,
   activitySourcePath,
   lessonSourcePath,
   category,
@@ -593,65 +600,46 @@ async function buildModuleEntries({
   skippedChapters = [],
 }) {
   const syllabusMarkdown = await fs.readFile(syllabusPath, "utf8");
-  const discoveredChapters = extractModuleChapters(syllabusMarkdown, moduleNumber);
-  const selectedChapterNumbers = chapterNumbers?.length
-    ? new Set(chapterNumbers)
-    : null;
-  const chapters = discoveredChapters.filter((chapter) => (
-    !selectedChapterNumbers || selectedChapterNumbers.has(chapter.chapter)
-  ));
-
-  if (!chapters.length) {
-    throw new Error(`No chapters found for module ${moduleNumber}${selectedChapterNumbers ? " and requested chapter filter" : ""}.`);
-  }
-
+  const chapter = findCourseChapter(syllabusMarkdown, moduleNumber, chapterNumber);
+  if (!chapter) throw new Error(`Chapter ${moduleNumber}.${chapterNumber} was not found in the course syllabus.`);
   const generated = new Date().toISOString();
-  const entries = [];
-  for (const chapter of chapters) {
-    const sourceContext = await resolveSourceContext({
-      repoRoot,
-      syllabusPath,
-      activitySourcePath,
-      lessonSourcePath,
-      courseId,
+  const sourceContext = await resolveSourceContext({
+    repoRoot,
+    syllabusPath,
+    activitySourcePath,
+    lessonSourcePath,
+    courseId,
+    moduleNumber: chapter.module,
+    chapterNumber: chapter.chapter,
+    category,
+  });
+  if (!sourceContext.activityChapter.handsOnActivity) {
+    if (!skipWithoutActivity) throw new Error(`Chapter ${chapter.module}.${chapter.chapter} has no hands-on activity.`);
+    skippedChapters.push({
       moduleNumber: chapter.module,
       chapterNumber: chapter.chapter,
-      category,
+      chapterTitle: chapter.title,
+      reason: "No hands-on activity was found in the syllabus source.",
     });
-    if (!sourceContext.activityChapter.handsOnActivity) {
-      if (skipWithoutActivity) {
-        skippedChapters.push({
-          moduleNumber: chapter.module,
-          chapterNumber: chapter.chapter,
-          chapterTitle: chapter.title,
-          reason: "No hands-on activity was found in the syllabus source.",
-        });
-        continue;
-      }
-      throw new Error(`Chapter ${chapter.module}.${chapter.chapter} has no hands-on activity.`);
-    }
-    entries.push({
-      sourceContext,
-      metadata: {
-        courseId: sourceContext.courseId,
-        moduleNumber: chapter.module,
-        chapterNumber: chapter.chapter,
-        generated,
-        model,
-        category: sourceContext.source.category,
-        sourceKey: sourceContext.source.sourceKey,
-        sourceHash: sourceContext.source.sourceHash,
-        lessonHash: sourceContext.lessonHash,
-      },
-    });
+    return null;
   }
-  if (!entries.length && !skipWithoutActivity) {
-    throw new Error(`No chapters with hands-on activities were found for module ${moduleNumber}.`);
-  }
-  return entries;
+  return {
+    sourceContext,
+    metadata: {
+      courseId: sourceContext.courseId,
+      moduleNumber: chapter.module,
+      chapterNumber: chapter.chapter,
+      generated,
+      model,
+      category: sourceContext.source.category,
+      sourceKey: sourceContext.source.sourceKey,
+      sourceHash: sourceContext.source.sourceHash,
+      lessonHash: sourceContext.lessonHash,
+    },
+  };
 }
 
-async function generateModule(options, { importPractical = importGeneratedPractical } = {}) {
+async function generateChapter(options, { importPractical = importGeneratedPractical } = {}) {
   const repoRoot = path.resolve(options["repo-root"] || REPOSITORY_ROOT);
   if (options.provider) {
     const provider = String(options.provider).trim().toLowerCase();
@@ -664,32 +652,21 @@ async function generateModule(options, { importPractical = importGeneratedPracti
   const requestedSyllabus = await resolveSyllabusPath(options, courseId);
   if (!requestedSyllabus) throw new Error("Pass --course <course id or syllabus path>, --course-id, or --syllabus.");
   const syllabusPath = resolveInputPath(requestedSyllabus, repoRoot);
-  const moduleNumber = Number(options.module);
-  if (!Number.isInteger(moduleNumber) || moduleNumber < 1) {
-    throw new Error("--module must be a positive integer.");
-  }
-
-  const chapterFilter = options.chapters ?? options.chapter;
-  const requestedChapterEntries = chapterFilter === undefined || chapterFilter === true
-    ? null
-    : parseChapterNumbers(chapterFilter, moduleNumber);
-  const chapterNumbers = requestedChapterEntries?.map((entry) => entry.chapter) || null;
+  const { moduleNumber, chapterNumber } = parseChapterKey(options.chapter);
   const model = options.model || DEFAULT_MODEL;
-  const allEntries = await buildModuleEntries({
+  const entry = await buildChapterEntry({
     repoRoot,
     syllabusPath,
     courseId,
     moduleNumber,
-    chapterNumbers,
+    chapterNumber,
     activitySourcePath: options["activity-source"],
     lessonSourcePath: options["lesson-source"],
     category: options.category,
     model,
   });
-  const resolvedCourseId = allEntries[0].sourceContext.courseId;
-  if (allEntries.some((entry) => entry.sourceContext.courseId !== resolvedCourseId)) {
-    throw new Error("All module chapters must resolve to the same course id.");
-  }
+  const allEntries = [entry];
+  const resolvedCourseId = entry.sourceContext.courseId;
 
   const outputRoot = resolveInputPath(options.output || "generated/learning-board-practicals", repoRoot);
   let entries = allEntries;
@@ -772,8 +749,7 @@ async function generateModule(options, { importPractical = importGeneratedPracti
     return {
       status: "resumed",
       courseId: resolvedCourseId,
-      moduleNumber,
-      chapters: allEntries.map((entry) => `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`),
+      chapterKey: `${moduleNumber}.${chapterNumber}`,
       targets: [],
       imports,
     };
@@ -832,10 +808,10 @@ async function generateModule(options, { importPractical = importGeneratedPracti
   const promptTemplate = options["prompt-template"]
     ? await fs.readFile(resolveInputPath(options["prompt-template"], repoRoot), "utf8")
     : buildDefaultPrompt();
-  const prompt = buildModulePrompt(promptTemplate, entries, {
+  const prompt = buildChapterPrompt(promptTemplate, entry, {
     courseId: resolvedCourseId,
     moduleNumber,
-    chapterNumbers: entries.map((entry) => entry.metadata.chapterNumber),
+    chapterNumber,
     model,
   });
 
@@ -844,11 +820,8 @@ async function generateModule(options, { importPractical = importGeneratedPracti
       status: "dry-run",
       courseId: resolvedCourseId,
       moduleNumber,
-      chapters: entries.map(({ sourceContext, metadata }) => ({
-        moduleNumber: metadata.moduleNumber,
-        chapterNumber: metadata.chapterNumber,
-        source: sourceContext.source,
-      })),
+      chapterKey: `${moduleNumber}.${chapterNumber}`,
+      source: entry.sourceContext.source,
       promptCharacters: prompt.length,
     };
   }
@@ -867,7 +840,7 @@ async function generateModule(options, { importPractical = importGeneratedPracti
     result = await generateCompleteJson({
       prompt,
       systemPrompt: "",
-      responseSchema: MODULE_RESPONSE_SCHEMA,
+      responseSchema: CHAPTER_RESPONSE_SCHEMA,
       maxTokens: 65536,
       temperature: 0.35,
       model,
@@ -881,89 +854,23 @@ async function generateModule(options, { importPractical = importGeneratedPracti
   }
   let normalized;
   try {
-    normalized = normalizeModuleResponse(result.data, entries);
+    normalized = normalizeChapterResponse(result.data, entry);
   } catch (error) {
-    // Gemini occasionally satisfies the practical schema but omits chapters
-    // from a large module response. Recover by asking for each chapter using
-    // the exact same contract with a one-chapter context. This keeps a single
-    // bad aggregate response from burning the whole module retry budget.
-    // The module envelope schema cannot express the profile-specific
-    // canonical script (teachingSteps vs codeWalkthrough), so a response can
-    // have the right number of items and still fail practical validation.
-    // Repair every chapter that failed normalization instead of treating
-    // those failures as fatal module errors. This is especially important for
-    // Gemini responses that collapse a three-step activity into three
-    // teaching phases despite the 4-8 phase contract.
-    if (options["mock-response"]) {
-      throw error;
-    }
-    const responseItems = Array.isArray(result.data)
-      ? result.data
-      : result.data?.practicals || result.data?.data?.practicals || result.data?.result?.practicals;
-    // In per-chapter mode, Gemini may occasionally append a neighboring
-    // chapter despite receiving a one-chapter prompt. Keep the one exact
-    // match and ignore unrelated extras; never accept duplicate matches.
-    if (entries.length === 1 && Array.isArray(responseItems)) {
-      const expectedKey = `${entries[0].metadata.moduleNumber}.${entries[0].metadata.chapterNumber}`;
-      const matchingItems = responseItems.filter((item) => (
-        `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === expectedKey
-        && item?.practical
-        && typeof item.practical === "object"
-      ));
-      if (matchingItems.length === 1) {
-        try {
-          normalized = normalizeSingleChapterResponse(matchingItems[0], entries[0]);
-        } catch {
-          normalized = undefined;
-        }
-      }
-    }
-    if (!normalized && (!Array.isArray(responseItems) || responseItems.length > entries.length)) {
-      throw error;
-    }
-    if (!normalized) {
-      const entriesByKey = new Map(entries.map((entry) => [
-        `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
-        entry,
-      ]));
-      const validItems = [];
-      const seenKeys = new Set();
-      for (const item of responseItems) {
-        const key = `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}`;
-        if (entriesByKey.has(key) && !seenKeys.has(key) && item?.practical && typeof item.practical === "object") {
-          validItems.push(item);
-          seenKeys.add(key);
-        }
-      }
-      const repaired = [];
-      for (const item of validItems) {
-        const key = `${Number(item.moduleNumber)}.${Number(item.chapterNumber)}`;
-        try {
-          repaired.push(...normalizeModuleResponse({ practicals: [item] }, [entriesByKey.get(key)]));
-        } catch {
-          seenKeys.delete(key);
-        }
-      }
-      for (const entry of repaired) {
-        await persistPractical(entry);
-      }
-      const entriesToRepair = entries.filter((entry) => !seenKeys.has(
-        `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`,
-      ));
-      console.warn(`Module response was incomplete or invalid; regenerating ${entriesToRepair.length} missing chapters individually.`);
-      for (const entry of entriesToRepair) {
-        const canonicalKey = canonicalScriptKeyForEntry(entry);
-        const baseChapterPrompt = `${buildModulePrompt(promptTemplate, [entry], {
-          courseId: resolvedCourseId,
-          moduleNumber,
-          chapterNumbers: [entry.metadata.chapterNumber],
-          model,
-        })}
+    if (options["mock-response"]) throw error;
+
+    const rejectedItem = findChapterResponseItem(result.data, entry);
+    const canonicalKey = canonicalScriptKeyForEntry(entry);
+    const baseChapterPrompt = `${buildChapterPrompt(promptTemplate, entry, {
+      courseId: resolvedCourseId,
+      moduleNumber,
+      chapterNumber,
+      model,
+    })}
 
 CHAPTER REPAIR CONTRACT (MANDATORY)
 ===================================
-This is a repair for chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}.
-Return exactly one practical for that chapter. Its canonical spoken script is
+Continue the practical for chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}.
+Return exactly one practical for this chapter. Its canonical spoken script is
 the practical.${canonicalKey} array. It MUST contain 4, 5, 6, 7, or 8 complete
 ordered phases; three phases is invalid. Preserve the chapter's activity and
 category. Do not replace the canonical script with narratorGuide, teacherTalk,
@@ -1002,27 +909,26 @@ These are checked after the repair script is normalized. Every multi-digit
 number, binary value, decimal value, or exact result spoken in a phase must
 also appear visibly in that same phase's displayText. For binary or numeric
 activities, show the input, the working or place values, the operator, and the
-result in displayText; never leave a spoken value only in speakerText. A
-displayText such as a title or answer alone is invalid. If the previous
-validation feedback names a semantic error, correct the actual content in the
-affected phase rather than only changing line counts.`
+result in displayText; never leave a spoken value only in speakerText. For a
+binary worked example, show the input expanded by place value, every term,
+and the verified total (for example, 11010₂ = 1×16 + 1×8 + 0×4 + 1×2 +
+0×1 = 26₁₀; calculate the actual activity answer rather than copying this
+example). A displayText such as a title or answer alone is invalid. Check each
+phase's narration against its displayText before returning the response.`
           : "";
         const completeChapterPrompt = `${baseChapterPrompt}${repairVisualContract}`;
         let repairedEntry;
-        let lastValidationError;
-        const maxChapterRepairAttempts = 2;
+        let lastValidationError = error;
+        let lastRejectedPractical = rejectedItem?.practical;
+        const maxChapterRepairAttempts = 4;
         for (let repairAttempt = 1; repairAttempt <= maxChapterRepairAttempts; repairAttempt += 1) {
           const chapterPrompt = lastValidationError
-            ? `${completeChapterPrompt}
-
-PREVIOUS RESPONSE VALIDATION FEEDBACK
-=====================================
-The previous response was rejected:
-${lastValidationError.message}
-Correct every listed field in this response. Do not only address the first
-problem: fix all reported phase line counts, narration lengths, and the opening
-greeting together. Follow the DISPLAY TEXT, FIRST PHASE SPEECH, and SPEAKER
-LENGTH rules above and count each field before returning the response.`
+            ? buildChapterContinuationPrompt(
+              completeChapterPrompt,
+              lastValidationError,
+              canonicalKey,
+              lastRejectedPractical,
+            )
             : completeChapterPrompt;
           const chapterResult = await generateCompleteJson({
             prompt: chapterPrompt,
@@ -1037,10 +943,12 @@ LENGTH rules above and count each field before returning the response.`
           }
           try {
             validateChapterRepairScript(chapterResult.data, entry);
-            [repairedEntry] = normalizeSingleChapterResponse(chapterResult.data, entry);
+            [repairedEntry] = normalizeChapterResponse(chapterResult.data, entry);
             break;
           } catch (validationError) {
             lastValidationError = validationError;
+            const rejectedItem = findChapterResponseItem(chapterResult.data, entry);
+            lastRejectedPractical = rejectedItem?.practical;
             if (repairAttempt < maxChapterRepairAttempts) {
               console.warn(
                 `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair attempt ${repairAttempt}/${maxChapterRepairAttempts} failed validation: ${validationError.message}`,
@@ -1055,11 +963,7 @@ LENGTH rules above and count each field before returning the response.`
           repairError.retryable = false;
           throw repairError;
         }
-        repaired.push(repairedEntry);
-        await persistPractical(repairedEntry);
-      }
-      normalized = repaired;
-    }
+    normalized = [repairedEntry];
   }
   for (const entry of normalized) {
     await persistPractical(entry);
@@ -1068,8 +972,7 @@ LENGTH rules above and count each field before returning the response.`
   return {
     status: "generated",
     courseId: resolvedCourseId,
-    moduleNumber,
-    chapters: normalized.map((entry) => `${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber}`),
+    chapterKey: `${moduleNumber}.${chapterNumber}`,
     targets,
     imports,
   };
@@ -1078,22 +981,19 @@ LENGTH rules above and count each field before returning the response.`
 function usage() {
   return [
     "Usage:",
-    "  node scripts/generate-learning-board-practical-module.js \\",
+    "  node scripts/generate-learning-board-practical-chapter.js \\",
     "    --course-id <course-id> \\",
-    "    --module <num> \\",
-    "    [--chapter <num[,num...]>] \\",
+    "    --chapter <module.chapter> \\",
     "    [--output <dir>] [--dry-run] [--skip-import]",
     "",
-    "The generator sends all selected chapters in one Gemini request, writes",
-    "one validated practical manifest per chapter, then imports each generated chapter into Turso.",
-    "Omit --chapter to generate every hands-on practical in the module.",
+    "The generator creates one validated chapter practical per request and imports it into Turso.",
     "Progress is checkpointed in <output>/record.json per chapter; rerun the same command to retry pending imports without regenerating saved practicals.",
     "Use --skip-import only when you explicitly need JSON files without publishing them.",
   ].join("\n");
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  generateModule(parseOptions(process.argv.slice(2)))
+  generateChapter(parseOptions(process.argv.slice(2)))
     .then((result) => {
       console.log(JSON.stringify(result, null, 2));
     })
@@ -1105,15 +1005,17 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 }
 
 export {
-  MODULE_RESPONSE_SCHEMA,
-  buildModuleEntries,
-  buildModulePrompt,
+  CHAPTER_RESPONSE_SCHEMA,
+  buildChapterEntry,
+  buildChapterPrompt,
+  buildChapterRepairFeedback,
+  buildChapterContinuationPrompt,
   chapterRepairResponseSchema,
   validateChapterRepairScript,
   extractCourseChapters,
-  extractModuleChapters,
-  generateModule,
-  normalizeModuleResponse,
+  findCourseChapter,
+  generateChapter,
+  normalizeChapterResponse,
   parseOptions,
   resolveSyllabusPath,
 };

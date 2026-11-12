@@ -8,14 +8,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  buildModuleEntries,
+  buildChapterEntry,
   extractCourseChapters,
-  generateModule,
+  generateChapter,
   parseOptions,
   resolveSyllabusPath,
-} from "./generate-learning-board-practical-module.js";
+} from "./generate-learning-board-practical-chapter.js";
 import { assertValidPractical } from "./generate-learning-board-practical.js";
-import { readCourseGenerationRecord } from "./lib/learning-board-record.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -98,56 +97,71 @@ function parseCourseOptions(argv) {
   return options;
 }
 
+function rejectBatchGenerationOptions(options) {
+  const removed = ["module", "modules", "module-retries", "chapters", "per-chapter"]
+    .filter((name) => Object.hasOwn(options, name));
+  if (removed.length) {
+    throw new Error(
+      `${removed.map((name) => `--${name}`).join(", ")} are no longer supported. Generation always runs one chapter per request; use --chapter <module.chapter> to select chapters.`,
+    );
+  }
+}
+
 function positiveIntegerOption(value, fallback) {
   const parsed = Number.parseInt(String(value ?? ""), 10);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function parseChapterKeys(value, discoveredChapters) {
+  if (value === undefined) return null;
+  const keys = [...new Set(String(value).split(/[\s,]+/).filter(Boolean))];
+  if (!keys.length || keys.some((key) => !/^\d+\.\d+$/.test(key))) {
+    throw new Error("--chapter must contain chapter keys in module.chapter format, such as 1.2.");
+  }
+  const discoveredKeys = new Set(discoveredChapters.map((chapter) => `${chapter.module}.${chapter.chapter}`));
+  const missingKeys = keys.filter((key) => !discoveredKeys.has(key));
+  if (missingKeys.length) {
+    throw new Error(`Chapter(s) ${missingKeys.join(", ")} were not found in the selected course syllabus.`);
+  }
+  return new Set(keys);
 }
 
 function wait(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-async function generateModuleWithRetries(options, moduleNumber, chapterEntries, outputRoot, resolvedCourseId, syllabusPath, repoRoot) {
-  const retryLimit = positiveIntegerOption(options["module-retries"], 3);
-  const chapterList = chapterEntries.length
-    ? chapterEntries.map((entry) => entry.metadata.chapterNumber).join(",")
-    : undefined;
+async function generateChapterWithRetries(options, chapterKey, outputRoot, resolvedCourseId, syllabusPath, repoRoot) {
+  const retryLimit = positiveIntegerOption(options["chapter-retries"], 3);
   let lastError;
   for (let attempt = 1; attempt <= retryLimit; attempt += 1) {
     try {
-      // --force applies to the first generation attempt. If that attempt
-      // already wrote chapters and then failed while importing to Turso (or
-      // while writing a later chapter), preserve those artifacts and resume
-      // from record.json on the next attempt. Otherwise a transient network
-      // failure would ask Gemini to regenerate the whole module.
       const retryOptions = attempt === 1
         ? options
         : { ...options, force: false };
-      return await generateModule({
+      return await generateChapter({
         ...retryOptions,
         course: undefined,
         "course-id": resolvedCourseId,
         "repo-root": repoRoot,
         syllabus: syllabusPath,
-        module: String(moduleNumber),
-        ...(chapterList ? { chapters: chapterList } : {}),
+        chapter: chapterKey,
         output: outputRoot,
         model: options.model || process.env.GEMINI_MODEL || "gemini-2.5-flash",
       });
     } catch (error) {
       lastError = error;
       if (error?.retryable === false) {
-        console.warn(`Module ${moduleNumber} stopped without retry: ${error.message}`);
+        console.warn(`Chapter ${chapterKey} stopped without retry: ${error.message}`);
         break;
       }
       if (attempt >= retryLimit) break;
       const delaySeconds = Math.min(60, 5 * (2 ** (attempt - 1)));
-      console.warn(`Module ${moduleNumber} attempt ${attempt}/${retryLimit} failed: ${error.message}`);
-      console.warn(`Retrying module ${moduleNumber} in ${delaySeconds}s; the next course will not start until this module finishes.`);
+      console.warn(`Chapter ${chapterKey} attempt ${attempt}/${retryLimit} failed: ${error.message}`);
+      console.warn(`Retrying chapter ${chapterKey} in ${delaySeconds}s.`);
       await wait(delaySeconds * 1000);
     }
   }
-  throw new Error(`Module ${moduleNumber} failed after ${retryLimit} attempts: ${lastError?.message || "unknown error"}`);
+  throw new Error(`Chapter ${chapterKey} failed after ${retryLimit} attempts: ${lastError?.message || "unknown error"}`);
 }
 
 async function readSubcategoryCourses(repoRoot, category, subcategory) {
@@ -206,6 +220,7 @@ async function findSubcategorySyllabi(repoRoot, category, courses) {
 }
 
 async function generateCourse(options) {
+  rejectBatchGenerationOptions(options);
   if (options.force === true) {
     console.warn("--force is enabled: matching practicals will be regenerated. Omit --force to resume and retry pending imports.");
   }
@@ -225,49 +240,29 @@ async function generateCourse(options) {
   if (!chapters.length) throw new Error("No numbered chapters were found in the course syllabus.");
 
   const model = options.model || process.env.GEMINI_MODEL || "gemini-2.5-flash";
-  const requestedModule = options.module === undefined ? null : Number(options.module);
-  if (requestedModule !== null && (!Number.isInteger(requestedModule) || requestedModule < 1)) {
-    throw new Error("--module must be a positive integer.");
-  }
-  const requestedChapters = options.chapters ?? options.chapter;
-  if (requestedChapters !== undefined && requestedModule === null) {
-    throw new Error("--module is required when filtering with --chapter or --chapters.");
-  }
-  const outputChapterFilter = requestedChapters === undefined || requestedChapters === true
-    ? null
-    : new Set(String(requestedChapters).split(/[\s,]+/).filter(Boolean).map(Number));
-  if (outputChapterFilter?.size && [...outputChapterFilter].some((chapter) => !Number.isInteger(chapter) || chapter < 1)) {
-    throw new Error("--chapter/--chapters must contain positive integers.");
-  }
+  const selectedChapterKeys = parseChapterKeys(options.chapter, chapters);
+  const selectedChapters = chapters.filter((chapter) => (
+    !selectedChapterKeys || selectedChapterKeys.has(`${chapter.module}.${chapter.chapter}`)
+  ));
   const outputRoot = path.resolve(
     repoRoot,
     options.output || process.env.COHORTIA_PRACTICALS_DIR || "generated/learning-board-practicals"
   );
   const skippedChapters = [];
-  const modules = [];
+  const modulesByNumber = new Map();
   const dryRuns = [];
   const reusedChapters = [];
   let resolvedCourseId = courseId;
-  let recordedChapters = {};
-  const discoveredModules = [...new Set(chapters.map((chapter) => chapter.module))]
-    .filter((moduleNumber) => requestedModule === null || moduleNumber === requestedModule)
-    .sort((a, b) => a - b);
-  if (requestedModule !== null && !discoveredModules.includes(requestedModule)) {
-    throw new Error(`Module ${requestedModule} was not found in the selected course syllabus.`);
-  }
-
-  for (const moduleNumber of discoveredModules) {
-    const moduleChapters = chapters.filter((chapter) => (
-      chapter.module === moduleNumber
-      && (!outputChapterFilter || outputChapterFilter.has(chapter.chapter))
-    ));
-    if (!moduleChapters.length) continue;
-    const validEntries = await buildModuleEntries({
+  for (const chapter of selectedChapters) {
+    const moduleNumber = chapter.module;
+    const chapterNumber = chapter.chapter;
+    const chapterKey = `${moduleNumber}.${chapterNumber}`;
+    const entry = await buildChapterEntry({
       repoRoot,
       syllabusPath,
       courseId,
       moduleNumber,
-      chapterNumbers: moduleChapters.map((chapter) => chapter.chapter),
+      chapterNumber,
       activitySourcePath: options["activity-source"],
       lessonSourcePath: options["lesson-source"],
       category: options.category,
@@ -276,75 +271,52 @@ async function generateCourse(options) {
       skippedChapters,
     });
 
-    if (!validEntries.length) continue;
-    resolvedCourseId ||= validEntries[0].sourceContext.courseId;
-    if (options["dry-run"] !== true && !Object.keys(recordedChapters).length) {
-      const generationRecord = await readCourseGenerationRecord(outputRoot, resolvedCourseId);
-      recordedChapters = generationRecord.completedChapters || {};
-    }
-    const existingByChapter = new Map();
+    if (!entry) continue;
+    resolvedCourseId ||= entry.sourceContext.courseId;
     if (options["dry-run"] !== true && options.force !== true) {
-      for (const entry of validEntries) {
-        const existing = await readExistingPractical(outputRoot, resolvedCourseId, entry);
-        if (existing) {
-          existingByChapter.set(entry.metadata.chapterNumber, existing);
-          reusedChapters.push(`${moduleNumber}.${entry.metadata.chapterNumber}`);
-          const recordEntry = recordedChapters[`${moduleNumber}.${entry.metadata.chapterNumber}`];
-          if (recordEntry?.status === "generated" || recordEntry?.status === "completed") {
-            console.log(`Resuming from record.json: reusing practical ${resolvedCourseId} ${moduleNumber}.${entry.metadata.chapterNumber}.`);
-          }
-        }
-      }
-    }
-    if (options["dry-run"] === true || validEntries.length > 0) {
-      // Large aggregate responses are the main source of truncated JSON and
-      // omitted chapters. A chapter practical is already a large nested
-      // document, so default to one chapter per request unless the caller
-      // explicitly adds a future batching strategy. This costs predictable
-      // calls instead of burning retries on incomplete module envelopes.
-      const batches = validEntries.map((entry) => [entry]);
-
-      for (const batch of batches) {
-        const result = await generateModuleWithRetries(
-          { ...options, model },
-          moduleNumber,
-          batch,
-          outputRoot,
-          resolvedCourseId,
-          syllabusPath,
-          repoRoot,
-        );
-
-        if (result.status === "dry-run") {
-          dryRuns.push({
-            moduleNumber,
-            title: moduleTitleFrom(markdown, moduleNumber),
-            chapters: result.chapters.map((chapter) => chapter.chapterNumber),
-            promptCharacters: result.promptCharacters,
-          });
-        }
-      }
+      const existing = await readExistingPractical(outputRoot, resolvedCourseId, entry);
+      if (existing) reusedChapters.push(chapterKey);
     }
 
-    modules.push({
-      moduleNumber,
-      title: moduleTitleFrom(markdown, moduleNumber),
-      chapters: validEntries.map((entry) => ({
-        chapterNumber: entry.metadata.chapterNumber,
-        title: chapterTitleFrom(moduleChapters, entry.metadata.chapterNumber),
-      })),
-    });
+    const result = await generateChapterWithRetries(
+      { ...options, model },
+      chapterKey,
+      outputRoot,
+      resolvedCourseId,
+      syllabusPath,
+      repoRoot,
+    );
+    if (result.status === "dry-run") {
+      dryRuns.push({
+        moduleNumber,
+        chapterNumber,
+        title: chapter.title,
+        promptCharacters: result.promptCharacters,
+      });
+    } else {
+      const module = modulesByNumber.get(moduleNumber) || {
+        moduleNumber,
+        title: moduleTitleFrom(markdown, moduleNumber),
+        chapters: [],
+      };
+      module.chapters.push({ chapterNumber, title: chapter.title });
+      modulesByNumber.set(moduleNumber, module);
+      if (result.status === "resumed" && !reusedChapters.includes(chapterKey)) {
+        reusedChapters.push(chapterKey);
+      }
+    }
   }
 
+  const modules = [...modulesByNumber.values()].sort((left, right) => left.moduleNumber - right.moduleNumber);
   if (options["dry-run"] === true) {
     return {
       status: "dry-run",
       courseId: resolvedCourseId || path.basename(syllabusPath, path.extname(syllabusPath)),
       courseTitle: courseTitleFrom(markdown, resolvedCourseId || "Course"),
       sourceSyllabus: path.relative(repoRoot, syllabusPath).replaceAll("\\", "/"),
-      modules: dryRuns,
+      chapters: dryRuns,
       skippedChapters,
-      chapterCount: dryRuns.reduce((count, item) => count + item.chapters.length, 0),
+      chapterCount: dryRuns.length,
       reusedChapters: [],
     };
   }
@@ -415,14 +387,10 @@ async function generateCourse(options) {
 }
 
 async function generateSubcategory(options) {
+  rejectBatchGenerationOptions(options);
   const category = String(options.category || "computer-science");
   const subcategory = String(options.subcategory || "").trim();
   if (!subcategory) throw new Error("--subcategory must be a non-empty subcategory name.");
-
-  const moduleNumber = options.module === undefined ? null : Number(options.module);
-  if (moduleNumber !== null && (!Number.isInteger(moduleNumber) || moduleNumber < 1)) {
-    throw new Error("--module must be a positive integer when generating a subcategory.");
-  }
 
   const repoRoot = path.resolve(options["repo-root"] || REPOSITORY_ROOT);
   const courses = await readSubcategoryCourses(repoRoot, category, subcategory);
@@ -441,8 +409,7 @@ async function generateSubcategory(options) {
   }
 
   for (const course of courses) {
-    const scope = moduleNumber === null ? "all modules" : `module ${moduleNumber}`;
-    console.log(`\nGenerating ${scope} practicals for ${course.title} (${course.id})`);
+    console.log(`\nGenerating practical chapters for ${course.title} (${course.id})`);
     const syllabusPath = syllabusPaths.get(course.id.toLowerCase());
     if (!syllabusPath) {
       failures.push({ course, error: new Error(`Syllabus not found for course ${course.id}.`) });
@@ -483,21 +450,19 @@ async function generateSubcategory(options) {
 function usage() {
   return [
     "Usage:",
-    "  node scripts/generate-learning-board-practical-course.js --course-id <course-id> --module <number> [--chapters <number[,number...]>] [--module-retries <count>] [--dry-run] [--skip-import]",
-    "  node scripts/generate-learning-board-practical-course.js --category <category> --subcategory <name> [--module <number>] [--per-chapter] [--module-retries <count>] [--list-only]",
+    "  node scripts/generate-learning-board-practical-course.js --course-id <course-id> [--chapter <module.chapter[,module.chapter...]>] [--chapter-retries <count>] [--dry-run] [--skip-import]",
+    "  node scripts/generate-learning-board-practical-course.js --category <category> --subcategory <name> [--chapter-retries <count>] [--list-only]",
     "  node scripts/generate-learning-board-practical-course.js --syllabus <path> [--course-id <course-id>]",
     "",
-    "The generator creates an entire module's practicals in one model request by default.",
-    "Use --per-chapter to make one model request per chapter, which is safer for large modules.",
-    "imports every generated chapter into Turso, then writes course-manifest.json.",
-    "Use --category and --subcategory to generate every module for every course in that catalog subcategory; add --module to limit generation to one module.",
+    "The generator makes one model request per chapter, imports each completed practical into Turso, then writes course-manifest.json.",
+    "Use --chapter with a dotted key such as 1.2 to select one chapter, or provide comma-separated chapter keys.",
+    "Use --category and --subcategory to generate practicals for every course in that catalog subcategory.",
     "Use --list-only with --subcategory to preview the matched courses and syllabus paths.",
     "Chapters without a hands-on activity are listed as skipped.",
     "Matching existing chapter practicals are reused by source hash; omit --force to resume and retry pending imports.",
     "Use --force only when you intentionally want to regenerate matching practicals.",
     "Progress is checkpointed in <output>/record.json per chapter; rerun the same command to resume generation and retry pending imports.",
-    "Use --module by itself to generate the complete module. Add --chapters only to retry a small subset; the resulting course manifest contains only that selected subset.",
-    "When a module request fails, the generator retries that module (default 3 attempts) before moving to the next course. Configure --module-retries <count> when needed.",
+    "When a chapter request fails, that chapter is retried (default 3 attempts) before the course stops. Configure --chapter-retries <count> when needed.",
     "Use --skip-import only when you explicitly do not want generated practicals published to Turso.",
     "Use the default output directory, or set COHORTIA_PRACTICALS_DIR consistently",
     "for both the generator and backend when using a custom output location.",
@@ -518,4 +483,4 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     });
 }
 
-export { generateCourse };
+export { generateCourse, parseChapterKeys, rejectBatchGenerationOptions };

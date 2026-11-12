@@ -71,7 +71,7 @@ generate files without database writes, use `--skip-import` (or
 node scripts/generate-cs50-practical-pilot.js --provider azure --skip-import
 ```
 
-Generate all modules for every course in a catalog subcategory:
+Generate each practical chapter for every course in a catalog subcategory:
 
 ```bash
 node scripts/generate-learning-board-practical-course.js \
@@ -83,8 +83,9 @@ node scripts/generate-learning-board-practical-course.js \
 
 Use `--list-only` with the same category and subcategory to preview the
 catalog courses and whether each course syllabus was found. The subcategory
-match is case-insensitive. Add `--module <number>` to limit generation to one
-module; if omitted, all modules are generated.
+match is case-insensitive. Each chapter is sent as its own generation request.
+To select chapters from one course, pass `--chapter <module.chapter>` (for
+example, `--chapter 1.2`) to the course practical generator.
 
 Generation progress is checkpointed in
 `generated/learning-board-practicals/record.json`. Each course entry records a
