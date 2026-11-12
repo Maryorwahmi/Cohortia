@@ -61,6 +61,9 @@ test("chapter repair feedback fixes code walkthrough execution claims without vi
 
   assert.match(feedback, /visible terminalCommands array and\/or terminalOutput in that same phase/);
   assert.match(feedback, /Fix codeWalkthrough phase 1/);
+  assert.match(feedback, /re-check every non-final codeWalkthrough phase against BOTH rules/);
+  assert.match(feedback, /learnerPrompt must ask for a prediction or observation/);
+  assert.match(feedback, /remove the execution claim instead of inventing a command or output/);
 });
 
 test("chapter repair feedback requires the canonical teachingSteps array", () => {

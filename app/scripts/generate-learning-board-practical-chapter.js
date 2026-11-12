@@ -194,6 +194,12 @@ function buildChapterRepairFeedback(error, canonicalKey) {
     );
   }
 
+  if (canonicalKey === "codeWalkthrough") {
+    guidance.push(
+      "Before returning the repair, re-check every non-final codeWalkthrough phase against BOTH rules, even if the validation error lists only one: learnerPrompt must ask for a prediction or observation without directing the learner to edit, compile, run, or execute; any teacher narration that discusses compilation or execution must include a visible terminalCommands entry and/or terminalOutput in that same phase. If the repair does not need to demonstrate execution, remove the execution claim instead of inventing a command or output.",
+    );
+  }
+
   if (canonicalKey === "codeWalkthrough" && /hands an editing or execution action|asks the learner to edit or execute during the watch-only walkthrough/i.test(message)) {
     guidance.push(
       "The codeWalkthrough is teacher-led and watch-only until its final transfer phase. In every non-final phase, learnerPrompt must ask for a prediction or observation only; do not ask the learner to add, change, modify, edit, type, write, remove, delete, compile, run, or execute anything.",
@@ -215,7 +221,7 @@ function buildChapterRepairFeedback(error, canonicalKey) {
     );
     const phases = [...message.matchAll(/code walkthrough phase (\d+) discusses compilation or execution without a visible terminal command or output/gi)];
     for (const [, phase] of phases) {
-      guidance.push(`Fix codeWalkthrough phase ${phase}: add the actual relevant command or expected output to that phase, or remove the execution claim from its narration and learnerPrompt.`);
+      guidance.push(`Fix codeWalkthrough phase ${phase}: add the actual relevant command or expected output to that phase, or remove the execution claim from its narration and rewrite learnerPrompt as a prediction or observation question, never a request to execute it.`);
     }
   }
 
