@@ -60,7 +60,12 @@ async function loadCatalogFromLocalDatabase() {
 }
 
 async function loadCatalogFromStaticFiles() {
-  const docsRoot = path.resolve(frontendRoot, '..', '..', 'docs');
+  // app/docs is the enriched catalog source used by the backend importer. It
+  // contains the authoritative market taxonomy (marketCategory and
+  // marketSubcategory). The repository-level docs copy is the academic source
+  // catalog and does not contain those display categories; using it here made
+  // the static fallback disagree with the live API.
+  const docsRoot = path.resolve(frontendRoot, '..', 'docs');
   const categories = await readdir(docsRoot, {withFileTypes: true});
   const catalogFiles = categories
     .filter((entry) => entry.isDirectory())
@@ -95,15 +100,35 @@ async function loadCatalogFromStaticFiles() {
   return [...coursesById.values()];
 }
 
+async function applyMarketTaxonomy(courses) {
+  const staticCatalog = await loadCatalogFromStaticFiles();
+  const taxonomyById = new Map(
+    staticCatalog.map((course) => [course.id, {
+      marketCategory: course.marketCategory ?? null,
+      marketSubcategory: course.marketSubcategory ?? null,
+    }]),
+  );
+
+  return courses.map((course) => {
+    const taxonomy = taxonomyById.get(course.id);
+    if (!taxonomy) return course;
+    return {
+      ...course,
+      marketCategory: course.marketCategory || taxonomy.marketCategory,
+      marketSubcategory: course.marketSubcategory || taxonomy.marketSubcategory,
+    };
+  });
+}
+
 async function loadCatalog() {
   try {
     const remoteCatalog = await loadCatalogFromApi();
-    if (remoteCatalog) return remoteCatalog;
+    if (remoteCatalog) return await applyMarketTaxonomy(remoteCatalog);
   } catch (error) {
     console.warn(`[public-content] catalog API unavailable: ${error.message}`);
   }
   try {
-    return await loadCatalogFromLocalDatabase();
+    return await applyMarketTaxonomy(await loadCatalogFromLocalDatabase());
   } catch (error) {
     console.warn(`[public-content] local catalog database unavailable: ${error.message}`);
   }
