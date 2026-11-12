@@ -813,14 +813,14 @@ export interface ChatLearningContext {
 }
 
 export const chatApi = {
-  sendMessage: (message: string, history: Array<{ sender: string; text: string }> = [], mode = 'mentor', outputFormat = 'text', focus: string | null = null, learningContext?: ChatLearningContext) => {
+  sendMessage: (message: string, history: Array<{ sender: string; text: string }> = [], mode = 'mentor', outputFormat = 'text', focus: string | null = null, learningContext?: ChatLearningContext, attachments: Array<{ name: string; mimeType: string; size: number; data?: string; textContent?: string }> = []) => {
     const normalizedHistory = history.map((h) => ({
       role: h.sender === 'user' ? 'user' : 'assistant',
       content: h.text,
     }));
     return fetchApi<{ success: boolean; data?: { reply: string }; error?: string }>('/chat/message', {
       method: 'POST',
-      body: JSON.stringify({ message, history: normalizedHistory, mode, outputFormat, focus, learningContext }),
+      body: JSON.stringify({ message, history: normalizedHistory, mode, outputFormat, focus, learningContext, attachments }),
     });
   },
 };

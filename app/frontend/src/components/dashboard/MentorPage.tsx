@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import type { ChangeEvent } from "react";
 import { Sparkles, Send, Paperclip, User, Mic } from "lucide-react";
 import { UserPreferences } from "../../types";
 import { chatApi } from "../../services/api";
@@ -7,7 +8,29 @@ interface Message {
   sender: "user" | "advisor";
   text: string;
   timestamp: string;
+  attachments?: Array<{ name: string; mimeType: string; size: number }>;
 }
+
+interface MentorAttachment {
+  name: string;
+  mimeType: string;
+  size: number;
+  data?: string;
+  textContent?: string;
+}
+
+const SUPPORTED_MENTOR_FILE_TYPES: Record<string, string> = {
+  jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif",
+  pdf: "application/pdf", txt: "text/plain", md: "text/markdown", csv: "text/csv", json: "application/json",
+  xml: "application/xml", html: "text/html", htm: "text/html", css: "text/css",
+  js: "text/javascript", jsx: "text/javascript", ts: "text/typescript", tsx: "text/typescript",
+  py: "text/x-python", java: "text/x-java-source", c: "text/x-c", h: "text/x-c",
+  cpp: "text/x-c++", hpp: "text/x-c++", go: "text/x-go", rs: "text/x-rust", sql: "text/x-sql",
+  yaml: "text/yaml", yml: "text/yaml", log: "text/plain",
+};
+
+const isTextAttachment = (mimeType: string) =>
+  mimeType.startsWith("text/") || mimeType === "application/json" || mimeType === "application/xml";
 
 interface MentorContext {
   conversationSummary?: string;
@@ -78,11 +101,14 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
   ]);
 
   const [inputMessage, setInputMessage] = useState("");
+  const [attachments, setAttachments] = useState<MentorAttachment[]>([]);
+  const [attachmentError, setAttachmentError] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   const quickActions = [
@@ -117,17 +143,26 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
     window.speechSynthesis.speak(utterance);
   };
 
-  const handleSendMessage = async (textToSend: string, speakResponse = false) => {
-    if (!textToSend.trim()) return;
+  const handleSendMessage = async (
+    textToSend: string,
+    speakResponse = false,
+    filesToSend = attachments,
+  ) => {
+    if (!textToSend.trim() && filesToSend.length === 0) return;
+
+    const messageText = textToSend.trim() || "Please review the attached file(s).";
 
     const userMsg: Message = {
       sender: "user",
-      text: textToSend,
+      text: messageText,
+      attachments: filesToSend.map(({ name, mimeType, size }) => ({ name, mimeType, size })),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInputMessage("");
+    setAttachments([]);
+    setAttachmentError("");
     setIsTyping(true);
 
     try {
@@ -137,7 +172,7 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
       }));
 
       const response = await chatApi.sendMessage(
-        userMsg.text,
+        messageText,
         history,
         "mentor",
         "text",
@@ -149,12 +184,14 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
           module: activeLearningContext?.module,
           chapter: activeLearningContext?.chapter,
           chapterTitle: activeLearningContext?.chapterTitle,
-        }
+        },
+        filesToSend,
       );
 
-      const reply = response.success && response.data?.reply
-        ? response.data.reply
-        : "I am here. Let's work together to complete your next project brief!";
+      if (!response.success || !response.data?.reply) {
+        throw new Error(response.error || "Your mentor could not read that message. Please try again.");
+      }
+      const reply = response.data.reply;
 
       const advisorMsg: Message = {
         sender: "advisor",
@@ -177,15 +214,72 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
         });
       }
     } catch (err) {
-      console.error("Failed to connect to Gemini API:", err);
+      console.error("Failed to send mentor message:", err);
       const errMsg: Message = {
         sender: "advisor",
-        text: "Apologies, I hit a slight connection glitch. Please verify your internet connection, or make sure the server is configured properly.",
+        text: err instanceof Error
+          ? `I couldn't send that message: ${err.message}`
+          : "I couldn't send that message. Please check your connection and try again.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, errMsg]);
     } finally {
       setIsTyping(false);
+    }
+  };
+
+  const handleFileSelection = async (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles: File[] = event.currentTarget.files
+      ? Array.from(event.currentTarget.files)
+      : [];
+    event.currentTarget.value = "";
+    if (selectedFiles.length === 0) return;
+
+    const totalFileCount = attachments.length + selectedFiles.length;
+    if (totalFileCount > 5) {
+      setAttachmentError("Attach no more than 5 files at a time.");
+      return;
+    }
+
+    const getMimeType = (fileName: string) => SUPPORTED_MENTOR_FILE_TYPES[fileName.split(".").pop()?.toLowerCase() || ""];
+    const totalBinarySize = attachments.reduce((total, file) => total + (file.data ? file.size : 0), 0)
+      + selectedFiles.filter((file) => !isTextAttachment(getMimeType(file.name) || ""))
+        .reduce((total, file) => total + file.size, 0);
+    const totalTextSize = attachments.reduce((total, file) => total + (file.textContent ? file.size : 0), 0)
+      + selectedFiles.filter((file) => isTextAttachment(getMimeType(file.name) || ""))
+        .reduce((total, file) => total + file.size, 0);
+    if (totalBinarySize > 8 * 1024 * 1024 || selectedFiles.some((file) => file.size > 4 * 1024 * 1024 && !isTextAttachment(getMimeType(file.name) || ""))) {
+      setAttachmentError("Images and PDFs must be 4 MB or smaller, with a combined limit of 8 MB.");
+      return;
+    }
+    if (totalTextSize > 300 * 1024) {
+      setAttachmentError("The combined size of text files must be 300 KB or smaller.");
+      return;
+    }
+
+    try {
+      const loadedFiles = await Promise.all(selectedFiles.map(async (file): Promise<MentorAttachment> => {
+        const extension = file.name.split(".").pop()?.toLowerCase() || "";
+        const mimeType = SUPPORTED_MENTOR_FILE_TYPES[extension];
+        if (!mimeType) throw new Error(`"${file.name}" is not a supported file type.`);
+        if (isTextAttachment(mimeType)) {
+          if (file.size > 100 * 1024) throw new Error(`"${file.name}" is too large. Text files must be 100 KB or smaller.`);
+          return { name: file.name, mimeType, size: file.size, textContent: await file.text() };
+        }
+        if (file.size === 0) throw new Error(`"${file.name}" is empty.`);
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error(`Could not read "${file.name}".`));
+          reader.onerror = () => reject(new Error(`Could not read "${file.name}".`));
+          reader.readAsDataURL(file);
+        });
+        return { name: file.name, mimeType, size: file.size, data: dataUrl.split(",")[1] };
+      }));
+
+      setAttachments((current) => [...current, ...loadedFiles]);
+      setAttachmentError("");
+    } catch (error) {
+      setAttachmentError(error instanceof Error ? error.message : "Could not read the selected file.");
     }
   };
 
@@ -403,6 +497,16 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
                         : "bg-immersive-bg/50 border-immersive-border/50 text-immersive-text-primary/95 rounded-tl-none"
                     }`}>
                       {renderFormattedMessage(msg.text)}
+                      {msg.attachments?.length ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {msg.attachments.map((file) => (
+                            <span key={`${file.name}-${file.size}`} className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-immersive-border px-2 py-1 text-xs">
+                              <Paperclip className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{file.name}</span>
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
                     <span className={`text-[9px] font-semibold text-immersive-text-secondary/60 block ${
                       msg.sender === "user" ? "text-right" : "text-left"
@@ -445,8 +549,41 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
               </div>
 
               {/* Text Input Block */}
-              <div className="flex items-center space-x-3 bg-immersive-bg border border-immersive-border rounded-2xl p-2 focus-within:border-immersive-secondary transition-all">
-                <button className="p-2 text-immersive-text-secondary/60 hover:text-[#FF4B3E] cursor-pointer">
+              <div className="flex flex-col gap-2 bg-immersive-bg border border-immersive-border rounded-2xl p-2 focus-within:border-immersive-secondary transition-all">
+                {attachments.length > 0 && (
+                  <div className="flex flex-wrap gap-2 px-1 pt-1">
+                    {attachments.map((file, index) => (
+                      <span key={`${file.name}-${index}`} className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-immersive-border px-2 py-1 text-xs text-immersive-text-secondary">
+                        <Paperclip className="h-3 w-3 shrink-0" />
+                        <span className="max-w-48 truncate">{file.name}</span>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${file.name}`}
+                          onClick={() => setAttachments((current) => current.filter((_, fileIndex) => fileIndex !== index))}
+                          className="ml-1 font-bold hover:text-[#FF4B3E]"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="flex items-center space-x-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.txt,.md,.csv,.json,.xml,.html,.htm,.css,.js,.jsx,.ts,.tsx,.py,.java,.c,.h,.cpp,.hpp,.go,.rs,.sql,.yaml,.yml,.log"
+                  onChange={handleFileSelection}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  aria-label="Attach images or files"
+                  title="Attach images, PDFs, or text/code files"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-2 text-immersive-text-secondary/60 hover:text-[#FF4B3E] cursor-pointer"
+                >
                   <Paperclip className="w-4 h-4" />
                 </button>
                 <input
@@ -454,7 +591,10 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSendMessage(inputMessage);
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage(inputMessage);
+                    }
                   }}
                   placeholder="Ask your mentor anything..."
                   className="flex-1 bg-transparent px-2 py-3 text-sm text-immersive-text-primary placeholder:text-immersive-text-secondary/50 focus:outline-none text-left"
@@ -479,7 +619,14 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
                 >
                   <Send className="w-4 h-4" />
                 </button>
+                </div>
               </div>
+              <p className="px-1 text-[10px] text-immersive-text-secondary/70">
+                Attach up to 5 images, PDFs, or text/code files. Images and PDFs: 4 MB each; text files: 100 KB each.
+              </p>
+              {attachmentError && (
+                <p className="px-1 text-xs font-semibold text-amber-500" role="alert">{attachmentError}</p>
+              )}
               {(isListening || voiceError) && (
                 <p className={`px-1 text-[10px] font-semibold ${isListening ? "text-[#FF4B3E]" : "text-amber-500"}`} aria-live="polite">
                   {isListening ? "Listening... speak naturally, then I will send it to your mentor." : voiceError}

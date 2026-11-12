@@ -219,7 +219,7 @@ function getAzureConfig() {
   return { endpoint, key, deployment, apiVersion };
 }
 
-async function callAzureOpenAI({ systemPrompt, userPrompt, maxTokens = 1500, jsonMode = false, continuationText = null, responseSchema = null }) {
+async function callAzureOpenAI({ systemPrompt, userPrompt, userParts = [], maxTokens = 1500, jsonMode = false, continuationText = null, responseSchema = null }) {
   const { endpoint, key, deployment, apiVersion } = getAzureConfig();
 
   if (!endpoint || !key || !deployment) {
@@ -240,7 +240,21 @@ async function callAzureOpenAI({ systemPrompt, userPrompt, maxTokens = 1500, jso
   if (continuationText) {
     messages.push({ role: 'user', content: `Continue the previous JSON and finish it without markdown fences. Keep the exact structure and append only the missing text.\n\n${continuationText}` });
   } else {
-    messages.push({ role: 'user', content: userPrompt });
+    const imageParts = userParts.map((part) => {
+      if (part.inlineData) {
+        return {
+          type: 'image_url',
+          image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` },
+        };
+      }
+      return { type: 'text', text: part.text };
+    });
+    messages.push({
+      role: 'user',
+      content: imageParts.length
+        ? [{ type: 'text', text: userPrompt }, ...imageParts]
+        : userPrompt,
+    });
   }
 
   const body = {
@@ -287,9 +301,12 @@ async function callAzureOpenAI({ systemPrompt, userPrompt, maxTokens = 1500, jso
   }
 }
 
-export async function callGemini({ systemPrompt, userPrompt, maxTokens = 1500, jsonMode = false, continuationText = null, responseSchema = null }) {
+export async function callGemini({ systemPrompt, userPrompt, userParts = [], maxTokens = 1500, jsonMode = false, continuationText = null, responseSchema = null }) {
   if (getConfiguredProvider() === 'azure') {
-    return callAzureOpenAI({ systemPrompt, userPrompt, maxTokens, jsonMode, continuationText, responseSchema });
+    if (userParts.some((part) => part.inlineData?.mimeType === 'application/pdf')) {
+      return { success: false, error: 'PDF attachments are not supported by the configured AI provider. Please attach a screenshot or a text version instead.' };
+    }
+    return callAzureOpenAI({ systemPrompt, userPrompt, userParts, maxTokens, jsonMode, continuationText, responseSchema });
   }
 
   const keys = getGeminiKeys();
@@ -318,7 +335,7 @@ export async function callGemini({ systemPrompt, userPrompt, maxTokens = 1500, j
 
   contents.push({
     role: 'user',
-    parts: [{ text: currentUserPrompt }],
+    parts: [{ text: currentUserPrompt }, ...(!continuationText ? userParts : [])],
   });
 
   let lastError = null;
