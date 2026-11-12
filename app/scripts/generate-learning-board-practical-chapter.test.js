@@ -1,10 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  chapterResponseSchema,
   buildChapterContinuationPrompt,
   buildChapterRepairFeedback,
   chapterRepairResponseSchema,
   normalizeChapterResponse,
+  validateGeneratedPracticalCompleteness,
   validateChapterRepairScript,
 } from "./generate-learning-board-practical-chapter.js";
 import {
@@ -14,7 +16,11 @@ import {
 
 function entry(category) {
   return {
-    sourceContext: { source: { category } },
+    sourceContext: {
+      source: { category },
+      activityChapter: { handsOnActivity: "Observe the example and explain the result." },
+      activityTitle: "Example activity",
+    },
     metadata: { moduleNumber: 1, chapterNumber: 1 },
   };
 }
@@ -127,10 +133,33 @@ test("uses a valid requested chapter when the model repeats its practical", () =
     lessonHash: "lesson-hash",
   };
   const narration = [...Array(49).fill("Evidence"), "matters."].join(" ");
+  const tasks = ["observe", "experiment", "verify"].map((stepType, index) => ({
+    id: `evidence-task-${index + 1}`,
+    title: `Evidence task ${index + 1}`,
+    instruction: `Record evidence from source ${index + 1}.`,
+    stepType,
+    hints: ["Which detail matters?", "Compare the claim to the observation.", "Use the evidence to explain your conclusion."],
+    structuredHints: {
+      nudge: "Which detail matters?",
+      concept: "Compare evidence with the claim.",
+      walkthrough: "Record the observation, then explain its relevance.",
+    },
+    inlineSuggestions: [{
+      id: `evidence-suggestion-${index + 1}`,
+      label: "Compare evidence",
+      text: "Check whether this observation supports or challenges the claim.",
+    }],
+    tests: [{ type: "manual", explanation: "The learner records source-grounded evidence." }],
+  }));
   const validPractical = {
     title: "Evidence comparison",
     summary: "Compare observations and evaluate a hypothesis.",
     instructions: sourceContext.activityChapter.handsOnActivity,
+    objectives: [
+      "Evaluate a hypothesis using evidence.",
+      "Distinguish observations from inferences.",
+      "Explain a conclusion with source evidence.",
+    ],
     labType: "simulation",
     teachingSteps: ["orientation", "worked_example", "guided_practice", "transfer"].map((phase, index) => ({
       stepNumber: index + 1,
@@ -143,12 +172,7 @@ test("uses a valid requested chapter when the model repeats its practical", () =
       recap: `Review the evidence from phase ${index + 1}.`,
       durationSeconds: 30,
     })),
-    tasks: [{
-      title: "Compare the sources",
-      instruction: "Record the evidence from each source.",
-      hints: [],
-      tests: [],
-    }],
+    tasks,
     files: [],
     workspace: {
       type: "research",
@@ -178,6 +202,20 @@ test("uses a valid requested chapter when the model repeats its practical", () =
 
   assert.equal(normalized.length, 1);
   assert.equal(normalized[0].practical.title, normalizedExpected.title);
+  assert.equal(normalized[0].practical.tasks.length, 3);
+});
+
+test("incomplete authored content is reported together rather than silently synthesized", () => {
+  assert.throws(
+    () => validateGeneratedPracticalCompleteness({}, entry("Research & Analysis")),
+    (error) => {
+      assert.match(error.message, /practical.title is missing/);
+      assert.match(error.message, /practical.objectives must contain at least three/);
+      assert.match(error.message, /practical.tasks must contain 3-5 authored milestones/);
+      assert.match(error.message, /practical.teachingSteps must contain 4-8 complete phases/);
+      return true;
+    },
+  );
 });
 
 test("chapter repair schema makes the non-code board-copy contract explicit", () => {
@@ -185,8 +223,8 @@ test("chapter repair schema makes the non-code board-copy contract explicit", ()
   const displayText = schema.properties.practical.properties
     .teachingSteps.items.properties.displayText;
 
-  assert.match(displayText.description, /exactly 2-6 non-empty lines separated by newline characters/);
-  assert.match(displayText.description, /calculation and its working/);
+  assert.match(displayText.description, /exactly 2-6 non-empty lines/);
+  assert.match(displayText.description, /calculations and working/);
   assert.match(displayText.description, /options, constraints, trade-offs, and outcomes/);
 });
 
@@ -197,6 +235,33 @@ test("terminal chapter repairs retain code walkthrough display labels", () => {
 
   assert.match(displayText.description, /visible label for this code phase/);
   assert.doesNotMatch(displayText.description, /2-6 non-empty lines/);
+  assert.ok(schema.properties.practical.properties.tasks);
+  assert.ok(schema.properties.practical.properties.files);
+  assert.ok(schema.properties.practical.properties.workspace);
+  assert.ok(schema.properties.practical.required.includes("tasks"));
+  const phases = schema.properties.practical.properties.codeWalkthrough.items;
+  assert.ok(phases.required.includes("displayText"));
+  assert.equal(phases.required.includes("stepNumber"), false);
+  assert.equal(phases.properties.durationSeconds, undefined);
+});
+
+test("initial response schema requires complete practical content, not only an envelope", () => {
+  const schema = chapterResponseSchema(entry("Research & Analysis"));
+  const practical = schema.properties.practical;
+  const taskSchema = practical.properties.tasks;
+
+  assert.ok(practical.required.includes("teachingSteps"));
+  assert.ok(practical.required.includes("objectives"));
+  assert.equal(practical.properties.teachingSteps.items.required.includes("stepNumber"), false);
+  assert.equal(practical.properties.teachingSteps.items.properties.durationSeconds, undefined);
+  assert.equal(taskSchema.minItems, 3);
+  assert.equal(taskSchema.maxItems, 5);
+  assert.ok(taskSchema.items.required.includes("structuredHints"));
+  assert.deepEqual(taskSchema.items.properties.structuredHints.required, ["nudge", "concept", "walkthrough"]);
+  assert.equal(taskSchema.items.properties.inlineSuggestions.minItems, 1);
+  assert.equal(taskSchema.items.properties.inlineSuggestions.maxItems, 3);
+  assert.equal(taskSchema.items.properties.hints.minItems, 3);
+  assert.equal(taskSchema.items.properties.hints.maxItems, 3);
 });
 
 test("terminal walkthrough validation rejects repeated snapshots and learner editing during watch mode", () => {
@@ -210,6 +275,24 @@ test("terminal walkthrough validation rejects repeated snapshots and learner edi
   assert.match(errors.join("\n"), /repeats the previous phase/);
   assert.match(errors.join("\n"), /asks the learner to edit/);
   assert.match(errors.join("\n"), /without visible terminalCommands/);
+});
+
+test("watch-only validation rejects action instructions but permits prediction questions about changes", () => {
+  const errors = terminalWalkthroughErrors([
+    { stepNumber: 1, codeLine: "int main(void) { return 0; }" },
+    {
+      stepNumber: 2,
+      codeLine: "printf(\"Hello\");",
+      speakerText: "The teacher runs the program and observes its output.",
+      learnerPrompt: "What changes in the output when the teacher runs this version?",
+      terminalCommands: ["./main"],
+    },
+    { stepNumber: 3, codeLine: "return 0;", learnerPrompt: "Edit the return value now." },
+    { stepNumber: 4, codeLine: "int main(void) { return 1; }" },
+  ]);
+
+  assert.equal(errors.some((error) => /step 2 asks the learner to edit or execute/.test(error)), false);
+  assert.ok(errors.some((error) => /step 3 asks the learner to edit or execute/.test(error)));
 });
 
 test("chapter repair feedback reports all phase format problems in one pass", () => {
@@ -232,7 +315,7 @@ test("chapter repair feedback reports all phase format problems in one pass", ()
   };
 
   assert.throws(() => validateChapterRepairScript(response, scenarioEntry), (error) => {
-    assert.match(error.message, /phase 1\) has 189 words; provide 40-180 \(target 90-110, maximum 120\)/);
+    assert.match(error.message, /phase 1\) has 189 words; provide 40-180/);
     assert.match(error.message, /phase 2\) has 1 non-empty lines; provide 2-6/);
     assert.match(error.message, /phase 2\) has 2 words; provide 40-180/);
     assert.match(error.message, /repeats the opening-screen welcome/);

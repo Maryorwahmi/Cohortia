@@ -113,22 +113,20 @@ const PRACTICAL_SCHEMA = {
       items: {
         type: "object",
         properties: {
-          stepNumber: { type: "integer" },
           phase: { type: "string", enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"] },
           displayText: { type: "string", description: "Concise visual label synchronized with this teaching phase." },
-          speakerText: { type: "string", description: "Complete, source-grounded teacher narration for this phase (~80-120 words)." },
+          speakerText: { type: "string", description: "Complete, source-grounded teacher narration for this phase (40-180 words)." },
           codeLine: { type: "string", description: "The exact code shown for this teaching phase. The first and final phases may show the complete file; middle phases show only the focused code block for the idea being taught." },
           file: { type: "string", description: "File path being edited" },
           terminalCommands: { type: "array", items: { type: "string" }, description: "Teacher-demonstration commands visibly shown when this phase claims compilation or execution." },
           terminalOutput: { type: "string", description: "Expected teacher-demonstration output visibly shown when this phase discusses a run result." },
           explanation: { type: "string", description: "Concise on-screen callout / annotation for the code" },
-          learnerPrompt: { type: "string", description: "The prediction, question, or action handed to the learner in this phase." },
+          learnerPrompt: { type: "string", description: "For non-final walkthrough phases, ask only for a prediction or observation. The final transfer phase may hand control to independent practice." },
           commonMistake: { type: "string", description: "A relevant misconception or likely error to watch for." },
           recap: { type: "string", description: "The key idea reinforced at the end of this phase." },
           predictionQuestion: PREDICTION_QUESTION_SCHEMA,
-          durationSeconds: { type: "number", description: "Estimated duration in seconds (e.g. 5-12)" }
         },
-        required: ["stepNumber", "speakerText", "codeLine"]
+        required: ["speakerText", "codeLine"]
       },
       description: "Stage-based animated code-along segments. The opening and final phases may show the complete file; focused middle phases show the relevant code block and any teacher command/output used to explain it. The learner watches this sequence and edits only after the walkthrough."
     },
@@ -137,19 +135,17 @@ const PRACTICAL_SCHEMA = {
       items: {
         type: "object",
         properties: {
-          stepNumber: { type: "integer" },
           phase: { type: "string", enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"] },
           title: { type: "string" },
           displayText: { type: "string", description: "A concrete 2-6 line non-code visual revealed as the teacher explains: show the actual equation/calculation, evidence observation, data row, decision trace, or other activity-specific artifact. Do not return only a title or generic label." },
-          speakerText: { type: "string", description: "Teacher narration synchronized to this visual step." },
+          speakerText: { type: "string", description: "Complete, source-grounded teacher narration of 40-180 words synchronized to this visual step." },
           explanation: { type: "string", description: "Short on-screen explanation of the current idea." },
           learnerPrompt: { type: "string", description: "The prediction, question, or action handed to the learner in this phase." },
           commonMistake: { type: "string", description: "A relevant misconception or likely error to watch for." },
           recap: { type: "string", description: "The key idea reinforced at the end of this phase." },
           predictionQuestion: PREDICTION_QUESTION_SCHEMA,
-          durationSeconds: { type: "number" },
         },
-        required: ["stepNumber", "displayText", "speakerText", "explanation"],
+        required: ["displayText", "speakerText", "explanation"],
       },
       description: "Ordered, progressively revealed non-code teaching lines for scenario and design activities.",
     },
@@ -1183,18 +1179,19 @@ function validateNarrationSegment(text, { label, sourceActivity, activityAnchors
   const rawNarration = String(text || "");
   const narration = normalizeLearnerText(rawNarration).replace(/\s+/g, " ").trim();
   const wordCount = speechWordCount(narration);
+  const issues = [];
   if (wordCount < 40 || wordCount > 180) {
-    throw new Error(`${label} narration must be 40-180 words; received ${wordCount}.`);
+    issues.push(`${label} narration must be 40-180 words; received ${wordCount}.`);
   }
   if (!/[.!?]["'”’)]*$/.test(narration)) {
-    throw new Error(`${label} narration must end with a complete sentence.`);
+    issues.push(`${label} narration must end with a complete sentence.`);
   }
   if (/```|(?:^|\n)\s*(?:\d+[.)]|[-*])\s/m.test(rawNarration)) {
-    throw new Error(`${label} narration must be spoken prose, not a code block or list.`);
+    issues.push(`${label} narration must be spoken prose, not a code block or list.`);
   }
   const normalizedActivity = normalizeLearnerText(sourceActivity).replace(/\s+/g, " ").trim().toLowerCase();
   if (speechWordCount(normalizedActivity) >= 12 && narration.toLowerCase().includes(normalizedActivity)) {
-    throw new Error(`${label} narration repeats the hands-on activity instead of teaching it.`);
+    issues.push(`${label} narration repeats the hands-on activity instead of teaching it.`);
   }
   const genericTerms = new Set([
     "about", "after", "before", "chapter", "course", "first", "guide", "hands", "into",
@@ -1205,8 +1202,9 @@ function validateNarrationSegment(text, { label, sourceActivity, activityAnchors
     .flatMap((anchor) => String(anchor || "").toLowerCase().match(/[a-z0-9][a-z0-9_-]*/g) || [])
     .filter((term) => term.length >= 4 && !genericTerms.has(term));
   if (topicTerms.length && !topicTerms.some((term) => narration.toLowerCase().includes(term))) {
-    throw new Error(`${label} narration must mention a topic-specific term from the activity or chapter.`);
+    issues.push(`${label} narration must mention a topic-specific term from the activity or chapter.`);
   }
+  if (issues.length) throw new Error(issues.join("\n- "));
   return narration;
 }
 
@@ -1239,6 +1237,15 @@ function looksLikeCompleteSourceSnapshot(codeLine) {
   return hasModuleOrEntryMarker && hasBalancedBlock;
 }
 
+function learnerPromptDirectsAction(prompt) {
+  const action = "(?:add|change|modify|edit|type|write|remove|delete|compile|run|execute)";
+  const sentences = String(prompt || "").split(/(?<=[.!?])\s+/);
+  return sentences.some((sentence) => (
+    new RegExp(`^\\s*(?:please\\s+)?(?:(?:you\\s+)?(?:should|must|need to|have to|can|could|go ahead and)\\s+)?${action}\\b`, "i").test(sentence)
+    || new RegExp(`^\\s*(?:can|could)\\s+you\\s+(?:please\\s+)?${action}\\b`, "i").test(sentence)
+  ));
+}
+
 function terminalWalkthroughErrors(walkthrough) {
   const errors = [];
   if (!Array.isArray(walkthrough)) return errors;
@@ -1259,7 +1266,7 @@ function terminalWalkthroughErrors(walkthrough) {
       errors.push(`${label} repeats the previous phase's code block without a visible teaching change`);
     }
     const prompt = String(step?.learnerPrompt || "");
-    if (index < walkthrough.length - 1 && /\b(?:add|change|modify|edit|type|write|remove|delete|compile|run|execute)\b/i.test(prompt)) {
+    if (index < walkthrough.length - 1 && learnerPromptDirectsAction(prompt)) {
       errors.push(`${label} asks the learner to edit or execute during the watch-only walkthrough`);
     }
     const speaksExecution = /\b(?:compile|compiled|compiler|run|running|execute|execution|terminal output)\b/i.test(`${step?.speakerText || ""} ${prompt}`);
@@ -1271,14 +1278,27 @@ function terminalWalkthroughErrors(walkthrough) {
   return errors;
 }
 
-function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, activityAnchors }) {
+function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, activityAnchors }, allIssues) {
   const label = `${kind} phase ${index + 1}`;
-  const speakerText = validateNarrationSegment(step.speakerText, { label, sourceActivity, activityAnchors });
+  const issues = [];
+  let speakerText;
+  try {
+    speakerText = validateNarrationSegment(step.speakerText, { label, sourceActivity, activityAnchors });
+  } catch (error) {
+    issues.push(...String(error.message).split(/\n-\s*/).filter(Boolean).map((issue) => `${label} speakerText: ${issue}`));
+    speakerText = normalizeLearnerText(step.speakerText);
+  }
   const requiredText = (value, field) => {
     const text = asStringText(value);
-    if (!text) throw new Error(`${label} is missing ${field}.`);
+    if (!text) issues.push(`${label} is missing ${field}.`);
     return text;
   };
+  let predictionQuestion;
+  try {
+    predictionQuestion = normalizePredictionQuestion(step.predictionQuestion, `${kind}-${index + 1}`);
+  } catch (error) {
+    issues.push(...String(error.message).split(/\n-\s*/).filter(Boolean));
+  }
   const normalized = {
     stepNumber: index + 1,
     phase: phaseForStep(step.phase, index, stepCount),
@@ -1289,21 +1309,21 @@ function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, 
     commonMistake: requiredText(step.commonMistake, "a likely common mistake"),
     recap: requiredText(step.recap, "a recap"),
     durationSeconds: narrationDurationSeconds(speakerText),
-    predictionQuestion: normalizePredictionQuestion(step.predictionQuestion, `${kind}-${index + 1}`),
+    predictionQuestion,
   };
   if (kind === "code walkthrough") {
     const codeLine = typeof step.codeLine === "string" ? step.codeLine : step.code;
     if (typeof codeLine !== "string" || !codeLine.trim()) {
-      throw new Error(`${label} is missing a code block.`);
+      issues.push(`${label} is missing a code block.`);
     }
-    const meaningfulLines = countMeaningfulCodeLines(codeLine);
+    const meaningfulLines = countMeaningfulCodeLines(codeLine || "");
     const isWholeFileBlock = looksLikeCompleteSourceSnapshot(codeLine);
     const isOpeningOrTransfer = index === 0 || index === stepCount - 1;
     if (isWholeFileBlock && !isOpeningOrTransfer) {
-      throw new Error(`${label} must show the focused code for this teaching stage, not a repeated full-file snapshot. Use a focused 1-5 line block for the active concept.`);
+      issues.push(`${label} must show the focused code for this teaching stage, not a repeated full-file snapshot. Use a focused 1-5 line block for the active concept.`);
     }
     if (meaningfulLines > 6 && !isOpeningOrTransfer) {
-      throw new Error(`${label} code block is too broad. Keep each walkthrough stage to a focused 1-5 line edit or observation block.`);
+      issues.push(`${label} code block is too broad. Keep each walkthrough stage to a focused 1-5 line edit or observation block.`);
     }
     const terminalCommands = Array.isArray(step.terminalCommands)
       ? step.terminalCommands.filter((command) => typeof command === "string" && command.trim()).map((command) => command.trim())
@@ -1311,10 +1331,10 @@ function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, 
     const terminalOutput = asStringText(step.terminalOutput);
     const mentionsExecution = /\b(?:compile|compiled|compiler|run|running|execute|execution|terminal output)\b/i.test(`${speakerText} ${normalized.learnerPrompt}`);
     if (mentionsExecution && !terminalCommands.length && !terminalOutput) {
-      throw new Error(`${label} discusses compilation or execution without a visible terminal command or output.`);
+      issues.push(`${label} discusses compilation or execution without a visible terminal command or output.`);
     }
-    if (index < stepCount - 1 && /\b(?:add|change|modify|edit|type|write|remove|delete|compile|run|execute)\b/i.test(normalized.learnerPrompt)) {
-      throw new Error(`${label} hands an editing or execution action to the learner during the watch-only walkthrough. Ask for a prediction or observation; defer hands-on work to the final transfer.`);
+    if (index < stepCount - 1 && learnerPromptDirectsAction(normalized.learnerPrompt)) {
+      issues.push(`${label} hands an editing or execution action to the learner during the watch-only walkthrough. Ask for a prediction or observation; defer hands-on work to the final transfer.`);
     }
     normalized.codeLine = codeLine;
     normalized.displayText = asStringText(step.displayText) || normalized.explanation;
@@ -1326,22 +1346,24 @@ function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, 
     normalized.displayText = requiredText(step.displayText, "displayText");
     const visualLineCount = normalized.displayText.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).length;
     if (visualLineCount < 2 || visualLineCount > 6) {
-      throw new Error(`${label} displayText must contain 2-6 concrete visual lines; received ${visualLineCount}.`);
+      issues.push(`${label} displayText must contain 2-6 concrete visual lines; received ${visualLineCount}.`);
     }
   }
+  allIssues.push(...issues);
   return normalized;
 }
 
 function validateCanonicalTeachingQuality(steps, activityKind) {
+  const issues = [];
   const firstNarration = steps[0]?.speakerText?.trim() || "";
-  if (/^(?:welcome|hello|hi)\b/i.test(firstNarration)) {
-    throw new Error("The first teaching phase must teach the activity, not repeat the opening-screen welcome.");
+  if (/^(?:(?:welcome|hello|hi)\b|in this (?:chapter|lesson|course)\b|today\b|our mission\b|let(?:'s| us) begin\b)/i.test(firstNarration)) {
+    issues.push("The first teaching phase must begin with the concrete activity concept or question, not a greeting or opening-screen chapter/mission introduction.");
   }
 
   if (activityKind === "binary_exercise") {
     const workedExamples = steps.filter((step) => step.phase === "worked_example");
     if (!workedExamples.length) {
-      throw new Error("A binary exercise needs a worked_example teaching phase.");
+      issues.push("A binary exercise needs a worked_example teaching phase.");
     }
 
     for (const step of steps) {
@@ -1351,7 +1373,7 @@ function validateCanonicalTeachingQuality(steps, activityKind) {
         || /[=+×*÷]/u.test(step.speakerText);
       if ((step.phase === "worked_example" || speaksCalculation)
         && (displayedNumbers.size < 2 || !/(?:=|->|→|[+×*÷/])/u.test(displayText))) {
-        throw new Error(`Binary teaching phase ${step.stepNumber} must show its calculation, not only a heading or answer.`);
+        issues.push(`Binary teaching phase ${step.stepNumber} must show its calculation, not only a heading or answer.`);
       }
 
       const spokenNumbers = new Set(step.speakerText.match(/\d+/g) || []);
@@ -1359,7 +1381,7 @@ function validateCanonicalTeachingQuality(steps, activityKind) {
         number.length > 1 && !displayedNumbers.has(number)
       ));
       if (missingNumbers.length) {
-        throw new Error(
+        issues.push(
           `Binary teaching phase ${step.stepNumber} speaks numeric values absent from displayText: ${missingNumbers.join(", ")}.`,
         );
       }
@@ -1373,9 +1395,10 @@ function validateCanonicalTeachingQuality(steps, activityKind) {
       && /\b(?:trade-?off|constraint|versus|vs\.?)\b/i.test(step.displayText)
     ));
     if (!showsTradeoff) {
-      throw new Error("A design decision needs a worked visual comparing options against a constraint or trade-off.");
+      issues.push("A design decision needs a worked visual comparing options against a constraint or trade-off.");
     }
   }
+  if (issues.length) throw new Error(issues.join("\n- "));
 }
 
 function inferLabType(raw, sourceContext) {
@@ -1990,7 +2013,7 @@ function normalizeWorkspace(raw, { experienceType, activityKind, files, language
   };
 }
 
-function normalizePractical(raw, sourceContext, metadata) {
+function normalizePractical(raw, sourceContext, metadata, { requireGeneratedContent = false } = {}) {
   if (!raw || typeof raw !== "object") throw new Error("Generated practical must be an object.");
 
   const labType = inferLabType(raw, sourceContext);
@@ -2021,7 +2044,9 @@ function normalizePractical(raw, sourceContext, metadata) {
     : openingText(instructions, 320) || `Complete ${title} and verify the result.`;
   const rawTasks = Array.isArray(raw.tasks) && raw.tasks.length
     ? raw.tasks
-    : [{ instruction: instructions, title: title, hints: [], tests: [] }];
+    : requireGeneratedContent
+      ? []
+      : [{ instruction: instructions, title: title, hints: [], tests: [] }];
   const checks = [];
   const checkIds = new Set();
   const taskIds = new Set();
@@ -2202,7 +2227,7 @@ function normalizePractical(raw, sourceContext, metadata) {
       question: "What principle did you learn, and where else could you use it?",
     },
   ];
-  if (activityKind !== "binary_exercise" && tasks.length < progressiveStages.length) {
+  if (!requireGeneratedContent && activityKind !== "binary_exercise" && tasks.length < progressiveStages.length) {
     tasks = progressiveStages.map((stage, index) => {
       const existing = tasks[index];
       if (existing) {
@@ -2318,20 +2343,41 @@ function normalizePractical(raw, sourceContext, metadata) {
   if (!Array.isArray(canonicalScript) || canonicalScript.length < 4 || canonicalScript.length > 8) {
     throw new Error(`${canonicalKind} must contain 4-8 complete teaching phases.`);
   }
-  const canonicalSteps = canonicalScript.map((step, index) => {
+  const canonicalSteps = [];
+  const canonicalStepIssues = [];
+  canonicalScript.forEach((step, index) => {
     if (!step || typeof step !== "object") {
-      throw new Error(`${canonicalKind} phase ${index + 1} must be an object.`);
+      canonicalStepIssues.push(`${canonicalKind} phase ${index + 1} must be an object.`);
+      canonicalSteps[index] = {
+        stepNumber: index + 1,
+        phase: phaseForStep(undefined, index, canonicalScript.length),
+        speakerText: "",
+        displayText: "",
+      };
+      return;
     }
-    return normalizeCanonicalStep(step, index, canonicalScript.length, {
-      kind: canonicalKind,
-      sourceActivity: sourceContext.activityChapter.handsOnActivity,
-      activityAnchors: [
-        sourceContext.activityTitle,
-        ...(sourceContext.lessonContext?.keyConcepts || []),
-      ],
-    });
+    try {
+      canonicalSteps[index] = normalizeCanonicalStep(step, index, canonicalScript.length, {
+        kind: canonicalKind,
+        sourceActivity: sourceContext.activityChapter.handsOnActivity,
+        activityAnchors: [
+          sourceContext.activityTitle,
+          ...(sourceContext.lessonContext?.keyConcepts || []),
+        ],
+      }, canonicalStepIssues);
+    } catch (error) {
+      canonicalStepIssues.push(`${canonicalKind} phase ${index + 1} could not be normalized: ${error.message}`);
+    }
   });
-  validateCanonicalTeachingQuality(canonicalSteps, activityKind);
+  try {
+    validateCanonicalTeachingQuality(canonicalSteps, activityKind);
+  } catch (error) {
+    canonicalStepIssues.push(...String(error.message).split(/\n-\s*/).filter(Boolean));
+  }
+  if (canonicalStepIssues.length) {
+    const uniqueIssues = [...new Set(canonicalStepIssues)];
+    throw new Error(`Canonical ${canonicalKind} validation issues:\n- ${uniqueIssues.join("\n- ")}`);
+  }
   let codeWalkthrough = isCodeExperience
     ? canonicalSteps.map((step) => ({
         ...step,
@@ -2476,9 +2522,11 @@ function normalizePractical(raw, sourceContext, metadata) {
             `Modify one part of ${title} and explain the observable change in the result.`,
             `Test an edge case in ${title} and justify your explanation using the evidence produced.`,
           ];
-  for (const objective of fallbackObjectives) {
-    if (objectives.length >= 3) break;
-    if (!objectives.includes(objective)) objectives.push(objective);
+  if (!requireGeneratedContent) {
+    for (const objective of fallbackObjectives) {
+      if (objectives.length >= 3) break;
+      if (!objectives.includes(objective)) objectives.push(objective);
+    }
   }
 
   return {

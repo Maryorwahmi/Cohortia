@@ -14,11 +14,17 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
 import {
+  PRACTICAL_SCHEMA,
   assertValidPractical,
   normalizePractical,
   resolveSourceContext,
   writePractical,
 } from "./generate-learning-board-practical.js";
+import {
+  activityKindFor,
+  profileFor,
+  profileSchema,
+} from "./lib/practical-experience-profiles.js";
 import {
   readCourseGenerationRecord,
   writeCourseGenerationRecord,
@@ -29,89 +35,109 @@ const BACKEND_ROOT = path.join(REPOSITORY_ROOT, "backend");
 const PRACTICAL_IMPORTER_PATH = path.join(BACKEND_ROOT, "scripts", "import-practicals.js");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
-// Keep the transport schema shallow; the generated practical is validated locally.
-const CHAPTER_RESPONSE_SCHEMA = {
-  type: "object",
-  properties: {
-    moduleNumber: { type: "integer" },
-    chapterNumber: { type: "integer" },
-    practical: { type: "object" },
-  },
-  required: ["moduleNumber", "chapterNumber", "practical"],
-};
-
 function canonicalScriptKeyForEntry(entry) {
   return entry.sourceContext.source.category === "Terminal Coding Lab"
     ? "codeWalkthrough"
     : "teachingSteps";
 }
 
-// Enforce the canonical teaching sequence without expanding the transport schema.
-function chapterRepairResponseSchema(entry) {
+function chapterResponseSchema(entry) {
+  const { sourceContext } = entry;
+  const category = sourceContext.source.category;
   const canonicalKey = canonicalScriptKeyForEntry(entry);
-  const phaseProperties = {
-    stepNumber: { type: "integer" },
-    phase: {
-      type: "string",
-      enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"],
-    },
-    displayText: {
-      type: "string",
-      description: canonicalKey === "teachingSteps"
-        ? "Required visible board copy, not a phase title: exactly 2-6 non-empty lines separated by newline characters for this exact phase. Count the lines. Show the spoken calculation and its working, evidence and interpretation, or named options, constraints, trade-offs, and outcomes."
-        : "A concise visible label for this code phase.",
-    },
-    speakerText: {
-      type: "string",
-      description: "Complete spoken teacher narration. Target 90-110 words; never exceed 120 words. The validator accepts 40-180 words.",
-    },
-    explanation: { type: "string", description: "A concise non-empty explanation." },
-    learnerPrompt: { type: "string", description: "A concrete learner question or action." },
-    commonMistake: { type: "string", description: "A likely misconception or mistake." },
-    recap: { type: "string", description: "A concise recap of the phase." },
-    durationSeconds: { type: "number" },
-  };
+  const inferredLabType = category === "Terminal Coding Lab" ? "code" : "simulation";
+  const activityKind = activityKindFor({
+    category,
+    title: sourceContext.activityTitle,
+    activity: sourceContext.activityChapter.handsOnActivity,
+    labType: inferredLabType,
+  });
+  const experienceProfile = profileFor({
+    category,
+    labType: inferredLabType,
+    activityKind,
+  });
+  const practicalSchema = structuredClone(profileSchema(
+    structuredClone(PRACTICAL_SCHEMA),
+    experienceProfile,
+    activityKind,
+  ));
+  const properties = practicalSchema.properties;
+  const unrelatedScriptKey = canonicalKey === "codeWalkthrough" ? "teachingSteps" : "codeWalkthrough";
+  delete properties[unrelatedScriptKey];
+  for (const derivedField of ["teaching", "activityMapping", "lessonContext"]) {
+    delete properties[derivedField];
+  }
+
+  practicalSchema.required = [...new Set([
+    ...practicalSchema.required,
+    "summary",
+    "objectives",
+    canonicalKey,
+  ])];
+  properties.objectives.minItems = 3;
+
+  const tasksSchema = properties.tasks;
+  tasksSchema.minItems = 3;
+  tasksSchema.maxItems = 5;
+  tasksSchema.items.required = [...new Set([
+    ...tasksSchema.items.required,
+    "title",
+    "stepType",
+    "structuredHints",
+    "inlineSuggestions",
+  ])];
+  tasksSchema.items.properties.hints.minItems = 3;
+  tasksSchema.items.properties.hints.maxItems = 3;
+  tasksSchema.items.properties.structuredHints.required = ["nudge", "concept", "walkthrough"];
+  tasksSchema.items.properties.inlineSuggestions.minItems = 1;
+  tasksSchema.items.properties.inlineSuggestions.maxItems = 3;
+  if (category !== "Terminal Coding Lab") {
+    delete properties.files.minItems;
+  }
+
+  const canonicalScriptSchema = properties[canonicalKey];
+  canonicalScriptSchema.minItems = 4;
+  canonicalScriptSchema.maxItems = 8;
+  const phaseProperties = canonicalScriptSchema.items.properties;
   const phaseRequired = [
-    "stepNumber",
     "phase",
-    "displayText",
     "speakerText",
     "explanation",
     "learnerPrompt",
     "commonMistake",
     "recap",
+    canonicalKey === "codeWalkthrough" ? "codeLine" : "displayText",
   ];
   if (canonicalKey === "codeWalkthrough") {
-    phaseProperties.codeLine = { type: "string", description: "The code shown in this phase. The first and final phases may show the complete file; middle phases must show a focused 1-5 line block, not a repeated full-file snapshot." };
-    phaseProperties.file = { type: "string", description: "The practical file edited in this phase." };
-    phaseProperties.terminalCommands = { type: "array", items: { type: "string" }, description: "Visible teacher commands when this phase discusses compilation or execution." };
-    phaseProperties.terminalOutput = { type: "string", description: "Visible expected output when this phase discusses a run result." };
-    phaseRequired.push("codeLine", "file");
+    phaseRequired.push("file", "displayText");
+    phaseProperties.displayText = {
+      type: "string",
+      description: "A concise visible label for this code phase.",
+    };
+    phaseProperties.learnerPrompt.description = "For non-final phases, ask only for a prediction or observation. The final transfer phase may hand control to independent practice.";
+  } else {
+    phaseProperties.displayText.description = "Required visible board copy, not a phase title: exactly 2-6 non-empty lines for this phase, showing spoken calculations and working, evidence and interpretation, or named options, constraints, trade-offs, and outcomes.";
   }
+  phaseProperties.speakerText.description = "Complete, source-grounded spoken teacher narration of 40-180 words.";
+  canonicalScriptSchema.items.required = [...new Set([
+    ...canonicalScriptSchema.items.required.filter((field) => field !== "stepNumber"),
+    ...phaseRequired,
+  ])];
+
   return {
     type: "object",
     properties: {
       moduleNumber: { type: "integer" },
       chapterNumber: { type: "integer" },
-      practical: {
-        type: "object",
-        properties: {
-          [canonicalKey]: {
-            type: "array",
-            minItems: 4,
-            maxItems: 8,
-            items: {
-              type: "object",
-              properties: phaseProperties,
-              required: phaseRequired,
-            },
-          },
-        },
-        required: [canonicalKey],
-      },
+      practical: practicalSchema,
     },
     required: ["moduleNumber", "chapterNumber", "practical"],
   };
+}
+
+function chapterRepairResponseSchema(entry) {
+  return chapterResponseSchema(entry);
 }
 
 function validateChapterRepairScript(raw, entry) {
@@ -148,7 +174,7 @@ function validateChapterRepairScript(raw, entry) {
     const wordCount = String(step?.speakerText || "").trim().split(/\s+/).filter(Boolean).length;
     if (wordCount < 40 || wordCount > 180) {
       issues.push(
-        `teachingSteps[${index}].speakerText (phase ${phase}) has ${wordCount} words; provide 40-180 (target 90-110, maximum 120).`,
+        `teachingSteps[${index}].speakerText (phase ${phase}) has ${wordCount} words; provide 40-180.`,
       );
     }
   });
@@ -171,6 +197,12 @@ function buildChapterRepairFeedback(error, canonicalKey) {
     "Correct every validation issue listed below in this response, including semantic content errors; do not only change line counts.",
     `Return the complete practical object with its canonical ${canonicalKey} array containing 4-8 complete ordered phases.`,
   ];
+
+  if (/Generated practical is incomplete/i.test(message)) {
+    guidance.push(
+      "Do not omit authored content and expect the generator to invent it. Return 3-5 complete task milestones, each with a specific title and instruction, stepType, three progressive hints in both hints and structuredHints, 1-3 task-specific inlineSuggestions, and at least one task-specific test. Preserve all valid practical fields while restoring every missing required field.",
+    );
+  }
 
   if (canonicalKey === "teachingSteps" && /Binary teaching phase/i.test(message)) {
     guidance.push(
@@ -244,6 +276,106 @@ function findChapterResponseItem(raw, entry) {
   return Array.isArray(items)
     ? items.find((item) => `${Number(item?.moduleNumber)}.${Number(item?.chapterNumber)}` === expectedKey)
     : undefined;
+}
+
+function validateGeneratedPracticalCompleteness(practical, entry) {
+  const issues = [];
+  const requireText = (value, label) => {
+    if (typeof value !== "string" || !value.trim()) issues.push(`${label} is missing.`);
+  };
+  const category = entry.sourceContext.source.category;
+  const canonicalKey = canonicalScriptKeyForEntry(entry);
+
+  for (const field of ["title", "summary", "instructions"]) {
+    requireText(practical?.[field], `practical.${field}`);
+  }
+  if (!Array.isArray(practical?.objectives) || practical.objectives.length < 3) {
+    issues.push("practical.objectives must contain at least three specific objectives.");
+  } else if (practical.objectives.some((objective) => typeof objective !== "string" || !objective.trim())) {
+    issues.push("Every practical objective must be a non-empty string.");
+  }
+
+  const tasks = practical?.tasks;
+  if (!Array.isArray(tasks) || tasks.length < 3 || tasks.length > 5) {
+    issues.push("practical.tasks must contain 3-5 authored milestones.");
+  } else {
+    tasks.forEach((task, index) => {
+      const label = `practical.tasks[${index}]`;
+      requireText(task?.id, `${label}.id`);
+      requireText(task?.title, `${label}.title`);
+      requireText(task?.instruction, `${label}.instruction`);
+      if (!["observe", "modify", "experiment", "verify"].includes(task?.stepType)) {
+        issues.push(`${label}.stepType must be observe, modify, experiment, or verify.`);
+      }
+      if (!Array.isArray(task?.hints) || task.hints.length !== 3 || task.hints.some((hint) => typeof hint !== "string" || !hint.trim())) {
+        issues.push(`${label}.hints must contain three non-empty progressive hints.`);
+      }
+      for (const tier of ["nudge", "concept", "walkthrough"]) {
+        requireText(task?.structuredHints?.[tier], `${label}.structuredHints.${tier}`);
+      }
+      if (!Array.isArray(task?.inlineSuggestions) || task.inlineSuggestions.length < 1 || task.inlineSuggestions.length > 3) {
+        issues.push(`${label}.inlineSuggestions must contain 1-3 task-specific suggestions.`);
+      } else {
+        task.inlineSuggestions.forEach((suggestion, suggestionIndex) => {
+          requireText(suggestion?.id, `${label}.inlineSuggestions[${suggestionIndex}].id`);
+          requireText(suggestion?.label, `${label}.inlineSuggestions[${suggestionIndex}].label`);
+          requireText(suggestion?.text, `${label}.inlineSuggestions[${suggestionIndex}].text`);
+        });
+      }
+      if (!Array.isArray(task?.tests) || task.tests.length === 0) {
+        issues.push(`${label}.tests must contain at least one task-specific check.`);
+      }
+    });
+  }
+
+  const steps = practical?.[canonicalKey];
+  if (!Array.isArray(steps) || steps.length < 4 || steps.length > 8) {
+    issues.push(`practical.${canonicalKey} must contain 4-8 complete phases.`);
+  } else {
+    const phaseTypes = ["orientation", "worked_example", "guided_practice", "verification", "transfer"];
+    const phaseFields = [
+      "speakerText",
+      "displayText",
+      "explanation",
+      "learnerPrompt",
+      "commonMistake",
+      "recap",
+      ...(canonicalKey === "codeWalkthrough" ? ["codeLine", "file"] : []),
+    ];
+    steps.forEach((step, index) => {
+      const label = `practical.${canonicalKey}[${index}]`;
+      if (!phaseTypes.includes(step?.phase)) {
+        issues.push(`${label}.phase must be one of ${phaseTypes.join(", ")}.`);
+      }
+      for (const field of phaseFields) {
+        requireText(step?.[field], `${label}.${field}`);
+      }
+    });
+  }
+
+  const workspaceTypeByCategory = {
+    "Terminal Coding Lab": "terminal",
+    "Cloud Console Lab": "cloud",
+    "Scenario & Design Exercise": "scenario",
+    "Research & Analysis": "research",
+  };
+  const workspaceType = workspaceTypeByCategory[category];
+  if (workspaceType && (practical?.workspace?.type !== workspaceType || !practical.workspace[workspaceType])) {
+    issues.push(`practical.workspace must include type "${workspaceType}" and its complete ${workspaceType} data.`);
+  }
+  if (category === "Terminal Coding Lab") {
+    const sourceFile = practical?.files?.some((file) => (
+      typeof file?.path === "string"
+      && /\.(c|cc|cpp|cxx|h|hpp|py|js|ts|sql)$/i.test(file.path)
+      && typeof file.content === "string"
+      && file.content.trim()
+    ));
+    if (!sourceFile) issues.push("practical.files must include a non-empty editable source file.");
+  }
+
+  if (issues.length) {
+    throw new Error(`Generated practical is incomplete:\n- ${issues.join("\n- ")}`);
+  }
 }
 
 function buildChapterContinuationPrompt(prompt, error, canonicalKey, previousPractical) {
@@ -386,7 +518,7 @@ REQUIREMENTS:
 1. Return exactly one practical for the single requested chapter. Do not include another chapter.
 2. Preserve each chapter's original activity title, objectives, and ordered steps.
   2A. TEACH VIEW OPENING CONTENT:
-   - Every practical must provide a complete teachViewOpening for the first Teach Mode orientation screen. This is not the walkthrough screen and it must be present for Terminal Coding, Cloud Console, Scenario & Design, and Research & Analysis practicals.
+   - The generator derives the complete teachViewOpening for the first Teach Mode orientation screen from the title, summary, objectives, tasks, workspace, and lesson context. Do not return teachViewOpening yourself; this is not the walkthrough screen and the derived field must be available for Terminal Coding, Cloud Console, Scenario & Design, and Research & Analysis practicals.
    - Make each practical's title, summary, objectives, instructions, learner artifact, tasks, and teaching steps specific to its source chapter and hands-on activity. The opening must present a practical mission, what is coming up, why it matters, practical actions, applied chapter concepts, an activity-specific workflow, and getting-ready instructions.
    - Use observable practical actions, the actual learner artifact, and only concepts grounded in STRUCTURED LESSON CONTEXT. Avoid generic course-level introductions and do not invent or redefine chapter concepts.
 3. Category-Specific Design:
@@ -406,14 +538,14 @@ REQUIREMENTS:
    - Scenario & Design:
      * If the activity covers binary conversions, bits, or number systems, set widgetType to "binary_converter".
      * If algorithmic, break into structured design steps (inputs/outputs, step-by-step logic, edge case analysis).
-     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step represents one real phase (orientation, worked example, guided practice, or transfer), with concise progressive displayText, 80–120 words of speakerText, a concise explanation, a learnerPrompt, a likely commonMistake, a recap, and a duration matching the spoken text. The separate opening screen already welcomes the learner and introduces the chapter and mission: do not repeat that welcome, recap, or mission in phase 1. Begin phase 1 with the first concrete activity concept, teach from a source-grounded worked example, ask the learner to predict or try a related step, address a likely misconception, and finish by handing control to independent practice. Do not write alternate narration in narratorGuide, task narratorGuide, teacherTalk, or teachingPlaylist; the generator derives those display fields from this canonical sequence.
+     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step represents one real phase (orientation, worked example, guided practice, or transfer), with concise progressive displayText, 40–180 words of speakerText, a concise explanation, a learnerPrompt, a likely commonMistake, and a recap. The generator calculates durationSeconds from speakerText; do not generate it. The separate opening screen already welcomes the learner and introduces the chapter and mission: do not repeat that welcome, chapter connection, recap, or mission in phase 1. Begin phase 1 directly with the first concrete activity concept, teach from a source-grounded worked example, ask the learner to predict or try a related step, address a likely misconception, and finish by handing control to independent practice. Do not write alternate narration in narratorGuide, task narratorGuide, teacherTalk, or teachingPlaylist; the generator derives those display fields from this canonical sequence.
      * Every number, calculation, evidence claim, option comparison, constraint, and worked result spoken in a phase must also appear as visible line-by-line content in that same phase's displayText. For binary conversions, show place values and the full arithmetic, not just the input and answer. For design decisions, compare at least two named options against explicit constraints, state their trade-off, and show the selected choice and expected outcome.
    - Research & Analysis / Non-Code:
      * Structure as a guided inquiry notebook with observation prompts, hypothesis formation, and comparative analysis.
-     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step must have phase, concise progressive displayText, 80–120 words of source-grounded speakerText, concise explanation, learnerPrompt, commonMistake, recap, and duration matching the spoken text. Start with a warm chapter connection and investigation question; model examining evidence, separating observation from inference, testing a hypothesis, and finish with an independent inquiry. Do not author competing narration fields; the generator derives them from these steps.
+     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step must have phase, concise progressive displayText, 40–180 words of source-grounded speakerText, concise explanation, learnerPrompt, commonMistake, and recap. The generator calculates durationSeconds from speakerText; do not generate it. Because the opening screen already introduces the chapter and mission, phase 1 starts directly with the concrete investigation question; then model examining evidence, separating observation from inference, testing a hypothesis, and finish with an independent inquiry. Do not author competing narration fields; the generator derives them from these steps.
    - Cloud Console:
      * Provide realistic CLI scenarios with contextual mock command responses.
-     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step must have phase, concise progressive displayText, 80–120 words of topic-grounded speakerText, concise explanation, learnerPrompt, commonMistake, recap, and duration matching the spoken text. Start with the operational goal and starting resource state, teach each safe simulated/read-only action and its consequence, invite a prediction, explain verification, and end with a safe “Your turn” command-plan. Do not author competing narration fields; the generator derives them from these steps.
+     * Create 4–8 ordered teachingSteps as the sole canonical spoken script for this practical. Each step must have phase, concise progressive displayText, 40–180 words of topic-grounded speakerText, concise explanation, learnerPrompt, commonMistake, and recap. The generator calculates durationSeconds from speakerText; do not generate it. The opening screen already introduces the chapter and mission, so phase 1 starts with the operational goal and starting resource state. Teach each safe simulated/read-only action and its consequence, invite a prediction, explain verification, and end with a safe “Your turn” command-plan. Do not author competing narration fields; the generator derives them from these steps.
      * Explain each command in plain language, including a familiar real-world consequence, and use simulations or read-only resources only.
 4. Tasks & Milestones:
    - Build 3–5 progressive milestones per practical.
@@ -423,19 +555,19 @@ REQUIREMENTS:
    - Provide 1–3 task-specific inlineSuggestions with concise coaching and optional small insertionText fragments. These are static manifest content, never runtime AI responses, and must not reveal a complete solution.
 5. Canonical Narration:
    - Use teachingSteps as the sole canonical spoken script for scenario, research, and cloud activities; use codeWalkthrough as the sole canonical spoken script for terminal coding.
-   - The separate opening screen introduces the course/chapter and practical mission. The first canonical phase must start teaching the first activity-specific concept, without a repeated greeting, chapter recap, or mission. Later phases should model the work, invite learner reasoning, explain a likely mistake, and close with a recap and transfer handoff.
+   - The separate opening screen introduces the course/chapter and practical mission. Every canonical script's first phase starts directly with the first activity-specific concept or concrete question, without a greeting, chapter connection, recap, or mission restatement. Later phases model the work, invite learner reasoning, explain a likely mistake, and close with a recap and transfer handoff.
    - Do not repeat the hands-on activity verbatim or create parallel narratorGuide, playlist narratorScript, task narratorGuide, or teacherTalk narration. The generator derives those fields from the canonical phases.
    - Write speech synthesis-friendly prose: explain symbols by meaning when needed, avoid reading raw punctuation or code as a robot, and end complete spoken sentences.
 6. Synchronized Animated CodeWalkthrough (TERMINAL CODING LABS ONLY):
-   - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching phases. The learner is watching a teacher demonstration and cannot edit or run the workspace in these slides. The first phase may show the complete baseline file; middle phases must show only the focused 1–5 line block for the new concept or change; the final transfer phase may show the complete final file. Never repeat an identical code block in adjacent phases. The classroom UI reveals each phase line-by-line inside one slide. Create a new stage only for a genuine phase change such as orientation, observe, modify, verify, or transfer.
+   - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching phases. The learner is watching a teacher demonstration and cannot edit or run the workspace in these slides. Every non-final learnerPrompt asks for a prediction or observation only; never direct the learner to edit, compile, run, or execute. The first phase may show the complete baseline file; middle phases must show only the focused 1–5 line block for the new concept or change; the final transfer phase may show the complete final file. Never repeat an identical code block in adjacent phases. The classroom UI reveals each phase line-by-line inside one slide. Create a new stage only for a genuine phase change such as orientation, observe, modify, verify, or transfer.
    - For EACH stage, provide:
      * stepNumber: 1, 2, 3...
-     * phase, speakerText (~80–120 words), displayText, explanation, learnerPrompt, commonMistake, recap, and durationSeconds matching the narration. Explain the code’s purpose, underlying concept, and a relevant example. Preserve chapter details; do not paraphrase the activity or introduce unrelated topics.
+     * phase, speakerText (40–180 words), displayText, explanation, learnerPrompt, commonMistake, and recap. The generator calculates durationSeconds from speakerText; do not generate it. Begin phase 1 with the first concrete code concept, not a chapter introduction. Explain the code’s purpose, underlying concept, and a relevant example. Preserve chapter details; do not paraphrase the activity or introduce unrelated topics.
      * codeLine: The exact code shown in this phase. Use a complete baseline/final file only for the opening/transfer phases; use a focused code block for middle phases.
      * file: Relative file path (e.g., 'greeting.c' or 'main.py').
-     * terminalCommands / terminalOutput: Include visible teacher commands or expected output whenever the narration mentions compiling, running, executing, or observing program output.
+     * terminalCommands / terminalOutput: Include visible teacher commands or expected output whenever the narration mentions compiling, running, executing, or observing program output. The teacher—not the learner—performs any command described in the walkthrough.
      * explanation: A concise on-screen annotation / callout.
-     * durationSeconds: Estimated audio speech time from the actual speakerText.
+     * durationSeconds is calculated by the generator from speakerText; do not generate it.
    - This empowers the frontend to animate the code and teacher evidence line-by-line in sync with narration before the student attempts the interactive tasks. Do not ask the learner to edit, compile, or run during the walkthrough. Do not use codeWalkthrough to fake code for Scenario & Design activities; use the progressive teachingSteps format above.
 7. Scenario & Design Excellence:
    - If the category is 'Scenario & Design Exercise', create a highly descriptive world/context. Use 'widgetType' to select specialized UI tools (binary_converter, memory_diagram, etc.).
@@ -446,7 +578,7 @@ REQUIREMENTS:
    - For 'Research & Analysis' practicals, focus on guided inquiry. The narrator should act as a lead researcher, asking the student to form hypotheses and document observations in the provided task areas.
 10. Do NOT invent a different exercise or use source material from another chapter.
 11. Use the STRUCTURED LESSON CONTEXT as the teaching spine. Return an activityMapping array for every numbered source activity step. Each entry must include activityStepId, taskId, lessonScreenIds, teachingStepNumbers, and relevant concepts. Preserve source activity order; never let playlist order differ from teaching order.
-12. Begin the canonical sequence with a brief course/chapter connection and activity orientation before implementation. End with a learner-transfer phase that explicitly hands control to the Your turn activity.
+12. Begin the canonical sequence with the first concrete, activity-specific concept or investigation question; do not repeat the opening screen's course/chapter connection or mission. End with a learner-transfer phase that explicitly hands control to the Your turn activity.
 7. Infer labType from each activity, but prefer simulation/manual review when execution would need host, production, credential, or unrestricted network access.
 8. Keep all generated file paths relative to the practical workspace and never use absolute paths or parent-directory segments.
 9. Do not return teachingPlaylist; the generator derives it from the canonical teaching sequence.
@@ -524,7 +656,10 @@ function normalizeChapterResponse(raw, entry) {
     const canonicalKey = canonicalScriptKeyForEntry(entry);
     let practical;
     try {
-      practical = normalizePractical(candidate.practical, entry.sourceContext, entry.metadata);
+      validateGeneratedPracticalCompleteness(candidate.practical, entry);
+      practical = normalizePractical(candidate.practical, entry.sourceContext, entry.metadata, {
+        requireGeneratedContent: true,
+      });
       assertValidPractical(practical);
       return [{ ...entry, practical }];
     } catch (error) {
@@ -846,7 +981,7 @@ async function generateChapter(options, { importPractical = importGeneratedPract
     result = await generateCompleteJson({
       prompt,
       systemPrompt: "",
-      responseSchema: CHAPTER_RESPONSE_SCHEMA,
+      responseSchema: chapterResponseSchema(entry),
       maxTokens: 65536,
       temperature: 0.35,
       model,
@@ -899,15 +1034,14 @@ non-empty lines. Count them before returning the response.
 FIRST PHASE SPEECH RULE (MANDATORY)
 ===================================
 The opening screen already welcomes the learner and introduces the chapter and
-mission. Phase 1 must not start with "Welcome", "Hello", or another greeting,
-and must not repeat the chapter introduction or mission. Start directly with
-the first concrete activity concept.
+mission. Phase 1 must not repeat that introduction, a chapter connection, or
+the mission, and must not start with a greeting. Start directly with the first
+concrete activity concept.
 
 SPEAKER LENGTH RULE (MANDATORY)
 ===============================
-Write 90-110 words of spoken prose per phase. Do not exceed 120 words.
-The validator hard limit is 40-180 words, but do not use that full allowance.
-Count whitespace-separated words before returning each speakerText.
+Every phase must contain 40-180 whitespace-separated words of complete spoken
+prose. Check each speakerText against this exact range before returning.
 
 SEMANTIC DISPLAY RULES (MANDATORY)
 ===================================
@@ -947,20 +1081,40 @@ phase's narration against its displayText before returning the response.`
           if (!chapterResult?.success) {
             throw new Error(chapterResult?.error || "Gemini chapter repair failed");
           }
+          let scriptValidationError;
           try {
             validateChapterRepairScript(chapterResult.data, entry);
-            [repairedEntry] = normalizeChapterResponse(chapterResult.data, entry);
-            break;
           } catch (validationError) {
-            lastValidationError = validationError;
+            scriptValidationError = validationError;
+          }
+          try {
+            [repairedEntry] = normalizeChapterResponse(chapterResult.data, entry);
+          } catch (validationError) {
+            lastValidationError = scriptValidationError
+              ? new Error(`${scriptValidationError.message}\n${validationError.message}`)
+              : validationError;
             const rejectedItem = findChapterResponseItem(chapterResult.data, entry);
             lastRejectedPractical = rejectedItem?.practical;
             if (repairAttempt < maxChapterRepairAttempts) {
               console.warn(
-                `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair attempt ${repairAttempt}/${maxChapterRepairAttempts} failed validation: ${validationError.message}`,
+                `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair attempt ${repairAttempt}/${maxChapterRepairAttempts} failed validation: ${lastValidationError.message}`,
               );
             }
+            continue;
           }
+          if (scriptValidationError) {
+            lastValidationError = scriptValidationError;
+            repairedEntry = undefined;
+            const rejectedItem = findChapterResponseItem(chapterResult.data, entry);
+            lastRejectedPractical = rejectedItem?.practical;
+            if (repairAttempt < maxChapterRepairAttempts) {
+              console.warn(
+                `Chapter ${entry.metadata.moduleNumber}.${entry.metadata.chapterNumber} repair attempt ${repairAttempt}/${maxChapterRepairAttempts} failed validation: ${scriptValidationError.message}`,
+              );
+            }
+            continue;
+          }
+          break;
         }
         if (!repairedEntry) {
           const repairError = new Error(
@@ -1011,7 +1165,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 }
 
 export {
-  CHAPTER_RESPONSE_SCHEMA,
+  chapterResponseSchema,
   buildChapterEntry,
   buildChapterPrompt,
   buildChapterRepairFeedback,
@@ -1022,6 +1176,7 @@ export {
   findCourseChapter,
   generateChapter,
   normalizeChapterResponse,
+  validateGeneratedPracticalCompleteness,
   parseOptions,
   resolveSyllabusPath,
 };

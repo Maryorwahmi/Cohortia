@@ -133,7 +133,9 @@ function wait(milliseconds) {
 async function generateChapterWithRetries(options, chapterKey, outputRoot, resolvedCourseId, syllabusPath, repoRoot) {
   const retryLimit = positiveIntegerOption(options["chapter-retries"], 3);
   let lastError;
+  let attemptsMade = 0;
   for (let attempt = 1; attempt <= retryLimit; attempt += 1) {
+    attemptsMade = attempt;
     try {
       const retryOptions = attempt === 1
         ? options
@@ -161,7 +163,8 @@ async function generateChapterWithRetries(options, chapterKey, outputRoot, resol
       await wait(delaySeconds * 1000);
     }
   }
-  throw new Error(`Chapter ${chapterKey} failed after ${retryLimit} attempts: ${lastError?.message || "unknown error"}`);
+  const attemptLabel = attemptsMade === 1 ? "attempt" : "attempts";
+  throw new Error(`Chapter ${chapterKey} failed after ${attemptsMade} ${attemptLabel}: ${lastError?.message || "unknown error"}`);
 }
 
 async function readSubcategoryCourses(repoRoot, category, subcategory) {

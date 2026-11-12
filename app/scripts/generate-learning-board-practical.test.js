@@ -32,7 +32,7 @@ test("binary conversions stay in the scenario experience even if generation sugg
   }), "terminal_code_along");
 });
 
-test("canonical teaching starts after the opening screen instead of repeating its welcome", () => {
+test("canonical teaching starts with the activity instead of repeating the opening screen", () => {
   assert.throws(
     () => validateCanonicalTeachingQuality([
       step({
@@ -41,7 +41,24 @@ test("canonical teaching starts after the opening screen instead of repeating it
         displayText: "Binary place values\nBase two",
       }),
     ], "binary_exercise"),
-    /repeat the opening-screen welcome/,
+    /concrete activity concept or question/,
+  );
+});
+
+test("canonical teaching reports multiple semantic issues together", () => {
+  assert.throws(
+    () => validateCanonicalTeachingQuality([
+      step({
+        phase: "worked_example",
+        speakerText: "For 11010, calculate 16 plus 8 to get 26.",
+        displayText: "Binary example\n11010₂ represents decimal 27",
+      }),
+    ], "binary_exercise"),
+    (error) => {
+      assert.match(error.message, /must show its calculation/);
+      assert.match(error.message, /numeric values absent from displayText/);
+      return true;
+    },
   );
 });
 

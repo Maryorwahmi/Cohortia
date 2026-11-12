@@ -46,7 +46,7 @@ const categories = [
 ];
 
 function narration(topic, index) {
-  return `Welcome to the ${topic} mission. We will connect this chapter idea to one practical example, then use the evidence to explain what is happening. Start by identifying the important parts and predicting the result before you act. I will model the reasoning one step at a time, including why this choice matters and what a beginner might overlook. Notice how each detail changes the outcome, and check your explanation against what you can observe. Keep the ${topic} idea in view as we move from the worked example to your own attempt. In phase ${index + 1}, pause to make a prediction, then use the result to refine your understanding.`;
+  return `The ${topic} example makes the central idea visible in a concrete result. Start by identifying the important parts and predicting what the evidence will show. I will model the reasoning one step at a time, including why this choice matters and what a beginner might overlook. Notice how each detail changes the outcome, and check your explanation against what you can observe. Keep the ${topic} idea in view as we move from the worked example to your own attempt. In phase ${index + 1}, pause to make a prediction, then use the result to refine your understanding.`;
 }
 
 function makeSourceContext(profile) {
@@ -95,7 +95,9 @@ function makeRawPractical(profile) {
       commonMistake: `Do not overlook the ${profile.topic} evidence in phase ${index + 1}.`,
       recap: `Remember how ${profile.topic} shaped phase ${index + 1}.`,
       durationSeconds: 1,
-      displayText: `Visual for ${profile.topic}, phase ${index + 1}.`,
+      displayText: profile.activityKind === "binary_exercise" && index === 1
+        ? "1010₂ = 8 + 2\n8 + 2 = 10₁₀"
+        : `Visual for ${profile.topic}, phase ${index + 1}.\nKey idea: ${profile.topic}.`,
     };
     if (profile.category === "Terminal Coding Lab") {
       step.codeLine = index === 0 ? "message = \"hello\"" : "print(message)";
@@ -196,6 +198,8 @@ test("requires a canonical script in each experience profile schema", () => {
     assert.ok(schema.required.includes(scriptKey), profile.category);
     assert.equal(schema.properties[scriptKey].minItems, 4, profile.category);
     assert.equal(schema.properties[scriptKey].maxItems, 8, profile.category);
+    assert.equal(schema.properties[scriptKey].items.required.includes("stepNumber"), false, profile.category);
+    assert.equal(schema.properties[scriptKey].items.properties.durationSeconds, undefined, profile.category);
     assert.ok(schema.properties[scriptKey].items.required.includes("phase"), profile.category);
     assert.ok(schema.properties[scriptKey].items.required.includes("learnerPrompt"), profile.category);
   }
@@ -221,5 +225,30 @@ test("rejects incomplete or off-topic narration instead of replacing it with gen
   assert.throws(
     () => normalizePractical(unrelated, makeSourceContext(unrelatedProfile), {courseId: "narration-test-course", moduleNumber: 1, chapterNumber: 1}),
     /topic-specific term/,
+  );
+});
+
+test("aggregates independent canonical phase errors before requesting repair", () => {
+  const profile = categories.find((candidate) => candidate.category === "Research & Analysis");
+  const raw = makeRawPractical(profile);
+  raw.teachingSteps[0].speakerText = "Short speech.";
+  delete raw.teachingSteps[0].explanation;
+  raw.teachingSteps[1].speakerText = "Also short.";
+  raw.teachingSteps[1].displayText = "One line only.";
+
+  assert.throws(
+    () => normalizePractical(
+      raw,
+      makeSourceContext(profile),
+      {courseId: "narration-test-course", moduleNumber: 1, chapterNumber: 1},
+      {requireGeneratedContent: true},
+    ),
+    (error) => {
+      assert.match(error.message, /phase 1 speakerText: teaching phase 1 narration must be 40-180 words/);
+      assert.match(error.message, /teaching phase 1 is missing an explanation/);
+      assert.match(error.message, /phase 2 speakerText: teaching phase 2 narration must be 40-180 words/);
+      assert.match(error.message, /teaching phase 2 displayText must contain 2-6 concrete visual lines/);
+      return true;
+    },
   );
 });
