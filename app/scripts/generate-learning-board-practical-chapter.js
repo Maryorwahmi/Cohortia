@@ -111,7 +111,7 @@ function chapterResponseSchema(entry) {
     "hints",
     "structuredHints",
     "inlineSuggestions",
-    "tests",
+    ...(activityKind === "binary_exercise" ? [] : ["tests"]),
     ...(activityKind === "binary_exercise" ? ["interactiveExercise"] : []),
   ];
   const phaseProperties = {
@@ -345,7 +345,7 @@ function validateChapterRepairScript(raw, entry) {
   });
 
   const firstNarration = String(steps[0]?.speakerText || "").trim();
-  if (/^(?:welcome|hello|hi)\b/i.test(firstNarration)) {
+  if (/^(?:(?:welcome|hello|hi)\b|in this (?:chapter|lesson|course)\b|today\s+(?:we(?:'re| are| will|'ll)|you(?:'re| are| will|'ll))\b|our mission\b|let(?:'s| us) begin\b)/i.test(firstNarration)) {
     issues.push(
       "teachingSteps[0].speakerText repeats the opening-screen welcome; remove the greeting and chapter/mission introduction, then begin with the first concrete activity concept.",
     );
@@ -387,13 +387,13 @@ function buildChapterRepairFeedback(error, canonicalKey) {
   if (canonicalKey === "teachingSteps" && /teachingSteps=missing|teaching must contain 4-8 complete teaching phases/i.test(message)) {
     guidance.push(
       "The practical must include practical.teachingSteps as an array of 4-8 complete phases. Keep this field in the exact object returned; do not omit it, rename it to codeWalkthrough, or put the script only in narratorGuide, teacherTalk, or teachingPlaylist.",
-      "Each phase needs its stepNumber, phase, displayText, speakerText, explanation, learnerPrompt, commonMistake, and recap. Return the entire practical, including its tasks, files, and workspace.",
+      "Each phase needs phase, displayText, speakerText, explanation, learnerPrompt, commonMistake, and recap. The generator assigns stepNumber and calculates durationSeconds from speakerText. Return the entire practical, including its tasks, files, and workspace.",
     );
   }
 
   if (canonicalKey === "codeWalkthrough") {
     guidance.push(
-      "Before returning the repair, re-check every non-final codeWalkthrough phase against BOTH rules, even if the validation error lists only one: learnerPrompt must ask for a prediction or observation without directing the learner to edit, compile, run, or execute; any teacher narration that discusses compilation or execution must include a visible terminalCommands entry and/or terminalOutput in that same phase. If the repair does not need to demonstrate execution, remove the execution claim instead of inventing a command or output.",
+      "Before returning the repair, re-check every non-final codeWalkthrough phase against BOTH rules, even if the validation error lists only one: learnerPrompt must ask for a prediction or observation without directing the learner to edit, compile, run, or execute; whenever narration claims the teacher actually compiled or ran the program, or states a resulting program/terminal output, include a visible terminalCommands entry and/or terminalOutput in that same phase. General explanations of what compilation or execution means do not need terminal evidence.",
     );
   }
 
@@ -412,11 +412,11 @@ function buildChapterRepairFeedback(error, canonicalKey) {
     }
   }
 
-  if (canonicalKey === "codeWalkthrough" && /discusses compilation or execution without a visible terminal command or output/i.test(message)) {
+  if (canonicalKey === "codeWalkthrough" && /(?:discusses compilation or execution|claims (?:a teacher )?execution result) without (?:a )?visible terminal command or output/i.test(message)) {
     guidance.push(
-      "For every codeWalkthrough phase whose speakerText or learnerPrompt mentions compiling, running, executing, or terminal output, include a real visible terminalCommands array and/or terminalOutput in that same phase. Otherwise rewrite the narration and prompt so they do not claim or discuss execution.",
+      "For every codeWalkthrough phase whose speakerText claims an actual teacher compilation/run or a specific program/terminal result, include a real visible terminalCommands array and/or terminalOutput in that same phase. A general explanation of compilation or a prediction question does not count as an execution claim.",
     );
-    const phases = [...message.matchAll(/code walkthrough phase (\d+) discusses compilation or execution without a visible terminal command or output/gi)];
+    const phases = [...message.matchAll(/code walkthrough phase (\d+) (?:discusses compilation or execution|claims (?:a teacher )?execution result) without (?:a )?visible terminal command or output/gi)];
     for (const [, phase] of phases) {
       guidance.push(`Fix codeWalkthrough phase ${phase}: add the actual relevant command or expected output to that phase, or remove the execution claim from its narration and rewrite learnerPrompt as a prediction or observation question, never a request to execute it.`);
     }
@@ -487,7 +487,16 @@ function validateGeneratedPracticalCompleteness(practical, entry) {
           requireText(suggestion?.text, `${label}.inlineSuggestions[${suggestionIndex}].text`);
         });
       }
-      if (!Array.isArray(task?.tests) || task.tests.length === 0) {
+      const hasBinaryCheck = activityKindFor({
+        category,
+        title: entry.sourceContext.activityTitle,
+        activity: entry.sourceContext.activityChapter.handsOnActivity,
+        labType: category === "Terminal Coding Lab" ? "code" : "simulation",
+      }) === "binary_exercise"
+        && task?.interactiveExercise?.type === "binary_conversion"
+        && typeof task.interactiveExercise.expectedAnswer === "string"
+        && task.interactiveExercise.expectedAnswer.trim();
+      if ((!Array.isArray(task?.tests) || task.tests.length === 0) && !hasBinaryCheck) {
         issues.push(`${label}.tests must contain at least one task-specific check.`);
       }
     });
@@ -525,9 +534,11 @@ function validateGeneratedPracticalCompleteness(practical, entry) {
     "Research & Analysis": "research",
   };
   const workspaceType = workspaceTypeByCategory[category];
-  if (workspaceType && (practical?.workspace?.type !== workspaceType || !practical.workspace[workspaceType])) {
-    issues.push(`practical.workspace must include type "${workspaceType}" and its complete ${workspaceType} data.`);
-  }
+  // normalizeWorkspace() supplies safe, category-specific defaults and derives
+  // binary scenario items/rubrics from the authored interactive exercises.
+  // Do not reject a recoverable workspace envelope before that normalizer runs;
+  // doing so caused Gemini repairs to loop on an omission the code already
+  // knows how to complete.
   if (category === "Terminal Coding Lab") {
     const sourceFile = practical?.files?.some((file) => (
       typeof file?.path === "string"
@@ -726,11 +737,10 @@ REQUIREMENTS:
 6. Synchronized Animated CodeWalkthrough (TERMINAL CODING LABS ONLY):
    - Provide a 'codeWalkthrough' array containing 4–8 ordered teaching phases. The learner is watching a teacher demonstration and cannot edit or run the workspace in these slides. Every non-final learnerPrompt asks for a prediction or observation only; never direct the learner to edit, compile, run, or execute. The first phase may show the complete baseline file; middle phases must show only the focused 1–5 line block for the new concept or change; the final transfer phase may show the complete final file. Never repeat an identical code block in adjacent phases. The classroom UI reveals each phase line-by-line inside one slide. Create a new stage only for a genuine phase change such as orientation, observe, modify, verify, or transfer.
    - For EACH stage, provide:
-     * stepNumber: 1, 2, 3...
      * phase, speakerText (40–180 words), displayText, explanation, learnerPrompt, commonMistake, and recap. The generator calculates durationSeconds from speakerText; do not generate it. Begin phase 1 with the first concrete code concept, not a chapter introduction. Explain the code’s purpose, underlying concept, and a relevant example. Preserve chapter details; do not paraphrase the activity or introduce unrelated topics.
      * codeLine: The exact code shown in this phase. Use a complete baseline/final file only for the opening/transfer phases; use a focused code block for middle phases.
      * file: Relative file path (e.g., 'greeting.c' or 'main.py').
-     * terminalCommands / terminalOutput: Include visible teacher commands or expected output whenever the narration mentions compiling, running, executing, or observing program output. The teacher—not the learner—performs any command described in the walkthrough.
+     * terminalCommands / terminalOutput: Include visible teacher commands or expected output whenever the narration claims the teacher actually compiled or ran the program, or states a resulting program/terminal output. General conceptual explanations of compilation or execution do not require a terminal demonstration. The teacher—not the learner—performs any command described in the walkthrough.
      * explanation: A concise on-screen annotation / callout.
      * durationSeconds is calculated by the generator from speakerText; do not generate it.
    - This empowers the frontend to animate the code and teacher evidence line-by-line in sync with narration before the student attempts the interactive tasks. Do not ask the learner to edit, compile, or run during the walkthrough. Do not use codeWalkthrough to fake code for Scenario & Design activities; use the progressive teachingSteps format above.

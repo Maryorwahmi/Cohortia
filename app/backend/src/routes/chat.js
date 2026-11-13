@@ -10,6 +10,15 @@ import { getJwtSecret } from '../lib/jwtSecret.js';
 import { getSessionCookieToken } from '../lib/sessionAuth.js';
 import { enforceRateLimits, getRateLimitClientIp } from '../lib/rateLimit.js';
 import { normalizeMentorAttachments } from '../lib/mentorAttachments.js';
+import {
+  FREE_MENTOR_MESSAGE_LIMIT,
+  FREE_MENTOR_VOICE_LIMIT,
+  checkCourseChapterAccess,
+  getAccountPlan,
+  hasPlanFeature,
+  isFreeCourse,
+  planUpgradeResponse,
+} from '../lib/entitlements.js';
 
 const chat = new Hono();
 
@@ -30,11 +39,14 @@ chat.use('/message', async (c, next) => {
   }
 
   const [user] = await db
-    .select({id: users.id})
+    .select({id: users.id, plan: users.plan, adminRole: users.adminRole})
     .from(users)
     .where(eq(users.id, decoded.userId))
     .limit(1);
-  if (user) c.set('userId', user.id);
+  if (user) {
+    c.set('userId', user.id);
+    c.set('user', user);
+  }
 
   await next();
 });
@@ -382,11 +394,15 @@ chat.post('/message', async (c) => {
     focus = null,
     learningContext = null,
     attachments: rawAttachments = [],
+    voiceChat = false,
   } = body;
   const isPublicAssistant = learningContext?.assistant === 'public';
   const mode = 'mentor';
   const outputFormat = 'text';
 
+  if (typeof voiceChat !== 'boolean') {
+    return c.json({success: false, error: 'voiceChat must be true or false.'}, 400);
+  }
   if ((!message || typeof message !== 'string' || message.trim().length === 0) && (!Array.isArray(rawAttachments) || rawAttachments.length === 0)) {
     return c.json({ success: false, error: 'Message is required' }, 400);
   }
@@ -406,9 +422,71 @@ chat.post('/message', async (c) => {
     }, 415);
   }
 
+  if (authenticatedUserId) {
+    const user = c.get('user');
+    const plan = getAccountPlan(user);
+    if (!isPublicAssistant && learningContext?.assistant === 'hortbot'
+      && !user?.adminRole && !hasPlanFeature(plan, 'practical_assistant')) {
+      return planUpgradeResponse(c, {
+        code: 'PLAN_FEATURE_REQUIRED',
+        feature: 'practical-assistant',
+        message: 'The Practical Assistant is available with Premium Access and Career Builder.',
+      });
+    }
+
+    if (plan === 'free') {
+      const voiceLimit = voiceChat;
+      const limit = voiceLimit ? FREE_MENTOR_VOICE_LIMIT : FREE_MENTOR_MESSAGE_LIMIT;
+      const feature = voiceLimit ? 'mentor-voice-quota' : 'mentor-message-quota';
+      const utcDay = new Date().toISOString().slice(0, 10);
+      const rateLimitResponse = await enforceRateLimits(c, [{
+        scope: `chat-free-${voiceLimit ? 'voice' : 'text'}-${utcDay}`,
+        actor: authenticatedUserId,
+        limit,
+        windowSeconds: 24 * 60 * 60,
+      }], {
+        error: voiceLimit
+          ? 'You have used your 5 free mentor voice chats for today.'
+          : 'You have used your 10 free Cohortia Mentor messages for today.',
+        code: voiceLimit ? 'FREE_VOICE_CHAT_LIMIT' : 'FREE_MENTOR_MESSAGE_LIMIT',
+        feature,
+        upgradeRequired: true,
+        planUrl: `/experience?upgrade=${feature}#plans`,
+      });
+      if (rateLimitResponse) return rateLimitResponse;
+    }
+  }
+
   const userMessage = typeof message === 'string' ? message.trim() : '';
   const userId = isPublicAssistant ? null : c.get('userId');
   const context = userId ? await buildUserContext(userId, focus) : null;
+  const user = c.get('user');
+  let canUseClientLessonContent = true;
+  if (userId && !user?.adminRole && getAccountPlan(user) === 'free' && learningContext?.courseId
+    && !isFreeCourse(String(learningContext.courseId))) {
+    const module = Number(learningContext.module);
+    const chapter = Number(learningContext.chapter);
+    if (Number.isInteger(module) && module > 0 && Number.isInteger(chapter) && chapter > 0) {
+      const access = await checkCourseChapterAccess(db, {
+        user,
+        userId,
+        courseId: String(learningContext.courseId),
+        module,
+        chapter,
+      });
+      if (!access.allowed) {
+        return planUpgradeResponse(c, {
+          code: access.reason === 'preview_already_used' ? 'FREE_PREVIEW_ALREADY_USED' : 'FREE_PREVIEW_REQUIRED',
+          feature: 'course-preview',
+          message: access.reason === 'preview_already_used'
+            ? 'Your Free plan includes one chapter from one non-free course. That preview is already assigned to another chapter.'
+            : 'Open your one chapter preview in the course first, or upgrade for full course access.',
+        });
+      }
+    } else {
+      canUseClientLessonContent = false;
+    }
+  }
   const courseSyllabus = isPublicAssistant ? null : await buildCourseSyllabusContext(learningContext);
   const publicCatalogContext = isPublicAssistant ? await buildPublicCatalogContext(message) : '';
 
@@ -523,7 +601,9 @@ chat.post('/message', async (c) => {
     if (learningContext.moduleTitle) learningContextText += `Module: ${learningContext.moduleTitle}\n`;
     if (learningContext.chapterTitle) learningContextText += `Chapter: ${learningContext.chapterTitle}\n`;
     if (learningContext.lessonTitle) learningContextText += `Lesson: ${learningContext.lessonTitle}\n`;
-    if (learningContext.lessonContent) learningContextText += `Lesson content:\n${String(learningContext.lessonContent).slice(0, 12000)}\n`;
+    if (canUseClientLessonContent && learningContext.lessonContent) {
+      learningContextText += `Lesson content:\n${String(learningContext.lessonContent).slice(0, 12000)}\n`;
+    }
     if (learningContext.practicalTitle) learningContextText += `Hands-on practical: ${learningContext.practicalTitle}\n`;
     if (learningContext.practicalInstructions) learningContextText += `Practical instructions:\n${String(learningContext.practicalInstructions).slice(0, 6000)}\n`;
     if (learningContext.practicalTeachingContext) learningContextText += `Practical teaching context:\n${String(learningContext.practicalTeachingContext).slice(0, 6000)}\n`;

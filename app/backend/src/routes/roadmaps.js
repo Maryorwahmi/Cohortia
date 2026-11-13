@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { generateCompleteJson } from '../lib/gemini.js';
 import { buildSyllabus } from '../lib/syllabi.js';
 import { sendBrandedEmail } from '../lib/emailTemplates.js';
+import { getAccountPlan, getCourseChapterPreview, sanitizeLessonForPlan } from '../lib/entitlements.js';
 
 const roadmaps = new Hono();
 
@@ -429,12 +430,14 @@ function deduplicateModules(roadmap) {
 
 // Get the user's selected multi-course roadmap with real catalog lessons.
 roadmaps.get('/active', async (c) => {
+  c.header('Cache-Control', 'private, no-store');
   const userId = c.get('userId');
-  const user = await db.select({ roadmapSelection: users.roadmapSelection })
+  const user = c.get('user');
+  const userRows = await db.select({ roadmapSelection: users.roadmapSelection })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
-  const storedSelection = user[0]?.roadmapSelection;
+  const storedSelection = userRows[0]?.roadmapSelection;
   const selection = parseRoadmapSelection(storedSelection);
 
   if (!storedSelection) {
@@ -453,6 +456,9 @@ roadmaps.get('/active', async (c) => {
   const learningBoardChapterRows = await db.select()
     .from(learningBoardChapters)
     .where(inArray(learningBoardChapters.courseId, selection.roadmapOrder));
+  const preview = !user?.adminRole && getAccountPlan(user) === 'free'
+    ? await getCourseChapterPreview(db, userId)
+    : null;
   const levelById = new Map([
     ...selection.selectedCourses.beginner.map((id) => [id, 'beginner']),
     ...selection.selectedCourses.intermediate.map((id) => [id, 'intermediate']),
@@ -483,17 +489,20 @@ roadmaps.get('/active', async (c) => {
     });
   }
 
-  const courses = selection.roadmapOrder.map((courseId, index) => ({
-    ...(catalogById.get(courseId) || { id: courseId, title: courseId }),
-    level: levelById.get(courseId) || String(catalogById.get(courseId)?.level || '').toLowerCase(),
-    order: index + 1,
-    lessons: (lessonsByCourse.get(courseId)?.length
+  const courses = selection.roadmapOrder.map((courseId, index) => {
+    const courseLessons = (lessonsByCourse.get(courseId)?.length
       ? lessonsByCourse.get(courseId)
       : boardChaptersByCourse.get(courseId) || []
     ).sort((left, right) =>
       (left.moduleIndex - right.moduleIndex) || (left.order - right.order)
-    ),
-  }));
+    );
+    return {
+      ...(catalogById.get(courseId) || { id: courseId, title: courseId }),
+      level: levelById.get(courseId) || String(catalogById.get(courseId)?.level || '').toLowerCase(),
+      order: index + 1,
+      lessons: courseLessons.map((lesson) => sanitizeLessonForPlan(lesson, user, preview)),
+    };
+  });
 
   const missingCourseIds = courses
     .filter((course) => !catalogById.has(course.id) || course.lessons.length === 0)

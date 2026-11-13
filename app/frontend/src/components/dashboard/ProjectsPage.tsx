@@ -18,6 +18,7 @@ interface ProjectsPageProps {
     success: boolean;
     submission?: {id?: string; feedback?: string; score?: number; status?: string};
     feedbackError?: string;
+    planUrl?: string;
     error?: string;
   }>;
   courseTitle: string;

@@ -35,6 +35,7 @@ export const authMiddleware = async (c, next) => {
     id: users.id,
     email: users.email,
     role: users.role,
+    plan: users.plan,
     adminRole: users.adminRole,
   }).from(users).where(eq(users.id, session.userId)).limit(1);
   if (!user) {

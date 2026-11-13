@@ -3,6 +3,14 @@ import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import * as schema from '../db/schema.js';
 import { eq, and, sql, inArray } from 'drizzle-orm';
+import { authMiddleware } from '../middleware/auth.js';
+import {
+  checkCourseChapterAccess,
+  getAccountPlan,
+  getCourseChapterPreview,
+  isFreeCourse,
+  planUpgradeResponse,
+} from '../lib/entitlements.js';
 
 const router = new Hono();
 
@@ -114,8 +122,9 @@ router.get('/:courseId', async (c) => {
 });
 
 // GET /api/assessments/:courseId/:module/:chapter - Get questions for a specific chapter
-router.get('/:courseId/:module/:chapter', async (c) => {
+router.get('/:courseId/:module/:chapter', authMiddleware, async (c) => {
   try {
+    c.header('Cache-Control', 'private, no-store');
     const { courseId, module: moduleStr, chapter: chapterStr } = c.req.param();
     const module = parseInt(moduleStr);
     const chapter = parseInt(chapterStr);
@@ -144,6 +153,24 @@ router.get('/:courseId/:module/:chapter', async (c) => {
 
     if (assessment.length === 0) {
       return c.json({ success: false, error: 'Chapter assessment not found' }, 404);
+    }
+
+    const access = await checkCourseChapterAccess(db, {
+      user: c.get('user'),
+      userId: c.get('userId'),
+      courseId,
+      module,
+      chapter,
+      reservePreview: true,
+    });
+    if (!access.allowed) {
+      return planUpgradeResponse(c, {
+        code: access.reason === 'preview_already_used' ? 'FREE_PREVIEW_ALREADY_USED' : 'FREE_PREVIEW_REQUIRED',
+        feature: 'course-preview',
+        message: access.reason === 'preview_already_used'
+          ? 'Your Free plan includes one chapter from one non-free course. That preview is already assigned to another chapter.'
+          : 'Your Free plan includes one chapter from one non-free course. Upgrade for full course access.',
+      });
     }
 
     // Get individual questions
@@ -183,36 +210,46 @@ router.get('/:courseId/:module/:chapter', async (c) => {
 });
 
 // GET /api/assessments/quiz/random - Get random questions for a quiz
-router.get('/quiz/random', async (c) => {
+router.get('/quiz/random', authMiddleware, async (c) => {
   try {
     const db = getDb();
     const count = parseInt(c.req.query('count') || '10');
     const type = c.req.query('type'); // multiple-choice, case-study, or undefined for all
     const level = c.req.query('level'); // beginner, intermediate, advanced, or undefined for all
 
-    let query = db.select().from(schema.csAssessmentQuestions);
-
-    if (type) {
-      query = query.where(eq(schema.csAssessmentQuestions.type, type));
-    }
-
-    const allQuestions = await query.limit(10000); // Get enough to sample from
-
-    // Filter by level if specified
-    let filtered = allQuestions;
+    const assessments = await db.select({
+      id: schema.csAssessments.id,
+      courseId: schema.csAssessments.courseId,
+      module: schema.csAssessments.module,
+      chapter: schema.csAssessments.chapter,
+      level: schema.csAssessments.level,
+    }).from(schema.csAssessments);
+    const user = c.get('user');
+    let eligibleAssessments = assessments;
     if (level) {
-      // We need to join with assessments to get level info
-      const assessmentIds = await db
-        .select({ id: schema.csAssessments.id })
-        .from(schema.csAssessments)
-        .where(eq(schema.csAssessments.level, level));
-
-      const ids = assessmentIds.map((a) => a.id);
-      filtered = allQuestions.filter((q) => ids.includes(q.assessmentId));
+      eligibleAssessments = eligibleAssessments.filter((assessment) => assessment.level === level);
     }
+    if (!user?.adminRole && getAccountPlan(user) === 'free') {
+      const preview = await getCourseChapterPreview(db, c.get('userId'));
+      eligibleAssessments = eligibleAssessments.filter((assessment) => (
+        isFreeCourse(assessment.courseId)
+        || (preview
+          && assessment.courseId === preview.courseId
+          && assessment.module === preview.module
+          && assessment.chapter === preview.chapter)
+      ));
+    }
+
+    const assessmentIds = eligibleAssessments.map((assessment) => assessment.id);
+    const conditions = [];
+    if (assessmentIds.length > 0) conditions.push(inArray(schema.csAssessmentQuestions.assessmentId, assessmentIds));
+    if (type) conditions.push(eq(schema.csAssessmentQuestions.type, type));
+    const allQuestions = assessmentIds.length > 0
+      ? await db.select().from(schema.csAssessmentQuestions).where(and(...conditions)).limit(10000)
+      : [];
 
     // Randomly select questions
-    const selected = filtered.sort(() => Math.random() - 0.5).slice(0, count);
+    const selected = allQuestions.sort(() => Math.random() - 0.5).slice(0, count);
 
     const questionsFormatted = selected.map((q) => ({
       id: q.id,

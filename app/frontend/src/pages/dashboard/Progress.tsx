@@ -40,7 +40,12 @@ export default function Progress() {
           {error}
         </div>
       )}
-      <ProgressPage userProfile={{...userProfile, completedSteps}} analytics={analytics} />
+      <ProgressPage
+        userProfile={{...userProfile, completedSteps}}
+        analytics={analytics}
+        plan={user.plan}
+        isAdmin={user.role === 'admin' || Boolean(user.adminRole)}
+      />
     </div>
   );
 }

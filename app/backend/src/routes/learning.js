@@ -15,6 +15,15 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
+import {
+  checkCourseChapterAccess,
+  getAccountPlan,
+  getCourseChapterPreview,
+  getLessonCoordinates,
+  isScenarioPracticalCategory,
+  planUpgradeResponse,
+  sanitizeLessonForPlan,
+} from '../lib/entitlements.js';
 
 const learning = new Hono();
 const publicLearning = new Hono();
@@ -32,6 +41,88 @@ let boardsCache = null;
 let boardsCacheExpiresAt = 0;
 let boardsLoadPromise = null;
 const generatedCourseManifestCache = new Map();
+
+function courseChapterUpgradeResponse(c, access) {
+  return planUpgradeResponse(c, {
+    code: access.reason === 'preview_already_used' ? 'FREE_PREVIEW_ALREADY_USED' : 'FREE_PREVIEW_REQUIRED',
+    feature: 'course-preview',
+    message: access.reason === 'preview_already_used'
+      ? 'Your Free plan includes one chapter from one non-free course. That preview is already assigned to another chapter.'
+      : 'Your Free plan includes one chapter from one non-free course. Upgrade for full course access.',
+  });
+}
+
+async function checkRequestChapterAccess(c, courseId, module, chapter, reservePreview = false) {
+  const user = c.get('user');
+  const access = await checkCourseChapterAccess(db, {
+    user,
+    userId: c.get('userId'),
+    courseId,
+    module,
+    chapter,
+    reservePreview,
+  });
+  return access.allowed ? null : courseChapterUpgradeResponse(c, access);
+}
+
+async function findPracticalAccessMetadata({practicalId, courseId, module, chapter}) {
+  const practicalRows = practicalId
+    ? await db.select().from(learningBoardPracticals).where(eq(learningBoardPracticals.id, practicalId)).limit(1)
+    : courseId && Number.isInteger(module) && Number.isInteger(chapter)
+      ? await db.select().from(learningBoardPracticals).where(and(
+        eq(learningBoardPracticals.courseId, courseId),
+        eq(learningBoardPracticals.module, module),
+        eq(learningBoardPracticals.chapter, chapter),
+      )).limit(1)
+      : [];
+  const practicalRecord = practicalRows[0];
+  if (practicalRecord) {
+    const payload = {
+      ...asObject(parseJson(practicalRecord.practicalJson, {})),
+      ...asObject(parseJson(practicalRecord.metadata, {})),
+    };
+    return {
+      courseId: practicalRecord.courseId,
+      module: practicalRecord.module,
+      chapter: practicalRecord.chapter,
+      category: practicalRecord.category || payload.category || payload.categoryType || payload.experienceType,
+    };
+  }
+
+  if (courseId && Number.isInteger(module) && Number.isInteger(chapter)) {
+    const manifest = await readGeneratedCourseManifest(courseId);
+    const practical = findGeneratedCoursePractical(manifest, module, chapter);
+    if (practical) {
+      return {
+        courseId,
+        module,
+        chapter,
+        category: practical.category || practical.categoryType || practical.experienceType,
+      };
+    }
+  }
+  return null;
+}
+
+async function checkRequestPracticalAccess(c, request) {
+  const user = c.get('user');
+  if (user?.adminRole || getAccountPlan(user) !== 'free') return null;
+  const practicalContext = await findPracticalAccessMetadata(request);
+  if (!practicalContext || !isScenarioPracticalCategory(practicalContext.category)) {
+    return planUpgradeResponse(c, {
+      code: 'FREE_PRACTICAL_LIMIT',
+      feature: 'scenario-practicals',
+      message: 'Free hands-on activities are limited to Scenario & Design Exercise chapters.',
+    });
+  }
+  const access = await checkCourseChapterAccess(db, {
+    user,
+    userId: c.get('userId'),
+    ...practicalContext,
+    reservePreview: true,
+  });
+  return access.allowed ? null : courseChapterUpgradeResponse(c, access);
+}
 
 async function readGeneratedCourseManifest(courseId) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(courseId)) return null;
@@ -755,13 +846,22 @@ await db.run(sql`
 `);
 
 // Get all lessons
-publicLearning.get('/lessons', async (c) => {
+publicLearning.get('/lessons', authMiddleware, async (c) => {
+  c.header('Cache-Control', 'private, no-store');
   const allLessons = await db.select().from(lessons);
-  return c.json({ success: true, data: { lessons: allLessons } });
+  const user = c.get('user');
+  const preview = !user?.adminRole && getAccountPlan(user) === 'free'
+    ? await getCourseChapterPreview(db, c.get('userId'))
+    : null;
+  return c.json({
+    success: true,
+    data: {lessons: allLessons.map((lesson) => sanitizeLessonForPlan(lesson, user, preview))},
+  });
 });
 
 // Get lesson by ID
-publicLearning.get('/lessons/:id', async (c) => {
+publicLearning.get('/lessons/:id', authMiddleware, async (c) => {
+  c.header('Cache-Control', 'private, no-store');
   const lessonId = c.req.param('id');
   
   const lesson = await db
@@ -774,6 +874,25 @@ publicLearning.get('/lessons/:id', async (c) => {
     return c.json({ success: false, error: 'Lesson not found' }, 404);
   }
 
+  const coordinates = getLessonCoordinates(lesson[0]);
+  const user = c.get('user');
+  if (coordinates) {
+    const accessResponse = await checkRequestChapterAccess(
+      c,
+      coordinates.courseId,
+      coordinates.module,
+      coordinates.chapter,
+      true,
+    );
+    if (accessResponse) return accessResponse;
+  } else if (!user?.adminRole && getAccountPlan(user) === 'free') {
+    return planUpgradeResponse(c, {
+      code: 'FREE_PREVIEW_UNAVAILABLE',
+      feature: 'course-preview',
+      message: 'A preview chapter is unavailable for this course. Upgrade for full course access.',
+    });
+  }
+
   return c.json({ success: true, data: { lesson: lesson[0] } });
 });
 
@@ -781,6 +900,25 @@ publicLearning.get('/lessons/:id', async (c) => {
 learning.post('/lessons/:id/complete', async (c) => {
   const userId = c.get('userId');
   const lessonId = c.req.param('id');
+  const [lesson] = await db.select().from(lessons).where(eq(lessons.id, lessonId)).limit(1);
+  const coordinates = getLessonCoordinates(lesson || {id: lessonId});
+  const user = c.get('user');
+  if (coordinates) {
+    const accessResponse = await checkRequestChapterAccess(
+      c,
+      coordinates.courseId,
+      coordinates.module,
+      coordinates.chapter,
+      true,
+    );
+    if (accessResponse) return accessResponse;
+  } else if (!user?.adminRole && getAccountPlan(user) === 'free') {
+    return planUpgradeResponse(c, {
+      code: 'FREE_PREVIEW_UNAVAILABLE',
+      feature: 'course-preview',
+      message: 'A preview chapter is unavailable for this course. Upgrade for full course access.',
+    });
+  }
   const now = new Date().toISOString();
 
   // Check if progress already exists
@@ -829,6 +967,9 @@ learning.post('/assessment/evaluate', async (c) => {
     || !Number.isInteger(questionId) || questionId < 1 || !studentAnswer) {
     return c.json({ success: false, error: 'Course, chapter, question, and answer are required.' }, 400);
   }
+
+  const accessResponse = await checkRequestChapterAccess(c, courseId, module, chapter, true);
+  if (accessResponse) return accessResponse;
 
   const importedAssessment = await db
     .select({ assessmentData: csAssessments.assessmentData })
@@ -1062,7 +1203,8 @@ publicLearning.get('/boards/:courseId', async (c) => {
 
 // Get chapter by course ID, module, and chapter number
 // Route format: /boards/:courseId/:module/:chapter
-publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
+publicLearning.get('/boards/:courseId/:module/:chapter', authMiddleware, async (c) => {
+  c.header('Cache-Control', 'private, no-store');
   const courseId = c.req.param('courseId');
   const module = c.req.param('module');
   const chapter = c.req.param('chapter');
@@ -1105,6 +1247,9 @@ publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
   if (chapterData.length === 0 && practicalRows.length === 0 && !courseManifestPractical) {
     return c.json({ success: false, error: 'Chapter not found' }, 404);
   }
+
+  const accessResponse = await checkRequestChapterAccess(c, courseId, moduleNum, chapterNum, true);
+  if (accessResponse) return accessResponse;
 
   // Get all screens for this chapter
   const screens = await db
@@ -1326,11 +1471,6 @@ publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
     conceptScreen.keyIdea?.text || conceptScreen.narration?.text || conceptScreen.narratorSegment,
   ].filter(Boolean) : []);
   const manifestPractical = courseManifestPractical || manifest?.practical || null;
-  const handsOn = manifest?.handsOn || (manifestPractical ? {
-    title: manifestPractical.title,
-    instructions: manifestPractical.instructions || '',
-    checklist: manifestPractical.tasks?.map((task) => task.instruction) || [],
-  } : null);
   const practical = databasePractical?.publicationStatus === 'published'
     ? databasePractical
     : courseManifestPractical
@@ -1376,6 +1516,19 @@ publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
           generator: databasePractical?.generator || manifestPractical.generator,
         }
       : databasePractical;
+  const user = c.get('user');
+  const hideFreePractical = !user?.adminRole
+    && getAccountPlan(user) === 'free'
+    && !isScenarioPracticalCategory(
+      databasePractical?.category
+      || courseManifestPractical?.category
+      || manifest?.practical?.category,
+    );
+  const handsOn = hideFreePractical ? null : manifest?.handsOn || (manifestPractical ? {
+    title: manifestPractical.title,
+    instructions: manifestPractical.instructions || '',
+    checklist: manifestPractical.tasks?.map((task) => task.instruction) || [],
+  } : null);
 
   // Build response with screens (use DB content if available, fallback to manifest)
   const responseScreens = screens.length > 0 
@@ -1413,7 +1566,7 @@ publicLearning.get('/boards/:courseId/:module/:chapter', async (c) => {
       learningObjectives,
       keyConcepts,
       handsOn,
-      practical: practical
+      practical: !hideFreePractical && practical
         ? {
             ...sanitizePracticalForLearner(practical),
             practiceChecks: practiceChecksForLearner(practical),
@@ -1441,14 +1594,19 @@ learning.get('/board-progress/:courseId', async (c) => {
 
 learning.get('/board-progress/:courseId/:module/:chapter', async (c) => {
   const userId = c.get('userId');
+  const courseId = c.req.param('courseId');
+  const module = parseInt(c.req.param('module'), 10);
+  const chapter = parseInt(c.req.param('chapter'), 10);
+  const accessResponse = await checkRequestChapterAccess(c, courseId, module, chapter);
+  if (accessResponse) return accessResponse;
   const record = await db
     .select()
     .from(learningBoardProgress)
     .where(and(
       eq(learningBoardProgress.userId, userId),
-      eq(learningBoardProgress.courseId, c.req.param('courseId')),
-      eq(learningBoardProgress.module, parseInt(c.req.param('module'), 10)),
-      eq(learningBoardProgress.chapter, parseInt(c.req.param('chapter'), 10)),
+      eq(learningBoardProgress.courseId, courseId),
+      eq(learningBoardProgress.module, module),
+      eq(learningBoardProgress.chapter, chapter),
     ))
     .limit(1);
 
@@ -1461,6 +1619,8 @@ learning.patch('/board-progress/:courseId/:module/:chapter', async (c) => {
   const courseId = c.req.param('courseId');
   const module = parseInt(c.req.param('module'), 10);
   const chapter = parseInt(c.req.param('chapter'), 10);
+  const accessResponse = await checkRequestChapterAccess(c, courseId, module, chapter, true);
+  if (accessResponse) return accessResponse;
   const body = await c.req.json();
   const now = new Date().toISOString();
   const existing = await db
@@ -1548,6 +1708,8 @@ learning.post('/practical-execute', async (c) => {
   try {
     const body = await c.req.json();
     const request = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
+    const accessResponse = await checkRequestPracticalAccess(c, request);
+    if (accessResponse) return accessResponse;
     const sandboxResult = await executeCloudflareNativeSandbox(request);
     if (sandboxResult) {
       return c.json({ success: sandboxResult.ok, data: sandboxResult, error: sandboxResult.ok ? undefined : sandboxResult.error }, sandboxResult.ok ? 200 : 400);
@@ -1798,6 +1960,9 @@ learning.post('/practical-grade', async (c) => {
       return c.json({ success: false, error: 'A valid practicalId and taskId are required.' }, 400);
     }
 
+    const accessResponse = await checkRequestPracticalAccess(c, {practicalId, courseId, module, chapter});
+    if (accessResponse) return accessResponse;
+
     const definition = await loadPracticalDefinitionForGrading({ practicalId, courseId, module, chapter });
     if (!definition) return c.json({ success: false, error: 'Practical not found.' }, 404);
     const selected = checksForPracticalTask(definition, taskId);
@@ -1966,6 +2131,8 @@ learning.post('/practical-attempts', async (c) => {
   if (!['started', 'in_progress', 'failed', 'submitted'].includes(status)) {
     return c.json({ success: false, error: 'Invalid practical attempt status.' }, 400);
   }
+  const accessResponse = await checkRequestPracticalAccess(c, {practicalId});
+  if (accessResponse) return accessResponse;
   const id = uuidv4();
   const now = new Date().toISOString();
   await db.insert(studentPracticalAttempts).values({
@@ -1989,6 +2156,8 @@ learning.post('/practical-task-progress', async (c) => {
   if (!practicalId || !taskId) {
     return c.json({ success: false, error: 'practicalId and taskId are required' }, 400);
   }
+  const accessResponse = await checkRequestPracticalAccess(c, {practicalId});
+  if (accessResponse) return accessResponse;
   if (status === 'completed') {
     // experienceType is part of the versioned practical payload, not a
     // standalone column. Keep this endpoint aligned with the canonical
@@ -2027,6 +2196,8 @@ learning.post('/practical-task-progress', async (c) => {
 learning.get('/practical-progress/:practicalId', async (c) => {
   const userId = c.get('userId');
   const practicalId = c.req.param('practicalId');
+  const accessResponse = await checkRequestPracticalAccess(c, {practicalId});
+  if (accessResponse) return accessResponse;
   const attempts = await db
     .select()
     .from(studentPracticalAttempts)
@@ -2049,7 +2220,8 @@ learning.get('/practical-progress/:practicalId', async (c) => {
 });
 
 // Get single screen
-publicLearning.get('/boards/:courseId/:module/:chapter/:screen', async (c) => {
+publicLearning.get('/boards/:courseId/:module/:chapter/:screen', authMiddleware, async (c) => {
+  c.header('Cache-Control', 'private, no-store');
   const courseId = c.req.param('courseId');
   const module = c.req.param('module');
   const chapter = c.req.param('chapter');
@@ -2074,6 +2246,15 @@ publicLearning.get('/boards/:courseId/:module/:chapter/:screen', async (c) => {
   if (screenData.length === 0) {
     return c.json({ success: false, error: 'Screen not found' }, 404);
   }
+
+  const accessResponse = await checkRequestChapterAccess(
+    c,
+    courseId,
+    moduleNum,
+    chapterNum,
+    true,
+  );
+  if (accessResponse) return accessResponse;
 
   const s = screenData[0];
   return c.json({

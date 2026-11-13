@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Clock, CheckCircle, GraduationCap, Award, Compass, Sparkles, TrendingUp, HelpCircle, BookOpen, Code } from "lucide-react";
+import { Link } from "react-router-dom";
 import { UserPreferences } from "../../types";
 import BadgesComponent from "./BadgesComponent";
 import type { ComputedCourseAnalytics } from "../../lib/courseProgressAnalytics";
@@ -8,9 +9,11 @@ import type { ComputedCourseAnalytics } from "../../lib/courseProgressAnalytics"
 interface ProgressPageProps {
   userProfile: UserPreferences;
   analytics?: Partial<ComputedCourseAnalytics>;
+  plan?: "free" | "premium" | "career_builder";
+  isAdmin?: boolean;
 }
 
-export default function ProgressPage({ userProfile, analytics }: ProgressPageProps) {
+export default function ProgressPage({ userProfile, analytics, plan = "free", isAdmin = false }: ProgressPageProps) {
   const activeTrack = userProfile.track || "frontend";
   const courseContext = analytics?.courseContext;
   const skillGrowthData = analytics?.skillGrowthData || [];
@@ -26,6 +29,7 @@ export default function ProgressPage({ userProfile, analytics }: ProgressPagePro
 
   const skillsData = analytics?.skillsData || [];
   const readinessChecklist = analytics?.readinessChecklist || [];
+  const canAccessJobReadinessPath = isAdmin || plan === "career_builder";
 
   const completedLessons = analytics?.completedLessons ?? 0;
   const totalLessons = analytics?.totalLessons ?? 0;
@@ -282,7 +286,8 @@ export default function ProgressPage({ userProfile, analytics }: ProgressPagePro
           <BadgesComponent userProfile={userProfile} />
         </div>
 
-        {/* Bottom Placement Readiness Section */}
+        {/* Career Builder job-readiness path */}
+        {canAccessJobReadinessPath ? (
         <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl shadow-immersive-shadow text-left">
           <div className="border-b border-immersive-border/40 pb-4">
             <h3 className="text-base font-extrabold text-immersive-text-primary font-sans">
@@ -344,6 +349,24 @@ export default function ProgressPage({ userProfile, analytics }: ProgressPagePro
             ))}
           </div>
         </div>
+        ) : (
+          <div className="bg-immersive-card border border-immersive-border rounded-3xl p-6 sm:p-8 text-left">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-base font-extrabold text-immersive-text-primary">Job-readiness progress path</h3>
+                <p className="mt-1 max-w-2xl text-sm text-immersive-text-secondary">
+                  Career Builder adds a structured path that tracks your progress toward career readiness.
+                </p>
+              </div>
+              <Link
+                to="/experience?upgrade=job-readiness-path#plans"
+                className="inline-flex shrink-0 items-center justify-center rounded-xl bg-[#FF4B3E] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#e64035]"
+              >
+                Explore Career Builder
+              </Link>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

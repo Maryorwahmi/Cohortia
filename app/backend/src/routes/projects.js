@@ -15,6 +15,7 @@ import { callGemini, extractJson } from '../lib/gemini.js';
 import { calculateExamScore, gradeMultipleChoiceAnswer } from '../lib/courseFinalExamGrading.js';
 import { createR2DownloadUrl, createR2UploadUrl, deleteR2Object, inspectR2Object, isR2Configured } from '../lib/r2Storage.js';
 import { validateCourseFinalPackage } from '../lib/courseFinalValidation.js';
+import { getAccountPlan, hasPlanFeature, planUpgradeResponse } from '../lib/entitlements.js';
 
 const projects = new Hono();
 const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 90;
@@ -589,6 +590,17 @@ projects.post('/final-exam-attempts/:attemptId/submit', async (c) => {
   const answerRows = await db.select().from(courseFinalExamAttemptAnswers)
     .where(eq(courseFinalExamAttemptAnswers.attemptId, attemptId));
   const answerByQuestion = new Map(answerRows.map((item) => [item.questionId, item]));
+  const needsAiReview = questions.some((question) => question.type !== 'multiple_choice'
+    || !gradeMultipleChoiceAnswer(question, answerByQuestion.get(question.id)?.answer));
+  const user = c.get('user');
+  if (needsAiReview && !hasProjectAdminAccess(user)
+    && !hasPlanFeature(getAccountPlan(user), 'guided_final_reviews')) {
+    return planUpgradeResponse(c, {
+      code: 'PLAN_FEATURE_REQUIRED',
+      feature: 'guided-final-reviews',
+      message: 'AI-guided final assessment reviews are available with Career Builder.',
+    });
+  }
   const grading = await gradeWrittenAnswers(questions, answerByQuestion);
   if (!grading.success) {
     return c.json({ success: false, error: 'Exam grading could not be completed. Your submitted answers are saved; retry submission later.', details: grading.error }, 502);
@@ -1087,6 +1099,15 @@ projects.post('/:projectId/submit', async (c) => {
   const now = new Date().toISOString();
   const id = uuidv4();
   const [capstone] = await db.select().from(courseCapstones).where(eq(courseCapstones.id, projectId)).limit(1);
+  const user = c.get('user');
+  if (!capstone && !hasProjectAdminAccess(user)
+    && !hasPlanFeature(getAccountPlan(user), 'portfolio_development')) {
+    return planUpgradeResponse(c, {
+      code: 'PLAN_FEATURE_REQUIRED',
+      feature: 'portfolio-development',
+      message: 'Portfolio development projects are available with Premium Access and Career Builder.',
+    });
+  }
   let evidenceFiles = [];
   if (capstone) {
     const [finalProgress] = await db.select().from(userCourseFinalProgress).where(and(
@@ -1167,6 +1188,15 @@ projects.post('/:submissionId/feedback', async (c) => {
   const [submission] = await db.select().from(userProjectSubmissions).where(eq(userProjectSubmissions.id, submissionId)).limit(1);
   if (!submission) return c.json({ success: false, error: 'Submission not found' }, 404);
   if (submission.userId !== userId) return c.json({ success: false, error: 'Unauthorized' }, 403);
+  const user = c.get('user');
+  if (!hasProjectAdminAccess(user)
+    && !hasPlanFeature(getAccountPlan(user), 'project_submission_feedback')) {
+    return planUpgradeResponse(c, {
+      code: 'PLAN_FEATURE_REQUIRED',
+      feature: 'project-submission-feedback',
+      message: 'AI project submission feedback is available with Career Builder.',
+    });
+  }
 
   const [project] = await db.select().from(projectTemplates).where(eq(projectTemplates.id, submission.projectId)).limit(1);
   let projectInfo;
@@ -1203,6 +1233,15 @@ projects.post('/:submissionId/feedback', async (c) => {
 
 // Get project templates for a roadmap
 projects.get('/:roadmapId', async (c) => {
+  const user = c.get('user');
+  if (!hasProjectAdminAccess(user)
+    && !hasPlanFeature(getAccountPlan(user), 'portfolio_development')) {
+    return planUpgradeResponse(c, {
+      code: 'PLAN_FEATURE_REQUIRED',
+      feature: 'portfolio-development',
+      message: 'Portfolio development projects are available with Premium Access and Career Builder.',
+    });
+  }
   const roadmapId = c.req.param('roadmapId');
   const templates = await db
     .select()

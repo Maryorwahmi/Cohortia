@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sparkles, Send, Paperclip, User, Mic } from "lucide-react";
 import { UserPreferences } from "../../types";
 import { chatApi } from "../../services/api";
@@ -75,6 +76,7 @@ interface SpeechRecognitionLike {
 type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
 export default function MentorPage({ userProfile, mentorContext, onUpdateContext }: MentorPageProps) {
+  const navigate = useNavigate();
   const [activeLearningContext] = useState<ActiveLearningContext | null>(() => {
     if (typeof window === "undefined") return null;
     try {
@@ -147,6 +149,7 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
     textToSend: string,
     speakResponse = false,
     filesToSend = attachments,
+    voiceChat = false,
   ) => {
     if (!textToSend.trim() && filesToSend.length === 0) return;
 
@@ -186,6 +189,7 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
           chapterTitle: activeLearningContext?.chapterTitle,
         },
         filesToSend,
+        voiceChat,
       );
 
       if (!response.success || !response.data?.reply) {
@@ -215,6 +219,11 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
       }
     } catch (err) {
       console.error("Failed to send mentor message:", err);
+      const upgradeError = err as {data?: {upgradeRequired?: boolean; planUrl?: string}};
+      if (upgradeError.data?.upgradeRequired && upgradeError.data.planUrl) {
+        navigate(upgradeError.data.planUrl);
+        return;
+      }
       const errMsg: Message = {
         sender: "advisor",
         text: err instanceof Error
@@ -307,7 +316,7 @@ export default function MentorPage({ userProfile, mentorContext, onUpdateContext
     recognition.maxAlternatives = 1;
     recognition.onresult = (event) => {
       const transcript = Array.from({ length: event.results.length }, (_, index) => event.results[index][0].transcript).join(" ").trim();
-      if (transcript) handleSendMessage(transcript, true);
+      if (transcript) handleSendMessage(transcript, true, attachments, true);
     };
     recognition.onerror = () => {
       setIsListening(false);

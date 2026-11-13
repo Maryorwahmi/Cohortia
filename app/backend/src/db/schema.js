@@ -12,6 +12,7 @@ export const users = sqliteTable('users', {
   currentStatus: text('current_status'),
   currentRole: text('current_role'),
   role: text('role').notNull().default('career-starter'), // career-starter, level-up, experience-track
+  plan: text('plan').notNull().default('free'),
   adminRole: text('admin_role'), // alpha, admin, or null
   onboardingGoal: text('onboarding_goal'),
   experienceLevel: text('experience_level'),
@@ -79,6 +80,14 @@ export const rateLimitWindows = sqliteTable('rate_limit_windows', {
 }, (table) => ({
   rateLimitUpdatedAtIdx: index('rate_limit_windows_updated_at_idx').on(table.updatedAt),
 }));
+
+export const userCourseChapterPreviews = sqliteTable('user_course_chapter_previews', {
+  userId: text('user_id').primaryKey(),
+  courseId: text('course_id').notNull(),
+  module: integer('module').notNull(),
+  chapter: integer('chapter').notNull(),
+  createdAt: text('created_at').notNull(),
+});
 
 export const adminCoursePermissions = sqliteTable('admin_course_permissions', {
   adminUserId: text('admin_user_id').notNull(),

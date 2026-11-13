@@ -41,6 +41,13 @@ function selectionStorageKey(userId: string) {
   return `cohortia:final-course:${userId}`;
 }
 
+function getPlanUpgradeUrl(error: unknown) {
+  if (!error || typeof error !== 'object' || !('data' in error)) return undefined;
+  const data = error.data;
+  if (!data || typeof data !== 'object' || !('upgradeRequired' in data) || !('planUrl' in data)) return undefined;
+  return data.upgradeRequired === true && typeof data.planUrl === 'string' ? data.planUrl : undefined;
+}
+
 export default function Projects() {
   const {user} = useAuth();
   const isAdmin = user?.adminRole === 'admin' || user?.adminRole === 'alpha' || user?.role === 'admin';
@@ -184,6 +191,15 @@ export default function Projects() {
         feedback = feedbackResponse.data;
       } catch (error) {
         feedbackError = error instanceof Error ? error.message : 'AI feedback is not available yet.';
+        const planUrl = getPlanUpgradeUrl(error);
+        if (planUrl) {
+          return {
+            success: true,
+            submission,
+            feedbackError,
+            planUrl,
+          };
+        }
       }
 
       try {

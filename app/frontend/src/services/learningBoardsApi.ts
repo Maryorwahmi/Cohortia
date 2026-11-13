@@ -539,12 +539,16 @@ class LearningBoardsApiService {
    */
   async getChapter(courseId: string, module: number, chapter: number): Promise<LearningBoardChapterData> {
     const response = await fetchWithReadCache(`${API_BASE}/boards/${courseId}/${module}/${chapter}`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch chapter: ${response.statusText}`);
-    }
     const data = await response.json();
+    if (!response.ok) {
+      const error = new Error(data.error || `Failed to fetch chapter: ${response.statusText}`);
+      Object.assign(error, {status: response.status, data});
+      throw error;
+    }
     if (!data.success) {
-      throw new Error(data.error || 'Failed to fetch chapter');
+      const error = new Error(data.error || 'Failed to fetch chapter');
+      Object.assign(error, {data});
+      throw error;
     }
     return data.data;
   }
@@ -740,12 +744,16 @@ class LearningBoardsApiService {
    */
   async getScreen(courseId: string, module: number, chapter: number, screen: number): Promise<LearningBoardScreen> {
     const response = await fetchWithReadCache(`${API_BASE}/boards/${courseId}/${module}/${chapter}/${screen}`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch screen: ${response.statusText}`);
-    }
     const data = await response.json();
+    if (!response.ok) {
+      const error = new Error(data.error || `Failed to fetch screen: ${response.statusText}`);
+      Object.assign(error, {status: response.status, data});
+      throw error;
+    }
     if (!data.success) {
-      throw new Error(data.error || 'Failed to fetch screen');
+      const error = new Error(data.error || 'Failed to fetch screen');
+      Object.assign(error, {data});
+      throw error;
     }
     return data.data;
   }

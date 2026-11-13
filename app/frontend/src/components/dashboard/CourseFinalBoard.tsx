@@ -1,4 +1,5 @@
 import {useEffect, useState, type ChangeEvent} from 'react';
+import {useNavigate} from 'react-router-dom';
 import {AlertCircle, CheckCircle2, ChevronDown, Clock3, Code2, ListChecks} from 'lucide-react';
 import {CourseFinalExamAttempt, CourseFinalPackage, EvidenceFile, projectApi} from '../../services/api';
 import AssessmentQuestionContent from '../assessments/AssessmentQuestionContent';
@@ -20,12 +21,20 @@ interface CourseFinalBoardProps {
     success: boolean;
     submission?: {id?: string; feedback?: string; score?: number; status?: string};
     feedbackError?: string;
+    planUrl?: string;
     error?: string;
   }>;
 }
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'The final exam request failed. Please try again.';
+}
+
+function upgradePlanUrl(error: unknown) {
+  if (!error || typeof error !== 'object' || !('data' in error)) return null;
+  const data = error.data;
+  if (!data || typeof data !== 'object' || !('upgradeRequired' in data) || !('planUrl' in data)) return null;
+  return data.upgradeRequired === true && typeof data.planUrl === 'string' ? data.planUrl : null;
 }
 
 function formatRemainingTime(expiresAt: string, now: number) {
@@ -39,6 +48,7 @@ function savedAnswers(attempt: CourseFinalExamAttempt) {
 }
 
 export default function CourseFinalBoard({courseFinal, submissions = [], onSubmit, adminTestMode = false}: CourseFinalBoardProps) {
+  const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState(courseFinal.selectedCapstoneId || courseFinal.capstones[0]?.id || '');
   const [expanded, setExpanded] = useState(true);
   const [selectionSaving, setSelectionSaving] = useState(false);
@@ -169,6 +179,10 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
       }
       const result = await onSubmit(selected.id, capstoneText.trim(), filesToSubmit.map((file) => file.id), withoutFileEvidence);
       if (!result.success) throw new Error(result.error || 'Capstone submission failed.');
+      if (result.planUrl) {
+        navigate(result.planUrl);
+        return;
+      }
       setCapstoneText('');
       setUploadedEvidence([]);
       setWithoutFileEvidence(false);
@@ -227,6 +241,11 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
       const refreshed = await projectApi.getFinalExamAttempts(courseFinal.courseId);
       if (refreshed.success && refreshed.data) setAttemptsData(refreshed.data);
     } catch (error) {
+      const planUrl = upgradePlanUrl(error);
+      if (planUrl) {
+        navigate(planUrl);
+        return;
+      }
       setExamError(errorMessage(error));
     } finally {
       setExamBusy(false);
@@ -257,6 +276,11 @@ export default function CourseFinalBoard({courseFinal, submissions = [], onSubmi
       const refreshed = await projectApi.getFinalExamAttempts(courseFinal.courseId);
       if (refreshed.success && refreshed.data) setAttemptsData(refreshed.data);
     } catch (error) {
+      const planUrl = upgradePlanUrl(error);
+      if (planUrl) {
+        navigate(planUrl);
+        return;
+      }
       setExamError(errorMessage(error));
     } finally {
       setExamBusy(false);

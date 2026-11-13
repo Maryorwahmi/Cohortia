@@ -122,6 +122,7 @@ async function ensureProfileSecurityTables() {
     ['email_verification_attempts', 'INTEGER NOT NULL DEFAULT 0'],
     ['email_verification_last_sent_at', 'TEXT'],
     ['email_notifications_enabled', 'INTEGER NOT NULL DEFAULT 1'],
+    ['plan', "TEXT NOT NULL DEFAULT 'free'"],
   ];
 
   for (const [name, definition] of columns) {
@@ -150,6 +151,13 @@ async function ensureProfileSecurityTables() {
   )`);
   await client.execute(`CREATE INDEX IF NOT EXISTS rate_limit_windows_updated_at_idx
     ON rate_limit_windows (updated_at)`);
+  await client.execute(`CREATE TABLE IF NOT EXISTS user_course_chapter_previews (
+    user_id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL,
+    module INTEGER NOT NULL,
+    chapter INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+  )`);
 }
 
 async function ensureNewsletterSubscriptionColumns() {

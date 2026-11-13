@@ -252,3 +252,19 @@ test("aggregates independent canonical phase errors before requesting repair", (
     },
   );
 });
+
+test("code narration validation distinguishes execution concepts from claimed results", () => {
+  const profile = categories.find((candidate) => candidate.category === "Terminal Coding Lab");
+  const sourceContext = makeSourceContext(profile);
+  const metadata = {courseId: "narration-test-course", moduleNumber: 1, chapterNumber: 1};
+  const raw = makeRawPractical(profile);
+  raw.codeWalkthrough[1].speakerText = `The compiler translates source code into instructions, which explains how this language turns readable statements into behavior. ${narration("python variables", 1)}`;
+
+  assert.doesNotThrow(() => normalizePractical(raw, sourceContext, metadata));
+
+  raw.codeWalkthrough[1].speakerText = `We run the program and it prints hello. ${narration("python variables", 1)}`;
+  assert.throws(
+    () => normalizePractical(raw, sourceContext, metadata),
+    /claims a teacher execution result without a visible terminal command or output/,
+  );
+});

@@ -55,6 +55,7 @@ export interface BackendUser {
   email: string;
   username?: string | null;
   role: string;
+  plan?: 'free' | 'premium' | 'career_builder';
   adminRole?: 'alpha' | 'admin' | null;
   phone?: string | null;
   country?: string | null;
@@ -813,14 +814,14 @@ export interface ChatLearningContext {
 }
 
 export const chatApi = {
-  sendMessage: (message: string, history: Array<{ sender: string; text: string }> = [], mode = 'mentor', outputFormat = 'text', focus: string | null = null, learningContext?: ChatLearningContext, attachments: Array<{ name: string; mimeType: string; size: number; data?: string; textContent?: string }> = []) => {
+  sendMessage: (message: string, history: Array<{ sender: string; text: string }> = [], mode = 'mentor', outputFormat = 'text', focus: string | null = null, learningContext?: ChatLearningContext, attachments: Array<{ name: string; mimeType: string; size: number; data?: string; textContent?: string }> = [], voiceChat = false) => {
     const normalizedHistory = history.map((h) => ({
       role: h.sender === 'user' ? 'user' : 'assistant',
       content: h.text,
     }));
     return fetchApi<{ success: boolean; data?: { reply: string }; error?: string }>('/chat/message', {
       method: 'POST',
-      body: JSON.stringify({ message, history: normalizedHistory, mode, outputFormat, focus, learningContext, attachments }),
+      body: JSON.stringify({ message, history: normalizedHistory, mode, outputFormat, focus, learningContext, attachments, voiceChat }),
     });
   },
 };

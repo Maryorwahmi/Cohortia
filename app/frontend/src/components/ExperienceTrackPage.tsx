@@ -103,6 +103,18 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [courseSubmitting, setCourseSubmitting] = useState(false);
   const [courseError, setCourseError] = useState("");
+  const upgradeReason = new URLSearchParams(location.search).get("upgrade");
+  const upgradeMessage = upgradeReason === "course-preview"
+    ? "Your Free plan includes one chapter from one non-free course. Choose a plan below for full course access."
+    : upgradeReason === "mentor-message-quota"
+      ? "You have reached the Free plan’s daily Cohortia Mentor message limit."
+      : upgradeReason === "mentor-voice-quota"
+        ? "You have reached the Free plan’s daily mentor voice-chat limit."
+        : upgradeReason === "scenario-practicals"
+          ? "Free hands-on activities are limited to Scenario & Design Exercise chapters."
+          : upgradeReason
+            ? "This feature is available on a higher plan. Compare the plans below."
+            : "";
   const onboardingMessage = new URLSearchParams(location.search).get("onboarding");
   const showOnboardingMessage = onboardingMessage === "required" || onboardingMessage === "google";
   const shouldOpenBuilder = showOnboardingMessage
@@ -112,6 +124,10 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
   useEffect(() => {
     if (shouldOpenBuilder) setBuilderOpen(true);
   }, [shouldOpenBuilder]);
+
+  useEffect(() => {
+    if (upgradeReason) document.getElementById("plans")?.scrollIntoView({behavior: "smooth", block: "start"});
+  }, [upgradeReason]);
 
   useEffect(() => {
     if (!shouldOpenBuilder || new URLSearchParams(location.search).get("onboarding") !== "google") return;
@@ -291,7 +307,12 @@ export default function ExperienceTrackPage({ userProfile, onOpenWizard }: Exper
       </section>
 
       {/* 2. Subscription Plans */}
-      <section className="max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 mb-16">
+      <section id="plans" className="scroll-mt-24 max-w-[1600px] mx-auto w-full px-3 sm:px-4 lg:px-6 mb-16">
+        {upgradeMessage && (
+          <div role="alert" className="mb-6 rounded-2xl border border-[#FF4B3E]/40 bg-[#FF4B3E]/10 px-5 py-4 text-sm font-medium leading-relaxed text-immersive-text-primary">
+            {upgradeMessage}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {subscriptionPlans.map((plan) => (
             <article

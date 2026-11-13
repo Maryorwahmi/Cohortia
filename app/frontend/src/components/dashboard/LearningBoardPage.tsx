@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Play, Pause, RotateCw, Volume2, VolumeX, Maximize2, 
   ChevronRight, ChevronDown, CheckCircle, Lock, BookOpen, 
@@ -449,6 +450,7 @@ export default function LearningBoardPage({
   onCompleteLesson,
   adminAccess,
 }: LearningBoardPageProps) {
+  const navigate = useNavigate();
   const activeTrackId = (userProfile.track || "frontend") as CohortTrackId;
   const fallbackCurriculum = TRACK_CURRICULA[activeTrackId] || TRACK_CURRICULA.frontend;
   const curriculum = curriculumProp?.length ? curriculumProp : fallbackCurriculum;
@@ -588,6 +590,7 @@ export default function LearningBoardPage({
       setDevPreviewLoading(true);
       setDevPreviewError(null);
       setGeneratedPreview(null);
+      setPracticalCompleted(false);
       setCourseCatalog(null);
 
       try {
@@ -637,10 +640,16 @@ export default function LearningBoardPage({
             .join('\n\n'),
           generatedAt: new Date().toISOString(),
         });
+        setPracticalCompleted(!chapterData.practical);
         setShowChapterAssessment(false);
         setVisionBoardsCatalog(null);
       } catch (err) {
         if (cancelled) return;
+        const accessError = err as {data?: {upgradeRequired?: boolean; planUrl?: string}};
+        if (accessError.data?.upgradeRequired && accessError.data.planUrl) {
+          navigate(accessError.data.planUrl);
+          return;
+        }
         setDevPreviewError(err instanceof Error ? err.message : 'Failed to load learning board from the database');
         setVisionBoardsCatalog(null);
         setGeneratedPreview(null);
@@ -656,7 +665,7 @@ export default function LearningBoardPage({
     return () => {
       cancelled = true;
     };
-  }, [devPreviewEnabled, previewCourseId, previewModule, previewChapter]);
+  }, [devPreviewEnabled, navigate, previewCourseId, previewModule, previewChapter]);
 
   // Keep the exact course/chapter available to the standalone mentor page.
   useEffect(() => {
@@ -1037,6 +1046,11 @@ export default function LearningBoardPage({
       setMentorMessages(prev => [...prev, responseMsg]);
     } catch (err) {
       console.error(err);
+      const upgradeError = err as {data?: {upgradeRequired?: boolean; planUrl?: string}};
+      if (upgradeError.data?.upgradeRequired && upgradeError.data.planUrl) {
+        navigate(upgradeError.data.planUrl);
+        return;
+      }
       setMentorMessages(prev => [...prev, {
         sender: "advisor" as const,
         text: "Apologies, I hit a slight connection glitch. Ask me again!",

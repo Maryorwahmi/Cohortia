@@ -62,7 +62,7 @@ test("chapter repair feedback fixes code walkthrough execution claims without vi
   const feedback = buildChapterRepairFeedback(
     new Error(
       "Chapter 1.2 failed practical validation (codeWalkthrough=5): "
-      + "code walkthrough phase 1 discusses compilation or execution without a visible terminal command or output.",
+      + "code walkthrough phase 1 claims a teacher execution result without a visible terminal command or output.",
     ),
     "codeWalkthrough",
   );
@@ -71,7 +71,7 @@ test("chapter repair feedback fixes code walkthrough execution claims without vi
   assert.match(feedback, /Fix codeWalkthrough phase 1/);
   assert.match(feedback, /re-check every non-final codeWalkthrough phase against BOTH rules/);
   assert.match(feedback, /learnerPrompt must ask for a prediction or observation/);
-  assert.match(feedback, /remove the execution claim instead of inventing a command or output/);
+  assert.match(feedback, /General explanations of what compilation or execution means do not need terminal evidence/);
 });
 
 test("chapter repair feedback requires the canonical teachingSteps array", () => {
@@ -342,13 +342,13 @@ test("terminal walkthrough validation rejects repeated snapshots and learner edi
   const errors = terminalWalkthroughErrors([
     { stepNumber: 1, codeLine: "#include <stdio.h>\nint main(void)\n{\n printf(\"Hi\");\n return 0;\n}" },
     { stepNumber: 2, codeLine: "#include <stdio.h>\nint main(void)\n{\n printf(\"Hi\");\n return 0;\n}", learnerPrompt: "Change the printf statement." },
-    { stepNumber: 3, codeLine: "printf(\"Bye\");", learnerPrompt: "What output do you predict?", speakerText: "The compiler will run this program and show the output." },
+    { stepNumber: 3, codeLine: "printf(\"Bye\");", learnerPrompt: "What output do you predict?", speakerText: "We run the program and it prints Bye." },
     { stepNumber: 4, codeLine: "#include <stdio.h>\nint main(void)\n{\n printf(\"Bye\");\n return 0;\n}" },
   ]);
 
   assert.match(errors.join("\n"), /repeats the previous phase/);
   assert.match(errors.join("\n"), /asks the learner to edit/);
-  assert.match(errors.join("\n"), /without visible terminalCommands/);
+  assert.match(errors.join("\n"), /claims an execution result without visible terminalCommands/);
 });
 
 test("watch-only validation rejects action instructions but permits prediction questions about changes", () => {

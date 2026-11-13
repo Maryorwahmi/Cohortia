@@ -5,6 +5,7 @@ import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware } from '../middleware/auth.js';
 import { sendBrandedEmail } from '../lib/emailTemplates.js';
+import { getAccountPlan, getCourseChapterPreview, sanitizeLessonForPlan } from '../lib/entitlements.js';
 
 const tracksRoute = new Hono();
 const LESSONS_CACHE_TTL_MS = 300_000;
@@ -38,7 +39,9 @@ tracksRoute.get('/:id', async (c) => {
 });
 
 // Get lessons for a track
+tracksRoute.use('/:id/lessons', authMiddleware);
 tracksRoute.get('/:id/lessons', async (c) => {
+  c.header('Cache-Control', 'private, no-store');
   const id = c.req.param('id');
 
   const track = await db
@@ -64,9 +67,13 @@ tracksRoute.get('/:id/lessons', async (c) => {
     lessonsCache.set(id, { lessons: trackLessons, expiresAt: Date.now() + LESSONS_CACHE_TTL_MS });
   }
 
+  const user = c.get('user');
+  const preview = !user?.adminRole && getAccountPlan(user) === 'free'
+    ? await getCourseChapterPreview(db, c.get('userId'))
+    : null;
   return c.json({
     success: true,
-    data: { track: track[0], lessons: trackLessons },
+    data: { track: track[0], lessons: trackLessons.map((lesson) => sanitizeLessonForPlan(lesson, user, preview)) },
   });
 });
 

@@ -43,7 +43,7 @@ async function cleanExpiredRateLimitWindows(nowMs) {
   }
 }
 
-export async function enforceRateLimits(c, limits) {
+export async function enforceRateLimits(c, limits, responseOverrides = {}) {
   const nowMs = Date.now();
   await cleanExpiredRateLimitWindows(nowMs);
 
@@ -53,8 +53,9 @@ export async function enforceRateLimits(c, limits) {
       c.header('Retry-After', String(result.retryAfterSeconds));
       return c.json({
         success: false,
-        error: 'Rate limit exceeded. Please try again later.',
+        error: responseOverrides.error || 'Rate limit exceeded. Please try again later.',
         retryAfterSeconds: result.retryAfterSeconds,
+        ...responseOverrides,
       }, 429);
     }
   }

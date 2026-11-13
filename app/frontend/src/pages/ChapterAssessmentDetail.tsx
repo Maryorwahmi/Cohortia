@@ -58,6 +58,8 @@ export default function ChapterAssessmentDetail() {
         if (data.success) {
           setChapterData(data);
           setError(null);
+        } else if (data.upgradeRequired && data.planUrl) {
+          navigate(data.planUrl);
         } else {
           setError(data.error || 'Failed to fetch chapter data');
         }

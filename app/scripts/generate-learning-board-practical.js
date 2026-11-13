@@ -1124,6 +1124,18 @@ function buildTeachingFallback(task, sourceContext, index) {
   };
 }
 
+function inheritedBinaryTaskSupport(task, template) {
+  const inherited = task || template || {};
+  return {
+    hints: [...(inherited.hints || [])],
+    inlineSuggestions: (inherited.inlineSuggestions || []).map((suggestion) => ({ ...suggestion })),
+    structuredHints: inherited.structuredHints ? { ...inherited.structuredHints } : inherited.structuredHints,
+    requiredConcepts: [...(inherited.requiredConcepts || [])],
+    stepType: inherited.stepType || "experiment",
+    checkIds: [...(inherited.checkIds || [])],
+  };
+}
+
 function clampInteger(value, fallback, minimum, maximum) {
   const number = Number(value);
   if (!Number.isInteger(number)) return fallback;
@@ -1246,6 +1258,16 @@ function learnerPromptDirectsAction(prompt) {
   ));
 }
 
+function narrationClaimsExecutionResult(speakerText) {
+  const narration = String(speakerText || "");
+  return /\b(?:we|i|the teacher|the demonstration)\s+(?:now\s+|then\s+|just\s+|have\s+|has\s+)?(?:compile[ds]?|run[s]?|ran|execut(?:e|es|ed))\b/i.test(narration)
+    || /\b(?:the|this)\s+(?:program|code|command)\s+(?:prints|outputs|displays|returns|shows|produces)\b/i.test(narration)
+    || /\b(?:the|this)\s+terminal\s+(?:shows|prints|reports|displays)\b/i.test(narration)
+    || /\b(?:the|this)\s+(?:program|terminal|compiler)\s+(?:output|result)\s+(?:is|shows|reads)\b/i.test(narration)
+    || /\b(?:running|executing|compiling)\s+(?:the|this|our)\s+(?:program|code|file)\s+(?:will|would|should)\s+(?:print|output|display|show|return|produce)\b/i.test(narration)
+    || /\b(?:after|when)\s+(?:we|i|the teacher)\s+(?:compile|run|execute)\b/i.test(narration);
+}
+
 function terminalWalkthroughErrors(walkthrough) {
   const errors = [];
   if (!Array.isArray(walkthrough)) return errors;
@@ -1269,10 +1291,10 @@ function terminalWalkthroughErrors(walkthrough) {
     if (index < walkthrough.length - 1 && learnerPromptDirectsAction(prompt)) {
       errors.push(`${label} asks the learner to edit or execute during the watch-only walkthrough`);
     }
-    const speaksExecution = /\b(?:compile|compiled|compiler|run|running|execute|execution|terminal output)\b/i.test(`${step?.speakerText || ""} ${prompt}`);
+    const speaksExecution = narrationClaimsExecutionResult(step?.speakerText);
     const commands = Array.isArray(step?.terminalCommands) ? step.terminalCommands.filter((item) => String(item || "").trim()) : [];
     if (speaksExecution && !commands.length && !String(step?.terminalOutput || "").trim()) {
-      errors.push(`${label} discusses compilation or execution without visible terminalCommands or terminalOutput`);
+      errors.push(`${label} claims an execution result without visible terminalCommands or terminalOutput`);
     }
   }
   return errors;
@@ -1329,9 +1351,9 @@ function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, 
       ? step.terminalCommands.filter((command) => typeof command === "string" && command.trim()).map((command) => command.trim())
       : [];
     const terminalOutput = asStringText(step.terminalOutput);
-    const mentionsExecution = /\b(?:compile|compiled|compiler|run|running|execute|execution|terminal output)\b/i.test(`${speakerText} ${normalized.learnerPrompt}`);
-    if (mentionsExecution && !terminalCommands.length && !terminalOutput) {
-      issues.push(`${label} discusses compilation or execution without a visible terminal command or output.`);
+    const claimsExecution = narrationClaimsExecutionResult(speakerText);
+    if (claimsExecution && !terminalCommands.length && !terminalOutput) {
+      issues.push(`${label} claims a teacher execution result without a visible terminal command or output.`);
     }
     if (index < stepCount - 1 && learnerPromptDirectsAction(normalized.learnerPrompt)) {
       issues.push(`${label} hands an editing or execution action to the learner during the watch-only walkthrough. Ask for a prediction or observation; defer hands-on work to the final transfer.`);
@@ -1356,7 +1378,7 @@ function normalizeCanonicalStep(step, index, stepCount, { kind, sourceActivity, 
 function validateCanonicalTeachingQuality(steps, activityKind) {
   const issues = [];
   const firstNarration = steps[0]?.speakerText?.trim() || "";
-  if (/^(?:(?:welcome|hello|hi)\b|in this (?:chapter|lesson|course)\b|today\b|our mission\b|let(?:'s| us) begin\b)/i.test(firstNarration)) {
+  if (/^(?:(?:welcome|hello|hi)\b|in this (?:chapter|lesson|course)\b|today\s+(?:we(?:'re| are| will|'ll)|you(?:'re| are| will|'ll))\b|our mission\b|let(?:'s| us) begin\b)/i.test(firstNarration)) {
     issues.push("The first teaching phase must begin with the concrete activity concept or question, not a greeting or opening-screen chapter/mission introduction.");
   }
 
@@ -1378,7 +1400,9 @@ function validateCanonicalTeachingQuality(steps, activityKind) {
 
       const spokenNumbers = new Set(step.speakerText.match(/\d+/g) || []);
       const missingNumbers = [...spokenNumbers].filter((number) => (
-        number.length > 1 && !displayedNumbers.has(number)
+        number.length > 1
+        && !displayedNumbers.has(number)
+        && !new RegExp(`(?<!\\d)${number.split("").join("\\s*")}(?!\\d)`).test(displayText)
       ));
       if (missingNumbers.length) {
         issues.push(
@@ -2128,8 +2152,15 @@ function normalizePractical(raw, sourceContext, metadata, { requireGeneratedCont
   if (activityKind === "binary_exercise") {
     const sourceExercises = binaryExercisesFromActivity(sourceContext.activityChapter.handsOnActivity);
     if (sourceExercises.length) {
+      const supportTemplate = tasks.find((task) => (
+        Array.isArray(task?.hints)
+        || task?.structuredHints
+        || Array.isArray(task?.inlineSuggestions)
+        || Array.isArray(task?.checkIds)
+      )) || tasks[0];
       tasks = sourceExercises.map((exercise, index) => {
         const existing = tasks[index];
+        const inherited = existing || supportTemplate;
         const narratorGuide = existing?.narratorGuide
           || `Let's solve this binary challenge carefully. ${exercise.prompt} Explain how the place values or repeated division support your answer.`;
         // The model often returns one generic binary task while the source
@@ -2144,16 +2175,19 @@ function normalizePractical(raw, sourceContext, metadata, { requireGeneratedCont
           teaching: existing?.teaching,
         }, sourceContext, index);
         return {
-          ...existing,
+          ...inherited,
           id: existing?.id || `binary-question-${index + 1}`,
           title: exercise.title,
           instruction: exercise.prompt,
           narratorGuide,
           teaching,
           required: true,
-          hints: existing?.hints || [],
-          requiredConcepts: existing?.requiredConcepts || [],
-          checkIds: existing?.checkIds || [],
+          // Every source exercise is a real learner milestone. If the model
+          // authored support for fewer milestones than the source contains,
+          // inherit the authored support instead of silently creating an
+          // incomplete task object. Clone arrays/objects so later task edits
+          // cannot mutate the template task.
+          ...inheritedBinaryTaskSupport(existing, supportTemplate),
           interactiveExercise: exercise,
         };
       });
@@ -3385,6 +3419,7 @@ export {
   safeRelativePath,
   validatePractical,
   validateCanonicalTeachingQuality,
+  inheritedBinaryTaskSupport,
   buildTeachViewOpening,
   inferLanguage,
   normalizeWorkspace,
