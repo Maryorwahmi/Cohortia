@@ -116,7 +116,7 @@ test("resumes a generated chapter by retrying its pending database import", asyn
   assert.ok(record.completedChapters["1.1"].importedAt);
 });
 
-test("keeps an import failure resumable for the next run", async () => {
+test("keeps an import failure resumable and logs its retry on the next run", async () => {
   const fixture = await createFixture();
   await writeCourseGenerationRecord(fixture.outputRoot, fixture.course, fixture.syllabusPath, {
     completedChapters: {
@@ -138,11 +138,19 @@ test("keeps an import failure resumable for the next run", async () => {
   assert.equal(pendingRecord.completedChapters["1.1"].status, "generated");
 
   let retryCount = 0;
-  await runResume(fixture, {}, async () => {
-    retryCount += 1;
-    return {practicalPath: "resume-test-course/1.1"};
-  });
+  const originalLog = console.log;
+  const retryLogs = [];
+  console.log = (...values) => retryLogs.push(values.join(" "));
+  try {
+    await runResume(fixture, {}, async () => {
+      retryCount += 1;
+      return {practicalPath: "resume-test-course/1.1"};
+    });
+  } finally {
+    console.log = originalLog;
+  }
   assert.equal(retryCount, 1);
+  assert.ok(retryLogs.some((line) => line.includes("Retrying pending Turso import from saved practical resume-test-course 1.1.")));
   const completedRecord = await readCourseGenerationRecord(fixture.outputRoot, fixture.course.id);
   assert.equal(completedRecord.completedChapters["1.1"].status, "completed");
 });

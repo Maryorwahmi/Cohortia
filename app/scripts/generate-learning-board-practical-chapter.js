@@ -1033,9 +1033,15 @@ async function generateChapter(options, { importPractical = importGeneratedPract
           title: entry.sourceContext.courseTitle || resolvedCourseId,
         }, syllabusPath, { completedChapters });
       }
-      console.log(`Resuming from record.json: reusing practical ${resolvedCourseId} ${chapterKey}.`);
       if (completedChapters[chapterKey].status !== "completed") {
+        if (options["skip-import"] === true) {
+          console.log(`Resuming from record.json: reusing saved practical ${resolvedCourseId} ${chapterKey}; Turso import skipped.`);
+        } else {
+          console.log(`Retrying pending Turso import from saved practical ${resolvedCourseId} ${chapterKey}.`);
+        }
         chaptersToImport.push({ entry, artifactPath });
+      } else {
+        console.log(`Resuming from record.json: reusing completed practical ${resolvedCourseId} ${chapterKey}.`);
       }
     }
     entries = pendingEntries;
