@@ -17,6 +17,8 @@ const responseCache = new Map<string, CachedResponse>();
 const inFlightRequests = new Map<string, Promise<CachedResponse>>();
 let cacheGeneration = 0;
 let refreshInFlight: Promise<boolean> | null = null;
+const RENDER_WAKE_RETRY_DELAYS_MS = [2_000, 4_000, 8_000, 12_000, 16_000, 20_000];
+const RETRYABLE_WAKE_STATUSES = new Set([502, 503, 504]);
 
 function requestUrl(input: RequestInfo | URL) {
   return new URL(typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url, window.location.href);
@@ -53,6 +55,30 @@ async function fetchWithSessionRefresh(input: RequestInfo | URL, options: Reques
 
   if (!await refreshInFlight) return response;
   return rawFetch(retryInput, options);
+}
+
+function pause(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+}
+
+async function fetchWithRenderWakeRetry(input: RequestInfo | URL, options: RequestInit): Promise<Response> {
+  const method = (options.method || 'GET').toUpperCase();
+  if (method !== 'GET' && method !== 'HEAD') return fetchWithSessionRefresh(input, options);
+
+  for (let attempt = 0; attempt <= RENDER_WAKE_RETRY_DELAYS_MS.length; attempt += 1) {
+    try {
+      const response = await fetchWithSessionRefresh(input, options);
+      if (!RETRYABLE_WAKE_STATUSES.has(response.status) || attempt === RENDER_WAKE_RETRY_DELAYS_MS.length) {
+        return response;
+      }
+    } catch (error) {
+      if (attempt === RENDER_WAKE_RETRY_DELAYS_MS.length) throw error;
+    }
+
+    await pause(RENDER_WAKE_RETRY_DELAYS_MS[attempt]);
+  }
+
+  throw new Error('API retry loop completed without a response.');
 }
 const MAX_CACHED_RESPONSES = 300;
 
@@ -190,7 +216,7 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
   if (method === 'GET') {
     const url = new URL(String(input), 'http://cohortia.local');
     const ttlMs = getCacheTtl(url.pathname);
-    if (ttlMs === 0) return fetchWithSessionRefresh(input, requestOptions);
+    if (ttlMs === 0) return fetchWithRenderWakeRetry(input, requestOptions);
 
     const headers = new Headers(init.headers);
     const requestHeaders = Array.from(headers.entries()).sort(([left], [right]) => left.localeCompare(right));
@@ -212,7 +238,7 @@ export async function fetchWithReadCache(input: RequestInfo | URL, init: Request
     let pending = inFlightRequests.get(key);
     if (!pending) {
       const currentGeneration = cacheGeneration;
-      pending = fetchWithSessionRefresh(input, requestOptions).then(async (response) => {
+      pending = fetchWithRenderWakeRetry(input, requestOptions).then(async (response) => {
         const result: CachedResponse = {
           pathname: url.pathname,
           body: await response.clone().text(),

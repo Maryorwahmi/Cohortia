@@ -70,14 +70,18 @@ app.use('*', cors({
 app.use('*', prettyJSON());
 app.use('/api/v1/*', apiOriginMiddleware);
 
-// Health check
-app.get('/health', (c) => {
+const healthCheck = (c) => {
   return c.json({
     status: 'ok',
     service: 'cohortia-api',
     timestamp: new Date().toISOString(),
   });
-});
+};
+
+// Render checks the origin directly at /health. The versioned route gives the
+// browser and Cloudflare proxy the same lightweight readiness check.
+app.get('/health', healthCheck);
+app.get('/api/v1/health', healthCheck);
 
 app.use('/api/v1/*', createCsrfMiddleware());
 

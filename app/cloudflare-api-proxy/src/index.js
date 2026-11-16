@@ -71,6 +71,35 @@ function parseApiOrigin(value) {
   }
 }
 
+async function warmApiOrigin(env) {
+  const apiOrigin = parseApiOrigin(env.API_ORIGIN);
+  if (!apiOrigin) {
+    console.error(JSON.stringify({event: 'api_proxy_warmup_origin_invalid'}));
+    return;
+  }
+
+  const healthUrl = new URL('/health', apiOrigin);
+  try {
+    const healthRequest = new Request(healthUrl, {
+      headers: {
+        'Cache-Control': 'no-store',
+      },
+    });
+    const response = await fetch(healthRequest);
+    if (!response.ok) {
+      console.error(JSON.stringify({
+        event: 'api_proxy_warmup_unhealthy',
+        status: response.status,
+      }));
+    }
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: 'api_proxy_warmup_failed',
+      errorType: error instanceof Error ? error.name : 'UnknownError',
+    }));
+  }
+}
+
 export default {
   async fetch(request, env) {
     const secret = env.COHORTIA_API_ORIGIN_SECRET;
@@ -112,5 +141,9 @@ export default {
       }));
       return jsonError('API service is temporarily unavailable.', 502);
     }
+  },
+
+  async scheduled(_controller, env) {
+    await warmApiOrigin(env);
   },
 };

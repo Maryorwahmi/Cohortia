@@ -68,6 +68,27 @@ test('rejects non-HTTPS or path-bearing upstream origins', async () => {
   assert.equal(response.status, 503);
 });
 
+test('warms the Render origin through its health endpoint on the schedule', async () => {
+  const originalFetch = globalThis.fetch;
+  let upstreamRequest;
+  globalThis.fetch = async (request) => {
+    upstreamRequest = request;
+    return new Response(JSON.stringify({status: 'ok'}));
+  };
+
+  try {
+    await worker.scheduled({}, {
+      API_ORIGIN: apiOrigin,
+      COHORTIA_API_ORIGIN_SECRET: secret,
+    });
+
+    assert.equal(upstreamRequest.url, `${apiOrigin}/health`);
+    assert.equal(upstreamRequest.headers.get('cache-control'), 'no-store');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('blocks a rate-limited login before forwarding and returns retry guidance', async () => {
   const originalFetch = globalThis.fetch;
   let upstreamCalled = false;
