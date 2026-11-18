@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PRACTICAL_MANIFESTS } from './data/practicalsData';
-import type { CodeWalkthroughSegment, LearningBoardPractical } from '../../../services/learningBoardsApi';
+import type { CodeWalkthroughSegment, LearningBoardPractical, LearningBoardPracticalFile } from '../../../services/learningBoardsApi';
 import { learningBoardsApi } from '../../../services/learningBoardsApi';
 import { chatApi, type ChatLearningContext } from '../../../services/api';
 import { resolveCourseNarratorVoice } from '../../../utils/courseVoiceMapping';
@@ -177,6 +177,27 @@ function groupCodeWalkthroughSegments(segments: CodeWalkthroughSegment[], stageC
   });
 }
 
+function restoreWalkthroughSourceFormatting(
+  code: string,
+  segment: CodeWalkthroughSegment,
+  files: LearningBoardPracticalFile[],
+): string {
+  if (code.includes('\n')) return code;
+
+  const segmentPath = segment.file?.replace(/\\/g, '/').toLowerCase();
+  const sourceFile = segmentPath
+    ? files.find((file) => file.path.replace(/\\/g, '/').toLowerCase() === segmentPath)
+    : files.length === 1 ? files[0] : undefined;
+  const source = sourceFile?.content;
+  if (!source?.includes('\n')) return code;
+
+  const compact = (value: string) => value.replace(/\s+/g, '');
+  const literals = (value: string) => value.match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g) || [];
+  return compact(code) === compact(source) && JSON.stringify(literals(code)) === JSON.stringify(literals(source))
+    ? source
+    : code;
+}
+
 function exploreKeyTopicsFrom(practical: LearningBoardPractical): PracticalManifest['classroom']['exploreKeyTopics'] {
   const lessonConcepts = practical.lessonContext?.keyConcepts || [];
   const taskConcepts = (practical.tasks || []).flatMap((task) => task.requiredConcepts || []);
@@ -222,11 +243,12 @@ function manifestFromPractical(practical: LearningBoardPractical, courseTitle?: 
     const taskIndex = Math.min(index, Math.max(0, (practical.tasks?.length || 1) - 1));
     const task = practical.tasks?.[taskIndex];
     const teaching = task?.teaching;
+    const code = restoreWalkthroughSourceFormatting(step.codeLine, step, practical.files || []);
     return {
       stepNumber: step.stepNumber || index + 1,
       title: task?.title || step.file || `Teaching step ${index + 1}`,
-      codeSnippet: step.codeLine,
-      codeOrText: step.codeLine,
+      codeSnippet: code,
+      codeOrText: code,
       callout: teaching?.conceptExplanation || step.explanation || '',
       // Canonical walkthrough phases are the source of truth for spoken
       // narration. Task-level teacherTalk may contain a merged or fallback
