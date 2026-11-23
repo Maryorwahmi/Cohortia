@@ -158,6 +158,9 @@ export interface PracticalWorkspaceData {
   type: 'terminal' | 'cloud' | 'scenario' | 'research';
   terminal?: Record<string, unknown>;
   cloud?: {
+    profile?: 'azure_portal' | 'aws_console' | 'gcp_console' | 'alibaba_console' | 'terraform_plan' | 'kubernetes_cluster' | string;
+    surface?: string;
+    projectId?: string;
     provider?: string;
     region?: string;
     initialResources?: Record<string, unknown>[];

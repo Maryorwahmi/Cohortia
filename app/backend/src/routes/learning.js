@@ -10,6 +10,7 @@ import { logActivity } from '../lib/activity.js';
 import { createNotification } from '../lib/notifications.js';
 import { evaluateAssessmentAnswer } from '../lib/deterministicAssessment.js';
 import { evaluatePracticalChecks, gradeBinaryConversionAnswer, practiceChecksForLearner, sanitizePracticalForLearner } from '../lib/practicalGrading.js';
+import { evaluateCloudPractical } from '../lib/cloudPracticalGrading.js';
 import { mkdir, mkdtemp, readdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -1967,6 +1968,43 @@ learning.post('/practical-grade', async (c) => {
     if (!definition) return c.json({ success: false, error: 'Practical not found.' }, 404);
     const selected = checksForPracticalTask(definition, taskId);
     if (!selected || (taskId && !selected.task)) return c.json({ success: false, error: 'Practical task not found.' }, 404);
+
+    if (Array.isArray(request.evidence)) {
+      const cloud = definition.practical?.workspace?.cloud;
+      if (definition.practical?.workspace?.type !== 'cloud' || !cloud) {
+        return c.json({ success: false, error: 'This practical does not support cloud workspace verification.' }, 400);
+      }
+      if (request.evidence.length > 100 || request.evidence.some((item) => (
+        !item || typeof item !== 'object'
+        || typeof item.command !== 'string'
+        || typeof item.output !== 'string'
+        || item.command.length > 2048
+        || item.output.length > 16 * 1024
+      ))) {
+        return c.json({ success: false, error: 'Cloud workspace evidence is invalid or exceeds the supported limits.' }, 400);
+      }
+      const result = evaluateCloudPractical({
+        cloud,
+        tasks: definition.tasks,
+        evidence: request.evidence,
+      });
+      const now = new Date().toISOString();
+      await db.insert(studentPracticalAttempts).values({
+        id: uuidv4(),
+        userId,
+        practicalId,
+        files: '{}',
+        status: result.passed ? 'passed' : 'in_progress',
+        output: result.checks.map((check) => `${check.checkId}: ${check.passed ? 'passed' : 'failed'} — ${check.message}`).join('\n').slice(0, MAX_OUTPUT_BYTES),
+        createdAt: now,
+        updatedAt: now,
+      });
+      for (const taskResult of result.taskResults) {
+        if (taskResult.passed) await updatePracticalTaskProgress(userId, practicalId, taskResult.taskId, 'completed');
+      }
+      await syncChapterPracticalCompletion(userId, definition, result.passed);
+      return c.json({ success: true, data: result });
+    }
 
     if (typeof request.answer === 'string') {
       const exercise = asObject(selected.task?.interactiveExercise);

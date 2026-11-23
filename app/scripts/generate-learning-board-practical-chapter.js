@@ -161,6 +161,9 @@ function chapterResponseSchema(entry) {
       expectedArtifacts: stringArray,
     },
     cloud: {
+      profile: optionalString,
+      surface: optionalString,
+      projectId: optionalString,
       provider: optionalString,
       region: optionalString,
       initialResources: { type: "array", items: { type: "object" } },
@@ -196,7 +199,7 @@ function chapterResponseSchema(entry) {
   };
   const workspaceBranchRequired = {
     terminal: ["entryFile", "editableFiles", "readOnlyFiles", "runCommands", "compileCommands", "expectedArtifacts"],
-    cloud: ["provider", "region", "initialResources", "allowedActions", "forbiddenActions", "commandTemplates", "expectedState", "verificationChecks"],
+    cloud: ["profile", "surface", "provider", "region", "initialResources", "allowedActions", "forbiddenActions", "commandTemplates", "expectedState", "verificationChecks"],
     scenario: ["subtype", "context", "items", "options", "constraints", "decisionFields", "outcomeRules", "rubric", "exportArtifact"],
     research: [
       "investigationQuestion",

@@ -353,6 +353,9 @@ export interface LearningBoardPracticalWorkspace {
     runtime?: string;
   };
   cloud?: {
+    profile?: string;
+    surface?: string;
+    projectId?: string;
     provider?: string;
     region?: string;
     initialResources?: Record<string, unknown>[];
@@ -682,6 +685,30 @@ class LearningBoardsApiService {
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.success) {
       throw new Error(data.error || 'Failed to grade the practical on the server.');
+    }
+    return data.data;
+  }
+
+  async gradeCloudPractical(
+    practicalId: string,
+    courseId: string,
+    module: number,
+    chapter: number,
+    evidence: Array<{ command: string; output: string }>,
+  ): Promise<{
+    passed: boolean;
+    score: number;
+    checks: Array<{ checkId: string; taskId?: string; passed: boolean; message: string }>;
+    taskResults: Array<{ taskId: string; passed: boolean }>;
+  }> {
+    const response = await fetchWithReadCache(`${API_ROOT}/learning/practical-grade`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ practicalId, courseId, module, chapter, evidence }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Failed to grade the cloud practical on the server.');
     }
     return data.data;
   }

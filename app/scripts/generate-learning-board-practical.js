@@ -32,6 +32,7 @@ import { sourceHashFor } from "../backend/src/lib/practicalIdentity.js";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
 import { classifyActivity } from "./lib/hands-on-activity-source.js";
 import { activityKindFor, profileFor, profileSchema } from "./lib/practical-experience-profiles.js";
+import { validateCloudWorkspace } from "./lib/cloud-workspace-profiles.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -176,6 +177,9 @@ const PRACTICAL_SCHEMA = {
         cloud: {
           type: "object",
           properties: {
+            profile: { type: "string" },
+            surface: { type: "string" },
+            projectId: { type: "string" },
             provider: { type: "string" },
             region: { type: "string" },
             initialResources: { type: "array", items: { type: "object" } },
@@ -1961,6 +1965,9 @@ function normalizeWorkspace(raw, { experienceType, activityKind, files, language
     return {
       type: "cloud",
       cloud: {
+        profile: typeof cloud.profile === "string" && cloud.profile.trim() ? cloud.profile.trim() : "",
+        surface: typeof cloud.surface === "string" && cloud.surface.trim() ? cloud.surface.trim() : "",
+        ...(typeof cloud.projectId === "string" && cloud.projectId.trim() ? { projectId: cloud.projectId.trim() } : {}),
         provider: typeof cloud.provider === "string" && cloud.provider.trim() ? cloud.provider : "Cohortia Cloud Simulator",
         region: typeof cloud.region === "string" && cloud.region.trim() ? cloud.region : "learning-lab-1",
         initialResources: Array.isArray(cloud.initialResources) ? cloud.initialResources : [],
@@ -2858,8 +2865,7 @@ function validatePractical(practical) {
   }
   if (practical?.workspace?.type === "cloud") {
     const cloud = practical.workspace.cloud;
-    for (const field of ["provider", "region"]) if (typeof cloud?.[field] !== "string" || !cloud[field]) errors.push(`cloud workspace needs ${field}`);
-    for (const field of ["initialResources", "allowedActions", "expectedState", "verificationChecks"]) if (!Array.isArray(cloud?.[field])) errors.push(`cloud workspace needs ${field}`);
+    errors.push(...validateCloudWorkspace(cloud));
   }
   if (practical?.workspace?.type === "scenario") {
     const scenario = practical.workspace.scenario;

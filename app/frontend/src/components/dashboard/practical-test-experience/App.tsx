@@ -24,6 +24,7 @@ import { StructuredFeedbackCard } from './components/StructuredFeedbackCard';
 import { ResizableSplitLayout } from './components/ResizableSplitLayout';
 import { PlaybackControlBar } from './components/PlaybackControlBar';
 import { InstructorPersonaModal } from './components/InstructorPersonaModal';
+import type { CloudCommandEvidence } from './lib/cloudPracticalVerifier';
 import { Bot, Send, Sparkles, X } from 'lucide-react';
 import './practical-test-experience.css';
 
@@ -458,8 +459,15 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
   const [evaluatorResult, setEvaluatorResult] = useState<DomainEvaluatorResult | null>(null);
   const [isVerifyingPractical, setIsVerifyingPractical] = useState(false);
   const [executedCommands, setExecutedCommands] = useState<string[]>([]);
+  const [cloudEvidence, setCloudEvidence] = useState<CloudCommandEvidence[]>([]);
   const [lastTerminalOutput, setLastTerminalOutput] = useState('');
   const [simulationPassed, setSimulationPassed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setExecutedCommands([]);
+    setCloudEvidence([]);
+    setSimulationPassed(false);
+  }, [activeManifest.id]);
   const activePracticalTaskIndex = Math.max(
     0,
     activeManifest.tasks.findIndex((task) => !completedTaskIds.includes(task.id)),
@@ -869,6 +877,7 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
 
   const handleCommandRun = (command: string, output: string) => {
     setExecutedCommands((prev) => [...prev, command]);
+    setCloudEvidence((prev) => [...prev, { command, output }]);
     setLastTerminalOutput(output);
 
     // Published practicals are graded from their generated checks on the
@@ -1055,7 +1064,7 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
   const handleSimulationCompleted = (passed: boolean) => {
     setSimulationPassed(passed);
     if (practical?.id) {
-      if (passed) {
+      if (passed && activeManifest.categoryType !== 'cloud_console') {
         setFeedbackMessage('All generated answers passed server verification.');
         void onComplete?.();
       }
@@ -1099,6 +1108,49 @@ export default function App({ practical, courseId, courseTitle, onComplete, onMe
   const handleCheckTasks = async () => {
     if (practical?.id) {
       if (isVerifyingPractical) return;
+      if (activeManifest.categoryType === 'cloud_console') {
+        setIsVerifyingPractical(true);
+        setFeedbackMessage('Sending cloud workspace evidence for server verification…');
+        try {
+          const result = await learningBoardsApi.gradeCloudPractical(
+            practical.id,
+            practical.courseId || '',
+            practical.module || 0,
+            practical.chapter || 0,
+            cloudEvidence,
+          );
+          const passedTaskIds = result.taskResults.filter((task) => task.passed).map((task) => task.taskId);
+          setCompletedTaskIds(passedTaskIds);
+          setSimulationPassed(result.passed);
+          setEvaluatorResult({
+            score: result.score,
+            status: result.passed ? 'passed' : 'revision_needed',
+            domain: 'cloud',
+            summary: result.passed
+              ? 'Every required cloud action has matching command and result evidence.'
+              : 'Some required cloud actions are still missing evidence.',
+            findings: result.checks.map((check) => ({
+              id: check.checkId,
+              level: check.passed ? 'pass' : 'fail',
+              category: 'Cloud workspace verification',
+              title: check.passed ? 'Cloud check passed' : 'Cloud check needs evidence',
+              detail: check.message,
+              suggestedAction: check.passed ? 'Continue to the next milestone.' : 'Use the dedicated workspace control, then verify again.',
+            })),
+            nextActions: result.passed ? [] : ['Complete the missing cloud actions and run verification again.'],
+          });
+          setFeedbackMessage(result.passed
+            ? 'Cloud practical checks passed. Continue to the assessment when you are ready.'
+            : 'Cloud practical feedback is ready. Complete the failed checks and try again.');
+          if (result.passed) await onComplete?.();
+        } catch (error) {
+          setFeedbackMessage(error instanceof Error ? error.message : 'Cloud practical verification failed.');
+        } finally {
+          setIsVerifyingPractical(false);
+        }
+        return;
+      }
+
       if (activeManifest.categoryType !== 'terminal_coding') {
         setFeedbackMessage('Use the scenario workspace verification control to check your answers.');
         return;
