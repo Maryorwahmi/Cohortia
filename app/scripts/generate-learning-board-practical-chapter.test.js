@@ -275,15 +275,16 @@ test("initial response schema requires complete practical content, not only an e
       "rubric",
     ],
   );
-  assert.equal(taskSchema.minItems, undefined);
-  assert.equal(taskSchema.maxItems, undefined);
+  assert.equal(taskSchema.minItems, 3);
+  assert.equal(taskSchema.maxItems, 5);
   assert.ok(taskSchema.items.required.includes("structuredHints"));
   assert.deepEqual(taskSchema.items.properties.structuredHints.required, ["nudge", "concept", "walkthrough"]);
-  assert.equal(taskSchema.items.properties.inlineSuggestions.minItems, undefined);
-  assert.equal(taskSchema.items.properties.inlineSuggestions.maxItems, undefined);
-  assert.equal(taskSchema.items.properties.hints.minItems, undefined);
-  assert.equal(taskSchema.items.properties.hints.maxItems, undefined);
-  assert.doesNotMatch(JSON.stringify(schema), /"minItems"|"maxItems"|"enum"/);
+  assert.equal(taskSchema.items.properties.inlineSuggestions.minItems, 1);
+  assert.equal(taskSchema.items.properties.inlineSuggestions.maxItems, 3);
+  assert.equal(taskSchema.items.properties.hints.minItems, 3);
+  assert.equal(taskSchema.items.properties.hints.maxItems, 3);
+  assert.equal(practical.properties.teachingSteps.minItems, 4);
+  assert.equal(practical.properties.teachingSteps.maxItems, 8);
   assert.ok(practical.properties.teachingSteps.items.required.includes("speakerText"));
   assert.ok(practical.properties.teachingSteps.items.required.includes("displayText"));
 });

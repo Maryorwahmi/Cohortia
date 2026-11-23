@@ -37,6 +37,52 @@ function canonicalScriptKeyForEntry(entry) {
     : "teachingSteps";
 }
 
+const TEACHING_PHASES = ["orientation", "worked_example", "guided_practice", "verification", "transfer"];
+
+function normalizeTeachingPhaseLabels(practical, canonicalKey) {
+  if (canonicalKey !== "teachingSteps" || !Array.isArray(practical?.teachingSteps)) return;
+  const aliases = new Map([
+    ["intro", "orientation"],
+    ["introduction", "orientation"],
+    ["setup", "orientation"],
+    ["demonstration", "worked_example"],
+    ["worked-example", "worked_example"],
+    ["practice", "guided_practice"],
+    ["guided-practice", "guided_practice"],
+    ["verify", "verification"],
+    ["validation", "verification"],
+    ["conclusion", "transfer"],
+    ["handoff", "transfer"],
+  ]);
+
+  practical.teachingSteps.forEach((step, index) => {
+    if (TEACHING_PHASES.includes(step?.phase)) return;
+    const normalized = String(step?.phase || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, "_");
+    if (aliases.has(normalized)) {
+      step.phase = aliases.get(normalized);
+      return;
+    }
+    if (/^(?:phase|step)[_ ]?\d+$/.test(normalized) && index < TEACHING_PHASES.length) {
+      step.phase = TEACHING_PHASES[index];
+    }
+  });
+}
+
+function preserveMissingRepairFields(candidate, previous, canonicalKey) {
+  if (!candidate || !previous || typeof candidate !== "object" || typeof previous !== "object") return;
+  const fields = ["title", "summary", "instructions", "objectives", "tasks", "workspace", canonicalKey];
+  for (const field of fields) {
+    const value = candidate[field];
+    const missingArray = Array.isArray(value) && value.length === 0;
+    if ((value === undefined || value === null || missingArray) && previous[field] !== undefined) {
+      candidate[field] = previous[field];
+    }
+  }
+}
+
 function chapterResponseSchema(entry) {
   const { sourceContext } = entry;
   const category = sourceContext.source.category;
@@ -54,7 +100,7 @@ function chapterResponseSchema(entry) {
     title: optionalString,
     instruction: optionalString,
     stepType: optionalString,
-    hints: stringArray,
+    hints: { ...stringArray, minItems: 3, maxItems: 3 },
     structuredHints: {
       type: "object",
       properties: {
@@ -66,6 +112,8 @@ function chapterResponseSchema(entry) {
     },
     inlineSuggestions: {
       type: "array",
+      minItems: 1,
+      maxItems: 3,
       items: {
         type: "object",
         properties: { id: optionalString, label: optionalString, text: optionalString },
@@ -116,7 +164,7 @@ function chapterResponseSchema(entry) {
     ...(activityKind === "binary_exercise" ? ["interactiveExercise"] : []),
   ];
   const phaseProperties = {
-    phase: optionalString,
+    phase: { type: "string", enum: ["orientation", "worked_example", "guided_practice", "verification", "transfer"] },
     speakerText: optionalString,
     explanation: optionalString,
     learnerPrompt: optionalString,
@@ -290,6 +338,8 @@ function chapterResponseSchema(entry) {
     objectives: stringArray,
     tasks: {
       type: "array",
+      minItems: 3,
+      maxItems: 5,
       items: { type: "object", properties: taskProperties, required: taskRequired },
     },
     workspace: {
@@ -299,6 +349,8 @@ function chapterResponseSchema(entry) {
     },
     [canonicalKey]: {
       type: "array",
+      minItems: 4,
+      maxItems: 8,
       items: { type: "object", properties: phaseProperties, required: phaseRequired },
     },
   };
@@ -429,7 +481,18 @@ function buildChapterRepairFeedback(error, canonicalKey) {
   if (/Generated practical is incomplete/i.test(message)) {
     guidance.push(
       "Do not omit authored content and expect the generator to invent it. Return 3-5 complete task milestones, each with a specific title and instruction, stepType, three progressive hints in both hints and structuredHints, 1-3 task-specific inlineSuggestions, and at least one task-specific test. Preserve all valid practical fields while restoring every missing required field.",
+      "Before returning, verify the complete object contains practical.tasks with 3-5 items and practical.teachingSteps with 4-8 items. Do not return a patch, an envelope, or only the teaching script; return the full practical with its workspace, tasks, and canonical phases.",
     );
+  }
+
+  if (/teachingSteps\[\d+\]\.phase must be one of/i.test(message)) {
+    guidance.push(
+      "Every teachingSteps phase field must be exactly one of these enum values: orientation, worked_example, guided_practice, verification, transfer. Use the ordered sequence orientation, worked_example, guided_practice, verification, transfer for a five-phase practical; do not use labels such as phase_1, introduction, demonstrate, practice, or conclusion.",
+    );
+    const invalidPhases = [...message.matchAll(/teachingSteps\[(\d+)\]\.phase must be one of/gi)];
+    for (const [, index] of invalidPhases) {
+      guidance.push(`Rewrite teachingSteps[${index}].phase using the exact allowed enum value for its role; preserve that phase's teaching content and return the entire practical.`);
+    }
   }
 
   if (/cloud workspace|cloud profile|cloud\.(?:allowedActions|verificationChecks|expectedState)/i.test(message)) {
@@ -903,6 +966,7 @@ function normalizeChapterResponse(raw, entry) {
     const canonicalKey = canonicalScriptKeyForEntry(entry);
     let practical;
     try {
+      normalizeTeachingPhaseLabels(candidate.practical, canonicalKey);
       validateGeneratedPracticalCompleteness(candidate.practical, entry);
       practical = normalizePractical(candidate.practical, entry.sourceContext, entry.metadata, {
         requireGeneratedContent: true,
@@ -1333,6 +1397,10 @@ phase's narration against its displayText before returning the response.`
             throw new Error(chapterResult?.error || "Gemini chapter repair failed");
           }
           let scriptValidationError;
+          const repairedItem = findChapterResponseItem(chapterResult.data, entry);
+          const repairedPractical = repairedItem?.practical;
+          preserveMissingRepairFields(repairedPractical, lastRejectedPractical, canonicalKey);
+          normalizeTeachingPhaseLabels(repairedPractical, canonicalKey);
           try {
             validateChapterRepairScript(chapterResult.data, entry);
           } catch (validationError) {
