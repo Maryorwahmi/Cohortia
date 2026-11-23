@@ -13,9 +13,18 @@ import {
   Square,
   CheckCircle2,
   Search,
+  Globe2,
 } from 'lucide-react';
 
-type AzureBlade = 'resource_groups' | 'vnets' | 'vms' | 'storage' | 'rbac';
+type AzureBlade = 'global_infrastructure' | 'resource_groups' | 'vnets' | 'vms' | 'storage' | 'rbac';
+
+const AZURE_GLOBAL_REGIONS = [
+  { name: 'East US', id: 'eastus', zones: ['1', '2', '3'], pair: 'West US' },
+  { name: 'West US', id: 'westus', zones: ['1', '2', '3'], pair: 'East US' },
+  { name: 'West Europe', id: 'westeurope', zones: ['1', '2', '3'], pair: 'North Europe' },
+  { name: 'North Europe', id: 'northeurope', zones: ['1', '2', '3'], pair: 'West Europe' },
+  { name: 'Southeast Asia', id: 'southeastasia', zones: ['1', '2', '3'], pair: 'East Asia' },
+];
 
 export const AzurePortalWorkspace: React.FC<WorkspaceProps> = ({
   manifest,
@@ -26,12 +35,15 @@ export const AzurePortalWorkspace: React.FC<WorkspaceProps> = ({
   const cloudWorkspace = manifest.workspace?.cloud;
   const cloudRegion = cloudWorkspace?.region || 'eastus';
   const requestedSurface = cloudWorkspace?.surface;
-  const initialBlade: AzureBlade = ['resource_groups', 'vnets', 'vms', 'storage', 'rbac'].includes(requestedSurface || '')
+  const initialBlade: AzureBlade = ['global_infrastructure', 'resource_groups', 'vnets', 'vms', 'storage', 'rbac'].includes(requestedSurface || '')
     ? requestedSurface as AzureBlade
     : 'vnets';
   const [subscription] = useState('Enterprise-Prod-Sub (8f4c-91a2)');
   const [activeBlade, setActiveBlade] = useState<AzureBlade>(initialBlade);
   const [filterQuery, setFilterQuery] = useState('');
+  const [selectedGlobalRegion, setSelectedGlobalRegion] = useState(
+    AZURE_GLOBAL_REGIONS.some((region) => region.id === cloudRegion) ? cloudRegion : 'eastus',
+  );
 
   const [resourceGroups, setResourceGroups] = useState([
     { name: 'rg-prod-core-eastus', location: 'eastus', resources: 6, state: 'Succeeded' },
@@ -78,6 +90,9 @@ export const AzurePortalWorkspace: React.FC<WorkspaceProps> = ({
     `Azure Cloud Shell (Bash) • az-cli 2.61.0 • Subscription: ${subscription}`,
     'Type "help" or run: az group list | az network vnet list | az network nsg rule list | az vm list | az storage account list',
   ]);
+
+  const selectedRegion = AZURE_GLOBAL_REGIONS.find((region) => region.id === selectedGlobalRegion)
+    || AZURE_GLOBAL_REGIONS[0];
 
   const emitAction = (cmd: string, out: string) => {
     setCliLogs((p) => [...p, `$ ${cmd}`, out]);
@@ -155,7 +170,32 @@ export const AzurePortalWorkspace: React.FC<WorkspaceProps> = ({
     }
   };
 
+  const inspectGlobalInfrastructure = (kind: 'region' | 'zones' | 'pair' | 'decision') => {
+    if (kind === 'region') {
+      emitAction(
+        `az geography region show --name ${selectedRegion.id}`,
+        JSON.stringify({ name: selectedRegion.name, id: selectedRegion.id, availabilityZones: selectedRegion.zones.length > 0 }),
+      );
+    } else if (kind === 'zones') {
+      emitAction(
+        `az geography availability-zone list --region ${selectedRegion.id}`,
+        JSON.stringify({ region: selectedRegion.id, availabilityZones: selectedRegion.zones }),
+      );
+    } else if (kind === 'pair') {
+      emitAction(
+        `az geography regional-pair show --region ${selectedRegion.id}`,
+        JSON.stringify({ region: selectedRegion.name, regionalPair: selectedRegion.pair }),
+      );
+    } else {
+      emitAction(
+        `az geography decision record --region ${selectedRegion.id} --paired-region ${selectedRegion.pair.toLowerCase().replaceAll(' ', '')} --availability-zones true`,
+        JSON.stringify({ status: 'Recorded', region: selectedRegion.name, regionalPair: selectedRegion.pair, availabilityZones: true }),
+      );
+    }
+  };
+
   const bladeNav: Array<{ id: AzureBlade; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+    { id: 'global_infrastructure', label: 'Global infrastructure', icon: Globe2 },
     { id: 'resource_groups', label: 'Resource groups', icon: FolderKanban },
     { id: 'vnets', label: 'Virtual networks & NSG', icon: Network },
     { id: 'vms', label: 'Virtual machines', icon: Server },
@@ -262,6 +302,79 @@ export const AzurePortalWorkspace: React.FC<WorkspaceProps> = ({
               )}
             </div>
           </div>
+
+          {activeBlade === 'global_infrastructure' && (
+            <div className="space-y-3">
+              <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-3">
+                <div>
+                  <div className="text-[11px] font-mono text-slate-400 uppercase">Azure global infrastructure</div>
+                  <p className="text-xs text-slate-600 mt-1">
+                    Inspect a region, its Availability Zones, and its paired region before recording a deployment decision.
+                  </p>
+                </div>
+                <label className="block text-xs font-semibold text-slate-700">
+                  Region to investigate
+                  <select
+                    value={selectedGlobalRegion}
+                    onChange={(e) => setSelectedGlobalRegion(e.target.value)}
+                    className="mt-1 w-full px-2.5 py-2 border border-slate-300 rounded font-mono text-slate-900 bg-white"
+                  >
+                    {AZURE_GLOBAL_REGIONS.map((region) => (
+                      <option key={region.id} value={region.id}>{region.name} ({region.id})</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+                  <div className="font-semibold text-slate-900 text-xs">Region details</div>
+                  <p className="text-[11px] text-slate-600">Confirm the region identifier and whether it supports Availability Zones.</p>
+                  <button
+                    onClick={() => inspectGlobalInfrastructure('region')}
+                    className="px-2.5 py-1.5 rounded bg-[#0078d4] text-white text-xs font-semibold cursor-pointer"
+                  >
+                    Inspect region
+                  </button>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+                  <div className="font-semibold text-slate-900 text-xs">Availability Zones</div>
+                  <p className="text-[11px] text-slate-600">Review the independent zones available in the selected region.</p>
+                  <button
+                    onClick={() => inspectGlobalInfrastructure('zones')}
+                    className="px-2.5 py-1.5 rounded bg-[#0078d4] text-white text-xs font-semibold cursor-pointer"
+                  >
+                    Inspect zones
+                  </button>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+                  <div className="font-semibold text-slate-900 text-xs">Regional pair</div>
+                  <p className="text-[11px] text-slate-600">Find the paired region used to support disaster-recovery planning.</p>
+                  <button
+                    onClick={() => inspectGlobalInfrastructure('pair')}
+                    className="px-2.5 py-1.5 rounded bg-[#0078d4] text-white text-xs font-semibold cursor-pointer"
+                  >
+                    Inspect pair
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-semibold text-sky-950">Ready to record your architecture decision?</div>
+                  <div className="text-[11px] text-sky-800 mt-0.5">
+                    Selected: {selectedRegion.name} · paired with {selectedRegion.pair} · {selectedRegion.zones.length} zones
+                  </div>
+                </div>
+                <button
+                  onClick={() => inspectGlobalInfrastructure('decision')}
+                  className="px-3 py-1.5 rounded bg-[#0078d4] text-white text-xs font-bold cursor-pointer whitespace-nowrap"
+                >
+                  Record decision
+                </button>
+              </div>
+            </div>
+          )}
 
           {activeBlade === 'resource_groups' && (
             <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">

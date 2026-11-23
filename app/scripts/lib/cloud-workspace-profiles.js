@@ -9,8 +9,12 @@ export const CLOUD_WORKSPACE_PROFILES = Object.freeze({
   azure_portal: Object.freeze({
     provider: "azure",
     component: "AzurePortalWorkspace",
-    surfaces: Object.freeze(["resource_groups", "vnets", "vms", "storage", "rbac"]),
+    surfaces: Object.freeze(["global_infrastructure", "resource_groups", "vnets", "vms", "storage", "rbac"]),
     actions: Object.freeze([
+      "region.inspect",
+      "availability_zone.inspect",
+      "regional_pair.inspect",
+      "architecture.decision.record",
       "resource_group.create",
       "resource_group.inspect",
       "storage_account.create",

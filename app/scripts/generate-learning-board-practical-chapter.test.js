@@ -294,6 +294,7 @@ test("cloud response schema requires verifiable provider actions", () => {
 
   assert.ok(cloud.required.includes("profile"));
   assert.ok(cloud.properties.profile.enum.includes("azure_portal"));
+  assert.ok(cloud.properties.surface.enum.includes("global_infrastructure"));
   assert.equal(cloud.properties.allowedActions.minItems, 1);
   assert.deepEqual(cloud.properties.allowedActions.items.required, ["id", "label", "description"]);
   assert.equal(cloud.properties.expectedState.minItems, 1);
