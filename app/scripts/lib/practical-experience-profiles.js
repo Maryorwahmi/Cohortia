@@ -88,6 +88,8 @@ export function profileSchema(baseSchema, profile, activityKind) {
       : profile.experienceType === "research_evidence_lab"
         ? "research"
         : "scenario";
+  const baseWorkspace = baseSchema.properties?.workspace || {};
+  const baseWorkspaceBranch = baseWorkspace.properties?.[workspaceType] || {};
   const schema = {
     ...baseSchema,
     properties: {
@@ -103,12 +105,18 @@ export function profileSchema(baseSchema, profile, activityKind) {
         required: ["experienceType", "workspaceFamily", "learnerArtifact", "requiredUi"],
       },
       workspace: {
+        ...baseWorkspace,
         properties: {
+          ...(baseWorkspace.properties || {}),
           type: {
+            ...(baseWorkspace.properties?.type || {}),
             type: "string",
             enum: [workspaceType],
           },
-          [workspaceType]: { type: "object" },
+          [workspaceType]: {
+            ...baseWorkspaceBranch,
+            type: "object",
+          },
         },
         required: ["type", workspaceType],
         type: "object",

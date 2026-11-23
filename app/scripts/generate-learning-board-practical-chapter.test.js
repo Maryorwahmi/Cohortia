@@ -288,6 +288,18 @@ test("initial response schema requires complete practical content, not only an e
   assert.ok(practical.properties.teachingSteps.items.required.includes("displayText"));
 });
 
+test("cloud response schema requires verifiable provider actions", () => {
+  const schema = chapterResponseSchema(entry("Cloud Console Lab"));
+  const cloud = schema.properties.practical.properties.workspace.properties.cloud;
+
+  assert.ok(cloud.required.includes("profile"));
+  assert.ok(cloud.properties.profile.enum.includes("azure_portal"));
+  assert.equal(cloud.properties.allowedActions.minItems, 1);
+  assert.deepEqual(cloud.properties.allowedActions.items.required, ["id", "label", "description"]);
+  assert.equal(cloud.properties.expectedState.minItems, 1);
+  assert.deepEqual(cloud.properties.verificationChecks.items.required, ["id", "label", "action", "commandPattern"]);
+});
+
 test("detects Gemini response-schema state-limit errors for JSON-mode fallback", () => {
   assert.equal(isGeminiSchemaComplexityError({
     error: "Gemini rejected the request (HTTP 400): The specified schema produces a constraint that has too many states for serving.",

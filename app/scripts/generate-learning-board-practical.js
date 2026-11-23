@@ -32,7 +32,7 @@ import { sourceHashFor } from "../backend/src/lib/practicalIdentity.js";
 import { generateCompleteJson } from "./lib/gemini-rotating-client.js";
 import { classifyActivity } from "./lib/hands-on-activity-source.js";
 import { activityKindFor, profileFor, profileSchema } from "./lib/practical-experience-profiles.js";
-import { validateCloudWorkspace } from "./lib/cloud-workspace-profiles.js";
+import { CLOUD_PROFILE_IDS, validateCloudWorkspace } from "./lib/cloud-workspace-profiles.js";
 
 const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
@@ -58,6 +58,62 @@ const PREDICTION_QUESTION_SCHEMA = {
     feedback: { type: "array", items: { type: "string" } },
   },
   required: ["prompt", "options", "correctOption", "feedback"],
+};
+const CLOUD_ACTION_SCHEMA = {
+  type: "object",
+  properties: {
+    id: { type: "string" },
+    label: { type: "string" },
+    description: { type: "string" },
+    consequence: { type: "string" },
+  },
+  required: ["id", "label", "description"],
+};
+const CLOUD_CHECK_SCHEMA = {
+  type: "object",
+  properties: {
+    id: { type: "string" },
+    label: { type: "string" },
+    action: { type: "string" },
+    commandPattern: { type: "string" },
+    outputPattern: { type: "string" },
+    expectedStateId: { type: "string" },
+    taskId: { type: "string" },
+  },
+  required: ["id", "label", "action", "commandPattern"],
+};
+const CLOUD_RESOURCE_SCHEMA = {
+  type: "object",
+  properties: {
+    id: { type: "string" },
+    name: { type: "string" },
+    type: { type: "string" },
+    description: { type: "string" },
+    state: { type: "string" },
+    details: { type: "string" },
+  },
+  required: ["id", "description"],
+};
+const CLOUD_COMMAND_TEMPLATE_SCHEMA = {
+  type: "object",
+  properties: {
+    action: { type: "string" },
+    command: { type: "string" },
+    description: { type: "string" },
+    expectedOutput: { type: "string" },
+  },
+  required: ["action", "command", "description"],
+};
+const CLOUD_STATE_SCHEMA = {
+  type: "object",
+  properties: {
+    id: { type: "string" },
+    description: { type: "string" },
+    resource: { type: "string" },
+    property: { type: "string" },
+    value: { type: "string" },
+  },
+  required: ["id", "description"],
 };
 // Keep this list aligned with the isolated practical executor.
 const SUPPORTED_TERMINAL_LANGUAGES = ["c", "cpp", "python", "javascript", "shell", "sql"];
@@ -177,18 +233,19 @@ const PRACTICAL_SCHEMA = {
         cloud: {
           type: "object",
           properties: {
-            profile: { type: "string" },
+            profile: { type: "string", enum: CLOUD_PROFILE_IDS },
             surface: { type: "string" },
             projectId: { type: "string" },
             provider: { type: "string" },
             region: { type: "string" },
-            initialResources: { type: "array", items: { type: "object" } },
-            allowedActions: { type: "array", items: { type: "object" } },
-            forbiddenActions: { type: "array", items: { type: "string" } },
-            commandTemplates: { type: "array", items: { type: "object" } },
-            expectedState: { type: "array", items: { type: "object" } },
-            verificationChecks: { type: "array", items: { type: "object" } },
+            initialResources: { type: "array", minItems: 1, items: CLOUD_RESOURCE_SCHEMA },
+            allowedActions: { type: "array", minItems: 1, items: CLOUD_ACTION_SCHEMA },
+            forbiddenActions: { type: "array", minItems: 1, items: { type: "string" } },
+            commandTemplates: { type: "array", minItems: 1, items: CLOUD_COMMAND_TEMPLATE_SCHEMA },
+            expectedState: { type: "array", minItems: 1, items: CLOUD_STATE_SCHEMA },
+            verificationChecks: { type: "array", minItems: 1, items: CLOUD_CHECK_SCHEMA },
           },
+          required: ["profile", "surface", "provider", "region", "initialResources", "allowedActions", "forbiddenActions", "commandTemplates", "expectedState", "verificationChecks"],
         },
         scenario: {
           type: "object",

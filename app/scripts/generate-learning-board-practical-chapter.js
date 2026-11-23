@@ -20,6 +20,7 @@ import {
   writePractical,
 } from "./generate-learning-board-practical.js";
 import { activityKindFor } from "./lib/practical-experience-profiles.js";
+import { CLOUD_PROFILE_IDS, CLOUD_WORKSPACE_PROFILES } from "./lib/cloud-workspace-profiles.js";
 import {
   readCourseGenerationRecord,
   writeCourseGenerationRecord,
@@ -150,6 +151,62 @@ function chapterResponseSchema(entry) {
     "Research & Analysis": "research",
   }[category];
   const workspaceProperties = { type: optionalString };
+  const cloudResource = {
+    type: "object",
+    properties: {
+      id: optionalString,
+      name: optionalString,
+      type: optionalString,
+      description: optionalString,
+      state: optionalString,
+      details: optionalString,
+    },
+    required: ["id", "description"],
+  };
+  const cloudAction = {
+    type: "object",
+    properties: {
+      id: optionalString,
+      label: optionalString,
+      description: optionalString,
+      consequence: optionalString,
+    },
+    required: ["id", "label", "description"],
+  };
+  const cloudCommandTemplate = {
+    type: "object",
+    properties: {
+      action: optionalString,
+      command: optionalString,
+      description: optionalString,
+      expectedOutput: optionalString,
+    },
+    required: ["action", "command", "description"],
+  };
+  const cloudExpectedState = {
+    type: "object",
+    properties: {
+      id: optionalString,
+      description: optionalString,
+      resource: optionalString,
+      property: optionalString,
+      value: optionalString,
+    },
+    required: ["id", "description"],
+  };
+  const cloudVerificationCheck = {
+    type: "object",
+    properties: {
+      id: optionalString,
+      label: optionalString,
+      action: optionalString,
+      commandPattern: optionalString,
+      outputPattern: optionalString,
+      expectedStateId: optionalString,
+      taskId: optionalString,
+    },
+    required: ["id", "label", "action", "commandPattern"],
+  };
   const workspaceBranchProperties = {
     terminal: {
       entryFile: optionalString,
@@ -161,17 +218,20 @@ function chapterResponseSchema(entry) {
       expectedArtifacts: stringArray,
     },
     cloud: {
-      profile: optionalString,
-      surface: optionalString,
+      profile: { type: "string", enum: CLOUD_PROFILE_IDS },
+      surface: {
+        type: "string",
+        enum: [...new Set(Object.values(CLOUD_WORKSPACE_PROFILES).flatMap((profile) => profile.surfaces))],
+      },
       projectId: optionalString,
-      provider: optionalString,
+      provider: { type: "string", enum: [...new Set(Object.values(CLOUD_WORKSPACE_PROFILES).map((profile) => profile.provider))] },
       region: optionalString,
-      initialResources: { type: "array", items: { type: "object" } },
-      allowedActions: { type: "array", items: { type: "object" } },
-      forbiddenActions: stringArray,
-      commandTemplates: { type: "array", items: { type: "object" } },
-      expectedState: { type: "array", items: { type: "object" } },
-      verificationChecks: { type: "array", items: { type: "object" } },
+      initialResources: { type: "array", minItems: 1, items: cloudResource },
+      allowedActions: { type: "array", minItems: 1, items: cloudAction },
+      forbiddenActions: { type: "array", minItems: 1, items: { type: "string" } },
+      commandTemplates: { type: "array", minItems: 1, items: cloudCommandTemplate },
+      expectedState: { type: "array", minItems: 1, items: cloudExpectedState },
+      verificationChecks: { type: "array", minItems: 1, items: cloudVerificationCheck },
     },
     scenario: {
       subtype: optionalString,
@@ -369,6 +429,15 @@ function buildChapterRepairFeedback(error, canonicalKey) {
   if (/Generated practical is incomplete/i.test(message)) {
     guidance.push(
       "Do not omit authored content and expect the generator to invent it. Return 3-5 complete task milestones, each with a specific title and instruction, stepType, three progressive hints in both hints and structuredHints, 1-3 task-specific inlineSuggestions, and at least one task-specific test. Preserve all valid practical fields while restoring every missing required field.",
+    );
+  }
+
+  if (/cloud workspace|cloud profile|cloud\.(?:allowedActions|verificationChecks|expectedState)/i.test(message)) {
+    guidance.push(
+      "Cloud repair is a complete-object repair. Return workspace.type=cloud and a non-empty workspace.cloud object; never use {} placeholders and never omit a cloud array.",
+      "For the selected profile, set profile, provider, region, and a compatible surface. Azure uses profile azure_portal, provider azure, and one of resource_groups, vnets, vms, storage, or rbac; its supported action ids are resource_group.create, resource_group.inspect, storage_account.create, network_security_rule.create, vm.power, resource.delete, and command.verify.",
+      "Return at least one initialResources item with id and description; at least one allowedActions item with id, label, and description; at least one forbiddenActions string; at least one commandTemplates item with action, command, and description; at least one expectedState item with id and description; and at least one verificationChecks item with id, label, action, and commandPattern.",
+      "Every verificationChecks.action must exactly match an id in allowedActions, and every commandPattern must match a command emitted by the selected workspace. Build the checks from the chapter's real Azure task; do not return empty objects, generic placeholders, or a check that only verifies that text was typed.",
     );
   }
 
