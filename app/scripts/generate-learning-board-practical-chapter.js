@@ -83,6 +83,13 @@ function preserveMissingRepairFields(candidate, previous, canonicalKey) {
   }
 }
 
+function normalizeAuthoredTaskIds(practical) {
+  if (!Array.isArray(practical?.tasks)) return;
+  practical.tasks.forEach((task, index) => {
+    if (typeof task?.id !== "string" || !task.id.trim()) task.id = `task-${index + 1}`;
+  });
+}
+
 function chapterResponseSchema(entry) {
   const { sourceContext } = entry;
   const category = sourceContext.source.category;
@@ -401,14 +408,19 @@ function isGeminiSchemaComplexityError(result) {
 }
 
 async function generateChapterJson({ prompt, entry, maxTokens, temperature, model }, requestJson = generateCompleteJson) {
+  const isCloudChapter = entry.sourceContext.source.category === "Cloud Console Lab";
   const request = {
     prompt,
     systemPrompt: "",
-    responseSchema: chapterResponseSchema(entry),
     maxTokens,
     temperature,
     model,
   };
+  // The nested cloud contract exceeds Gemini's response-schema state limit.
+  // Cloud chapters already have strict local validation and repair guidance,
+  // so request JSON directly instead of paying for a guaranteed schema-
+  // rejection round trip followed by the same JSON request.
+  if (!isCloudChapter) request.responseSchema = chapterResponseSchema(entry);
   const result = await requestJson(request);
   if (result?.success || !isGeminiSchemaComplexityError(result)) return result;
 
@@ -967,6 +979,7 @@ function normalizeChapterResponse(raw, entry) {
     let practical;
     try {
       normalizeTeachingPhaseLabels(candidate.practical, canonicalKey);
+      normalizeAuthoredTaskIds(candidate.practical);
       validateGeneratedPracticalCompleteness(candidate.practical, entry);
       practical = normalizePractical(candidate.practical, entry.sourceContext, entry.metadata, {
         requireGeneratedContent: true,
@@ -1401,6 +1414,7 @@ phase's narration against its displayText before returning the response.`
           const repairedPractical = repairedItem?.practical;
           preserveMissingRepairFields(repairedPractical, lastRejectedPractical, canonicalKey);
           normalizeTeachingPhaseLabels(repairedPractical, canonicalKey);
+          normalizeAuthoredTaskIds(repairedPractical);
           try {
             validateChapterRepairScript(chapterResult.data, entry);
           } catch (validationError) {
