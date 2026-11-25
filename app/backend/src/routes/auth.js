@@ -428,10 +428,20 @@ auth.post('/signup', async (c) => {
 
   if (existingUser) {
     if (!existingUser.emailVerified && await bcrypt.compare(data.password, existingUser.password)) {
+      const [activatedUser] = await db.update(users).set({
+        emailVerified: true,
+        emailVerificationCodeHash: null,
+        emailVerificationExpiresAt: null,
+        emailVerificationAttempts: 0,
+        emailVerificationLastSentAt: null,
+        updatedAt: new Date().toISOString(),
+      }).where(eq(users.id, existingUser.id)).returning();
+
+      await issueSession(c, activatedUser);
       return c.json({
         success: true,
-        message: 'Enter the verification code sent to your email.',
-        data: {verificationRequired: true, email: data.email},
+        message: 'Your account is ready. Welcome to Cohortia!',
+        data: {user: await serializePublicUser(activatedUser)},
       });
     }
     return c.json({
@@ -446,9 +456,7 @@ auth.post('/signup', async (c) => {
   // Create user
   const userId = uuidv4();
   const now = new Date().toISOString();
-  const verificationCode = createEmailVerificationCode();
-
-  await db.insert(users).values({
+  const [createdUser] = await db.insert(users).values({
     id: userId,
     name: data.name,
     email: data.email,
@@ -476,43 +484,51 @@ auth.post('/signup', async (c) => {
     biggestChallenge: data.biggestChallenge || null,
     previousField: data.previousField || null,
     wantsRealWorldExperience: data.wantsRealWorldExperience || false,
-    emailVerified: false,
-    emailVerificationCodeHash: hashEmailVerificationCode(verificationCode),
-    emailVerificationExpiresAt: new Date(Date.now() + emailVerificationLifetimeMs).toISOString(),
+    // Email verification is temporarily disabled while the email provider is unavailable.
+    emailVerified: true,
+    emailVerificationCodeHash: null,
+    emailVerificationExpiresAt: null,
     emailVerificationAttempts: 0,
-    emailVerificationLastSentAt: now,
+    emailVerificationLastSentAt: null,
     createdAt: now,
     updatedAt: now,
-  });
+  }).returning();
 
-  const pendingUser = {id: userId, name: data.name, email: data.email};
-  try {
-    await sendEmailVerificationCode(pendingUser, verificationCode);
-  } catch (error) {
-    await db.update(users).set({
-      emailVerificationCodeHash: null,
-      emailVerificationExpiresAt: null,
-      emailVerificationLastSentAt: null,
-      updatedAt: new Date().toISOString(),
-    }).where(and(
-      eq(users.id, userId),
-      eq(users.emailVerified, false),
-    ));
-    console.error('[auth] Signup verification email delivery failed:', error.message);
-    return c.json({
-      success: false,
-      error: 'Your account is awaiting verification, but the code could not be emailed. Please request a new code.',
-      data: {verificationRequired: true, email: data.email},
-    }, 502);
+  if (createdUser.desiredField) {
+    const [track] = await db.select({id: tracks.id})
+      .from(tracks)
+      .where(eq(tracks.id, createdUser.desiredField))
+      .limit(1);
+    if (track) {
+      await db.insert(enrollments).values({
+        id: uuidv4(),
+        userId: createdUser.id,
+        trackId: createdUser.desiredField,
+        status: 'active',
+        enrolledAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
   }
 
+  await logActivity({
+    userId: createdUser.id,
+    activityType: 'signup',
+    entityId: createdUser.id,
+    metadata: {source: 'email_signup', role: createdUser.role, track: createdUser.desiredField},
+  });
+
+  try {
+    await sendWelcomeEmail(createdUser);
+  } catch (error) {
+    console.error('[auth] Welcome email delivery failed after signup:', error.message);
+  }
+
+  await issueSession(c, createdUser);
   return c.json({
     success: true,
-    message: 'Enter the verification code sent to your email.',
-    data: {
-      verificationRequired: true,
-      email: data.email,
-    },
+    message: 'Welcome to Cohortia!',
+    data: {user: await serializePublicUser(createdUser)},
   }, 201);
 });
 
